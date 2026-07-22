@@ -47,7 +47,7 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-        cursor.execute('''
+    cursor.execute('''
         CREATE TABLE IF NOT EXISTS equipment (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
@@ -58,10 +58,11 @@ def init_db():
             serial_number TEXT,
             memo TEXT
             /* 
-               [★ DB 칼럼 확장 시 가이드]
-               1. 새로운 칼럼을 여기에 추가 (예: price INTEGER, location TEXT)
-               2. 아래 add_equipment(), update_equipment() SQL 문에도 칼럼 추가
-               3. index.html의 모달 폼과 자바스크립트 payload에도 추가
+               [★ DB 칼럼 확장 시 가이드 - 1단계: DB 스키마 추가]
+               새로운 칼럼을 추가하고 싶다면 여기에 작성하세요.
+               예:
+               price INTEGER,
+               location TEXT
             */
         )
     ''')
@@ -140,7 +141,7 @@ def add_equipment():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-        # 동적 처리를 하지 않고 SQL 표준 안전성을 위해 동적 바인딩 유지
+                            # 동적 처리를 하지 않고 SQL 표준 안전성을 위해 동적 바인딩 유지
     cursor.execute('''
         INSERT INTO equipment (name, category, manufacturer, model_name, purchase_date, serial_number, memo)
         VALUES (?, ?, ?, ?, ?, ?, ?)
