@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>장비 관리 시스템</title>
+    <!-- Tailwind CSS (경량 UI framework) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8">
+    <div class="max-w-6xl mx-auto">
+        
+        <header class="mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-slate-900">📱 장비 관리 시스템</h1>
+        </header>
+
+        <!-- ==================================================== -->
+        <!-- [UI 모듈 1] 신규 장비 입력 폼 -->
+        <!-- 의존성: 백엔드의 add_equipment() [POST /api/equipment] API와 연결됨 -->
+        <!-- ==================================================== -->
+        <section class="bg-white p-5 rounded-xl shadow-md mb-8">
+            <h2 class="text-lg font-semibold mb-4 text-slate-700">신규 장비 등록</h2>
+            <form id="addForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- 기존 입력 항목들 -->
+                <input type="text" id="name" placeholder="장비 별명 (필수)" required class="border p-2 rounded w-full">
+                <input type="text" id="category" placeholder="카테고리 (예: 노트북)" class="border p-2 rounded w-full">
+                <input type="text" id="manufacturer" placeholder="제조사" class="border p-2 rounded w-full">
+                <input type="text" id="model_name" placeholder="모델명" class="border p-2 rounded w-full">
+                <input type="date" id="purchase_date" class="border p-2 rounded w-full">
+                <input type="text" id="serial_number" placeholder="시리얼 넘버" class="border p-2 rounded w-full">
+                <input type="text" id="memo" placeholder="메모/비고" class="border p-2 rounded w-full sm:col-span-2">
+                
+                <!-- ★ [칼럼 추가 시 수정 1] 
+                     새로운 input 태그를 여기에 추가하세요. (예: <input type="number" id="price" placeholder="가격">) -->
+
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold p-2 rounded sm:col-span-2 lg:col-span-4 transition">
+                    등록하기
+                </button>
+            </form>
+        </section>
+
+        <!-- ==================================================== -->
+        <!-- [UI 모듈 2] 장비 카드 목록 출력 영역 -->
+        <!-- 의존성: 자바스크립트 fetchEquipment() 함수가 이 영역에 HTML 카드를 꽂아 넣음 -->
+        <!-- ==================================================== -->
+        <main>
+            <h2 class="text-lg font-semibold mb-4 text-slate-700">보유 장비 목록</h2>
+            <div id="equipmentList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- JS에 의해 dynamic 생성되는 영역 -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ==================================================== -->
+    <!-- [JS 스크립트 모듈] 프론트엔드 동적 로직 -->
+    <!-- ==================================================== -->
+    <script>
+        /**
+         * [기능 1] 목록 조회 및 카드 렌더링
+         * [의존성] 백엔드 get_equipment() [GET /api/equipment]
+         */
+        async function fetchEquipment() {
+            const res = await fetch('/api/equipment');
+            const data = await res.json();
+            
+            const list = document.getElementById('equipmentList');
+            list.innerHTML = '';
+
+            data.forEach(item => {
+                // ★ [칼럼 추가 시 수정 2]
+                // 백엔드에서 전송해 주는 item 객체에 새 칼럼(예: item.price)이 자동으로 포함됩니다.
+                // 아래 HTML 카드 구조 내부 원하는 위치에 ${item.새칼럼명 || ''} 형태로 표시해 주면 됩니다.
+                list.innerHTML += `
+                    <div class="bg-white p-4 rounded-xl shadow border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <span class="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded font-semibold mb-2">
+                                ${item.category || '기타'}
+                            </span>
+                            <h3 class="text-lg font-bold text-slate-900">${item.name}</h3>
+                            <p class="text-sm text-slate-600 mt-1">${item.manufacturer || ''} ${item.model_name || ''}</p>
+                            <p class="text-xs text-slate-400 mt-2">S/N: ${item.serial_number || '-'}</p>
+                            <p class="text-xs text-slate-400">구입일: ${item.purchase_date || '-'}</p>
+                            ${item.memo ? `<p class="text-xs text-slate-500 mt-2 bg-slate-50 p-2 rounded">${item.memo}</p>` : ''}
+                        </div>
+                        <button onclick="deleteEquipment(${item.id})" class="mt-4 text-red-500 hover:text-red-700 text-xs text-right font-semibold">
+                            삭제
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        /**
+         * [기능 2] 등록 폼 전송 이벤트
+         * [의존성] 백엔드 add_equipment() [POST /api/equipment], HTML #addForm
+         */
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // ★ [칼럼 추가 시 수정 3]
+            // 새로운 input 태그의 id에서 값을 읽어와 payload 객체에 추가해야 합니다.
+            const payload = {
+                name: document.getElementById('name').value,
+                category: document.getElementById('category').value,
+                manufacturer: document.getElementById('manufacturer').value,
+                model_name: document.getElementById('model_name').value,
+                purchase_date: document.getElementById('purchase_date').value,
+                serial_number: document.getElementById('serial_number').value,
+                memo: document.getElementById('memo').value,
+                // 예시: price: document.getElementById('price').value
+            };
+
+            await fetch('/api/equipment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            e.target.reset();
+            fetchEquipment(); // 목록 새로고침 (의존: fetchEquipment)
+        });
+
+        /**
+         * [기능 3] 삭제 처리
+         * [의존성] 백엔드 delete_equipment() [DELETE /api/equipment/<id>]
+         */
+        async function deleteEquipment(id) {
+            if (confirm('정말 삭제하시겠습니까?')) {
+                await fetch(`/api/equipment/${id}`, { method: 'DELETE' });
+                fetchEquipment(); // 목록 새로고침 (의존: fetchEquipment)
+            }
+        }
+
+        // 페이지 최초 진입 시 목록 불러오기
+        fetchEquipment();
+    </script>
+</body>
+</html>
