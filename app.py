@@ -147,7 +147,7 @@ def add_equipment():
         data.get('purchase_date'), 
         data.get('serial_number'), 
         data.get('memo')
-        /* ★ 칼럼 추가 시 data.get('새칼럼명') 추가 필요 */
+        # ★ 칼럼 추가 시 data.get('새칼럼명') 추가 필요
     ))
     
     conn.commit()
