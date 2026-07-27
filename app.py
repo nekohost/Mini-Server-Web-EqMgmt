@@ -16,7 +16,7 @@ def get_db_connection():
     
     [의존성 관계]
     - 의존하는 대상: 'equipment.db' 파일
-    - 이 함수에 의존하는 대상: init_db(), get_equipment(), add_equipment(), delete_equipment()
+    - 이 함수에 의존하는 대상: init_db(), get_equipment(), add_equipment(), update_equipment(), delete_equipment()
     
     [변경 시 영향도]
     - 만약 DB 파일명이 바뀌거나, PostgreSQL/MSSQL 등 다른 DB로 교체될 경우
@@ -38,7 +38,7 @@ def init_db():
     - 의존하는 대상: get_db_connection()
     - 이 함수에 의존하는 대상: 서버 스타트업 로직
     
-    [★ DB 칼럼 확장 시 수정 지침]
+    [변경 시 영향도] (★ DB 칼럼 확장 시 수정 지침)
     - 새로운 칼럼(예: 가격 'price', 보증기간 'warranty_date' 등)을 추가하고 싶다면
       아래 CREATE TABLE 구문 안에 칼럼을 추가하세요. (예: price INTEGER, warranty_date TEXT)
     - 이미 만들어진 DB 파일이 있다면, 칼럼 추가 후 'equipment.db' 파일을 삭제하고
@@ -82,6 +82,7 @@ def index():
     """
     [역할] 메인 HTML 화면 출력
     [의존성 관계] templates/index.html 파일에 의존함
+    [변경 시 영향도] 렌더링할 기본 템플릿 파일명이 변경될 경우 이 함수의 반환값을 수정해야 합니다.
     """
     return render_template('index.html')
 
@@ -102,7 +103,7 @@ def get_equipment():
     - 의존하는 대상: get_db_connection(), equipment 테이블
     - 이 API에 의존하는 대상: 프론트엔드(index.html)의 fetchEquipment() 자바스크립트 함수
     
-    [★ 칼럼 확장 시 영향도]
+    [변경 시 영향도] (★ 칼럼 확장 시)
     - row_factory = sqlite3.Row 덕분에 DB 칼럼이 추가되어도 이 파이썬 함수는 수정할 필요가 없습니다.
     - 단, 프론트엔드(index.html)의 fetchEquipment()에서 새 칼럼을 화면에 그려주는 코드는 추가해야 합니다.
     """
@@ -130,7 +131,7 @@ def add_equipment():
     - 의존하는 대상: get_db_connection(), equipment 테이블
     - 이 API에 의존하는 대상: 프론트엔드(index.html)의 등록 폼 이벤트 제출 로직
     
-    [★ DB 칼럼 추가 시 수정 위치]
+    [변경 시 영향도] (★ DB 칼럼 추가 시 수정 위치)
     1. 아래 INSERT INTO equipment (...) 구문 안에 새 칼럼명을 추가해야 합니다.
     2. VALUES (?, ?, ...) 에 물음표 하나를 추가하고,
     3. data.get('새칼럼명')을 튜플 목록 마지막에 추가해야 합니다.
@@ -170,7 +171,11 @@ def update_equipment(eq_id):
     """
     [역할] ID를 받아 해당 장비의 정보를 수정
     
-    [★ DB 칼럼 확장 시 수정 위치]
+    [의존성 관계]
+    - 의존하는 대상: get_db_connection(), equipment 테이블
+    - 이 API에 의존하는 대상: 프론트엔드(index.html)의 수정 폼 제출 로직
+    
+    [변경 시 영향도] (★ DB 칼럼 확장 시 수정 위치)
     1. UPDATE SET 구문에 새 칼럼=? 추가
     2. data.get('새칼럼명') 및 eq_id(마지막) 순서대로 튜플 구성
     """
@@ -212,7 +217,7 @@ def delete_equipment(eq_id):
     - 의존하는 대상: get_db_connection(), equipment 테이블의 'id' PK 칼럼
     - 이 API에 의존하는 대상: 프론트엔드(index.html)의 deleteEquipment(id) 자바스크립트 함수
     
-    [★ 칼럼 확장 시 영향도]
+    [변경 시 영향도] (★ 칼럼 확장 시)
     - 칼럼이 추가되거나 변경되어도 이 삭제 기능은 'id' 기준이므로 전혀 영향받지 않습니다.
     """
     conn = get_db_connection()
