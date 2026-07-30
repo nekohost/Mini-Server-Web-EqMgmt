@@ -166,7 +166,9 @@ init_db()
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        if 'user' not in session:
+        user = session.get('user')
+        if not user or 'UserId' not in user:
+            session.pop('user', None)
             if request.path.startswith('/api/'):
                 return jsonify({"error": "로그인이 필요합니다."}), 401
             return redirect(url_for('login_page'))
@@ -196,16 +198,20 @@ def check_menu_permission(menu_code):
 
 @app.route('/')
 def index():
-    if 'user' in session:
+    user = session.get('user')
+    if user and 'UserId' in user:
         return redirect(url_for('portal_page'))
+    session.pop('user', None)
     return redirect(url_for('login_page'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
     if request.method == 'GET':
-        if 'user' in session:
+        user = session.get('user')
+        if user and 'UserId' in user:
             return redirect(url_for('portal_page'))
+        session.pop('user', None)
         return render_template('login.html')
     
     data = request.json or request.form
@@ -276,7 +282,8 @@ def register_page():
 def logout():
     user = session.get('user')
     if user:
-        log_audit(user['UserId'], user['LoginId'], 'LOGOUT', 'users', user['UserId'], None, None)
+        if 'UserId' in user:
+            log_audit(user['UserId'], user['LoginId'], 'LOGOUT', 'users', user['UserId'], None, None)
         session.pop('user', None)
     return redirect(url_for('login_page'))
 
