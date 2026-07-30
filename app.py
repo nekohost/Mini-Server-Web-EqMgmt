@@ -6,6 +6,7 @@ import sqlite3
 import json
 from datetime import datetime
 from functools import wraps
+from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 # 세션 암호화를 위한 비밀키 설정
@@ -159,6 +160,32 @@ def init_db():
 # 다만 이번 배포에서는 1회 DROP을 수행하게 둡니다. (사용자가 인지함)
 init_db()
 
+def migrate_passwords_to_hash():
+    """
+    [역할] 기존 평문 비밀번호를 해시 암호로 자동 변환 (데이터 보존 원칙 준수)
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT UserId, Password FROM users")
+        users = cursor.fetchall()
+        
+        for u in users:
+            pwd = u['Password']
+            # werkzeug 기본 해시 형태가 아니면 평문으로 간주
+            if pwd and not (pwd.startswith('scrypt:') or pwd.startswith('pbkdf2:')):
+                hashed = generate_password_hash(pwd)
+                cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed, u['UserId']))
+                print(f"[Migration] User {u['UserId']} 의 평문 비밀번호가 안전하게 해싱되었습니다.")
+                
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error] {e}")
+
+# 구동 시 비밀번호 해싱 자동 마이그레이션 수행
+migrate_passwords_to_hash()
+
 
 # ==========================================
 # 3. 인증 및 권한 데코레이터
@@ -225,7 +252,7 @@ def login_page():
     user = cursor.fetchone()
     conn.close()
     
-    if user and user['Password'] == password:
+    if user and check_password_hash(user['Password'], password):
         user_dict = {
             'UserId': user['UserId'],
             'LoginId': user['LoginId'],
@@ -250,6 +277,7 @@ def register_page():
     name = data.get('Name')
     nickname = data.get('NickName')
     password = data.get('Password')
+    hashed_password = generate_password_hash(password)
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db_connection()
@@ -269,7 +297,7 @@ def register_page():
     cursor.execute('''
         INSERT INTO users (LoginId, Name, NickName, Password, Role, CreatedAt, UpdatedAt)
         VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (login_id, name, nickname, password, role, now, now))
+    ''', (login_id, name, nickname, hashed_password, role, now, now))
     
     new_id = cursor.lastrowid
     conn.commit()
