@@ -57,15 +57,16 @@ def init_db():
     cursor = conn.cursor()
     
     # 개발을 위해 기존 테이블 날림 (PascalCase 전면 도입에 따른 초기화)
-    cursor.execute("DROP TABLE IF EXISTS equipment")
-    cursor.execute("DROP TABLE IF EXISTS users")
-    cursor.execute("DROP TABLE IF EXISTS menus")
-    cursor.execute("DROP TABLE IF EXISTS role_menu_permissions")
-    cursor.execute("DROP TABLE IF EXISTS audit_logs")
+    # 데이터 보호 원칙에 따라 DROP 구문 제거 (스키마 변경 시 별도 마이그레이션 안내 원칙)
+    # cursor.execute("DROP TABLE IF EXISTS equipment")
+    # cursor.execute("DROP TABLE IF EXISTS users")
+    # cursor.execute("DROP TABLE IF EXISTS menus")
+    # cursor.execute("DROP TABLE IF EXISTS role_menu_permissions")
+    # cursor.execute("DROP TABLE IF EXISTS audit_logs")
 
     # 1. 장비 테이블 (equipment)
     cursor.execute('''
-        CREATE TABLE equipment (
+        CREATE TABLE IF NOT EXISTS equipment (
             EquipmentId INTEGER PRIMARY KEY AUTOINCREMENT,
             Name TEXT NOT NULL,
             Category TEXT,
@@ -82,7 +83,7 @@ def init_db():
     
     # 2. 사용자 테이블 (users)
     cursor.execute('''
-        CREATE TABLE users (
+        CREATE TABLE IF NOT EXISTS users (
             UserId INTEGER PRIMARY KEY AUTOINCREMENT,
             LoginId TEXT UNIQUE NOT NULL,
             Name TEXT,
@@ -96,7 +97,7 @@ def init_db():
 
     # 3. 메뉴 테이블 (menus)
     cursor.execute('''
-        CREATE TABLE menus (
+        CREATE TABLE IF NOT EXISTS menus (
             MenuId INTEGER PRIMARY KEY AUTOINCREMENT,
             MenuCode TEXT UNIQUE NOT NULL,
             MenuName TEXT NOT NULL,
@@ -109,7 +110,7 @@ def init_db():
 
     # 4. 메뉴 권한 테이블 (role_menu_permissions)
     cursor.execute('''
-        CREATE TABLE role_menu_permissions (
+        CREATE TABLE IF NOT EXISTS role_menu_permissions (
             PermissionId INTEGER PRIMARY KEY AUTOINCREMENT,
             Role TEXT NOT NULL,
             MenuCode TEXT NOT NULL,
@@ -121,7 +122,7 @@ def init_db():
 
     # 5. 감사 로그 테이블 (audit_logs)
     cursor.execute('''
-        CREATE TABLE audit_logs (
+        CREATE TABLE IF NOT EXISTS audit_logs (
             AuditId INTEGER PRIMARY KEY AUTOINCREMENT,
             ActorId INTEGER,
             ActorLoginId TEXT,
@@ -138,16 +139,16 @@ def init_db():
 
     # 기본 메뉴 등록
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    cursor.execute("INSERT INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
                    ('equipment', '장비 관리 시스템', '/equipment', '보유 장비 등록 및 통합 관리', now, now))
-    cursor.execute("INSERT INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
                    ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', now, now))
 
     # 기본 권한 등록 (admin은 전 메뉴 허용, user는 장비관리만 허용)
-    cursor.execute("INSERT INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'equipment', 1, now))
-    cursor.execute("INSERT INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'permissions', 1, now))
-    cursor.execute("INSERT INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'equipment', 1, now))
-    cursor.execute("INSERT INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'permissions', 0, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'equipment', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'permissions', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'equipment', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'permissions', 0, now))
 
     conn.commit()
     conn.close()
