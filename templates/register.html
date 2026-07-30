@@ -44,6 +44,7 @@
                 <input type="password" id="PasswordConfirm" required 
                        class="w-full px-4 py-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                        placeholder="비밀번호를 다시 한 번 입력하세요">
+                <p id="passwordMatchHint" class="hidden text-xs mt-1"></p>
             </div>
 
             <div id="errorMessage" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center"></div>
@@ -60,6 +61,28 @@
     </div>
 
     <script>
+        const passwordInput = document.getElementById('Password');
+        const confirmInput = document.getElementById('PasswordConfirm');
+        const matchHint = document.getElementById('passwordMatchHint');
+
+        function checkPasswordMatch() {
+            if (confirmInput.value === '') {
+                matchHint.classList.add('hidden');
+                return;
+            }
+            matchHint.classList.remove('hidden');
+            if (passwordInput.value === confirmInput.value) {
+                matchHint.innerText = '비밀번호가 일치합니다.';
+                matchHint.className = 'text-xs mt-1 text-green-600 font-semibold';
+            } else {
+                matchHint.innerText = '비밀번호가 일치하지 않습니다.';
+                matchHint.className = 'text-xs mt-1 text-red-600 font-semibold';
+            }
+        }
+
+        passwordInput.addEventListener('input', checkPasswordMatch);
+        confirmInput.addEventListener('input', checkPasswordMatch);
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const LoginId = document.getElementById('LoginId').value;
