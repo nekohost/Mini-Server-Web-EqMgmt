@@ -6,3 +6,6 @@ __pycache__/
 .Python
 env/
 venv/
+
+# 채팅 기록 로컬에만 보관 (Github 푸시 방지)
+Chat/
