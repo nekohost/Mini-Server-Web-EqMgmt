@@ -1,8 +1,9 @@
 # ==========================================
 # 1. 필요한 외부 라이브러리 불러오기
 # ==========================================
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory
 import sqlite3
+import os
 import json
 from datetime import datetime
 from functools import wraps
@@ -254,6 +255,11 @@ def check_menu_permission(menu_code):
 # ==========================================
 # 4. 화면 라우터 (뷰 페이지)
 # ==========================================
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'Resources'),
+                               'EqMgmt.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def index():
