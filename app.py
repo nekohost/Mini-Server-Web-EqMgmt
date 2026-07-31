@@ -81,6 +81,7 @@ def init_db():
             SerialNumber TEXT,
             Memo TEXT,
             UserId INTEGER,
+            IsPublic INTEGER DEFAULT 0,
             CreatedAt TEXT,
             UpdatedAt TEXT
         )
@@ -142,17 +143,24 @@ def init_db():
         )
     ''')
 
-    # 기본 메뉴 등록
+    # 기본 메뉴 등록 (기존 장비관리 메뉴 대신 분리된 메뉴 2종)
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    cursor.execute("DELETE FROM menus WHERE MenuCode = 'equipment'")
+    cursor.execute("DELETE FROM role_menu_permissions WHERE MenuCode = 'equipment'")
+    
     cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('equipment', '장비 관리 시스템', '/equipment', '보유 장비 등록 및 통합 관리', now, now))
+                   ('my_equipment', '나의 장비', '/my_equipment', '내 장비 등록 및 관리', now, now))
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+                   ('public_equipment', '공개된 장비', '/public_equipment', '공개된 장비 및 전체 장비 조회', now, now))
     cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
                    ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', now, now))
 
-    # 기본 권한 등록 (admin은 전 메뉴 허용, user는 장비관리만 허용)
-    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'equipment', 1, now))
+    # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비 허용)
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'my_equipment', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'permissions', 1, now))
-    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'equipment', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'permissions', 0, now))
 
     conn.commit()
@@ -163,6 +171,25 @@ def init_db():
 # 여기서는 서버 재시작 시 데이터가 날아가지 않도록 DROP 부분을 주석 처리하는 것이 맞음.
 # 다만 이번 배포에서는 1회 DROP을 수행하게 둡니다. (사용자가 인지함)
 init_db()
+
+def migrate_equipment_is_public():
+    """
+    [역할] 기존 DB의 equipment 테이블에 IsPublic 컬럼이 없으면 추가 (무정지 마이그레이션)
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(equipment)")
+        columns = [info['name'] for info in cursor.fetchall()]
+        if 'IsPublic' not in columns:
+            cursor.execute("ALTER TABLE equipment ADD COLUMN IsPublic INTEGER DEFAULT 0")
+            print("[Migration] equipment 테이블에 IsPublic 컬럼이 성공적으로 추가되었습니다.")
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error (IsPublic)] {e}")
+
+migrate_equipment_is_public()
 
 def migrate_passwords_to_hash():
     """
@@ -328,11 +355,25 @@ def portal_page():
 
 
 @app.route('/equipment')
+def equipment_redirect():
+    # 하위 호환성 (기존 URL로 올 경우 나의 장비로 리다이렉트)
+    return redirect(url_for('my_equipment_page'))
+
+
+@app.route('/my_equipment')
 @login_required
-def equipment_page():
-    if not check_menu_permission('equipment'):
+def my_equipment_page():
+    if not check_menu_permission('my_equipment'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
-    return render_template('index.html', user=session['user'])
+    return render_template('index.html', user=session['user'], mode='my')
+
+
+@app.route('/public_equipment')
+@login_required
+def public_equipment_page():
+    if not check_menu_permission('public_equipment'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+    return render_template('index.html', user=session['user'], mode='public')
 
 
 @app.route('/permissions')
@@ -404,7 +445,7 @@ def search_users():
     return jsonify([dict(row) for row in rows])
 
 
-# 장비 전체 조회
+# 장비 조회 (나의 장비 & 공개된 장비 분기 처리)
 @app.route('/api/equipment', methods=['GET'])
 @login_required
 def get_equipment():
@@ -412,14 +453,11 @@ def get_equipment():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if user['Role'] == 'admin':
-        cursor.execute('''
-            SELECT e.*, u.NickName as OwnerNickName 
-            FROM equipment e
-            LEFT JOIN users u ON e.UserId = u.UserId
-            ORDER BY e.EquipmentId DESC
-        ''')
-    else:
+    req_type = request.args.get('type', 'my')
+    include_mine = request.args.get('include_mine', 'false').lower() == 'true'
+    
+    if req_type == 'my':
+        # [나의 장비] 모드: 관리자/일반인 불문 무조건 자기 자신 것만 조회
         cursor.execute('''
             SELECT e.*, u.NickName as OwnerNickName 
             FROM equipment e
@@ -428,6 +466,37 @@ def get_equipment():
             ORDER BY e.EquipmentId DESC
         ''', (user['UserId'],))
         
+    elif req_type == 'public':
+        # [공개된 장비] 모드
+        if user['Role'] == 'admin':
+            # 관리자: 묻지도 따지지도 않고 전체 열람 (관리 권한)
+            cursor.execute('''
+                SELECT e.*, u.NickName as OwnerNickName 
+                FROM equipment e
+                LEFT JOIN users u ON e.UserId = u.UserId
+                ORDER BY e.EquipmentId DESC
+            ''')
+        else:
+            # 일반 사용자: IsPublic = 1 인 타인의 장비 노출. include_mine 여부에 따라 내 장비 합침
+            if include_mine:
+                cursor.execute('''
+                    SELECT e.*, u.NickName as OwnerNickName 
+                    FROM equipment e
+                    LEFT JOIN users u ON e.UserId = u.UserId
+                    WHERE e.IsPublic = 1 OR e.UserId = ?
+                    ORDER BY CASE WHEN e.UserId = ? THEN 0 ELSE 1 END, e.EquipmentId DESC
+                ''', (user['UserId'], user['UserId']))
+            else:
+                cursor.execute('''
+                    SELECT e.*, u.NickName as OwnerNickName 
+                    FROM equipment e
+                    LEFT JOIN users u ON e.UserId = u.UserId
+                    WHERE e.IsPublic = 1 AND e.UserId != ?
+                    ORDER BY e.EquipmentId DESC
+                ''', (user['UserId'],))
+    else:
+        cursor.execute("SELECT * FROM equipment WHERE 1=0")
+
     rows = cursor.fetchall()
     conn.close()
     
@@ -450,9 +519,11 @@ def add_equipment():
     conn = get_db_connection()
     cursor = conn.cursor()
     
+    is_public = 1 if data.get('IsPublic') else 0
+    
     cursor.execute('''
-        INSERT INTO equipment (Name, Category, Manufacturer, ModelName, PurchaseDate, SerialNumber, Memo, UserId, CreatedAt, UpdatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO equipment (Name, Category, Manufacturer, ModelName, PurchaseDate, SerialNumber, Memo, UserId, IsPublic, CreatedAt, UpdatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         data.get('Name'), 
         data.get('Category'), 
@@ -462,6 +533,7 @@ def add_equipment():
         data.get('SerialNumber'), 
         data.get('Memo'),
         target_user_id,
+        is_public,
         now,
         now
     ))
@@ -500,9 +572,11 @@ def update_equipment(eq_id):
     if user['Role'] == 'admin' and data.get('UserId'):
         target_user_id = data.get('UserId')
 
+    is_public = 1 if data.get('IsPublic') else 0
+
     cursor.execute('''
         UPDATE equipment 
-        SET Name=?, Category=?, Manufacturer=?, ModelName=?, PurchaseDate=?, SerialNumber=?, Memo=?, UserId=?, UpdatedAt=?
+        SET Name=?, Category=?, Manufacturer=?, ModelName=?, PurchaseDate=?, SerialNumber=?, Memo=?, UserId=?, IsPublic=?, UpdatedAt=?
         WHERE EquipmentId=?
     ''', (
         data.get('Name'), 
@@ -513,6 +587,7 @@ def update_equipment(eq_id):
         data.get('SerialNumber'), 
         data.get('Memo'),
         target_user_id,
+        is_public,
         now,
         eq_id
     ))
