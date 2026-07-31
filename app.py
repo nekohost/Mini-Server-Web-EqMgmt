@@ -64,19 +64,12 @@ def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, ol
 
 def init_db():
     """
-    [역할] 테이블 구조를 초기화 및 관리 (PascalCase 규칙 적용)
-    [변경] 모든 테이블 재생성(기존 DB 초기화)
+    [역할] 시스템 구동 시 필요한 테이블 구조를 검증하고 초기화 (IF NOT EXISTS)
+    [의존성 관계] get_db_connection()
+    [변경 시 영향도] 테이블 스키마 변경 시 전체 DB 입출력 로직에 영향을 줍니다. (데이터 보존을 위해 DROP 구문은 금지됨)
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    
-    # 개발을 위해 기존 테이블 날림 (PascalCase 전면 도입에 따른 초기화)
-    # 데이터 보호 원칙에 따라 DROP 구문 제거 (스키마 변경 시 별도 마이그레이션 안내 원칙)
-    # cursor.execute("DROP TABLE IF EXISTS equipment")
-    # cursor.execute("DROP TABLE IF EXISTS users")
-    # cursor.execute("DROP TABLE IF EXISTS menus")
-    # cursor.execute("DROP TABLE IF EXISTS role_menu_permissions")
-    # cursor.execute("DROP TABLE IF EXISTS audit_logs")
 
     # 1. 장비 테이블 (equipment)
     cursor.execute('''
@@ -175,10 +168,7 @@ def init_db():
     conn.commit()
     conn.close()
 
-# 서버 실행 시 DB 준비
-# 주의: 개발 진행 중 전면 개편이므로 서버 재시작 시마다 초기화 되지 않도록 이 파일에서 1회 실행 확인이 필요하나,
-# 여기서는 서버 재시작 시 데이터가 날아가지 않도록 DROP 부분을 주석 처리하는 것이 맞음.
-# 다만 이번 배포에서는 1회 DROP을 수행하게 둡니다. (사용자가 인지함)
+# 서버 실행 시 DB 준비 (기존 데이터 보존 원칙 적용)
 init_db()
 
 def migrate_equipment_is_public():
@@ -405,12 +395,22 @@ def permissions_page():
 @app.route('/api/me', methods=['GET'])
 @login_required
 def get_current_user():
+    """
+    [역할] 현재 세션에 로그인되어 있는 사용자 정보 반환
+    [의존성 관계] @login_required, session 객체
+    [변경 시 영향도] 프론트엔드의 사용자 프로필 표시 및 권한 체계 처리에 영향을 줍니다.
+    """
     return jsonify(session['user'])
 
 
 @app.route('/api/portal/menus', methods=['GET'])
 @login_required
 def get_portal_menus():
+    """
+    [역할] 현재 로그인한 사용자의 역할(Role)에 맞는 메뉴 목록을 반환
+    [의존성 관계] role_menu_permissions 테이블, get_db_connection()
+    [변경 시 영향도] 포털 화면(/portal)의 버튼 노출 구성이 변경됩니다.
+    """
     user = session['user']
     role = user['Role']
     
@@ -437,6 +437,11 @@ def get_portal_menus():
 @app.route('/api/users/search', methods=['GET'])
 @login_required
 def search_users():
+    """
+    [역할] 이름, 닉네임, 로그인ID를 기반으로 사용자 목록을 검색 (관리자 전용)
+    [의존성 관계] users 테이블, @login_required
+    [변경 시 영향도] 장비 신규 등록/수정 시 '소유자 검색' 모달의 검색 결과에 영향을 미칩니다.
+    """
     if session['user']['Role'] != 'admin':
         return jsonify({"error": "권한이 없습니다."}), 403
         
@@ -463,6 +468,11 @@ def search_users():
 @app.route('/api/equipment', methods=['GET'])
 @login_required
 def get_equipment():
+    """
+    [역할] 장비 목록을 조회하여 프론트엔드로 반환. (본인 장비, 공개 장비, 관리자 전체 조회 분기 처리)
+    [의존성 관계] equipment 테이블, users 테이블 (NickName JOIN용)
+    [변경 시 영향도] 화면의 장비 목록(Table) 출력 조건 및 순서가 변경됩니다.
+    """
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -521,6 +531,11 @@ def get_equipment():
 @app.route('/api/equipment', methods=['POST'])
 @login_required
 def add_equipment():
+    """
+    [역할] 새로운 장비 데이터를 DB에 인서트(INSERT) 합니다.
+    [의존성 관계] equipment 테이블, log_audit()
+    [변경 시 영향도] 관리자의 경우 대상 사용자(UserId)를 덮어쓰는 로직이 있으므로 이 구조 변경 시 권한 에러가 발생할 수 있습니다.
+    """
     data = request.json
     user = session['user']
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -564,6 +579,11 @@ def add_equipment():
 @app.route('/api/equipment/<int:eq_id>', methods=['PUT'])
 @login_required
 def update_equipment(eq_id):
+    """
+    [역할] 기존 장비의 데이터를 수정(UPDATE) 합니다. 소유자 권한을 강력하게 검증합니다.
+    [의존성 관계] equipment 테이블, log_audit()
+    [변경 시 영향도] 타인 장비 수정 권한 탈취 방어선이므로, 수정 시 보안 취약점이 생길 수 있습니다.
+    """
     data = request.json
     user = session['user']
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -617,6 +637,11 @@ def update_equipment(eq_id):
 @app.route('/api/equipment/<int:eq_id>', methods=['DELETE'])
 @login_required
 def delete_equipment(eq_id):
+    """
+    [역할] 특정 장비를 DB에서 완전히 삭제(DELETE) 합니다.
+    [의존성 관계] equipment 테이블, log_audit()
+    [변경 시 영향도] 타인 장비 삭제 권한 탈취 방어선이므로 삭제 로직 변경에 주의해야 합니다.
+    """
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -644,6 +669,11 @@ def delete_equipment(eq_id):
 @app.route('/api/permissions', methods=['GET'])
 @login_required
 def get_permissions():
+    """
+    [역할] 시스템 내 역할별(Role) 메뉴 접근 권한 리스트를 조회합니다. (관리자 전용)
+    [의존성 관계] role_menu_permissions 테이블, menus 테이블
+    [변경 시 영향도] 포털의 '메뉴 권한 관리' 페이지 렌더링에 직접적인 영향을 줍니다.
+    """
     if session['user']['Role'] != 'admin':
         return jsonify({"error": "관리자만 접근할 수 있습니다."}), 403
         
@@ -665,6 +695,11 @@ def get_permissions():
 @app.route('/api/permissions', methods=['POST'])
 @login_required
 def update_permissions():
+    """
+    [역할] 변경된 권한 리스트를 DB에 갱신(UPSERT) 합니다. (관리자 전용)
+    [의존성 관계] role_menu_permissions 테이블, log_audit()
+    [변경 시 영향도] 전체 시스템 사용자의 메뉴 접근 권한이 변경됩니다. 잘못될 경우 접속 장애가 발생할 수 있습니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"error": "관리자만 접근할 수 있습니다."}), 403
