@@ -9,13 +9,21 @@ from datetime import datetime
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
+from dotenv import load_dotenv
+
+# .env 파일 로드 (환경변수 세팅)
+load_dotenv()
 
 app = Flask(__name__)
 # Nginx 등 리버스 프록시 뒤에서 구동될 때 클라이언트의 진짜 IP를 복구하기 위한 미들웨어 적용
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
-# 세션 암호화를 위한 비밀키 설정
-app.secret_key = 'mini_server_equipment_mgmt_secret_key_2026'
+# 세션 암호화를 위한 비밀키 설정 (하드코딩 방지: .env에서 가져옴)
+app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key_if_not_found')
+
+# 보안 쿠키 정책 강화
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 # ==========================================
 # 2. DB 공통 모듈 (모든 DB 관련 함수가 이 모듈에 의존함)
@@ -685,4 +693,6 @@ def update_permissions():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # .env 파일에서 FLASK_DEBUG 값을 가져와 True/False로 변환
+    is_debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=5000, debug=is_debug)
