@@ -2,9 +2,10 @@
 // 세션 만료 시간(기본 30분) 및 동기화 스크립트
 
 (function() {
-    const SESSION_DURATION = 30 * 60 * 1000; // 30분 (밀리초)
+    const SESSION_DURATION = 1 * 60 * 1000; // 1분 (테스트용)
     let sessionEndTime = Date.now() + SESSION_DURATION;
     let timerInterval = null;
+    let pollInterval = null;
 
     // 세션 시간 연장 (클라이언트 로컬 변수 리셋)
     function resetSessionTimer() {
@@ -101,6 +102,23 @@
         }
     }
 
+    // 서버에 세션 유효성(동시 로그인 여부 등)을 주기적으로 확인하는 폴링 함수
+    async function pollSession() {
+        try {
+            const response = await originalFetch('/api/check_session');
+            if (response.status === 401) {
+                const data = await response.json();
+                if (data.reason === 'concurrent_login') {
+                    window.location.href = '/login?error=concurrent_login';
+                } else {
+                    window.location.href = '/login?error=session_expired';
+                }
+            }
+        } catch (err) {
+            console.error('Session poll failed:', err);
+        }
+    }
+
     // Fetch API 전역 인터셉터 (Auto-Sync)
     const originalFetch = window.fetch;
     window.fetch = async function(...args) {
@@ -121,6 +139,10 @@
     };
 
     // DOM 로드 시 초기화
-    document.addEventListener('DOMContentLoaded', initTimer);
+    document.addEventListener('DOMContentLoaded', () => {
+        initTimer();
+        // 5초마다 세션 유효성 백그라운드 폴링 (실시간 감지)
+        pollInterval = setInterval(pollSession, 5000);
+    });
 
 })();

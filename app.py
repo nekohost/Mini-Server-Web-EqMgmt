@@ -24,7 +24,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key_if_not_found')
 # 보안 쿠키 정책 강화
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=1) # 1분 테스트용
 
 # ==========================================
 # 2. DB 공통 모듈 (모든 DB 관련 함수가 이 모듈에 의존함)
@@ -220,6 +220,31 @@ def migrate_passwords_to_hash():
 
 # 구동 시 비밀번호 해싱 자동 마이그레이션 수행
 migrate_passwords_to_hash()
+
+@app.after_request
+def after_request_func(response):
+    # 폴링 요청 시에는 플라스크가 세션을 자동으로 갱신(Refresh)하지 못하게 세션 쿠키 발급을 차단
+    if request.path == '/api/check_session':
+        new_headers = []
+        for k, v in response.headers.items():
+            if k.lower() == 'set-cookie' and v.startswith('session='):
+                continue
+            new_headers.append((k, v))
+        response.headers = type(response.headers)(new_headers)
+    return response
+
+@app.route('/api/check_session', methods=['GET'])
+def check_session():
+    user = session.get('user')
+    if not user or 'UserId' not in user:
+        return jsonify({"valid": False, "reason": "session_expired"}), 401
+    
+    current_token = session.get('session_token')
+    db_token = query_db('SELECT SessionToken FROM users WHERE UserId = ?', [user['UserId']], one=True)
+    if db_token and current_token != db_token['SessionToken']:
+        return jsonify({"valid": False, "reason": "concurrent_login"}), 401
+        
+    return jsonify({"valid": True}), 200
 
 def migrate_users_session_token():
     """
