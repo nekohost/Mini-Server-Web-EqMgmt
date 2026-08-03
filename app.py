@@ -240,7 +240,13 @@ def check_session():
         return jsonify({"valid": False, "reason": "session_expired"}), 401
     
     current_token = session.get('session_token')
-    db_token = query_db('SELECT SessionToken FROM users WHERE UserId = ?', [user['UserId']], one=True)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT SessionToken FROM users WHERE UserId = ?', (user['UserId'],))
+    db_token = cursor.fetchone()
+    conn.close()
+    
     if db_token and current_token != db_token['SessionToken']:
         return jsonify({"valid": False, "reason": "concurrent_login"}), 401
         
