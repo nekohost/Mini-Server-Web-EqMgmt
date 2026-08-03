@@ -146,6 +146,15 @@ def init_db():
         )
     ''')
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS user_settings (
+            UserId INTEGER PRIMARY KEY,
+            PreferencesJSON TEXT,
+            UpdatedAt TEXT,
+            FOREIGN KEY(UserId) REFERENCES users(UserId) ON DELETE CASCADE
+        )
+    ''')
+
     # 기본 메뉴 등록 (기존 장비관리 메뉴 대신 분리된 메뉴 2종)
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("DELETE FROM menus WHERE MenuCode = 'equipment'")
@@ -159,16 +168,25 @@ def init_db():
                    ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', now, now))
     cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
                    ('audit_logs', '보안 감사 로그', '/audit_logs', '시스템 접근 이력 및 감사 로그 조회', now, now))
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+                   ('users_management', '사용자 관리', '/users_management', '전체 사용자 권한 및 계정 관리', now, now))
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+                   ('dashboard', '통계 대시보드', '/dashboard', '장비 통계 및 상세 현황 조회', now, now))
 
     # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비 허용)
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'permissions', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'audit_logs', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'users_management', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'dashboard', 1, now))
+    
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'permissions', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'audit_logs', 0, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'users_management', 0, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'dashboard', 1, now))
 
     conn.commit()
     conn.close()
@@ -483,6 +501,25 @@ def audit_logs_page():
     
     return render_template('audit_logs.html', user=session['user'], logs=logs)
 
+@app.route('/users_management')
+@login_required
+def users_management_page():
+    if not check_menu_permission('users_management'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+    return render_template('users_management.html', user=session['user'])
+
+@app.route('/dashboard')
+@login_required
+def dashboard_page():
+    if not check_menu_permission('dashboard'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+    return render_template('dashboard.html', user=session['user'])
+
+@app.route('/mypage')
+@login_required
+def mypage_page():
+    # 마이페이지는 모든 로그인 사용자가 접근 가능하므로 메뉴 권한 체크 생략(또는 기본 허용)
+    return render_template('mypage.html', user=session['user'])
 
 # ==========================================
 # 5. RESTful API 모듈 (인증/권한 및 데이터 처리)
@@ -504,7 +541,188 @@ def get_current_user():
     """
     return jsonify(session['user'])
 
+# ------------------------------------------
+# 사용자 맞춤 설정 API
+# ------------------------------------------
+@app.route('/api/user_settings', methods=['GET', 'POST'])
+@login_required
+def api_user_settings():
+    user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if request.method == 'GET':
+        cursor.execute("SELECT PreferencesJSON FROM user_settings WHERE UserId = ?", (user['UserId'],))
+        row = cursor.fetchone()
+        conn.close()
+        if row and row['PreferencesJSON']:
+            return jsonify({"success": True, "settings": json.loads(row['PreferencesJSON'])})
+        return jsonify({"success": True, "settings": {}})
+        
+    elif request.method == 'POST':
+        data = request.json
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        cursor.execute("SELECT PreferencesJSON FROM user_settings WHERE UserId = ?", (user['UserId'],))
+        row = cursor.fetchone()
+        current_settings = {}
+        if row and row['PreferencesJSON']:
+            current_settings = json.loads(row['PreferencesJSON'])
+            
+        current_settings.update(data)
+        new_json = json.dumps(current_settings, ensure_ascii=False)
+        
+        cursor.execute("SELECT UserId FROM user_settings WHERE UserId = ?", (user['UserId'],))
+        if cursor.fetchone():
+            cursor.execute("UPDATE user_settings SET PreferencesJSON = ?, UpdatedAt = ? WHERE UserId = ?", (new_json, now, user['UserId']))
+        else:
+            cursor.execute("INSERT INTO user_settings (UserId, PreferencesJSON, UpdatedAt) VALUES (?, ?, ?)", (user['UserId'], new_json, now))
+            
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "settings": current_settings})
 
+# ------------------------------------------
+# 대시보드 통계 API
+# ------------------------------------------
+@app.route('/api/dashboard/stats', methods=['GET'])
+@login_required
+def api_dashboard_stats():
+    user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 1. 내 장비 수
+    cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE UserId = ?", (user['UserId'],))
+    my_eq_count = cursor.fetchone()['count']
+    
+    # 2. 총 장비 수 (관리자 권한 고려)
+    if user['Role'] == 'admin':
+        cursor.execute("SELECT COUNT(*) as count FROM equipment")
+        total_count = cursor.fetchone()['count']
+    else:
+        # 일반 사용자는 공개된 장비 + 내 장비만 카운트
+        cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE IsPublic = 1 OR UserId = ?", (user['UserId'],))
+        total_count = cursor.fetchone()['count']
+        
+    # 3. 카테고리별 통계
+    if user['Role'] == 'admin':
+        cursor.execute("SELECT Category, COUNT(*) as count FROM equipment GROUP BY Category")
+    else:
+        cursor.execute("SELECT Category, COUNT(*) as count FROM equipment WHERE IsPublic = 1 OR UserId = ? GROUP BY Category", (user['UserId'],))
+    
+    categories = [{"category": row['Category'], "count": row['count']} for row in cursor.fetchall()]
+    
+    conn.close()
+    
+    return jsonify({
+        "success": True,
+        "data": {
+            "my_equipments": my_eq_count,
+            "total_equipments": total_count,
+            "categories": categories
+        }
+    })
+
+# ------------------------------------------
+# 사용자 프로필 (비밀번호 변경) API
+# ------------------------------------------
+@app.route('/api/users/change_password', methods=['POST'])
+@login_required
+def api_change_my_password():
+    user = session['user']
+    data = request.json
+    current_pw = data.get('current_password')
+    new_pw = data.get('new_password')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT Password FROM users WHERE UserId = ?", (user['UserId'],))
+    db_user = cursor.fetchone()
+    
+    if not db_user or not check_password_hash(db_user['Password'], current_pw):
+        conn.close()
+        return jsonify({"success": False, "message": "현재 비밀번호가 일치하지 않습니다."}), 400
+        
+    hashed_new = generate_password_hash(new_pw)
+    cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed_new, user['UserId']))
+    
+    # 비밀번호 변경 로그 남기기
+    log_audit(user['UserId'], user['LoginId'], 'CHANGE_PASSWORD', 'users', user['UserId'], None, None)
+    
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "비밀번호가 성공적으로 변경되었습니다."})
+
+# ------------------------------------------
+# 관리자용 사용자 관리 API
+# ------------------------------------------
+@app.route('/api/users', methods=['GET'])
+@login_required
+def api_get_users():
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT UserId, LoginId, Name, NickName, Role, CreatedAt FROM users ORDER BY UserId DESC")
+    rows = cursor.fetchall()
+    conn.close()
+    
+    return jsonify({"success": True, "data": [dict(row) for row in rows]})
+
+@app.route('/api/users/<int:target_user_id>/role', methods=['PUT'])
+@login_required
+def api_update_user_role(target_user_id):
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    new_role = request.json.get('role')
+    if new_role not in ['admin', 'user']:
+        return jsonify({"success": False, "message": "잘못된 권한입니다."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT Role FROM users WHERE UserId = ?", (target_user_id,))
+    target = cursor.fetchone()
+    if not target:
+        conn.close()
+        return jsonify({"success": False, "message": "사용자를 찾을 수 없습니다."}), 404
+        
+    old_role = target['Role']
+    cursor.execute("UPDATE users SET Role = ? WHERE UserId = ?", (new_role, target_user_id))
+    log_audit(user['UserId'], user['LoginId'], 'UPDATE_ROLE', 'users', target_user_id, {"Role": old_role}, {"Role": new_role})
+    
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True})
+
+@app.route('/api/users/<int:target_user_id>/reset_password', methods=['POST'])
+@login_required
+def api_reset_user_password(target_user_id):
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    # 임시 비밀번호는 관리자가 지정할 수 있도록 하거나 고정 '1234'
+    temp_pw = request.json.get('temp_password', '1234')
+    hashed_pw = generate_password_hash(temp_pw)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed_pw, target_user_id))
+    log_audit(user['UserId'], user['LoginId'], 'RESET_PASSWORD', 'users', target_user_id, None, None)
+    
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": f"비밀번호가 '{temp_pw}'로 초기화되었습니다."})
+
+# ------------------------------------------
+# 장비 API
+# ------------------------------------------
 @app.route('/api/portal/menus', methods=['GET'])
 @login_required
 def get_portal_menus():

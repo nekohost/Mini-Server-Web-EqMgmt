@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>통계 대시보드 - 장비 관리 시스템</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300 min-h-screen">
+    <div class="max-w-6xl mx-auto relative">
+        
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm mb-6 flex justify-between items-center border border-slate-200 dark:border-slate-700 transition-colors">
+            <div class="flex items-center gap-3">
+                <a href="/portal" class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-semibold transition">&larr; 포털로</a>
+                <span class="text-slate-300 dark:text-slate-600">|</span>
+                <span class="text-sm font-bold text-slate-800 dark:text-slate-100">통계 대시보드</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="window.toggleTheme()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="라이트/다크 모드 전환">
+                    🌗
+                </button>
+                <span id="session-timer-badge"></span>
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                    👤 {{ user.NickName }} (<strong class="text-blue-600 dark:text-blue-400">{{ user.Role }}</strong>)
+                </span>
+                <a href="/logout" class="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition">로그아웃</a>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <!-- 요약 카드 1 -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center">
+                <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">나의 장비</h3>
+                <div class="text-4xl font-black text-blue-600 dark:text-blue-400" id="statMyEq">-</div>
+            </div>
+            <!-- 요약 카드 2 -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center">
+                <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">총 관리 장비</h3>
+                <div class="text-4xl font-black text-indigo-600 dark:text-indigo-400" id="statTotalEq">-</div>
+            </div>
+            <!-- 요약 카드 3 (추가 통계용) -->
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center">
+                <h3 class="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">카테고리 수</h3>
+                <div class="text-4xl font-black text-emerald-600 dark:text-emerald-400" id="statCategoryCount">-</div>
+            </div>
+        </div>
+
+        <main class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 border border-slate-200 dark:border-slate-700">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">카테고리별 장비 분포</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="w-full max-w-sm mx-auto">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div>
+                    <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+                        <thead class="bg-slate-50 dark:bg-slate-800/50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">카테고리명</th>
+                                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">수량</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoryTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
+                            <!-- JS 렌더링 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/session_timer.js"></script>
+    <script>
+        let chartInstance = null;
+
+        async function fetchDashboard() {
+            try {
+                const res = await fetch('/api/dashboard/stats');
+                const json = await res.json();
+                if (json.success) {
+                    renderDashboard(json.data);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function renderDashboard(data) {
+            document.getElementById('statMyEq').innerText = data.my_equipments;
+            document.getElementById('statTotalEq').innerText = data.total_equipments;
+            document.getElementById('statCategoryCount').innerText = data.categories.length;
+
+            const tbody = document.getElementById('categoryTableBody');
+            tbody.innerHTML = '';
+            
+            const labels = [];
+            const counts = [];
+            
+            data.categories.forEach(item => {
+                const catName = item.category || '미분류';
+                labels.push(catName);
+                counts.push(item.count);
+                
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${catName}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600 dark:text-slate-400">${item.count}대</td>
+                    </tr>
+                `;
+            });
+
+            renderChart(labels, counts);
+        }
+
+        function renderChart(labels, data) {
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#e2e8f0' : '#475569';
+
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'
+                        ],
+                        borderWidth: 1,
+                        borderColor: isDark ? '#1e293b' : '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: textColor
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 테마 변경 시 차트 글자색 갱신을 위해 observer 등록 (선택적)
+        const observer = new MutationObserver(() => {
+            if (chartInstance) {
+                fetchDashboard(); // 차트 다시 렌더링
+            }
+        });
+        observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+        document.addEventListener('DOMContentLoaded', fetchDashboard);
+    </script>
+</body>
+</html>

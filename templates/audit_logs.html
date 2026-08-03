@@ -6,91 +6,105 @@
     <title>보안 감사 로그 - 미니서버 통합 관리 시스템</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
 </head>
-<body class="bg-slate-100 text-slate-800 p-4 md:p-8 min-h-screen">
-    <div class="max-w-6xl mx-auto">
-        <!-- 상단 헤더 -->
-        <header class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center border border-slate-200">
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300 min-h-screen">
+    <div class="max-w-6xl mx-auto relative">
+        <!-- 상단 네비게이션 -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm mb-6 flex justify-between items-center border border-slate-200 dark:border-slate-700 transition-colors">
             <div class="flex items-center gap-3">
-                <a href="/portal" class="text-slate-500 hover:text-slate-800 text-sm font-semibold transition">&larr; 포털로</a>
-                <h1 class="text-xl font-bold text-slate-800">보안 감사 로그 (Audit Logs)</h1>
+                <a href="/portal" class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-semibold transition">&larr; 포털로</a>
+                <span class="text-slate-300 dark:text-slate-600">|</span>
+                <span class="text-sm font-bold text-slate-800 dark:text-slate-100">보안 감사 로그</span>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-4">
+                <button onclick="window.toggleTheme()" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="라이트/다크 모드 전환">
+                    🌗
+                </button>
                 <span id="session-timer-badge"></span>
-                <span class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-                    👤 {{ user.NickName }} ({{ user.Role }})
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                    👤 {{ user.NickName }} (<strong class="text-blue-600 dark:text-blue-400">{{ user.Role }}</strong>)
                 </span>
-                <a href="/logout" class="text-sm font-semibold text-red-600 hover:text-red-800 transition">로그아웃</a>
+                <a href="/logout" class="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition">로그아웃</a>
             </div>
-        </header>
+        </div>
 
         <!-- 감사 로그 테이블 카드 -->
-        <main class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+        <main class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-800">최근 시스템 접근 및 작업 이력</h2>
-                    <p class="text-sm text-slate-500 mt-1">최대 200건의 최신 이력이 표시됩니다.</p>
+                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">최근 시스템 접근 및 작업 이력</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">최대 200건의 최신 이력이 표시됩니다.</p>
                 </div>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
-                            <th class="p-4 font-semibold">로그 ID</th>
-                            <th class="p-4 font-semibold">발생 일시</th>
-                            <th class="p-4 font-semibold">행위자 ID</th>
-                            <th class="p-4 font-semibold">동작 (Action)</th>
-                            <th class="p-4 font-semibold">접속 IP / User-Agent</th>
-                            <th class="p-4 font-semibold">대상 및 상세</th>
+                <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-left">
+                    <thead class="bg-slate-50 dark:bg-slate-800">
+                        <tr>
+                            <th class="px-6 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Log ID</th>
+                            <th class="px-6 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">발생 일시</th>
+                            <th class="px-6 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">행위자</th>
+                            <th class="px-6 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">동작 (Action)</th>
+                            <th class="px-6 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">접속 IP / User-Agent</th>
+                            <th class="px-6 py-3 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">대상 및 상세</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 text-sm">
+                    <tbody class="divide-y divide-slate-200 dark:divide-slate-700 text-sm">
                         {% for log in logs %}
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-4 text-slate-500">#{{ log.AuditId }}</td>
-                            <td class="p-4 font-medium text-slate-700 whitespace-nowrap">{{ log.CreatedAt }}</td>
-                            <td class="p-4 text-slate-600">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <td class="px-6 py-4 whitespace-nowrap text-slate-500 dark:text-slate-400 font-mono">#{{ log.AuditId }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-slate-700 dark:text-slate-300 font-medium">{{ log.CreatedAt }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {% if log.ActorLoginId %}
-                                    <span class="font-semibold">{{ log.ActorLoginId }}</span> 
-                                    <span class="text-xs text-slate-400">(UID:{{ log.ActorId }})</span>
+                                    <div class="font-bold text-slate-800 dark:text-slate-200">{{ log.ActorLoginId }}</div> 
+                                    <div class="text-xs text-slate-500 dark:text-slate-400">UID: {{ log.ActorId }}</div>
                                 {% else %}
                                     -
                                 {% endif %}
                             </td>
-                            <td class="p-4">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 {% if log.Action == 'LOGIN_SUCCESS' %}
-                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">로그인 성공</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400 rounded text-xs font-bold border border-green-200 dark:border-green-800">로그인 성공</span>
                                 {% elif log.Action == 'LOGIN_FAILED' %}
-                                <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">로그인 실패</span>
+                                <span class="px-2 py-1 bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400 rounded text-xs font-bold border border-red-200 dark:border-red-800">로그인 실패</span>
                                 {% elif log.Action == 'LOGOUT' %}
-                                <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-bold">로그아웃</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300 rounded text-xs font-bold border border-gray-200 dark:border-slate-600">로그아웃</span>
                                 {% elif log.Action == 'INSERT' %}
-                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">등록 (INSERT)</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-400 rounded text-xs font-bold border border-blue-200 dark:border-blue-800">생성 (INSERT)</span>
                                 {% elif log.Action == 'UPDATE' %}
-                                <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold">수정 (UPDATE)</span>
+                                <span class="px-2 py-1 bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-400 rounded text-xs font-bold border border-amber-200 dark:border-amber-800">수정 (UPDATE)</span>
                                 {% elif log.Action == 'DELETE' %}
-                                <span class="px-2 py-1 bg-rose-100 text-rose-700 rounded text-xs font-bold">삭제 (DELETE)</span>
+                                <span class="px-2 py-1 bg-rose-100 text-rose-700 dark:bg-rose-900/50 dark:text-rose-400 rounded text-xs font-bold border border-rose-200 dark:border-rose-800">삭제 (DELETE)</span>
                                 {% else %}
-                                <span class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-bold">{{ log.Action }}</span>
+                                <span class="px-2 py-1 bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 rounded text-xs font-bold border border-slate-200 dark:border-slate-600">{{ log.Action }}</span>
                                 {% endif %}
                             </td>
-                            <td class="p-4 text-slate-500 text-xs">
-                                <div class="font-semibold">{{ log.IpAddress }}</div>
-                                <div class="text-slate-400 truncate max-w-[200px]" title="{{ log.UserAgent }}">{{ log.UserAgent }}</div>
+                            <td class="px-6 py-4">
+                                <div class="font-semibold text-slate-700 dark:text-slate-300">{{ log.IpAddress }}</div>
+                                <div class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[200px]" title="{{ log.UserAgent }}">{{ log.UserAgent }}</div>
                             </td>
-                            <td class="p-4 text-slate-600 text-xs">
+                            <td class="px-6 py-4">
                                 {% if log.TargetTable %}
-                                    <div>테이블: <span class="font-semibold">{{ log.TargetTable }}</span> (ID: {{ log.TargetId }})</div>
+                                    <div class="text-sm text-slate-700 dark:text-slate-300">테이블: <span class="font-bold">{{ log.TargetTable }}</span> (ID: {{ log.TargetId }})</div>
+                                {% else %}
+                                    <span class="text-slate-400 dark:text-slate-500">-</span>
                                 {% endif %}
                                 {% if log.NewValue %}
-                                    <div class="mt-1 text-slate-400 truncate max-w-[250px]" title="{{ log.NewValue }}">내용: {{ log.NewValue }}</div>
+                                    <div class="mt-1 text-xs text-slate-500 dark:text-slate-400 truncate max-w-[250px]" title="{{ log.NewValue }}">상세: {{ log.NewValue }}</div>
                                 {% endif %}
                             </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="6" class="p-8 text-center text-slate-500">
+                            <td colspan="6" class="px-6 py-8 text-center text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/50">
                                 기록된 감사 로그가 없습니다.
                             </td>
                         </tr>
@@ -100,7 +114,7 @@
             </div>
         </main>
     </div>
-
+    
     <script src="/static/js/session_timer.js"></script>
 </body>
 </html>

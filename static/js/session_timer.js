@@ -2,6 +2,8 @@
 // 세션 만료 시간(기본 30분) 및 동기화 스크립트
 
 (function() {
+    // 전역 상태
+    window.userSettings = {};
     const SESSION_DURATION = 30 * 60 * 1000; // 30분 (밀리초)
     let sessionEndTime = Date.now() + SESSION_DURATION;
     let timerInterval = null;
@@ -139,10 +141,83 @@
     };
 
     // DOM 로드 시 초기화
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        // 빠른 테마 초기화 (로컬 스토리지 캐시 기반)
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
         initTimer();
-        // 5초마다 세션 유효성 백그라운드 폴링 (실시간 감지)
         pollInterval = setInterval(pollSession, 5000);
+        
+        // 서버 설정 동기화
+        await loadUserSettings();
     });
+
+    // 서버 설정 로드
+    window.loadUserSettings = async function() {
+        try {
+            const res = await originalFetch('/api/user_settings');
+            if (res.ok) {
+                const data = await res.json();
+                window.userSettings = data.settings || {};
+                applySettings(window.userSettings);
+            }
+        } catch(e) {
+            console.error('Failed to load user settings', e);
+        }
+    };
+
+    // 서버 설정 저장
+    window.saveUserSettings = async function(newSettings) {
+        try {
+            const res = await originalFetch('/api/user_settings', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(newSettings)
+            });
+            if (res.ok) {
+                const data = await res.json();
+                window.userSettings = data.settings;
+                applySettings(window.userSettings);
+            }
+        } catch(e) {
+            console.error('Failed to save user settings', e);
+        }
+    };
+
+    // 설정 기반으로 UI 반영 (다크 모드, 인덱스 화면 체크박스 등)
+    function applySettings(settings) {
+        // 1. 다크 모드
+        if (settings.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+        } else if (settings.theme === 'light') {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+        }
+
+        // 2. index.html의 '내 장비 최상단 보기' 체크박스 복원
+        const cb = document.getElementById('includeMineCheckbox');
+        if (cb && settings.show_my_equip_first !== undefined) {
+            // 값이 변경되었을 때만 처리(무한 루프 방지)
+            if (cb.checked !== settings.show_my_equip_first) {
+                cb.checked = settings.show_my_equip_first;
+                // 체크박스 상태가 바뀌면 리스트 다시 불러오기
+                if (typeof window.fetchEquipment === 'function') {
+                    window.fetchEquipment();
+                }
+            }
+        }
+    }
+
+    // 테마 토글 버튼용 함수 노출
+    window.toggleTheme = function() {
+        const isDark = document.documentElement.classList.contains('dark');
+        const newTheme = isDark ? 'light' : 'dark';
+        window.saveUserSettings({ theme: newTheme });
+    };
 
 })();
