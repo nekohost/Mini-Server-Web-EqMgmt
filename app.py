@@ -24,7 +24,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key_if_not_found')
 # 보안 쿠키 정책 강화
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=1) # 1분 테스트용
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # ==========================================
 # 2. DB 공통 모듈 (모든 DB 관련 함수가 이 모듈에 의존함)

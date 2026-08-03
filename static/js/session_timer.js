@@ -2,7 +2,7 @@
 // 세션 만료 시간(기본 30분) 및 동기화 스크립트
 
 (function() {
-    const SESSION_DURATION = 1 * 60 * 1000; // 1분 (테스트용)
+    const SESSION_DURATION = 30 * 60 * 1000; // 30분 (밀리초)
     let sessionEndTime = Date.now() + SESSION_DURATION;
     let timerInterval = null;
     let pollInterval = null;
