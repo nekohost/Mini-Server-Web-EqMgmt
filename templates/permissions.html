@@ -16,6 +16,7 @@
                 <h1 class="text-xl font-bold text-slate-800">메뉴 접근 권한 관리</h1>
             </div>
             <div class="flex items-center gap-3">
+                <span id="session-timer-badge"></span>
                 <span class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
                     👤 {{ user.NickName }} ({{ user.Role }})
                 </span>
@@ -116,5 +117,6 @@
 
         fetchPermissions();
     </script>
+    <script src="/static/js/session_timer.js"></script>
 </body>
 </html>

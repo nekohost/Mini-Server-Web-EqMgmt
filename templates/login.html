@@ -69,6 +69,20 @@
                 errorDiv.innerText = '서버 통신 오류가 발생했습니다.';
                 errorDiv.classList.remove('hidden');
             }
+            }
+        });
+
+        // URL 쿼리스트링 에러 표시
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const errorDiv = document.getElementById('errorMessage');
+            if (params.get('error') === 'concurrent_login') {
+                errorDiv.innerText = '다른 기기(브라우저)에서 로그인하여 현재 세션이 만료되었습니다.';
+                errorDiv.classList.remove('hidden');
+            } else if (params.get('error') === 'session_expired') {
+                errorDiv.innerText = '세션이 만료되었습니다. 다시 로그인해주세요.';
+                errorDiv.classList.remove('hidden');
+            }
         });
     </script>
 </body>

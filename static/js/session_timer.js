@@ -1,0 +1,126 @@
+// session_timer.js
+// 세션 만료 시간(기본 30분) 및 동기화 스크립트
+
+(function() {
+    const SESSION_DURATION = 30 * 60 * 1000; // 30분 (밀리초)
+    let sessionEndTime = Date.now() + SESSION_DURATION;
+    let timerInterval = null;
+
+    // 세션 시간 연장 (클라이언트 로컬 변수 리셋)
+    function resetSessionTimer() {
+        sessionEndTime = Date.now() + SESSION_DURATION;
+        updateTimerUI();
+    }
+
+    // 명시적 세션 연장 요청 (서버 통신)
+    async function extendSession() {
+        try {
+            const response = await fetch('/api/extend_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await response.json();
+            if (data.success) {
+                resetSessionTimer();
+                showToast('세션이 연장되었습니다.');
+            }
+        } catch (error) {
+            console.error('Session extension failed:', error);
+        }
+    }
+
+    // 간단한 토스트 알림 함수
+    function showToast(message) {
+        let toast = document.getElementById('session-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'session-toast';
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.right = '20px';
+            toast.style.backgroundColor = '#10B981'; // Tailwind emerald-500
+            toast.style.color = '#fff';
+            toast.style.padding = '10px 20px';
+            toast.style.borderRadius = '5px';
+            toast.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+            toast.style.zIndex = '9999';
+            toast.style.transition = 'opacity 0.3s ease';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.style.opacity = '1';
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+        }, 3000);
+    }
+
+    // 타이머 UI 업데이트 로직
+    function updateTimerUI() {
+        const badge = document.getElementById('session-timer-badge');
+        if (!badge) return; // UI가 없는 페이지(예: 로그인화면)는 무시
+
+        const now = Date.now();
+        const remaining = sessionEndTime - now;
+
+        if (remaining <= 0) {
+            badge.innerHTML = '만료됨';
+            badge.className = 'cursor-pointer px-2 py-1 bg-red-600 text-white text-xs rounded shadow-sm flex items-center gap-1';
+            // 실제 만료 시 페이지 새로고침을 통해 백엔드의 강제 로그아웃/리다이렉트를 타게 함
+            window.location.reload(); 
+            return;
+        }
+
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+
+        // 평상시: 분 단위 표출 (5분 이상 남았을 때)
+        if (minutes >= 5) {
+            badge.innerHTML = `⏱ ${minutes}분 남음`;
+            badge.className = 'cursor-pointer px-2 py-1 bg-gray-100 hover:bg-emerald-100 hover:text-emerald-700 text-gray-600 text-xs rounded transition-colors flex items-center gap-1';
+            badge.title = '클릭하여 세션 연장';
+        } else {
+            // 임박 시(5분 미만): 초 단위 표출 및 붉은색 경고
+            const secStr = seconds < 10 ? '0' + seconds : seconds;
+            badge.innerHTML = `⏱ <strong>${minutes}:${secStr}</strong> 남음 (연장)`;
+            badge.className = 'cursor-pointer px-2 py-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs rounded transition-colors flex items-center gap-1 animate-pulse';
+            badge.title = '세션 만료가 임박했습니다. 클릭하여 연장하세요!';
+        }
+    }
+
+    // 초기화 및 이벤트 바인딩
+    function initTimer() {
+        // UI가 로드된 이후에 이벤트 할당을 시도
+        const badge = document.getElementById('session-timer-badge');
+        if (badge) {
+            badge.addEventListener('click', extendSession);
+            updateTimerUI();
+            timerInterval = setInterval(updateTimerUI, 1000);
+        }
+    }
+
+    // Fetch API 전역 인터셉터 (Auto-Sync)
+    const originalFetch = window.fetch;
+    window.fetch = async function(...args) {
+        const url = typeof args[0] === 'string' ? args[0] : args[0].url;
+        const result = await originalFetch.apply(this, args);
+        
+        // extend_session 자체 호출은 위에서 명시적으로 처리하므로 제외
+        if (url && !url.includes('/api/extend_session')) {
+            // 다른 API 통신이 성공적이면 백엔드 세션도 연장된 것이므로 프론트엔드도 리셋
+            if (result.ok) {
+                resetSessionTimer();
+            } else if (result.status === 401) {
+                // 동시 로그인 등에 의해 401 Unauthorized 발생 시 즉각 새로고침하여 로그인창으로
+                window.location.reload();
+            }
+        }
+        return result;
+    };
+
+    // DOM 로드 시 초기화
+    document.addEventListener('DOMContentLoaded', initTimer);
+
+})();

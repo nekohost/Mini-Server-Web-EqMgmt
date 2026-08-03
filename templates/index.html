@@ -18,6 +18,7 @@
                 <span class="text-sm font-bold text-slate-800">장비 관리 시스템</span>
             </div>
             <div class="flex items-center gap-4">
+                <span id="session-timer-badge"></span>
                 <span id="userInfoDisplay" class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1 rounded-full border border-slate-200">
                     👤 {{ user.NickName }} (<strong class="text-blue-600">{{ user.Role }}</strong>)
                 </span>
@@ -391,5 +392,6 @@
         // 초기 로드
         fetchEquipment();
     </script>
+    <script src="/static/js/session_timer.js"></script>
 </body>
 </html>

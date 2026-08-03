@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보안 감사 로그 - 미니서버 통합 관리 시스템</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 min-h-screen">
+    <div class="max-w-6xl mx-auto">
+        <!-- 상단 헤더 -->
+        <header class="bg-white rounded-xl shadow-sm p-4 mb-6 flex justify-between items-center border border-slate-200">
+            <div class="flex items-center gap-3">
+                <a href="/portal" class="text-slate-500 hover:text-slate-800 text-sm font-semibold transition">&larr; 포털로</a>
+                <h1 class="text-xl font-bold text-slate-800">보안 감사 로그 (Audit Logs)</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="session-timer-badge"></span>
+                <span class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+                    👤 {{ user.NickName }} ({{ user.Role }})
+                </span>
+                <a href="/logout" class="text-sm font-semibold text-red-600 hover:text-red-800 transition">로그아웃</a>
+            </div>
+        </header>
+
+        <!-- 감사 로그 테이블 카드 -->
+        <main class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-800">최근 시스템 접근 및 작업 이력</h2>
+                    <p class="text-sm text-slate-500 mt-1">최대 200건의 최신 이력이 표시됩니다.</p>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-xs uppercase tracking-wider">
+                            <th class="p-4 font-semibold">로그 ID</th>
+                            <th class="p-4 font-semibold">발생 일시</th>
+                            <th class="p-4 font-semibold">행위자 ID</th>
+                            <th class="p-4 font-semibold">동작 (Action)</th>
+                            <th class="p-4 font-semibold">접속 IP / User-Agent</th>
+                            <th class="p-4 font-semibold">대상 및 상세</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 text-sm">
+                        {% for log in logs %}
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="p-4 text-slate-500">#{{ log.AuditId }}</td>
+                            <td class="p-4 font-medium text-slate-700 whitespace-nowrap">{{ log.CreatedAt }}</td>
+                            <td class="p-4 text-slate-600">
+                                {% if log.ActorLoginId %}
+                                    <span class="font-semibold">{{ log.ActorLoginId }}</span> 
+                                    <span class="text-xs text-slate-400">(UID:{{ log.ActorId }})</span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td class="p-4">
+                                {% if log.Action == 'LOGIN_SUCCESS' %}
+                                <span class="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-bold">로그인 성공</span>
+                                {% elif log.Action == 'LOGIN_FAILED' %}
+                                <span class="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold">로그인 실패</span>
+                                {% elif log.Action == 'LOGOUT' %}
+                                <span class="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs font-bold">로그아웃</span>
+                                {% elif log.Action == 'INSERT' %}
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-bold">등록 (INSERT)</span>
+                                {% elif log.Action == 'UPDATE' %}
+                                <span class="px-2 py-1 bg-amber-100 text-amber-700 rounded text-xs font-bold">수정 (UPDATE)</span>
+                                {% elif log.Action == 'DELETE' %}
+                                <span class="px-2 py-1 bg-rose-100 text-rose-700 rounded text-xs font-bold">삭제 (DELETE)</span>
+                                {% else %}
+                                <span class="px-2 py-1 bg-slate-100 text-slate-700 rounded text-xs font-bold">{{ log.Action }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-slate-500 text-xs">
+                                <div class="font-semibold">{{ log.IpAddress }}</div>
+                                <div class="text-slate-400 truncate max-w-[200px]" title="{{ log.UserAgent }}">{{ log.UserAgent }}</div>
+                            </td>
+                            <td class="p-4 text-slate-600 text-xs">
+                                {% if log.TargetTable %}
+                                    <div>테이블: <span class="font-semibold">{{ log.TargetTable }}</span> (ID: {{ log.TargetId }})</div>
+                                {% endif %}
+                                {% if log.NewValue %}
+                                    <div class="mt-1 text-slate-400 truncate max-w-[250px]" title="{{ log.NewValue }}">내용: {{ log.NewValue }}</div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-slate-500">
+                                기록된 감사 로그가 없습니다.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/js/session_timer.js"></script>
+</body>
+</html>

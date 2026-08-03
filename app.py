@@ -5,7 +5,7 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, s
 import sqlite3
 import os
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -24,6 +24,7 @@ app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key_if_not_found')
 # 보안 쿠키 정책 강화
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # ==========================================
 # 2. DB 공통 모듈 (모든 DB 관련 함수가 이 모듈에 의존함)
@@ -156,14 +157,18 @@ def init_db():
                    ('public_equipment', '공개된 장비', '/public_equipment', '공개된 장비 및 전체 장비 조회', now, now))
     cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
                    ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', now, now))
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+                   ('audit_logs', '보안 감사 로그', '/audit_logs', '시스템 접근 이력 및 감사 로그 조회', now, now))
 
     # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비 허용)
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'permissions', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'audit_logs', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'permissions', 0, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'audit_logs', 0, now))
 
     conn.commit()
     conn.close()
@@ -216,6 +221,25 @@ def migrate_passwords_to_hash():
 # 구동 시 비밀번호 해싱 자동 마이그레이션 수행
 migrate_passwords_to_hash()
 
+def migrate_users_session_token():
+    """
+    [역할] 기존 users 테이블에 동시 로그인 방어를 위한 SessionToken 컬럼 추가
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [info['name'] for info in cursor.fetchall()]
+        if 'SessionToken' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN SessionToken TEXT")
+            print("[Migration] users 테이블에 SessionToken 컬럼이 추가되었습니다.")
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error (SessionToken)] {e}")
+
+migrate_users_session_token()
+
 
 # ==========================================
 # 3. 인증 및 권한 데코레이터
@@ -225,11 +249,26 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         user = session.get('user')
-        if not user or 'UserId' not in user:
-            session.pop('user', None)
+        session_token = session.get('session_token')
+        
+        if not user or 'UserId' not in user or not session_token:
+            session.clear()
             if request.path.startswith('/api/'):
                 return jsonify({"error": "로그인이 필요합니다."}), 401
             return redirect(url_for('login_page'))
+            
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT SessionToken FROM users WHERE UserId = ?", (user['UserId'],))
+        db_user = cursor.fetchone()
+        conn.close()
+        
+        if not db_user or db_user['SessionToken'] != session_token:
+            session.clear()
+            if request.path.startswith('/api/'):
+                return jsonify({"error": "다른 기기에서 로그인하여 세션이 만료되었습니다."}), 401
+            return redirect(url_for('login_page', error='concurrent_login'))
+            
         return f(*args, **kwargs)
     return decorated_function
 
@@ -294,7 +333,18 @@ def login_page():
             'NickName': user['NickName'],
             'Role': user['Role']
         }
+        
+        session_token = os.urandom(24).hex()
         session['user'] = user_dict
+        session['session_token'] = session_token
+        session.permanent = True
+        
+        conn_update = get_db_connection()
+        cursor_update = conn_update.cursor()
+        cursor_update.execute("UPDATE users SET SessionToken = ? WHERE UserId = ?", (session_token, user['UserId']))
+        conn_update.commit()
+        conn_update.close()
+        
         log_audit(user['UserId'], user['LoginId'], 'LOGIN_SUCCESS', 'users', user['UserId'], None, {"LoginId": login_id})
         return jsonify({"success": True, "message": "로그인 성공"})
     else:
@@ -348,7 +398,7 @@ def logout():
     if user:
         if 'UserId' in user:
             log_audit(user['UserId'], user['LoginId'], 'LOGOUT', 'users', user['UserId'], None, None)
-        session.pop('user', None)
+        session.clear()
     return redirect(url_for('login_page'))
 
 
@@ -388,9 +438,30 @@ def permissions_page():
     return render_template('permissions.html', user=session['user'])
 
 
+@app.route('/audit_logs')
+@login_required
+def audit_logs_page():
+    if not check_menu_permission('audit_logs'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM audit_logs ORDER BY AuditId DESC LIMIT 200")
+    logs = cursor.fetchall()
+    conn.close()
+    
+    return render_template('audit_logs.html', user=session['user'], logs=logs)
+
+
 # ==========================================
 # 5. RESTful API 모듈 (인증/권한 및 데이터 처리)
 # ==========================================
+
+@app.route('/api/extend_session', methods=['POST'])
+@login_required
+def extend_session():
+    session.modified = True
+    return jsonify({"success": True, "message": "세션이 연장되었습니다."})
 
 @app.route('/api/me', methods=['GET'])
 @login_required

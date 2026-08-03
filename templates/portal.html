@@ -16,6 +16,7 @@
                 <p class="text-xs text-slate-500 mt-0.5">사용 가능한 시스템 메뉴를 선택하세요</p>
             </div>
             <div class="flex items-center gap-4">
+                <span id="session-timer-badge"></span>
                 <span class="text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
                     👤 {{ user.NickName }} (<strong class="text-blue-600">{{ user.Role }}</strong>)
                 </span>
@@ -75,5 +76,6 @@
 
         loadPortalMenus();
     </script>
+    <script src="/static/js/session_timer.js"></script>
 </body>
 </html>
