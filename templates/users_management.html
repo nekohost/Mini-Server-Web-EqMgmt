@@ -13,6 +13,9 @@
         <button onclick="forceLogoutSelected()" id="btnForceSelected" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
             ✓ 선택 유저 세션 파기
         </button>
+        <button onclick="deleteSelectedUsers()" id="btnDeleteSelected" class="hidden px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+            🗑️ 선택 계정 삭제
+        </button>
         <button onclick="forceLogoutAll(false)" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg shadow-sm transition">
             🚨 전체 파기 (본인 제외)
         </button>
@@ -102,10 +105,14 @@
                         </select>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">${u.CreatedAt}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <button onclick="openResetModal(${u.UserId}, '${u.LoginId}')" ${isMe ? 'disabled' : ''}
-                                class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
+                                class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
                             PW 초기화
+                        </button>
+                        <button onclick="deleteSingleUser(${u.UserId}, '${u.LoginId}')" ${isMe ? 'disabled' : ''}
+                                class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
+                            계정 삭제
                         </button>
                     </td>
                 </tr>
@@ -182,12 +189,72 @@
 
     function updateSelectedButton() {
         const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-        const btn = document.getElementById('btnForceSelected');
+        const btnForce = document.getElementById('btnForceSelected');
+        const btnDelete = document.getElementById('btnDeleteSelected');
         if (checkedBoxes.length > 0) {
-            btn.classList.remove('hidden');
-            btn.innerText = `✓ ${checkedBoxes.length}명 세션 파기`;
+            btnForce.classList.remove('hidden');
+            btnForce.innerText = `✓ ${checkedBoxes.length}명 세션 파기`;
+            btnDelete.classList.remove('hidden');
+            btnDelete.innerText = `🗑️ ${checkedBoxes.length}명 계정 삭제`;
         } else {
-            btn.classList.add('hidden');
+            btnForce.classList.add('hidden');
+            btnDelete.classList.add('hidden');
+        }
+    }
+
+    async function deleteSelectedUsers() {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        const userIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+        
+        if (userIds.length === 0) return;
+
+        const confirmMsg = `🚨 경고: 선택한 ${userIds.length}명의 계정을 유예기간 없이 즉시 영구 삭제하시겠습니까?\n삭제된 계정 및 관련 설정은 복구할 수 없습니다.`;
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const res = await fetch('/api/users/delete_selected', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_ids: userIds })
+            });
+            const json = await res.json();
+            if (json.success) {
+                alert(json.message);
+                const currentUserId = Number('{{ user.UserId }}');
+                if (userIds.includes(currentUserId)) {
+                    location.href = '/login';
+                } else {
+                    document.getElementById('selectAllCheckbox').checked = false;
+                    toggleAllCheckboxes({checked: false});
+                    fetchUsers();
+                }
+            } else {
+                alert(json.message);
+            }
+        } catch (err) {
+            alert('요청 중 오류가 발생했습니다.');
+        }
+    }
+
+    async function deleteSingleUser(userId, loginId) {
+        const confirmMsg = `🚨 경고: '${loginId}' 계정을 유예기간 없이 즉시 영구 삭제하시겠습니까?`;
+        if (!confirm(confirmMsg)) return;
+
+        try {
+            const res = await fetch('/api/users/delete_selected', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ user_ids: [userId] })
+            });
+            const json = await res.json();
+            if (json.success) {
+                alert(json.message);
+                fetchUsers();
+            } else {
+                alert(json.message);
+            }
+        } catch (err) {
+            alert('요청 중 오류가 발생했습니다.');
         }
     }
 

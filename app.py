@@ -945,6 +945,59 @@ def api_force_logout_selected():
     return jsonify({"success": True, "message": f"{len(target_ids)}명의 사용자 세션이 강제 만료되었습니다."})
 
 # ------------------------------------------
+# 계정 즉시 삭제 API (유예기간 없이 영구 삭제)
+# ------------------------------------------
+@app.route('/api/users/delete_selected', methods=['POST'])
+@login_required
+def api_delete_selected_users():
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    target_ids = request.json.get('user_ids', [])
+    if not target_ids or not isinstance(target_ids, list):
+        return jsonify({"success": False, "message": "삭제할 대상을 선택해주세요."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    placeholders = ','.join(['?'] * len(target_ids))
+    cursor.execute(f"SELECT UserId, LoginId FROM users WHERE UserId IN ({placeholders})", tuple(target_ids))
+    target_users = cursor.fetchall()
+    
+    if not target_users:
+        conn.close()
+        return jsonify({"success": False, "message": "삭제할 대상 사용자를 찾을 수 없습니다."}), 404
+        
+    deleted_ids = [u['UserId'] for u in target_users]
+    deleted_logins = [u['LoginId'] for u in target_users]
+    
+    del_placeholders = ','.join(['?'] * len(deleted_ids))
+    del_tuple = tuple(deleted_ids)
+    
+    # 1. user_settings 레코드 삭제
+    cursor.execute(f"DELETE FROM user_settings WHERE UserId IN ({del_placeholders})", del_tuple)
+    
+    # 2. 관련 장비 소유권 해제 (데이터 보존을 위해 공개 장비로 전환)
+    cursor.execute(f"UPDATE equipment SET UserId = NULL, IsPublic = 1 WHERE UserId IN ({del_placeholders})", del_tuple)
+    
+    # 3. users 계정 즉시 파기
+    cursor.execute(f"DELETE FROM users WHERE UserId IN ({del_placeholders})", del_tuple)
+    
+    # 4. 보안 감사 로그 기록
+    log_audit(user['UserId'], user['LoginId'], 'DELETE_USER', 'users', None, 
+              {"DeletedUserIds": deleted_ids, "DeletedLogins": deleted_logins}, None)
+              
+    conn.commit()
+    conn.close()
+    
+    # 만약 본인이 삭제 대상에 포함되어 있다면 세션 파기
+    if user['UserId'] in deleted_ids:
+        session.clear()
+        
+    return jsonify({"success": True, "message": f"총 {len(deleted_ids)}명의 계정이 즉시 삭제되었습니다."})
+
+# ------------------------------------------
 # 장비 API
 # ------------------------------------------
 @app.route('/api/portal/menus', methods=['GET'])
