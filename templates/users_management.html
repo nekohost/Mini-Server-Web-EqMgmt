@@ -109,7 +109,7 @@
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
             
-            const currentUserId = {{ user.UserId }};
+            const currentUserId = Number('{{ user.UserId }}');
             
             users.forEach(u => {
                 const isMe = (u.UserId === currentUserId);
@@ -237,7 +237,7 @@
                 if (json.success) {
                     alert(json.message);
                     // 본인이 포함되어 있었을 경우 자동으로 리다이렉트 처리되거나 401로 떨어짐
-                    if (userIds.includes({{ user.UserId }})) {
+                    if (userIds.includes(Number('{{ user.UserId }}'))) {
                         location.href = '/login';
                     } else {
                         // 체크박스 초기화
