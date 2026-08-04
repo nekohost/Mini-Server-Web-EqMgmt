@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ko" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>보안 감사 로그 - 미니서버 통합 관리 시스템</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-8 dark:bg-slate-900 dark:text-slate-200 transition-colors duration-300 min-h-screen">
+    <div class="max-w-7xl mx-auto relative">
+        <!-- 네비게이션 바 (Standard Style) -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm mb-6 flex justify-between items-center border border-slate-200 dark:border-slate-700 transition-colors">
+            <div class="flex items-center gap-3">
+                <a href="/portal" class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 text-sm font-semibold transition">&larr; 포털로</a>
+                <span class="text-slate-300 dark:text-slate-600">|</span>
+                <span class="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-brand-500"></i> 보안 감사 로그 시스템
+                </span>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="themeToggle" class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition" title="라이트/다크 모드 전환">
+                    🌗
+                </button>
+                <span id="session-timer-badge"></span>
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                    👤 {{ user.NickName }} (<strong class="text-blue-600 dark:text-blue-400">{{ user.Role }}</strong>)
+                </span>
+                <a href="/logout" class="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition">로그아웃</a>
+            </div>
+        </div>
+
+        <!-- 메인 컨테이너 -->
+        <main>
+        
+        <!-- 헤더 섹션 -->
+        <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-brand-500"></i> 감사 로그(Audit Log) 검색 및 모니터링
+                </h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                    시스템 내 모든 사용자 행위(로그인, 자산 변경, 권한 수정 등)의 상세 이력을 검색하고 추적합니다.
+                </p>
+            </div>
+        </div>
+
+        <!-- 🔍 검색 및 필터 패널 -->
+        <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
+            <form id="searchForm" class="space-y-4" onsubmit="handleSearch(event)">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
+                    
+                    <!-- 1. 검색 컬럼 선택 -->
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            <i class="fa-solid fa-filter text-brand-500 mr-1"></i> 검색 대상 컬럼
+                        </label>
+                        <select id="searchField" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                            <option value="all">🔍 전체 (통합 검색)</option>
+                            <option value="ActorLoginId">👤 행위자 ID (ActorLoginId)</option>
+                            <option value="ActorName">🏷️ 행위자 이름 (ActorName)</option>
+                            <option value="Action">⚡ 행위 유형 (Action)</option>
+                            <option value="IpAddress">🌐 IP 주소 (IpAddress)</option>
+                            <option value="TargetId">🎯 대상 ID (TargetId)</option>
+                            <option value="Details">📝 상세 내용 (Details)</option>
+                        </select>
+                    </div>
+
+                    <!-- 2. Match Mode (일치 / LIKE 선택) -->
+                    <div class="md:col-span-3">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            <i class="fa-solid fa-magnifying-glass-chart text-brand-500 mr-1"></i> 검색 조건 옵션
+                        </label>
+                        <div class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-700/50 p-1.5 border border-slate-300 dark:border-slate-600 rounded-lg">
+                            <label class="flex-1 text-center cursor-pointer">
+                                <input type="radio" name="matchType" value="like" checked class="peer hidden" onchange="triggerSearch()">
+                                <span class="block py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-300 peer-checked:bg-brand-500 peer-checked:text-white transition-colors">
+                                    LIKE (부분 검색)
+                                </span>
+                            </label>
+                            <label class="flex-1 text-center cursor-pointer">
+                                <input type="radio" name="matchType" value="exact" class="peer hidden" onchange="triggerSearch()">
+                                <span class="block py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-300 peer-checked:bg-brand-500 peer-checked:text-white transition-colors">
+                                    Exact (완전 일치)
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 3. 검색어 입력창 -->
+                    <div class="md:col-span-4">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                            <i class="fa-solid fa-keyboard text-brand-500 mr-1"></i> 검색어 키워드
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="keyword" placeholder="검색할 키워드를 입력하세요..." 
+                                class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg p-2.5 pl-3 pr-8 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                            <button type="button" onclick="clearKeyword()" class="absolute right-2 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 4. 검색 버튼 -->
+                    <div class="md:col-span-2 flex space-x-2">
+                        <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-magnifying-glass"></i> 검색
+                        </button>
+                        <button type="button" onclick="resetFilters()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm p-2.5 rounded-lg transition-colors" title="초기화">
+                            <i class="fa-solid fa-rotate-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- 📊 컨트롤 바: 표출 개수 설정 (user_settings 영속화) & 페이징 요약 -->
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-t-xl border border-slate-200 dark:border-slate-700 gap-3">
+            
+            <!-- 왼쪽: 데이터 건수 정보 -->
+            <div class="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                <span class="bg-slate-200 dark:bg-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-800 dark:text-slate-200" id="totalCountBadge">
+                    총 0 건
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400" id="pageRangeInfo">
+                    (1페이지 중 0-0번째 표출 중)
+                </span>
+            </div>
+
+            <!-- 오른쪽: 한 페이지당 표출 개수 선택 (user_settings 영속화) -->
+            <div class="flex items-center space-x-2">
+                <label class="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                    <i class="fa-solid fa-sliders text-brand-500 mr-1"></i> 페이지당 보기:
+                </label>
+                <select id="pageSizeSelect" onchange="handlePageSizeChange(this.value)" 
+                    class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500">
+                    <option value="50">50개씩 보기</option>
+                    <option value="100">100개씩 보기</option>
+                    <option value="150">150개씩 보기</option>
+                    <option value="200" selected>200개씩 보기 (기본값)</option>
+                    <option value="300">300개씩 보기</option>
+                    <option value="500">500개씩 보기</option>
+                    <option value="custom">⚙️ 기타 (직접 입력)</option>
+                </select>
+
+                <!-- 기타/직접 입력 수치 인풋 (숨김 상태) -->
+                <div id="customPageSizeContainer" class="hidden flex items-center space-x-1">
+                    <input type="number" id="customPageSizeInput" min="10" max="10000" placeholder="개수 입력" 
+                        class="w-24 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-500">
+                    <button type="button" onclick="applyCustomPageSize()" class="bg-brand-500 hover:bg-brand-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors font-medium">
+                        적용
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📋 감사 로그 데이터 테이블 -->
+        <div class="bg-white dark:bg-slate-800 rounded-b-xl border-x border-b border-slate-200 dark:border-slate-700 overflow-x-auto shadow-sm">
+            <table class="w-full text-left text-xs sm:text-sm">
+                <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 uppercase font-semibold">
+                    <tr>
+                        <th class="py-3 px-4 w-16 text-center">ID</th>
+                        <th class="py-3 px-4 w-36">일시 (CreatedAt)</th>
+                        <th class="py-3 px-4 w-40">행위자 (Actor)</th>
+                        <th class="py-3 px-4 w-44">행위 유형 (Action)</th>
+                        <th class="py-3 px-4 w-28">IP 주소</th>
+                        <th class="py-3 px-4 w-28">대상 (Target)</th>
+                        <th class="py-3 px-4">상세 내용 및 변경 사항</th>
+                    </tr>
+                </thead>
+                <tbody id="auditLogTbody" class="divide-y divide-slate-200 dark:divide-slate-700">
+                    <!-- Dynamic JS Fetch Data -->
+                    <tr>
+                        <td colspan="7" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                            <i class="fa-solid fa-spinner fa-spin text-2xl mb-2"></i>
+                            <p>감사 로그 데이터를 불러오는 중입니다...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 📄 전역 페이징 네비게이션 컨트롤 -->
+        <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+                개인 설정이 <span class="text-brand-500 font-semibold">user_settings</span> DB 테이블에 자동 저장됩니다.
+            </div>
+            
+            <div id="paginationNav" class="flex items-center space-x-1">
+                <!-- Page Navigation Buttons (Generated by JS) -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 스크립트: 감사로그 비동기 연동 로직 -->
+    <script>
+        // 전역 상태 변수
+        let currentPage = 1;
+        let perPage = 200;
+        let totalPages = 1;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserSettings();
+        });
+
+        // 다크모드 토글
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // 1. 사용자 저장 설정(user_settings) 불러오기
+        async function loadUserSettings() {
+            try {
+                const res = await fetch('/api/user_settings');
+                const data = await res.json();
+                if ((data.success || data.status === 'success') && data.settings) {
+                    if (data.settings.audit_log_page_size) {
+                        perPage = parseInt(data.settings.audit_log_page_size);
+                        updatePageSizeUI(perPage);
+                    }
+                }
+            } catch (err) {
+                console.warn('사용자 설정을 불러오지 못했습니다. 기본값을 사용합니다.', err);
+            }
+            fetchAuditLogs();
+        }
+
+        // 2. 페이지당 보기 UI 동기화
+        function updatePageSizeUI(size) {
+            const select = document.getElementById('pageSizeSelect');
+            const customContainer = document.getElementById('customPageSizeContainer');
+            
+            const standardSizes = [50, 100, 150, 200, 300, 500];
+            if (standardSizes.includes(size)) {
+                select.value = size.toString();
+                customContainer.classList.add('hidden');
+            } else {
+                select.value = 'custom';
+                customContainer.classList.remove('hidden');
+                document.getElementById('customPageSizeInput').value = size;
+            }
+        }
+
+        // 3. 감사 로그 비동기 데이터 Fetch (API 호출)
+        async function fetchAuditLogs(page = 1) {
+            currentPage = page;
+            const field = document.getElementById('searchField').value;
+            const matchType = document.querySelector('input[name="matchType"]:checked').value;
+            const keyword = document.getElementById('keyword').value.trim();
+
+            const tbody = document.getElementById('auditLogTbody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-10 text-slate-400">
+                        <i class="fa-solid fa-circle-notch fa-spin text-2xl text-brand-500 mb-2"></i>
+                        <p class="text-xs">데이터를 가져오는 중...</p>
+                    </td>
+                </tr>
+            `;
+
+            try {
+                const queryParams = new URLSearchParams({
+                    page: currentPage,
+                    per_page: perPage,
+                    search_field: field,
+                    match_type: matchType,
+                    keyword: keyword
+                });
+
+                const res = await fetch(`/api/audit_logs?${queryParams.toString()}`);
+                const result = await res.json();
+
+                if (result.status === 'success') {
+                    renderTable(result.data);
+                    renderPagination(result.pagination);
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">${result.message}</td></tr>`;
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
+            }
+        }
+
+        // 4. 테이블 렌더링
+        function renderTable(logs) {
+            const tbody = document.getElementById('auditLogTbody');
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-12 text-slate-400 dark:text-slate-500">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                            <p>검색 조건에 해당되는 감사 로그가 없습니다.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = logs.map(log => `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
+                    <td class="py-3 px-4 text-center font-mono text-xs text-slate-500">${log.AuditId}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 font-mono">${log.CreatedAt}</td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="font-medium text-slate-900 dark:text-white">${log.ActorName || 'System'}</span>
+                        <span class="text-xs text-slate-400 block font-mono">(${log.ActorLoginId || log.ActorId || 'N/A'})</span>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap">
+                        <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
+                            ${log.Action}
+                        </span>
+                    </td>
+                    <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-slate-500">${log.IpAddress || '-'}</td>
+                    <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-700 dark:text-slate-300">${log.TargetId || '-'}</td>
+                    <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate" title="${log.Details || ''}">
+                        ${log.Details || ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // 5. 페이징 네비게이션 렌더링
+        function renderPagination(meta) {
+            totalPages = meta.total_pages;
+            
+            // 요약 정보 업데이트
+            document.getElementById('totalCountBadge').innerText = `총 ${meta.total_count.toLocaleString()} 건`;
+            const startNum = meta.total_count === 0 ? 0 : (meta.page - 1) * meta.per_page + 1;
+            const endNum = Math.min(meta.page * meta.per_page, meta.total_count);
+            document.getElementById('pageRangeInfo').innerText = `(${meta.page} / ${meta.total_pages} 페이지, ${startNum}-${endNum}번째 표출)`;
+
+            const nav = document.getElementById('paginationNav');
+            let html = '';
+
+            // 이전 버튼
+            html += `
+                <button onclick="fetchAuditLogs(${meta.page - 1})" ${meta.page <= 1 ? 'disabled' : ''} 
+                    class="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 disabled:opacity-40 hover:bg-slate-50 font-medium">
+                    <i class="fa-solid fa-chevron-left"></i> 이전
+                </button>
+            `;
+
+            // 페이지 번호 (최대 5개 표시)
+            let startPage = Math.max(1, meta.page - 2);
+            let endPage = Math.min(meta.total_pages, startPage + 4);
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+
+            for (let p = startPage; p <= endPage; p++) {
+                const active = (p === meta.page);
+                html += `
+                    <button onclick="fetchAuditLogs(${p})" 
+                        class="px-3 py-1.5 text-xs rounded-lg font-semibold ${active ? 'bg-brand-500 text-white' : 'bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50'}">
+                        ${p}
+                    </button>
+                `;
+            }
+
+            // 다음 버튼
+            html += `
+                <button onclick="fetchAuditLogs(${meta.page + 1})" ${meta.page >= meta.total_pages ? 'disabled' : ''} 
+                    class="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 disabled:opacity-40 hover:bg-slate-50 font-medium">
+                    다음 <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            `;
+
+            nav.innerHTML = html;
+        }
+
+        // 6. 검색 처리
+        function handleSearch(e) {
+            e.preventDefault();
+            fetchAuditLogs(1);
+        }
+
+        function triggerSearch() {
+            fetchAuditLogs(1);
+        }
+
+        function clearKeyword() {
+            document.getElementById('keyword').value = '';
+            fetchAuditLogs(1);
+        }
+
+        function resetFilters() {
+            document.getElementById('searchField').value = 'all';
+            document.querySelector('input[name="matchType"][value="like"]').checked = true;
+            document.getElementById('keyword').value = '';
+            fetchAuditLogs(1);
+        }
+
+        // 7. 페이지 당 표출 개수 변경 및 user_settings DB 영속화
+        function handlePageSizeChange(val) {
+            const customContainer = document.getElementById('customPageSizeContainer');
+            if (val === 'custom') {
+                customContainer.classList.remove('hidden');
+                document.getElementById('customPageSizeInput').focus();
+            } else {
+                customContainer.classList.add('hidden');
+                perPage = parseInt(val);
+                savePageSizeSetting(perPage);
+                fetchAuditLogs(1);
+            }
+        }
+
+        function applyCustomPageSize() {
+            const input = document.getElementById('customPageSizeInput');
+            let num = parseInt(input.value);
+            if (isNaN(num) || num < 10) num = 10;
+            if (num > 10000) num = 10000;
+            input.value = num;
+
+            perPage = num;
+            savePageSizeSetting(perPage);
+            fetchAuditLogs(1);
+        }
+
+        // DB에 user_settings 영속화 저장 API 호출
+        async function savePageSizeSetting(size) {
+            try {
+                await fetch('/api/user_settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        audit_log_page_size: size
+                    })
+                });
+            } catch (err) {
+                console.warn('설정 영속화 저장 실패:', err);
+            }
+        }
+    </script>
+    <script src="/static/js/session_timer.js"></script>
+    </div> <!-- // container close -->
+</body>
+</html>

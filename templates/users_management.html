@@ -35,11 +35,29 @@
             </div>
         </div>
 
+        <div class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">회원 목록 및 세션 제어</h2>
+            <div class="flex items-center gap-2">
+                <button onclick="forceLogoutSelected()" id="btnForceSelected" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    ✓ 선택 유저 세션 파기
+                </button>
+                <button onclick="forceLogoutAll(false)" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    🚨 전체 파기 (본인 제외)
+                </button>
+                <button onclick="forceLogoutAll(true)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    🚨 전체 파기 (본인 포함)
+                </button>
+            </div>
+        </div>
+
         <main class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700">
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                     <thead class="bg-slate-50 dark:bg-slate-800">
                         <tr>
+                            <th class="px-4 py-3 w-12 text-center">
+                                <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllCheckboxes(this)" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID(고유)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">로그인 ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">이름 / 닉네임</th>
@@ -98,6 +116,9 @@
                 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td class="px-4 py-4 text-center">
+                            <input type="checkbox" class="user-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" value="${u.UserId}" onchange="updateSelectedButton()">
+                        </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${u.UserId} ${isMe ? '<span class="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded ml-1 font-bold">ME</span>' : ''}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">${u.LoginId}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">${u.Name} / ${u.NickName}</td>
@@ -180,6 +201,84 @@
         }
 
         document.addEventListener('DOMContentLoaded', fetchUsers);
+
+        // --- 세션 강제 만료 로직 ---
+        function toggleAllCheckboxes(source) {
+            const checkboxes = document.querySelectorAll('.user-checkbox');
+            checkboxes.forEach(cb => cb.checked = source.checked);
+            updateSelectedButton();
+        }
+
+        function updateSelectedButton() {
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            const btn = document.getElementById('btnForceSelected');
+            if (checkedBoxes.length > 0) {
+                btn.classList.remove('hidden');
+                btn.innerText = `✓ ${checkedBoxes.length}명 세션 파기`;
+            } else {
+                btn.classList.add('hidden');
+            }
+        }
+
+        async function forceLogoutSelected() {
+            const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+            const userIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+            
+            if (userIds.length === 0) return;
+            if (!confirm(`선택한 ${userIds.length}명의 사용자를 즉시 로그아웃 시키겠습니까?`)) return;
+            
+            try {
+                const res = await fetch('/api/system/force_logout/selected', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_ids: userIds })
+                });
+                const json = await res.json();
+                if (json.success) {
+                    alert(json.message);
+                    // 본인이 포함되어 있었을 경우 자동으로 리다이렉트 처리되거나 401로 떨어짐
+                    if (userIds.includes({{ user.UserId }})) {
+                        location.href = '/login';
+                    } else {
+                        // 체크박스 초기화
+                        document.getElementById('selectAllCheckbox').checked = false;
+                        toggleAllCheckboxes({checked: false});
+                    }
+                } else {
+                    alert(json.message);
+                }
+            } catch (err) {
+                alert('요청 중 오류가 발생했습니다.');
+            }
+        }
+
+        async function forceLogoutAll(includeMe) {
+            const msg = includeMe 
+                ? "주의: 접속 중인 본인을 포함하여 전체 사용자의 세션이 즉각 파기됩니다.\n계속하시겠습니까?" 
+                : "본인을 제외한 현재 접속 중인 전체 사용자의 세션을 강제로 파기하시겠습니까?";
+            
+            if (!confirm(msg)) return;
+            
+            try {
+                const res = await fetch('/api/system/force_logout/all', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ include_me: includeMe })
+                });
+                const json = await res.json();
+                
+                if (json.success) {
+                    alert(json.message);
+                    if (includeMe) {
+                        location.href = '/login';
+                    }
+                } else {
+                    alert(json.message);
+                }
+            } catch (err) {
+                alert('요청 중 오류가 발생했습니다.');
+            }
+        }
     </script>
 </body>
 </html>

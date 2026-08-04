@@ -498,7 +498,30 @@ def audit_logs_page():
     if not check_menu_permission('audit_logs'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
         
-    return render_template('audit_logs.html', user=session['user'])
+    user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 1. user_settings 테이블에서 설정 JSON 가져오기
+    cursor.execute("SELECT PreferencesJSON FROM user_settings WHERE UserId = ?", (user['UserId'],))
+    row = cursor.fetchone()
+    conn.close()
+    
+    # 2. 설정 확인 후 템플릿 분기 (기본값은 'standard')
+    skin = 'standard' # default
+    if row and row['PreferencesJSON']:
+        import json
+        try:
+            prefs = json.loads(row['PreferencesJSON'])
+            skin = prefs.get('layout_skin', 'standard')
+        except:
+            pass
+            
+    # 3. 레이아웃(Skin) 값에 따른 템플릿 분기 서빙
+    if skin == 'edge':
+        return render_template('audit_logs_edge.html', user=user)
+    else:
+        return render_template('audit_logs_standard.html', user=user)
 
 @app.route('/users_management')
 @login_required
@@ -883,6 +906,67 @@ def api_reset_user_password(target_user_id):
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"비밀번호가 '{temp_pw}'로 초기화되었습니다."})
+
+# ------------------------------------------
+# [제안-018] 세션 강제 만료(Force Logout) API
+# ------------------------------------------
+@app.route('/api/system/force_logout/all', methods=['POST'])
+@login_required
+def api_force_logout_all():
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    include_me = request.json.get('include_me', False)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if include_me:
+        # 모든 유저의 세션 갱신 (본인 포함)
+        cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16))")
+        log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_ALL', 'users', None, None, {"IncludeMe": True})
+    else:
+        # 본인 제외 모든 유저 세션 갱신
+        cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16)) WHERE UserId != ?", (user['UserId'],))
+        log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_ALL', 'users', None, None, {"IncludeMe": False})
+        
+    conn.commit()
+    conn.close()
+    
+    # 만약 본인 포함이면 현재 세션 정보의 토큰도 만료되게 하여 즉각 튕기게 함
+    if include_me:
+        session.clear()
+        
+    return jsonify({"success": True, "message": "성공적으로 세션이 만료되었습니다."})
+
+@app.route('/api/system/force_logout/selected', methods=['POST'])
+@login_required
+def api_force_logout_selected():
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    target_ids = request.json.get('user_ids', [])
+    if not target_ids or not isinstance(target_ids, list):
+        return jsonify({"success": False, "message": "대상 유저가 지정되지 않았습니다."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    placeholders = ','.join(['?'] * len(target_ids))
+    cursor.execute(f"UPDATE users SET SessionToken = hex(randomblob(16)) WHERE UserId IN ({placeholders})", tuple(target_ids))
+    
+    log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_SELECTED', 'users', None, None, {"TargetIds": target_ids})
+    
+    conn.commit()
+    conn.close()
+    
+    # 혹시 선택 대상에 본인이 포함되어 있다면 현재 세션 clear
+    if user['UserId'] in target_ids:
+        session.clear()
+        
+    return jsonify({"success": True, "message": f"{len(target_ids)}명의 사용자 세션이 강제 만료되었습니다."})
 
 # ------------------------------------------
 # 장비 API
