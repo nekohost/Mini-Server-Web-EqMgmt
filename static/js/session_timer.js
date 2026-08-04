@@ -166,11 +166,7 @@
     // DOM 로드 시 초기화
     document.addEventListener('DOMContentLoaded', async () => {
         // 빠른 테마 초기화 (로컬 스토리지 캐시 기반)
-        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
+        applyThemeUI(localStorage.theme || 'system');
 
         initTimer();
         initSmartBackNavigation();
