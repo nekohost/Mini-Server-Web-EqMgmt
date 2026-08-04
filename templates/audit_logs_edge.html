@@ -35,13 +35,18 @@
                     <i class="fa-solid fa-shield-halved text-brand-500 text-2xl"></i>
                     <span class="font-bold text-lg text-slate-900 dark:text-white">보안 감사 로그 시스템</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button id="themeToggle" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg" title="테마 변경">
+                <div class="flex items-center space-x-3 sm:space-x-4">
+                    <button onclick="window.toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg" title="테마 변경">
                         <i class="fa-solid fa-moon text-lg dark:hidden"></i>
                         <i class="fa-solid fa-sun text-lg hidden dark:block text-amber-400"></i>
                     </button>
-                    <a href="/portal" class="text-sm text-slate-600 dark:text-slate-300 hover:text-brand-500 font-medium">
-                        <i class="fa-solid fa-arrow-left mr-1"></i> 포털로 돌아가기
+                    <span id="session-timer-badge"></span>
+                    <span class="hidden sm:inline-block text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-600">
+                        👤 {{ user.NickName }} (<strong class="text-blue-600 dark:text-blue-400">{{ user.Role }}</strong>)
+                    </span>
+                    <a href="/logout" class="text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition">로그아웃</a>
+                    <a href="/portal" class="text-sm text-slate-600 dark:text-slate-300 hover:text-brand-500 font-medium ml-2">
+                        <i class="fa-solid fa-arrow-left mr-1"></i> 포털로
                     </a>
                 </div>
             </div>
@@ -221,11 +226,6 @@
         // 초기화
         document.addEventListener('DOMContentLoaded', () => {
             loadUserSettings();
-        });
-
-        // 다크모드 토글
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            document.documentElement.classList.toggle('dark');
         });
 
         // 1. 사용자 저장 설정(user_settings) 불러오기
