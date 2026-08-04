@@ -586,21 +586,21 @@ def api_user_settings():
 # ------------------------------------------
 ALLOWED_AUDIT_SEARCH_FIELDS = {
     'all': None,
-    'ActorLoginId': 'ActorLoginId',
-    'ActorName': 'ActorName',
-    'IpAddress': 'IpAddress',
-    'Action': 'Action',
-    'TargetId': 'TargetId',
-    'Details': 'Details',
-    'OldValue': 'OldValue',
-    'NewValue': 'NewValue'
+    'ActorLoginId': 'a.ActorLoginId',
+    'ActorName': 'u.Name',
+    'IpAddress': 'a.IpAddress',
+    'Action': 'a.Action',
+    'TargetId': 'a.TargetId',
+    'TargetTable': 'a.TargetTable',
+    'OldValue': 'a.OldValue',
+    'NewValue': 'a.NewValue'
 }
 
 @app.route('/api/audit_logs', methods=['GET'])
 @login_required
 def api_audit_logs():
     """
-    [역할] 감사 로그 RESTful 비동기 조회, 컬럼별 조건 검색 및 전역 페이징 처리
+    [역할] 감사 로그 RESTful 비동기 조회, 컬럼별 조건 검색 및 전역 페이징 처리 (LEFT JOIN 및 빈 키워드 전체 조회 지원)
     [의존성 관계] @login_required, check_menu_permission('audit_logs'), get_db_connection()
     [변경 시 영향도] templates/audit_logs.html의 비동기 표 목록 및 페이징 처리에 영향을 줍니다.
     """
@@ -625,7 +625,7 @@ def api_audit_logs():
         match_type = request.args.get('match_type', 'like') # 'exact' or 'like'
         keyword = request.args.get('keyword', '').strip()
 
-        # 2. 관리자 세션인 경우 상한선 10,000개로 유연하게 확장 (DoS 방어)
+        # 2. 관리자 세션인 경우 상한선 10,000개로 확장 (DoS 방어)
         user = session.get('user', {})
         max_limit = 10000 if user.get('Role') == 'admin' else 1000
 
@@ -643,11 +643,11 @@ def api_audit_logs():
         if keyword:
             if search_field == 'all':
                 if match_type == 'exact':
-                    where_clauses.append("(ActorLoginId = ? OR ActorName = ? OR IpAddress = ? OR Action = ? OR TargetId = ? OR Details = ? OR OldValue = ? OR NewValue = ?)")
+                    where_clauses.append("(a.ActorLoginId = ? OR u.Name = ? OR a.IpAddress = ? OR a.Action = ? OR a.TargetTable = ? OR a.TargetId = ? OR a.OldValue = ? OR a.NewValue = ?)")
                     params.extend([keyword] * 8)
                 else:
                     like_kw = f"%{keyword}%"
-                    where_clauses.append("(ActorLoginId LIKE ? OR ActorName LIKE ? OR IpAddress LIKE ? OR Action LIKE ? OR TargetId LIKE ? OR Details LIKE ? OR OldValue LIKE ? OR NewValue LIKE ?)")
+                    where_clauses.append("(a.ActorLoginId LIKE ? OR u.Name LIKE ? OR a.IpAddress LIKE ? OR a.Action LIKE ? OR a.TargetTable LIKE ? OR a.TargetId LIKE ? OR a.OldValue LIKE ? OR a.NewValue LIKE ?)")
                     params.extend([like_kw] * 8)
             elif search_field in ALLOWED_AUDIT_SEARCH_FIELDS and ALLOWED_AUDIT_SEARCH_FIELDS[search_field]:
                 column_name = ALLOWED_AUDIT_SEARCH_FIELDS[search_field]
@@ -657,6 +657,14 @@ def api_audit_logs():
                 else:
                     where_clauses.append(f"{column_name} LIKE ?")
                     params.append(f"%{keyword}%")
+            elif search_field == 'Details':
+                if match_type == 'exact':
+                    where_clauses.append("(a.TargetTable = ? OR a.OldValue = ? OR a.NewValue = ?)")
+                    params.extend([keyword] * 3)
+                else:
+                    like_kw = f"%{keyword}%"
+                    where_clauses.append("(a.TargetTable LIKE ? OR a.OldValue LIKE ? OR a.NewValue LIKE ?)")
+                    params.extend([like_kw] * 3)
             else:
                 return jsonify({'status': 'error', 'message': '유효하지 않은 검색 컬럼입니다.'}), 400
 
@@ -667,17 +675,27 @@ def api_audit_logs():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # 4. 전체 카운트 쿼리
-        count_query = f"SELECT COUNT(*) FROM audit_logs {where_stmt}"
+        # 4. 전체 카운트 쿼리 (users 테이블과 LEFT JOIN)
+        count_query = f"""
+            SELECT COUNT(*) 
+            FROM audit_logs a 
+            LEFT JOIN users u ON a.ActorLoginId = u.LoginId 
+            {where_stmt}
+        """
         cursor.execute(count_query, params)
         total_count = cursor.fetchone()[0]
 
         # 5. 데이터 목록 쿼리
         data_query = f"""
-            SELECT AuditId, ActorId, ActorLoginId, ActorName, Action, TargetId, IpAddress, OldValue, NewValue, Details, CreatedAt
-            FROM audit_logs
+            SELECT 
+                a.AuditId, a.ActorId, a.ActorLoginId, 
+                COALESCE(u.Name, a.ActorLoginId, 'System') AS ActorName, 
+                a.Action, a.TargetTable, a.TargetId, a.IpAddress, 
+                a.OldValue, a.NewValue, a.UserAgent, a.CreatedAt
+            FROM audit_logs a
+            LEFT JOIN users u ON a.ActorLoginId = u.LoginId
             {where_stmt}
-            ORDER BY AuditId DESC
+            ORDER BY a.AuditId DESC
             LIMIT ? OFFSET ?
         """
         data_params = params + [per_page, offset]
@@ -687,17 +705,28 @@ def api_audit_logs():
 
         logs = []
         for r in rows:
+            details_parts = []
+            if r['TargetTable']:
+                details_parts.append(f"테이블: {r['TargetTable']}")
+            if r['OldValue']:
+                details_parts.append(f"이전: {r['OldValue']}")
+            if r['NewValue']:
+                details_parts.append(f"변경: {r['NewValue']}")
+            
+            details_str = " | ".join(details_parts) if details_parts else "-"
+
             logs.append({
                 'AuditId': r['AuditId'],
                 'ActorId': r['ActorId'],
                 'ActorLoginId': r['ActorLoginId'],
                 'ActorName': r['ActorName'],
                 'Action': r['Action'],
-                'TargetId': r['TargetId'],
+                'TargetId': r['TargetId'] if r['TargetId'] is not None else '-',
+                'TargetTable': r['TargetTable'],
                 'IpAddress': r['IpAddress'],
                 'OldValue': r['OldValue'],
                 'NewValue': r['NewValue'],
-                'Details': r['Details'],
+                'Details': details_str,
                 'CreatedAt': r['CreatedAt']
             })
 

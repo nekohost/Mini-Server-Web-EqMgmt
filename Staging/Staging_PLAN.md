@@ -102,3 +102,9 @@
 5. **권한에 따른 Page Size 제한(DoS 방어) 유연성 제공**
    - **현재 상태**: 무조건 최대 1,000개로 하드코딩 제한 (`max 1000`). 관리자가 대량 로그를 조회할 권리마저 제한되는 문제 발생.
    - **수정 목표**: 유효한 권한을 갖춘 세션(`check_menu_permission` 통과)의 경우에는 관리자의 사용성을 보장하기 위해 상한선(limit)을 10,000개 등으로 대폭 상향하거나 제한을 완화. (프론트엔드 HTML의 `<input type="number" max="1000">` 속성 역시 `max="10000"` 등으로 수정 필요).
+
+6. **[긴급 버그 수정] 키워드 미입력 시 전체 이력 표출 및 DB 스키마 바인딩 결함 보완**
+   - **원인 분석**: `audit_logs` 테이블에는 `ActorName` 및 `Details` 물리 컬럼이 존재하지 않고 `ActorLoginId`, `TargetTable`, `OldValue`, `NewValue`가 존재함. 이로 인해 `SELECT ActorName, Details` 쿼리 실행 시 `sqlite3.OperationalError`가 발생하여 키워드 유무와 관계없이 에러가 도출됨.
+   - **수정 목표**: 
+     1) `audit_logs a LEFT JOIN users u ON a.ActorLoginId = u.LoginId` 구문으로 `ActorName`(`COALESCE(u.Name, a.ActorLoginId, 'System')`)을 정규 쿼리로 안전 결합.
+     2) 키워드가 없거나 빈 문자열일 경우 `WHERE` 절을 생성하지 않고 전체 감사 로그 데이터를 `ORDER BY AuditId DESC LIMIT ? OFFSET ?`로 즉시 반환하여 키워드 미입력 시 전체 이력 조회가 완벽히 수행되도록 보완.

@@ -1,8 +1,8 @@
 """
 [Staging] Staging_app_patch.py
 - [제안-017] 감사 로그 고도화 백엔드 REST API 및 SQL Whitelist 검색 패치 시안
-- [Gemini 3.1 Pro 리뷰 지침 1~5 완전 반영 버전]
-- 실제 반영 시 app.py의 관련 엔드포인트로 병합(Merge)됩니다.
+- [Gemini 3.1 Pro 검토 & 긴급 버그 수정 반영 버전]
+- LEFT JOIN users 연동 및 키워드 미입력 시 전체 이력 정상 표출 지원
 """
 
 from flask import request, jsonify, render_template, session
@@ -10,20 +10,17 @@ import sqlite3
 import json
 from functools import wraps
 
-# 기존 app.py 공통 함수/데코레이터 가정 (Staging 테스트용 참조 명시)
-# 실제 app.py 병합 시에는 app.py 내의 @login_required, check_menu_permission(), get_db_connection()을 그대로 사용합니다.
-
 # SQL Injection 방지를 위한 감사로그 검색 허용 컬럼 Whitelist
 ALLOWED_AUDIT_SEARCH_FIELDS = {
     'all': None, # 전체 검색
-    'ActorLoginId': 'ActorLoginId',
-    'ActorName': 'ActorName',
-    'IpAddress': 'IpAddress',
-    'Action': 'Action',
-    'TargetId': 'TargetId',
-    'Details': 'Details',
-    'OldValue': 'OldValue',
-    'NewValue': 'NewValue'
+    'ActorLoginId': 'a.ActorLoginId',
+    'ActorName': 'u.Name',
+    'IpAddress': 'a.IpAddress',
+    'Action': 'a.Action',
+    'TargetId': 'a.TargetId',
+    'TargetTable': 'a.TargetTable',
+    'OldValue': 'a.OldValue',
+    'NewValue': 'a.NewValue'
 }
 
 def get_db_connection():
@@ -40,7 +37,6 @@ def login_required(f):
     return decorated_function
 
 def check_menu_permission(menu_name):
-    # app.py 내의 권한 검사 함수 호출을 모의함
     user = session.get('user', {})
     role = user.get('Role', 'user')
     if role == 'admin':
@@ -52,7 +48,6 @@ def check_menu_permission(menu_name):
 # -----------------------------------------------------------------------------
 @login_required
 def staging_audit_logs_view():
-    # [Pro 지침 1 반영] 하드코딩 role 체크 대신 표준 check_menu_permission 사용
     if not check_menu_permission('audit_logs'):
         return "접근 권한이 없습니다.", 403
         
@@ -64,12 +59,11 @@ def staging_audit_logs_view():
 # -----------------------------------------------------------------------------
 @login_required
 def staging_api_audit_logs():
-    # [Pro 지침 1, 2 반영] @login_required 적용 및 check_menu_permission 표준 검사
     if not check_menu_permission('audit_logs'):
         return jsonify({'status': 'error', 'message': '접근 권한이 없습니다.'}), 403
 
     try:
-        # [Pro 지침 3 반영] 입력값 형변환 (Type Casting Error) 예외 처리 (Try-Except Fallback)
+        # 1. 파라미터 파싱 및 Type Casting 예외 방어
         try:
             page = int(request.args.get('page', 1))
             if page < 1:
@@ -86,7 +80,7 @@ def staging_api_audit_logs():
         match_type = request.args.get('match_type', 'like') # 'exact' or 'like'
         keyword = request.args.get('keyword', '').strip()
 
-        # [Pro 지침 5 반영] 로그인 세션의 유효성/관리자 권한 확인 후 상한선(limit)을 10,000개로 유연하게 대폭 상향
+        # 2. 관리자 세션인 경우 상한선 10,000개로 확장 (DoS 방어)
         user = session.get('user', {})
         max_limit = 10000 if user.get('Role') == 'admin' else 1000
 
@@ -103,13 +97,12 @@ def staging_api_audit_logs():
 
         if keyword:
             if search_field == 'all':
-                # [Pro 지침 4 반영] 전체 검색 시 OldValue, NewValue JSON 변경 이력 포함
                 if match_type == 'exact':
-                    where_clauses.append("(ActorLoginId = ? OR ActorName = ? OR IpAddress = ? OR Action = ? OR TargetId = ? OR Details = ? OR OldValue = ? OR NewValue = ?)")
+                    where_clauses.append("(a.ActorLoginId = ? OR u.Name = ? OR a.IpAddress = ? OR a.Action = ? OR a.TargetTable = ? OR a.TargetId = ? OR a.OldValue = ? OR a.NewValue = ?)")
                     params.extend([keyword] * 8)
                 else:
                     like_kw = f"%{keyword}%"
-                    where_clauses.append("(ActorLoginId LIKE ? OR ActorName LIKE ? OR IpAddress LIKE ? OR Action LIKE ? OR TargetId LIKE ? OR Details LIKE ? OR OldValue LIKE ? OR NewValue LIKE ?)")
+                    where_clauses.append("(a.ActorLoginId LIKE ? OR u.Name LIKE ? OR a.IpAddress LIKE ? OR a.Action LIKE ? OR a.TargetTable LIKE ? OR a.TargetId LIKE ? OR a.OldValue LIKE ? OR a.NewValue LIKE ?)")
                     params.extend([like_kw] * 8)
             elif search_field in ALLOWED_AUDIT_SEARCH_FIELDS and ALLOWED_AUDIT_SEARCH_FIELDS[search_field]:
                 column_name = ALLOWED_AUDIT_SEARCH_FIELDS[search_field]
@@ -119,6 +112,14 @@ def staging_api_audit_logs():
                 else:
                     where_clauses.append(f"{column_name} LIKE ?")
                     params.append(f"%{keyword}%")
+            elif search_field == 'Details':
+                if match_type == 'exact':
+                    where_clauses.append("(a.TargetTable = ? OR a.OldValue = ? OR a.NewValue = ?)")
+                    params.extend([keyword] * 3)
+                else:
+                    like_kw = f"%{keyword}%"
+                    where_clauses.append("(a.TargetTable LIKE ? OR a.OldValue LIKE ? OR a.NewValue LIKE ?)")
+                    params.extend([like_kw] * 3)
             else:
                 return jsonify({'status': 'error', 'message': '유효하지 않은 검색 컬럼입니다.'}), 400
 
@@ -129,17 +130,27 @@ def staging_api_audit_logs():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        # 4. 전체 카운트 쿼리 (페이징 계산용)
-        count_query = f"SELECT COUNT(*) FROM audit_logs {where_stmt}"
+        # 4. 전체 카운트 쿼리 (users 테이블과 LEFT JOIN)
+        count_query = f"""
+            SELECT COUNT(*) 
+            FROM audit_logs a 
+            LEFT JOIN users u ON a.ActorLoginId = u.LoginId 
+            {where_stmt}
+        """
         cursor.execute(count_query, params)
         total_count = cursor.fetchone()[0]
 
-        # 5. 데이터 목록 쿼리 (LIMIT & OFFSET)
+        # 5. 데이터 목록 쿼리
         data_query = f"""
-            SELECT AuditId, ActorId, ActorLoginId, ActorName, Action, TargetId, IpAddress, OldValue, NewValue, Details, CreatedAt
-            FROM audit_logs
+            SELECT 
+                a.AuditId, a.ActorId, a.ActorLoginId, 
+                COALESCE(u.Name, a.ActorLoginId, 'System') AS ActorName, 
+                a.Action, a.TargetTable, a.TargetId, a.IpAddress, 
+                a.OldValue, a.NewValue, a.UserAgent, a.CreatedAt
+            FROM audit_logs a
+            LEFT JOIN users u ON a.ActorLoginId = u.LoginId
             {where_stmt}
-            ORDER BY AuditId DESC
+            ORDER BY a.AuditId DESC
             LIMIT ? OFFSET ?
         """
         data_params = params + [per_page, offset]
@@ -147,20 +158,30 @@ def staging_api_audit_logs():
         rows = cursor.fetchall()
         conn.close()
 
-        # Data JSON 변환
         logs = []
         for r in rows:
+            details_parts = []
+            if r['TargetTable']:
+                details_parts.append(f"테이블: {r['TargetTable']}")
+            if r['OldValue']:
+                details_parts.append(f"이전: {r['OldValue']}")
+            if r['NewValue']:
+                details_parts.append(f"변경: {r['NewValue']}")
+            
+            details_str = " | ".join(details_parts) if details_parts else "-"
+
             logs.append({
                 'AuditId': r['AuditId'],
                 'ActorId': r['ActorId'],
                 'ActorLoginId': r['ActorLoginId'],
                 'ActorName': r['ActorName'],
                 'Action': r['Action'],
-                'TargetId': r['TargetId'],
+                'TargetId': r['TargetId'] if r['TargetId'] is not None else '-',
+                'TargetTable': r['TargetTable'],
                 'IpAddress': r['IpAddress'],
                 'OldValue': r['OldValue'],
                 'NewValue': r['NewValue'],
-                'Details': r['Details'],
+                'Details': details_str,
                 'CreatedAt': r['CreatedAt']
             })
 
