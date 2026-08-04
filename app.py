@@ -491,37 +491,13 @@ def permissions_page():
 @login_required
 def audit_logs_page():
     """
-    [역할] 보안 감사 로그 페이지 렌더링 (비동기 페이징 및 조건 검색 적용)
+    [역할] 보안 감사 로그 페이지 렌더링 (통합 단일 레이아웃 적용)
     [의존성 관계] @login_required, check_menu_permission('audit_logs'), templates/audit_logs.html
-    [변경 시 영향도] /audit_logs 접속 시 비동기 템플릿 반환
+    [변경 시 영향도] /audit_logs 접속 시 단일 템플릿 반환
     """
     if not check_menu_permission('audit_logs'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
-        
-    user = session['user']
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # 1. user_settings 테이블에서 설정 JSON 가져오기
-    cursor.execute("SELECT PreferencesJSON FROM user_settings WHERE UserId = ?", (user['UserId'],))
-    row = cursor.fetchone()
-    conn.close()
-    
-    # 2. 설정 확인 후 템플릿 분기 (기본값은 'standard')
-    skin = 'standard' # default
-    if row and row['PreferencesJSON']:
-        import json
-        try:
-            prefs = json.loads(row['PreferencesJSON'])
-            skin = prefs.get('layout_skin', 'standard')
-        except:
-            pass
-            
-    # 3. 레이아웃(Skin) 값에 따른 템플릿 분기 서빙
-    if skin == 'edge':
-        return render_template('audit_logs_edge.html', user=user)
-    else:
-        return render_template('audit_logs_standard.html', user=user)
+    return render_template('audit_logs.html', user=session['user'])
 
 @app.route('/users_management')
 @login_required
