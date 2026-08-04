@@ -140,6 +140,29 @@
         return result;
     };
 
+    // 스마트 동적 뒤로가기 네비게이션 초기화
+    function initSmartBackNavigation() {
+        const backBtn = document.getElementById('smart-back-btn');
+        const backText = document.getElementById('smart-back-text');
+        if (backBtn) {
+            const referrer = document.referrer;
+            const origin = window.location.origin;
+            
+            // 1) 동일 도메인이면서 2) 직전 페이지가 포털이 아니고 3) 로그인 페이지가 아닌 경우에만 '이전으로' 활성화
+            if (referrer && referrer.startsWith(origin) && 
+                !referrer.endsWith('/portal') && 
+                !referrer.includes('/login')) {
+                
+                if (backText) backText.innerText = '이전으로';
+                backBtn.href = 'javascript:void(0)';
+                backBtn.onclick = function(e) {
+                    e.preventDefault();
+                    window.history.back();
+                };
+            }
+        }
+    }
+
     // DOM 로드 시 초기화
     document.addEventListener('DOMContentLoaded', async () => {
         // 빠른 테마 초기화 (로컬 스토리지 캐시 기반)
@@ -150,6 +173,7 @@
         }
 
         initTimer();
+        initSmartBackNavigation();
         pollInterval = setInterval(pollSession, 5000);
         
         // 서버 설정 동기화

@@ -226,3 +226,53 @@ Gemini가 실제 템플릿 소스코드를 직접 재검증한 결과, **Claude�
 **구현물은 `Staging_PLAN.md`에서 도출된 가장 이상적인 아키텍처를 100% 반영하여 완벽하게 작성되었으며, 실제 작동 시 치명적인 버그나 확장성 결여 문제가 존재하지 않음을 확인했습니다.** 
 
 이제 현재 구현된 템플릿들을 운영(`templates/`) 디렉토리로 이동시키기 전 마지막 단계인 **Claude Opus 정적 분석(마무리 점검)**으로 이관해도 좋은 상태입니다.
+
+---
+
+## 9. 추가 검토: Context-aware 스마트 동적 뒤로가기 네비게이션 UX 개선 ([제안-020])
+
+본 섹션은 **[제안-020] 및 [로드맵-8]** 에 명시된 스마트 뒤로가기 네비게이션의 로직( `document.referrer` 및 `history.back()` 연동 )에 대한 타당성 검토 및 보완 계획입니다.
+
+### 9.1 로직 기본 방향성 평가
+`document.referrer`와 `window.history.back()`을 혼합하여 사용하는 방식은 프론트엔드 환경에서 가장 표준적이고 직관적인 스마트 네비게이션 구현 방법으로, 기획된 의도에 완벽하게 부합합니다.
+
+### 9.2 예외 케이스(Edge Case) 및 방어 로직 (필수 반영 사항)
+로직 구현 시 다음 3가지 엣지 케이스를 반드시 방어해야 UX 결함 및 잠재적 버그를 예방할 수 있습니다.
+
+1. **외부 도메인 진입 및 직접 URL 접근 방어**
+   - **상황:** 사용자가 북마크나 외부 링크로 특정 서브 페이지에 직접 접근했을 때 `document.referrer`가 비어있거나 외부 도메인일 수 있습니다.
+   - **대응:** `referrer`가 현재 도메인(`window.location.origin`)을 포함하고 있는지 검사하고, 아니라면 무조건 `/portal`로 안전하게 Fallback 하도록 처리합니다.
+2. **포털(`/portal`)에서 직진입한 경우 명시성 강화**
+   - **상황:** 포털에서 마이페이지 등으로 진입 시 `referrer`에 의해 `history.back()`이 동작하여 포털로 돌아가게 됩니다.
+   - **대응:** 동작 자체는 무방하나, 명시적인 UX를 위해 직전 페이지가 포털인 경우 텍스트를 "← 포털로"로 표출하고 직접 `/portal`로 이동하게끔 명확히 분기 처리합니다.
+3. **인증 플로우(로그인/로그아웃) 참조 방어**
+   - **상황:** `referrer`가 `/login` 등의 페이지인 상태에서 뒤로가기를 허용하면 로그인 페이지로 되돌아가는 어색한 경험을 주게 됩니다.
+   - **대응:** `referrer`가 인증 관련 페이지인 경우에도 예외로 간주하여 무조건 `/portal`로 Fallback 합니다.
+
+### 9.3 확정된 상세 구현 설계 (session_timer.js)
+위의 보완점을 반영하여 `miniserver_frame.html`에 하드코딩된 "← 포털로" 링크를 뼈대로 두고, `session_timer.js`에서 아래와 같이 동적으로 오버라이딩(Overriding) 하는 아키텍처를 채택합니다.
+
+```javascript
+// session_timer.js 내부에 추가될 스마트 뒤로가기 제어 로직
+const backBtn = document.getElementById('smart-back-btn');
+if (backBtn) {
+    const referrer = document.referrer;
+    const origin = window.location.origin;
+    
+    // 1) 동일 도메인이면서 2) 직전 페이지가 포털이 아니고 3) 로그인 페이지가 아닌 경우에만 '이전으로' 활성화
+    if (referrer && referrer.startsWith(origin) && 
+        !referrer.endsWith('/portal') && 
+        !referrer.includes('/login')) {
+        
+        document.getElementById('smart-back-text').innerText = '이전으로';
+        backBtn.href = 'javascript:void(0)';
+        backBtn.onclick = function(e) {
+            e.preventDefault();
+            window.history.back(); // 브라우저 백스택 활용
+        };
+    }
+    // 그 외의 경우 HTML에 하드코딩된 '← 포털로' 링크 유지
+}
+```
+
+이로써 [제안-020]의 스마트 네비게이션 UX 개선 계획은 이론적 무결성을 갖추었으며 즉시 코드 구현에 착수할 수 있습니다.
