@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>보안 감사 로그 - 미니서버 통합 관리 시스템</title>
+    <title>[Staging] 감사 로그 모니터링 - 장비 통합 관리 시스템</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -27,13 +27,19 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-200">
     
-    <!-- 네비게이션 바 -->
+    <!-- Staging 안내 뱃지 -->
+    <div class="bg-amber-500 text-white text-xs font-bold text-center py-1 tracking-wide shadow-inner">
+        <i class="fa-solid fa-flask mr-1"></i> [STAGING PROTOTYPE] 본 화면은 [제안-017] 감사 로그 고도화 모의 실습용 시안입니다. (운영 반영 전)
+    </div>
+
+    <!-- 네비게이션 바 (Staging 모의) -->
     <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex items-center space-x-3">
                     <i class="fa-solid fa-shield-halved text-brand-500 text-2xl"></i>
                     <span class="font-bold text-lg text-slate-900 dark:text-white">보안 감사 로그 시스템</span>
+                    <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs px-2.5 py-0.5 rounded-full font-semibold">Staging Preview</span>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button id="themeToggle" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg">
@@ -63,7 +69,7 @@
             </div>
         </div>
 
-        <!-- 🔍 검색 및 필터 패널 -->
+        <!-- 🔍 검색 및 필터 패널 (Staging 핵심 개선) -->
         <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
             <form id="searchForm" class="space-y-4" onsubmit="handleSearch(event)">
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
@@ -211,7 +217,7 @@
 
     </main>
 
-    <!-- 스크립트: 감사로그 비동기 연동 로직 -->
+    <!-- 스크립트: Staging 프론트엔드 비동기 연동 로직 -->
     <script>
         // 전역 상태 변수
         let currentPage = 1;
@@ -233,7 +239,7 @@
             try {
                 const res = await fetch('/api/user_settings');
                 const data = await res.json();
-                if ((data.success || data.status === 'success') && data.settings) {
+                if (data.status === 'success' && data.settings) {
                     if (data.settings.audit_log_page_size) {
                         perPage = parseInt(data.settings.audit_log_page_size);
                         updatePageSizeUI(perPage);
@@ -332,7 +338,7 @@
                     <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-slate-500">${log.IpAddress || '-'}</td>
                     <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-700 dark:text-slate-300">${log.TargetId || '-'}</td>
                     <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate" title="${log.Details || ''}">
-                        ${log.Details || ''}
+                        ${log.Details || '-'}
                     </td>
                 </tr>
             `).join('');

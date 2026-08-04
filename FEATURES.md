@@ -12,9 +12,11 @@
   - 동일 계정으로 다른 기기/브라우저에서 접속 시 기존 세션을 강제 만료 처리 (단일 로그인 강제).
 - **백그라운드 세션 유효성 검사**: 
   - 프론트엔드에서 주기적(5초)으로 서버에 `/api/check_session`을 호출하여 세션 만료 혹은 타 브라우저 로그인 감지 시 즉각적인 자동 로그아웃 및 리다이렉트 처리.
-- **보안 감사 로그 (Audit Logs)**: 
-  - 로그인 성공/실패, 로그아웃 및 주요 테이블(장비 등)의 CUD(생성/수정/삭제) 액션 발생 시 행위자, 대상, IP 주소, User-Agent 등의 정보를 자동 기록.
-  - 관리자 전용 `/audit_logs` 화면에서 최신 200건의 로그 타임라인 확인 가능.
+- **보안 감사 로그 고도화 (Audit Logs, `/audit_logs`)**: 
+  - 로그인 성공/실패, 로그아웃 및 주요 테이블(장비 등)의 CUD(생성/수정/삭제) 액션 발생 시 행위자, 대상, IP 주소, 변경 전/후 값 등 상세 정보 자동 기록.
+  - RESTful 비동기 API (`/api/audit_logs`) 기반 전역 페이징(Pagination) 및 검색 시스템 구축.
+  - 컬럼별 조건 검색 (`ActorLoginId`, `ActorName`, `Action`, `IpAddress`, `TargetId`, `Details`, `OldValue`, `NewValue`) 및 Match Type (Exact / LIKE) 지정 가능.
+  - 페이지 당 보기 개수 설정 (50, 100, 150, 200, 300, 500 및 기타/직접 입력 max 10,000) 지원 및 `user_settings` DB JSON 영속화 자동 복원.
 - **역할 기반 접근 제어 (RBAC)**: 
   - `user`(일반 사용자)와 `admin`(최고 관리자) 역할 구분.
   - `check_menu_permission` 데코레이터를 통한 메뉴 접근 권한 철저 검증.

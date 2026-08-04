@@ -490,16 +490,15 @@ def permissions_page():
 @app.route('/audit_logs')
 @login_required
 def audit_logs_page():
+    """
+    [역할] 보안 감사 로그 페이지 렌더링 (비동기 페이징 및 조건 검색 적용)
+    [의존성 관계] @login_required, check_menu_permission('audit_logs'), templates/audit_logs.html
+    [변경 시 영향도] /audit_logs 접속 시 비동기 템플릿 반환
+    """
     if not check_menu_permission('audit_logs'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
         
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM audit_logs ORDER BY AuditId DESC LIMIT 200")
-    logs = cursor.fetchall()
-    conn.close()
-    
-    return render_template('audit_logs.html', user=session['user'], logs=logs)
+    return render_template('audit_logs.html', user=session['user'])
 
 @app.route('/users_management')
 @login_required
@@ -581,6 +580,142 @@ def api_user_settings():
         conn.commit()
         conn.close()
         return jsonify({"success": True, "settings": current_settings})
+
+# ------------------------------------------
+# 감사 로그 비동기 조회 및 조건 검색 API
+# ------------------------------------------
+ALLOWED_AUDIT_SEARCH_FIELDS = {
+    'all': None,
+    'ActorLoginId': 'ActorLoginId',
+    'ActorName': 'ActorName',
+    'IpAddress': 'IpAddress',
+    'Action': 'Action',
+    'TargetId': 'TargetId',
+    'Details': 'Details',
+    'OldValue': 'OldValue',
+    'NewValue': 'NewValue'
+}
+
+@app.route('/api/audit_logs', methods=['GET'])
+@login_required
+def api_audit_logs():
+    """
+    [역할] 감사 로그 RESTful 비동기 조회, 컬럼별 조건 검색 및 전역 페이징 처리
+    [의존성 관계] @login_required, check_menu_permission('audit_logs'), get_db_connection()
+    [변경 시 영향도] templates/audit_logs.html의 비동기 표 목록 및 페이징 처리에 영향을 줍니다.
+    """
+    if not check_menu_permission('audit_logs'):
+        return jsonify({'status': 'error', 'message': '접근 권한이 없습니다.'}), 403
+
+    try:
+        # 1. 파라미터 파싱 및 Type Casting 예외 방어
+        try:
+            page = int(request.args.get('page', 1))
+            if page < 1:
+                page = 1
+        except (ValueError, TypeError):
+            page = 1
+
+        try:
+            per_page = int(request.args.get('per_page', 200))
+        except (ValueError, TypeError):
+            per_page = 200
+
+        search_field = request.args.get('search_field', 'all')
+        match_type = request.args.get('match_type', 'like') # 'exact' or 'like'
+        keyword = request.args.get('keyword', '').strip()
+
+        # 2. 관리자 세션인 경우 상한선 10,000개로 유연하게 확장 (DoS 방어)
+        user = session.get('user', {})
+        max_limit = 10000 if user.get('Role') == 'admin' else 1000
+
+        if per_page < 10:
+            per_page = 10
+        elif per_page > max_limit:
+            per_page = max_limit
+
+        offset = (page - 1) * per_page
+
+        # 3. Dynamic SQL 및 Whitelist 검증
+        where_clauses = []
+        params = []
+
+        if keyword:
+            if search_field == 'all':
+                if match_type == 'exact':
+                    where_clauses.append("(ActorLoginId = ? OR ActorName = ? OR IpAddress = ? OR Action = ? OR TargetId = ? OR Details = ? OR OldValue = ? OR NewValue = ?)")
+                    params.extend([keyword] * 8)
+                else:
+                    like_kw = f"%{keyword}%"
+                    where_clauses.append("(ActorLoginId LIKE ? OR ActorName LIKE ? OR IpAddress LIKE ? OR Action LIKE ? OR TargetId LIKE ? OR Details LIKE ? OR OldValue LIKE ? OR NewValue LIKE ?)")
+                    params.extend([like_kw] * 8)
+            elif search_field in ALLOWED_AUDIT_SEARCH_FIELDS and ALLOWED_AUDIT_SEARCH_FIELDS[search_field]:
+                column_name = ALLOWED_AUDIT_SEARCH_FIELDS[search_field]
+                if match_type == 'exact':
+                    where_clauses.append(f"{column_name} = ?")
+                    params.append(keyword)
+                else:
+                    where_clauses.append(f"{column_name} LIKE ?")
+                    params.append(f"%{keyword}%")
+            else:
+                return jsonify({'status': 'error', 'message': '유효하지 않은 검색 컬럼입니다.'}), 400
+
+        where_stmt = ""
+        if where_clauses:
+            where_stmt = "WHERE " + " AND ".join(where_clauses)
+
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        # 4. 전체 카운트 쿼리
+        count_query = f"SELECT COUNT(*) FROM audit_logs {where_stmt}"
+        cursor.execute(count_query, params)
+        total_count = cursor.fetchone()[0]
+
+        # 5. 데이터 목록 쿼리
+        data_query = f"""
+            SELECT AuditId, ActorId, ActorLoginId, ActorName, Action, TargetId, IpAddress, OldValue, NewValue, Details, CreatedAt
+            FROM audit_logs
+            {where_stmt}
+            ORDER BY AuditId DESC
+            LIMIT ? OFFSET ?
+        """
+        data_params = params + [per_page, offset]
+        cursor.execute(data_query, data_params)
+        rows = cursor.fetchall()
+        conn.close()
+
+        logs = []
+        for r in rows:
+            logs.append({
+                'AuditId': r['AuditId'],
+                'ActorId': r['ActorId'],
+                'ActorLoginId': r['ActorLoginId'],
+                'ActorName': r['ActorName'],
+                'Action': r['Action'],
+                'TargetId': r['TargetId'],
+                'IpAddress': r['IpAddress'],
+                'OldValue': r['OldValue'],
+                'NewValue': r['NewValue'],
+                'Details': r['Details'],
+                'CreatedAt': r['CreatedAt']
+            })
+
+        total_pages = (total_count + per_page - 1) // per_page if total_count > 0 else 1
+
+        return jsonify({
+            'status': 'success',
+            'data': logs,
+            'pagination': {
+                'page': page,
+                'per_page': per_page,
+                'total_count': total_count,
+                'total_pages': total_pages
+            }
+        })
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f'서버 오류가 발생했습니다: {str(e)}'}), 500
 
 # ------------------------------------------
 # 대시보드 통계 API
