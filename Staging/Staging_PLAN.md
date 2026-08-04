@@ -108,3 +108,17 @@
    - **수정 목표**: 
      1) `audit_logs a LEFT JOIN users u ON a.ActorLoginId = u.LoginId` 구문으로 `ActorName`(`COALESCE(u.Name, a.ActorLoginId, 'System')`)을 정규 쿼리로 안전 결합.
      2) 키워드가 없거나 빈 문자열일 경우 `WHERE` 절을 생성하지 않고 전체 감사 로그 데이터를 `ORDER BY AuditId DESC LIMIT ? OFFSET ?`로 즉시 반환하여 키워드 미입력 시 전체 이력 조회가 완벽히 수행되도록 보완.
+
+---
+
+## 🛡️ 7. [Gemini 3.1 Pro 2차 리뷰] 프론트엔드 조작 및 DoS 보안 취약점 검토
+
+사용자 피드백에 따라 프론트엔드(`Staging_audit_logs.html`)의 `max="10000"` 등 HTML 요소가 브라우저 개발자 도구(F12)를 통해 임의 조작될 경우를 대비한 보안 검토 이력입니다. 
+Flash 모델은 향후 관련 API 및 UI 개발 시 아래와 같은 **서버 사이드 검증(Server-Side Validation)** 원칙을 반드시 기억하고 준수해야 합니다.
+
+1. **프론트엔드 코드 조작 우려 사항 (사용자 지적)**
+   - 브라우저 개발자 도구로 `<input type="number" max="10000">` 제한을 `max="999999"` 등 비정상적인 값으로 수정하여 요청할 경우, 서버 메모리를 고갈시키는 DoS(Denial of Service) 공격이 발생할 수 있다는 위험성 지적.
+2. **백엔드(서버) 이중 보안 및 강제 제한(Clamping) 원칙 확립**
+   - 백엔드에서 사용자 권한은 클라이언트 전달 값이 아닌 암호화 서명된 `session` 객체를 통해 안전하게 가져오므로 클라이언트가 권한(Role)을 임의 변조할 수 없습니다.
+   - 프론트엔드에서 비정상적인 `per_page` 값을 전달하더라도, 백엔드 내부 로직에서 `elif per_page > max_limit: per_page = max_limit`를 통해 안전한 상한선(일반 1,000 / 관리자 10,000)으로 **강제 하향 조정(Clamping)** 하도록 처리되어야 합니다.
+   - **최종 결론**: HTML 등 프론트엔드의 제약 사항(max)은 오직 사용자 편의성(UI/UX) 목적이며, 실제 데이터 조작 및 자원 한도 초과 방어는 오직 백엔드 서버 로직에서 전적으로 통제해야 완벽히 안전합니다.
