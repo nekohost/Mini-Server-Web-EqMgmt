@@ -27,10 +27,9 @@
                     </a>
                     {% endblock %}
 
-                    <!-- 테마 토글 버튼 -->
-                    <button onclick="window.toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg transition" title="테마 변경" aria-label="다크모드/라이트모드 토글">
-                        <i class="fa-solid fa-moon text-lg dark:hidden"></i>
-                        <i class="fa-solid fa-sun text-lg hidden dark:block text-amber-400"></i>
+                    <!-- 테마 토글 버튼 (라이트 ↔ 다크 ↔ 시스템 3단계 전환) -->
+                    <button id="theme-toggle-btn" onclick="window.toggleTheme()" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-lg transition flex items-center justify-center" title="테마 변경" aria-label="테마 변경 (라이트/다크/시스템)">
+                        <i id="theme-toggle-icon" class="fa-solid fa-desktop text-lg"></i>
                     </button>
 
                     <!-- 세션 타이머 배지 -->

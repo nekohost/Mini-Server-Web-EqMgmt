@@ -126,32 +126,27 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const res = await fetch('/api/user_settings');
-            const data = await res.json();
-            
-            if (data.success && data.settings) {
-                let currentTheme = localStorage.getItem('theme') || 'system';
-                const themeRadio = document.querySelector(`input[name="theme_setting"][value="${currentTheme}"]`);
-                if (themeRadio) themeRadio.checked = true;
-            }
-        } catch (err) {
-            console.warn('사용자 설정을 불러오지 못했습니다.', err);
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+        const currentTheme = window.userSettings?.theme || localStorage.getItem('theme') || 'system';
+        const themeRadio = document.querySelector(`input[name="theme_setting"][value="${currentTheme}"]`);
+        if (themeRadio) themeRadio.checked = true;
     });
 
     function applyThemeSetting(val) {
-        if (val === 'light') {
-            window.saveUserSettings ? window.saveUserSettings({ theme: 'light' }) : (localStorage.theme = 'light', document.documentElement.classList.remove('dark'));
-        } else if (val === 'dark') {
-            window.saveUserSettings ? window.saveUserSettings({ theme: 'dark' }) : (localStorage.theme = 'dark', document.documentElement.classList.add('dark'));
+        if (typeof window.saveUserSettings === 'function') {
+            window.saveUserSettings({ theme: val });
         } else {
-            localStorage.removeItem('theme');
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            localStorage.theme = val;
+            if (val === 'dark') {
                 document.documentElement.classList.add('dark');
-            } else {
+            } else if (val === 'light') {
                 document.documentElement.classList.remove('dark');
+            } else {
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
             }
         }
     }

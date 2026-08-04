@@ -214,14 +214,9 @@
 
     // 설정 기반으로 UI 반영 (다크 모드, 인덱스 화면 체크박스 등)
     function applySettings(settings) {
-        // 1. 다크 모드
-        if (settings.theme === 'dark') {
-            document.documentElement.classList.add('dark');
-            localStorage.theme = 'dark';
-        } else if (settings.theme === 'light') {
-            document.documentElement.classList.remove('dark');
-            localStorage.theme = 'light';
-        }
+        // 1. 테마 UI 및 설정 동기화
+        const theme = settings.theme || 'system';
+        applyThemeUI(theme);
 
         // 2. index.html의 '내 장비 최상단 보기' 체크박스 복원
         const cb = document.getElementById('includeMineCheckbox');
@@ -237,11 +232,77 @@
         }
     }
 
-    // 테마 토글 버튼용 함수 노출
+    // 테마 UI 적용 및 동기화
+    function applyThemeUI(theme) {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+        } else if (theme === 'light') {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+        } else { // system
+            localStorage.theme = 'system';
+            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+
+        // 상단바 아이콘 업데이트
+        updateThemeToggleIcon(theme);
+
+        // 마이페이지(mypage.html) 라디오 버튼 동기화
+        const themeRadios = document.querySelectorAll('input[name="theme_setting"]');
+        if (themeRadios.length > 0) {
+            themeRadios.forEach(radio => {
+                radio.checked = (radio.value === theme);
+            });
+        }
+    }
+
+    // 상단 테마 토글 버튼 아이콘 및 타이틀 동적 업데이트
+    function updateThemeToggleIcon(theme) {
+        const btn = document.getElementById('theme-toggle-btn');
+        const icon = document.getElementById('theme-toggle-icon');
+        if (!icon) return;
+
+        if (theme === 'light') {
+            icon.className = 'fa-solid fa-sun text-lg text-amber-500';
+            if (btn) btn.title = '테마: 라이트 모드 (클릭 시 다크 모드로 변경)';
+        } else if (theme === 'dark') {
+            icon.className = 'fa-solid fa-moon text-lg text-indigo-400';
+            if (btn) btn.title = '테마: 다크 모드 (클릭 시 시스템 설정으로 변경)';
+        } else { // system
+            icon.className = 'fa-solid fa-desktop text-lg text-slate-500 dark:text-slate-400';
+            if (btn) btn.title = '테마: 시스템 설정 따름 (클릭 시 라이트 모드로 변경)';
+        }
+    }
+
+    // OS 시스템 테마 변경 실시간 감지
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        const currentTheme = window.userSettings?.theme || localStorage.theme || 'system';
+        if (currentTheme === 'system') {
+            if (e.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    });
+
+    // 테마 토글 버튼용 함수 노출 (light -> dark -> system 3단계 순환)
     window.toggleTheme = function() {
-        const isDark = document.documentElement.classList.contains('dark');
-        const newTheme = isDark ? 'light' : 'dark';
-        window.saveUserSettings({ theme: newTheme });
+        const currentTheme = window.userSettings?.theme || localStorage.theme || 'system';
+        let nextTheme = 'light';
+        if (currentTheme === 'light') {
+            nextTheme = 'dark';
+        } else if (currentTheme === 'dark') {
+            nextTheme = 'system';
+        } else {
+            nextTheme = 'light';
+        }
+        window.saveUserSettings({ theme: nextTheme });
     };
 
 })();
