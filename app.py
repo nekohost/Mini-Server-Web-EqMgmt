@@ -624,6 +624,11 @@ def api_audit_logs():
         match_type = request.args.get('match_type', 'like') # 'exact' or 'like'
         keyword = request.args.get('keyword', '').strip()
 
+        # 다중 필터 파라미터 (Action 유형, 시작일/종료일)
+        action_filter = request.args.get('action_filter', '').strip()
+        start_date = request.args.get('start_date', '').strip()
+        end_date = request.args.get('end_date', '').strip()
+
         # 2. 관리자 세션인 경우 상한선 10,000개로 확장 (DoS 방어)
         user = session.get('user', {})
         max_limit = 10000 if user.get('Role') == 'admin' else 1000
@@ -666,6 +671,19 @@ def api_audit_logs():
                     params.extend([like_kw] * 3)
             else:
                 return jsonify({'status': 'error', 'message': '유효하지 않은 검색 컬럼입니다.'}), 400
+
+        # 다중 필터 조건 추가
+        if action_filter:
+            where_clauses.append("a.Action LIKE ?")
+            params.append(f"%{action_filter}%")
+
+        if start_date:
+            where_clauses.append("a.CreatedAt >= ?")
+            params.append(f"{start_date} 00:00:00" if len(start_date) == 10 else start_date)
+
+        if end_date:
+            where_clauses.append("a.CreatedAt <= ?")
+            params.append(f"{end_date} 23:59:59" if len(end_date) == 10 else end_date)
 
         where_stmt = ""
         if where_clauses:

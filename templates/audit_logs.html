@@ -22,9 +22,10 @@
 <!-- 🔍 검색 및 필터 패널 -->
 <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
     <form id="searchForm" class="space-y-4" onsubmit="handleSearch(event)">
+        <!-- 1행: 기본 키워드 검색 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
             
-            <!-- 1. 검색 컬럼 선택 -->
+            <!-- 검색 컬럼 선택 -->
             <div class="md:col-span-3">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-filter text-brand-500 mr-1"></i> 검색 대상 컬럼
@@ -40,10 +41,10 @@
                 </select>
             </div>
 
-            <!-- 2. Match Mode (일치 / LIKE 선택) -->
+            <!-- Match Mode (일치 / LIKE 선택) -->
             <div class="md:col-span-3">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-magnifying-glass-chart text-brand-500 mr-1"></i> 검색 조건 옵션
+                    <i class="fa-solid fa-magnifying-glass-chart text-brand-500 mr-1"></i> 일치 조건 옵션
                 </label>
                 <div class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-700/50 p-1.5 border border-slate-300 dark:border-slate-600 rounded-lg">
                     <label class="flex-1 text-center cursor-pointer">
@@ -61,7 +62,7 @@
                 </div>
             </div>
 
-            <!-- 3. 검색어 입력창 -->
+            <!-- 검색어 입력창 -->
             <div class="md:col-span-4">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-keyboard text-brand-500 mr-1"></i> 검색어 키워드
@@ -75,7 +76,7 @@
                 </div>
             </div>
 
-            <!-- 4. 검색 버튼 -->
+            <!-- 검색 & 초기화 버튼 -->
             <div class="md:col-span-2 flex space-x-2">
                 <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-magnifying-glass"></i> 검색
@@ -85,10 +86,43 @@
                 </button>
             </div>
         </div>
+
+        <!-- 2행: 🛠️ 상세 필터 (Action 유형, 시작일/종료일 동시 필터링) -->
+        <div class="pt-3 border-t border-slate-200 dark:border-slate-700/60 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-12 gap-3 items-end">
+            <!-- Action 필터 -->
+            <div class="md:col-span-4">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    <i class="fa-solid fa-bolt text-brand-500 mr-1"></i> 행위 유형(Action) 필터
+                </label>
+                <select id="actionFilter" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
+                    <option value="">⚡ 전체 Action 보기</option>
+                    <option value="LOGIN">🔑 LOGIN (로그인 성공/실패)</option>
+                    <option value="CREATE">➕ CREATE (자산/유저 생성)</option>
+                    <option value="UPDATE">✏️ UPDATE (수정/권한변경)</option>
+                    <option value="DELETE">🗑️ DELETE (삭제/강제파기)</option>
+                </select>
+            </div>
+
+            <!-- 시작일 필터 -->
+            <div class="md:col-span-4">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    <i class="fa-solid fa-calendar-day text-brand-500 mr-1"></i> 시작 일시 (From)
+                </label>
+                <input type="date" id="startDate" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
+            </div>
+
+            <!-- 종료일 필터 -->
+            <div class="md:col-span-4">
+                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                    <i class="fa-solid fa-calendar-check text-brand-500 mr-1"></i> 종료 일시 (To)
+                </label>
+                <input type="date" id="endDate" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
+            </div>
+        </div>
     </form>
 </div>
 
-<!-- 📊 컨트롤 바: 표출 개수 설정 & 페이징 요약 -->
+<!-- 📊 컨트롤 바: 표출 개수 설정 & 컬럼 커스텀 & 페이징 요약 -->
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-t-xl border border-slate-200 dark:border-slate-700 gap-3">
     
     <!-- 데이터 건수 정보 -->
@@ -101,28 +135,61 @@
         </span>
     </div>
 
-    <!-- 한 페이지당 표출 개수 선택 -->
-    <div class="flex items-center space-x-2">
-        <label class="text-xs font-semibold text-slate-600 dark:text-slate-400 whitespace-nowrap">
-            <i class="fa-solid fa-sliders text-brand-500 mr-1"></i> 페이지당 보기:
-        </label>
-        <select id="pageSizeSelect" onchange="handlePageSizeChange(this.value)" 
-            class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500">
-            <option value="50">50개씩 보기</option>
-            <option value="100">100개씩 보기</option>
-            <option value="150">150개씩 보기</option>
-            <option value="200" selected>200개씩 보기 (기본값)</option>
-            <option value="300">300개씩 보기</option>
-            <option value="500">500개씩 보기</option>
-            <option value="custom">⚙️ 기타 (직접 입력)</option>
-        </select>
-
-        <div id="customPageSizeContainer" class="hidden flex items-center space-x-1">
-            <input type="number" id="customPageSizeInput" min="10" max="10000" placeholder="개수 입력" 
-                class="w-24 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-500">
-            <button type="button" onclick="applyCustomPageSize()" class="bg-brand-500 hover:bg-brand-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors font-medium">
-                적용
+    <!-- 우측 컨트롤 옵션들: 컬럼 선택 + 페이지 크기 -->
+    <div class="flex flex-wrap items-center gap-2">
+        <!-- 👁️ 컬럼 표시/숨김 커스터마이징 드롭다운 -->
+        <div class="relative">
+            <button type="button" onclick="toggleColumnMenu()" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1 font-medium shadow-sm">
+                <i class="fa-solid fa-table-columns text-brand-500"></i> 컬럼 표시/숨김
+                <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </button>
+            
+            <div id="columnMenu" class="hidden absolute right-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-30 text-xs space-y-1">
+                <div class="font-bold text-slate-500 dark:text-slate-400 px-2 py-1 border-b border-slate-100 dark:border-slate-700">표시할 열 선택</div>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-id" checked onchange="handleColumnToggle(this)"> ID
+                </label>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-created" checked onchange="handleColumnToggle(this)"> 일시
+                </label>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-actor" checked onchange="handleColumnToggle(this)"> 행위자
+                </label>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-action" checked onchange="handleColumnToggle(this)"> 행위 유형
+                </label>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-ip" checked onchange="handleColumnToggle(this)"> IP 주소
+                </label>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-target" checked onchange="handleColumnToggle(this)"> 대상 (Target)
+                </label>
+                <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
+                    <input type="checkbox" class="col-toggle mr-2" value="col-details" checked onchange="handleColumnToggle(this)"> 상세 내용
+                </label>
+            </div>
+        </div>
+
+        <!-- 한 페이지당 표출 개수 선택 -->
+        <div class="flex items-center space-x-1">
+            <select id="pageSizeSelect" onchange="handlePageSizeChange(this.value)" 
+                class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 font-medium">
+                <option value="50">50개씩</option>
+                <option value="100">100개씩</option>
+                <option value="150">150개씩</option>
+                <option value="200" selected>200개씩 (기본값)</option>
+                <option value="300">300개씩</option>
+                <option value="500">500개씩</option>
+                <option value="custom">⚙️ 기타 (직접 입력)</option>
+            </select>
+
+            <div id="customPageSizeContainer" class="hidden flex items-center space-x-1">
+                <input type="number" id="customPageSizeInput" min="10" max="10000" placeholder="개수 입력" 
+                    class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-500">
+                <button type="button" onclick="applyCustomPageSize()" class="bg-brand-500 hover:bg-brand-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors font-medium">
+                    적용
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -132,13 +199,13 @@
     <table class="w-full text-left text-xs sm:text-sm">
         <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 uppercase font-semibold">
             <tr>
-                <th class="py-3 px-4 w-16 text-center">ID</th>
-                <th class="py-3 px-4 w-36">일시 (CreatedAt)</th>
-                <th class="py-3 px-4 w-40">행위자 (Actor)</th>
-                <th class="py-3 px-4 w-44">행위 유형 (Action)</th>
-                <th class="py-3 px-4 w-28">IP 주소</th>
-                <th class="py-3 px-4 w-28">대상 (Target)</th>
-                <th class="py-3 px-4">상세 내용 및 변경 사항</th>
+                <th class="py-3 px-4 w-16 text-center col-id">ID</th>
+                <th class="py-3 px-4 w-36 col-created">일시 (CreatedAt)</th>
+                <th class="py-3 px-4 w-40 col-actor">행위자 (Actor)</th>
+                <th class="py-3 px-4 w-44 col-action">행위 유형 (Action)</th>
+                <th class="py-3 px-4 w-28 col-ip">IP 주소</th>
+                <th class="py-3 px-4 w-28 col-target">대상 (Target)</th>
+                <th class="py-3 px-4 col-details">상세 내용 및 변경 사항</th>
             </tr>
         </thead>
         <tbody id="auditLogTbody" class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -155,7 +222,7 @@
 <!-- 📄 전역 페이징 네비게이션 컨트롤 -->
 <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
     <div class="text-xs text-slate-500 dark:text-slate-400">
-        개인 설정이 <span class="text-brand-500 font-semibold">user_settings</span> DB 테이블에 자동 저장됩니다.
+        개인 설정(보기 개수 및 컬럼 숨김)이 <span class="text-brand-500 font-semibold">user_settings</span> DB 테이블에 자동 저장됩니다.
     </div>
     
     <div id="paginationNav" class="flex items-center space-x-1">
@@ -169,9 +236,19 @@
     let currentPage = 1;
     let perPage = 200;
     let totalPages = 1;
+    let hiddenColumns = [];
 
     document.addEventListener('DOMContentLoaded', () => {
         loadUserSettings();
+
+        // 바깥 클릭 시 컬럼 메뉴 닫기
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('columnMenu');
+            const btn = e.target.closest('button[onclick="toggleColumnMenu()"]');
+            if (menu && !menu.contains(e.target) && !btn) {
+                menu.classList.add('hidden');
+            }
+        });
     });
 
     async function loadUserSettings() {
@@ -182,6 +259,10 @@
                 if (data.settings.audit_log_page_size) {
                     perPage = parseInt(data.settings.audit_log_page_size);
                     updatePageSizeUI(perPage);
+                }
+                if (Array.isArray(data.settings.audit_log_hidden_columns)) {
+                    hiddenColumns = data.settings.audit_log_hidden_columns;
+                    updateColumnCheckboxes();
                 }
             }
         } catch (err) {
@@ -205,11 +286,51 @@
         }
     }
 
+    function updateColumnCheckboxes() {
+        document.querySelectorAll('.col-toggle').forEach(chk => {
+            chk.checked = !hiddenColumns.includes(chk.value);
+        });
+    }
+
+    function toggleColumnMenu() {
+        const menu = document.getElementById('columnMenu');
+        menu.classList.toggle('hidden');
+    }
+
+    function handleColumnToggle(chk) {
+        const colClass = chk.value;
+        if (!chk.checked) {
+            if (!hiddenColumns.includes(colClass)) hiddenColumns.push(colClass);
+        } else {
+            hiddenColumns = hiddenColumns.filter(c => c !== colClass);
+        }
+        applyColumnVisibility();
+        saveUserSettings({ audit_log_hidden_columns: hiddenColumns });
+    }
+
+    function applyColumnVisibility() {
+        ['col-id', 'col-created', 'col-actor', 'col-action', 'col-ip', 'col-target', 'col-details'].forEach(colClass => {
+            const isHidden = hiddenColumns.includes(colClass);
+            document.querySelectorAll(`.${colClass}`).forEach(el => {
+                if (isHidden) {
+                    el.classList.add('hidden');
+                } else {
+                    el.classList.remove('hidden');
+                }
+            });
+        });
+    }
+
     async function fetchAuditLogs(page = 1) {
         currentPage = page;
         const field = document.getElementById('searchField').value;
         const matchType = document.querySelector('input[name="matchType"]:checked').value;
         const keyword = document.getElementById('keyword').value.trim();
+
+        // 다중 필터 값
+        const actionFilter = document.getElementById('actionFilter').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
 
         const tbody = document.getElementById('auditLogTbody');
         tbody.innerHTML = `
@@ -227,7 +348,10 @@
                 per_page: perPage,
                 search_field: field,
                 match_type: matchType,
-                keyword: keyword
+                keyword: keyword,
+                action_filter: actionFilter,
+                start_date: startDate,
+                end_date: endDate
             });
 
             const res = await fetch(`/api/audit_logs?${queryParams.toString()}`);
@@ -236,6 +360,7 @@
             if (result.status === 'success') {
                 renderTable(result.data);
                 renderPagination(result.pagination);
+                applyColumnVisibility();
             } else {
                 tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">${result.message}</td></tr>`;
             }
@@ -260,20 +385,20 @@
 
         tbody.innerHTML = logs.map(log => `
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                <td class="py-3 px-4 text-center font-mono text-xs text-slate-500">${log.AuditId}</td>
-                <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 font-mono">${log.CreatedAt}</td>
-                <td class="py-3 px-4 whitespace-nowrap">
+                <td class="py-3 px-4 text-center font-mono text-xs text-slate-500 col-id">${log.AuditId}</td>
+                <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 font-mono col-created">${log.CreatedAt}</td>
+                <td class="py-3 px-4 whitespace-nowrap col-actor">
                     <span class="font-medium text-slate-900 dark:text-white">${log.ActorName || 'System'}</span>
                     <span class="text-xs text-slate-400 block font-mono">(${log.ActorLoginId || log.ActorId || 'N/A'})</span>
                 </td>
-                <td class="py-3 px-4 whitespace-nowrap">
+                <td class="py-3 px-4 whitespace-nowrap col-action">
                     <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
                         ${log.Action}
                     </span>
                 </td>
-                <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-slate-500">${log.IpAddress || '-'}</td>
-                <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-700 dark:text-slate-300">${log.TargetId || '-'}</td>
-                <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate" title="${log.Details || ''}">
+                <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-slate-500 col-ip">${log.IpAddress || '-'}</td>
+                <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-700 dark:text-slate-300 col-target">${log.TargetId || '-'}</td>
+                <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate col-details" title="${log.Details || ''}">
                     ${log.Details || ''}
                 </td>
             </tr>
@@ -342,6 +467,9 @@
         document.getElementById('searchField').value = 'all';
         document.querySelector('input[name="matchType"][value="like"]').checked = true;
         document.getElementById('keyword').value = '';
+        document.getElementById('actionFilter').value = '';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
         fetchAuditLogs(1);
     }
 
@@ -353,7 +481,7 @@
         } else {
             customContainer.classList.add('hidden');
             perPage = parseInt(val);
-            savePageSizeSetting(perPage);
+            saveUserSettings({ audit_log_page_size: perPage });
             fetchAuditLogs(1);
         }
     }
@@ -366,16 +494,16 @@
         input.value = num;
 
         perPage = num;
-        savePageSizeSetting(perPage);
+        saveUserSettings({ audit_log_page_size: perPage });
         fetchAuditLogs(1);
     }
 
-    async function savePageSizeSetting(size) {
+    async function saveUserSettings(payload) {
         try {
             await fetch('/api/user_settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ audit_log_page_size: size })
+                body: JSON.stringify(payload)
             });
         } catch (err) {
             console.warn('설정 영속화 저장 실패:', err);
