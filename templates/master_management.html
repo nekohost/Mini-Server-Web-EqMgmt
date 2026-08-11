@@ -1,0 +1,346 @@
+{% extends 'miniserver_frame.html' %}
+
+{% block title %}마스터 데이터 관리 - 미니서버{% endblock %}
+{% block page_title %}마스터 데이터 관리{% endblock %}
+{% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
+
+{% block content %}
+<header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
+            🏷️ 마스터 데이터 관리
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            카테고리 및 제조사 마스터 표준화, 다국어 명칭 등록 및 통폐합 관리
+        </p>
+    </div>
+</header>
+
+<!-- 탭 컨트롤 -->
+<div class="mb-6 border-b border-slate-200 dark:border-slate-700 flex gap-4">
+    <button id="tabCategories" onclick="switchTab('categories')" class="py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors">
+        🏷️ 카테고리 관리
+    </button>
+    <button id="tabManufacturers" onclick="switchTab('manufacturers')" class="py-3 px-6 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+        🏭 제조사 관리
+    </button>
+</div>
+
+<!-- 데이터 테이블 -->
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-700/50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">기본 명칭 (Default)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">한국어 (Korean)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">영어 (English)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">연결 장비 수</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">승인 상태</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리</th>
+                </tr>
+            </thead>
+            <tbody id="masterTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                <!-- JS 렌더링 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 1차 모달: 수정 & 통폐합 진입 -->
+<div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
+            <h3 id="editModalTitle" class="text-xl font-bold text-slate-800 dark:text-slate-100">마스터 항목 수정</h3>
+            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+        </div>
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="editItemId">
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">기본 식별 명칭 (필수)</label>
+                <input type="text" id="editName" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">한국어 명칭 (선택)</label>
+                <input type="text" id="editNameKo" placeholder="예: 노트북" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">영어 명칭 (선택)</label>
+                <input type="text" id="editNameEn" placeholder="예: Laptop" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+            </div>
+
+            <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <button type="button" onclick="openMergeModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-1">
+                    🔀 타 항목 통폐합(Merge)...
+                </button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
+                    <button type="button" onclick="submitEdit()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md">저장하기</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2차 이중 모달: 통폐합 대상 다중 선택 -->
+<div id="mergeModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-purple-300 dark:border-purple-800">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50 dark:bg-purple-900/30">
+            <h3 class="text-xl font-bold text-purple-900 dark:text-purple-200 flex items-center gap-2">
+                🔀 마스터 통폐합 (Merge)
+            </h3>
+            <button onclick="closeMergeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">
+                현재 기준 항목: <strong id="mergeTargetNameDisplay" class="text-purple-600 dark:text-purple-400"></strong>
+            </p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                ※ 아래 체크한 항목들이 모두 현재 항목으로 **통합 흡수**됩니다. 선택된 항목에 연결되어 있던 기존 장비들의 분류 ID가 일괄 변경되며, 체크된 원본 마스터 항목은 파기됩니다.
+            </p>
+
+            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3 max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-700/40 space-y-2" id="mergeListContainer">
+                <!-- JS 렌더링 (체크박스 목록) -->
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeMergeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
+                <button type="button" onclick="submitMerge()" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-md">선택 항목 일괄 통합</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let currentTab = 'categories'; // 'categories' or 'manufacturers'
+    let masterDataList = [];
+    let activeItem = null;
+
+    async function fetchMasterData() {
+        try {
+            const res = await fetch(`/api/master/manage/${currentTab}`);
+            const result = await res.json();
+            if (result.success) {
+                masterDataList = result.data;
+                renderMasterTable();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        const tabCat = document.getElementById('tabCategories');
+        const tabMfg = document.getElementById('tabManufacturers');
+
+        if (tab === 'categories') {
+            tabCat.className = "py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors";
+            tabMfg.className = "py-3 px-6 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors";
+        } else {
+            tabMfg.className = "py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors";
+            tabCat.className = "py-3 px-6 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors";
+        }
+
+        fetchMasterData();
+    }
+
+    function renderMasterTable() {
+        const tbody = document.getElementById('masterTableBody');
+        tbody.innerHTML = '';
+
+        if (masterDataList.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
+                        등록된 데이터가 없습니다.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
+
+        masterDataList.forEach(item => {
+            const itemId = item[idKey];
+            const approvedBadge = item.IsApproved === 1 
+                ? '<span class="px-2 py-0.5 inline-flex text-xs font-bold rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">승인됨</span>'
+                : '<span class="px-2 py-0.5 inline-flex text-xs font-bold rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">미승인</span>';
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-500 dark:text-slate-400">
+                        #${itemId}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-slate-100">
+                        ${item.Name}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
+                        ${item.NameKo || '-'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
+                        ${item.NameEn || '-'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600 dark:text-blue-400">
+                        ${item.UsageCount || 0} 개
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${approvedBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="openEditModal(${itemId})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-3 font-bold transition">수정</button>
+                        <button onclick="deleteMasterItem(${itemId})" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 font-bold transition">삭제</button>
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function openEditModal(id) {
+        const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
+        activeItem = masterDataList.find(i => i[idKey] === id);
+        if (!activeItem) return;
+
+        document.getElementById('editItemId').value = id;
+        document.getElementById('editName').value = activeItem.Name || '';
+        document.getElementById('editNameKo').value = activeItem.NameKo || '';
+        document.getElementById('editNameEn').value = activeItem.NameEn || '';
+
+        document.getElementById('editModalTitle').innerText = `${currentTab === 'categories' ? '카테고리' : '제조사'} 항목 수정`;
+        document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.add('hidden');
+    }
+
+    async function submitEdit() {
+        const id = document.getElementById('editItemId').value;
+        const name = document.getElementById('editName').value.trim();
+        const nameKo = document.getElementById('editNameKo').value.trim();
+        const nameEn = document.getElementById('editNameEn').value.trim();
+
+        if (!name) {
+            alert('기본 식별 명칭은 필수 입력입니다.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/master/manage/${currentTab}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ Name: name, NameKo: nameKo, NameEn: nameEn })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                closeEditModal();
+                fetchMasterData();
+            } else {
+                alert('오류: ' + result.message);
+            }
+        } catch (err) {
+            alert('통신 오류가 발생했습니다.');
+        }
+    }
+
+    async function deleteMasterItem(id) {
+        if (!confirm('정말로 이 항목을 삭제하시겠습니까? 연결된 장비의 해당 분류는 초기화됩니다.')) return;
+
+        try {
+            const res = await fetch(`/api/master/manage/${currentTab}/${id}`, { method: 'DELETE' });
+            const result = await res.json();
+            if (result.success) {
+                fetchMasterData();
+            } else {
+                alert('삭제 실패: ' + result.message);
+            }
+        } catch (err) {
+            alert('통신 오류가 발생했습니다.');
+        }
+    }
+
+    // 통폐합 2차 이중 모달 관련 함수
+    function openMergeModal() {
+        if (!activeItem) return;
+        const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
+        const targetId = activeItem[idKey];
+
+        const targetDisplayName = activeItem.NameKo || activeItem.NameEn || activeItem.Name;
+        document.getElementById('mergeTargetNameDisplay').innerText = `${targetDisplayName} (#${targetId})`;
+
+        const container = document.getElementById('mergeListContainer');
+        container.innerHTML = '';
+
+        const otherItems = masterDataList.filter(i => i[idKey] !== targetId);
+
+        if (otherItems.length === 0) {
+            container.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">통합할 수 있는 다른 항목이 없습니다.</p>';
+        } else {
+            otherItems.forEach(item => {
+                const itemId = item[idKey];
+                const displayName = item.NameKo ? `${item.NameKo} (${item.Name})` : item.Name;
+                container.innerHTML += `
+                    <label class="flex items-center justify-between p-2 hover:bg-purple-50 dark:hover:bg-slate-600/50 rounded-lg cursor-pointer transition">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" name="mergeSourceCheck" value="${itemId}" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
+                            <span class="text-sm font-bold text-slate-800 dark:text-slate-200">${displayName}</span>
+                        </div>
+                        <span class="text-xs text-slate-400 font-semibold">장비 ${item.UsageCount || 0}개</span>
+                    </label>
+                `;
+            });
+        }
+
+        document.getElementById('mergeModal').classList.remove('hidden');
+    }
+
+    function closeMergeModal() {
+        document.getElementById('mergeModal').classList.add('hidden');
+    }
+
+    async function submitMerge() {
+        if (!activeItem) return;
+        const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
+        const targetId = activeItem[idKey];
+
+        const checkboxes = document.querySelectorAll('input[name="mergeSourceCheck"]:checked');
+        const sourceIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+        if (sourceIds.length === 0) {
+            alert('통합 흡수할 대상 항목을 1개 이상 선택해 주세요.');
+            return;
+        }
+
+        if (!confirm(`선택한 ${sourceIds.length}개 항목을 현재 항목으로 통폐합하시겠습니까?\n이 작업은 취소할 수 없습니다.`)) return;
+
+        try {
+            const res = await fetch(`/api/master/manage/${currentTab}/${targetId}/merge_from`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ source_ids: sourceIds })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                alert(result.message);
+                closeMergeModal();
+                closeEditModal();
+                fetchMasterData();
+            } else {
+                alert('통폐합 실패: ' + result.message);
+            }
+        } catch (err) {
+            alert('통신 오류가 발생했습니다.');
+        }
+    }
+
+    fetchMasterData();
+</script>
+{% endblock %}

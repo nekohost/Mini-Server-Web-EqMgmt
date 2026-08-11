@@ -198,17 +198,22 @@
         }
     }
 
+    function getMasterItemDisplay(item) {
+        if (!item) return '-';
+        return item.NameKo || item.NameEn || item.Name || '-';
+    }
+
     function renderMasterDropdowns() {
         const catSelect = document.getElementById('CategorySelect');
         const mfgSelect = document.getElementById('ManufacturerSelect');
 
         if (catSelect) {
-            catSelect.innerHTML = masterCategories.map(c => `<option value="${c}">${c}</option>`).join('') + 
+            catSelect.innerHTML = masterCategories.map(c => `<option value="${c.CategoryId}">${getMasterItemDisplay(c)}</option>`).join('') + 
                 `<option value="__custom__">➕ 기타 (직접 입력...)</option>`;
         }
 
         if (mfgSelect) {
-            mfgSelect.innerHTML = masterManufacturers.map(m => `<option value="${m}">${m}</option>`).join('') + 
+            mfgSelect.innerHTML = masterManufacturers.map(m => `<option value="${m.ManufacturerId}">${getMasterItemDisplay(m)}</option>`).join('') + 
                 `<option value="__custom__">➕ 기타 (직접 입력...)</option>`;
         }
     }
@@ -296,6 +301,9 @@
                 badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-600">비공개</span>';
             }
 
+            const catDisplayName = item.CategoryNameKo || item.CategoryNameEn || item.CategoryName || '기타';
+            const mfgDisplayName = item.ManufacturerNameKo || item.ManufacturerNameEn || item.ManufacturerName || '-';
+
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -307,11 +315,11 @@
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
-                            ${item.Category || '기타'}
+                            ${catDisplayName}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
-                        ${item.Manufacturer || '-'} / ${item.ModelName || '-'}
+                        ${mfgDisplayName} / ${item.ModelName || '-'}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 font-mono">
                         ${item.SerialNumber || '-'}
@@ -371,22 +379,22 @@
 
                 // 카테고리 드롭다운 세팅
                 const catSelect = document.getElementById('CategorySelect');
-                if (masterCategories.includes(item.Category)) {
-                    catSelect.value = item.Category;
-                } else if (item.Category) {
+                if (item.CategoryId && masterCategories.some(c => c.CategoryId === item.CategoryId)) {
+                    catSelect.value = item.CategoryId;
+                } else if (item.CategoryName) {
                     catSelect.value = '__custom__';
                     onCategorySelectChange();
-                    document.getElementById('CategoryCustom').value = item.Category;
+                    document.getElementById('CategoryCustom').value = item.CategoryName;
                 }
 
                 // 제조사 드롭다운 세팅
                 const mfgSelect = document.getElementById('ManufacturerSelect');
-                if (masterManufacturers.includes(item.Manufacturer)) {
-                    mfgSelect.value = item.Manufacturer;
-                } else if (item.Manufacturer) {
+                if (item.ManufacturerId && masterManufacturers.some(m => m.ManufacturerId === item.ManufacturerId)) {
+                    mfgSelect.value = item.ManufacturerId;
+                } else if (item.ManufacturerName) {
                     mfgSelect.value = '__custom__';
                     onManufacturerSelectChange();
-                    document.getElementById('ManufacturerCustom').value = item.Manufacturer;
+                    document.getElementById('ManufacturerCustom').value = item.ManufacturerName;
                 }
 
                 if(item.UserId) {
@@ -394,7 +402,7 @@
                     document.getElementById('selectedOwnerDisplay').innerText = `현재 소유자: ${item.OwnerNickName}`;
                 }
 
-                // 모달 버튼 분기 처리 (상세 1 피드백 반영)
+                // 모달 버튼 분기 처리
                 if (item.IsDraft === 1) {
                     title.innerText = '임시 저장 장비 수정';
                     btnSaveDraft.classList.remove('hidden');
@@ -402,7 +410,7 @@
                     btnFormalSubmit.innerText = '정식 등록 (발행)';
                 } else {
                     title.innerText = '장비 정보 수정';
-                    btnSaveDraft.classList.add('hidden'); // 정식 장비 수정 시에는 임시저장 불가
+                    btnSaveDraft.classList.add('hidden');
                     btnFormalSubmit.innerText = '수정 완료';
                 }
             }
@@ -427,20 +435,20 @@
             return;
         }
 
-        // 카테고리 값 처리
-        const catSelect = document.getElementById('CategorySelect').value;
-        const category = (catSelect === '__custom__') ? 
-            document.getElementById('CategoryCustom').value.trim() : catSelect;
+        const catSelectVal = document.getElementById('CategorySelect').value;
+        const categoryId = (catSelectVal === '__custom__') ? '__custom__' : catSelectVal;
+        const categoryCustom = (catSelectVal === '__custom__') ? document.getElementById('CategoryCustom').value.trim() : '';
 
-        // 제조사 값 처리
-        const mfgSelect = document.getElementById('ManufacturerSelect').value;
-        const manufacturer = (mfgSelect === '__custom__') ? 
-            document.getElementById('ManufacturerCustom').value.trim() : mfgSelect;
+        const mfgSelectVal = document.getElementById('ManufacturerSelect').value;
+        const manufacturerId = (mfgSelectVal === '__custom__') ? '__custom__' : mfgSelectVal;
+        const manufacturerCustom = (mfgSelectVal === '__custom__') ? document.getElementById('ManufacturerCustom').value.trim() : '';
 
         const payload = {
             Name: name,
-            Category: category,
-            Manufacturer: manufacturer,
+            CategoryId: categoryId,
+            CategoryCustom: categoryCustom,
+            ManufacturerId: manufacturerId,
+            ManufacturerCustom: manufacturerCustom,
             ModelName: document.getElementById('ModelName').value,
             SerialNumber: document.getElementById('SerialNumber').value,
             PurchaseDate: document.getElementById('PurchaseDate').value,
@@ -467,7 +475,7 @@
                     alert(resData.message);
                 }
                 fetchEquipment();
-                fetchMasterData(); // 혹시 신규 카테고리가 등록되었을 시 갱신
+                fetchMasterData();
             } else {
                 alert('오류: ' + (resData.error || resData.message));
             }
