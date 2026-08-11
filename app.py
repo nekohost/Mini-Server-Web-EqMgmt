@@ -165,6 +165,14 @@ def init_db():
         )
     ''')
 
+    # 시스템 마이그레이션 이력 관리 테이블
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS sys_migrations (
+            MigrationName TEXT PRIMARY KEY,
+            AppliedAt TEXT
+        )
+    ''')
+
     # 8. 제조사 마스터 테이블 (manufacturers) - [제안-011]
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS manufacturers (
@@ -238,6 +246,26 @@ def init_db():
 # 서버 실행 시 DB 준비 (기존 데이터 보존 원칙 적용)
 init_db()
 
+def run_migration_if_needed(migration_name, migration_func):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT 1 FROM sys_migrations WHERE MigrationName = ?", (migration_name,))
+    if not cursor.fetchone():
+        try:
+            migration_func()
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            
+            conn2 = get_db_connection()
+            c2 = conn2.cursor()
+            c2.execute("INSERT INTO sys_migrations (MigrationName, AppliedAt) VALUES (?, ?)", (migration_name, now))
+            conn2.commit()
+            conn2.close()
+            
+            print(f"[Migration Manager] '{migration_name}' successfully applied.")
+        except Exception as e:
+            print(f"[Migration Manager] Error applying '{migration_name}': {e}")
+    conn.close()
+
 def migrate_equipment_is_public():
     """
     [역할] 기존 DB의 equipment 테이블에 IsPublic 컬럼이 없으면 추가 (무정지 마이그레이션)
@@ -255,7 +283,7 @@ def migrate_equipment_is_public():
     except Exception as e:
         print(f"[Migration Error (IsPublic)] {e}")
 
-migrate_equipment_is_public()
+run_migration_if_needed('equipment_is_public', migrate_equipment_is_public)
 
 def migrate_proposals_011_027_028():
     """
@@ -292,7 +320,7 @@ def migrate_proposals_011_027_028():
     except Exception as e:
         print(f"[Migration Error (011_027_028)] {e}")
 
-migrate_proposals_011_027_028()
+run_migration_if_needed('proposals_011_027_028', migrate_proposals_011_027_028)
 
 def migrate_relational_master():
     """
@@ -384,7 +412,7 @@ def migrate_relational_master():
     except Exception as e:
         print(f"[Migration Error (relational_master)] {e}")
 
-migrate_relational_master()
+run_migration_if_needed('relational_master', migrate_relational_master)
 
 def migrate_passwords_to_hash():
     """
@@ -410,7 +438,7 @@ def migrate_passwords_to_hash():
         print(f"[Migration Error] {e}")
 
 # 구동 시 비밀번호 해싱 자동 마이그레이션 수행
-migrate_passwords_to_hash()
+run_migration_if_needed('passwords_to_hash', migrate_passwords_to_hash)
 
 @app.after_request
 def after_request_func(response):
@@ -460,7 +488,31 @@ def migrate_users_session_token():
     except Exception as e:
         print(f"[Migration Error (SessionToken)] {e}")
 
-migrate_users_session_token()
+def cleanup_migration_artifacts():
+    """
+    [역할] 중복 실행된 마이그레이션으로 인해 생성된 잘못된(숫자 형태) 카테고리 및 제조사 가비지 데이터를 삭제합니다.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # categories와 manufacturers에서 Name이 숫자로만 이루어진 행을 찾는다
+        cursor.execute("SELECT CategoryId, Name FROM categories")
+        for row in cursor.fetchall():
+            if row['Name'].isdigit():
+                cursor.execute("DELETE FROM categories WHERE CategoryId = ?", (row['CategoryId'],))
+                
+        cursor.execute("SELECT ManufacturerId, Name FROM manufacturers")
+        for row in cursor.fetchall():
+            if row['Name'].isdigit():
+                cursor.execute("DELETE FROM manufacturers WHERE ManufacturerId = ?", (row['ManufacturerId'],))
+                
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Cleanup Error] {e}")
+
+run_migration_if_needed('cleanup_migration_artifacts', cleanup_migration_artifacts)
 
 
 # ==========================================
