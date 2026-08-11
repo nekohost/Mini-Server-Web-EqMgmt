@@ -1260,17 +1260,17 @@ def api_dashboard_stats():
     if req_cat_id and req_man_id:
         # 상태(Status)별 분포 쿼리
         status_query = f'''
-            SELECT COALESCE(e.Status, '미지정') as status, COUNT(e.EquipmentId) as count
+            SELECT '정상' as status, COUNT(e.EquipmentId) as count
             FROM equipment e
             WHERE {base_where} AND e.CategoryId = ? AND e.ManufacturerId = ?
-            GROUP BY e.Status
+            GROUP BY status
         '''
         cursor.execute(status_query, params_base + [req_cat_id, req_man_id])
         status_distribution = [{"status": row['status'], "count": row['count']} for row in cursor.fetchall()]
 
         # 조건 부합 장비 목록 쿼리
         list_query = f'''
-            SELECT e.EquipmentId, e.Name, e.ModelName, COALESCE(e.Status, '미지정') as Status, e.PurchaseDate
+            SELECT e.EquipmentId, e.Name, e.ModelName, '정상' as Status, e.PurchaseDate
             FROM equipment e
             WHERE {base_where} AND e.CategoryId = ? AND e.ManufacturerId = ?
             ORDER BY e.EquipmentId DESC

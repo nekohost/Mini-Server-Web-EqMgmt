@@ -179,6 +179,7 @@
         }
 
         try {
+            showLoading();
             const res = await fetch(`/api/dashboard/stats?category_id=${catId}&manufacturer_id=${manId}`);
             const json = await res.json();
             if (json.success && json.data.combined_stats) {
@@ -186,6 +187,9 @@
             }
         } catch (err) {
             console.error(err);
+            alert('데이터 조회 중 오류가 발생했습니다.');
+        } finally {
+            hideLoading();
         }
     }
 
