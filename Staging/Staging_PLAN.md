@@ -28,11 +28,11 @@
 
 ## 3. 변경 파일 목록 및 의존성
 
-1. `app.py` (또는 `Staging_app_stats.py`):
+1. `app.py` (또는 `Staging_app.py`):
    - `/api/dashboard_stats` 라우트에 파라미터(`category_id`, `manufacturer_id`) 핸들링 추가.
    - `LEFT JOIN`을 활용하여 기존 `categories` 외에 `manufacturers` 매핑 추가.
    - 장비 상태(`Status`) 그룹핑 쿼리 및 목록(`equipment` 전체 행) 쿼리 추가.
-2. `templates/portal.html` (또는 `Staging_portal.html`):
+2. `templates/dashboard.html` (또는 `Staging/Staging_dashboard.html`):
    - 제조사 통계 차트 영역 `<canvas>` 및 리스트 UI 추가.
    - 복합 검색 폼(`filterCategory`, `filterManufacturer`) 및 결과 테이블(`<tbody>`) 뼈대 추가.
    - `fetchDashboardStats()` JS 함수를 확장하여 복합 조건 렌더링 로직 추가.
@@ -41,6 +41,6 @@
 
 ## 4. 안전망(Safety Net) 검증 계획 (Rule 7-3)
 운영 환경 침범을 방지하기 위해 `Staging/` 폴더 내에 격리된 모의 테스트 환경을 구축합니다.
-- `Staging_app_stats.py`: 포트 5001번으로 독립 실행되는 모의 Flask 앱.
-- `Staging_portal.html`: 모의 앱과 통신하여 UI/UX를 검증하는 프론트엔드 모의 페이지.
+- `Staging_app.py`: 포트 5001번으로 독립 실행되는 모의 Flask 앱.
+- `Staging_dashboard.html`: 모의 앱과 통신하여 UI/UX를 검증하는 프론트엔드 모의 페이지.
 검증이 통과하면 본 기획서는 `Plans/2026-08-11_Dashboard_Stats_Expansion_Plan.md`로 아카이빙되며, 소스코드는 Production에 Merge됩니다.

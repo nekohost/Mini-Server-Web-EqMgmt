@@ -4,8 +4,18 @@ from flask import render_template, request, jsonify, session
 
 # Parent directory to sys.path to import app
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import jinja2
+from dotenv import load_dotenv
 
 from app import app, get_db_connection, login_required
+
+# Rule 7-3-2 (모의 소스코드 위치) 시정을 위해 Jinja2 Loader 오버라이딩
+# Staging/ 디렉토리와 templates/ 디렉토리 모두에서 템플릿을 찾을 수 있도록 설정
+my_loader = jinja2.ChoiceLoader([
+    app.jinja_loader,
+    jinja2.FileSystemLoader(os.path.abspath(os.path.dirname(__file__)))
+])
+app.jinja_loader = my_loader
 
 # ------------------------------------------
 # Staging Routes
@@ -14,11 +24,21 @@ from app import app, get_db_connection, login_required
 @app.route('/staging/dashboard', methods=['GET'])
 @login_required
 def staging_dashboard():
+    """
+    [역할] 카테고리/제조사별 통계 및 복합 검색(Staging) 대시보드 UI를 렌더링합니다.
+    [의존성 관계] Staging_dashboard.html 템플릿 파일
+    [변경 시 영향도] Staging 환경의 대시보드 화면 표출에 영향을 줍니다.
+    """
     return render_template('Staging_dashboard.html', user=session['user'])
 
 @app.route('/api/staging/dashboard/stats', methods=['GET'])
 @login_required
 def api_staging_dashboard_stats():
+    """
+    [역할] 대시보드 통계용(나의 장비, 총 장비, 카테고리/제조사 분포, 복합 조건 검색결과) JSON 데이터를 반환합니다.
+    [의존성 관계] equipment, categories, manufacturers 테이블
+    [변경 시 영향도] Staging_dashboard.html 내의 차트 및 테이블 렌더링(Ajax)에 영향을 줍니다.
+    """
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -109,7 +129,11 @@ def api_staging_dashboard_stats():
 @app.route('/api/staging/master/options', methods=['GET'])
 @login_required
 def api_staging_master_options():
-    # 카테고리와 제조사 목록을 제공하여 select box를 채우기 위한 API
+    """
+    [역할] 카테고리와 제조사 목록을 제공하여 복합 조건 검색용 Select Box를 동적으로 채웁니다.
+    [의존성 관계] categories, manufacturers 테이블
+    [변경 시 영향도] Staging_dashboard.html의 select 태그 옵션 목록에 영향을 줍니다.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT CategoryId, COALESCE(NameKo, Name) as DisplayName FROM categories ORDER BY CategoryId")
@@ -126,5 +150,9 @@ def api_staging_master_options():
     })
 
 if __name__ == '__main__':
+    # Rule 4-5-2 시정: 환경변수를 통해 FLASK_DEBUG 제어
+    load_dotenv()
+    is_debug = os.environ.get('FLASK_DEBUG', 'False').lower() in ('true', '1', 't')
+    
     # Run staging app on port 5001
-    app.run(host='0.0.0.0', port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001, debug=is_debug)
