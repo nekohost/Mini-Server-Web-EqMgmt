@@ -8,18 +8,24 @@
 
 {% block content %}
 <div class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">회원 목록 및 세션 제어</h2>
-    <div class="flex items-center gap-2">
-        <button onclick="forceLogoutSelected()" id="btnForceSelected" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
-            ✓ 선택 유저 세션 파기
+    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">회원 목록 및 계정/세션 제어</h2>
+    <div class="flex flex-wrap items-center gap-2">
+        <button onclick="forceLogoutSelected()" id="btnForceSelected" class="hidden px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+            ✓ 선택 세션 파기
         </button>
-        <button onclick="deleteSelectedUsers()" id="btnDeleteSelected" class="hidden px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-sm font-semibold rounded-lg shadow-sm transition">
-            🗑️ 선택 계정 삭제
+        <button onclick="deactivateSelectedUsers(true)" id="btnDeactivateSelected" class="hidden px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+            🚫 선택 비활성화
         </button>
-        <button onclick="forceLogoutAll(false)" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+        <button onclick="deactivateSelectedUsers(false)" id="btnReactivateSelected" class="hidden px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+            ✅ 선택 활성화
+        </button>
+        <button onclick="deleteSelectedUsers()" id="btnDeleteSelected" class="hidden px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+            🗑️ 선택 영구 삭제
+        </button>
+        <button onclick="forceLogoutAll(false)" class="px-3.5 py-2 bg-slate-600 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             🚨 전체 파기 (본인 제외)
         </button>
-        <button onclick="forceLogoutAll(true)" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+        <button onclick="forceLogoutAll(true)" class="px-3.5 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             🚨 전체 파기 (본인 포함)
         </button>
     </div>
@@ -33,12 +39,13 @@
                     <th class="px-4 py-3 w-12 text-center">
                         <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllCheckboxes(this)" class="w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                     </th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID(고유)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">로그인 ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">이름 / 닉네임</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">현재 역할</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">가입일</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리 액션</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">로그인 ID</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">이름 / 닉네임</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">상태</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">현재 역할</th>
+                    <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">가입일</th>
+                    <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리 액션</th>
                 </tr>
             </thead>
             <tbody id="userTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
@@ -70,7 +77,6 @@
 <script>
     async function fetchUsers() {
         try {
-            // GET 요청 캐싱 방지를 위해 실시간 타임스탬프 파라미터(?_t) 추가
             const res = await fetch('/api/users?_t=' + Date.now());
             const json = await res.json();
             if (json.success) {
@@ -89,31 +95,46 @@
         
         users.forEach(u => {
             const isMe = (u.UserId === currentUserId);
+            const isDeactivated = (u.IsDeactivated === 'Y');
+            
+            let statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">🟢 정상</span>';
+            if (u.Status === 'DEACTIVATED') {
+                statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">🟡 유예 (D-${u.DaysLeft}일)</span>`;
+            } else if (u.Status === 'ADMIN_SUSPENDED') {
+                statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">🟣 정지(관리자)</span>';
+            } else if (u.Status === 'DELETED') {
+                statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300">🔴 탈퇴 완료</span>';
+            }
             
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-4 py-4 text-center">
                         <input type="checkbox" class="user-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" value="${u.UserId}" onchange="updateSelectedButton()">
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${u.UserId} ${isMe ? '<span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-bold">ME</span>' : ''}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">${u.LoginId}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">${u.Name} / ${u.NickName}</td>
-                    <td class="px-6 py-4 whitespace-nowrap">
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${u.UserId} ${isMe ? '<span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-bold">ME</span>' : ''}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">${u.LoginId}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">${u.Name} / ${u.NickName}</td>
+                    <td class="px-4 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-4 py-4 whitespace-nowrap">
                         <select onchange="changeRole(${u.UserId}, this.value)" ${isMe ? 'disabled' : ''}
-                                class="text-sm rounded border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-blue-500 focus:border-blue-500 ${isMe ? 'opacity-50 cursor-not-allowed' : ''}">
-                            <option value="user" ${u.Role === 'user' ? 'selected' : ''}>일반 사용자 (user)</option>
-                            <option value="admin" ${u.Role === 'admin' ? 'selected' : ''}>최고 관리자 (admin)</option>
+                                class="text-xs rounded border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-blue-500 focus:border-blue-500 ${isMe ? 'opacity-50 cursor-not-allowed' : ''}">
+                            <option value="user" ${u.Role === 'user' ? 'selected' : ''}>일반 사용자</option>
+                            <option value="admin" ${u.Role === 'admin' ? 'selected' : ''}>최고 관리자</option>
                         </select>
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">${u.CreatedAt}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                    <td class="px-4 py-4 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">${u.CreatedAt}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2">
                         <button onclick="openResetModal(${u.UserId}, '${u.LoginId}')" ${isMe ? 'disabled' : ''}
                                 class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
-                            PW 초기화
+                            PW초기화
+                        </button>
+                        <button onclick="toggleSingleDeactivation(${u.UserId}, '${u.LoginId}', ${isDeactivated})" ${isMe ? 'disabled' : ''}
+                                class="${isDeactivated ? 'text-emerald-600 hover:text-emerald-800 dark:text-emerald-400' : 'text-orange-600 hover:text-orange-800 dark:text-orange-400'} transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
+                            ${isDeactivated ? '계정 활성화' : '계정 비활성화'}
                         </button>
                         <button onclick="deleteSingleUser(${u.UserId}, '${u.LoginId}')" ${isMe ? 'disabled' : ''}
                                 class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
-                            계정 삭제
+                            영구 삭제
                         </button>
                     </td>
                 </tr>
@@ -197,15 +218,85 @@
     function updateSelectedButton() {
         const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
         const btnForce = document.getElementById('btnForceSelected');
+        const btnDeactivate = document.getElementById('btnDeactivateSelected');
+        const btnReactivate = document.getElementById('btnReactivateSelected');
         const btnDelete = document.getElementById('btnDeleteSelected');
-        if (checkedBoxes.length > 0) {
+        const count = checkedBoxes.length;
+
+        if (count > 0) {
             btnForce.classList.remove('hidden');
-            btnForce.innerText = `✓ ${checkedBoxes.length}명 세션 파기`;
+            btnForce.innerText = `✓ ${count}명 세션 파기`;
+
+            btnDeactivate.classList.remove('hidden');
+            btnDeactivate.innerText = `🚫 ${count}명 비활성화`;
+
+            btnReactivate.classList.remove('hidden');
+            btnReactivate.innerText = `✅ ${count}명 활성화`;
+
             btnDelete.classList.remove('hidden');
-            btnDelete.innerText = `🗑️ ${checkedBoxes.length}명 계정 삭제`;
+            btnDelete.innerText = `🗑️ ${count}명 영구 삭제`;
         } else {
             btnForce.classList.add('hidden');
+            btnDeactivate.classList.add('hidden');
+            btnReactivate.classList.add('hidden');
             btnDelete.classList.add('hidden');
+        }
+    }
+
+    async function toggleSingleDeactivation(userId, loginId, isCurrentlyDeactivated) {
+        const actionText = isCurrentlyDeactivated ? '활성화' : '비활성화(로그인 정지)';
+        if (!confirm(`'${loginId}' 계정을 ${actionText}하시겠습니까?`)) return;
+
+        try {
+            showGlobalLoading();
+            const res = await fetch(`/api/users/${userId}/toggle_deactivation`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deactivate: !isCurrentlyDeactivated })
+            });
+            const json = await res.json();
+            if (json.success) {
+                alert(json.message);
+                fetchUsers();
+            } else {
+                alert(json.message);
+            }
+        } catch (err) {
+            alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
+        }
+    }
+
+    async function deactivateSelectedUsers(deactivate) {
+        const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
+        const userIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
+
+        if (userIds.length === 0) return;
+        const actionText = deactivate ? '비활성화(정지)' : '재활성화';
+
+        if (!confirm(`선택한 ${userIds.length}명의 사용자를 일괄 ${actionText}하시겠습니까?`)) return;
+
+        try {
+            showGlobalLoading();
+            const res = await fetch('/api/users/deactivate_selected', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_ids: userIds, deactivate: deactivate })
+            });
+            const json = await res.json();
+            if (json.success) {
+                alert(json.message);
+                document.getElementById('selectAllCheckbox').checked = false;
+                toggleAllCheckboxes({checked: false});
+                fetchUsers();
+            } else {
+                alert(json.message);
+            }
+        } catch (err) {
+            alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 

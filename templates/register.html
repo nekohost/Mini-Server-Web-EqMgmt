@@ -113,6 +113,11 @@
                 location.href = '/login';
             } else {
                 errorDiv.innerText = data.message || '가입에 실패했습니다.';
+                if (data.is_recovery_target) {
+                    errorDiv.className = 'p-4 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-sm rounded-xl border border-amber-200 dark:border-amber-800 text-left leading-relaxed font-medium';
+                } else {
+                    errorDiv.className = 'p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center';
+                }
                 errorDiv.classList.remove('hidden');
             }
         } catch (err) {

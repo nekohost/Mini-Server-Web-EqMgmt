@@ -100,7 +100,11 @@ def init_db():
             Password TEXT NOT NULL,
             Role TEXT NOT NULL,
             CreatedAt TEXT,
-            UpdatedAt TEXT
+            UpdatedAt TEXT,
+            IsDeactivated TEXT DEFAULT 'N',
+            DeactivatedAt TEXT,
+            IsDeleted TEXT DEFAULT 'N',
+            DeletedAt TEXT
         )
     ''')
 
@@ -488,6 +492,30 @@ def migrate_users_session_token():
     except Exception as e:
         print(f"[Migration Error (SessionToken)] {e}")
 
+def migrate_users_soft_delete():
+    """
+    [제안-025] 기존 users 테이블에 Soft Delete 및 비활성화 관련 컬럼 추가
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(users)")
+        columns = [info['name'] for info in cursor.fetchall()]
+        if 'IsDeactivated' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN IsDeactivated TEXT DEFAULT 'N'")
+        if 'DeactivatedAt' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN DeactivatedAt TEXT")
+        if 'IsDeleted' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN IsDeleted TEXT DEFAULT 'N'")
+        if 'DeletedAt' not in columns:
+            cursor.execute("ALTER TABLE users ADD COLUMN DeletedAt TEXT")
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error (Soft Delete)] {e}")
+
+run_migration_if_needed('migrate_users_soft_delete', migrate_users_soft_delete)
+
 def cleanup_migration_artifacts():
     """
     [역할] 중복 실행된 마이그레이션으로 인해 생성된 잘못된(숫자 형태) 카테고리 및 제조사 가비지 데이터를 삭제합니다.
@@ -515,6 +543,87 @@ def cleanup_migration_artifacts():
 run_migration_if_needed('cleanup_migration_artifacts', cleanup_migration_artifacts)
 
 
+def evaluate_user_lifecycle(user):
+    """
+    [제안-025] 4단계 회원탈퇴 라이프사이클 지연 평가 (Lazy Evaluation)
+    Phase 1: 30일 유예 (IsDeactivated='Y', DeactivatedAt시각 지정)
+    Phase 2: 30일 경과 (IsDeleted='Y', DeletedAt시각 지정, 로그인 차단)
+    Phase 3: 1년(365일)+1일 경과 (DB Hard Delete & 장비 소유권 해제)
+    Phase 4: 재가입 복구 지원 (가입 API 분기)
+    """
+    if not user:
+        return {"status": "NOT_FOUND"}
+        
+    user_id = user['UserId']
+    login_id = user['LoginId']
+    is_deactivated = user.get('IsDeactivated') or 'N'
+    deactivated_at_str = user.get('DeactivatedAt')
+    is_deleted = user.get('IsDeleted') or 'N'
+    
+    if is_deactivated == 'Y' and deactivated_at_str:
+        try:
+            deactivated_at = datetime.strptime(deactivated_at_str, '%Y-%m-%d %H:%M:%S')
+            days_passed = (datetime.now() - deactivated_at).total_seconds() / 86400.0
+            
+            # Phase 3: 1년(365일)+1일 = 366일 경과 -> DB Hard Delete
+            if days_passed >= 366:
+                conn = get_db_connection()
+                cursor = conn.cursor()
+                cursor.execute("DELETE FROM user_settings WHERE UserId = ?", (user_id,))
+                cursor.execute("UPDATE equipment SET UserId = NULL, IsPublic = 1 WHERE UserId = ?", (user_id,))
+                cursor.execute("DELETE FROM users WHERE UserId = ?", (user_id,))
+                conn.commit()
+                conn.close()
+                log_audit(None, login_id, 'SYSTEM_HARD_DELETE', 'users', user_id, None, {"reason": "1_year_elapsed"})
+                return {"status": "HARD_DELETED"}
+                
+            # Phase 2: 30일 경과 -> Soft Delete 완료 (로그인 전면 차단)
+            if days_passed >= 30:
+                if is_deleted != 'Y':
+                    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                    conn = get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("UPDATE users SET IsDeleted = 'Y', DeletedAt = ? WHERE UserId = ?", (now_str, user_id))
+                    conn.commit()
+                    conn.close()
+                    log_audit(None, login_id, 'SYSTEM_SOFT_DELETE', 'users', user_id, None, {"reason": "30_days_elapsed"})
+                return {"status": "DELETED", "days_passed": days_passed}
+                
+            # Phase 1: 30일 미만 -> 비활성화 유예 중
+            days_left = max(0, 30 - int(days_passed))
+            return {"status": "DEACTIVATED", "days_left": days_left, "days_passed": days_passed}
+        except Exception as e:
+            print(f"[Lifecycle Evaluation Error] {e}")
+            return {"status": "DEACTIVATED", "days_left": 30}
+            
+    elif is_deactivated == 'Y' and not deactivated_at_str:
+        # 관리자 강제 정지 (무기한)
+        return {"status": "ADMIN_SUSPENDED"}
+        
+    elif is_deleted == 'Y':
+        # 이미 Soft Delete 처리됨 -> 1년 경과 체크
+        deleted_at_str = user.get('DeletedAt') or deactivated_at_str
+        if deleted_at_str:
+            try:
+                ref_time = datetime.strptime(deleted_at_str, '%Y-%m-%d %H:%M:%S')
+                days_passed = (datetime.now() - ref_time).total_seconds() / 86400.0
+                if days_passed >= 366:
+                    conn = get_db_connection()
+                    cursor = conn.cursor()
+                    cursor.execute("DELETE FROM user_settings WHERE UserId = ?", (user_id,))
+                    cursor.execute("UPDATE equipment SET UserId = NULL, IsPublic = 1 WHERE UserId = ?", (user_id,))
+                    cursor.execute("DELETE FROM users WHERE UserId = ?", (user_id,))
+                    conn.commit()
+                    conn.close()
+                    log_audit(None, login_id, 'SYSTEM_HARD_DELETE', 'users', user_id, None, {"reason": "1_year_elapsed"})
+                    return {"status": "HARD_DELETED"}
+            except Exception:
+                pass
+        return {"status": "DELETED"}
+        
+    return {"status": "ACTIVE"}
+
+
 # ==========================================
 # 3. 인증 및 권한 데코레이터
 # ==========================================
@@ -533,7 +642,7 @@ def login_required(f):
             
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT SessionToken FROM users WHERE UserId = ?", (user['UserId'],))
+        cursor.execute("SELECT SessionToken, IsDeactivated, DeactivatedAt, IsDeleted FROM users WHERE UserId = ?", (user['UserId'],))
         db_user = cursor.fetchone()
         conn.close()
         
@@ -543,6 +652,14 @@ def login_required(f):
                 return jsonify({"error": "다른 기기에서 로그인하여 세션이 만료되었습니다."}), 401
             return redirect(url_for('login_page', error='concurrent_login'))
             
+        # 비활성화 샌드박싱: 비활성화 상태인 경우 허용된 엔드포인트 이외에는 접근 불가
+        if db_user['IsDeactivated'] == 'Y' or session.get('user', {}).get('IsDeactivated'):
+            allowed_paths = ['/deactivated_notice', '/api/users/withdraw/cancel', '/logout']
+            if request.path not in allowed_paths:
+                if request.path.startswith('/api/'):
+                    return jsonify({"error": "비활성화 상태인 계정입니다."}), 403
+                return redirect(url_for('deactivated_notice_page'))
+
         return f(*args, **kwargs)
     return decorated_function
 
@@ -586,6 +703,8 @@ def login_page():
     if request.method == 'GET':
         user = session.get('user')
         if user and 'UserId' in user:
+            if user.get('IsDeactivated'):
+                return redirect(url_for('deactivated_notice_page'))
             return redirect(url_for('portal_page'))
         session.pop('user', None)
         return render_template('login.html')
@@ -600,12 +719,30 @@ def login_page():
     user = cursor.fetchone()
     conn.close()
     
-    if user and check_password_hash(user['Password'], password):
+    if not user:
+        log_audit(None, login_id, 'LOGIN_FAILED', 'users', None, None, {"LoginId": login_id, "reason": "invalid_credentials"})
+        return jsonify({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}), 400
+        
+    eval_result = evaluate_user_lifecycle(user)
+    status = eval_result['status']
+    
+    if status in ['HARD_DELETED', 'DELETED']:
+        log_audit(None, login_id, 'LOGIN_FAILED', 'users', None, None, {"LoginId": login_id, "reason": f"account_{status.lower()}"})
+        return jsonify({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}), 400
+        
+    if status == 'ADMIN_SUSPENDED':
+        log_audit(None, login_id, 'LOGIN_FAILED', 'users', user['UserId'], None, {"LoginId": login_id, "reason": "admin_suspended"})
+        return jsonify({"success": False, "message": "관리자에 의해 비활성화(정지)된 계정입니다. 관리자에게 문의하세요."}), 400
+        
+    if check_password_hash(user['Password'], password):
         user_dict = {
             'UserId': user['UserId'],
             'LoginId': user['LoginId'],
+            'Name': user['Name'],
             'NickName': user['NickName'],
-            'Role': user['Role']
+            'Role': user['Role'],
+            'IsDeactivated': (status == 'DEACTIVATED'),
+            'DeactivationDaysLeft': eval_result.get('days_left', 30) if status == 'DEACTIVATED' else None
         }
         
         session_token = os.urandom(24).hex()
@@ -619,11 +756,28 @@ def login_page():
         conn_update.commit()
         conn_update.close()
         
-        log_audit(user['UserId'], user['LoginId'], 'LOGIN_SUCCESS', 'users', user['UserId'], None, {"LoginId": login_id})
+        log_audit(user['UserId'], user['LoginId'], 'LOGIN_SUCCESS', 'users', user['UserId'], None, {"LoginId": login_id, "Status": status})
+        
+        if status == 'DEACTIVATED':
+            return jsonify({
+                "success": True,
+                "is_deactivated": True,
+                "redirect": "/deactivated_notice",
+                "message": f"현재 회원 탈퇴 유예 중(D-{eval_result.get('days_left', 30)}일)입니다."
+            })
+            
         return jsonify({"success": True, "message": "로그인 성공"})
     else:
-        log_audit(None, login_id, 'LOGIN_FAILED', 'users', None, None, {"LoginId": login_id, "reason": "invalid_credentials"})
+        log_audit(None, login_id, 'LOGIN_FAILED', 'users', user['UserId'], None, {"LoginId": login_id, "reason": "invalid_password"})
         return jsonify({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}), 400
+
+
+@app.route('/deactivated_notice')
+@login_required
+def deactivated_notice_page():
+    user = session.get('user', {})
+    days_left = user.get('DeactivationDaysLeft', 30)
+    return render_template('deactivated_notice.html', user=user, days_left=days_left)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -642,20 +796,51 @@ def register_page():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # 중복 체크
+    # 중복 체크 및 탈퇴 복구 분기
     cursor.execute("SELECT * FROM users WHERE LoginId = ?", (login_id,))
-    if cursor.fetchone():
-        conn.close()
-        return jsonify({"success": False, "message": "이미 존재하는 아이디입니다."}), 400
+    existing_user = cursor.fetchone()
+    
+    if existing_user:
+        eval_res = evaluate_user_lifecycle(existing_user)
+        status = eval_res['status']
         
-    # 권한 설정 (최초 가입자는 admin)
+        if status == 'DELETED':  # Phase 2 soft-deleted
+            # 보안 검증: 가입 시 등록했던 Name이 정확히 일치하는지 확인
+            if name and existing_user['Name'] and name.strip() == existing_user['Name'].strip():
+                cursor.execute('''
+                    UPDATE users
+                    SET Password = ?, Name = ?, NickName = ?, IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL, UpdatedAt = ?
+                    WHERE UserId = ?
+                ''', (hashed_password, name, nickname, now, existing_user['UserId']))
+                conn.commit()
+                conn.close()
+                log_audit(existing_user['UserId'], login_id, 'RECOVER_ACCOUNT', 'users', existing_user['UserId'], None, {"LoginId": login_id})
+                return jsonify({"success": True, "message": "탈퇴된 계정의 소유권이 확인되어 새 비밀번호로 성공적으로 복구되었습니다! 로그인해 주세요."})
+            else:
+                conn.close()
+                return jsonify({
+                    "success": False,
+                    "is_recovery_target": True,
+                    "message": "💡 해당 아이디는 탈퇴 수순을 밟고 있는 계정입니다. 계정 복구를 원하시면 본인 소유권 확인을 위해 기존 가입 시 등록하셨던 '실명(이름)'을 입력란에 정확히 입력해 주세요."
+                }), 400
+        elif status == 'DEACTIVATED':
+            conn.close()
+            return jsonify({
+                "success": False,
+                "message": "해당 아이디는 현재 비활성화(탈퇴 유예) 상태입니다. 기존 계정으로 로그인하시면 비활성화를 철회하실 수 있습니다."
+            }), 400
+        elif status != 'HARD_DELETED':
+            conn.close()
+            return jsonify({"success": False, "message": "이미 존재하는 아이디입니다."}), 400
+
+    # 신규 가입 진행
     cursor.execute("SELECT COUNT(*) FROM users")
     count = cursor.fetchone()[0]
     role = 'admin' if count == 0 else 'user'
     
     cursor.execute('''
-        INSERT INTO users (LoginId, Name, NickName, Password, Role, CreatedAt, UpdatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO users (LoginId, Name, NickName, Password, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'N', 'N')
     ''', (login_id, name, nickname, hashed_password, role, now, now))
     
     new_id = cursor.lastrowid
@@ -1079,6 +1264,66 @@ def api_change_my_password():
     conn.close()
     return jsonify({"success": True, "message": "비밀번호가 성공적으로 변경되었습니다."})
 
+@app.route('/api/users/withdraw', methods=['POST'])
+@login_required
+def api_user_withdraw():
+    user = session['user']
+    data = request.json or {}
+    password = data.get('password')
+    
+    if not password:
+        return jsonify({"success": False, "message": "비밀번호를 입력하세요."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT Password FROM users WHERE UserId = ?", (user['UserId'],))
+    db_user = cursor.fetchone()
+    
+    if not db_user or not check_password_hash(db_user['Password'], password):
+        conn.close()
+        return jsonify({"success": False, "message": "비밀번호가 올바르지 않습니다."}), 400
+        
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    new_token = os.urandom(24).hex()
+    
+    cursor.execute('''
+        UPDATE users 
+        SET IsDeactivated = 'Y', DeactivatedAt = ?, SessionToken = ? 
+        WHERE UserId = ?
+    ''', (now_str, new_token, user['UserId']))
+    
+    conn.commit()
+    conn.close()
+    
+    session['user']['IsDeactivated'] = True
+    session['user']['DeactivationDaysLeft'] = 30
+    session['session_token'] = new_token
+    
+    log_audit(user['UserId'], user['LoginId'], 'USER_WITHDRAW_REQUEST', 'users', user['UserId'], None, {"DeactivatedAt": now_str})
+    return jsonify({"success": True, "message": "회원 탈퇴 신청이 완료되었습니다. 30일간의 비활성화 유예기간이 적용됩니다."})
+
+@app.route('/api/users/withdraw/cancel', methods=['POST'])
+@login_required
+def api_user_withdraw_cancel():
+    user = session['user']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE users 
+        SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL 
+        WHERE UserId = ?
+    ''', (user['UserId'],))
+    
+    conn.commit()
+    conn.close()
+    
+    session['user']['IsDeactivated'] = False
+    session['user'].pop('DeactivationDaysLeft', None)
+    
+    log_audit(user['UserId'], user['LoginId'], 'USER_WITHDRAW_CANCEL', 'users', user['UserId'], None, None)
+    return jsonify({"success": True, "message": "비활성화가 성공적으로 철회되었으며 계정이 정상 복구되었습니다."})
+
 # ------------------------------------------
 # 관리자용 사용자 관리 API
 # ------------------------------------------
@@ -1091,11 +1336,92 @@ def api_get_users():
         
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT UserId, LoginId, Name, NickName, Role, CreatedAt FROM users ORDER BY UserId DESC")
+    cursor.execute("SELECT UserId, LoginId, Name, NickName, Role, CreatedAt, IsDeactivated, DeactivatedAt, IsDeleted, DeletedAt FROM users ORDER BY UserId DESC")
     rows = cursor.fetchall()
     conn.close()
     
-    return jsonify({"success": True, "data": [dict(row) for row in rows]})
+    result = []
+    for row in rows:
+        user_dict = dict(row)
+        eval_res = evaluate_user_lifecycle(user_dict)
+        if eval_res['status'] == 'HARD_DELETED':
+            continue
+        user_dict['Status'] = eval_res['status']
+        user_dict['DaysLeft'] = eval_res.get('days_left', 0)
+        result.append(user_dict)
+        
+    return jsonify({"success": True, "data": result})
+
+@app.route('/api/users/<int:target_user_id>/toggle_deactivation', methods=['POST'])
+@login_required
+def api_toggle_user_deactivation(target_user_id):
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    deactivate = request.json.get('deactivate', True)
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if deactivate:
+        cursor.execute('''
+            UPDATE users 
+            SET IsDeactivated = 'Y', DeactivatedAt = NULL, SessionToken = hex(randomblob(16))
+            WHERE UserId = ?
+        ''', (target_user_id,))
+        log_audit(user['UserId'], user['LoginId'], 'ADMIN_SUSPEND_USER', 'users', target_user_id, None, None)
+        msg = "계정이 비활성화(정지) 처리되었습니다."
+    else:
+        cursor.execute('''
+            UPDATE users 
+            SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
+            WHERE UserId = ?
+        ''', (target_user_id,))
+        log_audit(user['UserId'], user['LoginId'], 'ADMIN_UNSUSPEND_USER', 'users', target_user_id, None, None)
+        msg = "계정이 정상 활성화되었습니다."
+        
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": msg})
+
+@app.route('/api/users/deactivate_selected', methods=['POST'])
+@login_required
+def api_deactivate_selected_users():
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+        
+    target_ids = request.json.get('user_ids', [])
+    deactivate = request.json.get('deactivate', True)
+    
+    if not target_ids or not isinstance(target_ids, list):
+        return jsonify({"success": False, "message": "대상을 선택해주세요."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    placeholders = ','.join(['?'] * len(target_ids))
+    
+    if deactivate:
+        cursor.execute(f'''
+            UPDATE users 
+            SET IsDeactivated = 'Y', DeactivatedAt = NULL, SessionToken = hex(randomblob(16))
+            WHERE UserId IN ({placeholders})
+        ''', tuple(target_ids))
+        log_audit(user['UserId'], user['LoginId'], 'ADMIN_BULK_SUSPEND', 'users', None, None, {"TargetIds": target_ids})
+        msg = f"{len(target_ids)}명의 계정이 비활성화 처리되었습니다."
+    else:
+        cursor.execute(f'''
+            UPDATE users 
+            SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
+            WHERE UserId IN ({placeholders})
+        ''', tuple(target_ids))
+        log_audit(user['UserId'], user['LoginId'], 'ADMIN_BULK_UNSUSPEND', 'users', None, None, {"TargetIds": target_ids})
+        msg = f"{len(target_ids)}명의 계정이 활성화 처리되었습니다."
+        
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": msg})
 
 @app.route('/api/users/<int:target_user_id>/role', methods=['PUT'])
 @login_required

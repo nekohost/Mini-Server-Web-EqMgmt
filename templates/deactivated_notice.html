@@ -1,0 +1,80 @@
+{% extends 'root_frame.html' %}
+
+{% block title %}회원 탈퇴 유예 안내 - 미니서버 통합 관리 시스템{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center p-4 bg-slate-100 dark:bg-slate-900 transition-colors">
+    <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-lg border border-slate-200 dark:border-slate-700 text-center">
+        <!-- 경고 아이콘 -->
+        <div class="w-16 h-16 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-full flex items-center justify-center mx-auto mb-6">
+            <i class="fa-solid fa-user-clock text-3xl"></i>
+        </div>
+
+        <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-2">회원 탈퇴 신청 (비활성화) 유예 중</h1>
+        <p class="text-slate-600 dark:text-slate-400 text-sm mb-6">
+            현재 계정은 <span class="font-semibold text-amber-600 dark:text-amber-400">회원 탈퇴 비활성화 기간</span>입니다.<br>
+            유예 기간 동안에는 서비스의 주요 기능을 이용하실 수 없습니다.
+        </p>
+
+        <!-- D-Day 카드 -->
+        <div class="bg-slate-50 dark:bg-slate-700/40 border border-slate-200 dark:border-slate-700 rounded-xl p-5 mb-6 text-left space-y-3">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-200 dark:border-slate-600">
+                <span class="text-sm font-medium text-slate-500 dark:text-slate-400">남은 유예 기간</span>
+                <span class="text-lg font-black text-rose-600 dark:text-rose-400">
+                    D-{{ days_left if days_left is defined and days_left is not none else 30 }}일
+                </span>
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-1.5 leading-relaxed">
+                <p>• <strong>탈퇴 유예(30일)</strong>: 30일 이내 언제든 비활성화를 철회하고 계정을 다시 복구하실 수 있습니다.</p>
+                <p>• <strong>완전 탈퇴(30일 경과)</strong>: 30일이 지나면 계정이 완전 탈퇴 처리되어 로그인이 전면 차단됩니다.</p>
+                <p>• <strong>데이터 영구 파기(1년 경과)</strong>: 탈퇴 신청일 기준 1년 1일이 지나면 DB에서 모든 계정 정보가 영구 삭제되고 장비 소유권이 해제됩니다.</p>
+            </div>
+        </div>
+
+        <div id="noticeMessage" class="hidden mb-4 p-3 rounded-lg text-sm font-medium"></div>
+
+        <!-- 버튼 세트 -->
+        <div class="flex flex-col sm:flex-row gap-3">
+            <button type="button" onclick="cancelWithdrawal()" 
+                    class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2">
+                <i class="fa-solid fa-rotate-left"></i> 비활성화 철회 (계정 복구)
+            </button>
+            <a href="/logout" 
+               class="px-5 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts_base %}
+<script>
+    async function cancelWithdrawal() {
+        if (!confirm('비활성화를 철회하고 계정을 즉시 복구하시겠습니까?')) return;
+        const msgDiv = document.getElementById('noticeMessage');
+        msgDiv.className = 'hidden mb-4 p-3 rounded-lg text-sm font-medium';
+
+        try {
+            const res = await fetch('/api/users/withdraw/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await res.json();
+
+            if (res.ok && data.success) {
+                alert(data.message);
+                location.href = '/portal';
+            } else {
+                msgDiv.innerText = data.message || '철회 처리에 실패했습니다.';
+                msgDiv.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+                msgDiv.classList.remove('hidden');
+            }
+        } catch (err) {
+            msgDiv.innerText = '통신 중 오류가 발생했습니다.';
+            msgDiv.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
+            msgDiv.classList.remove('hidden');
+        }
+    }
+</script>
+{% endblock %}
