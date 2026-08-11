@@ -974,6 +974,11 @@ def get_current_user():
 @app.route('/api/user_settings', methods=['GET', 'POST'])
 @login_required
 def api_user_settings():
+    """
+    [역할] 로그인한 사용자의 UI 설정(테마 등)을 조회하거나 저장(UPSERT)합니다.
+    [의존성 관계] user_settings 테이블
+    [변경 시 영향도] 프론트엔드 환경 설정 적용 상태에 영향을 줍니다.
+    """
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1198,6 +1203,11 @@ def api_audit_logs():
 @app.route('/api/dashboard/stats', methods=['GET'])
 @login_required
 def api_dashboard_stats():
+    """
+    [역할] 대시보드 출력용 장비 현황 및 사용자 통계를 집계하여 반환합니다.
+    [의존성 관계] equipment, users, audit_logs 테이블
+    [변경 시 영향도] dashboard.html의 렌더링 카드 및 통계 수치에 영향을 줍니다.
+    """
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -1237,9 +1247,14 @@ def api_dashboard_stats():
 # ------------------------------------------
 # 사용자 프로필 (비밀번호 변경) API
 # ------------------------------------------
-@app.route('/api/users/change_password', methods=['POST'])
+@app.route('/api/change_password', methods=['POST'])
 @login_required
 def api_change_my_password():
+    """
+    [역할] 로그인된 사용자가 본인의 비밀번호를 변경합니다.
+    [의존성 관계] users 테이블, werkzeug.security 모듈
+    [변경 시 영향도] 사용자의 다음 로그인 시크릿 키 검증에 영향을 줍니다.
+    """
     user = session['user']
     data = request.json
     current_pw = data.get('current_password')
@@ -1451,6 +1466,11 @@ def api_deactivate_selected_users():
 @app.route('/api/users/<int:target_user_id>/role', methods=['PUT'])
 @login_required
 def api_update_user_role(target_user_id):
+    """
+    [역할] 특정 사용자의 권한(Role)을 관리자가 변경(user ↔ admin)합니다.
+    [의존성 관계] users 테이블
+    [변경 시 영향도] 해당 사용자의 시스템 메뉴 접근 권한 등 전체 권한 레벨이 즉시 변경됩니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1479,6 +1499,11 @@ def api_update_user_role(target_user_id):
 @app.route('/api/users/<int:target_user_id>/reset_password', methods=['POST'])
 @login_required
 def api_reset_user_password(target_user_id):
+    """
+    [역할] 관리자가 특정 사용자의 비밀번호를 입력받은 임시 비밀번호로 강제 초기화합니다.
+    [의존성 관계] users 테이블, werkzeug.security 모듈
+    [변경 시 영향도] 해당 유저의 로그인 자격 증명이 즉각 변경됩니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1502,6 +1527,11 @@ def api_reset_user_password(target_user_id):
 @app.route('/api/system/force_logout/all', methods=['POST'])
 @login_required
 def api_force_logout_all():
+    """
+    [역할] 본인(또는 전체)을 제외한 모든 사용자의 세션 토큰을 갱신하여 강제 로그아웃 시킵니다.
+    [의존성 관계] users 테이블
+    [변경 시 영향도] 현재 로그인 중인 모든 다른 사용자의 세션이 만료되어 즉시 재로그인 화면으로 튕깁니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1532,6 +1562,11 @@ def api_force_logout_all():
 @app.route('/api/system/force_logout/selected', methods=['POST'])
 @login_required
 def api_force_logout_selected():
+    """
+    [역할] 관리자가 선택한 특정 유저들의 세션 토큰을 일괄 갱신하여 강제 로그아웃 시킵니다.
+    [의존성 관계] users 테이블
+    [변경 시 영향도] 선택된 유저들의 브라우저 세션이 무효화되어 강제로 로그인 페이지로 리다이렉트됩니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1563,6 +1598,11 @@ def api_force_logout_selected():
 @app.route('/api/users/delete_selected', methods=['POST'])
 @login_required
 def api_delete_selected_users():
+    """
+    [역할] 관리자가 선택한 다수의 유저 계정을 영구 파기(Hard Delete)하고, 이들의 소유 장비를 공개로 이관합니다.
+    [의존성 관계] users, user_settings, equipment 테이블
+    [변경 시 영향도] 시스템에서 선택된 사용자 정보가 비가역적으로 완전 삭제됩니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
