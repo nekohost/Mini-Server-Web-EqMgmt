@@ -1267,6 +1267,11 @@ def api_change_my_password():
 @app.route('/api/users/withdraw', methods=['POST'])
 @login_required
 def api_user_withdraw():
+    """
+    [역할] 회원이 자진 탈퇴를 신청하고 30일 비활성화 유예 기간을 시작합니다.
+    [의존성 관계] users 테이블, 세션 시스템
+    [변경 시 영향도] 마이페이지의 회원탈퇴 폼 제출 로직 및 전역 세션(강제 로그아웃)에 영향을 줍니다.
+    """
     user = session['user']
     data = request.json or {}
     password = data.get('password')
@@ -1305,6 +1310,11 @@ def api_user_withdraw():
 @app.route('/api/users/withdraw/cancel', methods=['POST'])
 @login_required
 def api_user_withdraw_cancel():
+    """
+    [역할] 비활성화 유예 기간(30일) 내에 있는 사용자가 탈퇴 신청을 철회하고 계정을 복구합니다.
+    [의존성 관계] users 테이블
+    [변경 시 영향도] deactivated_notice.html의 비활성화 철회 버튼 및 사용자 계정 상태에 영향을 줍니다.
+    """
     user = session['user']
     
     conn = get_db_connection()
@@ -1330,6 +1340,11 @@ def api_user_withdraw_cancel():
 @app.route('/api/users', methods=['GET'])
 @login_required
 def api_get_users():
+    """
+    [역할] 시스템 내 모든 사용자의 정보를 조회하며, evaluate_user_lifecycle을 통해 실시간 유예 상태를 평가하여 반환합니다.
+    [의존성 관계] users 테이블, evaluate_user_lifecycle() 함수
+    [변경 시 영향도] 관리자용 사용자 관리 화면(users_management.html)의 테이블 데이터 출력 및 뱃지 상태에 영향을 줍니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1355,6 +1370,11 @@ def api_get_users():
 @app.route('/api/users/<int:target_user_id>/toggle_deactivation', methods=['POST'])
 @login_required
 def api_toggle_user_deactivation(target_user_id):
+    """
+    [역할] 관리자가 특정 사용자의 계정을 강제로 무기한 비활성화(정지)하거나 다시 활성화합니다.
+    [의존성 관계] users 테이블, 세션 시스템
+    [변경 시 영향도] users_management.html의 개별 토글 버튼 동작 및 대상 유저의 즉각적인 로그인/세션 차단에 영향을 줍니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1388,6 +1408,11 @@ def api_toggle_user_deactivation(target_user_id):
 @app.route('/api/users/deactivate_selected', methods=['POST'])
 @login_required
 def api_deactivate_selected_users():
+    """
+    [역할] 관리자가 선택한 다수의 사용자 계정을 일괄적으로 비활성화(정지)하거나 활성화합니다.
+    [의존성 관계] users 테이블, 세션 시스템
+    [변경 시 영향도] users_management.html의 다중 체크박스 제어 및 선택 유저들의 즉각적인 세션 차단에 영향을 줍니다.
+    """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
