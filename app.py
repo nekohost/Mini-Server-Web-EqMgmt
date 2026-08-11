@@ -554,11 +554,12 @@ def evaluate_user_lifecycle(user):
     if not user:
         return {"status": "NOT_FOUND"}
         
-    user_id = user['UserId']
-    login_id = user['LoginId']
-    is_deactivated = user.get('IsDeactivated') or 'N'
-    deactivated_at_str = user.get('DeactivatedAt')
-    is_deleted = user.get('IsDeleted') or 'N'
+    user_dict = dict(user)
+    user_id = user_dict.get('UserId')
+    login_id = user_dict.get('LoginId')
+    is_deactivated = user_dict.get('IsDeactivated') or 'N'
+    deactivated_at_str = user_dict.get('DeactivatedAt')
+    is_deleted = user_dict.get('IsDeleted') or 'N'
     
     if is_deactivated == 'Y' and deactivated_at_str:
         try:
@@ -602,7 +603,7 @@ def evaluate_user_lifecycle(user):
         
     elif is_deleted == 'Y':
         # 이미 Soft Delete 처리됨 -> 1년 경과 체크
-        deleted_at_str = user.get('DeletedAt') or deactivated_at_str
+        deleted_at_str = user_dict.get('DeletedAt') or deactivated_at_str
         if deleted_at_str:
             try:
                 ref_time = datetime.strptime(deleted_at_str, '%Y-%m-%d %H:%M:%S')
