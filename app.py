@@ -1214,25 +1214,37 @@ def api_dashboard_stats():
     cursor = conn.cursor()
     
     # 1. 내 장비 수
-    cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE UserId = ?", (user['UserId'],))
+    cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE UserId = ? AND (IsDraft = 0 OR IsDraft IS NULL)", (user['UserId'],))
     my_eq_count = cursor.fetchone()['count']
     
     # 2. 총 장비 수 (관리자 권한 고려)
     if user['Role'] == 'admin':
-        cursor.execute("SELECT COUNT(*) as count FROM equipment")
+        cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE (IsDraft = 0 OR IsDraft IS NULL)")
         total_count = cursor.fetchone()['count']
     else:
         # 일반 사용자는 공개된 장비 + 내 장비만 카운트
-        cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE IsPublic = 1 OR UserId = ?", (user['UserId'],))
+        cursor.execute("SELECT COUNT(*) as count FROM equipment WHERE (IsPublic = 1 OR UserId = ?) AND (IsDraft = 0 OR IsDraft IS NULL)", (user['UserId'],))
         total_count = cursor.fetchone()['count']
         
-    # 3. 카테고리별 통계
+    # 3. 카테고리별 통계 (LEFT JOIN 및 COALESCE 처리)
     if user['Role'] == 'admin':
-        cursor.execute("SELECT Category, COUNT(*) as count FROM equipment GROUP BY Category")
+        cursor.execute('''
+            SELECT COALESCE(c.NameKo, c.Name, e.Category, '미분류') as ResolvedCategory, COUNT(e.EquipmentId) as count 
+            FROM equipment e
+            LEFT JOIN categories c ON e.CategoryId = c.CategoryId
+            WHERE (e.IsDraft = 0 OR e.IsDraft IS NULL)
+            GROUP BY ResolvedCategory
+        ''')
     else:
-        cursor.execute("SELECT Category, COUNT(*) as count FROM equipment WHERE IsPublic = 1 OR UserId = ? GROUP BY Category", (user['UserId'],))
+        cursor.execute('''
+            SELECT COALESCE(c.NameKo, c.Name, e.Category, '미분류') as ResolvedCategory, COUNT(e.EquipmentId) as count 
+            FROM equipment e
+            LEFT JOIN categories c ON e.CategoryId = c.CategoryId
+            WHERE (e.IsPublic = 1 OR e.UserId = ?) AND (e.IsDraft = 0 OR e.IsDraft IS NULL)
+            GROUP BY ResolvedCategory
+        ''', (user['UserId'],))
     
-    categories = [{"category": row['Category'], "count": row['count']} for row in cursor.fetchall()]
+    categories = [{"category": row['ResolvedCategory'], "count": row['count']} for row in cursor.fetchall()]
     
     conn.close()
     
