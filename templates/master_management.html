@@ -18,30 +18,48 @@
 
 <!-- 탭 컨트롤 -->
 <div class="mb-6 border-b border-slate-200 dark:border-slate-700 flex gap-4">
-    <button id="tabCategories" onclick="switchTab('categories')" class="py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors">
+    <button id="tabCategories" onclick="switchTab('categories')"
+        class="py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors">
         🏷️ 카테고리 관리
     </button>
-    <button id="tabManufacturers" onclick="switchTab('manufacturers')" class="py-3 px-6 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
+    <button id="tabManufacturers" onclick="switchTab('manufacturers')"
+        class="py-3 px-6 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
         🏭 제조사 관리
     </button>
 </div>
 
 <!-- 데이터 테이블 -->
-<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
+<div
+    class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead class="bg-slate-50 dark:bg-slate-700/50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">기본 명칭 (Default)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">한국어 (Korean)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">영어 (English)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">연결 장비 수</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">승인 상태</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리</th>
+                    <th
+                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        ID</th>
+                    <th
+                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        기본 명칭 (Default)</th>
+                    <th
+                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        한국어 (Korean)</th>
+                    <th
+                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        영어 (English)</th>
+                    <th
+                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        연결 장비 수</th>
+                    <th
+                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        승인 상태</th>
+                    <th
+                        class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                        관리</th>
                 </tr>
             </thead>
-            <tbody id="masterTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+            <tbody id="masterTableBody"
+                class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                 <!-- JS 렌더링 -->
             </tbody>
         </table>
@@ -50,34 +68,43 @@
 
 <!-- 1차 모달: 수정 & 통폐합 진입 -->
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
+    <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div
+            class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
             <h3 id="editModalTitle" class="text-xl font-bold text-slate-800 dark:text-slate-100">마스터 항목 수정</h3>
-            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+            <button onclick="closeEditModal()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
         </div>
         <div class="p-6 space-y-4">
             <input type="hidden" id="editItemId">
-            
+
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">기본 식별 명칭 (필수)</label>
-                <input type="text" id="editName" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="editName"
+                    class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">한국어 명칭 (선택)</label>
-                <input type="text" id="editNameKo" placeholder="예: 노트북" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="editNameKo" placeholder="예: 노트북"
+                    class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">영어 명칭 (선택)</label>
-                <input type="text" id="editNameEn" placeholder="예: Laptop" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="editNameEn" placeholder="예: Laptop"
+                    class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
 
             <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <button type="button" onclick="openMergeModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-1">
+                <button type="button" onclick="openMergeModal()"
+                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-1">
                     🔀 타 항목 통폐합(Merge)...
                 </button>
                 <div class="flex gap-2">
-                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
-                    <button type="button" onclick="submitEdit()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md">저장하기</button>
+                    <button type="button" onclick="closeEditModal()"
+                        class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
+                    <button type="button" onclick="submitEdit()"
+                        class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md">저장하기</button>
                 </div>
             </div>
         </div>
@@ -86,12 +113,15 @@
 
 <!-- 2차 이중 모달: 통폐합 대상 다중 선택 -->
 <div id="mergeModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-purple-300 dark:border-purple-800">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50 dark:bg-purple-900/30">
+    <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-purple-300 dark:border-purple-800">
+        <div
+            class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50 dark:bg-purple-900/30">
             <h3 class="text-xl font-bold text-purple-900 dark:text-purple-200 flex items-center gap-2">
                 🔀 마스터 통폐합 (Merge)
             </h3>
-            <button onclick="closeMergeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+            <button onclick="closeMergeModal()"
+                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
         </div>
         <div class="p-6">
             <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">
@@ -101,13 +131,17 @@
                 ※ 아래 체크한 항목들이 모두 현재 항목으로 **통합 흡수**됩니다. 선택된 항목에 연결되어 있던 기존 장비들의 분류 ID가 일괄 변경되며, 체크된 원본 마스터 항목은 파기됩니다.
             </p>
 
-            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3 max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-700/40 space-y-2" id="mergeListContainer">
+            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3 max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-700/40 space-y-2"
+                id="mergeListContainer">
                 <!-- JS 렌더링 (체크박스 목록) -->
             </div>
 
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeMergeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
-                <button type="button" onclick="submitMerge()" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-md">선택 항목 일괄 통합</button>
+                <button type="button" onclick="closeMergeModal()"
+                    class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
+                <button type="button" onclick="submitMerge()"
+                    class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-md">선택
+                    항목 일괄 통합</button>
             </div>
         </div>
     </div>
@@ -169,7 +203,7 @@
 
         masterDataList.forEach(item => {
             const itemId = item[idKey];
-            const approvedBadge = item.IsApproved === 1 
+            const approvedBadge = item.IsApproved === 1
                 ? '<span class="px-2 py-0.5 inline-flex text-xs font-bold rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">승인됨</span>'
                 : '<span class="px-2 py-0.5 inline-flex text-xs font-bold rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">미승인</span>';
 

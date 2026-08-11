@@ -1737,13 +1737,13 @@ def update_permissions():
 # ------------------------------------------
 # [제안-011-고도화] 마스터 데이터 관리 & 통폐합 API
 # ------------------------------------------
-@app.route('/api/master/manage/<target_type>', methods=['GET'])
+@app.route('/api/master/manage/<target_type>', methods=['GET', 'POST'])
 @login_required
-def get_master_management_list(target_type):
+def get_or_create_master_management_item(target_type):
     """
-    [역할] 관리자 전용 마스터 데이터 (카테고리/제조사) 전체 목록 및 사용 중인 장비 수 조회
+    [역할] 관리자 전용 마스터 데이터 (카테고리/제조사) 전체 목록 조회 및 신규 항목 생성
     [의존성 관계] categories, manufacturers, equipment 테이블
-    [변경 시 영향도] templates/master_management.html 화면 표출에 사용됩니다.
+    [변경 시 영향도] templates/master_management.html 화면 표출 및 마스터 항목 추가에 사용됩니다.
     """
     if session['user']['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
@@ -1751,29 +1751,103 @@ def get_master_management_list(target_type):
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    if target_type == 'categories':
-        cursor.execute('''
-            SELECT c.*, COUNT(e.EquipmentId) as UsageCount
-            FROM categories c
-            LEFT JOIN equipment e ON c.CategoryId = e.CategoryId
-            GROUP BY c.CategoryId
-            ORDER BY c.CategoryId DESC
-        ''')
-    elif target_type == 'manufacturers':
-        cursor.execute('''
-            SELECT m.*, COUNT(e.EquipmentId) as UsageCount
-            FROM manufacturers m
-            LEFT JOIN equipment e ON m.ManufacturerId = e.ManufacturerId
-            GROUP BY m.ManufacturerId
-            ORDER BY m.ManufacturerId DESC
-        ''')
-    else:
+    if request.method == 'GET':
+        if target_type == 'categories':
+            cursor.execute('''
+                SELECT c.*, COUNT(e.EquipmentId) as UsageCount
+                FROM categories c
+                LEFT JOIN equipment e ON c.CategoryId = e.CategoryId
+                GROUP BY c.CategoryId
+                ORDER BY c.CategoryId DESC
+            ''')
+        elif target_type == 'manufacturers':
+            cursor.execute('''
+                SELECT m.*, COUNT(e.EquipmentId) as UsageCount
+                FROM manufacturers m
+                LEFT JOIN equipment e ON m.ManufacturerId = e.ManufacturerId
+                GROUP BY m.ManufacturerId
+                ORDER BY m.ManufacturerId DESC
+            ''')
+        else:
+            conn.close()
+            return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
+            
+        rows = cursor.fetchall()
         conn.close()
+        return jsonify({"success": True, "data": [dict(r) for r in rows]})
+
+    elif request.method == 'POST':
+        data = request.json or {}
+        name = data.get('Name', '').strip()
+        name_ko = data.get('NameKo', '').strip() if data.get('NameKo') else None
+        name_en = data.get('NameEn', '').strip() if data.get('NameEn') else None
+
+        if not name:
+            conn.close()
+            return jsonify({"success": False, "message": "기본 명칭(Name)은 필수입니다."}), 400
+
+        table_name = 'categories' if target_type == 'categories' else ('manufacturers' if target_type == 'manufacturers' else None)
+        if not table_name:
+            conn.close()
+            return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
+
+        # 중복 명칭 검증
+        cursor.execute(f"SELECT * FROM {table_name} WHERE Name = ?", (name,))
+        if cursor.fetchone():
+            conn.close()
+            label_name = '카테고리' if target_type == 'categories' else '제조사'
+            return jsonify({"success": False, "message": f"이미 존재하는 {label_name} 명칭입니다."}), 400
+
+        created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute(f"INSERT INTO {table_name} (Name, NameKo, NameEn, IsApproved, CreatedAt) VALUES (?, ?, ?, 1, ?)",
+                       (name, name_ko, name_en, created_at))
+        new_id = cursor.lastrowid
+
+        user = session['user']
+        log_audit(user['UserId'], user['LoginId'], 'CREATE_MASTER', table_name, new_id, None, data)
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "성공적으로 추가되었습니다.", "id": new_id})
+
+
+@app.route('/api/master/manage/<target_type>/delete_selected', methods=['POST'])
+@login_required
+def delete_selected_master_items(target_type):
+    """
+    [역할] 관리자 전용 마스터 데이터 (카테고리/제조사) 선택 항목 일괄 삭제
+    [의존성 관계] categories, manufacturers, equipment 테이블
+    [변경 시 영향도] 선택된 마스터 데이터 삭제 및 연결된 장비 분류 정보(NULL) 초기화
+    """
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "권한이 없습니다."}), 403
+
+    table_name = 'categories' if target_type == 'categories' else ('manufacturers' if target_type == 'manufacturers' else None)
+    id_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
+    fk_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
+    legacy_col = 'Category' if target_type == 'categories' else 'Manufacturer'
+
+    if not table_name:
         return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
-        
-    rows = cursor.fetchall()
+
+    data = request.json or {}
+    item_ids = data.get('item_ids', [])
+    if not item_ids or not isinstance(item_ids, list):
+        return jsonify({"success": False, "message": "삭제할 항목이 선택되지 않았습니다."}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    placeholders = ','.join(['?'] * len(item_ids))
+    # equipment 관련 외래키 NULL 처리
+    cursor.execute(f"UPDATE equipment SET {fk_col} = NULL, {legacy_col} = NULL WHERE {fk_col} IN ({placeholders})", item_ids)
+    cursor.execute(f"DELETE FROM {table_name} WHERE {id_col} IN ({placeholders})", item_ids)
+
+    log_audit(user['UserId'], user['LoginId'], 'DELETE_MASTER_SELECTED', table_name, None, {"deleted_ids": item_ids}, None)
+    conn.commit()
     conn.close()
-    return jsonify({"success": True, "data": [dict(r) for r in rows]})
+
+    return jsonify({"success": True, "message": f"{len(item_ids)}개 항목이 성공적으로 일괄 삭제되었습니다."})
 
 
 @app.route('/api/master/manage/<target_type>/<int:item_id>', methods=['PUT', 'DELETE'])
