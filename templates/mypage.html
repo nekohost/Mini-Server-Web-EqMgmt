@@ -101,6 +101,7 @@
         }
 
         try {
+            showGlobalLoading();
             const res = await fetch('/api/change_password', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -120,9 +121,11 @@
                 msgDiv.classList.remove('hidden');
             }
         } catch (err) {
-            msgDiv.innerText = '서버 통신 오류가 발생했습니다.';
+            msgDiv.innerText = '통신 중 오류가 발생했습니다.';
             msgDiv.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
             msgDiv.classList.remove('hidden');
+        } finally {
+            hideGlobalLoading();
         }
     });
 

@@ -36,6 +36,20 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-200">
     {% block body %}{% endblock %}
+    <!-- 
+      [역할]: 전역 로딩 오버레이 UI 
+      [의존성 관계]: common.js 의 showGlobalLoading(), hideGlobalLoading() 함수에 의해 제어됨
+      [변경 시 영향도]: 모든 페이지의 비동기 작업(fetch) 대기 상태 UI 형태가 변경됨
+    -->
+    <div id="global-loading-overlay" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex-col justify-center items-center gap-3 transition-opacity duration-200" role="status" aria-live="polite">
+        <div class="p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl flex flex-col items-center gap-3 min-w-[220px] border border-slate-100 dark:border-slate-700">
+            <i class="fa-solid fa-circle-notch fa-spin text-3xl text-brand-500"></i>
+            <span id="global-loading-text" class="text-sm font-semibold text-slate-700 dark:text-slate-200">작업 처리 중입니다...</span>
+        </div>
+    </div>
+
+    <!-- 공통 유틸리티 스크립트 선로드 -->
+    <script src="/static/js/common.js"></script>
     {% block extra_scripts_base %}{% endblock %}
 </body>
 </html>

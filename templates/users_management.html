@@ -127,6 +127,7 @@
             return;
         }
         try {
+            showGlobalLoading();
             const res = await fetch(`/api/users/${userId}/role`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
@@ -142,6 +143,8 @@
         } catch (err) {
             console.error(err);
             alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -162,6 +165,7 @@
         if(!tempPw) return alert('임시 비밀번호를 입력하세요.');
         
         try {
+            showGlobalLoading();
             const res = await fetch(`/api/users/${userId}/reset_password`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -177,6 +181,8 @@
         } catch (err) {
             console.error(err);
             alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -213,6 +219,7 @@
         if (!confirm(confirmMsg)) return;
 
         try {
+            showGlobalLoading();
             const res = await fetch('/api/users/delete_selected', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -234,6 +241,8 @@
             }
         } catch (err) {
             alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -242,6 +251,7 @@
         if (!confirm(confirmMsg)) return;
 
         try {
+            showGlobalLoading();
             const res = await fetch('/api/users/delete_selected', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -256,6 +266,8 @@
             }
         } catch (err) {
             alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -267,6 +279,7 @@
         if (!confirm(`선택한 ${userIds.length}명의 사용자를 즉시 로그아웃 시키겠습니까?`)) return;
         
         try {
+            showGlobalLoading();
             const res = await fetch('/api/system/force_logout/selected', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -286,6 +299,8 @@
             }
         } catch (err) {
             alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -297,6 +312,7 @@
         if (!confirm(msg)) return;
         
         try {
+            showGlobalLoading();
             const res = await fetch('/api/system/force_logout/all', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -314,6 +330,8 @@
             }
         } catch (err) {
             alert('요청 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 </script>

@@ -207,6 +207,7 @@
         }
 
         try {
+            showGlobalLoading();
             const res = await fetch(`/api/approvals/${reqId}/process`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -226,6 +227,8 @@
             }
         } catch (err) {
             alert('통신 중 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 

@@ -232,6 +232,7 @@
         }
 
         try {
+            showGlobalLoading();
             const res = await fetch(`/api/master/manage/${currentTab}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
@@ -247,6 +248,8 @@
             }
         } catch (err) {
             alert('통신 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -254,6 +257,7 @@
         if (!confirm('정말로 이 항목을 삭제하시겠습니까? 연결된 장비의 해당 분류는 초기화됩니다.')) return;
 
         try {
+            showGlobalLoading();
             const res = await fetch(`/api/master/manage/${currentTab}/${id}`, { method: 'DELETE' });
             const result = await res.json();
             if (result.success) {
@@ -263,6 +267,8 @@
             }
         } catch (err) {
             alert('통신 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
@@ -321,6 +327,7 @@
         if (!confirm(`선택한 ${sourceIds.length}개 항목을 현재 항목으로 통폐합하시겠습니까?\n이 작업은 취소할 수 없습니다.`)) return;
 
         try {
+            showGlobalLoading();
             const res = await fetch(`/api/master/manage/${currentTab}/${targetId}/merge_from`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -338,6 +345,8 @@
             }
         } catch (err) {
             alert('통신 오류가 발생했습니다.');
+        } finally {
+            hideGlobalLoading();
         }
     }
 
