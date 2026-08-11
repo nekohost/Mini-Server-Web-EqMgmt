@@ -1,0 +1,234 @@
+{% extends 'miniserver_frame.html' %}
+
+{% block title %}전자결재함 - 미니서버{% endblock %}
+{% block page_title %}전자결재함{% endblock %}
+{% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
+
+{% block content %}
+<header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
+            📑 전자결재함
+        </h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            신규 카테고리/제조사 마스터 등록 요청 목록 및 승인 관리
+        </p>
+    </div>
+</header>
+
+<!-- 결재 목록 테이블 -->
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead class="bg-slate-50 dark:bg-slate-700/50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">문서ID / 요청일시</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">요청자</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">구분</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">신청 항목명</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">상태</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리</th>
+                </tr>
+            </thead>
+            <tbody id="approvalsTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                <!-- JS 렌더링 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 처리 모달 -->
+<div id="processModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
+            <h3 id="processModalTitle" class="font-bold text-lg text-slate-800 dark:text-slate-100">결재 처리</h3>
+            <button onclick="closeProcessModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+        </div>
+        <div class="p-6">
+            <input type="hidden" id="processRequestId">
+            <input type="hidden" id="processAction">
+            
+            <div id="rejectSection" class="space-y-4 hidden">
+                <p class="text-sm text-red-600 dark:text-red-400 font-semibold">
+                    ⚠️ 해당 결재 건을 반려합니다. 
+                </p>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">반려 사유 (필수)</label>
+                    <textarea id="rejectReason" rows="2" placeholder="예: 이미 유사한 카테고리가 존재합니다." class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">대체 카테고리/제조사 지정 (선택)</label>
+                    <input type="text" id="replacementName" placeholder="기존 정식 명칭으로 변경 (예: 노트북)" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">대체 명칭을 입력하면 해당 미승인 항목으로 묶인 장비들이 지정된 명칭으로 일괄 변경됩니다.</p>
+                </div>
+            </div>
+
+            <div id="approveSection" class="hidden">
+                <p class="text-sm text-slate-700 dark:text-slate-300">
+                    해당 항목을 마스터 데이터로 정식 승인하시겠습니까? 승인 즉시 모든 사용자의 드롭다운 목록에 노출됩니다.
+                </p>
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" onclick="closeProcessModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">취소</button>
+                <button type="button" onclick="submitProcess()" id="btnProcessSubmit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md">확인</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    let currentApprovals = [];
+    let currentUser = null;
+
+    async function initPage() {
+        const resMe = await fetch('/api/me');
+        currentUser = await resMe.json();
+        fetchApprovals();
+    }
+
+    async function fetchApprovals() {
+        try {
+            const res = await fetch('/api/approvals');
+            const result = await res.json();
+            if (result.success) {
+                currentApprovals = result.data;
+                renderApprovalsTable();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    function renderApprovalsTable() {
+        const tbody = document.getElementById('approvalsTableBody');
+        tbody.innerHTML = '';
+
+        if (currentApprovals.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
+                        결재 문서가 존재하지 않습니다.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        const isAdmin = currentUser && currentUser.Role === 'admin';
+
+        currentApprovals.forEach(item => {
+            let reqData = {};
+            try { reqData = JSON.parse(item.RequestDataJSON); } catch(e) {}
+
+            const statusBadge = item.Status === 'APPROVED' 
+                ? '<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">승인 완료</span>'
+                : item.Status === 'REJECTED'
+                ? `<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" title="반려사유: ${item.RejectReason || '-'}">반려됨</span>`
+                : '<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">승인 대기중</span>';
+
+            const typeBadge = item.RequestType === 'ADD_CATEGORY'
+                ? '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">카테고리 추가</span>'
+                : '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">제조사 추가</span>';
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-mono font-bold text-slate-800 dark:text-slate-200">#REQ-${item.RequestId}</div>
+                        <div class="text-xs text-slate-400 dark:text-slate-500">${item.CreatedAt || '-'}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300 font-medium">
+                        👤 ${item.RequesterNickName} (${item.RequesterName})
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${typeBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-slate-100">
+                        ${reqData.name || '-'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${statusBadge}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        ${(isAdmin && item.Status === 'PENDING') ? `
+                            <button onclick="openProcessModal(${item.RequestId}, 'approve')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs font-bold mr-1 transition shadow-sm">승인</button>
+                            <button onclick="openProcessModal(${item.RequestId}, 'reject')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-bold transition shadow-sm">반려</button>
+                        ` : '<span class="text-xs text-slate-400 dark:text-slate-500">-</span>'}
+                    </td>
+                </tr>
+            `;
+        });
+    }
+
+    function openProcessModal(reqId, action) {
+        document.getElementById('processRequestId').value = reqId;
+        document.getElementById('processAction').value = action;
+        
+        const title = document.getElementById('processModalTitle');
+        const rejectSec = document.getElementById('rejectSection');
+        const approveSec = document.getElementById('approveSection');
+        const btnSubmit = document.getElementById('btnProcessSubmit');
+
+        document.getElementById('rejectReason').value = '';
+        document.getElementById('replacementName').value = '';
+
+        if (action === 'approve') {
+            title.innerText = '결재 승인';
+            approveSec.classList.remove('hidden');
+            rejectSec.classList.add('hidden');
+            btnSubmit.className = 'px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold shadow-md';
+            btnSubmit.innerText = '승인하기';
+        } else {
+            title.innerText = '결재 반려';
+            approveSec.classList.add('hidden');
+            rejectSec.classList.remove('hidden');
+            btnSubmit.className = 'px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold shadow-md';
+            btnSubmit.innerText = '반려하기';
+        }
+
+        document.getElementById('processModal').classList.remove('hidden');
+    }
+
+    function closeProcessModal() {
+        document.getElementById('processModal').classList.add('hidden');
+    }
+
+    async function submitProcess() {
+        const reqId = document.getElementById('processRequestId').value;
+        const action = document.getElementById('processAction').value;
+        const rejectReason = document.getElementById('rejectReason').value;
+        const replacementName = document.getElementById('replacementName').value;
+
+        if (action === 'reject' && !rejectReason.trim()) {
+            alert('반려 사유를 입력해 주세요.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/approvals/${reqId}/process`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: action,
+                    reject_reason: rejectReason,
+                    replacement_name: replacementName
+                })
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                closeProcessModal();
+                fetchApprovals();
+            } else {
+                alert('오류: ' + result.message);
+            }
+        } catch (err) {
+            alert('통신 중 오류가 발생했습니다.');
+        }
+    }
+
+    initPage();
+</script>
+{% endblock %}

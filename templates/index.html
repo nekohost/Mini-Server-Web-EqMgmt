@@ -9,7 +9,7 @@
 {% block content %}
 <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
+        <h1 id="pageMainHeader" class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
             {% if mode == 'public' %} 공개된 장비 열람 {% else %} 나의 장비 관리 {% endif %}
         </h1>
         {% if mode == 'public' %}
@@ -19,9 +19,20 @@
         </div>
         {% endif %}
     </div>
+    {% if mode == 'my' %}
+    <div class="flex items-center gap-2">
+        <button id="btnOpenAddModal" onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200">
+            + 신규 장비 등록
+        </button>
+        <button id="btnToggleDrafts" onclick="toggleDraftMode()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200 flex items-center gap-1">
+            📁 임시저장함
+        </button>
+    </div>
+    {% else %}
     <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200">
         + 신규 장비 등록
     </button>
+    {% endif %}
 </header>
 
 <!-- [UI 모듈 1] 장비 목록 테이블 -->
@@ -76,11 +87,23 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리</label>
-                    <input type="text" id="Category" placeholder="예: 노트북" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <select id="CategorySelect" onchange="onCategorySelectChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <!-- JS 렌더링 -->
+                    </select>
+                    <div id="CategoryCustomBox" class="mt-2 hidden">
+                        <input type="text" id="CategoryCustom" placeholder="신규 카테고리명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                        <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">※ 직접 입력 시 전자결재 승인 전까지 다른 사람에게 노출되지 않습니다.</p>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">제조사</label>
-                    <input type="text" id="Manufacturer" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                    <select id="ManufacturerSelect" onchange="onManufacturerSelectChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
+                        <!-- JS 렌더링 -->
+                    </select>
+                    <div id="ManufacturerCustomBox" class="mt-2 hidden">
+                        <input type="text" id="ManufacturerCustom" placeholder="신규 제조사명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                        <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">※ 직접 입력 시 전자결재 승인 전까지 다른 사람에게 노출되지 않습니다.</p>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">모델명</label>
@@ -103,9 +126,10 @@
                     <label for="IsPublic" class="text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">이 장비를 시스템에 '공개'합니다 (타인 조회 허용)</label>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3">
+            <div class="mt-6 flex justify-end gap-3" id="modalButtons">
                 <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">취소</button>
-                <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md">저장하기</button>
+                <button type="button" id="btnSaveDraft" onclick="submitEquipment(true)" class="hidden px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-bold shadow-md">임시저장</button>
+                <button type="button" id="btnFormalSubmit" onclick="submitEquipment(false)" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md">저장하기</button>
             </div>
         </form>
     </div>
@@ -140,6 +164,9 @@
 <script>
     let currentEquipmentData = [];
     let currentUser = null;
+    let isDraftMode = false;
+    let masterCategories = [];
+    let masterManufacturers = [];
 
     async function fetchUserInfo() {
         try {
@@ -147,22 +174,96 @@
             currentUser = await res.json();
             
             if (currentUser.Role === 'admin') {
-                document.getElementById('ownerHeader').classList.remove('hidden');
-                document.getElementById('ownerSelectContainer').classList.remove('hidden');
+                const ownerHeader = document.getElementById('ownerHeader');
+                const ownerSelectContainer = document.getElementById('ownerSelectContainer');
+                if (ownerHeader) ownerHeader.classList.remove('hidden');
+                if (ownerSelectContainer) ownerSelectContainer.classList.remove('hidden');
             }
         } catch (err) {
             console.error(err);
         }
     }
 
+    async function fetchMasterData() {
+        try {
+            const res = await fetch('/api/master_data');
+            const result = await res.json();
+            if (result.success) {
+                masterCategories = result.categories || [];
+                masterManufacturers = result.manufacturers || [];
+                renderMasterDropdowns();
+            }
+        } catch (err) {
+            console.error('마스터 데이터 로드 실패:', err);
+        }
+    }
+
+    function renderMasterDropdowns() {
+        const catSelect = document.getElementById('CategorySelect');
+        const mfgSelect = document.getElementById('ManufacturerSelect');
+
+        if (catSelect) {
+            catSelect.innerHTML = masterCategories.map(c => `<option value="${c}">${c}</option>`).join('') + 
+                `<option value="__custom__">➕ 기타 (직접 입력...)</option>`;
+        }
+
+        if (mfgSelect) {
+            mfgSelect.innerHTML = masterManufacturers.map(m => `<option value="${m}">${m}</option>`).join('') + 
+                `<option value="__custom__">➕ 기타 (직접 입력...)</option>`;
+        }
+    }
+
+    function onCategorySelectChange() {
+        const select = document.getElementById('CategorySelect');
+        const box = document.getElementById('CategoryCustomBox');
+        if (select.value === '__custom__') {
+            box.classList.remove('hidden');
+            document.getElementById('CategoryCustom').focus();
+        } else {
+            box.classList.add('hidden');
+        }
+    }
+
+    function onManufacturerSelectChange() {
+        const select = document.getElementById('ManufacturerSelect');
+        const box = document.getElementById('ManufacturerCustomBox');
+        if (select.value === '__custom__') {
+            box.classList.remove('hidden');
+            document.getElementById('ManufacturerCustom').focus();
+        } else {
+            box.classList.add('hidden');
+        }
+    }
+
+    function toggleDraftMode() {
+        isDraftMode = !isDraftMode;
+        const mainHeader = document.getElementById('pageMainHeader');
+        const btnAdd = document.getElementById('btnOpenAddModal');
+        const btnToggle = document.getElementById('btnToggleDrafts');
+
+        if (isDraftMode) {
+            mainHeader.innerText = '📁 나의 임시저장 목록';
+            if (btnAdd) btnAdd.classList.add('hidden');
+            if (btnToggle) btnToggle.innerHTML = '🔙 나의 장비 목록으로 돌아가기';
+        } else {
+            mainHeader.innerText = '나의 장비 관리';
+            if (btnAdd) btnAdd.classList.remove('hidden');
+            if (btnToggle) btnToggle.innerHTML = '📁 임시저장함';
+        }
+        fetchEquipment();
+    }
+
     async function fetchEquipment() {
         if (!currentUser) await fetchUserInfo();
+        if (masterCategories.length === 0) await fetchMasterData();
 
         const mode = '{{ mode }}';
         let url = '/api/equipment?type=' + mode;
         if (mode === 'public') {
             const includeMine = document.getElementById('includeMineCheckbox')?.checked || false;
             url += '&include_mine=' + includeMine;
+        } else if (isDraftMode) {
+            url += '&is_draft=1';
         }
 
         const res = await fetch(url);
@@ -172,17 +273,35 @@
         const tbody = document.getElementById('equipmentTableBody');
         tbody.innerHTML = '';
 
+        if (data.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="px-6 py-8 text-center text-slate-400 dark:text-slate-500 text-sm">
+                        ${isDraftMode ? '임시저장된 장비가 없습니다.' : '등록된 장비가 없습니다.'}
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
         const isAdmin = currentUser && currentUser.Role === 'admin';
 
         data.forEach(item => {
+            let badge = '';
+            if (item.IsDraft === 1) {
+                badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800">임시저장</span>';
+            } else if (item.IsPublic === 1) {
+                badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border border-green-200 dark:border-green-800">공개</span>';
+            } else {
+                badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-600">비공개</span>';
+            }
+
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                             ${item.Name}
-                            ${item.IsPublic === 1 
-                                ? '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border border-green-200 dark:border-green-800">공개</span>' 
-                                : '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-600">비공개</span>'}
+                            ${badge}
                         </div>
                         ${item.Memo ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs mt-1">${item.Memo}</div>` : ''}
                     </td>
@@ -218,38 +337,80 @@
         });
     }
 
-    function openModal(id = null) {
+    async function openModal(id = null) {
+        if (masterCategories.length === 0) await fetchMasterData();
+
         const modal = document.getElementById('equipmentModal');
         const form = document.getElementById('equipmentForm');
         const title = document.getElementById('modalTitle');
-        
+        const btnSaveDraft = document.getElementById('btnSaveDraft');
+        const btnFormalSubmit = document.getElementById('btnFormalSubmit');
+
         form.reset();
         document.getElementById('EquipmentId').value = '';
         document.getElementById('UserId').value = ''; 
+        document.getElementById('CategoryCustomBox').classList.add('hidden');
+        document.getElementById('ManufacturerCustomBox').classList.add('hidden');
+        document.getElementById('CategoryCustom').value = '';
+        document.getElementById('ManufacturerCustom').value = '';
         document.getElementById('IsPublic').checked = ('{{ mode }}' === 'public');
         document.getElementById('selectedOwnerDisplay').innerText = `기본값: (${currentUser.NickName})`;
-        
+
+        renderMasterDropdowns();
+
         if (id) {
-            title.innerText = '장비 정보 수정';
             const item = currentEquipmentData.find(e => e.EquipmentId === id);
             if (item) {
                 document.getElementById('EquipmentId').value = item.EquipmentId;
                 document.getElementById('Name').value = item.Name;
-                document.getElementById('Category').value = item.Category || '';
-                document.getElementById('Manufacturer').value = item.Manufacturer || '';
                 document.getElementById('ModelName').value = item.ModelName || '';
                 document.getElementById('SerialNumber').value = item.SerialNumber || '';
                 document.getElementById('PurchaseDate').value = item.PurchaseDate || '';
                 document.getElementById('Memo').value = item.Memo || '';
                 document.getElementById('IsPublic').checked = (item.IsPublic === 1);
-                
+
+                // 카테고리 드롭다운 세팅
+                const catSelect = document.getElementById('CategorySelect');
+                if (masterCategories.includes(item.Category)) {
+                    catSelect.value = item.Category;
+                } else if (item.Category) {
+                    catSelect.value = '__custom__';
+                    onCategorySelectChange();
+                    document.getElementById('CategoryCustom').value = item.Category;
+                }
+
+                // 제조사 드롭다운 세팅
+                const mfgSelect = document.getElementById('ManufacturerSelect');
+                if (masterManufacturers.includes(item.Manufacturer)) {
+                    mfgSelect.value = item.Manufacturer;
+                } else if (item.Manufacturer) {
+                    mfgSelect.value = '__custom__';
+                    onManufacturerSelectChange();
+                    document.getElementById('ManufacturerCustom').value = item.Manufacturer;
+                }
+
                 if(item.UserId) {
                     document.getElementById('UserId').value = item.UserId;
                     document.getElementById('selectedOwnerDisplay').innerText = `현재 소유자: ${item.OwnerNickName}`;
                 }
+
+                // 모달 버튼 분기 처리 (상세 1 피드백 반영)
+                if (item.IsDraft === 1) {
+                    title.innerText = '임시 저장 장비 수정';
+                    btnSaveDraft.classList.remove('hidden');
+                    btnSaveDraft.innerText = '임시저장 유지';
+                    btnFormalSubmit.innerText = '정식 등록 (발행)';
+                } else {
+                    title.innerText = '장비 정보 수정';
+                    btnSaveDraft.classList.add('hidden'); // 정식 장비 수정 시에는 임시저장 불가
+                    btnFormalSubmit.innerText = '수정 완료';
+                }
             }
         } else {
             title.innerText = '신규 장비 등록';
+            btnSaveDraft.classList.remove('hidden');
+            btnSaveDraft.innerText = '임시저장';
+            btnFormalSubmit.innerText = '정식 등록';
         }
         modal.classList.remove('hidden');
     }
@@ -258,19 +419,35 @@
         document.getElementById('equipmentModal').classList.add('hidden');
     }
 
-    document.getElementById('equipmentForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    async function submitEquipment(isDraft) {
         const id = document.getElementById('EquipmentId').value;
+        const name = document.getElementById('Name').value.trim();
+        if (!name) {
+            alert('장비 별명(이름)은 필수 입력 항목입니다.');
+            return;
+        }
+
+        // 카테고리 값 처리
+        const catSelect = document.getElementById('CategorySelect').value;
+        const category = (catSelect === '__custom__') ? 
+            document.getElementById('CategoryCustom').value.trim() : catSelect;
+
+        // 제조사 값 처리
+        const mfgSelect = document.getElementById('ManufacturerSelect').value;
+        const manufacturer = (mfgSelect === '__custom__') ? 
+            document.getElementById('ManufacturerCustom').value.trim() : mfgSelect;
+
         const payload = {
-            Name: document.getElementById('Name').value,
-            Category: document.getElementById('Category').value,
-            Manufacturer: document.getElementById('Manufacturer').value,
+            Name: name,
+            Category: category,
+            Manufacturer: manufacturer,
             ModelName: document.getElementById('ModelName').value,
             SerialNumber: document.getElementById('SerialNumber').value,
             PurchaseDate: document.getElementById('PurchaseDate').value,
             Memo: document.getElementById('Memo').value,
             UserId: document.getElementById('UserId').value || null,
-            IsPublic: document.getElementById('IsPublic').checked
+            IsPublic: document.getElementById('IsPublic').checked,
+            IsDraft: isDraft ? 1 : 0
         };
 
         const url = id ? `/api/equipment/${id}` : '/api/equipment';
@@ -282,17 +459,22 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
+            const resData = await res.json();
+
             if (res.ok) {
                 closeModal();
+                if (resData.message) {
+                    alert(resData.message);
+                }
                 fetchEquipment();
+                fetchMasterData(); // 혹시 신규 카테고리가 등록되었을 시 갱신
             } else {
-                const err = await res.json();
-                alert('오류: ' + err.error);
+                alert('오류: ' + (resData.error || resData.message));
             }
         } catch (err) {
             alert('통신 오류가 발생했습니다.');
         }
-    });
+    }
 
     async function deleteEquipment(id) {
         if (!confirm('정말로 이 장비를 삭제하시겠습니까?')) return;

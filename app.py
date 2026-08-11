@@ -155,6 +155,42 @@ def init_db():
         )
     ''')
 
+    # 7. 카테고리 마스터 테이블 (categories) - [제안-011]
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS categories (
+            CategoryId INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name TEXT UNIQUE NOT NULL,
+            IsApproved INTEGER DEFAULT 1,
+            CreatedAt TEXT
+        )
+    ''')
+
+    # 8. 제조사 마스터 테이블 (manufacturers) - [제안-011]
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS manufacturers (
+            ManufacturerId INTEGER PRIMARY KEY AUTOINCREMENT,
+            Name TEXT UNIQUE NOT NULL,
+            IsApproved INTEGER DEFAULT 1,
+            CreatedAt TEXT
+        )
+    ''')
+
+    # 9. 전자결재 요청 테이블 (approval_requests) - [제안-027]
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS approval_requests (
+            RequestId INTEGER PRIMARY KEY AUTOINCREMENT,
+            RequesterId INTEGER NOT NULL,
+            RequestType TEXT NOT NULL,
+            RequestDataJSON TEXT NOT NULL,
+            Status TEXT DEFAULT 'PENDING',
+            ApproverId INTEGER,
+            RejectReason TEXT,
+            CreatedAt TEXT,
+            UpdatedAt TEXT,
+            FOREIGN KEY(RequesterId) REFERENCES users(UserId) ON DELETE CASCADE
+        )
+    ''')
+
     # 기본 메뉴 등록 (기존 장비관리 메뉴 대신 분리된 메뉴 2종)
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("DELETE FROM menus WHERE MenuCode = 'equipment'")
@@ -172,14 +208,17 @@ def init_db():
                    ('users_management', '사용자 관리', '/users_management', '전체 사용자 권한 및 계정 관리', now, now))
     cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
                    ('dashboard', '통계 대시보드', '/dashboard', '장비 통계 및 상세 현황 조회', now, now))
+    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
+                   ('approvals', '전자결재함', '/approvals', '전자결재 요청 및 승인 관리', now, now))
 
-    # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비 허용)
+    # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비, 전자결재 허용)
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'permissions', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'audit_logs', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'users_management', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'dashboard', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'approvals', 1, now))
     
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
@@ -187,6 +226,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'audit_logs', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'users_management', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'dashboard', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'approvals', 1, now))
 
     conn.commit()
     conn.close()
@@ -212,6 +252,43 @@ def migrate_equipment_is_public():
         print(f"[Migration Error (IsPublic)] {e}")
 
 migrate_equipment_is_public()
+
+def migrate_proposals_011_027_028():
+    """
+    [역할] 제안-011, 027, 028 데이터베이스 마이그레이션 수행
+    1. equipment 테이블에 IsDraft 컬럼 추가
+    2. 기존 equipment 테이블의 Category, Manufacturer 고유값을 categories, manufacturers 마스터 테이블에 백업 (IsApproved=1)
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        # 1. IsDraft 컬럼 추가
+        cursor.execute("PRAGMA table_info(equipment)")
+        columns = [info['name'] for info in cursor.fetchall()]
+        if 'IsDraft' not in columns:
+            cursor.execute("ALTER TABLE equipment ADD COLUMN IsDraft INTEGER DEFAULT 0")
+            print("[Migration] equipment 테이블에 IsDraft 컬럼이 성공적으로 추가되었습니다.")
+
+        # 2. 기존 카테고리 시딩
+        cursor.execute("SELECT DISTINCT Category FROM equipment WHERE Category IS NOT NULL AND TRIM(Category) != ''")
+        existing_cats = [r['Category'].strip() for r in cursor.fetchall()]
+        for cat in existing_cats:
+            cursor.execute("INSERT OR IGNORE INTO categories (Name, IsApproved, CreatedAt) VALUES (?, 1, ?)", (cat, now))
+
+        # 3. 기존 제조사 시딩
+        cursor.execute("SELECT DISTINCT Manufacturer FROM equipment WHERE Manufacturer IS NOT NULL AND TRIM(Manufacturer) != ''")
+        existing_mfgs = [r['Manufacturer'].strip() for r in cursor.fetchall()]
+        for mfg in existing_mfgs:
+            cursor.execute("INSERT OR IGNORE INTO manufacturers (Name, IsApproved, CreatedAt) VALUES (?, 1, ?)", (mfg, now))
+
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error (011_027_028)] {e}")
+
+migrate_proposals_011_027_028()
 
 def migrate_passwords_to_hash():
     """
@@ -518,6 +595,13 @@ def dashboard_page():
 def mypage_page():
     # 마이페이지는 모든 로그인 사용자가 접근 가능하므로 메뉴 권한 체크 생략(또는 기본 허용)
     return render_template('mypage.html', user=session['user'])
+
+@app.route('/approvals')
+@login_required
+def approvals_page():
+    if not check_menu_permission('approvals'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+    return render_template('approvals.html', user=session['user'])
 
 # ==========================================
 # 5. RESTful API 모듈 (인증/권한 및 데이터 처리)
@@ -1079,12 +1163,129 @@ def search_users():
     return jsonify([dict(row) for row in rows])
 
 
-# 장비 조회 (나의 장비 & 공개된 장비 분기 처리)
+# ------------------------------------------
+# [제안-011] 마스터 데이터 조회 API
+# ------------------------------------------
+@app.route('/api/master_data', methods=['GET'])
+@login_required
+def get_master_data():
+    """
+    [역할] 장비 등록 시 드롭다운에 표시될 승인된 카테고리 및 제조사 목록 조회
+    [의존성 관계] categories, manufacturers 테이블
+    [변경 시 영향도] 프론트엔드 장비 등록/수정 모달의 선택 항목 렌더링에 직접적인 영향을 줍니다.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT Name FROM categories WHERE IsApproved = 1 ORDER BY Name ASC")
+    categories = [r['Name'] for r in cursor.fetchall()]
+    cursor.execute("SELECT Name FROM manufacturers WHERE IsApproved = 1 ORDER BY Name ASC")
+    manufacturers = [r['Name'] for r in cursor.fetchall()]
+    conn.close()
+    return jsonify({"success": True, "categories": categories, "manufacturers": manufacturers})
+
+
+# ------------------------------------------
+# [제안-027] 전자결재 API
+# ------------------------------------------
+@app.route('/api/approvals', methods=['GET'])
+@login_required
+def get_approvals():
+    """
+    [역할] 관리자 또는 사용자의 전자결재 상신 목록 조회
+    [의존성 관계] approval_requests, users 테이블
+    [변경 시 영향도] 전자결재함 대시보드의 테이블 출력 데이터 형식이 변경됩니다.
+    """
+    user = session['user']
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if user['Role'] == 'admin':
+        cursor.execute('''
+            SELECT a.*, u.NickName as RequesterNickName, u.Name as RequesterName
+            FROM approval_requests a
+            JOIN users u ON a.RequesterId = u.UserId
+            ORDER BY a.RequestId DESC
+        ''')
+    else:
+        cursor.execute('''
+            SELECT a.*, u.NickName as RequesterNickName, u.Name as RequesterName
+            FROM approval_requests a
+            JOIN users u ON a.RequesterId = u.UserId
+            WHERE a.RequesterId = ?
+            ORDER BY a.RequestId DESC
+        ''', (user['UserId'],))
+        
+    rows = cursor.fetchall()
+    conn.close()
+    return jsonify({"success": True, "data": [dict(r) for r in rows]})
+
+
+@app.route('/api/approvals/<int:req_id>/process', methods=['POST'])
+@login_required
+def process_approval(req_id):
+    """
+    [역할] 관리자가 전자결재(마스터 데이터 추가) 건을 승인하거나 반려(대체 처리) 수행
+    [의존성 관계] approval_requests, categories, manufacturers, equipment 테이블
+    [변경 시 영향도] 마스터 데이터 승인/반려 로직 변경 시, 기존 장비들의 분류 정보 및 드롭다운 노출에 영향을 미칩니다.
+    """
+    user = session['user']
+    if user['Role'] != 'admin':
+        return jsonify({"success": False, "message": "관리자만 승인/반려할 수 있습니다."}), 403
+        
+    data = request.json
+    action = data.get('action')  # 'approve' or 'reject'
+    reject_reason = data.get('reject_reason', '')
+    replacement_name = data.get('replacement_name', '').strip() if data.get('replacement_name') else ''
+    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM approval_requests WHERE RequestId = ?", (req_id,))
+    req = cursor.fetchone()
+    if not req:
+        conn.close()
+        return jsonify({"success": False, "message": "해당 결재 건을 찾을 수 없습니다."}), 404
+        
+    req_dict = dict(req)
+    req_data = json.loads(req_dict['RequestDataJSON'])
+    target_name = req_data.get('name')
+    req_type = req_dict['RequestType']
+    
+    if action == 'approve':
+        cursor.execute("UPDATE approval_requests SET Status = 'APPROVED', ApproverId = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], now, req_id))
+        if req_type == 'ADD_CATEGORY':
+            cursor.execute("UPDATE categories SET IsApproved = 1 WHERE Name = ?", (target_name,))
+        elif req_type == 'ADD_MANUFACTURER':
+            cursor.execute("UPDATE manufacturers SET IsApproved = 1 WHERE Name = ?", (target_name,))
+        log_audit(user['UserId'], user['LoginId'], 'APPROVE_REQUEST', 'approval_requests', req_id, req_dict, {"Status": "APPROVED"})
+        
+    elif action == 'reject':
+        cursor.execute("UPDATE approval_requests SET Status = 'REJECTED', ApproverId = ?, RejectReason = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], reject_reason, now, req_id))
+        
+        # 대체 이름이 지정된 경우 장비 테이블 일괄 업데이트 및 미승인 항목 삭제
+        if req_type == 'ADD_CATEGORY':
+            if replacement_name:
+                cursor.execute("UPDATE equipment SET Category = ? WHERE Category = ?", (replacement_name, target_name))
+            cursor.execute("DELETE FROM categories WHERE Name = ? AND IsApproved = 0", (target_name,))
+        elif req_type == 'ADD_MANUFACTURER':
+            if replacement_name:
+                cursor.execute("UPDATE equipment SET Manufacturer = ? WHERE Manufacturer = ?", (replacement_name, target_name))
+            cursor.execute("DELETE FROM manufacturers WHERE Name = ? AND IsApproved = 0", (target_name,))
+            
+        log_audit(user['UserId'], user['LoginId'], 'REJECT_REQUEST', 'approval_requests', req_id, req_dict, {"Status": "REJECTED", "Reason": reject_reason, "Replacement": replacement_name})
+        
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "결재 처리가 완료되었습니다."})
+
+
+# 장비 조회 (나의 장비, 공개된 장비, 임시저장함 분기 처리) - [제안-028]
 @app.route('/api/equipment', methods=['GET'])
 @login_required
 def get_equipment():
     """
-    [역할] 장비 목록을 조회하여 프론트엔드로 반환. (본인 장비, 공개 장비, 관리자 전체 조회 분기 처리)
+    [역할] 장비 목록을 조회하여 프론트엔드로 반환. (본인 장비, 공개 장비, 관리자 전체 조회, 임시저장함 분기 처리)
     [의존성 관계] equipment 테이블, users 테이블 (NickName JOIN용)
     [변경 시 영향도] 화면의 장비 목록(Table) 출력 조건 및 순서가 변경됩니다.
     """
@@ -1094,35 +1295,45 @@ def get_equipment():
     
     req_type = request.args.get('type', 'my')
     include_mine = request.args.get('include_mine', 'false').lower() == 'true'
+    is_draft = request.args.get('is_draft', '0') == '1'
     
-    if req_type == 'my':
-        # [나의 장비] 모드: 관리자/일반인 불문 무조건 자기 자신 것만 조회
+    if is_draft:
+        # [임시저장함] 모드: 본인의 IsDraft = 1 장비만 조회
         cursor.execute('''
             SELECT e.*, u.NickName as OwnerNickName 
             FROM equipment e
             LEFT JOIN users u ON e.UserId = u.UserId
-            WHERE e.UserId = ?
+            WHERE e.UserId = ? AND e.IsDraft = 1
+            ORDER BY e.EquipmentId DESC
+        ''', (user['UserId'],))
+        
+    elif req_type == 'my':
+        # [나의 장비] 모드: 본인의 정식 등록 장비(IsDraft = 0)만 조회
+        cursor.execute('''
+            SELECT e.*, u.NickName as OwnerNickName 
+            FROM equipment e
+            LEFT JOIN users u ON e.UserId = u.UserId
+            WHERE e.UserId = ? AND (e.IsDraft = 0 OR e.IsDraft IS NULL)
             ORDER BY e.EquipmentId DESC
         ''', (user['UserId'],))
         
     elif req_type == 'public':
-        # [공개된 장비] 모드
+        # [공개된 장비] 모드: IsDraft = 0 정식 데이터만 노출
         if user['Role'] == 'admin':
-            # 관리자: 묻지도 따지지도 않고 전체 열람 (관리 권한)
             cursor.execute('''
                 SELECT e.*, u.NickName as OwnerNickName 
                 FROM equipment e
                 LEFT JOIN users u ON e.UserId = u.UserId
+                WHERE (e.IsDraft = 0 OR e.IsDraft IS NULL)
                 ORDER BY e.EquipmentId DESC
             ''')
         else:
-            # 일반 사용자: IsPublic = 1 인 타인의 장비 노출. include_mine 여부에 따라 내 장비 합침
             if include_mine:
                 cursor.execute('''
                     SELECT e.*, u.NickName as OwnerNickName 
                     FROM equipment e
                     LEFT JOIN users u ON e.UserId = u.UserId
-                    WHERE e.IsPublic = 1 OR e.UserId = ?
+                    WHERE (e.IsPublic = 1 OR e.UserId = ?) AND (e.IsDraft = 0 OR e.IsDraft IS NULL)
                     ORDER BY CASE WHEN e.UserId = ? THEN 0 ELSE 1 END, e.EquipmentId DESC
                 ''', (user['UserId'], user['UserId']))
             else:
@@ -1130,7 +1341,7 @@ def get_equipment():
                     SELECT e.*, u.NickName as OwnerNickName 
                     FROM equipment e
                     LEFT JOIN users u ON e.UserId = u.UserId
-                    WHERE e.IsPublic = 1 AND e.UserId != ?
+                    WHERE e.IsPublic = 1 AND e.UserId != ? AND (e.IsDraft = 0 OR e.IsDraft IS NULL)
                     ORDER BY e.EquipmentId DESC
                 ''', (user['UserId'],))
     else:
@@ -1147,15 +1358,14 @@ def get_equipment():
 @login_required
 def add_equipment():
     """
-    [역할] 새로운 장비 데이터를 DB에 인서트(INSERT) 합니다.
-    [의존성 관계] equipment 테이블, log_audit()
-    [변경 시 영향도] 관리자의 경우 대상 사용자(UserId)를 덮어쓰는 로직이 있으므로 이 구조 변경 시 권한 에러가 발생할 수 있습니다.
+    [역할] 새로운 장비 데이터를 DB에 인서트(INSERT) 합니다. (임시저장 및 카테고리/제조사 전자결재 자동상신 연동)
+    [의존성 관계] equipment, categories, manufacturers, approval_requests 테이블
+    [변경 시 영향도] 장비 등록 필드(컬럼) 추가 시 이 함수와 프론트엔드의 payload, init_db 스키마를 모두 수정해야 합니다.
     """
     data = request.json
     user = session['user']
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     
-    # 일반 사용자는 본인 아이디를 사용하고, 관리자는 지정한 소유자(data['UserId'])를 사용 (없으면 기본은 본인)
     target_user_id = user['UserId']
     if user['Role'] == 'admin' and data.get('UserId'):
         target_user_id = data.get('UserId')
@@ -1163,21 +1373,44 @@ def add_equipment():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    is_public = 1 if data.get('IsPublic') else 0
+    is_draft = 1 if (data.get('IsDraft') or data.get('is_draft')) else 0
+    is_public = 0 if is_draft == 1 else (1 if data.get('IsPublic') else 0)
     
+    cat_name = data.get('Category', '').strip() if data.get('Category') else ''
+    mfg_name = data.get('Manufacturer', '').strip() if data.get('Manufacturer') else ''
+    
+    # 카테고리 마스터 확인 및 자동 전자결재 생성
+    if cat_name:
+        cursor.execute("SELECT * FROM categories WHERE Name = ?", (cat_name,))
+        cat_row = cursor.fetchone()
+        if not cat_row:
+            cursor.execute("INSERT INTO categories (Name, IsApproved, CreatedAt) VALUES (?, 0, ?)", (cat_name, now))
+            req_json = json.dumps({"type": "category", "name": cat_name}, ensure_ascii=False)
+            cursor.execute("INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt) VALUES (?, 'ADD_CATEGORY', ?, 'PENDING', ?, ?)", (user['UserId'], req_json, now, now))
+            
+    # 제조사 마스터 확인 및 자동 전자결재 생성
+    if mfg_name:
+        cursor.execute("SELECT * FROM manufacturers WHERE Name = ?", (mfg_name,))
+        mfg_row = cursor.fetchone()
+        if not mfg_row:
+            cursor.execute("INSERT INTO manufacturers (Name, IsApproved, CreatedAt) VALUES (?, 0, ?)", (mfg_name, now))
+            req_json = json.dumps({"type": "manufacturer", "name": mfg_name}, ensure_ascii=False)
+            cursor.execute("INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt) VALUES (?, 'ADD_MANUFACTURER', ?, 'PENDING', ?, ?)", (user['UserId'], req_json, now, now))
+
     cursor.execute('''
-        INSERT INTO equipment (Name, Category, Manufacturer, ModelName, PurchaseDate, SerialNumber, Memo, UserId, IsPublic, CreatedAt, UpdatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO equipment (Name, Category, Manufacturer, ModelName, PurchaseDate, SerialNumber, Memo, UserId, IsPublic, IsDraft, CreatedAt, UpdatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         data.get('Name'), 
-        data.get('Category'), 
-        data.get('Manufacturer'), 
+        cat_name, 
+        mfg_name, 
         data.get('ModelName'), 
         data.get('PurchaseDate'), 
         data.get('SerialNumber'), 
         data.get('Memo'),
         target_user_id,
         is_public,
+        is_draft,
         now,
         now
     ))
@@ -1187,7 +1420,7 @@ def add_equipment():
     conn.close()
     
     log_audit(user['UserId'], user['LoginId'], 'INSERT', 'equipment', new_id, None, data)
-    return jsonify({"message": "성공적으로 등록되었습니다!"})
+    return jsonify({"message": "임시저장되었습니다." if is_draft == 1 else "성공적으로 등록되었습니다!"})
 
 
 # 장비 수정
@@ -1195,9 +1428,9 @@ def add_equipment():
 @login_required
 def update_equipment(eq_id):
     """
-    [역할] 기존 장비의 데이터를 수정(UPDATE) 합니다. 소유자 권한을 강력하게 검증합니다.
-    [의존성 관계] equipment 테이블, log_audit()
-    [변경 시 영향도] 타인 장비 수정 권한 탈취 방어선이므로, 수정 시 보안 취약점이 생길 수 있습니다.
+    [역할] 기존 장비의 데이터를 수정(UPDATE) 합니다. (임시저장 ➡️ 정식등록 전환 지원)
+    [의존성 관계] equipment, categories, manufacturers, approval_requests 테이블
+    [변경 시 영향도] 장비 수정 컬럼이 추가/삭제될 경우 DB 업데이트 쿼리와 프론트엔드의 수정 모달 로직이 함께 변경되어야 합니다.
     """
     data = request.json
     user = session['user']
@@ -1221,22 +1454,50 @@ def update_equipment(eq_id):
     if user['Role'] == 'admin' and data.get('UserId'):
         target_user_id = data.get('UserId')
 
-    is_public = 1 if data.get('IsPublic') else 0
+    # 만약 기존 데이터가 정식 장비(IsDraft=0)였다면, 임시저장으로 되돌리는 것 방지 (상세 1)
+    if old_dict.get('IsDraft') == 0:
+        is_draft = 0
+        is_public = 1 if data.get('IsPublic') else 0
+    else:
+        is_draft = 1 if (data.get('IsDraft') or data.get('is_draft')) else 0
+        is_public = 0 if is_draft == 1 else (1 if data.get('IsPublic') else 0)
+
+    cat_name = data.get('Category', '').strip() if data.get('Category') else ''
+    mfg_name = data.get('Manufacturer', '').strip() if data.get('Manufacturer') else ''
+
+    # 카테고리 마스터 확인 및 자동 전자결재 생성
+    if cat_name:
+        cursor.execute("SELECT * FROM categories WHERE Name = ?", (cat_name,))
+        cat_row = cursor.fetchone()
+        if not cat_row:
+            cursor.execute("INSERT INTO categories (Name, IsApproved, CreatedAt) VALUES (?, 0, ?)", (cat_name, now))
+            req_json = json.dumps({"type": "category", "name": cat_name}, ensure_ascii=False)
+            cursor.execute("INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt) VALUES (?, 'ADD_CATEGORY', ?, 'PENDING', ?, ?)", (user['UserId'], req_json, now, now))
+            
+    # 제조사 마스터 확인 및 자동 전자결재 생성
+    if mfg_name:
+        cursor.execute("SELECT * FROM manufacturers WHERE Name = ?", (mfg_name,))
+        mfg_row = cursor.fetchone()
+        if not mfg_row:
+            cursor.execute("INSERT INTO manufacturers (Name, IsApproved, CreatedAt) VALUES (?, 0, ?)", (mfg_name, now))
+            req_json = json.dumps({"type": "manufacturer", "name": mfg_name}, ensure_ascii=False)
+            cursor.execute("INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt) VALUES (?, 'ADD_MANUFACTURER', ?, 'PENDING', ?, ?)", (user['UserId'], req_json, now, now))
 
     cursor.execute('''
         UPDATE equipment 
-        SET Name=?, Category=?, Manufacturer=?, ModelName=?, PurchaseDate=?, SerialNumber=?, Memo=?, UserId=?, IsPublic=?, UpdatedAt=?
+        SET Name=?, Category=?, Manufacturer=?, ModelName=?, PurchaseDate=?, SerialNumber=?, Memo=?, UserId=?, IsPublic=?, IsDraft=?, UpdatedAt=?
         WHERE EquipmentId=?
     ''', (
         data.get('Name'), 
-        data.get('Category'), 
-        data.get('Manufacturer'), 
+        cat_name, 
+        mfg_name, 
         data.get('ModelName'), 
         data.get('PurchaseDate'), 
         data.get('SerialNumber'), 
         data.get('Memo'),
         target_user_id,
         is_public,
+        is_draft,
         now,
         eq_id
     ))
