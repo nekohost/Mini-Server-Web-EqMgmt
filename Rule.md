@@ -103,8 +103,8 @@ AI(Codex, ChatGpt, Gemini, Claude 등등...)와 사용자가 나눈 대화는 �
 7. 문서 생명주기 및 개발 파이프라인 원칙 (Documentation & Development Pipeline)
 AI(Codex, ChatGpt, Gemini, Claude 등등...)는 기능 추가 및 코드 수정 시 아래의 파이프라인 순서와 폴더/문서별 역할을 엄격히 준수해야 한다.
 	7-1. [기획 및 대기] (PROPOSALS ➡️ ROADMAP)
-		7-1-1. 신규 기능 제안이나 아이디어는 `PROPOSALS.md`에 기록한다.
-		7-1-2. 개발이 채택/승인된 항목은 `ROADMAP.md`에 등록하여 작업 대기열(To-Do)로 관리한다.
+		7-1-1. 신규 기능 제안이나 아이디어는 원본 보존 문서인 `PROPOSALS.md`에 기록함과 동시에, 현재 미구현 상태임을 추적하기 위해 `UNIMPLEMENTED_PROPOSALS.md` 에도 병기하여 적치한다.
+		7-1-2. 개발이 채택/승인된 항목은 원본 보존 문서인 `ROADMAP.md`에 등록하여 히스토리를 남기고, 실제 작업 대기열 관리를 위해 `UNIMPLEMENTED_ROADMAP.md` 에도 등록하여 관리한다.
 	7-2. [영구 보존 기획] (Plans 디렉토리)
 		7-2-1. 기능 추가, 버그 수정, 아키텍처 개편 등의 작업 전에는 반드시 기획서(Plan)를 작성한다.
 		7-2-2. 모든 기획 문서는 히스토리 보존을 위해 반드시 `Plans/YYYY-MM-DD_XXX_Plan.md` 파일 형태로 `Plans/` 디렉토리 하위에 영구 기록 및 조율한다.
@@ -115,7 +115,7 @@ AI(Codex, ChatGpt, Gemini, Claude 등등...)는 기능 추가 및 코드 수정 
 		7-3-4. 단, [중요] 스테이징 검증의 역사적 산출물인 `Staging_PLAN.md`는 절대 삭제하지 않고, `Plans/YYYY-MM-DD_작업내용_Plan.md` 형태의 파일명으로 변경하여 `Plans/` 디렉토리로 이관 및 영구 보존(아카이빙)한다.
 	7-4. [완료 및 히스토리 보존] (FEATURES, ROADMAP, PROPOSALS)
 		7-4-1. 개발이 완료되더라도 `PROPOSALS.md`와 `ROADMAP.md`에서 해당 항목을 절대 삭제하지 않는다.
-		7-4-2. 대신 상태(Status) 값을 `[개발 완료 (FEATURES.md 이관)]` 등으로 갱신하여 프로젝트의 기획 및 개발 히스토리를 영구 보존한다.
+		7-4-2. 대신 상태(Status) 값을 `[개발 완료 (FEATURES.md 이관)]` 등으로 갱신하여 프로젝트의 기획 및 개발 히스토리를 영구 보존한다. 단, 개발이 완료된 항목은 미구현 목록 문서인 `UNIMPLEMENTED_PROPOSALS.md` 및 `UNIMPLEMENTED_ROADMAP.md` 에서 완전히 삭제(제거)하여 추적 목록을 최신화한다.
 		7-4-3. 최종 완성된 상세 기능 명세만 `FEATURES.md`에 추가로 기록한다.
 	7-5. 다중 AI(Codex, ChatGpt, Gemini, Claude 등등...) 간 컨텍스트 유지 및 자아 식별 원칙
 		7-5-1. 사용자는 상황에 따라 기획/검토에 특화된 모델과 단순 코딩/실행에 특화된 모델 등 다양한 플랫폼의 AI(Codex, ChatGpt, Gemini, Claude 등등...)를 수시로 교차 투입할 수 있다.
