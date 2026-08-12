@@ -10,6 +10,11 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
+import random
+import string
+import uuid
+import secrets
+from utils.mailer import send_email
 
 # .env 파일 로드 (환경변수 세팅)
 load_dotenv()
@@ -444,6 +449,59 @@ def migrate_passwords_to_hash():
 # 구동 시 비밀번호 해싱 자동 마이그레이션 수행
 run_migration_if_needed('passwords_to_hash', migrate_passwords_to_hash)
 
+def migrate_email_features():
+    """
+    [역할] 제안-030 이메일 연동 관련 마이그레이션 (Email 컬럼 추가 및 인증용 테이블 신설)
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("PRAGMA table_info(users)")
+        cols = [info['name'] for info in cursor.fetchall()]
+        if 'Email' not in cols:
+            cursor.execute("ALTER TABLE users ADD COLUMN Email TEXT")
+        
+        cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(Email) WHERE Email IS NOT NULL")
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS email_verifications (
+                Email TEXT PRIMARY KEY,
+                PinCodeHash TEXT NOT NULL,
+                ExpiresAt TEXT NOT NULL,
+                IsVerified INTEGER DEFAULT 0
+            )
+        ''')
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS password_resets (
+                TokenHash TEXT PRIMARY KEY,
+                UserId INTEGER NOT NULL,
+                ExpiresAt TEXT NOT NULL,
+                IsUsed INTEGER DEFAULT 0
+            )
+        ''')
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error (email_features)] {e}")
+
+run_migration_if_needed('proposal_030_email_auth', migrate_email_features)
+
+def csrf_required(f):
+    """
+    [역할] 특정 라우트에만 CSRF 방어를 적용하는 데코레이터
+    [의존성 관계] 클라이언트 측 fetch API 헤더의 X-CSRFToken과 session['csrf_token']
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if request.method == "POST":
+            token = request.headers.get('X-CSRFToken')
+            if not token or token != session.get('csrf_token'):
+                return jsonify({"success": False, "message": "CSRF 토큰 검증에 실패했습니다. 새로고침 후 다시 시도해 주세요."}), 403
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 @app.after_request
 def after_request_func(response):
     # 폴링 요청 시에는 플라스크가 세션을 자동으로 갱신(Refresh)하지 못하게 세션 쿠키 발급을 차단
@@ -708,7 +766,9 @@ def login_page():
                 return redirect(url_for('deactivated_notice_page'))
             return redirect(url_for('portal_page'))
         session.pop('user', None)
-        return render_template('login.html')
+        if 'csrf_token' not in session:
+            session['csrf_token'] = secrets.token_hex(16)
+        return render_template('login.html', csrf_token=session['csrf_token'])
     
     data = request.json or request.form
     login_id = data.get('LoginId')
@@ -741,6 +801,7 @@ def login_page():
             'LoginId': user['LoginId'],
             'Name': user['Name'],
             'NickName': user['NickName'],
+            'Email': user.get('Email'),
             'Role': user['Role'],
             'IsDeactivated': (status == 'DEACTIVATED'),
             'DeactivationDaysLeft': eval_result.get('days_left', 30) if status == 'DEACTIVATED' else None
@@ -784,18 +845,34 @@ def deactivated_notice_page():
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     if request.method == 'GET':
-        return render_template('register.html')
+        if 'csrf_token' not in session:
+            session['csrf_token'] = secrets.token_hex(16)
+        return render_template('register.html', csrf_token=session['csrf_token'])
         
     data = request.json
     login_id = data.get('LoginId')
     name = data.get('Name')
     nickname = data.get('NickName')
     password = data.get('Password')
+    email = data.get('Email')
+    
+    # CSRF 검증 로직 수동 적용
+    token = request.headers.get('X-CSRFToken')
+    if not token or token != session.get('csrf_token'):
+        return jsonify({"success": False, "message": "CSRF 토큰 검증에 실패했습니다. 새로고침 후 다시 시도해 주세요."}), 403
+
     hashed_password = generate_password_hash(password)
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    # 1. 이메일 인증 여부 검증
+    cursor.execute("SELECT IsVerified FROM email_verifications WHERE Email = ?", (email,))
+    verif = cursor.fetchone()
+    if not verif or verif['IsVerified'] != 1:
+        conn.close()
+        return jsonify({"success": False, "message": "이메일 인증이 완료되지 않았습니다."}), 400
     
     # 중복 체크 및 탈퇴 복구 분기
     cursor.execute("SELECT * FROM users WHERE LoginId = ?", (login_id,))
@@ -806,17 +883,20 @@ def register_page():
         status = eval_res['status']
         
         if status == 'DELETED':  # Phase 2 soft-deleted
-            # 보안 검증: 가입 시 등록했던 Name이 정확히 일치하는지 확인
             if name and existing_user['Name'] and name.strip() == existing_user['Name'].strip():
-                cursor.execute('''
-                    UPDATE users
-                    SET Password = ?, Name = ?, NickName = ?, IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL, UpdatedAt = ?
-                    WHERE UserId = ?
-                ''', (hashed_password, name, nickname, now, existing_user['UserId']))
-                conn.commit()
-                conn.close()
-                log_audit(existing_user['UserId'], login_id, 'RECOVER_ACCOUNT', 'users', existing_user['UserId'], None, {"LoginId": login_id})
-                return jsonify({"success": True, "message": "탈퇴된 계정의 소유권이 확인되어 새 비밀번호로 성공적으로 복구되었습니다! 로그인해 주세요."})
+                try:
+                    cursor.execute('''
+                        UPDATE users
+                        SET Password = ?, Name = ?, NickName = ?, Email = ?, IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL, UpdatedAt = ?
+                        WHERE UserId = ?
+                    ''', (hashed_password, name, nickname, email, now, existing_user['UserId']))
+                    conn.commit()
+                    log_audit(existing_user['UserId'], login_id, 'RECOVER_ACCOUNT', 'users', existing_user['UserId'], None, {"LoginId": login_id})
+                    conn.close()
+                    return jsonify({"success": True, "message": "탈퇴된 계정의 소유권이 확인되어 성공적으로 복구되었습니다! 로그인해 주세요."})
+                except sqlite3.IntegrityError:
+                    conn.close()
+                    return jsonify({"success": False, "message": "이미 다른 계정에 등록되어 사용 중인 이메일 주소입니다."}), 400
             else:
                 conn.close()
                 return jsonify({
@@ -839,14 +919,19 @@ def register_page():
     count = cursor.fetchone()[0]
     role = 'admin' if count == 0 else 'user'
     
-    cursor.execute('''
-        INSERT INTO users (LoginId, Name, NickName, Password, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'N', 'N')
-    ''', (login_id, name, nickname, hashed_password, role, now, now))
-    
-    new_id = cursor.lastrowid
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute('''
+            INSERT INTO users (LoginId, Name, NickName, Password, Email, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'N', 'N')
+        ''', (login_id, name, nickname, hashed_password, email, role, now, now))
+        new_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return jsonify({"success": True, "message": "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요."})
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({"success": False, "message": "이미 다른 계정에 등록되어 사용 중인 이메일 주소입니다."}), 400
     
     log_audit(new_id, login_id, 'REGISTER', 'users', new_id, None, {"LoginId": login_id, "Role": role})
     return jsonify({"success": True, "message": "회원가입이 완료되었습니다!"})
@@ -2482,6 +2567,182 @@ def merge_master_items(target_type, target_id):
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"총 {len(source_ids)}개의 항목이 성공적으로 통폐합되었습니다."})
+
+
+@app.route('/api/auth/send_pin', methods=['POST'])
+@csrf_required
+def api_send_pin_logic():
+    """
+    [역할] 이메일로 6자리 핀(PIN) 코드를 발송하는 API (Rule 4-5 해시 저장 및 속도 제한 방어 적용)
+    [의존성 관계] email_verifications 테이블, utils.mailer.send_email()
+    """
+    data = request.json or {}
+    email = data.get('email', '').strip()
+    if not email or '@' not in email:
+        return jsonify({"success": False, "message": "유효한 이메일 주소를 입력해 주세요."}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT ExpiresAt FROM email_verifications WHERE Email = ?", (email,))
+    existing_req = cursor.fetchone()
+    if existing_req:
+        expires_dt = datetime.strptime(existing_req['ExpiresAt'], '%Y-%m-%d %H:%M:%S')
+        if (expires_dt - datetime.now()).total_seconds() > 120:
+            conn.close()
+            return jsonify({"success": False, "message": "발송 한도가 초과되었습니다. 1분 후 다시 시도해 주세요."}), 429
+
+    cursor.execute("SELECT UserId FROM users WHERE Email = ? AND IsDeleted = 'N'", (email,))
+    if cursor.fetchone():
+        conn.close()
+        return jsonify({"success": False, "message": "이미 사용 중인 이메일 주소입니다."}), 400
+
+    pin_code = ''.join(random.choices(string.digits, k=6))
+    pin_hash = generate_password_hash(pin_code)
+    expires_at = (datetime.now() + timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
+
+    cursor.execute('''
+        INSERT INTO email_verifications (Email, PinCodeHash, ExpiresAt, IsVerified)
+        VALUES (?, ?, ?, 0)
+        ON CONFLICT(Email) DO UPDATE SET PinCodeHash=excluded.PinCodeHash, ExpiresAt=excluded.ExpiresAt, IsVerified=0
+    ''', (email, pin_hash, expires_at))
+    conn.commit()
+    conn.close()
+
+    subject = "[미니서버] 이메일 인증 PIN 번호 안내"
+    body_html = f"<p>인증 PIN 번호: <strong>{pin_code}</strong> (3분 유효)</p>"
+    success, msg = send_email(email, subject, body_html)
+    
+    if success:
+        return jsonify({"success": True, "message": "인증 PIN 코드가 발송되었습니다."})
+    return jsonify({"success": False, "message": "메일 발송 실패."}), 500
+
+
+@app.route('/api/auth/verify_pin', methods=['POST'])
+@csrf_required
+def api_verify_pin_logic():
+    """
+    [역할] 입력된 PIN 코드를 해시 대조하여 이메일 인증을 완료 처리하는 API
+    [의존성 관계] email_verifications 테이블, werkzeug.security
+    """
+    data = request.json or {}
+    email = data.get('email', '').strip()
+    pin = data.get('pin', '').strip()
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    if not email or not pin:
+        return jsonify({"success": False, "message": "입력값이 부족합니다."}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM email_verifications WHERE Email = ?", (email,))
+    record = cursor.fetchone()
+
+    if not record or record['ExpiresAt'] < now_str or not check_password_hash(record['PinCodeHash'], pin):
+        conn.close()
+        return jsonify({"success": False, "message": "PIN 코드가 잘못되었거나 만료되었습니다."}), 400
+
+    cursor.execute("UPDATE email_verifications SET IsVerified = 1 WHERE Email = ?", (email,))
+    conn.commit()
+    conn.close()
+    return jsonify({"success": True, "message": "인증이 완료되었습니다!"})
+
+
+@app.route('/api/auth/request_password_reset', methods=['POST'])
+@csrf_required
+def api_request_password_reset_logic():
+    """
+    [역할] 비밀번호 재설정 요청 시 1회용 난수 토큰(해시 저장)과 URL을 메일로 발송하는 API
+    [의존성 관계] password_resets, utils.mailer
+    """
+    data = request.json or {}
+    email = data.get('email', '').strip()
+    if not email: return jsonify({"success": False}), 400
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT UserId, LoginId, Name FROM users WHERE Email = ? AND IsDeleted = 'N'", (email,))
+    user = cursor.fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"success": True, "message": "입력하신 이메일이 등록되어 있다면 재설정 링크가 메일로 발송되었습니다."})
+
+    cursor.execute("SELECT ExpiresAt FROM password_resets WHERE UserId = ? ORDER BY ExpiresAt DESC LIMIT 1", (user['UserId'],))
+    last_req = cursor.fetchone()
+    if last_req:
+        last_expires = datetime.strptime(last_req['ExpiresAt'], '%Y-%m-%d %H:%M:%S')
+        if (last_expires - datetime.now()).total_seconds() > 3540:
+            conn.close()
+            return jsonify({"success": False, "message": "재발송 쿨다운 중입니다. 잠시 후 다시 시도해 주세요."}), 429
+
+    raw_token = str(uuid.uuid4())
+    token_hash = generate_password_hash(raw_token)
+    expires_at = (datetime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
+
+    cursor.execute("INSERT INTO password_resets (TokenHash, UserId, ExpiresAt, IsUsed) VALUES (?, ?, ?, 0)",
+                   (token_hash, user['UserId'], expires_at))
+    conn.commit()
+    conn.close()
+
+    reset_url = request.host_url.rstrip('/') + f"reset_password?token={raw_token}&email={email}"
+    success, msg = send_email(email, "[미니서버] 비밀번호 재설정", f"<a href='{reset_url}'>비밀번호 재설정하기</a>")
+    
+    return jsonify({"success": True, "message": "비밀번호 재설정 링크가 발송되었습니다."})
+
+
+@app.route('/reset_password', methods=['GET'])
+def reset_password_page():
+    if 'csrf_token' not in session: session['csrf_token'] = secrets.token_hex(16)
+    return render_template('reset_password.html', csrf_token=session['csrf_token'])
+
+
+@app.route('/api/auth/reset_password', methods=['POST'])
+@csrf_required
+def api_reset_password_logic():
+    """
+    [역할] 비밀번호 재설정 실행 API (세션 무효화 및 감사 로그 포함)
+    [의존성 관계] password_resets, users
+    """
+    data = request.json or {}
+    token = data.get('token', '').strip()
+    email = data.get('email', '').strip()
+    new_password = data.get('new_password', '').strip()
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT UserId FROM users WHERE Email = ? AND IsDeleted = 'N'", (email,))
+    user = cursor.fetchone()
+    
+    if not user:
+        conn.close()
+        return jsonify({"success": False, "message": "잘못된 요청입니다."}), 400
+        
+    cursor.execute("SELECT * FROM password_resets WHERE UserId = ? AND IsUsed = 0 AND ExpiresAt > ? ORDER BY ExpiresAt DESC", (user['UserId'], now_str))
+    resets = cursor.fetchall()
+    
+    valid_req = None
+    for req in resets:
+        if check_password_hash(req['TokenHash'], token):
+            valid_req = req
+            break
+
+    if not valid_req:
+        conn.close()
+        return jsonify({"success": False, "message": "유효하지 않거나 만료된 토큰입니다."}), 400
+
+    hashed_pw = generate_password_hash(new_password)
+    new_session_token = secrets.token_hex(32)
+    cursor.execute("UPDATE users SET Password = ?, SessionToken = ?, UpdatedAt = ? WHERE UserId = ?", 
+                   (hashed_pw, new_session_token, now_str, user['UserId']))
+    cursor.execute("UPDATE password_resets SET IsUsed = 1 WHERE TokenHash = ?", (valid_req['TokenHash'],))
+    conn.commit()
+    
+    log_audit(user['UserId'], 'System', 'RESET_PASSWORD', 'users', user['UserId'])
+    conn.close()
+
+    return jsonify({"success": True, "message": "비밀번호가 성공적으로 변경되었습니다."})
 
 
 if __name__ == '__main__':

@@ -1,12 +1,12 @@
 {% extends 'root_frame.html' %}
 
-{% block title %}회원가입 - 미니서버 통합 관리 시스템{% endblock %}
+{% block title %}회원가입 (Staging) - 미니서버 통합 관리 시스템{% endblock %}
 
 {% block body %}
 <div class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 dark:border-slate-700">
         <div class="text-center mb-8">
-            <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">계정 생성</h1>
+            <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">계정 생성 (Staging 검증)</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">시스템 사용을 위해 정보를 입력해 주세요</p>
         </div>
 
@@ -17,6 +17,40 @@
                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                        placeholder="영문, 숫자 (예: admin)">
             </div>
+
+            <!-- 이메일 인증 필드 영역 (LoginId 와 Name 사이) -->
+            <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">이메일 주소</label>
+                <div class="flex gap-2">
+                    <input type="email" id="Email" required 
+                           class="w-full px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
+                           placeholder="name@example.com">
+                    <button type="button" id="btnSendPin" onclick="requestEmailPin()" 
+                            class="whitespace-nowrap bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg text-sm transition">
+                        PIN 발송
+                    </button>
+                </div>
+                <p id="emailHelp" class="text-xs text-slate-500 mt-1">인증 PIN 번호가 이메일로 발송됩니다.</p>
+            </div>
+
+            <!-- PIN 입력 및 타이머 영역 (초기 hidden) -->
+            <div id="pinSection" class="hidden bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
+                <div class="flex justify-between items-center">
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">인증 PIN 번호 (6자리)</label>
+                    <span id="timerText" class="text-sm font-bold text-red-500">03:00</span>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="PinCode" maxlength="6"
+                           class="w-full px-4 py-2 bg-white dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-mono text-lg tracking-widest"
+                           placeholder="000000">
+                    <button type="button" id="btnVerifyPin" onclick="verifyEmailPin()" 
+                            class="whitespace-nowrap bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg text-sm transition">
+                        확인
+                    </button>
+                </div>
+                <p id="pinStatusMsg" class="text-xs font-semibold hidden"></p>
+            </div>
+
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">실명 (이름)</label>
                 <input type="text" id="Name" required 
@@ -45,9 +79,9 @@
 
             <div id="errorMessage" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center"></div>
 
-            <button type="submit" 
-                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
-                가입하기
+            <button type="submit" id="btnSubmitRegister" disabled
+                    class="w-full bg-slate-400 text-white font-bold py-3 rounded-lg shadow-md transition duration-200 cursor-not-allowed">
+                가입하기 (이메일 인증 필요)
             </button>
         </form>
 
@@ -60,70 +94,114 @@
 
 {% block extra_scripts_base %}
 <script>
-    const passwordInput = document.getElementById('Password');
-    const confirmInput = document.getElementById('PasswordConfirm');
-    const matchHint = document.getElementById('passwordMatchHint');
+    let pinTimer = null;
+    let secondsLeft = 180;
+    let isEmailVerified = false;
 
-    function checkPasswordMatch() {
-        if (confirmInput.value === '') {
-            matchHint.classList.add('hidden');
+    function startPinTimer() {
+        clearInterval(pinTimer);
+        secondsLeft = 180;
+        updateTimerDisplay();
+        
+        pinTimer = setInterval(() => {
+            secondsLeft--;
+            updateTimerDisplay();
+            if (secondsLeft <= 0) {
+                clearInterval(pinTimer);
+                document.getElementById('PinCode').disabled = true;
+                document.getElementById('btnVerifyPin').disabled = true;
+                const msg = document.getElementById('pinStatusMsg');
+                msg.innerText = '인증 시간이 만료되었습니다. PIN을 다시 발송해 주세요.';
+                msg.className = 'text-xs font-semibold text-red-600';
+                msg.classList.remove('hidden');
+            }
+        }, 1000);
+    }
+
+    function updateTimerDisplay() {
+        const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
+        const s = String(secondsLeft % 60).padStart(2, '0');
+        document.getElementById('timerText').innerText = `${m}:${s}`;
+    }
+
+    async function requestEmailPin() {
+        const email = document.getElementById('Email').value.trim();
+        if (!email || !email.includes('@')) {
+            alert('올바른 이메일 주소를 입력해 주세요.');
             return;
         }
-        matchHint.classList.remove('hidden');
-        if (passwordInput.value === confirmInput.value) {
-            matchHint.innerText = '비밀번호가 일치합니다.';
-            matchHint.className = 'text-xs mt-1 text-green-600 font-semibold';
-        } else {
-            matchHint.innerText = '비밀번호가 일치하지 않습니다.';
-            matchHint.className = 'text-xs mt-1 text-red-600 font-semibold';
+
+        if (typeof showGlobalLoading === 'function') showGlobalLoading('인증 PIN 메일 발송 중...');
+        try {
+            const res = await fetch('/api/auth/send_pin', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
+
+            if (res.ok && data.success) {
+                alert(data.message);
+                document.getElementById('pinSection').classList.remove('hidden');
+                document.getElementById('PinCode').disabled = false;
+                document.getElementById('btnVerifyPin').disabled = false;
+                document.getElementById('pinStatusMsg').classList.add('hidden');
+                startPinTimer();
+            } else {
+                alert(data.message || 'PIN 메일 발송 실패');
+            }
+        } catch (err) {
+            if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
+            alert('서버 통신 오류가 발생했습니다.');
         }
     }
 
-    passwordInput.addEventListener('input', checkPasswordMatch);
-    confirmInput.addEventListener('input', checkPasswordMatch);
-
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const LoginId = document.getElementById('LoginId').value;
-        const Name = document.getElementById('Name').value;
-        const NickName = document.getElementById('NickName').value;
-        const Password = document.getElementById('Password').value;
-        const PasswordConfirm = document.getElementById('PasswordConfirm').value;
-        const errorDiv = document.getElementById('errorMessage');
-
-        errorDiv.classList.add('hidden');
-
-        if (Password !== PasswordConfirm) {
-            errorDiv.innerText = '비밀번호가 서로 일치하지 않습니다.';
-            errorDiv.classList.remove('hidden');
+    async function verifyEmailPin() {
+        const email = document.getElementById('Email').value.trim();
+        const pin = document.getElementById('PinCode').value.trim();
+        if (!pin || pin.length !== 6) {
+            alert('6자리 PIN 코드를 정확히 입력해 주세요.');
             return;
         }
 
         try {
-            const res = await fetch('/register', {
+            const res = await fetch('/api/auth/verify_pin', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ LoginId, Name, NickName, Password })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ email, pin })
             });
-
             const data = await res.json();
 
+            const msg = document.getElementById('pinStatusMsg');
+            msg.innerText = data.message;
+            msg.classList.remove('hidden');
+
             if (res.ok && data.success) {
-                alert(data.message);
-                location.href = '/login';
+                msg.className = 'text-xs font-semibold text-green-600';
+                clearInterval(pinTimer);
+                document.getElementById('Email').readOnly = true;
+                document.getElementById('PinCode').disabled = true;
+                document.getElementById('btnVerifyPin').disabled = true;
+                document.getElementById('btnSendPin').disabled = true;
+                isEmailVerified = true;
+
+                const btnSubmit = document.getElementById('btnSubmitRegister');
+                btnSubmit.disabled = false;
+                btnSubmit.className = 'w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200';
+                btnSubmit.innerText = '가입하기';
             } else {
-                errorDiv.innerText = data.message || '가입에 실패했습니다.';
-                if (data.is_recovery_target) {
-                    errorDiv.className = 'p-4 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 text-sm rounded-xl border border-amber-200 dark:border-amber-800 text-left leading-relaxed font-medium';
-                } else {
-                    errorDiv.className = 'p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center';
-                }
-                errorDiv.classList.remove('hidden');
+                msg.className = 'text-xs font-semibold text-red-600';
             }
         } catch (err) {
-            errorDiv.innerText = '서버 통신 오류가 발생했습니다.';
-            errorDiv.classList.remove('hidden');
+            alert('서버 통신 오류가 발생했습니다.');
         }
-    });
+    }
 </script>
 {% endblock %}
