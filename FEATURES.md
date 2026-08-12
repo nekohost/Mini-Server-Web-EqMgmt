@@ -28,6 +28,7 @@
 ## 2. 사용자 및 권한 관리 (User & Role Management)
 - **사용자 프로필 (마이페이지, `/mypage`)**: 
   - 로그인한 계정의 기본 정보 열람.
+  - **프로필 정보(아이디 `LoginId`, 이름 `Name`, 닉네임 `NickName`) 수정 (`/api/users/update_profile`) [제안-034]**: 보안 유효성 검증을 위해 **현재 비밀번호(`current_password`) 검증**을 필수로 적용하고, 타 계정과의 아이디 중복 체크(`IntegrityError` 예외 방어) 및 세션 동기화(`session.modified = True`), 보안 감사 로그(`UPDATE_USER_PROFILE`) 기록 포함.
   - 사용자 본인의 **비밀번호 변경** 기능 제공.
 - **어드민 전용 사용자 관리 (`/users_management`)**:
   - 시스템에 가입된 전체 유저 목록 및 가입일 조회.

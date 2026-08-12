@@ -1553,6 +1553,78 @@ def api_update_email():
     
     return jsonify({"success": True, "message": "이메일 주소가 성공적으로 변경되었습니다."})
 
+
+@app.route('/api/users/update_profile', methods=['POST'])
+@login_required
+@csrf_required
+def api_update_profile():
+    """
+    [역할] 로그인한 사용자의 기본 프로필(LoginId, Name, NickName)을 변경합니다. 현재 비밀번호 검증이 필수입니다.
+    [의존성 관계] users 테이블, check_password_hash(), session['user'], templates/mypage.html
+    [변경 시 영향도] users 테이블의 유저 정보, session['user'] 및 감사 로그(UPDATE_USER_PROFILE) 기록
+    """
+    user = session.get('user')
+    if not user or 'UserId' not in user:
+        return jsonify({"success": False, "message": "로그인이 필요한 서비스입니다."}), 401
+        
+    data = request.json or {}
+    new_login_id = data.get('login_id', '').strip()
+    new_name = data.get('name', '').strip()
+    new_nickname = data.get('nickname', '').strip()
+    current_password = data.get('current_password', '').strip()
+    
+    if not new_login_id or not new_name or not new_nickname or not current_password:
+        return jsonify({"success": False, "message": "모든 필드를 입력해 주세요."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT * FROM users WHERE UserId = ?", (user['UserId'],))
+    db_user = cursor.fetchone()
+    
+    if not db_user:
+        conn.close()
+        return jsonify({"success": False, "message": "사용자 정보를 찾을 수 없습니다."}), 404
+        
+    # 현재 비밀번호 대조 검증
+    if not check_password_hash(db_user['Password'], current_password):
+        conn.close()
+        return jsonify({"success": False, "message": "현재 비밀번호가 올바르지 않습니다."}), 400
+        
+    # 아이디 변경 시 타 계정 중복 체크
+    if new_login_id != db_user['LoginId']:
+        cursor.execute("SELECT UserId FROM users WHERE LoginId = ? AND UserId != ?", (new_login_id, user['UserId']))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({"success": False, "message": "이미 사용 중인 아이디입니다."}), 400
+
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    try:
+        cursor.execute('''
+            UPDATE users
+            SET LoginId = ?, Name = ?, NickName = ?, UpdatedAt = ?
+            WHERE UserId = ?
+        ''', (new_login_id, new_name, new_nickname, now_str, user['UserId']))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({"success": False, "message": "이미 존재하거나 사용 중인 아이디입니다."}), 400
+
+    old_data = {"LoginId": db_user['LoginId'], "Name": db_user['Name'], "NickName": db_user['NickName']}
+    new_data = {"LoginId": new_login_id, "Name": new_name, "NickName": new_nickname}
+
+    log_audit(user['UserId'], db_user['LoginId'], 'UPDATE_USER_PROFILE', 'users', user['UserId'], old_data, new_data)
+    conn.close()
+
+    # 세션 갱신 및 modified 플래그 설정 (상태 갱신 누락 방지)
+    session['user']['LoginId'] = new_login_id
+    session['user']['Name'] = new_name
+    session['user']['NickName'] = new_nickname
+    session.modified = True
+
+    return jsonify({"success": True, "message": "프로필 정보가 성공적으로 변경되었습니다."})
+
 # ------------------------------------------
 # 관리자용 사용자 관리 API
 # ------------------------------------------

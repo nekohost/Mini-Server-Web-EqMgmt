@@ -15,7 +15,7 @@
 ### 2.1. 백엔드 API 신설 (`Staging/Staging_app.py` ➡️ `app.py`)
 - **엔드포인트**: `POST /api/users/update_profile`
 - **인증 및 보안**:
-  - `@login_required` 및 `@csrf_required` 적용.
+  - `@login_required` 및 `@csrf_required` 적용. (**[중요]** Staging 모의에서는 제외되었으나, `app.py` 병합 시 반드시 추가하여 Rule 4-5-3 다중 로그인 및 비활성화 우회 방지)
   - 요청 바디: `{ "login_id": "...", "name": "...", "nickname": "...", "current_password": "..." }`
 - **검증 로직**:
   1. 필수값 체크: `login_id`, `name`, `nickname`, `current_password` 전달 여부 확인.
@@ -26,6 +26,7 @@
   4. DB 업데이트: `UPDATE users SET LoginId=?, Name=?, NickName=?, UpdatedAt=? WHERE UserId=?`
      - `try-except sqlite3.IntegrityError` 예외 처리 추가 (UNIQUE 제약 방어).
   5. 세션 정보 갱신: `session['user']['LoginId']`, `session['user']['Name']`, `session['user']['NickName']` 갱신.
+     - **[중요 - 상태 갱신 누락 버그 방지]** Flask는 중첩 딕셔너리의 직접적인 수정 사항을 자동으로 추적하지 않으므로, 갱신 후 반드시 `session.modified = True` 코드를 명시하여 변경 사항이 세션에 안전하게 저장되도록 조치한다.
   6. 보안 감사 로그 기록: `log_audit(user['UserId'], user['LoginId'], 'UPDATE_USER_PROFILE', 'users', user['UserId'], old_data, new_data)`
 
 ### 2.2. 프론트엔드 UI/UX (`Staging/Staging_mypage.html` ➡️ `templates/mypage.html`)
