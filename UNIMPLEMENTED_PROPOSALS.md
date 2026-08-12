@@ -273,33 +273,7 @@
 
 ---
 
-## [제안-030] Exchange Online 기반 메일링 서비스 연동 (Graph API)
-  - **제안 일시:** 2026-08-11 11:17:00
-  - **제안자:** 사용자 (User)
-  - **검토 모델:** Gemini 3.1 Pro (High)
-  - **상태:** [채택 / 대기중]
-  - **결정 사유:** Microsoft 365 테넌트 환경을 고려하여, 보안과 확장성이 뛰어난 Microsoft Graph API(OAuth 2.0)를 통해 시스템의 백그라운드 메일 발송 인프라를 구축하기로 최종 승인됨.
-  - **구현 우선순위:** [중] 결재 승인, 비밀번호 발급 등 다양한 알림 기능의 근간이 되는 필수 인프라.
-  - **구현 가능성:** [높음] 사용자(관리자)의 Azure AD 앱 등록 선행 작업 후 `requests` 모듈로 간단히 구현 가능.
-  - **관련 파일:** `.env`, `utils/mailer.py` (신설), `app.py`
-  - **영향도 및 의존성:** 기존 시스템에 영향을 주지 않는 신규 발송 모듈 추가.
-  - **추정 난이도:** 중 (Medium) - Azure AD 설정 및 OAuth Token 취득 로직 구성.
-  - **제안 배경 (개요):** 단순 알림 기능을 넘어, 승인/반려 내역, 계정 제어 등 시스템 상호작용 피드백을 사용자에게 확실하게 전달하기 위함.
-  - **상세 내용 및 구현 계획 (Implementation Plan):**
-    1. **Phase 1: 사용자 사전 준비 작업 (Azure AD 앱 등록)**
-    - Microsoft Entra 관리 센터(entra.microsoft.com) 접속 및 신규 '앱 등록'.
-    - 인증 정보 확보: `클라이언트 ID`, `테넌트 ID`.
-    - 클라이언트 암호(Secret) 생성 및 값 복사.
-    - `Mail.Send` API 권한 (애플리케이션 권한) 부여 및 **관리자 동의 부여** 완료.
-    2. **Phase 2: 백엔드 모듈 개발**
-    - `.env`에 `MS_TENANT_ID`, `MS_CLIENT_ID`, `MS_CLIENT_SECRET`, `MAIL_SENDER_ADDRESS` 구조화.
-    - `utils/mailer.py`를 신설하여 `login.microsoftonline.com`에서 토큰을 받고 `graph.microsoft.com`으로 발송하는 유틸리티 `send_email()` 구현.
-    - 셋팅 검증을 위한 관리자용 임시 테스트 API(`/api/test_mail`) 생성.
 
-
-
-
----
 
 ## [제안-033] 장비 상태(정상/수리중/폐기) 관리 기능 추가
   - **제안 일시:** 2026-08-12 00:38:29
