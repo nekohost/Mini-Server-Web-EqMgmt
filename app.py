@@ -1013,7 +1013,8 @@ def dashboard_page():
 @login_required
 def mypage_page():
     # 마이페이지는 모든 로그인 사용자가 접근 가능하므로 메뉴 권한 체크 생략(또는 기본 허용)
-    return render_template('mypage.html', user=session['user'])
+    if 'csrf_token' not in session: session['csrf_token'] = secrets.token_hex(16)
+    return render_template('mypage.html', user=session['user'], csrf_token=session['csrf_token'])
 
 @app.route('/approvals')
 @login_required
@@ -1508,6 +1509,49 @@ def api_user_withdraw_cancel():
     
     log_audit(user['UserId'], user['LoginId'], 'USER_WITHDRAW_CANCEL', 'users', user['UserId'], None, None)
     return jsonify({"success": True, "message": "비활성화가 성공적으로 철회되었으며 계정이 정상 복구되었습니다."})
+
+@app.route('/api/users/update_email', methods=['POST'])
+@login_required
+@csrf_required
+def api_update_email():
+    """
+    [역할] 로그인된 사용자의 이메일을 변경합니다. 사전에 인증(verify_pin)이 완료되어야 합니다.
+    """
+    user = session['user']
+    data = request.json or {}
+    new_email = data.get('email', '').strip()
+    
+    if not new_email:
+        return jsonify({"success": False, "message": "이메일을 입력해주세요."}), 400
+        
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 1. 인증 완료 여부 확인
+    cursor.execute("SELECT IsVerified FROM email_verifications WHERE Email = ?", (new_email,))
+    verif = cursor.fetchone()
+    if not verif or verif['IsVerified'] != 1:
+        conn.close()
+        return jsonify({"success": False, "message": "이메일 인증이 완료되지 않았습니다."}), 400
+        
+    # 2. 이메일 중복 확인 (IntegrityError 처리)
+    try:
+        cursor.execute("UPDATE users SET Email = ?, UpdatedAt = ? WHERE UserId = ?", 
+                       (new_email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user['UserId']))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        conn.close()
+        return jsonify({"success": False, "message": "이미 다른 계정에서 사용 중인 이메일입니다."}), 400
+        
+    # 성공 시 인증 기록 삭제 및 세션 업데이트
+    cursor.execute("DELETE FROM email_verifications WHERE Email = ?", (new_email,))
+    conn.commit()
+    conn.close()
+    
+    session['user']['Email'] = new_email
+    log_audit(user['UserId'], user['LoginId'], 'UPDATE_EMAIL', 'users', user['UserId'], None, {"NewEmail": new_email})
+    
+    return jsonify({"success": True, "message": "이메일 주소가 성공적으로 변경되었습니다."})
 
 # ------------------------------------------
 # 관리자용 사용자 관리 API

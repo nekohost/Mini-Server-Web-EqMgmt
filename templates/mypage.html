@@ -23,6 +23,13 @@
             <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">역할 (권한)</label>
             <div class="text-base font-semibold text-blue-600 dark:text-blue-400">{{ user.Role }}</div>
         </div>
+        <div>
+            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">이메일 주소</label>
+            <div class="flex items-center gap-2 text-base font-semibold text-slate-800 dark:text-slate-200">
+                <span id="currentEmailText">{{ user.Email if user.Email else '등록된 이메일 없음' }}</span>
+                <button type="button" onclick="document.getElementById('emailModal').classList.remove('hidden')" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">수정</button>
+            </div>
+        </div>
     </div>
 
     <!-- UI/UX 맞춤 설정 섹션 -->
@@ -106,10 +113,117 @@
         </form>
     </div>
 </div>
+
+<!-- 이메일 변경 모달 -->
+<div id="emailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
+    <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-xl shadow-2xl p-6 relative">
+        <button type="button" onclick="document.getElementById('emailModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+            <i class="fas fa-times text-xl"></i>
+        </button>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">이메일 주소 수정</h3>
+        
+        <div class="space-y-4">
+            <div class="flex gap-2">
+                <input type="email" id="newEmailInput" placeholder="새 이메일 주소" 
+                       class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white">
+                <button type="button" id="btnSendPin" onclick="sendPin()" class="bg-slate-200 hover:bg-slate-300 dark:bg-slate-600 dark:hover:bg-slate-500 text-slate-700 dark:text-slate-200 px-4 py-2 rounded-lg text-sm font-bold transition">발송</button>
+            </div>
+            
+            <div id="pinSection" class="hidden flex gap-2">
+                <input type="text" id="pinInput" placeholder="인증번호 6자리" maxlength="6"
+                       class="flex-1 px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white">
+                <button type="button" id="btnVerifyPin" onclick="verifyPin()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition">확인</button>
+            </div>
+            <div id="emailMessage" class="hidden text-sm p-2 rounded-lg text-center"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
+    let isEmailVerified = false;
+
+    async function sendPin() {
+        const email = document.getElementById('newEmailInput').value;
+        const msg = document.getElementById('emailMessage');
+        if(!email) { alert("이메일을 입력해주세요."); return; }
+        
+        msg.classList.remove('hidden');
+        msg.className = 'text-sm p-2 rounded-lg text-center bg-blue-50 text-blue-600 border border-blue-200';
+        msg.innerText = '메일 발송 중...';
+
+        try {
+            const res = await fetch('/api/auth/send_pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if(data.success) {
+                msg.className = 'text-sm p-2 rounded-lg text-center bg-green-50 text-green-600 border border-green-200';
+                msg.innerText = data.message;
+                document.getElementById('pinSection').classList.remove('hidden');
+                document.getElementById('newEmailInput').readOnly = true;
+                document.getElementById('btnSendPin').disabled = true;
+            } else {
+                msg.className = 'text-sm p-2 rounded-lg text-center bg-red-50 text-red-600 border border-red-200';
+                msg.innerText = data.message;
+            }
+        } catch(e) {
+            msg.className = 'text-sm p-2 rounded-lg text-center bg-red-50 text-red-600 border border-red-200';
+            msg.innerText = '발송 오류가 발생했습니다.';
+        }
+    }
+
+    async function verifyPin() {
+        const email = document.getElementById('newEmailInput').value;
+        const pin = document.getElementById('pinInput').value;
+        const msg = document.getElementById('emailMessage');
+        
+        try {
+            const res = await fetch('/api/auth/verify_pin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                body: JSON.stringify({ email, pin })
+            });
+            const data = await res.json();
+            if(data.success) {
+                msg.className = 'text-sm p-2 rounded-lg text-center bg-green-50 text-green-600 border border-green-200';
+                msg.innerText = '인증 성공! 이메일을 업데이트합니다...';
+                
+                const updateRes = await fetch('/api/users/update_email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    body: JSON.stringify({ email })
+                });
+                const updateData = await updateRes.json();
+                if(updateData.success) {
+                    msg.innerText = '이메일이 성공적으로 변경되었습니다.';
+                    document.getElementById('currentEmailText').innerText = email;
+                    setTimeout(() => {
+                        document.getElementById('emailModal').classList.add('hidden');
+                        document.getElementById('pinSection').classList.add('hidden');
+                        document.getElementById('newEmailInput').readOnly = false;
+                        document.getElementById('btnSendPin').disabled = false;
+                        document.getElementById('newEmailInput').value = '';
+                        document.getElementById('pinInput').value = '';
+                        msg.classList.add('hidden');
+                    }, 1500);
+                } else {
+                    msg.className = 'text-sm p-2 rounded-lg text-center bg-red-50 text-red-600 border border-red-200';
+                    msg.innerText = updateData.message;
+                }
+            } else {
+                msg.className = 'text-sm p-2 rounded-lg text-center bg-red-50 text-red-600 border border-red-200';
+                msg.innerText = data.message;
+            }
+        } catch(e) {
+            msg.className = 'text-sm p-2 rounded-lg text-center bg-red-50 text-red-600 border border-red-200';
+            msg.innerText = '인증 오류가 발생했습니다.';
+        }
+    }
+
     document.getElementById('passwordForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const current = document.getElementById('current_pw').value;
