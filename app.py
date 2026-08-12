@@ -801,7 +801,7 @@ def login_page():
             'LoginId': user['LoginId'],
             'Name': user['Name'],
             'NickName': user['NickName'],
-            'Email': user.get('Email'),
+            'Email': user['Email'] if 'Email' in user.keys() else None,
             'Role': user['Role'],
             'IsDeactivated': (status == 'DEACTIVATED'),
             'DeactivationDaysLeft': eval_result.get('days_left', 30) if status == 'DEACTIVATED' else None
