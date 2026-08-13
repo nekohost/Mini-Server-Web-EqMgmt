@@ -26,23 +26,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             menus.forEach(menu => {
-                const icon = menu.MenuName.match(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/);
-                const displayIcon = icon ? icon[0] : '📌';
-                const displayName = menu.MenuName.replace(displayIcon, '').trim();
-
-                const cardHtml = `
-                    <a href="${menu.Url}" class="group block bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-blue-300 transition-all duration-200 relative overflow-hidden">
-                        <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 z-0"></div>
-                        <div class="relative z-10 flex flex-col h-full">
-                            <div class="flex items-center mb-4">
-                                <span class="text-4xl mr-3 bg-slate-50 p-2 rounded-lg group-hover:bg-blue-50 transition-colors">${displayIcon}</span>
-                                <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">${displayName}</h3>
-                            </div>
-                            <p class="text-sm text-slate-500 flex-grow leading-relaxed">${menu.Description || '설명 없음'}</p>
+                grid.innerHTML += `
+                    <a href="${menu.Url}" class="group block bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 transform hover:-translate-y-1">
+                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${menu.MenuName}</h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">${menu.Description}</p>
+                        <div class="mt-4 flex justify-end">
+                            <span class="text-blue-600 dark:text-blue-400 font-medium text-sm group-hover:underline">입장하기 &rarr;</span>
                         </div>
                     </a>
                 `;
-                grid.innerHTML += cardHtml;
             });
         })
         .catch(err => {
