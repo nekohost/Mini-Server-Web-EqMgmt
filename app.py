@@ -231,10 +231,15 @@ def init_db():
         ('master_management', '마스터 데이터 관리', '/master_management', '카테고리 및 제조사 마스터 관리', 'admin_center', 5)
     ]
     for m in default_menus:
-        cursor.execute('''
-            INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (m[0], m[1], m[2], m[3], m[4], m[5], now, now))
+        try:
+            cursor.execute('''
+                INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (m[0], m[1], m[2], m[3], m[4], m[5], now, now))
+        except Exception as e:
+            # 기존 DB 스키마에 ParentMenuCode가 없는 상태(마이그레이션 전)에서는 무시
+            print(f"[Init DB] menus 테이블 기본 데이터 삽입 건너뜀 (마이그레이션 전일 수 있습니다): {str(e)}")
+            pass
 
     # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비, 전자결재 허용)
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'my_equipment', 1, now))
