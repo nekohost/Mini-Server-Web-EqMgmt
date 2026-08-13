@@ -2636,10 +2636,17 @@ def get_permissions():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT p.*, m.MenuName, m.ParentMenuCode, m.SortOrder 
-        FROM role_menu_permissions p
-        JOIN menus m ON p.MenuCode = m.MenuCode
-        ORDER BY p.Role ASC, m.SortOrder ASC, m.MenuId ASC
+        SELECT 
+            r.Role, 
+            m.MenuCode, 
+            m.MenuName, 
+            m.ParentMenuCode, 
+            m.SortOrder,
+            COALESCE(p.IsAllowed, 0) as IsAllowed
+        FROM (SELECT DISTINCT Role FROM users UNION SELECT 'admin' UNION SELECT 'user') r
+        CROSS JOIN menus m
+        LEFT JOIN role_menu_permissions p ON p.Role = r.Role AND p.MenuCode = m.MenuCode
+        ORDER BY r.Role ASC, m.SortOrder ASC, m.MenuId ASC
     ''')
     rows = cursor.fetchall()
     conn.close()
@@ -2708,7 +2715,7 @@ def update_permissions():
     conn.close()
     
     log_audit(user['UserId'], user['LoginId'], 'UPDATE_PERMISSIONS', 'role_menu_permissions', None, old_perms, data)
-    return jsonify({"message": "권한 설정이 업데이트되었습니다."})
+    return jsonify({"success": True, "message": "권한 설정이 업데이트되었습니다."})
 
 
 # ------------------------------------------
