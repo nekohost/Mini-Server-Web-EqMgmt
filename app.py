@@ -1131,13 +1131,14 @@ def public_equipment_page():
 
 @app.route('/admin_center')
 @login_required
-@check_menu_permission('admin_center')
 def admin_center_page():
     """
     [역할]: 관리자 센터 메인 페이지 렌더링
     [의존성 관계]: admin_center.html 템플릿
     [변경 시 영향도]: 관리자 메뉴들의 허브 페이지 접근에 영향을 줍니다.
     """
+    if not check_menu_permission('admin_center'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('admin_center.html')
 
 @app.route('/permissions')
