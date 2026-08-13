@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="">
     <title>{% block title %}미니서버 통합 관리 시스템{% endblock %}</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com" onerror="this.onerror=null; this.src='{{ url_for(\'static\', filename=\'js/tailwindcss.js\') }}'"></script>
+    <script src="https://cdn.tailwindcss.com" onerror="this.onerror=null; this.src='{{ url_for("static", filename="js/tailwindcss.js") }}'"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
