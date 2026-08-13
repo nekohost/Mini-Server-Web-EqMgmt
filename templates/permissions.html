@@ -23,8 +23,8 @@
             <thead class="bg-slate-50 dark:bg-slate-800">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">역할 (Role)</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">메뉴 명</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">메뉴 코드</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">메뉴 명</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">접근 허용</th>
                 </tr>
             </thead>
@@ -44,60 +44,125 @@
         try {
             const res = await fetch('/api/permissions');
             currentPermissions = await res.json();
-            
-            const tbody = document.getElementById('permTableBody');
-            tbody.innerHTML = '';
-
-            currentPermissions.forEach((item, index) => {
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">
-                            ${item.Role}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-700 dark:text-slate-300">
-                            ${item.MenuName}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-500 dark:text-slate-400">
-                            ${item.MenuCode}
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-center">
-                            <input type="checkbox" ${item.IsAllowed ? 'checked' : ''} 
-                                   onchange="togglePerm(${index}, this.checked)"
-                                   class="w-5 h-5 text-blue-600 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500 dark:focus:ring-blue-600 cursor-pointer">
-                        </td>
-                    </tr>
-                `;
-            });
+            renderPermissionsTable();
         } catch (err) {
             console.error(err);
             alert('권한 정보를 불러오지 못했습니다.');
         }
     }
 
-    function togglePerm(index, isChecked) {
-        currentPermissions[index].IsAllowed = isChecked ? 1 : 0;
+    // 1. 상태 업데이트 및 자동 동기화 로직 (N-Depth 대응)
+    function togglePermission(menuCode, role) {
+        const targetIdx = currentPermissions.findIndex(p => p.MenuCode === menuCode && p.Role === role);
+        if (targetIdx === -1) return;
+        
+        const target = currentPermissions[targetIdx];
+        target.IsAllowed = target.IsAllowed ? 0 : 1; // 상태 반전
+
+        if (target.IsAllowed === 1) {
+            // 자식이 켜졌으므로 모든 조상(부모, 조부모...)을 강제로 켬
+            let currentParentCode = target.ParentMenuCode;
+            while (currentParentCode) {
+                const pIdx = currentPermissions.findIndex(p => p.MenuCode === currentParentCode && p.Role === target.Role);
+                if (pIdx > -1) {
+                    currentPermissions[pIdx].IsAllowed = 1;
+                    currentParentCode = currentPermissions[pIdx].ParentMenuCode; // 위로 이동
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        // 상태 변경 후 화면 다시 그리기
+        renderPermissionsTable();
     }
 
+    // 2. 잠금(Disabled) 조건 검사 로직 (하위 노드 중 하나라도 켜져있는지 재귀 스캔)
+    function hasAllowedDescendant(menuCode, role) {
+        const children = currentPermissions.filter(p => p.ParentMenuCode === menuCode && p.Role === role);
+        for (let child of children) {
+            if (child.IsAllowed === 1) return true;
+            if (hasAllowedDescendant(child.MenuCode, role)) return true; // 손자 검사
+        }
+        return false;
+    }
+
+    // 3. 재귀 렌더링 함수 (무한 뎁스 지원)
+    function renderTree(parentCode, depth, role) {
+        let html = '';
+        const nodes = currentPermissions.filter(p => p.ParentMenuCode === parentCode && p.Role === role);
+        
+        nodes.forEach(node => {
+            const isLocked = hasAllowedDescendant(node.MenuCode, role);
+            const disabledAttr = isLocked ? 'disabled' : '';
+            const indentStr = depth > 0 ? '&nbsp;'.repeat(depth * 4) + '└ ' : '';
+            
+            html += `
+                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition ${depth === 0 ? 'bg-slate-50/50 dark:bg-slate-800/80 font-semibold' : ''}">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">
+                        ${role}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-500 dark:text-slate-400">
+                        ${node.MenuCode}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-700 dark:text-slate-300">
+                        ${indentStr}${node.MenuName}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <input type="checkbox" ${node.IsAllowed ? 'checked' : ''} ${disabledAttr}
+                               onchange="togglePermission('${node.MenuCode}', '${role}')"
+                               class="w-5 h-5 text-blue-600 bg-slate-100 dark:bg-slate-700 border-slate-300 dark:border-slate-600 rounded focus:ring-blue-500 dark:focus:ring-blue-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                    </td>
+                </tr>
+            `;
+            // 자식 렌더링 (재귀 호출)
+            html += renderTree(node.MenuCode, depth + 1, role);
+        });
+        return html;
+    }
+
+    // 4. 초기 렌더링 시작점
+    function renderPermissionsTable() {
+        const tbody = document.getElementById('permTableBody');
+        tbody.innerHTML = '';
+        const roles = [...new Set(currentPermissions.map(p => p.Role))].sort();
+        roles.forEach(role => {
+            tbody.innerHTML += renderTree(null, 0, role);
+        });
+    }
+
+    // 5. 저장 API (CSRF 토큰 및 에러 팝업 처리)
     async function savePermissions() {
+        if (!confirm('변경된 권한 설정을 저장하시겠습니까?')) return;
+        
+        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
+        const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
+        
         try {
-            showGlobalLoading();
+            if (typeof showGlobalLoading === 'function') showGlobalLoading();
             const res = await fetch('/api/permissions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentPermissions)
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify(currentPermissions) // 배열 그대로 전송
             });
             
-            if (res.ok) {
-                alert('권한 설정이 변경되었습니다.');
+            const data = await res.json();
+            if (res.ok && data.success) {
+                alert("✅ " + (data.message || '권한 설정이 변경되었습니다.'));
                 fetchPermissions();
             } else {
-                alert('권한 변경에 실패했습니다.');
+                // [핵심] 조상 검증 거부 시 팝업 및 원상복구
+                alert(data.message || '권한 변경에 실패했습니다.'); 
+                fetchPermissions(); 
             }
         } catch (err) {
             console.error(err);
-            alert('오류가 발생했습니다.');
+            alert("⚠️ 서버와의 통신 중 오류가 발생했습니다.");
         } finally {
-            hideGlobalLoading();
+            if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
         }
     }
 

@@ -240,3 +240,4 @@
        - DB 및 세션(`session['user']`) 정보 업데이트.
        - 보안 감사 로그(`UPDATE_USER_PROFILE`) 기록.
 
+---

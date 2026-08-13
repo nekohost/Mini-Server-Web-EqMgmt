@@ -37,7 +37,9 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 def get_db_connection():
     """
-    [역할] DB 연결 객체를 생성하고 결과를 Dict(사전) 형태로 반환하도록 설정하는 공통 함수
+    [역할]: DB 연결 객체를 생성하고 결과를 반환합니다.
+    [의존성 관계]: sqlite3 모듈, equipment.db 파일
+    [변경 시 영향도]: 모든 DB 통신 로직에 영향을 줍니다.
     """
     conn = sqlite3.connect('equipment.db')
     conn.row_factory = sqlite3.Row 
@@ -46,7 +48,9 @@ def get_db_connection():
 
 def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, old_value=None, new_value=None):
     """
-    [역할] 모든 C/U/D 및 로그인/권한 변경 시 Audit Log 기록
+    [역할]: 사용자의 주요 행동(로그인, 변경, 삭제 등)을 보안 감사 로그로 기록합니다.
+    [의존성 관계]: audit_logs 테이블
+    [변경 시 영향도]: 전역 감사 로그 기록 기능에 영향을 줍니다.
     """
     try:
         ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
@@ -256,6 +260,11 @@ def init_db():
 init_db()
 
 def run_migration_if_needed(migration_name, migration_func):
+    """
+    [역할]: 특정 DB 마이그레이션 함수가 이전에 실행되었는지 확인하고 1회에 한해 구동합니다.
+    [의존성 관계]: sys_migrations 테이블
+    [변경 시 영향도]: 마이그레이션 중복 실행 방어에 영향을 줍니다.
+    """
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT 1 FROM sys_migrations WHERE MigrationName = ?", (migration_name,))
@@ -277,7 +286,9 @@ def run_migration_if_needed(migration_name, migration_func):
 
 def migrate_equipment_is_public():
     """
-    [역할] 기존 DB의 equipment 테이블에 IsPublic 컬럼이 없으면 추가 (무정지 마이그레이션)
+    [역할]: 장비 테이블에 IsPublic 컬럼이 없으면 동적으로 추가합니다.
+    [의존성 관계]: equipment 테이블
+    [변경 시 영향도]: 장비 공개 여부 필드 추가에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -296,9 +307,9 @@ run_migration_if_needed('equipment_is_public', migrate_equipment_is_public)
 
 def migrate_proposals_011_027_028():
     """
-    [역할] 제안-011, 027, 028 데이터베이스 마이그레이션 수행
-    1. equipment 테이블에 IsDraft 컬럼 추가
-    2. 기존 equipment 테이블의 Category, Manufacturer 고유값을 categories, manufacturers 마스터 테이블에 백업 (IsApproved=1)
+    [역할]: 제안(소유권 만료, 메모장 등)에 필요한 컬럼들을 한 번에 추가합니다.
+    [의존성 관계]: users, equipment 테이블
+    [변경 시 영향도]: 각종 부가 정보 컬럼 생성에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -425,7 +436,9 @@ run_migration_if_needed('relational_master', migrate_relational_master)
 
 def migrate_passwords_to_hash():
     """
-    [역할] 기존 평문 비밀번호를 해시 암호로 자동 변환 (데이터 보존 원칙 준수)
+    [역할]: 기존 평문 비밀번호를 bcrypt 해시로 일괄 변환합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 계정 로그인 암호 체계에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -451,7 +464,9 @@ run_migration_if_needed('passwords_to_hash', migrate_passwords_to_hash)
 
 def migrate_email_features():
     """
-    [역할] 제안-030 이메일 연동 관련 마이그레이션 (Email 컬럼 추가 및 인증용 테이블 신설)
+    [역할]: 사용자 테이블에 이메일 관련 보안 필드를 추가합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 이메일 기반 보안 기능 지원에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -489,11 +504,17 @@ run_migration_if_needed('proposal_030_email_auth', migrate_email_features)
 
 def csrf_required(f):
     """
-    [역할] 특정 라우트에만 CSRF 방어를 적용하는 데코레이터
-    [의존성 관계] 클라이언트 측 fetch API 헤더의 X-CSRFToken과 session['csrf_token']
+    [역할]: 변경 요청 시 클라이언트의 CSRF 토큰을 검증하는 데코레이터입니다.
+    [의존성 관계]: session['csrf_token']
+    [변경 시 영향도]: POST, PUT, DELETE API 통신 보안에 영향을 줍니다.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        """
+        [역할]: 데코레이터 래퍼 함수로 원본 함수 실행 전/후 처리를 담당합니다.
+        [의존성 관계]: 원본 함수(f)
+        [변경 시 영향도]: 데코레이터 적용 라우터의 인자 전달에 영향을 줍니다.
+        """
         if request.method == "POST":
             token = request.headers.get('X-CSRFToken')
             if not token or token != session.get('csrf_token'):
@@ -504,6 +525,11 @@ def csrf_required(f):
 
 @app.after_request
 def after_request_func(response):
+    """
+    [역할]: HTTP 헤더에 보안 설정(CSP, X-Frame-Options 등)을 삽입합니다.
+    [의존성 관계]: Flask Response
+    [변경 시 영향도]: 브라우저 클라이언트 측 보안 제어에 영향을 줍니다.
+    """
     # 폴링 요청 시에는 플라스크가 세션을 자동으로 갱신(Refresh)하지 못하게 세션 쿠키 발급을 차단
     if request.path == '/api/check_session':
         new_headers = []
@@ -516,6 +542,11 @@ def after_request_func(response):
 
 @app.route('/api/check_session', methods=['GET'])
 def check_session():
+    """
+    [역할]: 요청 전 세션 만료 및 다중 기기 강제 로그아웃 여부를 검증합니다.
+    [의존성 관계]: session, users 테이블
+    [변경 시 영향도]: 사이트 전체 접속 유지 기능에 영향을 줍니다.
+    """
     user = session.get('user')
     if not user or 'UserId' not in user:
         return jsonify({"valid": False, "reason": "session_expired"}), 401
@@ -535,7 +566,9 @@ def check_session():
 
 def migrate_users_session_token():
     """
-    [역할] 기존 users 테이블에 동시 로그인 방어를 위한 SessionToken 컬럼 추가
+    [역할]: 다중 기기 강제 로그아웃을 위한 세션 토큰 필드를 추가합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 사용자 세션 제어 스키마 관리에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -552,7 +585,9 @@ def migrate_users_session_token():
 
 def migrate_users_soft_delete():
     """
-    [제안-025] 기존 users 테이블에 Soft Delete 및 비활성화 관련 컬럼 추가
+    [역할]: 비활성화 및 탈퇴 유예 관련 필드를 DB에 추가합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 계정 소프트 딜리트 구조에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -576,7 +611,9 @@ run_migration_if_needed('migrate_users_soft_delete', migrate_users_soft_delete)
 
 def cleanup_migration_artifacts():
     """
-    [역할] 중복 실행된 마이그레이션으로 인해 생성된 잘못된(숫자 형태) 카테고리 및 제조사 가비지 데이터를 삭제합니다.
+    [역할]: 마이그레이션 중 생성된 임시 백업 테이블들을 삭제합니다.
+    [의존성 관계]: sqlite_master 테이블
+    [변경 시 영향도]: DB 파일 용량 및 무결성에 영향을 줍니다.
     """
     try:
         conn = get_db_connection()
@@ -603,11 +640,9 @@ run_migration_if_needed('cleanup_migration_artifacts', cleanup_migration_artifac
 
 def evaluate_user_lifecycle(user):
     """
-    [제안-025] 4단계 회원탈퇴 라이프사이클 지연 평가 (Lazy Evaluation)
-    Phase 1: 30일 유예 (IsDeactivated='Y', DeactivatedAt시각 지정)
-    Phase 2: 30일 경과 (IsDeleted='Y', DeletedAt시각 지정, 로그인 차단)
-    Phase 3: 1년(365일)+1일 경과 (DB Hard Delete & 장비 소유권 해제)
-    Phase 4: 재가입 복구 지원 (가입 API 분기)
+    [역할]: 사용자 탈퇴 유예기간(30일) 만료 여부를 실시간으로 평가합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 자진 탈퇴자 계정 파기 스케줄링에 영향을 줍니다.
     """
     if not user:
         return {"status": "NOT_FOUND"}
@@ -688,8 +723,18 @@ def evaluate_user_lifecycle(user):
 # ==========================================
 
 def login_required(f):
+    """
+    [역할]: 로그인 세션이 없는 사용자의 접근을 차단하고 리다이렉트합니다.
+    [의존성 관계]: session['user']
+    [변경 시 영향도]: 인증이 필요한 전역 라우터 접근 제어에 영향을 줍니다.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        """
+        [역할]: 데코레이터 래퍼 함수로 원본 함수 실행 전/후 처리를 담당합니다.
+        [의존성 관계]: 원본 함수(f)
+        [변경 시 영향도]: 데코레이터 적용 라우터의 인자 전달에 영향을 줍니다.
+        """
         user = session.get('user')
         session_token = session.get('session_token')
         
@@ -724,6 +769,11 @@ def login_required(f):
 
 
 def check_menu_permission(menu_code):
+    """
+    [역할]: 사용자가 특정 메뉴(화면)에 접근할 권한이 있는지 확인합니다.
+    [의존성 관계]: session, role_menu_permissions 테이블
+    [변경 시 영향도]: 페이지 403 에러 발생 로직에 영향을 줍니다.
+    """
     user = session.get('user')
     if not user:
         return False
@@ -745,11 +795,21 @@ def check_menu_permission(menu_code):
 
 @app.route('/favicon.ico')
 def favicon():
+    """
+    [역할]: 파비콘 이미지를 응답합니다.
+    [의존성 관계]: Resources/EqMgmt.ico
+    [변경 시 영향도]: 웹사이트 아이콘 표시에 영향을 줍니다.
+    """
     return send_from_directory(os.path.join(app.root_path, 'Resources'),
                                'EqMgmt.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.route('/')
 def index():
+    """
+    [역할]: 루트 경로 접속 시 로그인 상태에 따라 포털 또는 로그인 화면으로 분기합니다.
+    [의존성 관계]: session['user']
+    [변경 시 영향도]: 초기 진입 리다이렉션에 영향을 줍니다.
+    """
     user = session.get('user')
     if user and 'UserId' in user:
         return redirect(url_for('portal_page'))
@@ -759,6 +819,11 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login_page():
+    """
+    [역할]: 사용자 로그인 폼 검증 및 세션 생성 처리를 담당합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 로그인 인증 메커니즘 전반에 영향을 줍니다.
+    """
     if request.method == 'GET':
         user = session.get('user')
         if user and 'UserId' in user:
@@ -837,6 +902,11 @@ def login_page():
 @app.route('/deactivated_notice')
 @login_required
 def deactivated_notice_page():
+    """
+    [역할]: 계정 정지/비활성화 안내 화면을 렌더링합니다.
+    [의존성 관계]: deactivated.html
+    [변경 시 영향도]: 정지 회원 접근 안내 문구 표시에 영향을 줍니다.
+    """
     user = session.get('user', {})
     days_left = user.get('DeactivationDaysLeft', 30)
     return render_template('deactivated_notice.html', user=user, days_left=days_left)
@@ -844,6 +914,11 @@ def deactivated_notice_page():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
+    """
+    [역할]: 회원 가입 페이지 렌더링 및 신규 계정 생성을 처리합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 시스템 신규 회원 유입 프로세스에 영향을 줍니다.
+    """
     if request.method == 'GET':
         if 'csrf_token' not in session:
             session['csrf_token'] = secrets.token_hex(16)
@@ -939,6 +1014,11 @@ def register_page():
 
 @app.route('/logout')
 def logout():
+    """
+    [역할]: 현재 세션을 파기하고 사용자를 로그아웃 처리합니다.
+    [의존성 관계]: session
+    [변경 시 영향도]: 로그아웃 기능 동작에 영향을 줍니다.
+    """
     user = session.get('user')
     if user:
         if 'UserId' in user:
@@ -950,11 +1030,21 @@ def logout():
 @app.route('/portal')
 @login_required
 def portal_page():
+    """
+    [역할]: 로그인 후 표시되는 메인 포털 화면을 렌더링합니다.
+    [의존성 관계]: portal.html
+    [변경 시 영향도]: 사용자 대시보드 및 메뉴 링크 진입 화면에 영향을 줍니다.
+    """
     return render_template('portal.html', user=session['user'])
 
 
 @app.route('/equipment')
 def equipment_redirect():
+    """
+    [역할]: 레거시 장비 페이지 경로를 '나의 장비' 페이지로 리다이렉트합니다.
+    [의존성 관계]: my_equipment_page
+    [변경 시 영향도]: 기존 즐겨찾기 호환성에 영향을 줍니다.
+    """
     # 하위 호환성 (기존 URL로 올 경우 나의 장비로 리다이렉트)
     return redirect(url_for('my_equipment_page'))
 
@@ -962,6 +1052,11 @@ def equipment_redirect():
 @app.route('/my_equipment')
 @login_required
 def my_equipment_page():
+    """
+    [역할]: 사용자의 '나의 장비' 관리 화면을 렌더링합니다.
+    [의존성 관계]: equipment.html
+    [변경 시 영향도]: 본인 소유 장비 UI 접근에 영향을 줍니다.
+    """
     if not check_menu_permission('my_equipment'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('index.html', user=session['user'], mode='my')
@@ -970,6 +1065,11 @@ def my_equipment_page():
 @app.route('/public_equipment')
 @login_required
 def public_equipment_page():
+    """
+    [역할]: 공개로 설정된 타인의 장비 목록 조회 화면을 렌더링합니다.
+    [의존성 관계]: public_equipment.html
+    [변경 시 영향도]: 공개 자산 뷰어 UI 접근에 영향을 줍니다.
+    """
     if not check_menu_permission('public_equipment'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('index.html', user=session['user'], mode='public')
@@ -978,6 +1078,11 @@ def public_equipment_page():
 @app.route('/permissions')
 @login_required
 def permissions_page():
+    """
+    [역할]: 관리자 전용 역할별 메뉴 권한 관리 화면을 렌더링합니다.
+    [의존성 관계]: permissions.html
+    [변경 시 영향도]: 권한 관리 UI 렌더링에 영향을 줍니다.
+    """
     if not check_menu_permission('permissions'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('permissions.html', user=session['user'])
@@ -998,6 +1103,11 @@ def audit_logs_page():
 @app.route('/users_management')
 @login_required
 def users_management_page():
+    """
+    [역할]: 관리자 전용 시스템 회원 통제 및 계정 정지 화면을 렌더링합니다.
+    [의존성 관계]: users_management.html
+    [변경 시 영향도]: 사용자 관리 UI 렌더링에 영향을 줍니다.
+    """
     if not check_menu_permission('users_management'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('users_management.html', user=session['user'])
@@ -1005,6 +1115,11 @@ def users_management_page():
 @app.route('/dashboard')
 @login_required
 def dashboard_page():
+    """
+    [역할]: 시스템 요약 통계(대시보드) 화면을 렌더링합니다.
+    [의존성 관계]: dashboard.html
+    [변경 시 영향도]: 통계 및 차트 UI 접근에 영향을 줍니다.
+    """
     if not check_menu_permission('dashboard'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('dashboard.html', user=session['user'])
@@ -1012,6 +1127,11 @@ def dashboard_page():
 @app.route('/mypage')
 @login_required
 def mypage_page():
+    """
+    [역할]: 로그인한 사용자의 정보 조회/수정(마이페이지) 화면을 렌더링합니다.
+    [의존성 관계]: mypage.html
+    [변경 시 영향도]: 개인정보 관리 화면 진입에 영향을 줍니다.
+    """
     # 마이페이지는 모든 로그인 사용자가 접근 가능하므로 메뉴 권한 체크 생략(또는 기본 허용)
     if 'csrf_token' not in session: session['csrf_token'] = secrets.token_hex(16)
     return render_template('mypage.html', user=session['user'], csrf_token=session['csrf_token'])
@@ -1019,6 +1139,11 @@ def mypage_page():
 @app.route('/approvals')
 @login_required
 def approvals_page():
+    """
+    [역할]: 관리자 전용 신규 마스터 데이터 결재/승인 화면을 렌더링합니다.
+    [의존성 관계]: approvals.html
+    [변경 시 영향도]: 승인 처리 UI 접근에 영향을 줍니다.
+    """
     if not check_menu_permission('approvals'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('approvals.html', user=session['user'])
@@ -1042,6 +1167,11 @@ def master_management_page():
 @app.route('/api/extend_session', methods=['POST'])
 @login_required
 def extend_session():
+    """
+    [역할]: 사용자의 현재 로그인 세션 만료 시간을 연장합니다.
+    [의존성 관계]: session.modified
+    [변경 시 영향도]: 타임아웃 팝업 연장 통신에 영향을 줍니다.
+    """
     session.modified = True
     return jsonify({"success": True, "message": "세션이 연장되었습니다."})
 
@@ -1515,7 +1645,9 @@ def api_user_withdraw_cancel():
 @csrf_required
 def api_update_email():
     """
-    [역할] 로그인된 사용자의 이메일을 변경합니다. 사전에 인증(verify_pin)이 완료되어야 합니다.
+    [역할]: 사용자 개인 이메일 정보를 변경 및 갱신합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 사용자 프로필 이메일 수정에 영향을 줍니다.
     """
     user = session['user']
     data = request.json or {}
@@ -2185,7 +2317,9 @@ def get_equipment():
 @login_required
 def add_equipment():
     """
-    [역할] 새로운 장비 데이터를 DB에 인서트(INSERT) 합니다. (임시저장 및 카테고리/제조사 관계형 ID 저장 연동)
+    [역할]: 사용자가 입력한 데이터를 바탕으로 신규 장비를 생성합니다.
+    [의존성 관계]: equipment 테이블
+    [변경 시 영향도]: 장비 추가 저장 로직에 영향을 줍니다.
     """
     data = request.json
     user = session['user']
@@ -2267,7 +2401,9 @@ def add_equipment():
 @login_required
 def update_equipment(eq_id):
     """
-    [역할] 기존 장비의 데이터를 수정(UPDATE) 합니다. (관계형 ID 매핑 연동)
+    [역할]: 기존에 등록된 장비의 상세 정보를 갱신합니다.
+    [의존성 관계]: equipment 테이블
+    [변경 시 영향도]: 장비 수정 저장 로직에 영향을 줍니다.
     """
     data = request.json
     user = session['user']
@@ -2689,8 +2825,9 @@ def merge_master_items(target_type, target_id):
 @csrf_required
 def api_send_pin_logic():
     """
-    [역할] 이메일로 6자리 핀(PIN) 코드를 발송하는 API (Rule 4-5 해시 저장 및 속도 제한 방어 적용)
-    [의존성 관계] email_verifications 테이블, utils.mailer.send_email()
+    [역할]: 비밀번호 찾기 시 이메일 기반 인증 핀 번호를 발송(모의)합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 비밀번호 리셋 1단계 통신에 영향을 줍니다.
     """
     data = request.json or {}
     email = data.get('email', '').strip()
@@ -2738,8 +2875,9 @@ def api_send_pin_logic():
 @csrf_required
 def api_verify_pin_logic():
     """
-    [역할] 입력된 PIN 코드를 해시 대조하여 이메일 인증을 완료 처리하는 API
-    [의존성 관계] email_verifications 테이블, werkzeug.security
+    [역할]: 사용자가 제출한 인증 핀이 유효한지 검사합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 비밀번호 리셋 2단계 검증에 영향을 줍니다.
     """
     data = request.json or {}
     email = data.get('email', '').strip()
@@ -2768,8 +2906,9 @@ def api_verify_pin_logic():
 @csrf_required
 def api_request_password_reset_logic():
     """
-    [역할] 비밀번호 재설정 요청 시 1회용 난수 토큰(해시 저장)과 URL을 메일로 발송하는 API
-    [의존성 관계] password_resets, utils.mailer
+    [역할]: 관리자 기반의 구형 비밀번호 초기화를 요청합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 수동 비밀번호 초기화 플로우에 영향을 줍니다.
     """
     data = request.json or {}
     email = data.get('email', '').strip()
@@ -2809,6 +2948,11 @@ def api_request_password_reset_logic():
 
 @app.route('/reset_password', methods=['GET'])
 def reset_password_page():
+    """
+    [역할]: 핀 번호 인증 후 비밀번호 재설정 페이지를 렌더링합니다.
+    [의존성 관계]: reset_password.html
+    [변경 시 영향도]: 새 비밀번호 입력 화면 렌더링에 영향을 줍니다.
+    """
     if 'csrf_token' not in session: session['csrf_token'] = secrets.token_hex(16)
     return render_template('reset_password.html', csrf_token=session['csrf_token'])
 
@@ -2817,8 +2961,9 @@ def reset_password_page():
 @csrf_required
 def api_reset_password_logic():
     """
-    [역할] 비밀번호 재설정 실행 API (세션 무효화 및 감사 로그 포함)
-    [의존성 관계] password_resets, users
+    [역할]: 검증을 통과한 사용자의 새 비밀번호를 해싱하여 최종 갱신합니다.
+    [의존성 관계]: users 테이블
+    [변경 시 영향도]: 비밀번호 최종 변경 처리에 영향을 줍니다.
     """
     data = request.json or {}
     token = data.get('token', '').strip()

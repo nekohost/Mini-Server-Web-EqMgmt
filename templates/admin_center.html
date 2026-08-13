@@ -1,0 +1,54 @@
+{% extends 'miniserver_frame.html' %}
+{% block title %}관리자 센터 - EqMgmt{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h2 class="text-2xl font-bold text-slate-800">👑 관리자 센터</h2>
+    <p class="text-slate-500 text-sm mt-1">시스템 관리자 전용 메뉴 허브입니다.</p>
+</div>
+
+<!-- 서브 메뉴들이 렌더링 될 그리드 -->
+<div id="admin-menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <!-- 자바스크립트로 렌더링 -->
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    fetch('/api/menus/children/admin_center')
+        .then(res => res.json())
+        .then(menus => {
+            const grid = document.getElementById('admin-menus-grid');
+            grid.innerHTML = '';
+            
+            if(menus.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500">할당된 관리자 메뉴가 없습니다.</div>`;
+                return;
+            }
+
+            menus.forEach(menu => {
+                const icon = menu.MenuName.match(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/);
+                const displayIcon = icon ? icon[0] : '📌';
+                const displayName = menu.MenuName.replace(displayIcon, '').trim();
+
+                const cardHtml = `
+                    <a href="${menu.Url}" class="group block bg-white rounded-xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-blue-300 transition-all duration-200 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 bg-blue-50 rounded-full opacity-50 group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                        <div class="relative z-10 flex flex-col h-full">
+                            <div class="flex items-center mb-4">
+                                <span class="text-4xl mr-3 bg-slate-50 p-2 rounded-lg group-hover:bg-blue-50 transition-colors">${displayIcon}</span>
+                                <h3 class="text-lg font-bold text-slate-800 group-hover:text-blue-700 transition-colors">${displayName}</h3>
+                            </div>
+                            <p class="text-sm text-slate-500 flex-grow leading-relaxed">${menu.Description || '설명 없음'}</p>
+                        </div>
+                    </a>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        })
+        .catch(err => {
+            console.error('관리자 메뉴 조회 실패:', err);
+            document.getElementById('admin-menus-grid').innerHTML = `<div class="col-span-full text-center py-10 text-red-500">메뉴를 불러오는 중 오류가 발생했습니다.</div>`;
+        });
+});
+</script>
+{% endblock %}
