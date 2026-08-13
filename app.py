@@ -1139,7 +1139,7 @@ def admin_center_page():
     """
     if not check_menu_permission('admin_center'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
-    return render_template('admin_center.html')
+    return render_template('admin_center.html', user=session.get('user'))
 
 @app.route('/permissions')
 @login_required
