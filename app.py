@@ -125,6 +125,8 @@ def init_db():
             MenuName TEXT NOT NULL,
             Url TEXT NOT NULL,
             Description TEXT,
+            ParentMenuCode TEXT,
+            SortOrder INTEGER DEFAULT 0,
             CreatedAt TEXT,
             UpdatedAt TEXT
         )
@@ -217,22 +219,22 @@ def init_db():
     cursor.execute("DELETE FROM menus WHERE MenuCode = 'equipment'")
     cursor.execute("DELETE FROM role_menu_permissions WHERE MenuCode = 'equipment'")
     
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('my_equipment', '나의 장비', '/my_equipment', '내 장비 등록 및 관리', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('public_equipment', '공개된 장비', '/public_equipment', '공개된 장비 및 전체 장비 조회', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('audit_logs', '보안 감사 로그', '/audit_logs', '시스템 접근 이력 및 감사 로그 조회', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('users_management', '사용자 관리', '/users_management', '전체 사용자 권한 및 계정 관리', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('dashboard', '통계 대시보드', '/dashboard', '장비 통계 및 상세 현황 조회', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('approvals', '전자결재함', '/approvals', '전자결재 요청 및 승인 관리', now, now))
-    cursor.execute("INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, CreatedAt, UpdatedAt) VALUES (?, ?, ?, ?, ?, ?)",
-                   ('master_management', '마스터 데이터 관리', '/master_management', '카테고리 및 제조사 마스터 관리', now, now))
+    default_menus = [
+        ('my_equipment', '나의 장비', '/my_equipment', '내 장비 등록 및 관리', None, 1),
+        ('public_equipment', '공개된 장비', '/public_equipment', '공개된 장비 및 전체 장비 조회', None, 2),
+        ('dashboard', '통계 대시보드', '/dashboard', '장비 통계 및 상세 현황 조회', None, 3),
+        ('admin_center', '관리자 센터', '/admin_center', '시스템 관리자 전용 메뉴 허브', None, 4),
+        ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', 'admin_center', 1),
+        ('audit_logs', '보안 감사 로그', '/audit_logs', '시스템 접근 이력 및 감사 로그 조회', 'admin_center', 2),
+        ('users_management', '사용자 관리', '/users_management', '전체 사용자 권한 및 계정 관리', 'admin_center', 3),
+        ('approvals', '전자결재함', '/approvals', '전자결재 요청 및 승인 관리', 'admin_center', 4),
+        ('master_management', '마스터 데이터 관리', '/master_management', '카테고리 및 제조사 마스터 관리', 'admin_center', 5)
+    ]
+    for m in default_menus:
+        cursor.execute('''
+            INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (m[0], m[1], m[2], m[3], m[4], m[5], now, now))
 
     # 기본 권한 등록 (admin: 전체 허용, user: 나의 장비 및 공개된 장비, 전자결재 허용)
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'my_equipment', 1, now))
@@ -243,6 +245,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'dashboard', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'approvals', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'master_management', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'admin_center', 1, now))
     
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
@@ -283,6 +286,52 @@ def run_migration_if_needed(migration_name, migration_func):
         except Exception as e:
             print(f"[Migration Manager] Error applying '{migration_name}': {e}")
     conn.close()
+
+def migrate_menu_hierarchy():
+    """
+    [역할]: 제안-035 관리자 센터 도입에 따른 메뉴 계층화 마이그레이션 (ParentMenuCode, SortOrder 추가 및 데이터 재정렬)
+    [의존성 관계]: menus 테이블
+    [변경 시 영향도]: 메인 포털 화면과 관리자 센터의 메뉴 노출 구조를 완전히 바꿉니다.
+    """
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute("PRAGMA table_info(menus)")
+        columns = [col['name'] for col in cursor.fetchall()]
+        if 'ParentMenuCode' not in columns:
+            cursor.execute("ALTER TABLE menus ADD COLUMN ParentMenuCode TEXT")
+        if 'SortOrder' not in columns:
+            cursor.execute("ALTER TABLE menus ADD COLUMN SortOrder INTEGER DEFAULT 0")
+            
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        cursor.execute('''
+            INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', ('admin_center', '관리자 센터', '/admin_center', '시스템 관리자 전용 메뉴 허브', None, 4, now, now))
+        
+        sub_menus = [('permissions', 1), ('audit_logs', 2), ('users_management', 3), ('approvals', 4), ('master_management', 5)]
+        for menu_code, sort_order in sub_menus:
+            cursor.execute('''
+                UPDATE menus SET ParentMenuCode = 'admin_center', SortOrder = ? WHERE MenuCode = ?
+            ''', (sort_order, menu_code))
+            
+        cursor.execute("SELECT Role FROM role_menu_permissions WHERE MenuCode = 'permissions' AND IsAllowed = 1")
+        admin_roles = [r['Role'] for r in cursor.fetchall()]
+        for role in admin_roles:
+            cursor.execute('''
+                INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt)
+                VALUES (?, 'admin_center', 1, ?)
+            ''', (role, now))
+            
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[Migration Error] migrate_menu_hierarchy: {str(e)}")
+
+
+run_migration_if_needed('menu_hierarchy', migrate_menu_hierarchy)
 
 def migrate_equipment_is_public():
     """
@@ -1074,6 +1123,17 @@ def public_equipment_page():
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('index.html', user=session['user'], mode='public')
 
+
+@app.route('/admin_center')
+@login_required
+@check_menu_permission('admin_center')
+def admin_center_page():
+    """
+    [역할]: 관리자 센터 메인 페이지 렌더링
+    [의존성 관계]: admin_center.html 템플릿
+    [변경 시 영향도]: 관리자 메뉴들의 허브 페이지 접근에 영향을 줍니다.
+    """
+    return render_template('admin_center.html')
 
 @app.route('/permissions')
 @login_required
@@ -2076,19 +2136,47 @@ def get_portal_menus():
     cursor = conn.cursor()
     
     if role == 'admin':
-        cursor.execute("SELECT * FROM menus ORDER BY MenuId ASC")
+        cursor.execute("SELECT * FROM menus WHERE ParentMenuCode IS NULL ORDER BY SortOrder ASC, MenuId ASC")
     else:
         cursor.execute('''
             SELECT m.* FROM menus m
             JOIN role_menu_permissions p ON m.MenuCode = p.MenuCode
-            WHERE p.Role = ? AND p.IsAllowed = 1
-            ORDER BY m.MenuId ASC
+            WHERE p.Role = ? AND p.IsAllowed = 1 AND m.ParentMenuCode IS NULL
+            ORDER BY m.SortOrder ASC, m.MenuId ASC
         ''', (role,))
         
     rows = cursor.fetchall()
     conn.close()
     
     return jsonify([dict(row) for row in rows])
+
+@app.route('/api/menus/children/<parent_code>')
+@login_required
+def get_children_menus(parent_code):
+    """
+    [역할]: 특정 부모 메뉴에 속한 자식 메뉴들 중 현재 사용자 권한이 허용된 목록만 반환
+    [의존성 관계]: menus, role_menu_permissions 테이블
+    [변경 시 영향도]: 관리자 센터 내부 서브 메뉴 렌더링에 영향을 줍니다.
+    """
+    user = session['user']
+    role = user['Role']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    if role == 'admin':
+        cursor.execute("SELECT * FROM menus WHERE ParentMenuCode = ? ORDER BY SortOrder ASC", (parent_code,))
+    else:
+        cursor.execute('''
+            SELECT m.* FROM menus m
+            JOIN role_menu_permissions p ON m.MenuCode = p.MenuCode
+            WHERE p.Role = ? AND p.IsAllowed = 1 AND m.ParentMenuCode = ?
+            ORDER BY m.SortOrder ASC
+        ''', (role, parent_code))
+        
+    menus = [dict(r) for r in cursor.fetchall()]
+    conn.close()
+    return jsonify(menus)
 
 
 # 사용자 검색 API (관리자용)
@@ -2542,10 +2630,10 @@ def get_permissions():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT p.*, m.MenuName 
+        SELECT p.*, m.MenuName, m.ParentMenuCode, m.SortOrder 
         FROM role_menu_permissions p
         JOIN menus m ON p.MenuCode = m.MenuCode
-        ORDER BY p.Role ASC, m.MenuId ASC
+        ORDER BY p.Role ASC, m.SortOrder ASC, m.MenuId ASC
     ''')
     rows = cursor.fetchall()
     conn.close()
@@ -2574,6 +2662,34 @@ def update_permissions():
     
     cursor.execute("SELECT * FROM role_menu_permissions")
     old_perms = [dict(r) for r in cursor.fetchall()]
+    
+    # 조상 검증 로직 (Recursive Ancestor Validation)
+    def is_ancestor_missing(role, child_code):
+        pass # Not used directly this way to avoid recursion, doing it iteratively instead
+
+    cursor.execute("SELECT MenuCode, ParentMenuCode FROM menus")
+    menus_meta = {r['MenuCode']: r['ParentMenuCode'] for r in cursor.fetchall()}
+    
+    future_perms = {}
+    for r in old_perms:
+        if r['Role'] not in future_perms: future_perms[r['Role']] = {}
+        future_perms[r['Role']][r['MenuCode']] = r['IsAllowed']
+        
+    for item in data:
+        role = item['Role']
+        if role not in future_perms: future_perms[role] = {}
+        future_perms[role][item['MenuCode']] = item['IsAllowed']
+        
+    # 부모-자식 모순 검증
+    for role, perms in future_perms.items():
+        for menu_code, is_allowed in perms.items():
+            if is_allowed:
+                parent = menus_meta.get(menu_code)
+                while parent:
+                    if not perms.get(parent, 0):
+                        conn.close()
+                        return jsonify({"error": f"하위 메뉴({menu_code})가 활성화되었으나 상위 메뉴({parent})가 비활성화 상태입니다. 권한 구조가 모순됩니다."}), 400
+                    parent = menus_meta.get(parent)
     
     for item in data:
         cursor.execute('''
