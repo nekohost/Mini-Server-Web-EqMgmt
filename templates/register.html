@@ -137,7 +137,7 @@
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': window.getCSRFToken()
                 },
                 body: JSON.stringify({ email })
             });
@@ -173,7 +173,7 @@
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': window.getCSRFToken()
                 },
                 body: JSON.stringify({ email, pin })
             });
@@ -203,5 +203,56 @@
             alert('서버 통신 오류가 발생했습니다.');
         }
     }
+
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!isEmailVerified) {
+            alert('이메일 인증을 완료해 주세요.');
+            return;
+        }
+
+        const LoginId = document.getElementById('LoginId').value.trim();
+        const Name = document.getElementById('Name').value.trim();
+        const NickName = document.getElementById('NickName').value.trim();
+        const Password = document.getElementById('Password').value;
+        const PasswordConfirm = document.getElementById('PasswordConfirm').value;
+        const Email = document.getElementById('Email').value.trim();
+        const errorDiv = document.getElementById('errorMessage');
+
+        errorDiv.classList.add('hidden');
+
+        if (Password !== PasswordConfirm) {
+            errorDiv.innerText = '비밀번호가 일치하지 않습니다.';
+            errorDiv.classList.remove('hidden');
+            return;
+        }
+
+        try {
+            if (typeof showGlobalLoading === 'function') showGlobalLoading('회원가입 처리 중...');
+            const res = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
+                body: JSON.stringify({ LoginId, Name, NickName, Password, Email })
+            });
+
+            const data = await res.json();
+            if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
+
+            if (res.ok && data.success) {
+                alert(data.message || '회원가입이 완료되었습니다!');
+                location.href = '/login';
+            } else {
+                errorDiv.innerText = data.message || '회원가입에 실패했습니다.';
+                errorDiv.classList.remove('hidden');
+            }
+        } catch (err) {
+            if (typeof hideGlobalLoading === 'function') hideGlobalLoading();
+            errorDiv.innerText = '서버 통신 오류가 발생했습니다.';
+            errorDiv.classList.remove('hidden');
+        }
+    });
 </script>
 {% endblock %}

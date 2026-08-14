@@ -37,3 +37,14 @@ window.hideGlobalLoading = function() {
         overlay.classList.remove('flex');
     }
 };
+
+/**
+ * [역할]: 메타 태그에 정의된 전역 CSRF 토큰을 반환합니다.
+ * [의존성 관계]: root_frame.html의 <meta name="csrf-token"> 요소
+ * [변경 시 영향도]: 모든 비동기 상태 변경(fetch) 요청 시 CSRF 토큰 헤더 탑재에 영향을 줍니다.
+ * @returns {string} CSRF 토큰 문자열
+ */
+window.getCSRFToken = function() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : '';
+};

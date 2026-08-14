@@ -210,7 +210,10 @@
             showGlobalLoading();
             const res = await fetch(`/api/approvals/${reqId}/process`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({
                     action: action,
                     reject_reason: rejectReason,

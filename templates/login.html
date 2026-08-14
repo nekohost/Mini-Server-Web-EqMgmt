@@ -79,7 +79,10 @@
         try {
             const res = await fetch('/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ LoginId, Password })
             });
 
@@ -124,7 +127,7 @@
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': window.getCSRFToken()
                 },
                 body: JSON.stringify({ email })
             });

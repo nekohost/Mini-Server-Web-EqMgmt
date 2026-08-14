@@ -556,11 +556,23 @@ def migrate_email_features():
 
 run_migration_if_needed('proposal_030_email_auth', migrate_email_features)
 
+@app.context_processor
+def inject_csrf_token():
+    """
+    [역할]: 모든 템플릿 렌더링 시 세션 기반 CSRF 토큰을 전역으로 주입하고, 누락 시 신규 생성합니다.
+    [의존성 관계]: session['csrf_token'], secrets 모듈
+    [변경 시 영향도]: 모든 프론트엔드 템플릿의 CSRF 보안 토큰 가용성에 영향을 줍니다.
+    """
+    if 'csrf_token' not in session:
+        session['csrf_token'] = secrets.token_hex(16)
+    return dict(csrf_token=session['csrf_token'])
+
+
 def csrf_required(f):
     """
     [역할]: 변경 요청 시 클라이언트의 CSRF 토큰을 검증하는 데코레이터입니다.
     [의존성 관계]: session['csrf_token']
-    [변경 시 영향도]: POST, PUT, DELETE API 통신 보안에 영향을 줍니다.
+    [변경 시 영향도]: POST, PUT, DELETE, PATCH API 통신 보안에 영향을 줍니다.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -569,7 +581,7 @@ def csrf_required(f):
         [의존성 관계]: 원본 함수(f)
         [변경 시 영향도]: 데코레이터 적용 라우터의 인자 전달에 영향을 줍니다.
         """
-        if request.method == "POST":
+        if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
             token = request.headers.get('X-CSRFToken')
             if not token or token != session.get('csrf_token'):
                 return jsonify({"success": False, "message": "CSRF 토큰 검증에 실패했습니다. 새로고침 후 다시 시도해 주세요."}), 403
@@ -885,9 +897,7 @@ def login_page():
                 return redirect(url_for('deactivated_notice_page'))
             return redirect(url_for('portal_page'))
         session.pop('user', None)
-        if 'csrf_token' not in session:
-            session['csrf_token'] = secrets.token_hex(16)
-        return render_template('login.html', csrf_token=session['csrf_token'])
+        return render_template('login.html')
     
     data = request.json or request.form
     login_id = data.get('LoginId')
@@ -958,7 +968,7 @@ def login_page():
 def deactivated_notice_page():
     """
     [역할]: 계정 정지/비활성화 안내 화면을 렌더링합니다.
-    [의존성 관계]: deactivated.html
+    [의존성 관계]: deactivated_notice.html
     [변경 시 영향도]: 정지 회원 접근 안내 문구 표시에 영향을 줍니다.
     """
     user = session.get('user', {})
@@ -970,13 +980,11 @@ def deactivated_notice_page():
 def register_page():
     """
     [역할]: 회원 가입 페이지 렌더링 및 신규 계정 생성을 처리합니다.
-    [의존성 관계]: users 테이블
+    [의존성 관계]: users 테이블, email_verifications 테이블
     [변경 시 영향도]: 시스템 신규 회원 유입 프로세스에 영향을 줍니다.
     """
     if request.method == 'GET':
-        if 'csrf_token' not in session:
-            session['csrf_token'] = secrets.token_hex(16)
-        return render_template('register.html', csrf_token=session['csrf_token'])
+        return render_template('register.html')
         
     data = request.json
     login_id = data.get('LoginId')
@@ -1057,13 +1065,11 @@ def register_page():
         conn.commit()
         conn.close()
         
+        log_audit(new_id, login_id, 'REGISTER', 'users', new_id, None, {"LoginId": login_id, "Role": role})
         return jsonify({"success": True, "message": "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요."})
     except sqlite3.IntegrityError:
         conn.close()
         return jsonify({"success": False, "message": "이미 다른 계정에 등록되어 사용 중인 이메일 주소입니다."}), 400
-    
-    log_audit(new_id, login_id, 'REGISTER', 'users', new_id, None, {"LoginId": login_id, "Role": role})
-    return jsonify({"success": True, "message": "회원가입이 완료되었습니다!"})
 
 
 @app.route('/logout')
@@ -1108,7 +1114,7 @@ def equipment_redirect():
 def my_equipment_page():
     """
     [역할]: 사용자의 '나의 장비' 관리 화면을 렌더링합니다.
-    [의존성 관계]: equipment.html
+    [의존성 관계]: index.html
     [변경 시 영향도]: 본인 소유 장비 UI 접근에 영향을 줍니다.
     """
     if not check_menu_permission('my_equipment'):
@@ -1121,7 +1127,7 @@ def my_equipment_page():
 def public_equipment_page():
     """
     [역할]: 공개로 설정된 타인의 장비 목록 조회 화면을 렌더링합니다.
-    [의존성 관계]: public_equipment.html
+    [의존성 관계]: index.html
     [변경 시 영향도]: 공개 자산 뷰어 UI 접근에 영향을 줍니다.
     """
     if not check_menu_permission('public_equipment'):
@@ -1199,8 +1205,7 @@ def mypage_page():
     [변경 시 영향도]: 개인정보 관리 화면 진입에 영향을 줍니다.
     """
     # 마이페이지는 모든 로그인 사용자가 접근 가능하므로 메뉴 권한 체크 생략(또는 기본 허용)
-    if 'csrf_token' not in session: session['csrf_token'] = secrets.token_hex(16)
-    return render_template('mypage.html', user=session['user'], csrf_token=session['csrf_token'])
+    return render_template('mypage.html', user=session['user'])
 
 @app.route('/approvals')
 @login_required
@@ -1232,6 +1237,7 @@ def master_management_page():
 
 @app.route('/api/extend_session', methods=['POST'])
 @login_required
+@csrf_required
 def extend_session():
     """
     [역할]: 사용자의 현재 로그인 세션 만료 시간을 연장합니다.
@@ -1256,6 +1262,7 @@ def get_current_user():
 # ------------------------------------------
 @app.route('/api/user_settings', methods=['GET', 'POST'])
 @login_required
+@csrf_required
 def api_user_settings():
     """
     [역할] 로그인한 사용자의 UI 설정(테마 등)을 조회하거나 저장(UPSERT)합니다.
@@ -1606,6 +1613,7 @@ def api_dashboard_master_options():
 # ------------------------------------------
 @app.route('/api/change_password', methods=['POST'])
 @login_required
+@csrf_required
 def api_change_my_password():
     """
     [역할] 로그인된 사용자가 본인의 비밀번호를 변경합니다.
@@ -1638,6 +1646,7 @@ def api_change_my_password():
 
 @app.route('/api/users/withdraw', methods=['POST'])
 @login_required
+@csrf_required
 def api_user_withdraw():
     """
     [역할] 회원이 자진 탈퇴를 신청하고 30일 비활성화 유예 기간을 시작합니다.
@@ -1681,6 +1690,7 @@ def api_user_withdraw():
 
 @app.route('/api/users/withdraw/cancel', methods=['POST'])
 @login_required
+@csrf_required
 def api_user_withdraw_cancel():
     """
     [역할] 비활성화 유예 기간(30일) 내에 있는 사용자가 탈퇴 신청을 철회하고 계정을 복구합니다.
@@ -1858,6 +1868,7 @@ def api_get_users():
 
 @app.route('/api/users/<int:target_user_id>/toggle_deactivation', methods=['POST'])
 @login_required
+@csrf_required
 def api_toggle_user_deactivation(target_user_id):
     """
     [역할] 관리자가 특정 사용자의 계정을 강제로 무기한 비활성화(정지)하거나 다시 활성화합니다.
@@ -1896,6 +1907,7 @@ def api_toggle_user_deactivation(target_user_id):
 
 @app.route('/api/users/deactivate_selected', methods=['POST'])
 @login_required
+@csrf_required
 def api_deactivate_selected_users():
     """
     [역할] 관리자가 선택한 다수의 사용자 계정을 일괄적으로 비활성화(정지)하거나 활성화합니다.
@@ -1939,6 +1951,7 @@ def api_deactivate_selected_users():
 
 @app.route('/api/users/<int:target_user_id>/role', methods=['PUT'])
 @login_required
+@csrf_required
 def api_update_user_role(target_user_id):
     """
     [역할] 특정 사용자의 권한(Role)을 관리자가 변경(user ↔ admin)합니다.
@@ -1972,6 +1985,7 @@ def api_update_user_role(target_user_id):
 
 @app.route('/api/users/<int:target_user_id>/reset_password', methods=['POST'])
 @login_required
+@csrf_required
 def api_reset_user_password(target_user_id):
     """
     [역할] 관리자가 특정 사용자의 비밀번호를 입력받은 임시 비밀번호로 강제 초기화합니다.
@@ -2000,6 +2014,7 @@ def api_reset_user_password(target_user_id):
 # ------------------------------------------
 @app.route('/api/system/force_logout/all', methods=['POST'])
 @login_required
+@csrf_required
 def api_force_logout_all():
     """
     [역할] 본인(또는 전체)을 제외한 모든 사용자의 세션 토큰을 갱신하여 강제 로그아웃 시킵니다.
@@ -2035,6 +2050,7 @@ def api_force_logout_all():
 
 @app.route('/api/system/force_logout/selected', methods=['POST'])
 @login_required
+@csrf_required
 def api_force_logout_selected():
     """
     [역할] 관리자가 선택한 특정 유저들의 세션 토큰을 일괄 갱신하여 강제 로그아웃 시킵니다.
@@ -2071,6 +2087,7 @@ def api_force_logout_selected():
 # ------------------------------------------
 @app.route('/api/users/delete_selected', methods=['POST'])
 @login_required
+@csrf_required
 def api_delete_selected_users():
     """
     [역할] 관리자가 선택한 다수의 유저 계정을 영구 파기(Hard Delete)하고, 이들의 소유 장비를 공개로 이관합니다.
@@ -2219,9 +2236,6 @@ def search_users():
 # ------------------------------------------
 # [제안-011] 마스터 데이터 조회 API
 # ------------------------------------------
-# ------------------------------------------
-# [제안-011] 마스터 데이터 조회 API
-# ------------------------------------------
 @app.route('/api/master_data', methods=['GET'])
 @login_required
 def get_master_data():
@@ -2278,6 +2292,7 @@ def get_approvals():
 
 @app.route('/api/approvals/<int:req_id>/process', methods=['POST'])
 @login_required
+@csrf_required
 def process_approval(req_id):
     """
     [역할] 관리자가 전자결재(마스터 데이터 추가) 건을 승인하거나 반려(대체 처리) 수행
@@ -2409,6 +2424,7 @@ def get_equipment():
 # 장비 등록
 @app.route('/api/equipment', methods=['POST'])
 @login_required
+@csrf_required
 def add_equipment():
     """
     [역할]: 사용자가 입력한 데이터를 바탕으로 신규 장비를 생성합니다.
@@ -2493,6 +2509,7 @@ def add_equipment():
 # 장비 수정
 @app.route('/api/equipment/<int:eq_id>', methods=['PUT'])
 @login_required
+@csrf_required
 def update_equipment(eq_id):
     """
     [역할]: 기존에 등록된 장비의 상세 정보를 갱신합니다.
@@ -2592,6 +2609,7 @@ def update_equipment(eq_id):
 # 장비 삭제
 @app.route('/api/equipment/<int:eq_id>', methods=['DELETE'])
 @login_required
+@csrf_required
 def delete_equipment(eq_id):
     """
     [역할] 특정 장비를 DB에서 완전히 삭제(DELETE) 합니다.
@@ -2657,6 +2675,7 @@ def get_permissions():
 # 권한 설정 수정
 @app.route('/api/permissions', methods=['POST'])
 @login_required
+@csrf_required
 def update_permissions():
     """
     [역할] 변경된 권한 리스트를 DB에 갱신(UPSERT) 합니다. (관리자 전용)
@@ -2676,10 +2695,6 @@ def update_permissions():
     cursor.execute("SELECT * FROM role_menu_permissions")
     old_perms = [dict(r) for r in cursor.fetchall()]
     
-    # 조상 검증 로직 (Recursive Ancestor Validation)
-    def is_ancestor_missing(role, child_code):
-        pass # Not used directly this way to avoid recursion, doing it iteratively instead
-
     cursor.execute("SELECT MenuCode, ParentMenuCode FROM menus")
     menus_meta = {r['MenuCode']: r['ParentMenuCode'] for r in cursor.fetchall()}
     
@@ -2723,6 +2738,7 @@ def update_permissions():
 # ------------------------------------------
 @app.route('/api/master/manage/<target_type>', methods=['GET', 'POST'])
 @login_required
+@csrf_required
 def get_or_create_master_management_item(target_type):
     """
     [역할] 관리자 전용 마스터 데이터 (카테고리/제조사) 전체 목록 조회 및 신규 항목 생성
@@ -2796,6 +2812,7 @@ def get_or_create_master_management_item(target_type):
 
 @app.route('/api/master/manage/<target_type>/delete_selected', methods=['POST'])
 @login_required
+@csrf_required
 def delete_selected_master_items(target_type):
     """
     [역할] 관리자 전용 마스터 데이터 (카테고리/제조사) 선택 항목 일괄 삭제
@@ -2836,6 +2853,7 @@ def delete_selected_master_items(target_type):
 
 @app.route('/api/master/manage/<target_type>/<int:item_id>', methods=['PUT', 'DELETE'])
 @login_required
+@csrf_required
 def update_or_delete_master_item(target_type, item_id):
     """
     [역할] 특정 마스터 데이터(카테고리/제조사) 수정 또는 삭제
@@ -2901,6 +2919,7 @@ def update_or_delete_master_item(target_type, item_id):
 
 @app.route('/api/master/manage/<target_type>/<int:target_id>/merge_from', methods=['POST'])
 @login_required
+@csrf_required
 def merge_master_items(target_type, target_id):
     """
     [역할] 선택한 여러 마스터 데이터(Source)를 기준 마스터(Target)로 통폐합(Merge) 수행
@@ -2954,9 +2973,9 @@ def merge_master_items(target_type, target_id):
 @csrf_required
 def api_send_pin_logic():
     """
-    [역할]: 비밀번호 찾기 시 이메일 기반 인증 핀 번호를 발송(모의)합니다.
-    [의존성 관계]: users 테이블
-    [변경 시 영향도]: 비밀번호 리셋 1단계 통신에 영향을 줍니다.
+    [역할]: 비밀번호 찾기 시 이메일 기반 인증 핀 번호를 MS Graph API를 통해 발송합니다.
+    [의존성 관계]: email_verifications 테이블, send_email()
+    [변경 시 영향도]: 비밀번호 리셋 1단계 인증 통신에 영향을 줍니다.
     """
     data = request.json or {}
     email = data.get('email', '').strip()
@@ -3005,7 +3024,7 @@ def api_send_pin_logic():
 def api_verify_pin_logic():
     """
     [역할]: 사용자가 제출한 인증 핀이 유효한지 검사합니다.
-    [의존성 관계]: users 테이블
+    [의존성 관계]: email_verifications 테이블, check_password_hash()
     [변경 시 영향도]: 비밀번호 리셋 2단계 검증에 영향을 줍니다.
     """
     data = request.json or {}
@@ -3035,9 +3054,9 @@ def api_verify_pin_logic():
 @csrf_required
 def api_request_password_reset_logic():
     """
-    [역할]: 관리자 기반의 구형 비밀번호 초기화를 요청합니다.
-    [의존성 관계]: users 테이블
-    [변경 시 영향도]: 수동 비밀번호 초기화 플로우에 영향을 줍니다.
+    [역할]: 사용자 셀프서비스 이메일 기반 비밀번호 재설정 링크 발송을 처리합니다.
+    [의존성 관계]: password_resets 테이블, send_email()
+    [변경 시 영향도]: 이메일 기반 비밀번호 재설정 플로우에 영향을 줍니다.
     """
     data = request.json or {}
     email = data.get('email', '').strip()
@@ -3082,8 +3101,7 @@ def reset_password_page():
     [의존성 관계]: reset_password.html
     [변경 시 영향도]: 새 비밀번호 입력 화면 렌더링에 영향을 줍니다.
     """
-    if 'csrf_token' not in session: session['csrf_token'] = secrets.token_hex(16)
-    return render_template('reset_password.html', csrf_token=session['csrf_token'])
+    return render_template('reset_password.html')
 
 
 @app.route('/api/auth/reset_password', methods=['POST'])

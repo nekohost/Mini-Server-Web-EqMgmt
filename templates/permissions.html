@@ -135,16 +135,13 @@
     async function savePermissions() {
         if (!confirm('변경된 권한 설정을 저장하시겠습니까?')) return;
         
-        const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
-        const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
-        
         try {
             if (typeof showGlobalLoading === 'function') showGlobalLoading();
             const res = await fetch('/api/permissions', {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrfToken
+                    'X-CSRFToken': window.getCSRFToken()
                 },
                 body: JSON.stringify(currentPermissions) // 배열 그대로 전송
             });

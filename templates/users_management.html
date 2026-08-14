@@ -151,7 +151,10 @@
             showGlobalLoading();
             const res = await fetch(`/api/users/${userId}/role`, {
                 method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ role: newRole })
             });
             const json = await res.json();
@@ -189,7 +192,10 @@
             showGlobalLoading();
             const res = await fetch(`/api/users/${userId}/reset_password`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ temp_password: tempPw })
             });
             const json = await res.json();
@@ -251,7 +257,10 @@
             showGlobalLoading();
             const res = await fetch(`/api/users/${userId}/toggle_deactivation`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ deactivate: !isCurrentlyDeactivated })
             });
             const json = await res.json();
@@ -281,7 +290,10 @@
             showGlobalLoading();
             const res = await fetch('/api/users/deactivate_selected', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ user_ids: userIds, deactivate: deactivate })
             });
             const json = await res.json();
@@ -313,7 +325,10 @@
             showGlobalLoading();
             const res = await fetch('/api/users/delete_selected', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ user_ids: userIds })
             });
             const json = await res.json();
@@ -345,7 +360,10 @@
             showGlobalLoading();
             const res = await fetch('/api/users/delete_selected', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ user_ids: [userId] })
             });
             const json = await res.json();
@@ -373,7 +391,10 @@
             showGlobalLoading();
             const res = await fetch('/api/system/force_logout/selected', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ user_ids: userIds })
             });
             const json = await res.json();
@@ -406,7 +427,10 @@
             showGlobalLoading();
             const res = await fetch('/api/system/force_logout/all', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ include_me: includeMe })
             });
             const json = await res.json();

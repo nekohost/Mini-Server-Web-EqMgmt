@@ -304,7 +304,10 @@
             showGlobalLoading();
             const res = await fetch(url, {
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ Name: name, NameKo: nameKo, NameEn: nameEn })
             });
 
@@ -350,7 +353,10 @@
             showGlobalLoading();
             const res = await fetch(`/api/master/manage/${currentTab}/delete_selected`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ item_ids: itemIds })
             });
             const result = await res.json();
@@ -372,7 +378,12 @@
 
         try {
             showGlobalLoading();
-            const res = await fetch(`/api/master/manage/${currentTab}/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/master/manage/${currentTab}/${id}`, { 
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': window.getCSRFToken()
+                }
+            });
             const result = await res.json();
             if (result.success) {
                 fetchMasterData();
@@ -444,7 +455,10 @@
             showGlobalLoading();
             const res = await fetch(`/api/master/manage/${currentTab}/${targetId}/merge_from`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ source_ids: sourceIds })
             });
 

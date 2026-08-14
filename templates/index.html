@@ -465,7 +465,10 @@
             showGlobalLoading();
             const res = await fetch(url, {
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify(payload)
             });
             const resData = await res.json();
@@ -491,7 +494,12 @@
         if (!confirm('정말로 이 장비를 삭제하시겠습니까?')) return;
         try {
             showGlobalLoading();
-            const res = await fetch(`/api/equipment/${id}`, { method: 'DELETE' });
+            const res = await fetch(`/api/equipment/${id}`, { 
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': window.getCSRFToken()
+                }
+            });
             if (res.ok) {
                 fetchEquipment();
             } else {

@@ -21,7 +21,8 @@
             const response = await fetch('/api/extend_session', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken ? window.getCSRFToken() : ''
                 }
             });
             const data = await response.json();
@@ -195,7 +196,10 @@
         try {
             const res = await originalFetch('/api/user_settings', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken ? window.getCSRFToken() : ''
+                },
                 body: JSON.stringify(newSettings)
             });
             if (res.ok) {

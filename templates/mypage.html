@@ -221,7 +221,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
+                    'X-CSRFToken': window.getCSRFToken()
                 },
                 body: JSON.stringify({ login_id, name, nickname, current_password })
             });
@@ -267,7 +267,10 @@
         try {
             const res = await fetch('/api/auth/send_pin', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRFToken': window.getCSRFToken() 
+                },
                 body: JSON.stringify({ email })
             });
             const data = await res.json();
@@ -295,7 +298,10 @@
         try {
             const res = await fetch('/api/auth/verify_pin', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRFToken': window.getCSRFToken() 
+                },
                 body: JSON.stringify({ email, pin })
             });
             const data = await res.json();
@@ -305,7 +311,10 @@
                 
                 const updateRes = await fetch('/api/users/update_email', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}' },
+                    headers: { 
+                        'Content-Type': 'application/json', 
+                        'X-CSRFToken': window.getCSRFToken() 
+                    },
                     body: JSON.stringify({ email })
                 });
                 const updateData = await updateRes.json();
@@ -355,7 +364,10 @@
             showGlobalLoading();
             const res = await fetch('/api/change_password', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ current_password: current, new_password: newPw })
             });
 
@@ -393,7 +405,10 @@
             showGlobalLoading();
             const res = await fetch('/api/users/withdraw', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': window.getCSRFToken()
+                },
                 body: JSON.stringify({ password: password })
             });
 
