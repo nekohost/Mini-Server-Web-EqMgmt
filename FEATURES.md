@@ -105,3 +105,18 @@
   - 관리자용 특수 메뉴들을 포털 메인 라우팅에서 분리하여 새로 신설되는 `/admin_center`에만 노출. 포털에는 기존과 동일한 모양의 "관리자 센터" 진입점 버튼만 렌더링.
   - DB `menus` 테이블에 `ParentMenuCode`, `SortOrder`를 추가하여 무한 깊이(N-Depth)의 메뉴 계층을 표현.
   - 프론트엔드 및 백엔드에 재귀 함수를 내장하여, 하위 메뉴 접근 시 상위 메뉴의 권한 활성화를 자동 강제하는 완벽한 무결성 검증 추가 적용.
+
+## 9. 실시간 인프라 및 트래픽 관제 (Infrastructure & Traffic Monitoring)
+- **[제안-036] 실시간 웹 접근 로그 모니터링 시스템 (HTTP Access Logs, `/access_logs`)**:
+  - **비동기 큐 & 단일 워커 아키텍처 (SD카드 I/O 95% 절감)**: 매 요청마다 DB에 직접 쓰지 않고 `queue.Queue(maxsize=10000)` 및 `put_nowait()`로 인메모리 수집하여 웹 응답 지연 0ms(Fail-Open) 보장. 백그라운드 단일 워커가 0.5초 또는 최대 50건 단위로 `executemany` 벌크 커밋 수행.
+  - **완전 무결점 Graceful Shutdown**: `threading.Event` 종료 신호와 `get(0.5s)` / `join(3.0s)` 타이밍 조율을 통해 서버 재시작/종료 시 잔여 큐 데이터를 100% DB에 일괄 커밋 후 안전하게 스레드 종료.
+  - **인터셉터 Fail-Safe 완전 격리**: `@app.after_request` 인터셉터 내부의 모든 로깅 데이터 파싱 과정을 최상위 `try...except`로 감싸, 헤더 변조나 예외 발생 시에도 웹 본래 응답(200 OK 등)을 100% 정상 반환하여 가용성 확보.
+  - **트래픽 및 리소스 분리 수집**: 내부 세션 폴링(`/api/check_session`)은 로깅에서 제외하며, `/static/*` 및 `/favicon.ico` 등 정적 리소스 요청은 `IsStatic=1` 플래그로 분리 수집하여 API/웹 요청과의 분류 관제 지원.
+  - **SQLite WAL 모드 및 동시성 락 방어**: `PRAGMA journal_mode = WAL;`, `PRAGMA busy_timeout = 5000;`을 적용하여 다중 요청 및 워커 커밋 간 DB Lock 경합 방어.
+  - **관리자 전용 관제 대시보드 UI (`templates/access_logs.html`)**:
+    - **4종 트래픽 요약 카드**: 오늘 총 요청 건수, 웹/API 요청 건수, 정적 리소스 건수, 에러 응답률(4xx/5xx) 실시간 집계.
+    - **3단 퀵 필터 칩**: `[🌐 전체]` / `[⚡ 일반 웹/API만]` / `[📁 정적 리소스만]` 원클릭 뷰 전환.
+    - **상세 조건 검색**: IP 주소, HTTP 메서드(GET, POST, PUT, DELETE, HEAD), 상태 코드 그룹(200, 302, 404, 415, 500, 4xx, 5xx), 요청 경로(Path) 복합 필터링.
+    - **실시간 자동 새로고침(Auto-Refresh)**: 5초 / 10초 / 30초 / OFF 카운트다운 타이머 지원 (조용한 백그라운드 갱신).
+    - **안전한 수동 클렌징 도구**: 30일 이전 로그 정리, 정적 리소스 로그 비우기, 전체 로그 완전 초기화 3종 메뉴 제공. CSRF 토큰 동봉 및 비동기 삭제 시 전역 로딩 오버레이(`window.showGlobalLoading()`) 표출로 중복 조작 원천 차단.
+

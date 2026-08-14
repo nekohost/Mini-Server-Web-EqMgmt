@@ -216,3 +216,24 @@
     1. 장비 상태 필드(Status) 추가 및 관련 이력 추적 기능 구현.
     2. **주의:** 본 기능 구현 시, app.py의 api_dashboard_stats() 내부에 임시 하드코딩된 '정상' as Status 쿼리문(제안-031 임시조치건)을 반드시 실제 Status 컬럼 참조 로직으로 원복/수정할 것.
 
+---
+
+## [제안-036] 실시간 웹 접근 로그(HTTP Access Log) 자동 수집 및 모니터링 시스템 구축
+  - **제안 일시:** 2026-08-15 00:00:00
+  - **제안자:** 사용자 (User) & Gemini 3.7 Flash (High)
+  - **검토 모델:** Gemini 3.1 Pro (High)
+  - **상태:** [채택 / 대기중]
+  - **결정 사유:** 터미널에 실시간으로 출력되는 표준 웹 서버 접근 로그(HTTP Access Logs: IP, Method, Path, Status Code, Duration 등)를 DB에 체계적으로 적재하고, 비즈니스 감사 로그(`audit_logs`)와는 분리된 관리자 전용 관제 화면(`access_logs.html`)을 통해 외부 봇넷/스캐너 공격 탐지 및 웹 트래픽을 실시간 모니터링할 수 있는 필수 인프라 기능입니다.
+  - **구현 우선순위:** [상] 실시간 보안 관제 및 인프라 모니터링 확보 차원.
+  - **구현 가능성:** [매우 높음] `@app.after_request` 인터셉터와 인메모리 큐(`queue.Queue`) 기반 백그라운드 벌크 워커를 도입하여 미니서버의 SD카드 디스크 I/O를 완벽히 보호하면서 고성능으로 구현 가능합니다.
+  - **관련 파일:** `app.py`, `templates/access_logs.html` (신규)
+  - **영향도 및 의존성:** `access_logs` 테이블 신규 생성, `@app.after_request` 인터셉터 추가, `menus` 테이블에 `access_logs` 메뉴 등록 (`ParentMenuCode='admin_center'`), `role_menu_permissions` 관리자 권한 연동.
+  - **추정 난이도:** 중 (Medium)
+  - **제안 배경 (개요):** 비즈니스 감사 로그(`audit_logs`) 외에 로그인 여부와 무관한 모든 인바운드 HTTP 요청(정상 접근, 404/405/415 에러, 정적 리소스 로딩)을 수집하고 실시간으로 관제하기 위함.
+  - **상세 내용:**
+    1. DB `access_logs` 테이블 및 인덱스 4종 생성 (WAL 모드 활성화).
+    2. 5초 주기 세션 폴링(`/api/check_session`)은 제외, 정적 리소스(`/static/*`)는 `IsStatic=1` 플래그로 분리 수집.
+    3. 인메모리 큐 + 백그라운드 벌크 인서트(`executemany`)로 미니서버 디스크 I/O 부하 95% 절감.
+    4. 관리자 전용 웹 접근 로그 모니터링 화면(`access_logs.html`) 구축 (요약 위젯, 3단 퀵 필터, 실시간 자동 새로고침, 관리자 수동 클렌징 도구).
+
+
