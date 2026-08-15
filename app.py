@@ -178,7 +178,12 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. 장비 테이블 (equipment)
+    # =========================================================================
+    # [데이터베이스 테이블 도메인 범례 (Legend)]
+    # [A] 핵심/권한 도메인   | [B] 장비/마스터 도메인   | [C] 워크플로우 도메인   | [D] 시스템/인프라 도메인
+    # =========================================================================
+
+    # B-1. 장비 테이블 (equipment)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS equipment (
             EquipmentId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -196,7 +201,7 @@ def init_db():
         )
     ''')
     
-    # 2. 사용자 테이블 (users)
+    # A-1. 사용자 테이블 (users) - [제안-001, 025, 030, 034] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             UserId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -214,7 +219,7 @@ def init_db():
         )
     ''')
 
-    # 3. 메뉴 테이블 (menus)
+    # A-2. 메뉴 테이블 (menus) - [제안-035] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS menus (
             MenuId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -229,7 +234,7 @@ def init_db():
         )
     ''')
 
-    # 4. 메뉴 권한 테이블 (role_menu_permissions)
+    # A-3. 메뉴 권한 테이블 (role_menu_permissions)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS role_menu_permissions (
             PermissionId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -241,7 +246,7 @@ def init_db():
         )
     ''')
 
-    # 5. 감사 로그 테이블 (audit_logs)
+    # D-1. 감사 로그 테이블 (audit_logs) - [제안-003, 017] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS audit_logs (
             AuditId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -258,6 +263,7 @@ def init_db():
         )
     ''')
 
+    # D-2. 사용자 환경설정 테이블 (user_settings) - [제안-016] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS user_settings (
             UserId INTEGER PRIMARY KEY,
@@ -267,7 +273,7 @@ def init_db():
         )
     ''')
 
-    # 7. 카테고리 마스터 테이블 (categories) - [제안-011]
+    # B-2. 카테고리 마스터 테이블 (categories) - [제안-011] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS categories (
             CategoryId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -277,7 +283,7 @@ def init_db():
         )
     ''')
 
-    # 시스템 마이그레이션 이력 관리 테이블
+    # D-3. 시스템 마이그레이션 이력 관리 테이블 (sys_migrations)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS sys_migrations (
             MigrationName TEXT PRIMARY KEY,
@@ -285,7 +291,7 @@ def init_db():
         )
     ''')
 
-    # 8. 제조사 마스터 테이블 (manufacturers) - [제안-011]
+    # B-3. 제조사 마스터 테이블 (manufacturers) - [제안-011] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS manufacturers (
             ManufacturerId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -295,7 +301,7 @@ def init_db():
         )
     ''')
 
-    # 9. 전자결재 요청 테이블 (approval_requests) - [제안-027]
+    # C-1. 전자결재 요청 테이블 (approval_requests) - [제안-027] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS approval_requests (
             RequestId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -311,7 +317,7 @@ def init_db():
         )
     ''')
 
-    # 10. 실시간 웹 접근 로그 테이블 (access_logs) - [제안-036]
+    # D-4. 실시간 웹 접근 로그 테이블 (access_logs) - [제안-036] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS access_logs (
             LogId INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -338,7 +344,7 @@ def init_db():
     
     default_menus = [
         ('my_equipment', '나의 장비', '/my_equipment', '내 장비 등록 및 관리', None, 1),
-        ('public_equipment', '공개된 장비', '/public_equipment', '공개된 장비 및 전체 장비 조회', None, 2),
+        ('public_equipment', '공개 장비', '/public_equipment', '공개 장비 및 전체 장비 조회', None, 2),
         ('dashboard', '통계 대시보드', '/dashboard', '장비 통계 및 상세 현황 조회', None, 3),
         ('admin_center', '관리자 센터', '/admin_center', '시스템 관리자 전용 메뉴 허브', None, 4),
         ('permissions', '메뉴 권한 관리', '/permissions', '사용자 역할별 메뉴 접근 권한 제어', 'admin_center', 1),
@@ -1380,7 +1386,7 @@ def audit_logs_page():
 @login_required
 def access_logs_page():
     """
-    [역할]: 관리자 전용 실시간 웹 접근 로그 모니터링 화면을 렌더링합니다.
+    [역할]: 관리자 전용 실시간 웹 접근 로그 화면을 렌더링합니다.
     [의존성 관계]: access_logs.html, check_menu_permission('access_logs')
     [변경 시 영향도]: 관리자 접근 로그 관제 UI 진입에 영향을 줍니다.
     """

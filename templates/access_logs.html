@@ -1,8 +1,8 @@
 {% extends 'miniserver_frame.html' %}
 
-{% block title %}웹 접근 로그 모니터링 - 미니서버 통합 관리 시스템{% endblock %}
+{% block title %}웹 접근 로그 - 미니서버 통합 관리 시스템{% endblock %}
 
-{% block page_title %}웹 접근 로그 모니터링{% endblock %}
+{% block page_title %}웹 접근 로그{% endblock %}
 
 {% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
@@ -11,7 +11,7 @@
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-server text-brand-500"></i> 실시간 웹 접근 로그 (HTTP Access Logs)
+            <i class="fa-solid fa-server text-brand-500"></i> 웹 접근 로그 (HTTP Access Logs)
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
             미니서버로 유입되는 모든 HTTP 트래픽(API, 웹 페이지, 정적 리소스, 외부 스캐너)을 실시간으로 수집하고 모니터링합니다.

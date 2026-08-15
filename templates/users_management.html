@@ -2,13 +2,13 @@
 
 {% block title %}사용자 관리 - 장비 관리 시스템{% endblock %}
 
-{% block page_title %}사용자 관리 (관리자 전용){% endblock %}
+{% block page_title %}사용자 관리{% endblock %}
 
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
 <div class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">회원 목록 및 계정/세션 제어</h2>
+    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">사용자 관리</h2>
     <div class="flex flex-wrap items-center gap-2">
         <button onclick="forceLogoutSelected()" id="btnForceSelected" class="hidden px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             ✓ 선택 세션 파기

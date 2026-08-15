@@ -1,8 +1,8 @@
 {% extends 'miniserver_frame.html' %}
 
-{% block title %}{% if mode == 'public' %}공개 장비 열람{% else %}나의 장비 관리{% endif %} - 미니서버{% endblock %}
+{% block title %}{% if mode == 'public' %}공개 장비{% else %}나의 장비{% endif %} - 미니서버{% endblock %}
 
-{% block page_title %}{% if mode == 'public' %}공개 장비 열람{% else %}나의 장비 관리{% endif %}{% endblock %}
+{% block page_title %}{% if mode == 'public' %}공개 장비{% else %}나의 장비{% endif %}{% endblock %}
 
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
@@ -10,7 +10,7 @@
 <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
         <h1 id="pageMainHeader" class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
-            {% if mode == 'public' %} 공개된 장비 열람 {% else %} 나의 장비 관리 {% endif %}
+            {% if mode == 'public' %} 공개 장비 {% else %} 나의 장비 {% endif %}
         </h1>
         {% if mode == 'public' %}
         <div class="mt-2 flex items-center gap-2">
@@ -251,7 +251,7 @@
             if (btnAdd) btnAdd.classList.add('hidden');
             if (btnToggle) btnToggle.innerHTML = '🔙 나의 장비 목록으로 돌아가기';
         } else {
-            mainHeader.innerText = '나의 장비 관리';
+            mainHeader.innerText = '나의 장비';
             if (btnAdd) btnAdd.classList.remove('hidden');
             if (btnToggle) btnToggle.innerHTML = '📁 임시저장함';
         }
