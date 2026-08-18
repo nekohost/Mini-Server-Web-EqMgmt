@@ -753,5 +753,32 @@
   - **상세 내용:**
     1. `Resources/metadata/` 디렉토리 하위에 `.well-known/security.txt`, `security.txt`, `robots.txt`, `llms.txt` 작성.
     2. `security.txt` 내 연락처 이메일은 반드시 사용자 지정 하드코딩(`nekohost@nekohost.org`) 적용.
-    3. `app.py` 기동 시, 해당 디렉토리를 탐색하여 모든 파일을 `send_from_directory`로 서비스하는 동적 라우팅 생성.
     4. HTTP 접근 로그(`access_logs`) 수집 시 `IsStatic=1`로 분류되도록 O(1) 정적 검사 풀(`frozenset`) 도입.
+
+---
+
+## [제안-039] 에러 유발 고유 IP 분석(Error IP Analysis) 대시보드 추가 (Staging-First 원칙 준수 필수)
+  - **제안 일시:** 2026-08-18 12:20:00
+  - **제안 모델:** Gemini 3.1 Pro (High)
+  - **상태:** [채택 / 대기중]
+  - **결정 사유:** 기존 `access_logs.html`은 로그가 단건 나열식이라 공격/스캐너 IP를 특정하기 어려워, 4xx/5xx 에러를 발생시킨 고유 IP만 추출하는 심층 분석 화면이 필수적입니다.
+  - **구현 우선순위:** [중]
+  - **구현 가능성:** [매우 높음] 완전히 새로운 테이블이나 백그라운드 엔진의 추가 없이, 기존 `access_logs` 테이블에 순수 SQL 쿼리(`GROUP BY`)만 호출하여 즉각적인 동적 렌더링이 가능합니다.
+  - **관련 파일:** `app.py`, `templates/access_logs_error_ips.html` (신규), `templates/access_logs.html`
+  - **영향도 및 의존성:** 기존 `access_logs.html` 헤더에 진입 버튼이 추가되며, 신규 템플릿과 API 함수(`/api/access_logs/error_ips`)가 추가됩니다. 권한은 `access_logs`의 메뉴 권한을 그대로 상속받습니다.
+  - **추정 난이도:** 하 (Low) - 쿼리 작성과 프론트엔드 연동 수준.
+  - **제안 배경 (개요):** 에러 발생 빈도가 높은 IP를 추적하여 직관적으로 모니터링하고 차단 조치를 취하기 위한 기반 화면 제공.
+  - **상세 내용 및 🤖 AI 개발자 필수 준수 가이드라인 (절대 준수!):**
+    > **주의:** 비교적 추론 지능이 낮은 AI가 이 문서를 읽고 작업을 진행하더라도 파국적 실수를 저지르지 않도록, `Rule.md`와 매핑된 매우 촘촘한 가이드를 제공합니다.
+    1. **[기능 구현 내용 (No-Logic 원칙)]**:
+       - `templates/access_logs_error_ips.html` 신규 작성. 화면 상단에 상위 IP 요약 차트 배치.
+       - 데이터 테이블에는 IP 주소, 총 에러 건수, Client(4xx)/Server(5xx) 건수, 마지막 에러 발생 시간을 표출.
+       - IP 주소 클릭 시, 기존 `access_logs.html` 화면으로 자동 딥링크 연동되어 해당 IP가 필터링/검색된 상태로 전환되도록 프론트 연동.
+       - `app.py`에 별도 워커/엔진 추가 절대 금지. `WHERE StatusCode >= 400 GROUP BY IpAddress` 쿼리를 사용하는 API `/api/access_logs/error_ips` 1개 추가.
+    2. **[Rule.md 제7-3조: 스테이징 격리 필수]**:
+       - 절대로 루트 경로의 `app.py`나 `templates/`에 즉시 코드를 작성하지 마십시오.
+       - 반드시 `Staging/app.py`를 복사 생성하고, `Staging/templates/access_logs_error_ips.html` 위치에 파일들을 생성하여 **안전한 모의 검증(Safety Net)**을 구축한 상태에서만 코딩을 진행하십시오.
+    3. **[Rule.md 제5-1-1조: 윈도우 PC 런타임 구동 금지]**:
+       - `Staging/app.py`를 만들었다고 해서 윈도우 터미널(PowerShell)에 `python Staging/app.py`를 실행하려 시도하지 마십시오. 정적 코드 리뷰만으로 검증하고 사용자에게 검토를 맡기십시오.
+    4. **[Rule.md 제4-3조: 3대 주석 보존 수칙]**:
+       - 추가되는 파이썬 함수 상단에 `[역할]`, `[의존성 관계]`, `[변경 시 영향도]` 3가지 주석 태그를 단 한 글자도 빠짐없이 명시하십시오. 기존 주석을 훼손해서는 안 됩니다.
