@@ -1447,6 +1447,20 @@ def access_logs_page():
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('access_logs.html', user=session['user'])
 
+
+@app.route('/access_logs/error_ips')
+@login_required
+def access_logs_error_ips_page():
+    """
+    [역할]: 관리자 전용 에러(4xx, 5xx) 유발 IP 심층 분석 화면을 렌더링합니다.
+    [의존성 관계]: access_logs_error_ips.html, check_menu_permission('access_logs')
+    [변경 시 영향도]: 에러 유발 고유 IP 심층 관제 UI 진입에 영향을 줍니다.
+    """
+    if not check_menu_permission('access_logs'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+    return render_template('access_logs_error_ips.html', user=session['user'])
+
+
 @app.route('/users_management')
 @login_required
 def users_management_page():
@@ -3607,6 +3621,54 @@ def api_cleanup_access_logs():
         "message": "로그가 성공적으로 정리되었습니다.",
         "deleted_count": deleted_count
     })
+
+
+@app.route('/api/access_logs/error_ips', methods=['GET'])
+@login_required
+def api_access_logs_error_ips():
+    """
+    [역할]: access_logs 테이블에서 4xx/5xx 에러를 발생시킨 고유 IP 목록 및 에러 통계를 집계하여 반환합니다.
+    [의존성 관계]: sqlite3 (get_db_connection), access_logs 테이블, check_menu_permission('access_logs')
+    [변경 시 영향도]: 에러 IP 심층 분석 화면의 비동기 데이터 로딩에 영향을 줍니다.
+    """
+    if not check_menu_permission('access_logs'):
+        return jsonify({"success": False, "message": "접근 권한이 없습니다."}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    query = """
+        SELECT 
+            IpAddress,
+            COUNT(LogId) AS TotalErrorCount,
+            MAX(CreatedAt) AS LastErrorAt,
+            SUM(CASE WHEN StatusCode >= 400 AND StatusCode < 500 THEN 1 ELSE 0 END) AS ClientErrorCount,
+            SUM(CASE WHEN StatusCode >= 500 THEN 1 ELSE 0 END) AS ServerErrorCount
+        FROM access_logs
+        WHERE StatusCode >= 400
+        GROUP BY IpAddress
+        ORDER BY TotalErrorCount DESC, LastErrorAt DESC
+    """
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    conn.close()
+
+    result = []
+    for r in rows:
+        result.append({
+            "IpAddress": r["IpAddress"],
+            "TotalErrorCount": r["TotalErrorCount"],
+            "LastErrorAt": r["LastErrorAt"],
+            "ClientErrorCount": r["ClientErrorCount"],
+            "ServerErrorCount": r["ServerErrorCount"]
+        })
+
+    return jsonify({
+        "status": "success",
+        "total_unique_ips": len(result),
+        "error_ips": result
+    })
+
 
 
 if __name__ == '__main__':

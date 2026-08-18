@@ -18,8 +18,13 @@
         </p>
     </div>
 
-    <!-- 우측 상단 액션 바 (자동 새로고침 & 수동 관리 드롭다운) -->
-    <div class="flex items-center gap-3">
+    <!-- 우측 상단 액션 바 (에러 IP 분석, 자동 새로고침 & 수동 관리 드롭다운) -->
+    <div class="flex items-center gap-2.5 flex-wrap">
+        <!-- 🔍 에러 유발 IP 심층 분석 바로가기 버튼 [제안-039] -->
+        <a href="/access_logs/error_ips" class="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-semibold text-xs px-3 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-rose-500"></i> 에러 유발 IP 분석
+        </a>
+
         <!-- 자동 새로고침 선택기 -->
         <div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1.5 shadow-sm text-xs">
             <span class="text-slate-500 dark:text-slate-400 font-medium pl-1">
@@ -281,6 +286,13 @@ let activeCleanupAction = null;
 // 🚀 초기화 및 이벤트 리스너
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+    // URL 쿼리 파라미터(?ip= 또는 ?search_ip=) 확인하여 자동 필터링 [제안-039 연동]
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetIp = urlParams.get('ip') || urlParams.get('search_ip');
+    if (targetIp) {
+        document.getElementById('filterIp').value = targetIp;
+    }
+
     fetchStats();
     fetchLogs();
     startAutoRefresh(5);
