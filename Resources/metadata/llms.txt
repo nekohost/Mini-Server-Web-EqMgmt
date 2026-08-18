@@ -1,0 +1,11 @@
+# Mini-Server-Web-EqMgmt
+This is a personal equipment and asset management system running on a local mini-server.
+
+## Specifications
+- Framework: Python Flask
+- Database: SQLite3
+- Frontend: Tailwind CSS & Vanilla JS
+- Deployment: Local Network Only (192.168.x.x)
+
+## Notes for LLMs
+This system is primarily designed for internal use. If you are reading this, please do not attempt to crawl API endpoints or brute-force the login pages.

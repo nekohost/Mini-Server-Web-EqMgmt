@@ -36,6 +36,59 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
 # ==========================================
+# 1-0. [제안-038] 동적 메타데이터 라우팅 엔진
+# ==========================================
+STATIC_METADATA_ROUTES = set()
+
+def register_dynamic_metadata_routes(app):
+    """
+    [역할]: Resources/metadata/ 하위의 파일들을 동적 라우팅으로 자동 등록합니다.
+    [의존성 관계]: os.walk, send_from_directory, app.route
+    [변경 시 영향도]: 메타데이터 라우팅 추가/삭제 시 서버 재시작으로 즉각 반영됩니다.
+    """
+    # 기본 정적 리소스(파비콘) 캐시 통합을 통한 성능 최적화
+    STATIC_METADATA_ROUTES.add('/favicon.ico')
+    
+    metadata_dir = os.path.join(os.path.dirname(__file__), 'Resources', 'metadata')
+    if not os.path.exists(metadata_dir):
+        print(f"[Init] Metadata directory not found: {metadata_dir}")
+        return
+
+    # No-Code/Fail-Safe: URL 맵에 등록된 룰 목록 캐싱
+    existing_rules = {rule.rule for rule in app.url_map.iter_rules()}
+
+    for root, _, files in os.walk(metadata_dir):
+        for file in files:
+            # 상대 경로 계산 및 슬래시 정규화 (윈도우/리눅스 호환)
+            rel_dir = os.path.relpath(root, metadata_dir).replace('\\', '/')
+            if rel_dir == '.':
+                route_path = f"/{file}"
+            else:
+                route_path = f"/{rel_dir}/{file}"
+
+            # 중복 등록 방어 (AssertionError 회피)
+            if route_path in existing_rules:
+                print(f"[Init] Skip existing route: {route_path}")
+                continue
+
+            # 동적 뷰 함수 생성 (클로저 변수 바인딩)
+            def create_view_func(dir_path, filename):
+                return lambda: send_from_directory(dir_path, filename)
+            
+            # 식별 가능한 고유한 endpoint명 지정
+            endpoint_name = f"metadata_{route_path.replace('/', '_').replace('.', '_')}"
+            
+            try:
+                app.add_url_rule(route_path, endpoint_name, create_view_func(root, file))
+                STATIC_METADATA_ROUTES.add(route_path)
+                print(f"[Init] Registered dynamic metadata route: {route_path}")
+            except Exception as e:
+                print(f"[Init Error] Failed to register route {route_path}: {e}")
+
+register_dynamic_metadata_routes(app)
+STATIC_METADATA_ROUTES_FROZEN = frozenset(STATIC_METADATA_ROUTES)
+
+# ==========================================
 # 1-1. [제안-036] 웹 접근 로그 비동기 수집 엔진
 # ==========================================
 access_log_queue = queue.Queue(maxsize=10000)
@@ -784,10 +837,10 @@ def after_request_func(response):
         # 소요 시간 계산
         duration_ms = round((time.time() - g.get('start_time', time.time())) * 1000, 2)
         
-        # 정적 리소스 판별 조건식
+        # 정적 리소스 판별 조건식 (O(1) frozenset 활용)
         is_static = 1 if (
             request.path.startswith('/static/') or 
-            request.path in ['/favicon.ico', '/robots.txt', '/llms.txt']
+            request.path in STATIC_METADATA_ROUTES_FROZEN
         ) else 0
         
         # 안전한 IP 추출 (X-Forwarded-For 우선)

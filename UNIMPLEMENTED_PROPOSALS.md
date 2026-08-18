@@ -239,3 +239,22 @@
        - DB를 수정/삭제하는 액션(DELETE 쿼리, `equipment.db` 조작 등)이 요청될 경우, 브라우저 단에서 **사용자의 명시적 승인(버튼 클릭 또는 2FA)**을 받지 않으면 AI가 절대 단독으로 실행할 수 없도록 WebMCP 명세(Schema)에 `requires_human_confirmation: true` 로직을 하드코딩합니다.
     4. **[필수 안전망 3] AI 샌드박싱 및 롤백 체계 (Auditing & Soft-Delete):**
        - 에이전트가 실행한 모든 내역은 `audit_logs` 테이블에 `UserAgent`를 통해 "AI Agent"로 명확히 마킹되어 기록되어야 하며, 데이터 삭제 시 물리적 삭제(DROP, DELETE)를 전면 금지하고 Soft-Delete(`IsDeleted=1` 플래그)만을 허용하여 AI 폭주 시 즉각적인 롤백이 가능하도록 아키텍처를 방어합니다.
+
+---
+
+## [제안-038] 메타데이터 자동 라우팅 및 보안 텍스트(security.txt) 도입
+  - **제안 일시:** 2026-08-16 11:30:00
+  - **제안 모델:** Gemini 3.7 Flash (High)
+  - **상태:** [채택 / 대기중]
+  - **결정 사유:** 로봇(크롤러) 및 AI 스캐너 봇들의 무작위 스캐닝으로부터 미니서버의 불필요한 트래픽 및 404 에러 로그 생성을 막고, 프로젝트 소유권을 명확히 하는 표준 메타데이터 제공.
+  - **구현 우선순위:** [중]
+  - **구현 가능성:** [매우 높음] `Resources/metadata/` 디렉토리에 정적 파일을 위치시키고, `app.py` 구동 시 `os.walk`를 이용해 재귀적으로 라우터를 자동 생성하면 구현 완료됩니다.
+  - **관련 파일:** `app.py`, `Resources/metadata/*`
+  - **영향도 및 의존성:** `app.after_request` 인터셉터 로직에 메타데이터 라우팅 추가 (O(1) frozenset 검사). 동적 라우팅 중복 생성(AssertionError) 방지 코드 적용.
+  - **추정 난이도:** 하 (Low)
+  - **제안 배경 (개요):** 외부 크롤러의 `robots.txt`, `security.txt` 등의 고정된 메타데이터 파일 탐색 시, Flask 서버가 일일이 대응하여 정적 리소스로 라우팅해주지 않으면 404 에러 로그가 양산됨.
+  - **상세 내용:**
+    1. `Resources/metadata/` 디렉토리 하위에 `.well-known/security.txt`, `security.txt`, `robots.txt`, `llms.txt` 작성.
+    2. `security.txt` 내 연락처 이메일은 반드시 사용자 지정 하드코딩(`nekohost@nekohost.org`) 적용.
+    3. `app.py` 기동 시, 해당 디렉토리를 탐색하여 모든 파일을 `send_from_directory`로 서비스하는 동적 라우팅 생성.
+    4. HTTP 접근 로그(`access_logs`) 수집 시 `IsStatic=1`로 분류되도록 O(1) 정적 검사 풀(`frozenset`) 도입.
