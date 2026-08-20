@@ -64,25 +64,9 @@ def run_migration():
         # ---------------------------------------------------------------------
         print("[2/5] 신규 3-Tier 스키마 DDL 생성 중...")
 
-        # 1차 마스터: categories
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS categories (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                status TEXT DEFAULT 'APPROVED',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ''')
+        # (기존 마스터 테이블: categories, manufacturers는 app.py에서 관리되며, 기존 구조를 따름)
 
-        # 1차 마스터: manufacturers
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS manufacturers (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE,
-                status TEXT DEFAULT 'APPROVED',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        ''')
+
 
         # 1 ~ N차 노드: lineup_nodes (가변 트리)
         cursor.execute('''
@@ -97,8 +81,8 @@ def run_migration():
                 requested_by INTEGER,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (parent_id) REFERENCES lineup_nodes(id),
-                FOREIGN KEY (category_id) REFERENCES categories(id),
-                FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(id),
+                FOREIGN KEY (category_id) REFERENCES categories(CategoryId),
+                FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(ManufacturerId),
                 UNIQUE(parent_id, name)
             );
         ''')
@@ -181,21 +165,21 @@ def run_migration():
                 updated_at = row['UpdatedAt'] if 'UpdatedAt' in row.keys() else created_at
 
                 # 4-1. Category 매핑/생성
-                cursor.execute("SELECT id FROM categories WHERE name = ?;", (cat_name,))
+                cursor.execute("SELECT CategoryId FROM categories WHERE Name = ?;", (cat_name,))
                 cat_row = cursor.fetchone()
                 if cat_row:
-                    cat_id = cat_row['id']
+                    cat_id = cat_row['CategoryId']
                 else:
-                    cursor.execute("INSERT INTO categories (name, status) VALUES (?, 'APPROVED');", (cat_name,))
+                    cursor.execute("INSERT INTO categories (Name, IsApproved) VALUES (?, 1);", (cat_name,))
                     cat_id = cursor.lastrowid
 
                 # 4-2. Manufacturer 매핑/생성
-                cursor.execute("SELECT id FROM manufacturers WHERE name = ?;", (mfg_name,))
+                cursor.execute("SELECT ManufacturerId FROM manufacturers WHERE Name = ?;", (mfg_name,))
                 mfg_row = cursor.fetchone()
                 if mfg_row:
-                    mfg_id = mfg_row['id']
+                    mfg_id = mfg_row['ManufacturerId']
                 else:
-                    cursor.execute("INSERT INTO manufacturers (name, status) VALUES (?, 'APPROVED');", (mfg_name,))
+                    cursor.execute("INSERT INTO manufacturers (Name, IsApproved) VALUES (?, 1);", (mfg_name,))
                     mfg_id = cursor.lastrowid
 
                 # 4-3. Lineup Node 매핑/생성 (루트 노드: depth=1, parent_id=NULL)

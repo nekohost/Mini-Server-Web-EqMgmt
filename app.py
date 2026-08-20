@@ -268,8 +268,8 @@ def init_db():
             requested_by INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (parent_id) REFERENCES lineup_nodes(id),
-            FOREIGN KEY (category_id) REFERENCES categories(id),
-            FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(id),
+            FOREIGN KEY (category_id) REFERENCES categories(CategoryId),
+            FOREIGN KEY (manufacturer_id) REFERENCES manufacturers(ManufacturerId),
             UNIQUE(parent_id, name)
         );
     ''')
@@ -1696,11 +1696,11 @@ def get_lineup_tree_all():
         cursor = conn.cursor()
 
         # 1. 승인된 카테고리 목록
-        cursor.execute("SELECT id, name FROM categories WHERE status = 'APPROVED' ORDER BY name ASC")
+        cursor.execute("SELECT CategoryId AS id, Name AS name FROM categories WHERE IsApproved = 1 ORDER BY Name ASC")
         categories = [dict(r) for r in cursor.fetchall()]
 
         # 2. 승인된 제조사 목록
-        cursor.execute("SELECT id, name FROM manufacturers WHERE status = 'APPROVED' ORDER BY name ASC")
+        cursor.execute("SELECT ManufacturerId AS id, Name AS name FROM manufacturers WHERE IsApproved = 1 ORDER BY Name ASC")
         manufacturers = [dict(r) for r in cursor.fetchall()]
 
         # 3. CTE 재귀 쿼리를 통한 승인된 라인업 노드 전체 트리 덤프 (MAX_DEPTH 50 컷아웃)
@@ -2063,17 +2063,17 @@ def api_equipments_v2():
                     node.id AS LineupNodeId,
                     node.name AS ModelName,
                     node.depth AS ModelDepth,
-                    cat.id AS CategoryId,
-                    cat.name AS CategoryName,
-                    mfg.id AS ManufacturerId,
-                    mfg.name AS ManufacturerName,
+                    cat.CategoryId AS CategoryId,
+                    cat.Name AS CategoryName,
+                    mfg.ManufacturerId AS ManufacturerId,
+                    mfg.Name AS ManufacturerName,
                     u.LoginId AS UserLoginId,
                     u.Name AS UserName
                 FROM equipments e
                 JOIN equipment_options opt ON e.option_id = opt.id
                 JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                JOIN categories cat ON node.category_id = cat.id
-                JOIN manufacturers mfg ON node.manufacturer_id = mfg.id
+                JOIN categories cat ON node.category_id = cat.CategoryId
+                JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
                 LEFT JOIN users u ON e.user_id = u.UserId
                 ORDER BY e.id DESC;
             """)
@@ -2445,11 +2445,11 @@ def api_dashboard_stats():
         
     # 3. 카테고리별 통계 (3-Tier JOIN)
     cursor.execute(f'''
-        SELECT COALESCE(cat.name, '미분류') as ResolvedCategory, COUNT(e.id) as count 
+        SELECT COALESCE(cat.Name, '미분류') as ResolvedCategory, COUNT(e.id) as count 
         FROM equipments e
         LEFT JOIN equipment_options opt ON e.option_id = opt.id
         LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-        LEFT JOIN categories cat ON node.category_id = cat.id
+        LEFT JOIN categories cat ON node.category_id = cat.CategoryId
         WHERE {base_where}
         GROUP BY ResolvedCategory
     ''', params_base)
@@ -2457,11 +2457,11 @@ def api_dashboard_stats():
 
     # 4. 제조사별 통계 (3-Tier JOIN)
     cursor.execute(f'''
-        SELECT COALESCE(mfg.name, '미분류') as ResolvedManufacturer, COUNT(e.id) as count 
+        SELECT COALESCE(mfg.Name, '미분류') as ResolvedManufacturer, COUNT(e.id) as count 
         FROM equipments e
         LEFT JOIN equipment_options opt ON e.option_id = opt.id
         LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-        LEFT JOIN manufacturers mfg ON node.manufacturer_id = mfg.id
+        LEFT JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
         WHERE {base_where}
         GROUP BY ResolvedManufacturer
     ''', params_base)
@@ -2523,10 +2523,10 @@ def api_dashboard_master_options():
     """
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id AS CategoryId, id, name AS DisplayName, name FROM categories ORDER BY id")
+    cursor.execute("SELECT CategoryId AS CategoryId, CategoryId AS id, Name AS DisplayName, Name AS name FROM categories ORDER BY CategoryId")
     cats = [dict(row) for row in cursor.fetchall()]
     
-    cursor.execute("SELECT id AS ManufacturerId, id, name AS DisplayName, name FROM manufacturers ORDER BY id")
+    cursor.execute("SELECT ManufacturerId AS ManufacturerId, ManufacturerId AS id, Name AS DisplayName, Name AS name FROM manufacturers ORDER BY ManufacturerId")
     mans = [dict(row) for row in cursor.fetchall()]
     conn.close()
     
@@ -3329,13 +3329,13 @@ def get_equipment():
                u.NickName AS OwnerNickName,
                opt.id AS OptionId, opt.option_name AS OptionName, opt.specs_json AS SpecsJson,
                node.id AS LineupNodeId, node.name AS ModelName, node.depth AS ModelDepth,
-               cat.id AS CategoryId, cat.name AS CategoryName,
-               mfg.id AS ManufacturerId, mfg.name AS ManufacturerName
+               cat.CategoryId AS CategoryId, cat.Name AS CategoryName,
+               mfg.ManufacturerId AS ManufacturerId, mfg.Name AS ManufacturerName
         FROM equipments e
         LEFT JOIN equipment_options opt ON e.option_id = opt.id
         LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-        LEFT JOIN categories cat ON node.category_id = cat.id
-        LEFT JOIN manufacturers mfg ON node.manufacturer_id = mfg.id
+        LEFT JOIN categories cat ON node.category_id = cat.CategoryId
+        LEFT JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
         LEFT JOIN users u ON e.user_id = u.UserId
     '''
 
