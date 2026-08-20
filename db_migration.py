@@ -156,7 +156,16 @@ def run_migration():
                 mfg_name = (row['Manufacturer'] or '미지정').strip()
                 model_name = (row['ModelName'] or row['Name'] or '기본 모델').strip()
                 eq_name = (row['Name'] or '장비').strip()
+                
+                # 빈 문자열을 NULL로 변환하여 SQLite UNIQUE 제약 회피
                 serial_no = row['SerialNumber']
+                if serial_no:
+                    serial_no = serial_no.strip()
+                    if serial_no == "":
+                        serial_no = None
+                else:
+                    serial_no = None
+                    
                 purchase_date = row['PurchaseDate']
                 memo = row['Memo']
                 user_id = row['UserId']
@@ -214,12 +223,12 @@ def run_migration():
                     opt_id = cursor.lastrowid
 
                 # 4-5. Equipments 인스턴스 인서트 (시리얼 중복 방어)
-                if serial_no:
+                if serial_no is not None:
                     cursor.execute("SELECT id FROM equipments WHERE serial_number = ?;", (serial_no,))
                     existing_eq = cursor.fetchone()
                     if existing_eq:
-                        # 이미 이관된 시리얼인 경우 건너뜀
-                        continue
+                        # 이미 이관된 시리얼인 경우, 데이터 유실 방지를 위해 시리얼에 고유 식별자 추가
+                        serial_no = f"{serial_no}_dup_{row['EquipmentId']}"
 
                 cursor.execute("""
                     INSERT INTO equipments (option_id, name, serial_number, purchase_date, status, memo, user_id, is_public, created_at, updated_at)
