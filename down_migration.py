@@ -86,8 +86,8 @@ def run_down_migration():
             FROM equipments e
             JOIN equipment_options opt ON e.option_id = opt.id
             JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-            JOIN categories cat ON node.category_id = cat.id
-            JOIN manufacturers mfg ON node.manufacturer_id = mfg.id;
+            JOIN categories cat ON node.category_id = cat.CategoryId
+            JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId;
         """)
 
         flattened_rows = cursor.fetchall()

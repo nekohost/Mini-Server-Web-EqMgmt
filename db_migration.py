@@ -119,8 +119,13 @@ def run_migration():
                 FOREIGN KEY (option_id) REFERENCES equipment_options(id)
             );
         ''')
-
-        # 감사 로그: equipments_audit_log
+        
+        # (긴급 핫픽스) 이미 is_draft가 누락된 채로 equipments 테이블이 생성되어 버린 경우를 대비한 자동 복구
+        cursor.execute("PRAGMA table_info(equipments);")
+        columns = [row['name'] for row in cursor.fetchall()]
+        if 'is_draft' not in columns:
+            cursor.execute("ALTER TABLE equipments ADD COLUMN is_draft INTEGER DEFAULT 0;")
+            
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS equipments_audit_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
