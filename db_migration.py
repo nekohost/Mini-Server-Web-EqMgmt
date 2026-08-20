@@ -113,6 +113,7 @@ def run_migration():
                 memo TEXT,
                 user_id INTEGER,
                 is_public INTEGER DEFAULT 0,
+                is_draft INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (option_id) REFERENCES equipment_options(id)
@@ -231,8 +232,8 @@ def run_migration():
                         serial_no = f"{serial_no}_dup_{row['EquipmentId']}"
 
                 cursor.execute("""
-                    INSERT INTO equipments (option_id, name, serial_number, purchase_date, status, memo, user_id, is_public, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?);
+                    INSERT INTO equipments (option_id, name, serial_number, purchase_date, status, memo, user_id, is_public, is_draft, created_at, updated_at)
+                    VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, 0, ?, ?);
                 """, (opt_id, eq_name, serial_no, purchase_date, memo, user_id, is_public, created_at, updated_at))
                 
                 new_eq_id = cursor.lastrowid
