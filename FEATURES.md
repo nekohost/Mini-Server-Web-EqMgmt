@@ -106,6 +106,25 @@
   - DB `menus` 테이블에 `ParentMenuCode`, `SortOrder`를 추가하여 무한 깊이(N-Depth)의 메뉴 계층을 표현.
   - 프론트엔드 및 백엔드에 재귀 함수를 내장하여, 하위 메뉴 접근 시 상위 메뉴의 권한 활성화를 자동 강제하는 완벽한 무결성 검증 추가 적용.
 
+- **[제안-036] 가변 깊이 모델 트리 & 3-Tier 장비 계층 아키텍처 (3-Tier Equipment Hierarchy)**:
+  - **1차 마스터 & 가변 깊이 라인업 트리 & 옵션 스펙 계층 분리**:
+    - **1차 마스터**: `categories`(카테고리), `manufacturers`(제조사)
+    - **1~N차 노드 (`lineup_nodes`)**: 최대 50계층(MAX_DEPTH=50)까지 지원하는 가변 자기참조 트리 구조. 루트 노드(`depth=1, parent_id=NULL`)부터 서브 라인업까지 유연한 제품군 계층 모델링 및 순환 참조(Circular Reference) 방어.
+    - **N+1차 옵션 스펙 (`equipment_options`)**: 최종 라인업 노드에 종속되는 사양/스펙 조합(`option_name`, `specs_json` Key-Value 속성).
+    - **자산 본체 (`equipments`)**: 실제 시리얼 넘버, 구입일, 상태, 소유자 정보를 보유하는 실물 인스턴스 테이블로 완전 분리 정규화.
+  - **카탈로그 트리 전역 단일 API (`GET /api/lineup_tree_all`)**:
+    - 모든 카테고리, 제조사, 라인업 노드, 옵션 목록을 단일 JSON으로 통합 수신하여 프론트엔드 세션 스토리지(`nodeCache_v2`)에 캐싱함으로써 네트워크 트래픽 및 렌더링 지연 최소화.
+  - **프론트엔드 가변 셀렉트박스 & 제출 잠금 UI (`index.html`)**:
+    - 카테고리/제조사 선택에 따라 하위 N차 라인업 노드 및 N+1차 옵션 스펙 셀렉트박스가 동적으로 연쇄 생성/제거되는 `dynamicTreeContainer` 및 `dynamicOptionContainer` 렌더링.
+    - 최종 옵션까지 올바르게 선택되지 않은 경우 정식 등록 버튼을 비활성화하는 안전 제출 잠금(Submit Lock) 시스템 적용.
+  - **전자결재함 3-Tier 연동 (`approvals.html`)**:
+    - 신규 라인업 노드(`ADD_LINEUP_NODE`) 및 옵션(`ADD_EQUIPMENT_OPTION`) 추가 요청에 대한 결재 문서 구분 뱃지 표출 및 관리자 승인/반려 모달 워크플로우 연동.
+  - **장비 감사 로그 (`equipments_audit_log`)**:
+    - 장비 데이터 생성, 변경, 마이그레이션 이력을 추적 보존.
+  - **DB 안전 마이그레이션 및 롤백 스크립트 제공**:
+    - `db_migration.py`: 기존 단일 테이블 선행 영구 백업, 3-Tier 스키마 DDL 생성, 외래키 B-Tree 인덱스 3종 생성, 3-Tier 정방향 이관.
+    - `down_migration.py`: 비상 시 3-Tier 데이터를 1-Tier 단일 테이블 형태로 평탄화 복원하는 역방향 롤백(Memo 내 옵션 스펙 압축 보존).
+
 ## 9. 실시간 인프라 및 트래픽 관제 (Infrastructure & Traffic Monitoring)
 - **[제안-036] 실시간 웹 접근 로그 모니터링 시스템 (HTTP Access Logs, `/access_logs`)**:
   - **비동기 큐 & 단일 워커 아키텍처 (SD카드 I/O 95% 절감)**: 매 요청마다 DB에 직접 쓰지 않고 `queue.Queue(maxsize=10000)` 및 `put_nowait()`로 인메모리 수집하여 웹 응답 지연 0ms(Fail-Open) 보장. 백그라운드 단일 워커가 0.5초 또는 최대 50건 단위로 `executemany` 벌크 커밋 수행.
@@ -119,4 +138,9 @@
     - **상세 조건 검색**: IP 주소, HTTP 메서드(GET, POST, PUT, DELETE, HEAD), 상태 코드 그룹(200, 302, 404, 415, 500, 4xx, 5xx), 요청 경로(Path) 복합 필터링.
     - **실시간 자동 새로고침(Auto-Refresh)**: 5초 / 10초 / 30초 / OFF 카운트다운 타이머 지원 (조용한 백그라운드 갱신).
     - **안전한 수동 클렌징 도구**: 30일 이전 로그 정리, 정적 리소스 로그 비우기, 전체 로그 완전 초기화 3종 메뉴 제공. CSRF 토큰 동봉 및 비동기 삭제 시 전역 로딩 오버레이(`window.showGlobalLoading()`) 표출로 중복 조작 원천 차단.
+- **[제안-040] 웹 접근 로그 상세 기록 확장 (Request & Response Payload 로깅)**:
+  - **무제한/무마스킹 Body 원본 데이터 수집**: `@app.after_request` 인터셉터에서 Request Body 및 Response Body를 용량 제한이나 마스킹 없이 원본 그대로 추출하여 `access_logs` 테이블의 `RequestPayload`, `ResponsePayload` 컬럼에 적재.
+  - **프론트엔드 클립 뱃지 & 행 클릭 상세 모달 (`access_logs.html`)**:
+    - 로그 테이블 행에서 Payload가 존재하는 경우 종이클립(`fa-paperclip`) 아이콘 뱃지 표출 및 행 강조 스타일 적용.
+    - 행 클릭 시 `openPayloadModal()`을 통해 Request Payload와 Response Payload를 JSON 포맷팅(pretty-print)하여 독립 모달에서 한눈에 분석할 수 있는 심층 트러블슈팅 UI 제공.
 

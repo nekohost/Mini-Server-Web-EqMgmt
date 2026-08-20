@@ -270,6 +270,40 @@
     </div>
 </div>
 
+<!-- 🔍 Payload 상세보기 모달 -->
+<div id="payloadModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-brand-50 dark:bg-brand-950/40 flex items-center justify-center text-brand-500">
+                    <i class="fa-solid fa-file-code"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-900 dark:text-white">Payload 상세 보기</h3>
+            </div>
+            <button type="button" onclick="closePayloadModal()" class="text-slate-400 hover:text-slate-500 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex-1 overflow-y-auto min-h-0 space-y-4">
+            <div>
+                <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2"><i class="fa-solid fa-arrow-right-to-bracket text-blue-500 mr-1"></i> Request Payload</h4>
+                <pre id="modalReqPayload" class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-300 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-mono whitespace-pre-wrap break-all max-h-[30vh] overflow-y-auto"></pre>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-2"><i class="fa-solid fa-arrow-right-from-bracket text-emerald-500 mr-1"></i> Response Payload</h4>
+                <pre id="modalResPayload" class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-300 p-3 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-mono whitespace-pre-wrap break-all max-h-[30vh] overflow-y-auto"></pre>
+            </div>
+        </div>
+        
+        <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 flex justify-end">
+            <button type="button" onclick="closePayloadModal()" class="px-5 py-2 rounded-xl text-sm font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors">
+                닫기
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
 // ==========================================
 // 🌐 전역 상태 관리
@@ -281,6 +315,7 @@ let autoRefreshTimer = null;
 let countdownTimer = null;
 let currentCountdown = 5;
 let activeCleanupAction = null;
+let currentLogsData = []; // Payload 참조용 캐시
 
 // ==========================================
 // 🚀 초기화 및 이벤트 리스너
@@ -366,7 +401,8 @@ async function fetchLogs(silent = false) {
         if (!res.ok) throw new Error('데이터 수신 실패');
         const data = await res.json();
 
-        renderTable(data.logs || []);
+        currentLogsData = data.logs || [];
+        renderTable(currentLogsData);
         renderPagination(data.total || 0, data.page || 1, data.per_page || currentPerPage);
         document.getElementById('totalCountBadge').innerText = Number(data.total || 0).toLocaleString();
     } catch (err) {
@@ -406,7 +442,7 @@ function renderTable(logs) {
     }
 
     let html = '';
-    logs.forEach(log => {
+    logs.forEach((log, index) => {
         // 분류 뱃지
         const isStaticBadge = log.IsStatic === 1
             ? `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300">정적</span>`
@@ -433,10 +469,19 @@ function renderTable(logs) {
 
         // 응답 시간 포맷
         const durationText = log.DurationMs != null ? `${log.DurationMs.toFixed(1)}ms` : '-';
+        
+        // Payload 존재 여부에 따른 행 스타일 (행 클릭 이벤트 연동)
+        const hasPayload = (log.RequestPayload != null && log.RequestPayload !== "") || (log.ResponsePayload != null && log.ResponsePayload !== "");
+        const trClass = hasPayload 
+            ? "hover:bg-brand-50/50 dark:hover:bg-brand-900/20 transition-colors font-mono text-[11px] cursor-pointer" 
+            : "hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors font-mono text-[11px] cursor-pointer";
 
         html += `
-            <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors font-mono text-[11px]">
-                <td class="px-4 py-2.5 whitespace-nowrap text-slate-500 dark:text-slate-400">${log.CreatedAt}</td>
+            <tr class="${trClass}" onclick="openPayloadModal(${index})" title="행을 클릭하면 Payload 세부 정보를 확인할 수 있습니다.">
+                <td class="px-4 py-2.5 whitespace-nowrap text-slate-500 dark:text-slate-400">
+                    ${log.CreatedAt} 
+                    ${hasPayload ? '<i class="fa-solid fa-paperclip text-brand-400 ml-1"></i>' : ''}
+                </td>
                 <td class="px-4 py-2.5 whitespace-nowrap font-bold text-slate-800 dark:text-slate-200">${log.IpAddress}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap">${isStaticBadge}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap">${methodBadge}</td>
@@ -710,6 +755,59 @@ async function executeCleanup() {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> 삭제 실행';
     }
+}
+
+// ==========================================
+// 🔍 Payload 모달 제어
+// ==========================================
+function openPayloadModal(index) {
+    const log = currentLogsData[index];
+    if (!log) return;
+    
+    const reqPre = document.getElementById('modalReqPayload');
+    const resPre = document.getElementById('modalResPayload');
+    
+    // Request Payload 렌더링
+    if (!log.RequestPayload) {
+        reqPre.innerText = "Payload가 없는 요청입니다.";
+        reqPre.classList.add('text-slate-400');
+    } else {
+        reqPre.classList.remove('text-slate-400');
+        try {
+            const parsed = JSON.parse(log.RequestPayload);
+            reqPre.innerText = JSON.stringify(parsed, null, 2);
+        } catch {
+            reqPre.innerText = log.RequestPayload;
+        }
+    }
+    
+    // Response Payload 렌더링
+    if (!log.ResponsePayload) {
+        resPre.innerText = "Payload가 없는 응답이거나 기록 조건 미달입니다.";
+        resPre.classList.add('text-slate-400');
+    } else {
+        resPre.classList.remove('text-slate-400');
+        try {
+            const parsed = JSON.parse(log.ResponsePayload);
+            resPre.innerText = JSON.stringify(parsed, null, 2);
+        } catch {
+            resPre.innerText = log.ResponsePayload;
+        }
+    }
+    
+    // 모달 표출 및 자동 새로고침 일시 정지
+    document.getElementById('payloadModal').classList.remove('hidden');
+    if (autoRefreshTimer || countdownTimer) {
+        clearInterval(autoRefreshTimer);
+        clearInterval(countdownTimer);
+    }
+}
+
+function closePayloadModal() {
+    document.getElementById('payloadModal').classList.add('hidden');
+    // 자동 새로고침 재개
+    const sec = parseInt(document.getElementById('autoRefreshSelect').value, 10);
+    if (sec > 0) startAutoRefresh(sec);
 }
 </script>
 {% endblock %}

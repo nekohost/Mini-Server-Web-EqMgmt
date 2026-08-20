@@ -11,7 +11,7 @@
             📑 전자결재함
         </h1>
         <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            신규 카테고리/제조사 마스터 등록 요청 목록 및 승인 관리
+            신규 카테고리/제조사/라인업/옵션 마스터 등록 요청 목록 및 승인 관리
         </p>
     </div>
 </header>
@@ -49,17 +49,17 @@
             <input type="hidden" id="processAction">
             
             <div id="rejectSection" class="space-y-4 hidden">
-                <p class="text-sm text-red-600 dark:text-red-400 font-semibold">
+                <p class="text-sm text-red-600 dark:red-400 font-semibold">
                     ⚠️ 해당 결재 건을 반려합니다. 
                 </p>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">반려 사유 (필수)</label>
-                    <textarea id="rejectReason" rows="2" placeholder="예: 이미 유사한 카테고리가 존재합니다." class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                    <textarea id="rejectReason" rows="2" placeholder="예: 이미 유사한 항목이 존재합니다." class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-red-500"></textarea>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">대체 카테고리/제조사 지정 (선택)</label>
-                    <input type="text" id="replacementName" placeholder="기존 정식 명칭으로 변경 (예: 노트북)" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">대체 명칭을 입력하면 해당 미승인 항목으로 묶인 장비들이 지정된 명칭으로 일괄 변경됩니다.</p>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">대체 명칭 지정 (선택)</label>
+                    <input type="text" id="replacementName" placeholder="기존 정식 명칭으로 변경" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">대체 명칭을 입력하면 해당 미승인 항목으로 묶인 데이터들이 지정된 명칭으로 일괄 변경됩니다.</p>
                 </div>
             </div>
 
@@ -82,6 +82,12 @@
 <script>
     let currentApprovals = [];
     let currentUser = null;
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
 
     async function initPage() {
         const resMe = await fetch('/api/me');
@@ -126,12 +132,23 @@
             const statusBadge = item.Status === 'APPROVED' 
                 ? '<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">승인 완료</span>'
                 : item.Status === 'REJECTED'
-                ? `<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" title="반려사유: ${item.RejectReason || '-'}">반려됨</span>`
+                ? `<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300" title="반려사유: ${escapeHtml(item.RejectReason || '-')}">반려됨</span>`
                 : '<span class="px-2.5 py-0.5 inline-flex text-xs font-bold rounded-full bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300">승인 대기중</span>';
 
-            const typeBadge = item.RequestType === 'ADD_CATEGORY'
-                ? '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">카테고리 추가</span>'
-                : '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">제조사 추가</span>';
+            let typeBadge = '';
+            if (item.RequestType === 'ADD_CATEGORY') {
+                typeBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">카테고리 추가</span>';
+            } else if (item.RequestType === 'ADD_MANUFACTURER') {
+                typeBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300">제조사 추가</span>';
+            } else if (item.RequestType === 'Lineup_Node' || item.RequestType === 'ADD_LINEUP_NODE') {
+                typeBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">라인업 노드</span>';
+            } else if (item.RequestType === 'Equipment_Option' || item.RequestType === 'ADD_EQUIPMENT_OPTION') {
+                typeBadge = '<span class="px-2 py-0.5 text-xs font-semibold rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">옵션 스펙</span>';
+            } else {
+                typeBadge = `<span class="px-2 py-0.5 text-xs font-semibold rounded bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300">${escapeHtml(item.RequestType)}</span>`;
+            }
+
+            const itemName = reqData.name || reqData.option_name || reqData.node_name || reqData.Name || '-';
 
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
@@ -140,13 +157,13 @@
                         <div class="text-xs text-slate-400 dark:text-slate-500">${item.CreatedAt || '-'}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-700 dark:text-slate-300 font-medium">
-                        👤 ${item.RequesterNickName} (${item.RequesterName})
+                        👤 ${escapeHtml(item.RequesterNickName)} (${escapeHtml(item.RequesterName)})
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         ${typeBadge}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-slate-100">
-                        ${reqData.name || '-'}
+                        ${escapeHtml(itemName)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         ${statusBadge}

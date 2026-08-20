@@ -85,29 +85,46 @@
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">장비 별명 (필수)</label>
                     <input type="text" id="Name" required class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리</label>
-                    <select id="CategorySelect" onchange="onCategorySelectChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                        <!-- JS 렌더링 -->
-                    </select>
-                    <div id="CategoryCustomBox" class="mt-2 hidden">
-                        <input type="text" id="CategoryCustom" placeholder="신규 카테고리명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-                        <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">※ 직접 입력 시 전자결재 승인 전까지 다른 사람에게 노출되지 않습니다.</p>
+                <div class="md:col-span-2 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600 mb-2">
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-600 pb-2">카탈로그 모델 선택</h3>
+                    <!-- 1차 마스터 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리 (1차)</label>
+                            <select id="CategorySelect" onchange="window.LineupApp.onRootChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <option value="">-- 선택 --</option>
+                            </select>
+                            <div id="CategoryCustomBox" class="mt-2 hidden">
+                                <input type="text" id="CategoryCustom" placeholder="신규 카테고리명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">제조사 (1차)</label>
+                            <select id="ManufacturerSelect" onchange="window.LineupApp.onRootChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <option value="">-- 선택 --</option>
+                            </select>
+                            <div id="ManufacturerCustomBox" class="mt-2 hidden">
+                                <input type="text" id="ManufacturerCustom" placeholder="신규 제조사명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">제조사</label>
-                    <select id="ManufacturerSelect" onchange="onManufacturerSelectChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
-                        <!-- JS 렌더링 -->
-                    </select>
-                    <div id="ManufacturerCustomBox" class="mt-2 hidden">
-                        <input type="text" id="ManufacturerCustom" placeholder="신규 제조사명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
-                        <p class="text-[11px] text-amber-600 dark:text-amber-400 mt-1">※ 직접 입력 시 전자결재 승인 전까지 다른 사람에게 노출되지 않습니다.</p>
+                    
+                    <!-- N차 동적 트리 렌더링 컨테이너 -->
+                    <div id="dynamicTreeContainer" class="flex flex-col gap-3"></div>
+                    
+                    <!-- N+1차 동적 옵션 렌더링 컨테이너 -->
+                    <div id="dynamicOptionContainer" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600 hidden">
+                        <label class="block text-xs font-medium text-indigo-700 dark:text-indigo-300 mb-1">최종 스펙/옵션 (N+1차)</label>
+                        <select id="OptionSelect" onchange="window.LineupApp.onOptionChange()" class="w-full bg-indigo-50 dark:bg-slate-700 text-slate-900 dark:text-white border border-indigo-200 dark:border-indigo-500 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-semibold">
+                            <option value="">-- 옵션 선택 --</option>
+                        </select>
+                        <!-- 신규 옵션 추가 패널 -->
+                        <div id="NewOptionPanel" class="mt-3 bg-white dark:bg-slate-800 p-3 border border-indigo-100 dark:border-slate-600 rounded shadow-sm hidden">
+                            <input type="text" id="NewOptionName" placeholder="신규 옵션명 (예: 256GB / 블랙)" class="w-full mb-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded p-1.5 text-sm outline-none">
+                            <div id="KeyValueContainer" class="flex flex-col gap-2"></div>
+                            <button type="button" onclick="window.LineupApp.addKeyValueRow()" class="mt-2 text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800 transition">+ 속성(Key-Value) 추가</button>
+                        </div>
                     </div>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">모델명</label>
-                    <input type="text" id="ModelName" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">시리얼 넘버</label>
@@ -126,10 +143,15 @@
                     <label for="IsPublic" class="text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">이 장비를 시스템에 '공개'합니다 (타인 조회 허용)</label>
                 </div>
             </div>
-            <div class="mt-6 flex justify-end gap-3" id="modalButtons">
-                <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">취소</button>
-                <button type="button" id="btnSaveDraft" onclick="submitEquipment(true)" class="hidden px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-bold shadow-md">임시저장</button>
-                <button type="button" id="btnFormalSubmit" onclick="submitEquipment(false)" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md">저장하기</button>
+            <div class="mt-6 flex flex-col gap-2">
+                <div id="submitLockNotice" class="text-xs text-amber-600 dark:text-amber-400 text-right">
+                    ⚠️ 카탈로그의 최종 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.
+                </div>
+                <div class="flex justify-end gap-3" id="modalButtons">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">취소</button>
+                    <button type="button" id="btnSaveDraft" onclick="submitEquipment(true)" class="hidden px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-bold shadow-md">임시저장</button>
+                    <button type="button" id="btnFormalSubmit" onclick="submitEquipment(false)" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">저장하기</button>
+                </div>
             </div>
         </form>
     </div>
@@ -165,8 +187,13 @@
     let currentEquipmentData = [];
     let currentUser = null;
     let isDraftMode = false;
-    let masterCategories = [];
-    let masterManufacturers = [];
+
+    // XSS 방어 헬퍼 함수
+    function escapeHtml(text) {
+        if (!text) return '';
+        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+        return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
 
     async function fetchUserInfo() {
         try {
@@ -184,61 +211,218 @@
         }
     }
 
-    async function fetchMasterData() {
-        try {
-            const res = await fetch('/api/master_data');
-            const result = await res.json();
-            if (result.success) {
-                masterCategories = result.categories || [];
-                masterManufacturers = result.manufacturers || [];
-                renderMasterDropdowns();
+    window.LineupApp = (function() {
+        const CACHE_KEY = 'nodeCache_v2';
+        let nodeCache_v2 = {
+            categories: [], manufacturers: [], nodes: [], options: [],
+            tree: {}
+        };
+        
+        async function init(forceRefresh = false) {
+            try {
+                let data = null;
+                if (!forceRefresh) {
+                    try {
+                        const cached = sessionStorage.getItem(CACHE_KEY);
+                        if (cached) data = JSON.parse(cached);
+                    } catch(e) { console.warn('Cache read error:', e); }
+                }
+
+                if (!data) {
+                    const res = await fetch('/api/lineup_tree_all');
+                    if(!res.ok) throw new Error('API Error');
+                    data = await res.json();
+                    try {
+                        sessionStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                    } catch(e) { console.warn('Cache write error:', e); }
+                }
+                nodeCache_v2 = data;
+                
+                nodeCache_v2.tree = {};
+                (nodeCache_v2.nodes || []).forEach(n => {
+                    const pid = n.parent_id || 'root';
+                    if(!nodeCache_v2.tree[pid]) nodeCache_v2.tree[pid] = [];
+                    nodeCache_v2.tree[pid].push(n);
+                });
+                
+                const catSelect = document.getElementById('CategorySelect');
+                if (catSelect) {
+                    catSelect.innerHTML = '<option value="">-- 선택 --</option>' + 
+                        (nodeCache_v2.categories || []).map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('') +
+                        '<option value="__custom__">➕ 기타 (직접 입력...)</option>';
+                }
+                const mfgSelect = document.getElementById('ManufacturerSelect');
+                if (mfgSelect) {
+                    mfgSelect.innerHTML = '<option value="">-- 선택 --</option>' + 
+                        (nodeCache_v2.manufacturers || []).map(m => `<option value="${m.id}">${escapeHtml(m.name)}</option>`).join('') +
+                        '<option value="__custom__">➕ 기타 (직접 입력...)</option>';
+                }
+                updateSubmitLockState();
+            } catch(e) { console.error('Tree load error:', e); }
+        }
+
+        function invalidateCache() {
+            try { sessionStorage.removeItem(CACHE_KEY); } catch(e) {}
+        }
+
+        function updateSubmitLockState() {
+            const btnFormal = document.getElementById('btnFormalSubmit');
+            const notice = document.getElementById('submitLockNotice');
+            if (!btnFormal) return;
+
+            const optData = getSelectedOptionData();
+            const isValid = optData && !optData.error;
+
+            if (isValid) {
+                btnFormal.disabled = false;
+                btnFormal.classList.remove('opacity-50', 'cursor-not-allowed');
+                btnFormal.removeAttribute('title');
+                if (notice) notice.classList.add('hidden');
+            } else {
+                btnFormal.disabled = true;
+                btnFormal.classList.add('opacity-50', 'cursor-not-allowed');
+                btnFormal.title = '모든 하위 옵션을 선택해야 합니다.';
+                if (notice) notice.classList.remove('hidden');
             }
-        } catch (err) {
-            console.error('마스터 데이터 로드 실패:', err);
-        }
-    }
-
-    function getMasterItemDisplay(item) {
-        if (!item) return '-';
-        return item.NameKo || item.NameEn || item.Name || '-';
-    }
-
-    function renderMasterDropdowns() {
-        const catSelect = document.getElementById('CategorySelect');
-        const mfgSelect = document.getElementById('ManufacturerSelect');
-
-        if (catSelect) {
-            catSelect.innerHTML = masterCategories.map(c => `<option value="${c.CategoryId}">${getMasterItemDisplay(c)}</option>`).join('') + 
-                `<option value="__custom__">➕ 기타 (직접 입력...)</option>`;
         }
 
-        if (mfgSelect) {
-            mfgSelect.innerHTML = masterManufacturers.map(m => `<option value="${m.ManufacturerId}">${getMasterItemDisplay(m)}</option>`).join('') + 
-                `<option value="__custom__">➕ 기타 (직접 입력...)</option>`;
+        function onRootChange() {
+            const catId = document.getElementById('CategorySelect').value;
+            const mfgId = document.getElementById('ManufacturerSelect').value;
+            
+            document.getElementById('CategoryCustomBox').classList.toggle('hidden', catId !== '__custom__');
+            document.getElementById('ManufacturerCustomBox').classList.toggle('hidden', mfgId !== '__custom__');
+            
+            document.getElementById('dynamicTreeContainer').innerHTML = '';
+            document.getElementById('dynamicOptionContainer').classList.add('hidden');
+            
+            if (catId && catId !== '__custom__' && mfgId && mfgId !== '__custom__') {
+                const rootNodes = (nodeCache_v2.tree['root'] || []).filter(n => n.category_id == catId && n.manufacturer_id == mfgId);
+                if(rootNodes.length > 0) {
+                    renderChildNodes(null, 1, rootNodes);
+                } else {
+                    document.getElementById('dynamicTreeContainer').innerHTML = `<div class="p-3 bg-amber-50 text-amber-700 text-sm rounded border border-amber-200">해당 분류에 등록된 하위 카탈로그(라인업)가 없습니다. 신규 노드 등록은 관리자에게 문의하세요.</div>`;
+                }
+            }
+            updateSubmitLockState();
         }
-    }
 
-    function onCategorySelectChange() {
-        const select = document.getElementById('CategorySelect');
-        const box = document.getElementById('CategoryCustomBox');
-        if (select.value === '__custom__') {
-            box.classList.remove('hidden');
-            document.getElementById('CategoryCustom').focus();
-        } else {
-            box.classList.add('hidden');
-        }
-    }
+        function renderChildNodes(parentId, depth, nodesToRender = null) {
+            const container = document.getElementById('dynamicTreeContainer');
+            Array.from(container.querySelectorAll('.lineup-select-row')).forEach(row => {
+                if(parseInt(row.dataset.depth) >= depth) row.remove();
+            });
+            document.getElementById('dynamicOptionContainer').classList.add('hidden');
 
-    function onManufacturerSelectChange() {
-        const select = document.getElementById('ManufacturerSelect');
-        const box = document.getElementById('ManufacturerCustomBox');
-        if (select.value === '__custom__') {
-            box.classList.remove('hidden');
-            document.getElementById('ManufacturerCustom').focus();
-        } else {
-            box.classList.add('hidden');
+            let nodes = nodesToRender || nodeCache_v2.tree[parentId] || [];
+            if(nodes.length === 0 && parentId) {
+                onLeafSelected(parentId);
+                return;
+            }
+            if(nodes.length === 0) {
+                updateSubmitLockState();
+                return;
+            }
+
+            const row = document.createElement('div');
+            row.className = 'lineup-select-row flex gap-2 items-center';
+            row.dataset.depth = depth;
+            
+            const select = document.createElement('select');
+            select.className = 'flex-1 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm';
+            select.innerHTML = `<option value="">-- ${depth}차 상세 모델 선택 --</option>` + 
+                nodes.map(n => `<option value="${n.id}">${escapeHtml(n.name)}</option>`).join('');
+            
+            select.onchange = (e) => {
+                const val = e.target.value;
+                if(val) renderChildNodes(val, depth + 1);
+                else {
+                    Array.from(container.querySelectorAll('.lineup-select-row')).forEach(r => {
+                        if(parseInt(r.dataset.depth) > depth) r.remove();
+                    });
+                    document.getElementById('dynamicOptionContainer').classList.add('hidden');
+                }
+                updateSubmitLockState();
+            };
+            
+            row.appendChild(select);
+            container.appendChild(row);
+            updateSubmitLockState();
         }
-    }
+
+        function onLeafSelected(nodeId) {
+            const opts = (nodeCache_v2.options || []).filter(o => o.lineup_node_id == nodeId);
+            const optContainer = document.getElementById('dynamicOptionContainer');
+            const optSelect = document.getElementById('OptionSelect');
+            
+            optSelect.innerHTML = '<option value="">-- 스펙/옵션 선택 --</option>' + 
+                opts.map(o => `<option value="${o.id}">${escapeHtml(o.option_name)}</option>`).join('') +
+                '<option value="__new__">➕ 신규 옵션 직접 입력</option>';
+            
+            optContainer.classList.remove('hidden');
+            onOptionChange();
+        }
+
+        function onOptionChange() {
+            const val = document.getElementById('OptionSelect').value;
+            const panel = document.getElementById('NewOptionPanel');
+            if (val === '__new__') {
+                panel.classList.remove('hidden');
+                if(document.getElementById('KeyValueContainer').children.length === 0) addKeyValueRow();
+            } else {
+                panel.classList.add('hidden');
+            }
+            updateSubmitLockState();
+        }
+
+        function addKeyValueRow() {
+            const container = document.getElementById('KeyValueContainer');
+            const row = document.createElement('div');
+            row.className = 'flex gap-2 kv-row';
+            row.innerHTML = `
+                <input type="text" placeholder="Key (예: RAM)" class="kv-key w-1/3 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded p-1 text-sm outline-none" oninput="window.LineupApp.updateSubmitLockState()">
+                <input type="text" placeholder="Value (예: 16GB)" class="kv-value flex-1 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded p-1 text-sm outline-none" oninput="window.LineupApp.updateSubmitLockState()">
+                <button type="button" class="text-red-500 px-1" onclick="this.parentElement.remove(); window.LineupApp.updateSubmitLockState();">×</button>
+            `;
+            container.appendChild(row);
+            updateSubmitLockState();
+        }
+
+        function getSelectedOptionData() {
+            const optSelect = document.getElementById('OptionSelect');
+            if (!optSelect) return null;
+            const optVal = optSelect.value;
+            if (!optVal) return null;
+            if (optVal !== '__new__') return { option_id: optVal, isNew: false };
+            
+            // 신규 옵션인 경우
+            const newNameInput = document.getElementById('NewOptionName');
+            const newName = newNameInput ? newNameInput.value.trim() : '';
+            if (!newName) return { error: '신규 옵션명을 입력하세요.' };
+            
+            const specs = {};
+            document.querySelectorAll('.kv-row').forEach(row => {
+                const k = row.querySelector('.kv-key')?.value.trim();
+                const v = row.querySelector('.kv-value')?.value.trim();
+                if (k && v) specs[k] = v;
+            });
+            
+            const selects = document.querySelectorAll('.lineup-select-row select');
+            let leafNodeId = null;
+            if (selects.length > 0) leafNodeId = selects[selects.length - 1].value;
+            
+            return {
+                isNew: true,
+                option_name: newName,
+                specs_json: JSON.stringify(specs),
+                lineup_node_id: leafNodeId
+            };
+        }
+
+        return {
+            init, invalidateCache, updateSubmitLockState, onRootChange, onOptionChange, addKeyValueRow, getSelectedOptionData
+        };
+    })();
 
     function toggleDraftMode() {
         isDraftMode = !isDraftMode;
@@ -260,7 +444,6 @@
 
     async function fetchEquipment() {
         if (!currentUser) await fetchUserInfo();
-        if (masterCategories.length === 0) await fetchMasterData();
 
         const mode = '{{ mode }}';
         let url = '/api/equipment?type=' + mode;
@@ -308,31 +491,31 @@
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                            ${item.Name}
+                            ${escapeHtml(item.Name)}
                             ${badge}
                         </div>
-                        ${item.Memo ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs mt-1">${item.Memo}</div>` : ''}
+                        ${item.Memo ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs mt-1">${escapeHtml(item.Memo)}</div>` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
-                            ${catDisplayName}
+                            ${escapeHtml(catDisplayName)}
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
-                        ${mfgDisplayName} / ${item.ModelName || '-'}
+                        ${escapeHtml(mfgDisplayName)} / ${escapeHtml(item.ModelName || '-')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 font-mono">
-                        ${item.SerialNumber || '-'}
+                        ${escapeHtml(item.SerialNumber || '-')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
-                        ${item.PurchaseDate || '-'}
+                        ${escapeHtml(item.PurchaseDate || '-')}
                     </td>
                     ${isAdmin ? `
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                        👤 ${item.OwnerNickName || '미지정'}
+                        👤 ${escapeHtml(item.OwnerNickName || '미지정')}
                     </td>` : ''}
                     <td class="px-6 py-4 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">
-                        ${item.UpdatedAt || item.CreatedAt || '-'}
+                        ${escapeHtml(item.UpdatedAt || item.CreatedAt || '-')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         ${(isAdmin || item.UserId === currentUser.UserId) ? `
@@ -346,7 +529,7 @@
     }
 
     async function openModal(id = null) {
-        if (masterCategories.length === 0) await fetchMasterData();
+        await window.LineupApp.init(); // 항상 최신 트리 보장
 
         const modal = document.getElementById('equipmentModal');
         const form = document.getElementById('equipmentForm');
@@ -361,48 +544,28 @@
         document.getElementById('ManufacturerCustomBox').classList.add('hidden');
         document.getElementById('CategoryCustom').value = '';
         document.getElementById('ManufacturerCustom').value = '';
+        document.getElementById('dynamicTreeContainer').innerHTML = '';
+        document.getElementById('dynamicOptionContainer').classList.add('hidden');
         document.getElementById('IsPublic').checked = ('{{ mode }}' === 'public');
-        document.getElementById('selectedOwnerDisplay').innerText = `기본값: (${currentUser.NickName})`;
-
-        renderMasterDropdowns();
+        document.getElementById('selectedOwnerDisplay').innerText = `기본값: (${currentUser ? currentUser.NickName : '본인'})`;
 
         if (id) {
             const item = currentEquipmentData.find(e => e.EquipmentId === id);
             if (item) {
                 document.getElementById('EquipmentId').value = item.EquipmentId;
                 document.getElementById('Name').value = item.Name;
-                document.getElementById('ModelName').value = item.ModelName || '';
                 document.getElementById('SerialNumber').value = item.SerialNumber || '';
                 document.getElementById('PurchaseDate').value = item.PurchaseDate || '';
                 document.getElementById('Memo').value = item.Memo || '';
                 document.getElementById('IsPublic').checked = (item.IsPublic === 1);
-
-                // 카테고리 드롭다운 세팅
-                const catSelect = document.getElementById('CategorySelect');
-                if (item.CategoryId && masterCategories.some(c => c.CategoryId === item.CategoryId)) {
-                    catSelect.value = item.CategoryId;
-                } else if (item.CategoryName) {
-                    catSelect.value = '__custom__';
-                    onCategorySelectChange();
-                    document.getElementById('CategoryCustom').value = item.CategoryName;
-                }
-
-                // 제조사 드롭다운 세팅
-                const mfgSelect = document.getElementById('ManufacturerSelect');
-                if (item.ManufacturerId && masterManufacturers.some(m => m.ManufacturerId === item.ManufacturerId)) {
-                    mfgSelect.value = item.ManufacturerId;
-                } else if (item.ManufacturerName) {
-                    mfgSelect.value = '__custom__';
-                    onManufacturerSelectChange();
-                    document.getElementById('ManufacturerCustom').value = item.ManufacturerName;
-                }
 
                 if(item.UserId) {
                     document.getElementById('UserId').value = item.UserId;
                     document.getElementById('selectedOwnerDisplay').innerText = `현재 소유자: ${item.OwnerNickName}`;
                 }
 
-                // 모달 버튼 분기 처리
+                console.warn('기존 장비 수정 모드 트리 바인딩은 별도 제공 예정입니다.');
+
                 if (item.IsDraft === 1) {
                     title.innerText = '임시 저장 장비 수정';
                     btnSaveDraft.classList.remove('hidden');
@@ -420,6 +583,7 @@
             btnSaveDraft.innerText = '임시저장';
             btnFormalSubmit.innerText = '정식 등록';
         }
+        window.LineupApp.updateSubmitLockState();
         modal.classList.remove('hidden');
     }
 
@@ -429,32 +593,58 @@
 
     async function submitEquipment(isDraft) {
         const id = document.getElementById('EquipmentId').value;
-        const name = document.getElementById('Name').value.trim();
+        const nameInput = document.getElementById('Name');
+        const name = nameInput ? nameInput.value.trim() : '';
         if (!name) {
             alert('장비 별명(이름)은 필수 입력 항목입니다.');
+            nameInput?.focus();
+            return;
+        }
+        if (name.length > 100) {
+            alert('장비 별명은 최대 100자까지 입력 가능합니다.');
+            nameInput?.focus();
             return;
         }
 
-        const catSelectVal = document.getElementById('CategorySelect').value;
-        const categoryId = (catSelectVal === '__custom__') ? '__custom__' : catSelectVal;
-        const categoryCustom = (catSelectVal === '__custom__') ? document.getElementById('CategoryCustom').value.trim() : '';
+        const serialInput = document.getElementById('SerialNumber');
+        const serialNumber = serialInput ? serialInput.value.trim() : '';
+        if (serialNumber.length > 100) {
+            alert('시리얼 넘버는 최대 100자까지 입력 가능합니다.');
+            serialInput?.focus();
+            return;
+        }
 
-        const mfgSelectVal = document.getElementById('ManufacturerSelect').value;
-        const manufacturerId = (mfgSelectVal === '__custom__') ? '__custom__' : mfgSelectVal;
-        const manufacturerCustom = (mfgSelectVal === '__custom__') ? document.getElementById('ManufacturerCustom').value.trim() : '';
+        const catSelectVal = document.getElementById('CategorySelect')?.value || '';
+        const mfgSelectVal = document.getElementById('ManufacturerSelect')?.value || '';
+        
+        let rootData = {
+            categoryId: (catSelectVal === '__custom__') ? '__custom__' : catSelectVal,
+            categoryCustom: (catSelectVal === '__custom__') ? document.getElementById('CategoryCustom')?.value.trim() : '',
+            manufacturerId: (mfgSelectVal === '__custom__') ? '__custom__' : mfgSelectVal,
+            manufacturerCustom: (mfgSelectVal === '__custom__') ? document.getElementById('ManufacturerCustom')?.value.trim() : ''
+        };
+        
+        const optData = window.LineupApp.getSelectedOptionData();
+        if (!isDraft) {
+            if (!optData) {
+                alert('카탈로그 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.');
+                return;
+            }
+            if (optData.error) {
+                alert(optData.error);
+                return;
+            }
+        }
 
         const payload = {
             Name: name,
-            CategoryId: categoryId,
-            CategoryCustom: categoryCustom,
-            ManufacturerId: manufacturerId,
-            ManufacturerCustom: manufacturerCustom,
-            ModelName: document.getElementById('ModelName').value,
-            SerialNumber: document.getElementById('SerialNumber').value,
-            PurchaseDate: document.getElementById('PurchaseDate').value,
-            Memo: document.getElementById('Memo').value,
-            UserId: document.getElementById('UserId').value || null,
-            IsPublic: document.getElementById('IsPublic').checked,
+            RootData: rootData,
+            OptionData: optData,
+            SerialNumber: serialNumber,
+            PurchaseDate: document.getElementById('PurchaseDate')?.value || '',
+            Memo: document.getElementById('Memo')?.value.trim() || '',
+            UserId: document.getElementById('UserId')?.value || null,
+            IsPublic: document.getElementById('IsPublic')?.checked || false,
             IsDraft: isDraft ? 1 : 0
         };
 
@@ -478,13 +668,14 @@
                 if (resData.message) {
                     alert(resData.message);
                 }
+                window.LineupApp.invalidateCache();
                 fetchEquipment();
-                fetchMasterData();
+                await window.LineupApp.init(true);
             } else {
-                alert('오류: ' + (resData.error || resData.message));
+                alert('오류: ' + (resData.error || resData.message || '요청 처리에 실패했습니다.'));
             }
         } catch (err) {
-            alert('통신 오류가 발생했습니다.');
+            alert('서버와 통신 중 오류가 발생했습니다.');
         } finally {
             hideGlobalLoading();
         }
@@ -504,7 +695,7 @@
                 fetchEquipment();
             } else {
                 const err = await res.json();
-                alert('삭제 실패: ' + err.error);
+                alert('삭제 실패: ' + (err.error || '삭제 중 오류가 발생했습니다.'));
             }
         } catch (err) {
             alert('통신 오류가 발생했습니다.');
@@ -544,10 +735,10 @@
                 ul.classList.remove('hidden');
                 ul.innerHTML = users.map(u => `
                     <li class="p-3 hover:bg-blue-50 dark:hover:bg-slate-600 cursor-pointer flex justify-between items-center transition"
-                        onclick="selectUser(${u.UserId}, '${u.NickName}')">
+                        onclick="selectUser(${u.UserId}, '${escapeHtml(u.NickName)}')">
                         <div>
-                            <span class="font-bold text-slate-800 dark:text-slate-100">${u.NickName}</span>
-                            <span class="text-xs text-slate-400 dark:text-slate-300 ml-2">(${u.LoginId} / ${u.Name})</span>
+                            <span class="font-bold text-slate-800 dark:text-slate-100">${escapeHtml(u.NickName)}</span>
+                            <span class="text-xs text-slate-400 dark:text-slate-300 ml-2">(${escapeHtml(u.LoginId)} / ${escapeHtml(u.Name)})</span>
                         </div>
                         <span class="text-blue-500 dark:text-blue-400 text-xs font-semibold">선택</span>
                     </li>
@@ -560,7 +751,7 @@
 
     function selectUser(userId, nickName) {
         document.getElementById('UserId').value = userId;
-        document.getElementById('selectedOwnerDisplay').innerHTML = `지정됨: <strong class="text-blue-800 dark:text-blue-300">${nickName}</strong>`;
+        document.getElementById('selectedOwnerDisplay').innerHTML = `지정됨: <strong class="text-blue-800 dark:text-blue-300">${escapeHtml(nickName)}</strong>`;
         closeUserSearchModal();
     }
 
