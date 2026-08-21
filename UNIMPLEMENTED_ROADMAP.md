@@ -70,7 +70,7 @@
    - **구현 가능성:** [높음] 기존 템플릿의 Form 구조와 JS API를 재활용하여 선언형(Declarative) / 명령형(Imperative) 분리 설계로 적용 가능.
    - **상세 내용:** 
      - 조회/검색 등 안전한 동작은 Declarative API(HTML 속성)로 구성.
-     - 상태 변경/수정 등 파괴적 동작은 Imperative API(JS)로 구성하되, **CSRF 토큰 강제 검증, 파괴적 액션 전 Human-in-the-Loop(사용자 명시적 승인 버튼) 강제, Soft-Delete 전면 도입, AI 전용 감사 로그 마킹** 등 철저한 4중 안전망(Guardrails)을 구축.
+      - 상태 변경/수정 등 파괴적 동작은 Imperative API(JS)로 구성하되, **CSRF 토큰 강제 검증, 파괴적 액션 전 Human-in-the-Loop(사용자 명시적 승인 버튼) 강제, Soft-Delete 전면 도입, AI 전용 감사 로그 마킹** 등 철저한 4중 안전망(Guardrails)을 구축.
 
 ---
 

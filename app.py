@@ -4290,28 +4290,41 @@ def api_get_access_logs():
 @login_required
 def api_get_access_log_stats():
     """
-    [역할]: 오늘 하루 동안의 접근 로그 통계(총 요청 수, 일반 웹/API 수, 정적 리소스 수, 에러율)를 집계하여 반환합니다.
+    [역할]: 지정된 기간(오늘 또는 전체 누적)의 웹 접근 로그 통계(총 요청 수, 일반 웹/API 수, 정적 리소스 수, 에러율)를 집계하여 반환합니다.
     [의존성 관계]: access_logs 테이블, check_menu_permission('access_logs')
     [변경 시 영향도]: 관리자 화면의 상단 4종 요약 카드 수치 렌더링에 영향을 줍니다.
     """
     if not check_menu_permission('access_logs'):
         return jsonify({"error": "권한이 없습니다."}), 403
 
-    today_str = datetime.now().strftime('%Y-%m-%d')
-    today_start = f"{today_str} 00:00:00"
+    period = request.args.get('period', 'today').lower()
 
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN IsStatic = 0 THEN 1 ELSE 0 END) as api_count,
-            SUM(CASE WHEN IsStatic = 1 THEN 1 ELSE 0 END) as static_count,
-            SUM(CASE WHEN StatusCode >= 400 THEN 1 ELSE 0 END) as error_count
-        FROM access_logs
-        WHERE CreatedAt >= ?
-    """, (today_start,))
+    if period == 'all':
+        cursor.execute("""
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN IsStatic = 0 THEN 1 ELSE 0 END) as api_count,
+                SUM(CASE WHEN IsStatic = 1 THEN 1 ELSE 0 END) as static_count,
+                SUM(CASE WHEN StatusCode >= 400 THEN 1 ELSE 0 END) as error_count
+            FROM access_logs
+        """)
+    else:
+        period = 'today'
+        today_str = datetime.now().strftime('%Y-%m-%d')
+        today_start = f"{today_str} 00:00:00"
+
+        cursor.execute("""
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN IsStatic = 0 THEN 1 ELSE 0 END) as api_count,
+                SUM(CASE WHEN IsStatic = 1 THEN 1 ELSE 0 END) as static_count,
+                SUM(CASE WHEN StatusCode >= 400 THEN 1 ELSE 0 END) as error_count
+            FROM access_logs
+            WHERE CreatedAt >= ?
+        """, (today_start,))
 
     row = cursor.fetchone()
     conn.close()
@@ -4324,6 +4337,7 @@ def api_get_access_log_stats():
 
     return jsonify({
         "status": "success",
+        "period": period,
         "total": total,
         "api_count": api_count,
         "static_count": static_count,

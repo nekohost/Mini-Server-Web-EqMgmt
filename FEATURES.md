@@ -143,4 +143,12 @@
   - **프론트엔드 클립 뱃지 & 행 클릭 상세 모달 (`access_logs.html`)**:
     - 로그 테이블 행에서 Payload가 존재하는 경우 종이클립(`fa-paperclip`) 아이콘 뱃지 표출 및 행 강조 스타일 적용.
     - 행 클릭 시 `openPayloadModal()`을 통해 Request Payload와 Response Payload를 JSON 포맷팅(pretty-print)하여 독립 모달에서 한눈에 분석할 수 있는 심층 트러블슈팅 UI 제공.
+- **[제안-041] 웹 접근 로그 요약 통계 기간 필터 확장 (오늘/전체 누적 토글)**:
+  - **백엔드 통계 API 기간 파라미터 분기 (`GET /api/access_logs/stats?period=today|all`)**:
+    - `period=today` (기본값): 당일 00:00:00 이후 데이터에 대한 집계 쿼리 실행.
+    - `period=all`: 전체 `access_logs` 테이블에 대한 집계 쿼리 실행.
+  - **상단 요약 카드 세그먼트 컨트롤 UI (`access_logs.html`)**:
+    - 요약 카드 섹션 헤더에 `[ 📅 오늘 ]` / `[ 🌐 전체 누적 ]` 세그먼트 버튼 배치.
+    - 버튼 클릭 시 비동기(`fetchStats()`)로 통계 데이터를 즉시 재조회하고, 카드 레이블(`오늘 총 요청` ↔ `전체 총 요청`) 및 섹션 타이틀을 동적으로 동기화.
+
 
