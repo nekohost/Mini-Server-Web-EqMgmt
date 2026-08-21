@@ -19,6 +19,10 @@ import string
 import uuid
 import secrets
 from utils.mailer import send_email
+import warnings
+
+# [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
+warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
 
 # .env 파일 로드 (환경변수 세팅)
 load_dotenv()
