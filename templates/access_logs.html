@@ -520,8 +520,8 @@ function renderTable(logs) {
         // 응답 시간 포맷
         const durationText = log.DurationMs != null ? `${log.DurationMs.toFixed(1)}ms` : '-';
         
-        // Payload 존재 여부에 따른 행 스타일 (행 클릭 이벤트 연동)
-        const hasPayload = (log.RequestPayload != null && log.RequestPayload !== "") || (log.ResponsePayload != null && log.ResponsePayload !== "");
+        // [제안-045] Payload 존재 여부 플래그(0/1 또는 boolean)에 따른 행 스타일 및 클립 아이콘 표출
+        const hasPayload = (log.HasRequestPayload === 1 || log.HasResponsePayload === 1 || log.HasRequestPayload === true || log.HasResponsePayload === true);
         const trClass = hasPayload 
             ? "hover:bg-brand-50/50 dark:hover:bg-brand-900/20 transition-colors font-mono text-[11px] cursor-pointer" 
             : "hover:bg-slate-50/80 dark:hover:bg-slate-700/40 transition-colors font-mono text-[11px] cursor-pointer";
@@ -855,48 +855,71 @@ async function executeCleanup() {
 }
 
 // ==========================================
-// 🔍 Payload 모달 제어
+// 🔍 [제안-045] Payload 모달 제어 (On-Demand Lazy Loading)
 // ==========================================
-function openPayloadModal(index) {
+/**
+ * [역할]: 사용자가 행을 클릭했을 때 해당 특정 로그의 Request/Response Payload를 온디맨드(단건 비동기 API)로 조회하여 모달에 표출합니다.
+ * [의존성 관계]: 백엔드 GET /api/access_logs/<int:log_id>/payload, currentLogsData, DOM 요소(#payloadModal, #modalReqPayload, #modalResPayload)
+ * [변경 시 영향도]: 상세 페이로드 뷰어 열람 시 비동기 로딩 UX 및 JSON 포맷팅에 영향을 줍니다.
+ * @param {number} index - currentLogsData 내 인덱스 번호
+ */
+async function openPayloadModal(index) {
     const log = currentLogsData[index];
     if (!log) return;
     
     const reqPre = document.getElementById('modalReqPayload');
     const resPre = document.getElementById('modalResPayload');
     
-    // Request Payload 렌더링
-    if (!log.RequestPayload) {
-        reqPre.innerText = "Payload가 없는 요청입니다.";
-        reqPre.classList.add('text-slate-400');
-    } else {
-        reqPre.classList.remove('text-slate-400');
-        try {
-            const parsed = JSON.parse(log.RequestPayload);
-            reqPre.innerText = JSON.stringify(parsed, null, 2);
-        } catch {
-            reqPre.innerText = log.RequestPayload;
-        }
-    }
-    
-    // Response Payload 렌더링
-    if (!log.ResponsePayload) {
-        resPre.innerText = "Payload가 없는 응답이거나 기록 조건 미달입니다.";
-        resPre.classList.add('text-slate-400');
-    } else {
-        resPre.classList.remove('text-slate-400');
-        try {
-            const parsed = JSON.parse(log.ResponsePayload);
-            resPre.innerText = JSON.stringify(parsed, null, 2);
-        } catch {
-            resPre.innerText = log.ResponsePayload;
-        }
-    }
-    
-    // 모달 표출 및 자동 새로고침 일시 정지
+    // 모달 표출 및 로딩 상태 UI 렌더링
+    reqPre.innerHTML = '<span class="text-slate-400 dark:text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Request Payload를 불러오는 중입니다...</span>';
+    resPre.innerHTML = '<span class="text-slate-400 dark:text-slate-500"><i class="fa-solid fa-spinner fa-spin mr-1"></i> Response Payload를 불러오는 중입니다...</span>';
+    reqPre.classList.remove('text-slate-400');
+    resPre.classList.remove('text-slate-400');
+
     document.getElementById('payloadModal').classList.remove('hidden');
     if (autoRefreshTimer || countdownTimer) {
         clearInterval(autoRefreshTimer);
         clearInterval(countdownTimer);
+    }
+
+    try {
+        const response = await fetch(`/api/access_logs/${log.LogId}/payload`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        const data = await response.json();
+        
+        // Request Payload 렌더링
+        if (!data.request_payload) {
+            reqPre.innerText = "Payload가 없는 요청입니다.";
+            reqPre.classList.add('text-slate-400');
+        } else {
+            reqPre.classList.remove('text-slate-400');
+            try {
+                const parsed = JSON.parse(data.request_payload);
+                reqPre.innerText = JSON.stringify(parsed, null, 2);
+            } catch {
+                reqPre.innerText = data.request_payload;
+            }
+        }
+        
+        // Response Payload 렌더링
+        if (!data.response_payload) {
+            resPre.innerText = "Payload가 없는 응답이거나 기록 조건 미달입니다.";
+            resPre.classList.add('text-slate-400');
+        } else {
+            resPre.classList.remove('text-slate-400');
+            try {
+                const parsed = JSON.parse(data.response_payload);
+                resPre.innerText = JSON.stringify(parsed, null, 2);
+            } catch {
+                resPre.innerText = data.response_payload;
+            }
+        }
+    } catch (err) {
+        console.error("Payload Fetch Error:", err);
+        reqPre.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Payload 조회 실패: ${err.message}</span>`;
+        resPre.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Payload 조회 실패: ${err.message}</span>`;
     }
 }
 

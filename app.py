@@ -4210,8 +4210,9 @@ def api_reset_password_logic():
 def api_get_access_logs():
     """
     [역할]: 검색 필터(IP, 메서드, 상태코드, 경로, 퀵필터) 및 페이징 조건에 맞춰 접근 로그 목록을 조회하여 반환합니다.
+            [제안-045] Request/Response Payload 본문 대신 존재 여부 플래그(HasRequestPayload, HasResponsePayload)만 경량 조회합니다.
     [의존성 관계]: access_logs 테이블, check_menu_permission('access_logs')
-    [변경 시 영향도]: 관리자 화면의 접근 로그 테이블 데이터 표출 및 검색에 영향을 줍니다.
+    [변경 시 영향도]: 관리자 화면의 접근 로그 테이블 데이터 표출 및 검색 성능에 영향을 줍니다.
     """
     if not check_menu_permission('access_logs'):
         return jsonify({"error": "권한이 없습니다."}), 403
@@ -4265,9 +4266,13 @@ def api_get_access_logs():
     cursor.execute(f"SELECT COUNT(*) FROM access_logs WHERE {where_sql}", params)
     total_count = cursor.fetchone()[0]
 
-    # 목록 조회
+    # [제안-045] 목록 조회 시 페이로드 본문 대신 경량 플래그(0 또는 1)만 조회
     cursor.execute(f"""
-        SELECT LogId, IpAddress, HttpMethod, RequestPath, StatusCode, UserAgent, Referer, DurationMs, IsStatic, RequestPayload, ResponsePayload, CreatedAt
+        SELECT 
+            LogId, IpAddress, HttpMethod, RequestPath, StatusCode, UserAgent, Referer, DurationMs, IsStatic,
+            CASE WHEN RequestPayload IS NOT NULL AND RequestPayload != '' THEN 1 ELSE 0 END AS HasRequestPayload,
+            CASE WHEN ResponsePayload IS NOT NULL AND ResponsePayload != '' THEN 1 ELSE 0 END AS HasResponsePayload,
+            CreatedAt
         FROM access_logs
         WHERE {where_sql}
         ORDER BY LogId DESC
@@ -4284,6 +4289,40 @@ def api_get_access_logs():
         "page": page,
         "per_page": per_page,
         "logs": logs
+    })
+
+
+@app.route('/api/access_logs/<int:log_id>/payload', methods=['GET'])
+@login_required
+def api_get_access_log_payload(log_id):
+    """
+    [역할]: [제안-045] 특정 access_log 레코드의 RequestPayload 및 ResponsePayload 상세 데이터를 온디맨드로 단건 조회하여 반환합니다.
+    [의존성 관계]: access_logs 테이블, check_menu_permission('access_logs')
+    [변경 시 영향도]: 웹 접근 로그 상세 페이로드 모달 팝업의 비동기 데이터 표출에 영향을 줍니다.
+    """
+    if not check_menu_permission('access_logs'):
+        return jsonify({"error": "권한이 없습니다."}), 403
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT LogId, RequestPayload, ResponsePayload
+        FROM access_logs
+        WHERE LogId = ?
+    """, (log_id,))
+
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        return jsonify({"status": "error", "message": "로그 데이터를 찾을 수 없습니다."}), 404
+
+    return jsonify({
+        "status": "success",
+        "log_id": row['LogId'],
+        "request_payload": row['RequestPayload'],
+        "response_payload": row['ResponsePayload']
     })
 
 

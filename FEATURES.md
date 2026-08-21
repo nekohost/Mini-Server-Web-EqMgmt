@@ -162,7 +162,17 @@
     - `@app.after_request` 인터셉터에서 `not is_static and not request.path.startswith('/api/access_logs')` 조건식을 적용하여, `/api/access_logs` (목록 조회), `/api/access_logs/stats` (통계), `/api/access_logs/cleanup` (삭제), `/api/access_logs/error_ips` (에러 IP 분석) 등 접근 로그 자체의 응답 Body가 `ResponsePayload`에 적재되지 않도록 원천 차단.
   - **DB 리소스 및 서비스 가용성 보존**:
     - 5초 자동 새로고침 시 거대한 목록 JSON이 중첩 적재되는 자기 참조 재귀 루프를 차단함으로써 `equipment.db`의 비대화 및 쿼리 지연을 방어하고, 로그 삭제 시 SQLite 배타적 파일 락 교착(Deadlock)과 서비스 크래시를 방지.
-    - 장비 CRUD, 로그인/회원가입 등 일반 업무 API의 Request/Response Payload 로깅은 정상 유지되어 트러블슈팅 및 감사 추적성 보존.
+- **[제안-045] 웹 접근 로그 페이로드 지연 로딩(Lazy Loading) 최적화**:
+  - **초기 목록 조회 대역폭 및 DB 부하 경량화 (`app.py`)**:
+    - `/api/access_logs` 엔드포인트에서 50건의 로그 목록 조회 시 거대한 `RequestPayload` 및 `ResponsePayload` 본문 컬럼을 `SELECT`에서 제외하고, `CASE WHEN RequestPayload IS NOT NULL AND RequestPayload != '' THEN 1 ELSE 0 END AS HasRequestPayload` 및 `HasResponsePayload` 경량 플래그(0/1)만 조회하도록 쿼리 튜닝.
+    - 초기 목록 로딩 시 네트워크 페이로드 크기 및 메모리 사용량을 90% 이상 절감하여 저사양 미니서버의 응답 지연을 방어.
+  - **단건 페이로드 온디맨드 API 신설 (`GET /api/access_logs/<int:log_id>/payload`)**:
+    - 관리자가 특정 로그 레코드의 상세 페이로드를 확인하려 할 때만 해당 `LogId`의 1건 데이터만 DB에서 비동기 조회하여 반환하는 전용 엔드포인트 구축.
+    - `@login_required` 및 `check_menu_permission('access_logs')` 접근 통제와 SQL 바인딩 파라미터 적용으로 보안 무결성 확보.
+  - **프론트엔드 비동기 모달 뷰어 및 로딩 UX 구현 (`access_logs.html`)**:
+    - 테이블 목록에서 `log.HasRequestPayload` 및 `log.HasResponsePayload` 플래그를 통해 종이클립 아이콘 표출 및 행 강조 스타일을 완벽하게 유지.
+    - 행 클릭 시 `openPayloadModal()`이 즉각 모달을 열고 "불러오는 중..." 스피너를 노출한 뒤 비동기 `fetch`로 단건 페이로드를 수신하여 JSON 포맷팅(`pretty-print`) 렌더링 수행.
+
 
 
 

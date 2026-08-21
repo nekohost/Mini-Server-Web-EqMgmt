@@ -870,3 +870,24 @@
   1. `app.py`의 cleanup API에 `step` 매개변수 도입 (`count`, `delete_chunk`, `finish`).
   2. `delete_chunk` 단계에서 LIMIT 250으로 청크 삭제 수행.
   3. `access_logs.html`의 팝업에서 전체 건수 대비 진행률(%) 표출.
+
+---
+
+## [제안-045] 웹 접근 로그 페이로드 지연 로딩(Lazy Loading) 최적화
+  - **제안 일시:** 2026-08-21 13:01:00
+  - **제안자:** 사용자 (User)
+  - **제안 모델:** Gemini 3.7 Flash (High)
+  - **상태:** [개발 완료 (FEATURES.md 이관)]
+  - **연관 제안:** [제안-036] (웹 접근 로그 모니터링), [제안-040] (Payload 수집 및 모달 뷰어), [제안-043] (Payload 재귀 루프 방어), [제안-044] (청크 단위 분할 삭제 및 진행률 UI)
+  - **결정 사유:** 웹 접근 로그 목록 조회(`/api/access_logs`) 시 대용량 텍스트인 `RequestPayload`와 `ResponsePayload`를 일괄 조회함에 따라 발생하는 심각한 네트워크 대역폭 낭비, DB I/O 부하 및 브라우저 메모리 부담을 해결하기 위함.
+  - **구현 우선순위:** [상]
+  - **구현 가능성:** [매우 높음] 목록 조회 API에서는 페이로드 존재 여부 플래그(`HasRequestPayload`, `HasResponsePayload`)만 반환하고, 상세 모달 열람 시에만 단건 조회 API(`GET /api/access_logs/<int:log_id>/payload`)를 비동기로 호출하도록 분리하여 안전하게 구현 가능.
+  - **관련 파일:** `app.py`, `templates/access_logs.html`
+  - **영향도 및 의존성:** `GET /api/access_logs` 반환 스키마 경량화, `GET /api/access_logs/<int:log_id>/payload` 신규 엔드포인트 추가, 프론트엔드 모달 비동기 페칭 로직.
+  - **추정 난이도:** 하 (Low)
+  - **제안 배경 (개요):** 로그 목록 조회 성능 극대화 및 필요 시점에만 상세 페이로드를 가져오는 온디맨드 지연 로딩(Lazy Loading) 아키텍처 도입.
+  - **상세 내용:**
+    1. `app.py`의 `api_get_access_logs()`에서 `SELECT` 쿼리 수정: `RequestPayload`, `ResponsePayload` 전체 컬럼 조회를 제거하고 `CASE WHEN ... THEN 1 ELSE 0 END`를 통해 유무 플래그만 추출.
+    2. `app.py`에 단건 페이로드 조회 API (`GET /api/access_logs/<int:log_id>/payload`) 신설.
+    3. `templates/access_logs.html`에서 행 렌더링 시 페이로드 유무 아이콘을 플래그 기반으로 처리하고, 행 클릭(`openPayloadModal`) 시 신규 API를 비동기 호출하여 모달 본문을 동적 렌더링하도록 개선 (로딩 상태 UX 포함).
+
