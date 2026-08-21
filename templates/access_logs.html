@@ -766,39 +766,86 @@ function closeCleanupModal() {
 async function executeCleanup() {
     if (!activeCleanupAction) return;
 
-    // [제안-029 준수] 전역 로딩 오버레이 표출
-    if (typeof window.showGlobalLoading === 'function') {
-        window.showGlobalLoading('로그 데이터를 안전하게 삭제 중입니다...');
-    }
-
     const btn = document.getElementById('confirmCleanupBtn');
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중...';
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 준비 중...';
+
+    if (typeof window.showGlobalLoading === 'function') {
+        window.showGlobalLoading('삭제 대상 로그를 계산 중입니다...');
+    }
 
     try {
-        const res = await fetch('/api/access_logs/cleanup', {
+        const headers = {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': typeof window.getCSRFToken === 'function' ? window.getCSRFToken() : ''
+        };
+
+        // 1. 전체 삭제 대상 건수 파악 (count)
+        let res = await fetch('/api/access_logs/cleanup', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': typeof window.getCSRFToken === 'function' ? window.getCSRFToken() : ''
-            },
-            body: JSON.stringify({ action: activeCleanupAction })
+            headers: headers,
+            body: JSON.stringify({ action: activeCleanupAction, step: 'count' })
         });
 
-        const data = await res.json();
-        if (res.ok && data.status === 'success') {
-            alert(`✅ 성공적으로 정리되었습니다. (삭제된 로그: ${data.deleted_count || 0}건)`);
-            closeCleanupModal();
-            fetchStats();
-            fetchLogs();
-        } else {
-            alert(`❌ 실패: ${data.message || '로그 정리에 실패했습니다.'}`);
+        let data = await res.json();
+        if (!res.ok || data.status !== 'success') {
+            throw new Error(data.message || '삭제 대상 건수 조회에 실패했습니다.');
         }
+
+        const total = data.total_count || 0;
+        if (total === 0) {
+            alert('정리할 대상 로그가 없습니다.');
+            closeCleanupModal();
+            return;
+        }
+
+        // 2. 250건 단위 반복 분할 삭제 (while loop)
+        let deleted = 0;
+        while (deleted < total) {
+            const percent = Math.min(100, Math.floor((deleted / total) * 100));
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중... (${percent}%)`;
+            if (typeof window.showGlobalLoading === 'function') {
+                window.showGlobalLoading(`로그 데이터를 안전하게 삭제 중입니다... (${percent}%) [${deleted}/${total}]`);
+            }
+
+            res = await fetch('/api/access_logs/cleanup', {
+                method: 'POST',
+                headers: headers,
+                body: JSON.stringify({ action: activeCleanupAction, step: 'delete_chunk' })
+            });
+
+            data = await res.json();
+            if (!res.ok || data.status !== 'success') {
+                throw new Error(data.message || '분할 삭제 중 오류가 발생했습니다.');
+            }
+
+            const chunkCount = data.deleted_count || 0;
+            if (chunkCount === 0) {
+                break; // 더 이상 삭제할 레코드가 없음
+            }
+            deleted += chunkCount;
+        }
+
+        // 3. 완료 감사로그 기록 (finish)
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 마무리 중... (100%)';
+        if (typeof window.showGlobalLoading === 'function') {
+            window.showGlobalLoading('로그 정리 완료 처리 중입니다...');
+        }
+
+        await fetch('/api/access_logs/cleanup', {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ action: activeCleanupAction, step: 'finish', total_deleted: deleted })
+        });
+
+        alert(`✅ 성공적으로 정리되었습니다. (삭제된 로그: ${deleted}건)`);
+        closeCleanupModal();
+        fetchStats();
+        fetchLogs();
     } catch (err) {
         console.error('로그 정리 에러:', err);
-        alert('❌ 서버 통신 오류로 로그 정리에 실패했습니다.');
+        alert(`❌ 실패: ${err.message || '서버 통신 오류로 로그 정리에 실패했습니다.'}`);
     } finally {
-        // [제안-029 준수] 전역 로딩 오버레이 숨김
         if (typeof window.hideGlobalLoading === 'function') {
             window.hideGlobalLoading();
         }

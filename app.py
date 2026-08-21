@@ -4353,6 +4353,7 @@ def api_get_access_log_stats():
 def api_cleanup_access_logs():
     """
     [역할]: 관리자가 지정한 기준(30일 이전, 정적 리소스만, 전체 초기화)에 따라 접근 로그를 안전하게 영구 삭제합니다.
+            [제안-044] step 매개변수(count, delete_chunk, finish, direct)에 따라 분할 제어를 수행합니다.
     [의존성 관계]: access_logs 테이블, log_audit()
     [변경 시 영향도]: access_logs 테이블 내 레코드의 영구 파기 및 감사 로그 기록에 영향을 줍니다.
     """
@@ -4362,6 +4363,7 @@ def api_cleanup_access_logs():
 
     data = request.json or {}
     action = data.get('action')
+    step = data.get('step', 'direct') # 'count', 'delete_chunk', 'finish', 'direct'
 
     if not action or action not in ['older_30d', 'static_only', 'all']:
         return jsonify({"success": False, "message": "올바른 정리 방식을 지정해 주세요."}), 400
@@ -4369,31 +4371,101 @@ def api_cleanup_access_logs():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    deleted_count = 0
-    if action == 'older_30d':
-        cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
-        cursor.execute("DELETE FROM access_logs WHERE CreatedAt < ?", (cutoff_date,))
-        deleted_count = cursor.rowcount
-    elif action == 'static_only':
-        cursor.execute("DELETE FROM access_logs WHERE IsStatic = 1")
-        deleted_count = cursor.rowcount
-    elif action == 'all':
-        cursor.execute("DELETE FROM access_logs")
-        deleted_count = cursor.rowcount
+    try:
+        deleted_count = 0
+        if step == 'direct':
+            if action == 'older_30d':
+                cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
+                cursor.execute("DELETE FROM access_logs WHERE CreatedAt < ?", (cutoff_date,))
+                deleted_count = cursor.rowcount
+            elif action == 'static_only':
+                cursor.execute("DELETE FROM access_logs WHERE IsStatic = 1")
+                deleted_count = cursor.rowcount
+            elif action == 'all':
+                cursor.execute("DELETE FROM access_logs")
+                deleted_count = cursor.rowcount
 
-    conn.commit()
-    conn.close()
+            conn.commit()
 
-    log_audit(user['UserId'], user['LoginId'], 'CLEANUP_ACCESS_LOGS', 'access_logs', None, None, {
-        "action": action,
-        "deleted_count": deleted_count
-    })
+            log_audit(user['UserId'], user['LoginId'], 'CLEANUP_ACCESS_LOGS', 'access_logs', None, None, {
+                "action": action,
+                "deleted_count": deleted_count
+            })
 
-    return jsonify({
-        "status": "success",
-        "message": "로그가 성공적으로 정리되었습니다.",
-        "deleted_count": deleted_count
-    })
+            return jsonify({
+                "status": "success",
+                "message": "로그가 성공적으로 정리되었습니다.",
+                "deleted_count": deleted_count
+            })
+        elif step == 'count':
+            if action == 'older_30d':
+                cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
+                cursor.execute("SELECT COUNT(*) FROM access_logs WHERE CreatedAt < ?", (cutoff_date,))
+            elif action == 'static_only':
+                cursor.execute("SELECT COUNT(*) FROM access_logs WHERE IsStatic = 1")
+            elif action == 'all':
+                cursor.execute("SELECT COUNT(*) FROM access_logs")
+            total_count = cursor.fetchone()[0]
+            return jsonify({
+                "status": "success",
+                "total_count": total_count
+            })
+        elif step == 'delete_chunk':
+            chunk_size = 250
+            if action == 'older_30d':
+                cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
+                cursor.execute("""
+                    DELETE FROM access_logs 
+                    WHERE LogId IN (
+                        SELECT LogId FROM access_logs 
+                        WHERE CreatedAt < ? 
+                        ORDER BY CreatedAt ASC
+                        LIMIT ?
+                    )
+                """, (cutoff_date, chunk_size))
+            elif action == 'static_only':
+                cursor.execute("""
+                    DELETE FROM access_logs 
+                    WHERE LogId IN (
+                        SELECT LogId FROM access_logs 
+                        WHERE IsStatic = 1 
+                        ORDER BY CreatedAt ASC
+                        LIMIT ?
+                    )
+                """, (chunk_size,))
+            elif action == 'all':
+                cursor.execute("""
+                    DELETE FROM access_logs 
+                    WHERE LogId IN (
+                        SELECT LogId FROM access_logs 
+                        ORDER BY CreatedAt ASC
+                        LIMIT ?
+                    )
+                """, (chunk_size,))
+
+            deleted_count = cursor.rowcount
+            conn.commit()
+            return jsonify({
+                "status": "success",
+                "deleted_count": deleted_count
+            })
+        elif step == 'finish':
+            total_deleted = data.get('total_deleted', 0)
+            log_audit(user['UserId'], user['LoginId'], 'CLEANUP_ACCESS_LOGS', 'access_logs', None, None, {
+                "action": action,
+                "deleted_count": total_deleted
+            })
+            return jsonify({
+                "status": "success",
+                "message": "로그가 성공적으로 정리되었습니다.",
+                "deleted_count": total_deleted
+            })
+        else:
+            return jsonify({"status": "error", "message": "유효하지 않은 step 파라미터입니다."}), 400
+    finally:
+        conn.close()
+
+    return jsonify({"status": "success"})
 
 
 @app.route('/api/access_logs/error_ips', methods=['GET'])

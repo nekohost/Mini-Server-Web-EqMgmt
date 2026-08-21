@@ -853,3 +853,20 @@
     1. ccess_logs 테이블 스키마 확장을 통해 equest_payload, esponse_payload 데이터를 저장할 수 있도록 구조 변경.
     2. 관리자 웹 접근 로그 모니터링 화면(ccess_logs.html)에서 행을 클릭하면 모달 팝업 또는 아코디언 패널로 상세 Request/Response 내용을 조회할 수 있는 UI 구현.
     3. 비밀번호, 인증 토큰 등 민감 정보가 로그 테이블에 평문으로 남지 않도록 로깅 직전 필드 마스킹(Masking) 및 데이터 클렌징 처리 로직 적용.
+
+### [제안-044] 웹 접근 로그 청크(Chunk) 단위 분할 삭제 및 진행률 UI 적용
+- **제안 일시:** 2026-08-21 12:06:00
+- **제안자:** 사용자 (User) / AI (Claude)
+- **제안 모델:** Claude 3.7 Sonnet (High)
+- **상태:** [개발 완료 (FEATURES.md 이관)]
+- **결정 사유:** 방대한 로그 데이터를 한 번에 `DELETE` 할 때 발생하는 SQLite Lock Timeout(5초)을 방지하기 위해 250건 단위의 청크로 분할하여 삭제하고, 프론트엔드에서 진행률(%)을 시각적으로 표출하도록 개선.
+- **구현 우선순위:** 상 (High)
+- **구현 가능성:** [매우 높음] `/api/access_logs/cleanup` API를 단계별로 분리하고 JS 뷰에서 비동기 루프로 제어.
+- **관련 파일:** `app.py`, `templates/access_logs.html`
+- **영향도 및 의존성:** 접근 로그 초기화 기능 동작 방식 및 UI 갱신 로직.
+- **추정 시간:** 하 (Low)
+- **제안 배경 (개요):** 대량의 로그를 안정적으로 영구 파기하며 UX(진행 상태 애니메이션) 향상.
+- **상세 내용:**
+  1. `app.py`의 cleanup API에 `step` 매개변수 도입 (`count`, `delete_chunk`, `finish`).
+  2. `delete_chunk` 단계에서 LIMIT 250으로 청크 삭제 수행.
+  3. `access_logs.html`의 팝업에서 전체 건수 대비 진행률(%) 표출.
