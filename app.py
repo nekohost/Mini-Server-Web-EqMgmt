@@ -4444,6 +4444,13 @@ def api_access_logs_error_ips():
 
 
 if __name__ == '__main__':
-    # .env 파일에서 FLASK_DEBUG 값을 가져와 True/False로 변환
-    is_debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
-    app.run(host='0.0.0.0', port=5000, debug=is_debug)
+    try:
+        # .env 파일에서 FLASK_DEBUG 값을 가져와 True/False로 변환
+        is_debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+        print(f"[Server Startup] Starting Flask on http://0.0.0.0:5000 (debug={is_debug}, reloader=False)...")
+        # [Python 3.14 호환성] use_reloader=False를 명시하여 서브프로세스 IPC 세마포어 누수 경고 및 크래시 방어
+        app.run(host='0.0.0.0', port=5000, debug=is_debug, use_reloader=False)
+    except Exception as e:
+        import traceback
+        print(f"[Server Fatal Error] Failed to start server: {e}")
+        traceback.print_exc()

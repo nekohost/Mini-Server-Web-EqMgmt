@@ -150,5 +150,12 @@
   - **상단 요약 카드 세그먼트 컨트롤 UI (`access_logs.html`)**:
     - 요약 카드 섹션 헤더에 `[ 📅 오늘 ]` / `[ 🌐 전체 누적 ]` 세그먼트 버튼 배치.
     - 버튼 클릭 시 비동기(`fetchStats()`)로 통계 데이터를 즉시 재조회하고, 카드 레이블(`오늘 총 요청` ↔ `전체 총 요청`) 및 섹션 타이틀을 동적으로 동기화.
+- **[제안-042] Python 3.14 런타임 안정화 및 Reloader 세마포어 크래시 방어**:
+  - **서브프로세스 IPC 세마포어 누수 원천 차단 (`app.py`)**:
+    - `app.run()` 구동 시 `use_reloader=False`를 명시하여 Werkzeug Auto-Reloader에 의한 자식 프로세스 생성을 억제하고, Python 3.14의 `multiprocessing.resource_tracker` 세마포어 감시 충돌로 인한 서비스 무음 크래시를 완벽히 해결.
+  - **서버 런타임 시작 로그 및 예외 가시성 확보 (`try...except`)**:
+    - 서버 시작 시 `[Server Startup] Starting Flask on http://0.0.0.0:5000 (debug=..., reloader=False)...` 안내 문구를 콘솔에 출력.
+    - 포트 충돌(`OSError: [Errno 98] Address already in use`)이나 소켓 바인딩 에러 발생 시 `[Server Fatal Error]` 및 `traceback.print_exc()`로 스택 트레이스를 즉시 터미널에 출력하여 신속한 장애 파악 지원.
+
 
 
