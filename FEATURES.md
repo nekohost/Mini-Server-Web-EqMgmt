@@ -139,6 +139,17 @@
     - **실시간 자동 새로고침(Auto-Refresh)**: 5초 / 10초 / 30초 / OFF 카운트다운 타이머 지원 (조용한 백그라운드 갱신).
     - **안전한 수동 클렌징 도구**: 30일 이전 로그 정리, 정적 리소스 로그 비우기, 전체 로그 완전 초기화 3종 메뉴 제공. 
     - **[제안-044] 대용량 로그 청크 단위 삭제**: 대량 삭제 시 발생하는 SQLite Lock Timeout 방지를 위해 250건 단위로 `DELETE` 청크를 분할하여 처리. 서브쿼리에 `ORDER BY CreatedAt ASC`를 명시하여 무조건 오래된 항목부터 확실하게 삭제되도록 논리적 무결성을 보장함. 프론트엔드 비동기 루프로 삭제 퍼센티지(%) 진행률을 실시간 표출하여 응답성을 유지함.
+- **[제안-038] 메타데이터 자동 라우팅 및 보안 텍스트(security.txt) 도입**:
+  - **동적 메타데이터 라우팅 엔진 (`register_dynamic_metadata_routes`)**:
+    - `Resources/metadata/` 디렉토리 하위의 파일들을 `os.walk`로 재귀 탐색하여 Flask URL Rule로 자동 등록.
+    - 클로저 환경의 늦은 바인딩(Late Binding) 회피를 위해 `create_view_func` 헬퍼 사용 및 중복 라우트 생성(`AssertionError`) 방어.
+    - Windows/Linux 크로스 플랫폼 슬래시(`/`) 정규화 지원.
+  - **정적 리소스 필터링 고속화 (`STATIC_METADATA_ROUTES_FROZEN`)**:
+    - 부팅 시 등록된 메타데이터 및 파비콘 경로를 불변 해시 세트(`frozenset`)로 캐싱하여 `@app.after_request` 인터셉터에서 O(1) 시간 복잡도로 빠르게 `IsStatic=1` 여부를 판별 및 로깅 분류.
+  - **표준 보안 및 AI 크롤러 메타데이터 정적 파일 구성 (`Resources/metadata/`)**:
+    - `security.txt` & `.well-known/security.txt`: RFC 9116 보안 표준을 준수하며 취약점 제보 연락처 이메일을 `nekohost@nekohost.org`로 하드코딩 적용.
+    - `robots.txt`: 검색 엔진 크롤러 및 스캐너 봇의 무작위 스캐닝 방어 (`/admin_center`, `/api/` 등 차단).
+    - `llms.txt`: AI 언어 모델 스캐너용 안내 문서 제공.
 - **[제안-040] 웹 접근 로그 상세 기록 확장 (Request & Response Payload 로깅)**:
   - **무제한/무마스킹 Body 원본 데이터 수집**: `@app.after_request` 인터셉터에서 Request Body 및 Response Body를 용량 제한이나 마스킹 없이 원본 그대로 추출하여 `access_logs` 테이블의 `RequestPayload`, `ResponsePayload` 컬럼에 적재.
   - **프론트엔드 클립 뱃지 & 행 클릭 상세 모달 (`access_logs.html`)**:

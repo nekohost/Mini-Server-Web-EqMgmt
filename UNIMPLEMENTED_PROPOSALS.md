@@ -240,45 +240,14 @@
     4. **[필수 안전망 3] AI 샌드박싱 및 롤백 체계 (Auditing & Soft-Delete):**
        - 에이전트가 실행한 모든 내역은 `audit_logs` 테이블에 `UserAgent`를 통해 "AI Agent"로 명확히 마킹되어 기록되어야 하며, 데이터 삭제 시 물리적 삭제(DROP, DELETE)를 전면 금지하고 Soft-Delete(`IsDeleted=1` 플래그)만을 허용하여 AI 폭주 시 즉각적인 롤백이 가능하도록 아키텍처를 방어합니다.
 
----
-
-## [제안-038] 메타데이터 자동 라우팅 및 보안 텍스트(security.txt) 도입
-  - **제안 일시:** 2026-08-16 11:30:00
-  - **제안 모델:** Gemini 3.7 Flash (High)
-  - **상태:** [채택 / 대기중]
-  - **결정 사유:** 로봇(크롤러) 및 AI 스캐너 봇들의 무작위 스캐닝으로부터 미니서버의 불필요한 트래픽 및 404 에러 로그 생성을 막고, 프로젝트 소유권을 명확히 하는 표준 메타데이터 제공.
-  - **구현 우선순위:** [중]
-  - **구현 가능성:** [매우 높음] `Resources/metadata/` 디렉토리에 정적 파일을 위치시키고, `app.py` 구동 시 `os.walk`를 이용해 재귀적으로 라우터를 자동 생성하면 구현 완료됩니다.
-  - **관련 파일:** `app.py`, `Resources/metadata/*`
-  - **영향도 및 의존성:** `app.after_request` 인터셉터 로직에 메타데이터 라우팅 추가 (O(1) frozenset 검사). 동적 라우팅 중복 생성(AssertionError) 방지 코드 적용.
-  - **추정 난이도:** 하 (Low)
-  - **제안 배경 (개요):** 외부 크롤러의 `robots.txt`, `security.txt` 등의 고정된 메타데이터 파일 탐색 시, Flask 서버가 일일이 대응하여 정적 리소스로 라우팅해주지 않으면 404 에러 로그가 양산됨.
-  - **상세 내용:**
-    1. `Resources/metadata/` 디렉토리 하위에 `.well-known/security.txt`, `security.txt`, `robots.txt`, `llms.txt` 작성.
-    2. `security.txt` 내 연락처 이메일은 반드시 사용자 지정 하드코딩(`nekohost@nekohost.org`) 적용.
-    3. `app.py` 기동 시, 해당 디렉토리를 탐색하여 모든 파일을 `send_from_directory`로 서비스하는 동적 라우팅 생성.
-    4. HTTP 접근 로그(`access_logs`) 수집 시 `IsStatic=1`로 분류되도록 O(1) 정적 검사 풀(`frozenset`) 도입.
 
 ---
 
-## [제안-039] 에러 유발 고유 IP 분석(Error IP Analysis) 대시보드 추가 (Staging-First 원칙 준수 필수)
-  - **제안 일시:** 2026-08-18 12:20:00
-  - **제안 모델:** Gemini 3.1 Pro (High)
-  - **상태:** [채택 / 대기중]
-  - **결정 사유:** 기존 `access_logs.html`은 로그가 단건 나열식이라 공격/스캐너 IP를 특정하기 어려워, 4xx/5xx 에러를 발생시킨 고유 IP만 추출하는 심층 분석 화면이 필수적입니다.
-  - **구현 우선순위:** [중]
-  - **구현 가능성:** [매우 높음] 완전히 새로운 테이블이나 백그라운드 엔진의 추가 없이, 기존 `access_logs` 테이블에 순수 SQL 쿼리(`GROUP BY`)만 호출하여 즉각적인 동적 렌더링이 가능합니다.
-  - **관련 파일:** `app.py`, `templates/access_logs_error_ips.html` (신규), `templates/access_logs.html`
-  - **영향도 및 의존성:** 기존 `access_logs.html` 헤더에 진입 버튼이 추가되며, 신규 템플릿과 API 함수(`/api/access_logs/error_ips`)가 추가됩니다. 권한은 `access_logs`의 메뉴 권한을 그대로 상속받습니다.
-  - **추정 난이도:** 하 (Low) - 쿼리 작성과 프론트엔드 연동 수준.
-  - **제안 배경 (개요):** 에러 발생 빈도가 높은 IP를 추적하여 직관적으로 모니터링하고 차단 조치를 취하기 위한 기반 화면 제공.
-  - **상세 내용 및 🤖 AI 개발자 필수 준수 가이드라인 (절대 준수!):**
-    > **주의:** 비교적 추론 지능이 낮은 AI가 이 문서를 읽고 작업을 진행하더라도 파국적 실수를 저지르지 않도록, `Rule.md`와 매핑된 매우 촘촘한 가이드를 제공합니다.
-    1. **[기능 구현 내용 (No-Logic 원칙)]**:
-       - `templates/access_logs_error_ips.html` 신규 작성. 화면 상단에 상위 IP 요약 차트 배치.
-       - 데이터 테이블에는 IP 주소, 총 에러 건수, Client(4xx)/Server(5xx) 건수, 마지막 에러 발생 시간을 표출.
-       - IP 주소 클릭 시, 기존 `access_logs.html` 화면으로 자동 딥링크 연동되어 해당 IP가 필터링/검색된 상태로 전환되도록 프론트 연동.
-       - `app.py`에 별도 워커/엔진 추가 절대 금지. `WHERE StatusCode >= 400 GROUP BY IpAddress` 쿼리를 사용하는 API `/api/access_logs/error_ips` 1개 추가.
+## [제안-009] 장비 QR코드 / 바코드 생성 및 모바일 스캔 기능
+  - **제안 일시:** 2026-08-03 22:21:30
+  - **제안 모델:** Gemini 3.6 Flash (High)
+  - **검토 모델:** Gemini 3.1 Pro (High)
+  - **상태:** [보류 권장]
   - **결정 사유:** 실물 관리 측면에서 매우 매력적이나, 브라우저에서 카메라를 제어하여 바코드를 스캔하려면 모바일 UI 최적화와 HTTPS 보안 설정(카메라 접근 필수)이 강제되며 라벨 프린터와의 연동 등 외부 허들이 많아 현 단계에서는 오버스펙으로 판단됩니다.
   - **관련 파일:** `app.py`, `templates/index.html`
   - **영향도 및 의존성:** QR코드 생성 라이브러리(jsqrcode 또는 qrcode.js CDN) 도입 필요. 모바일 카메라 스캔용 라이브러리(html5-qrcode CDN) 연동 필요.
@@ -435,24 +404,6 @@
     4. **[필수 안전망 3] AI 샌드박싱 및 롤백 체계 (Auditing & Soft-Delete):**
        - 에이전트가 실행한 모든 내역은 `audit_logs` 테이블에 `UserAgent`를 통해 "AI Agent"로 명확히 마킹되어 기록되어야 하며, 데이터 삭제 시 물리적 삭제(DROP, DELETE)를 전면 금지하고 Soft-Delete(`IsDeleted=1` 플래그)만을 허용하여 AI 폭주 시 즉각적인 롤백이 가능하도록 아키텍처를 방어합니다.
 
----
-
-## [제안-038] 메타데이터 자동 라우팅 및 보안 텍스트(security.txt) 도입
-  - **제안 일시:** 2026-08-16 11:30:00
-  - **제안 모델:** Gemini 3.7 Flash (High)
-  - **상태:** [채택 / 대기중]
-  - **결정 사유:** 로봇(크롤러) 및 AI 스캐너 봇들의 무작위 스캐닝으로부터 미니서버의 불필요한 트래픽 및 404 에러 로그 생성을 막고, 프로젝트 소유권을 명확히 하는 표준 메타데이터 제공.
-  - **구현 우선순위:** [중]
-  - **구현 가능성:** [매우 높음] `Resources/metadata/` 디렉토리에 정적 파일을 위치시키고, `app.py` 구동 시 `os.walk`를 이용해 재귀적으로 라터를 자동 생성하면 구현 완료됩니다.
-  - **관련 파일:** `app.py`, `Resources/metadata/*`
-  - **영향도 및 의존성:** `app.after_request` 인터셉터 로직에 메타데이터 라우팅 추가 (O(1) frozenset 검사). 동적 라우팅 중복 생성(AssertionError) 방지 코드 적용.
-  - **추정 난이도:** 하 (Low)
-  - **제안 배경 (개요):** 외부 크롤러의 `robots.txt`, `security.txt` 등의 고정된 메타데이터 파일 탐색 시, Flask 서버가 일일이 대응하여 정적 리소스로 라우팅해주지 않으면 404 에러 로그가 양산됨.
-  - **상세 내용:**
-    1. `Resources/metadata/` 디렉토리 하위에 `.well-known/security.txt`, `security.txt`, `robots.txt`, `llms.txt` 작성.
-    2. `security.txt` 내 연락처 이메일은 반드시 사용자 지정 하드코딩(`nekohost@nekohost.org`) 적용.
-    3. `app.py` 기동 시, 해당 디렉토리를 탐색하여 모든 파일을 `send_from_directory`로 서비스하는 동적 라우팅 생성.
-    4. HTTP 접근 로그(`access_logs`) 수집 시 `IsStatic=1`로 분류되도록 O(1) 정적 검사 풀(`frozenset`) 도입.
 
 ---
 
