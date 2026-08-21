@@ -969,23 +969,23 @@ def after_request_func(response):
             'CreatedAt': created_at
         })
         
-        # [사용자 특별 지시] 콘솔 직관적 모니터링을 위한 표준 출력 복원
-        status_code = response.status_code
-        if status_code >= 500:
-            color = '\033[91m' # Red
-        elif status_code >= 400:
-            color = '\033[93m' # Yellow
-        elif status_code >= 300:
-            color = '\033[96m' # Cyan
-        else:
-            color = '\033[92m' # Green
-        reset = '\033[0m'
-        
-        if is_static:
-            # 정적 파일 로그는 회색으로 눈에 덜 띄게 출력
-            print(f"\033[90m[{created_at}] {ip_addr} - {request.method} {request.path} {status_code} {duration_ms}ms (Static)\033[0m")
-        else:
-            print(f"[{created_at}] {ip_addr} - {request.method} {request.path} {color}{status_code}{reset} {duration_ms}ms")
+        # [사용자 지시로 주석 처리됨] 콘솔 직관적 모니터링을 위한 표준 출력
+        # status_code = response.status_code
+        # if status_code >= 500:
+        #     color = '\033[91m' # Red
+        # elif status_code >= 400:
+        #     color = '\033[93m' # Yellow
+        # elif status_code >= 300:
+        #     color = '\033[96m' # Cyan
+        # else:
+        #     color = '\033[92m' # Green
+        # reset = '\033[0m'
+        # 
+        # if is_static:
+        #     # 정적 파일 로그는 회색으로 눈에 덜 띄게 출력
+        #     print(f"\033[90m[{created_at}] {ip_addr} - {request.method} {request.path} {status_code} {duration_ms}ms (Static)\033[0m")
+        # else:
+        #     print(f"[{created_at}] {ip_addr} - {request.method} {request.path} {color}{status_code}{reset} {duration_ms}ms")
     except Exception:
         # 어떠한 로깅 예외도 웹 응답(200 OK 등)을 500으로 방해하지 않도록 완전 격리
         pass
