@@ -831,6 +831,25 @@
   - **상세 내용:**
     1. `app.run(host='0.0.0.0', port=5000, debug=is_debug, use_reloader=False)` 적용으로 Werkzeug 서브프로세스 분기 차단.
     2. `try...except` 및 `traceback.print_exc()` 적용으로 포트 충돌 및 소켓 바인딩 실패 시 원인 로그 완전 표출.
+
+---
+
+## [제안-043] 접근 로그 API 자기 참조 ResponsePayload 재귀 루프 차단
+  - **제안 일시:** 2026-08-21 11:11:00
+  - **제안자:** 사용자 (User)
+  - **제안 모델:** Gemini 3.7 Flash (High)
+  - **상태:** [개발 완료 (FEATURES.md 이관)]
+  - **결정 사유:** `/api/access_logs` 호출 시 50건의 로그 목록 JSON 응답이 다시 `ResponsePayload`에 적재되며 발생하는 재귀적 데이터 팽창, DB 비대화, 쿼리 지연 및 삭제 시 SQLite 파일 락 교착 장애를 원천 차단하기 위함.
+  - **구현 우선순위:** [상]
+  - **구현 가능성:** [매우 높음] `after_request` 인터셉터에서 `request.path.startswith('/api/access_logs')` 예외 조건 분기 추가로 즉시 안전하게 구현 가능합니다.
+  - **관련 파일:** `app.py`
+  - **영향도 및 의존성:** `app.py`의 `@app.after_request` 인터셉터 내 ResponsePayload 캡처 조건식 수정.
+  - **추정 난이도:** 하 (Low)
+  - **제안 배경 (개요):** 웹 접근 로그 화면 진입 시 무한 로딩 및 로그 정리 시 팝업 멈춤/서버 다운 장애 해소를 위한 재귀 로깅 차단.
+  - **상세 내용:**
+    1. `@app.after_request` 인터셉터에서 `not is_static and not request.path.startswith('/api/access_logs')` 조건 적용으로 로그 API 응답의 자기 참조 Body 캡처 방어.
+    2. 일반 웹/API 요청의 Payload는 유지하여 감사 및 트러블슈팅 기능 100% 보존.
+
     1. ccess_logs 테이블 스키마 확장을 통해 equest_payload, esponse_payload 데이터를 저장할 수 있도록 구조 변경.
     2. 관리자 웹 접근 로그 모니터링 화면(ccess_logs.html)에서 행을 클릭하면 모달 팝업 또는 아코디언 패널로 상세 Request/Response 내용을 조회할 수 있는 UI 구현.
     3. 비밀번호, 인증 토큰 등 민감 정보가 로그 테이블에 평문으로 남지 않도록 로깅 직전 필드 마스킹(Masking) 및 데이터 클렌징 처리 로직 적용.

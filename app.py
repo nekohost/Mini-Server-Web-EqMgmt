@@ -945,11 +945,12 @@ def after_request_func(response):
         raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
         ip_addr = raw_ip.split(',')[0].strip() if raw_ip else '127.0.0.1'
         
-        # [제안-040] Request / Response Payload 무제한 추출 (마스킹 없음, 용량제한 없음)
+        # [제안-040, 043] Request / Response Payload 무제한 추출 (단, /api/access_logs 자체의 재귀적 로깅 루프 방어)
         request_payload = request.get_data(as_text=True) if request.method in ["POST", "PUT", "PATCH", "DELETE"] else None
         
         response_payload = None
-        if not is_static:
+        # [제안-043] /api/access_logs 계열 응답은 ResponsePayload에서 제외하여 재귀적 DB 비대화 및 락 교착 방어
+        if not is_static and not request.path.startswith('/api/access_logs'):
             try:
                 response_payload = response.get_data(as_text=True)
             except Exception:

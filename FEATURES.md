@@ -156,6 +156,13 @@
   - **서버 런타임 시작 로그 및 예외 가시성 확보 (`try...except`)**:
     - 서버 시작 시 `[Server Startup] Starting Flask on http://0.0.0.0:5000 (debug=..., reloader=False)...` 안내 문구를 콘솔에 출력.
     - 포트 충돌(`OSError: [Errno 98] Address already in use`)이나 소켓 바인딩 에러 발생 시 `[Server Fatal Error]` 및 `traceback.print_exc()`로 스택 트레이스를 즉시 터미널에 출력하여 신속한 장애 파악 지원.
+- **[제안-043] 접근 로그 API 자기 참조 ResponsePayload 재귀 루프 차단**:
+  - **인터셉터 자기 참조 차단 조건 적용 (`app.py`)**:
+    - `@app.after_request` 인터셉터에서 `not is_static and not request.path.startswith('/api/access_logs')` 조건식을 적용하여, `/api/access_logs` (목록 조회), `/api/access_logs/stats` (통계), `/api/access_logs/cleanup` (삭제), `/api/access_logs/error_ips` (에러 IP 분석) 등 접근 로그 자체의 응답 Body가 `ResponsePayload`에 적재되지 않도록 원천 차단.
+  - **DB 리소스 및 서비스 가용성 보존**:
+    - 5초 자동 새로고침 시 거대한 목록 JSON이 중첩 적재되는 자기 참조 재귀 루프를 차단함으로써 `equipment.db`의 비대화 및 쿼리 지연을 방어하고, 로그 삭제 시 SQLite 배타적 파일 락 교착(Deadlock)과 서비스 크래시를 방지.
+    - 장비 CRUD, 로그인/회원가입 등 일반 업무 API의 Request/Response Payload 로깅은 정상 유지되어 트러블슈팅 및 감사 추적성 보존.
+
 
 
 

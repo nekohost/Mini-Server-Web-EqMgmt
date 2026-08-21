@@ -144,6 +144,13 @@
    - **구현 가능성:** [매우 높음] `app.run()`에 `use_reloader=False`를 명시하고 `try...except` 래핑을 적용하여 즉시 해결 가능합니다.
    - **상세 내용:** `app.run(host='0.0.0.0', port=5000, debug=is_debug, use_reloader=False)` 적용으로 Werkzeug 서브프로세스 분기 차단 및 `try...except` 기반 예외 완전 로깅.
 
+16. **[제안-043] 접근 로그 API 자기 참조 ResponsePayload 재귀 루프 차단**
+   - **상태:** [개발 완료 (FEATURES.md 이관)]
+   - **결정 사유:** `/api/access_logs` 호출 시 50건의 로그 목록 JSON 응답이 다시 `ResponsePayload`에 적재되며 발생하는 재귀적 데이터 팽창, DB 비대화, 쿼리 지연 및 삭제 시 SQLite 파일 락 교착 장애를 원천 차단하기 위함.
+   - **구현 우선순위:** [상]
+   - **구현 가능성:** [매우 높음] `after_request` 인터셉터에서 `request.path.startswith('/api/access_logs')` 예외 조건 분기 추가로 즉시 안전하게 구현 가능합니다.
+   - **상세 내용:** `@app.after_request` 인터셉터에서 `not is_static and not request.path.startswith('/api/access_logs')` 조건 적용으로 로그 API 응답의 자기 참조 Body 캡처 방어.
+
 ---
 
 ## 📌 [중] 개발 예정 목록 (우선순위: 중)
