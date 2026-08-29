@@ -1,35 +1,77 @@
+<!--
+=============================================================================
+[화면명]: templates/portal.html (Staging)
+[역할]:
+  - 로그인한 사용자가 시스템 접속 후 가장 먼저 마주하는 중앙 서비스 런처(Main Portal) 화면입니다.
+  - 상위 프레임(miniserver_frame.html)을 상속받아 통일된 내비게이션 바와 세션 타이머를 유지합니다.
+  - 사용자의 권한(Role: user/admin)에 따라 인가된 서비스 메뉴 카드를 비동기로 동적 렌더링합니다.
+  - 대시보드 핵심 지표(나의 장비 수, 총 관리 장비 수)를 요약 위젯 카드 형태로 실시간 조회하여 출력합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - 백엔드 REST API 엔드포인트:
+    - /api/portal/menus (사용자 권한별 접근 가능 메뉴 목록 JSON 조회)
+    - /api/dashboard/stats (나의 보유 장비 및 시스템 전체 장비 수 집계 JSON 조회)
+  - 연계 프론트엔드 리소스: static/js/common.js (공통 유틸리티)
+[변경 시 영향도]:
+  - API 반환 데이터 구조(Url, MenuName, Description, my_equipments, total_equipments 등) 변경 시
+    카드 템플릿 리터럴 렌더링 로직의 동시 수정이 필요합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의: 최상위 root_frame의 title 블록을 포털 전용 텍스트로 치환 -->
 {% block title %}메인 포털 - 미니서버 통합 관리 시스템{% endblock %}
 
+<!-- [2] 상단 헤더 페이지 제목 정의: miniserver_frame의 네비게이션 헤더 중앙에 표시될 제목 바인딩 -->
 {% block page_title %}메인 포털{% endblock %}
 
-<!-- 포털 화면에서는 포털 이동 버튼 숨김 -->
+<!-- [3] 포털 복귀 버튼 비활성화: 현재 화면이 메인 포털 자체이므로 상단바의 '포털로 이동' 링크를 빈 블록으로 덮어써 숨김 처리 -->
 {% block back_to_portal_link %}{% endblock %}
 
+<!-- [4] 본문 컨테이너 반응형 레이아웃 클래스: 최대 폭 5xl(1024px) 및 화면 크기별 좌우 패딩 자동 조절 -->
 {% block container_class %}max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
+<!-- [5] 포털 핵심 본문 컨텐츠 영역 -->
 {% block content %}
-<!-- 대시보드 요약 위젯 영역 -->
+<!-- 
+  [대시보드 요약 위젯 컨테이너]
+  - 초기 상태는 hidden 클래스로 숨겨져 있으며, JS 비동기 통신 성공 시 hidden이 제거되며 표시됨
+  - 모바일 1열(grid-cols-1), 태블릿 2열(md:grid-cols-2), 데스크탑 4열(lg:grid-cols-4) 반응형 그리드 배치
+-->
 <div id="dashboardWidget" class="mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
-    <!-- JS 동적 렌더링 -->
+    <!-- JS 동적 렌더링: loadDashboardWidget() 실행 결과로 위젯 카드 삽입 -->
 </div>
 
-<!-- 메뉴 카드 레이아웃 -->
+<!-- 
+  [서비스 메뉴 카드 그리드 컨테이너]
+  - 모바일 1열(grid-cols-1), 소형 태블릿 2열(sm:grid-cols-2), 데스크탑 3열(lg:grid-cols-3) 반응형 레이아웃
+  - loadPortalMenus()에 의해 사용자 권한별 인가된 메뉴 카드들이 동적으로 생성되어 주입됨
+-->
 <div id="menuContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
     <!-- JS에 의해 접속 허용된 메뉴 동적 렌더링 -->
 </div>
 {% endblock %}
 
+<!-- [6] 포털 전용 비동기 스크립트 블록 -->
 {% block extra_scripts %}
 <script>
+    /**
+     * [역할]: 현재 로그인된 사용자의 권한에 따라 접근 가능한 포털 메뉴 목록을 비동기 조회하여 카드 형태로 화면에 동적 렌더링합니다.
+     * [의존성 관계]: 백엔드 라우트 /api/portal/menus (app.py), DOM 요소 #menuContainer
+     * [변경 시 영향도]: 메뉴 카드 UI 디자인 수정 및 권한별 분기 로직에 영향
+     */
     async function loadPortalMenus() {
+        // [1] 비동기 요청 전송: 세션 쿠키를 포함하여 권한별 메뉴 API 호출
         try {
             const res = await fetch('/api/portal/menus');
+            // [2] 응답 파싱: JSON 메뉴 객체 배열([{ MenuName, Url, Description }, ...]) 획득
             const menus = await res.json();
             const container = document.getElementById('menuContainer');
+            
+            // [3] 컨테이너 초기화: 기존 로딩 스켈레톤이나 잔여 카드를 비움
             container.innerHTML = '';
             
+            // [4] 메뉴 카드 HTML 조립 및 주입: 각 메뉴 정보를 템플릿 리터럴로 순회 렌더링
             menus.forEach(menu => {
                 container.innerHTML += `
                     <a href="${menu.Url}" class="group block bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 transform hover:-translate-y-1">
@@ -42,19 +84,33 @@
                 `;
             });
         } catch (err) {
+            // [5] 예외 처리: 통신 장애나 오류 시 콘솔에 에러를 기록하고 무중단 유지
             console.error('메뉴 로드 오류:', err);
         }
     }
 
+    /**
+     * [역할]: 대시보드 통계 API를 호출하여 사용자의 장비 보유 현황 및 시스템 전체 장비 수를 요약 위젯 카드로 렌더링합니다.
+     * [의존성 관계]: 백엔드 라우트 /api/dashboard/stats (app.py), DOM 요소 #dashboardWidget
+     * [변경 시 영향도]: 통계 지표 항목 추가 시 위젯 카드 레이아웃 및 텍스트 갱신 필요
+     */
     async function loadDashboardWidget() {
+        // [1] 비동기 요청 전송: 대시보드 통계 집계 엔드포인트 호출
         try {
             const res = await fetch('/api/dashboard/stats');
+            // 응답 실패(비인가 또는 서버 오류) 시 위젯 영역을 노출하지 않고 함수 조기 종료
             if (!res.ok) return;
+            
+            // [2] 통계 JSON 파싱: success 여부 및 data 객체({ my_equipments, total_equipments }) 확인
             const json = await res.json();
             if (json.success) {
                 const data = json.data;
                 const widget = document.getElementById('dashboardWidget');
+                
+                // [3] 위젯 노출 처리: hidden 클래스를 제거하여 화면에 등장시킴
                 widget.classList.remove('hidden');
+                
+                // [4] 통계 카드 마크업 생성: 나의 장비 수(블루 테마)와 총 관리 장비 수(인디고 테마) 렌더링
                 widget.innerHTML = `
                     <div class="bg-blue-50 dark:bg-slate-800 rounded-xl p-4 border border-blue-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
                         <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">나의 장비</span>
@@ -67,12 +123,18 @@
                 `;
             }
         } catch (e) {
+            // [5] 예외 처리: 데이터 획득 실패 시 에러 로그 기록
             console.error("위젯 데이터 로드 실패", e);
         }
     }
 
+    /**
+     * [이벤트 리스너]: DOM 파싱 완료 후 포털 메뉴 목록 및 요약 위젯 로딩 함수를 비동기 트리거
+     */
     document.addEventListener('DOMContentLoaded', () => {
+        // 권한별 메뉴 카드 로드
         loadPortalMenus();
+        // 대시보드 요약 위젯 통계 로드
         loadDashboardWidget();
     });
 </script>

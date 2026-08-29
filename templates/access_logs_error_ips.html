@@ -1,13 +1,32 @@
+<!--
+=============================================================================
+[화면명]: templates/access_logs_error_ips.html (Staging)
+[역할]:
+  - 4xx(클라이언트 오류) 및 5xx(서버 오류) HTTP 에러를 유발한 고유 IP 주소들을 중복 없이 집계 분석하는 보안 심층 모니터링 화면입니다 [제안-039].
+  - 상단 요약 카드(고유 에러 IP 수, 총 에러 건수, 4xx vs 5xx 비율) 및 TOP 5 에러 다발 IP 랭킹 막대 차트를 제공합니다.
+  - IP 실시간 검색 필터와 순위별 에러 통계 테이블을 렌더링하며, 각 IP별 원본 웹 접근 로그 화면(/access_logs?ip=...)으로의 1클릭 딥링크 추적 기능을 지원합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - Font Awesome 6 CDN
+  - 백엔드 REST API: GET /api/access_logs/error_ips (에러 유발 고유 IP 집계 데이터 조회)
+  - 연계 화면: templates/access_logs.html
+[변경 시 영향도]:
+  - /api/access_logs/error_ips API 응답 스키마 변경 시 renderDashboard() 및 renderTable()의 필드 매핑이 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}에러 유발 IP 심층 분석 - 미니서버 통합 관리 시스템{% endblock %}
 
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}에러 유발 IP 분석{% endblock %}
 
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 대형 화면 7xl(1280px) 및 패딩 부여 -->
 {% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<!-- 헤더 섹션 -->
+<!-- [UI 섹션 1: 헤더 및 웹 접근 로그 복귀 네비게이션 링크] -->
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
         <div class="flex items-center gap-2 mb-1">
@@ -25,7 +44,7 @@
         </p>
     </div>
 
-    <!-- 우측 상단 액션 버튼 -->
+    <!-- 우측 상단 새로고침 및 전체 로그 바로가기 액션 버튼 -->
     <div class="flex items-center gap-3">
         <button type="button" onclick="fetchErrorIps()" class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium text-xs px-3.5 py-2.5 rounded-lg shadow-sm transition-colors flex items-center gap-2">
             <i class="fa-solid fa-arrows-rotate text-brand-500" id="refreshIcon"></i> 새로고침
@@ -36,7 +55,7 @@
     </div>
 </div>
 
-<!-- 📊 상단 요약 위젯 & TOP 5 에러 IP 차트 -->
+<!-- [UI 섹션 2: 📊 상단 요약 위젯 & TOP 5 에러 IP 시각화 랭킹 바] -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
     <!-- 좌측 요약 지표 카드 (4열) -->
     <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
@@ -88,7 +107,7 @@
         </div>
 
         <div id="topIpsChartContainer" class="space-y-3 flex-1 flex flex-col justify-center">
-            <!-- 동적 차트 바 렌더링 영역 -->
+            <!-- JavaScript renderDashboard()에 의해 랭킹 프로그레스 바 동적 렌더링 -->
             <div class="text-center py-6 text-slate-400 text-xs">
                 <i class="fa-solid fa-spinner fa-spin mr-1"></i> 차트 데이터를 불러오는 중...
             </div>
@@ -96,7 +115,7 @@
     </div>
 </div>
 
-<!-- 🔍 IP 검색 및 필터 패널 -->
+<!-- [UI 섹션 3: 🔍 IP 실시간 검색 및 필터 패널] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="w-full sm:w-80 relative">
@@ -109,7 +128,7 @@
     </div>
 </div>
 
-<!-- 📋 에러 IP 집계 테이블 -->
+<!-- [UI 섹션 4: 📋 에러 IP 집계 테이블 및 상세 추적 딥링크] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6">
     <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
@@ -138,7 +157,7 @@
 
 <script>
 // ==========================================
-// 🚀 전역 상태 & 초기화
+// 🚀 전역 상태 & 초기화 이벤트
 // ==========================================
 let allIpRecords = [];
 

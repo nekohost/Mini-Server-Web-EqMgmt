@@ -1,13 +1,47 @@
+<!--
+=============================================================================
+[화면명]: templates/root_frame.html (Staging)
+[역할]:
+  - 시스템 전체 HTML 문서의 근간을 이루는 최상위 베이스 레이아웃 프레임셋(Jinja2 Base Template)입니다.
+  - 전역 메타태그(UTF-8, Viewport, CSRF Token), 테마 엔진(Tailwind CSS + Dark Mode FOUC 방지 스크립트),
+    폰트 아이콘(Font Awesome), 전역 로딩 인디케이터 오버레이 및 공통 자바스크립트 유틸리티(common.js)를 일괄 주입합니다.
+  - 하위 자식 템플릿들이 Jinja2 상속 문법({% extends "root_frame.html" %})을 통해 일관된 UI 구조와 보안 정책을 계승받도록 지원합니다.
+[의존성 관계]:
+  - 백엔드 주입 변수: csrf_token (Flask app.py 컨텍스트 프로세서 또는 라우트 핸들러에서 전달)
+  - 정적 리소스:
+    - static/js/tailwindcss.js (Tailwind CSS CDN 로드 실패 시 오프라인 로컬 폴백)
+    - static/js/common.js (공통 Toast, 모달, 전역 로딩 제어 유틸리티)
+  - 하위 의존 템플릿: portal.html, index.html, dashboard.html, admin_center.html 등 시스템 전체 템플릿
+[변경 시 영향도]:
+  - 본 파일의 구조 변경(CSS 라이브러리 교체, 테마 클래스명 변경, 전역 로딩 모달 ID 변경 등)은 시스템 내 모든 화면의 렌더링 및 UI 동작에 전역적으로 영향을 미칩니다.
+=============================================================================
+-->
 <!DOCTYPE html>
+<!-- [HTML 루트 태그]: 한국어(ko) 로케일 지정 및 뷰포트 전체 높이(h-full) 확보 -->
 <html lang="ko" class="h-full">
 <head>
+    <!-- [1] 문서 인코딩 선언: 다국어 및 한글 깨짐 방지를 위한 표준 UTF-8 인코딩 설정 -->
     <meta charset="UTF-8">
+    <!-- [2] 뷰포트 반응형 메타태그: 모바일, 폴더블, 데스크탑 등 다양한 화면 해상도에서 1:1 비율로 정상 렌더링되도록 스케일 고정 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- [3] 전역 CSRF 보안 토큰 메타태그: JavaScript 비동기 통신(fetch/Ajax)에서 헤더(X-CSRF-Token) 조립 시 참조할 토큰 전달 -->
     <meta name="csrf-token" content="{{ csrf_token }}">
+    
+    <!-- [4] 문서 타이틀 블록: 개별 하위 페이지에서 {% block title %}...{% endblock %}을 통해 화면별 맞춤 제목으로 재정의 가능 -->
     <title>{% block title %}미니서버 통합 관리 시스템{% endblock %}</title>
-    <!-- Tailwind CSS CDN -->
+    
+    <!-- [5] Tailwind CSS CDN 로더 및 에러 폴백 처리:
+         - 외부 CDN(cdn.tailwindcss.com)을 우선 로드하되, 인터넷 단절 또는 미니서버 로컬망 단독 구동 시
+           onerror 이벤트를 통해 로컬 정적 번들(/static/js/tailwindcss.js)로 자동 우회 전환하여 스타일 깨짐 방지 -->
     <script src="https://cdn.tailwindcss.com" onerror="this.onerror=null; this.src='{{ url_for("static", filename="js/tailwindcss.js") }}'"></script>
+    
+    <!-- [6] Tailwind 전역 설정 및 다크모드 FOUC(Flash of Unstyled Content) 방지 인라인 스크립트 -->
     <script>
+        /**
+         * [Tailwind 환경 설정]:
+         * - darkMode: 'class' 전략을 채택하여 <html> 태그에 'dark' 클래스 유무에 따라 스타일을 즉시 토글 제어
+         * - brand: 시스템 고유의 통일된 블루/스카이 계열 브랜드 컬러 팔레트(50~700) 확장 정의
+         */
         tailwind.config = {
             darkMode: 'class',
             theme: {
@@ -23,33 +57,54 @@
                 }
             }
         }
-        // 로컬 스토리지 테마 캐시를 빠르게 초기화 (FOUC 전역 방지)
+
+        /**
+         * [테마 초기화 인라인 실행 흐름]:
+         * - 브라우저 렌더링 엔진이 본문을 그리기 전에 localStorage 테마 캐시 및 OS 시스템 다크모드 설정을 즉시 평가
+         * - 조건 1: localStorage.theme 값이 'dark'로 명시적 저장된 경우
+         * - 조건 2: localStorage 설정이 없거나 'system'이면서, OS 미디어 쿼리가 다크모드를 선호하는 경우
+         * - 분기 결과: <html> 태그의 classList에 'dark'를 즉시 추가/제거하여 페이지 로딩 순간 흰색 화면 깜빡임(FOUC) 원천 차단
+         */
         if (localStorage.theme === 'dark' || ((!('theme' in localStorage) || localStorage.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            // 다크모드 조건 만족 시 최상단 <html> 태그에 'dark' 클래스 주입
             document.documentElement.classList.add('dark');
         } else {
+            // 라이트모드 조건인 경우 'dark' 클래스 제거
             document.documentElement.classList.remove('dark');
         }
     </script>
-    <!-- Font Awesome CDN -->
+    
+    <!-- [7] Font Awesome 아이콘 폰트 CDN: 시스템 전역에서 사용되는 직관적인 벡터 UI 아이콘 렌더링 제공 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- [8] 하위 템플릿 전용 헤더 확장 블록: 개별 화면에서 별도의 스타일시트나 외부 라이브러리 로드가 필요할 때 주입 -->
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-200">
+    <!-- [9] 화면 본문 컨텐츠 주입 블록: 상속받는 자식 템플릿(portal, index, dashboard 등)의 핵심 DOM 마크업이 렌더링되는 영역 -->
     {% block body %}{% endblock %}
+
     <!-- 
-      [역할]: 전역 로딩 오버레이 UI 
-      [의존성 관계]: common.js 의 showGlobalLoading(), hideGlobalLoading() 함수에 의해 제어됨
-      [변경 시 영향도]: 모든 페이지의 비동기 작업(fetch) 대기 상태 UI 형태가 변경됨
+      =============================================================================
+      [역할]: 전역 비동기 요청 처리 중 사용자 입력을 차단하고 진행 상태를 안내하는 전역 로딩 오버레이 UI
+      [의존성 관계]: common.js 의 showGlobalLoading(), hideGlobalLoading() 함수에 의해 표시/숨김 제어
+      [변경 시 영향도]: 모든 페이지의 비동기 작업(fetch) 대기 상태 UI 형태 및 접근성(role="status") 제어
+      =============================================================================
     -->
     <div id="global-loading-overlay" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-sm flex-col justify-center items-center gap-3 transition-opacity duration-200" role="status" aria-live="polite">
+        <!-- 모달 컨테이너: 카드 형태의 둥근 모서리와 다크모드 배경색 적용 -->
         <div class="p-5 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl flex flex-col items-center gap-3 min-w-[220px] border border-slate-100 dark:border-slate-700">
+            <!-- 회전 애니메이션 스피너 아이콘 -->
             <i class="fa-solid fa-circle-notch fa-spin text-3xl text-brand-500"></i>
+            <!-- 동적 안내 텍스트 출력 레이블: showGlobalLoading("메시지") 호출 시 텍스트 내용 갱신 -->
             <span id="global-loading-text" class="text-sm font-semibold text-slate-700 dark:text-slate-200">작업 처리 중입니다...</span>
         </div>
     </div>
 
-    <!-- 공통 유틸리티 스크립트 선로드 -->
+    <!-- [10] 전역 공통 유틸리티 스크립트 선로드: Toast 알림, 모달 팝업, 비동기 통신 래퍼 함수 바인딩 -->
     <script src="/static/js/common.js"></script>
+    
+    <!-- [11] 하위 템플릿 전용 스크립트 확장 블록: 개별 화면에서 렌더링 이후 실행되어야 하는 비즈니스 로직 스크립트 주입 -->
     {% block extra_scripts_base %}{% endblock %}
 </body>
 </html>

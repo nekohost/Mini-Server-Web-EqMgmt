@@ -1,20 +1,51 @@
+<!--
+=============================================================================
+[화면명]: templates/mypage.html (Staging)
+[역할]:
+  - 현재 로그인한 사용자의 프로필 열람 및 관리, UI/UX 환경설정(테마 모드), 비밀번호 변경, 회원 탈퇴(소프트 삭제) 화면입니다.
+  - 사용자 프로필 수정 모달(openProfileModal): 아이디, 이름, 닉네임 변경 시 본인 비밀번호 확인 인증 필수 [제안-034].
+  - 이메일 수정 모달(sendPin, verifyPin): 새 이메일 주소로 PIN 발송 및 검증 후 이메일 변경(/api/users/update_email).
+  - 테마 모드(라이트/다크/시스템) 설정 및 영속화(applyThemeSetting).
+  - 본인 비밀번호 변경(/api/change_password).
+  - 회원 탈퇴 신청(/api/users/withdraw): 30일 유예기간 부여 및 탈퇴 안내 화면(/deactivated_notice) 리다이렉트.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - Font Awesome 6 CDN
+  - 백엔드 REST API:
+    - POST /api/users/update_profile (프로필 변경)
+    - POST /api/auth/send_pin, POST /api/auth/verify_pin (이메일 인증)
+    - POST /api/users/update_email (이메일 갱신)
+    - POST /api/change_password (비밀번호 변경)
+    - POST /api/users/withdraw (회원 탈퇴 신청)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken, saveUserSettings)
+[변경 시 영향도]:
+  - 사용자 프로필 및 세션 구조 변경 시 마이페이지 렌더링 및 프로필/비밀번호 변경 핸들러가 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}내 정보 (마이페이지) - 장비 관리 시스템{% endblock %}
 
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}내 정보 (마이페이지){% endblock %}
 
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 중형 화면 2xl(672px) 및 패딩 부여 -->
 {% block container_class %}max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
+<!-- [UI 섹션 1: 사용자 프로필 카드] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 md:p-8 border border-slate-200 dark:border-slate-700 transition-colors">
     <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">
         <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">사용자 프로필</h2>
+        <!-- 프로필 수정 모달 호출 버튼 [제안-034] -->
         <button type="button" onclick="openProfileModal()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-lg border border-blue-200 dark:border-slate-600 transition flex items-center gap-1.5">
             <i class="fa-solid fa-user-pen"></i> 프로필 수정
         </button>
     </div>
     
+    <!-- 프로필 항목 그리드 (아이디, 이름/닉네임, 역할, 이메일) -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
             <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">아이디</label>
@@ -37,11 +68,10 @@
         </div>
     </div>
 
-    <!-- UI/UX 맞춤 설정 섹션 -->
+    <!-- [UI 섹션 2: UI/UX 맞춤 환경 설정 (테마 모드)] -->
     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">환경 설정 (UI/UX)</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-slate-50 dark:bg-slate-700/30 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-        
-        <!-- 테마 설정 -->
+        <!-- 테마 모드 라디오 버튼 그룹 -->
         <div>
             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-palette text-brand-500"></i> 테마 설정
@@ -61,10 +91,9 @@
                 </label>
             </div>
         </div>
-
-
     </div>
 
+    <!-- [UI 섹션 3: 비밀번호 변경 폼] -->
     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">비밀번호 변경</h2>
     
     <form id="passwordForm" class="space-y-5">
@@ -92,7 +121,7 @@
         </div>
     </form>
 
-    <!-- 회원 탈퇴 (Soft Delete) 섹션 -->
+    <!-- [UI 섹션 4: ⚠️ 회원 탈퇴 (Soft Delete) 신청 섹션] -->
     <h2 class="text-xl font-bold text-rose-600 dark:text-rose-400 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 mt-10">회원 탈퇴 (비활성화 신청)</h2>
     <div class="bg-rose-50 dark:bg-rose-950/30 p-5 rounded-xl border border-rose-200 dark:border-rose-900/50">
         <div class="text-sm text-rose-700 dark:text-rose-300 space-y-1 mb-4 leading-relaxed">
@@ -119,7 +148,7 @@
     </div>
 </div>
 
-<!-- 이메일 변경 모달 -->
+<!-- [UI 모듈 1: 📧 이메일 변경 모달] -->
 <div id="emailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
     <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-xl shadow-2xl p-6 relative">
         <button type="button" onclick="document.getElementById('emailModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -144,11 +173,7 @@
     </div>
 </div>
 
-<!--
-[역할] [제안-034] 사용자 프로필(아이디, 이름, 닉네임) 본인 비밀번호 인증 기반 수정 모달
-[의존성 관계] /api/users/update_profile, session['user']
-[변경 시 영향도] mypage.html 프로필 카드 UI 및 사용자 기본 정보 수정
--->
+<!-- [UI 모듈 2: 👤 프로필 수정 모달 [제안-034]] -->
 <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-xl shadow-2xl p-6 relative border border-slate-200 dark:border-slate-700">
         <button type="button" onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -192,6 +217,9 @@
 
 {% block extra_scripts %}
 <script>
+    /**
+     * [역할]: 프로필 수정 모달 열기 및 기존 데이터 바인딩
+     */
     function openProfileModal() {
         document.getElementById('editLoginId').value = "{{ user.LoginId }}";
         document.getElementById('editName').value = "{{ user.Name }}";
@@ -201,10 +229,16 @@
         document.getElementById('profileModal').classList.remove('hidden');
     }
 
+    /**
+     * [역할]: 프로필 수정 모달 닫기
+     */
     function closeProfileModal() {
         document.getElementById('profileModal').classList.add('hidden');
     }
 
+    /**
+     * [역할]: 프로필(아이디, 이름, 닉네임) 변경 폼 제출 이벤트 핸들러. 백엔드 /api/users/update_profile 호출
+     */
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const login_id = document.getElementById('editLoginId').value.trim();
@@ -255,6 +289,9 @@
 
     let isEmailVerified = false;
 
+    /**
+     * [역할]: 새 이메일로 6자리 인증 PIN 번호 발송 요청
+     */
     async function sendPin() {
         const email = document.getElementById('newEmailInput').value;
         const msg = document.getElementById('emailMessage');
@@ -290,6 +327,9 @@
         }
     }
 
+    /**
+     * [역할]: 입력된 PIN 번호 검증 후 이메일 주소 업데이트(/api/users/update_email)
+     */
     async function verifyPin() {
         const email = document.getElementById('newEmailInput').value;
         const pin = document.getElementById('pinInput').value;
@@ -344,6 +384,9 @@
         }
     }
 
+    /**
+     * [역할]: 비밀번호 변경 폼 제출 핸들러. 백엔드 /api/change_password 호출
+     */
     document.getElementById('passwordForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const current = document.getElementById('current_pw').value;
@@ -392,6 +435,9 @@
         }
     });
 
+    /**
+     * [역할]: 회원 탈퇴 신청 폼 제출 핸들러. 백엔드 /api/users/withdraw 호출
+     */
     document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const password = document.getElementById('withdraw_pw').value;
@@ -431,12 +477,18 @@
         }
     });
 
+    /**
+     * [초기화]: 현재 사용자의 테마 설정을 라디오 버튼에 반영
+     */
     document.addEventListener('DOMContentLoaded', () => {
         const currentTheme = window.userSettings?.theme || localStorage.getItem('theme') || 'system';
         const themeRadio = document.querySelector(`input[name="theme_setting"][value="${currentTheme}"]`);
         if (themeRadio) themeRadio.checked = true;
     });
 
+    /**
+     * [역할]: 테마 설정(light/dark/system)을 적용하고 DB에 영속화
+     */
     function applyThemeSetting(val) {
         if (typeof window.saveUserSettings === 'function') {
             window.saveUserSettings({ theme: val });

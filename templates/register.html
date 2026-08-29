@@ -1,8 +1,30 @@
+<!--
+=============================================================================
+[화면명]: templates/register.html (Staging)
+[역할]:
+  - 신규 사용자 회원가입 및 이메일 PIN 기반 본인 인증 화면입니다.
+  - 로그인 아이디(LoginId), 이메일(Email), 6자리 PIN 번호 검증(verifyEmailPin), 3분 타이머(startPinTimer), 이름, 닉네임, 비밀번호 확인을 포함합니다.
+  - 이메일 PIN 검증이 완료되기 전까지는 가입하기 버튼이 비활성화(disabled)되며, 인증 완료 시 입력 필드 잠금 및 가입 버튼이 활성화됩니다.
+  - 비밀번호 불일치 시 실시간 안내 및 백엔드 POST /register 통신을 통해 계정을 생성합니다.
+[의존성 관계]:
+  - 상속 템플릿: root_frame.html
+  - 백엔드 REST API:
+    - POST /api/auth/send_pin (이메일 6자리 PIN 발송)
+    - POST /api/auth/verify_pin (이메일 PIN 검증)
+    - POST /register (최종 사용자 계정 등록)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken)
+[변경 시 영향도]:
+  - 회원가입 필수 필드 규격 변경 시 registerForm 및 submit 이벤트 내 유효성 검사가 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'root_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}회원가입 (Staging) - 미니서버 통합 관리 시스템{% endblock %}
 
 {% block body %}
+<!-- [UI 섹션 1: 중앙 회원가입 카드 컨테이너] -->
 <div class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 dark:border-slate-700">
         <div class="text-center mb-8">
@@ -10,7 +32,9 @@
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">시스템 사용을 위해 정보를 입력해 주세요</p>
         </div>
 
+        <!-- 회원가입 입력 폼 -->
         <form id="registerForm" class="space-y-5">
+            <!-- 1. 로그인 아이디 -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">로그인 아이디</label>
                 <input type="text" id="LoginId" required 
@@ -18,7 +42,7 @@
                        placeholder="영문, 숫자 (예: admin)">
             </div>
 
-            <!-- 이메일 인증 필드 영역 (LoginId 와 Name 사이) -->
+            <!-- 2. 이메일 주소 및 PIN 발송 버튼 -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">이메일 주소</label>
                 <div class="flex gap-2">
@@ -33,7 +57,7 @@
                 <p id="emailHelp" class="text-xs text-slate-500 mt-1">인증 PIN 번호가 이메일로 발송됩니다.</p>
             </div>
 
-            <!-- PIN 입력 및 타이머 영역 (초기 hidden) -->
+            <!-- 3. PIN 입력 및 3분 카운트다운 타이머 영역 (발송 후 노출) -->
             <div id="pinSection" class="hidden bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-200 dark:border-slate-600 space-y-3">
                 <div class="flex justify-between items-center">
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">인증 PIN 번호 (6자리)</label>
@@ -51,24 +75,31 @@
                 <p id="pinStatusMsg" class="text-xs font-semibold hidden"></p>
             </div>
 
+            <!-- 4. 실명 (이름) -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">실명 (이름)</label>
                 <input type="text" id="Name" required 
                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                        placeholder="본명을 입력하세요">
             </div>
+
+            <!-- 5. 닉네임 -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">닉네임</label>
                 <input type="text" id="NickName" required 
                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                        placeholder="화면에 표시될 닉네임">
             </div>
+
+            <!-- 6. 비밀번호 -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">비밀번호</label>
                 <input type="password" id="Password" required 
                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
                        placeholder="비밀번호를 입력하세요">
             </div>
+
+            <!-- 7. 비밀번호 확인 -->
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">비밀번호 확인</label>
                 <input type="password" id="PasswordConfirm" required 
@@ -77,14 +108,17 @@
                 <p id="passwordMatchHint" class="hidden text-xs mt-1"></p>
             </div>
 
+            <!-- 에러 메시지 배너 -->
             <div id="errorMessage" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center"></div>
 
+            <!-- 가입 버튼 (이메일 인증 전까지 비활성화) -->
             <button type="submit" id="btnSubmitRegister" disabled
                     class="w-full bg-slate-400 text-white font-bold py-3 rounded-lg shadow-md transition duration-200 cursor-not-allowed">
                 가입하기 (이메일 인증 필요)
             </button>
         </form>
 
+        <!-- 로그인 페이지 링크 -->
         <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 text-center">
             <p class="text-sm text-slate-500 dark:text-slate-400">이미 계정이 있으신가요? <a href="/login" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">로그인</a></p>
         </div>
@@ -94,10 +128,14 @@
 
 {% block extra_scripts_base %}
 <script>
+    // [전역 상태 변수]: PIN 타이머 객체, 남은 시간(초, 기본 180초), 이메일 인증 완료 여부 플래그
     let pinTimer = null;
     let secondsLeft = 180;
     let isEmailVerified = false;
 
+    /**
+     * [역할]: 3분(180초) 인증 타이머를 구동하고 매초 UI를 갱신합니다. 만료 시 입력을 잠금 처리합니다.
+     */
     function startPinTimer() {
         clearInterval(pinTimer);
         secondsLeft = 180;
@@ -118,12 +156,18 @@
         }, 1000);
     }
 
+    /**
+     * [역할]: 남은 초를 MM:SS 형식으로 변환하여 타이머 요소에 표출합니다.
+     */
     function updateTimerDisplay() {
         const m = String(Math.floor(secondsLeft / 60)).padStart(2, '0');
         const s = String(secondsLeft % 60).padStart(2, '0');
         document.getElementById('timerText').innerText = `${m}:${s}`;
     }
 
+    /**
+     * [역할]: 입력된 이메일로 6자리 인증 PIN 번호 발송을 요청합니다.
+     */
     async function requestEmailPin() {
         const email = document.getElementById('Email').value.trim();
         if (!email || !email.includes('@')) {
@@ -160,6 +204,9 @@
         }
     }
 
+    /**
+     * [역할]: 사용자가 입력한 PIN 번호를 백엔드에서 검증하고, 성공 시 이메일 필드 잠금 및 가입 버튼을 활성화합니다.
+     */
     async function verifyEmailPin() {
         const email = document.getElementById('Email').value.trim();
         const pin = document.getElementById('PinCode').value.trim();
@@ -204,6 +251,9 @@
         }
     }
 
+    /**
+     * [역할]: 최종 회원가입 폼 제출 이벤트 핸들러. 유효성 검사 후 POST /register 호출
+     */
     document.getElementById('registerForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!isEmailVerified) {

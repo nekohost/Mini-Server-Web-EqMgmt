@@ -1,12 +1,37 @@
+<!--
+=============================================================================
+[화면명]: templates/permissions.html (Staging)
+[역할]:
+  - 시스템 내 정의된 전체 역할(Role)별 계층형 메뉴(Menu Tree)의 접근 허용/차단 권한을 동적 제어하는 관리자 화면입니다.
+  - 재귀 트리 렌더링(renderTree)을 통해 N-Depth 메뉴 구조를 인덴트 및 기호(└ )와 함께 시각화합니다.
+  - 상하위 종속성 무결성 제어:
+    1) 하위(자식) 메뉴 권한이 활성화되면 조상(부모/조부모) 메뉴 권한이 자동으로 강제 활성화됩니다 (togglePermission).
+    2) 하위 메뉴 중 하나라도 켜져 있는 부모 메뉴는 권한을 임의로 끌 수 없도록 체크박스가 비활성화(disabled) 잠금 처리됩니다 (hasAllowedDescendant).
+  - 권한 일괄 저장 API 호출 시 CSRF 토큰을 동봉하여 백엔드 검증을 거친 후 적용합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - 백엔드 REST API:
+    - GET /api/permissions (역할별 메뉴 권한 매트릭스 전체 조회)
+    - POST /api/permissions (역할별 메뉴 권한 매트릭스 일괄 저장 및 조상-자식 무결성 검증)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken)
+[변경 시 영향도]:
+  - menus 및 permissions 테이블 스키마 변경 시 renderTree(), togglePermission() 및 백엔드 권한 필터링 로직에 직접적인 영향을 줍니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}메뉴 권한 관리 - 미니서버 통합 관리 시스템{% endblock %}
 
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}메뉴 권한 관리{% endblock %}
 
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 중형 화면 4xl(896px) 및 패딩 부여 -->
 {% block container_class %}max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
+<!-- [UI 섹션 1: 헤더 및 권한 저장 액션 바] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md border border-slate-200 dark:border-slate-700 overflow-hidden transition-colors">
     <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center">
         <div>
@@ -18,6 +43,7 @@
         </button>
     </div>
 
+    <!-- [UI 섹션 2: 📋 역할별 메뉴 트리 권한 매트릭스 테이블] -->
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead class="bg-slate-50 dark:bg-slate-800">
@@ -29,7 +55,7 @@
                 </tr>
             </thead>
             <tbody id="permTableBody" class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                <!-- JS 렌더링 -->
+                <!-- JavaScript renderPermissionsTable()에 의해 동적 렌더링 -->
             </tbody>
         </table>
     </div>
@@ -38,8 +64,12 @@
 
 {% block extra_scripts %}
 <script>
+    // [전역 상태 변수]: 백엔드로부터 수신한 권한 매트릭스 전체 배열 캐시
     let currentPermissions = [];
 
+    /**
+     * [역할]: 백엔드 /api/permissions API를 호출하여 전체 역할/메뉴별 권한 데이터를 수신하고 테이블을 렌더링합니다.
+     */
     async function fetchPermissions() {
         try {
             const res = await fetch('/api/permissions');
@@ -51,7 +81,11 @@
         }
     }
 
-    // 1. 상태 업데이트 및 자동 동기화 로직 (N-Depth 대응)
+    /**
+     * [역할]: 특정 메뉴/역할의 권한 상태(0/1)를 반전시키고, 상향식(Bottom-Up)으로 모든 조상 메뉴 권한을 자동 활성화합니다.
+     * @param {string} menuCode - 대상 메뉴 고유 코드
+     * @param {string} role - 대상 사용자 역할명
+     */
     function togglePermission(menuCode, role) {
         const targetIdx = currentPermissions.findIndex(p => p.MenuCode === menuCode && p.Role === role);
         if (targetIdx === -1) return;
@@ -77,7 +111,12 @@
         renderPermissionsTable();
     }
 
-    // 2. 잠금(Disabled) 조건 검사 로직 (하위 노드 중 하나라도 켜져있는지 재귀 스캔)
+    /**
+     * [역할]: 대상 노드의 하위 자손 메뉴 중 하나라도 권한이 켜져 있는지(IsAllowed === 1) 재귀적으로 검사하여 부모 체크박스 잠금 여부를 판별합니다.
+     * @param {string} menuCode - 검사 대상 부모 메뉴 코드
+     * @param {string} role - 대상 사용자 역할명
+     * @returns {boolean} 활성화된 자손 노드 존재 여부
+     */
     function hasAllowedDescendant(menuCode, role) {
         const children = currentPermissions.filter(p => p.ParentMenuCode === menuCode && p.Role === role);
         for (let child of children) {
@@ -87,7 +126,13 @@
         return false;
     }
 
-    // 3. 재귀 렌더링 함수 (무한 뎁스 지원)
+    /**
+     * [역할]: 재귀 호출을 통해 N-Depth 계층 구조를 가진 메뉴 트리를 테이블 HTML 행 문자열로 변환합니다.
+     * @param {string|null} parentCode - 부모 메뉴 코드 (최상위 루트는 null)
+     * @param {number} depth - 현재 들여쓰기 뎁스 (0부터 시작)
+     * @param {string} role - 현재 렌더링 중인 역할명
+     * @returns {string} 생성된 HTML 테이블 행 문자열
+     */
     function renderTree(parentCode, depth, role) {
         let html = '';
         const nodes = currentPermissions.filter(p => p.ParentMenuCode === parentCode && p.Role === role);
@@ -121,7 +166,9 @@
         return html;
     }
 
-    // 4. 초기 렌더링 시작점
+    /**
+     * [역할]: 역할별로 그룹화하여 최상위 노드부터 전체 메뉴 권한 테이블을 렌더링합니다.
+     */
     function renderPermissionsTable() {
         const tbody = document.getElementById('permTableBody');
         tbody.innerHTML = '';
@@ -131,7 +178,9 @@
         });
     }
 
-    // 5. 저장 API (CSRF 토큰 및 에러 팝업 처리)
+    /**
+     * [역할]: 현재 화면에서 수정된 권한 매트릭스 전체 배열을 백엔드에 POST 전송하여 영속화합니다.
+     */
     async function savePermissions() {
         if (!confirm('변경된 권한 설정을 저장하시겠습니까?')) return;
         
@@ -151,7 +200,7 @@
                 alert("✅ " + (data.message || '권한 설정이 변경되었습니다.'));
                 fetchPermissions();
             } else {
-                // [핵심] 조상 검증 거부 시 팝업 및 원상복구
+                // 조상 검증 거부 시 팝업 및 원상복구
                 alert(data.message || '권한 변경에 실패했습니다.'); 
                 fetchPermissions(); 
             }
@@ -163,6 +212,7 @@
         }
     }
 
+    // [초기 실행]: 화면 진입 시 권한 데이터 로드
     document.addEventListener('DOMContentLoaded', fetchPermissions);
 </script>
 {% endblock %}

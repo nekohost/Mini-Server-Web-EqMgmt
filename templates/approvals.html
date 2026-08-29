@@ -1,10 +1,37 @@
+<!--
+=============================================================================
+[화면명]: templates/approvals.html (Staging)
+[역할]:
+  - 일반 사용자가 신청한 신규 카테고리/제조사/라인업 노드/옵션 마스터 기준정보 등록 요청을 심사하는 전자결재함 화면입니다.
+  - 결재 문서 목록 조회(상태별 승인 대기 PENDING, 승인 APPROVED, 반려 REJECTED 뱃지 표출).
+  - 최고 관리자(Admin) 권한 보유 시 결재 승인 및 반려 모달을 통한 심사 처리:
+    1) 승인(approve): 해당 신청 항목을 정규 마스터 데이터로 확정 승인하여 전역 드롭다운에 즉시 반영.
+    2) 반려(reject): 반려 사유(필수) 및 대체 명칭(선택)을 입력받아 신청 데이터를 기각하고 기존 데이터로 보정.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - 백엔드 REST API:
+    - GET /api/me (현재 접속 사용자 권한 조회)
+    - GET /api/approvals (결재 요청 문서 목록 조회)
+    - POST /api/approvals/:id/process (결재 승인/반려 심사 처리)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken)
+[변경 시 영향도]:
+  - approvals 테이블 스키마 및 RequestDataJSON 구조 변경 시 renderApprovalsTable()의 JSON 파싱 및 필드 매핑이 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}전자결재함 - 미니서버{% endblock %}
+
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}전자결재함{% endblock %}
+
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 대화면 6xl(1152px) 및 패딩 부여 -->
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
+<!-- [UI 섹션 1: 헤더 안내] -->
 <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
         <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -16,7 +43,7 @@
     </div>
 </header>
 
-<!-- 결재 목록 테이블 -->
+<!-- [UI 섹션 2: 📋 결재 요청 문서 목록 테이블] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
@@ -31,13 +58,13 @@
                 </tr>
             </thead>
             <tbody id="approvalsTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                <!-- JS 렌더링 -->
+                <!-- JavaScript renderApprovalsTable()에 의해 동적 렌더링 -->
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- 처리 모달 -->
+<!-- [UI 모듈: ⚖️ 결재 승인 / 반려 처리 모달] -->
 <div id="processModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
@@ -48,6 +75,7 @@
             <input type="hidden" id="processRequestId">
             <input type="hidden" id="processAction">
             
+            <!-- 반려 전용 입력 폼 섹션 -->
             <div id="rejectSection" class="space-y-4 hidden">
                 <p class="text-sm text-red-600 dark:red-400 font-semibold">
                     ⚠️ 해당 결재 건을 반려합니다. 
@@ -63,6 +91,7 @@
                 </div>
             </div>
 
+            <!-- 승인 전용 안내 섹션 -->
             <div id="approveSection" class="hidden">
                 <p class="text-sm text-slate-700 dark:text-slate-300">
                     해당 항목을 마스터 데이터로 정식 승인하시겠습니까? 승인 즉시 모든 사용자의 드롭다운 목록에 노출됩니다.
@@ -80,21 +109,31 @@
 
 {% block extra_scripts %}
 <script>
+    // [전역 상태 변수]: 결재 목록 배열, 현재 접속자 정보 캐시
     let currentApprovals = [];
     let currentUser = null;
 
+    /**
+     * [역할]: XSS 방지를 위한 HTML 문자열 이스케이프 유틸리티
+     */
     function escapeHtml(text) {
         if (!text) return '';
         const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
         return String(text).replace(/[&<>"']/g, m => map[m]);
     }
 
+    /**
+     * [역할]: 현재 로그인 사용자 정보(/api/me)를 로드하고 결재 목록을 조회합니다.
+     */
     async function initPage() {
         const resMe = await fetch('/api/me');
         currentUser = await resMe.json();
         fetchApprovals();
     }
 
+    /**
+     * [역할]: 백엔드 /api/approvals API를 호출하여 결재 목록을 조회합니다.
+     */
     async function fetchApprovals() {
         try {
             const res = await fetch('/api/approvals');
@@ -108,6 +147,9 @@
         }
     }
 
+    /**
+     * [역할]: 수신된 결재 요청 목록을 기반으로 문서 ID, 요청자, 구분 뱃지, 신청 항목명, 승인 상태 및 관리 버튼을 테이블에 동적 렌더링합니다.
+     */
     function renderApprovalsTable() {
         const tbody = document.getElementById('approvalsTableBody');
         tbody.innerHTML = '';
@@ -179,6 +221,11 @@
         });
     }
 
+    /**
+     * [역할]: 승인/반려 액션에 맞춰 모달 제목 및 입력 폼을 분기하여 엽니다.
+     * @param {number} reqId - 결재 요청 고유 ID
+     * @param {'approve'|'reject'} action - 처리 액션
+     */
     function openProcessModal(reqId, action) {
         document.getElementById('processRequestId').value = reqId;
         document.getElementById('processAction').value = action;
@@ -208,10 +255,16 @@
         document.getElementById('processModal').classList.remove('hidden');
     }
 
+    /**
+     * [역할]: 결재 처리 모달 닫기
+     */
     function closeProcessModal() {
         document.getElementById('processModal').classList.add('hidden');
     }
 
+    /**
+     * [역할]: 결재 처리(승인/반려) API를 백엔드에 POST 전송합니다.
+     */
     async function submitProcess() {
         const reqId = document.getElementById('processRequestId').value;
         const action = document.getElementById('processAction').value;
@@ -252,6 +305,7 @@
         }
     }
 
+    // [초기 실행]: 페이지 로드 시 사용자 정보 및 결재 목록 로드
     initPage();
 </script>
 {% endblock %}

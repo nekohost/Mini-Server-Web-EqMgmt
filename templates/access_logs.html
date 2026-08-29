@@ -1,13 +1,39 @@
+<!--
+=============================================================================
+[화면명]: templates/access_logs.html (Staging)
+[역할]:
+  - 미니서버로 유입되는 모든 HTTP 트래픽(API, 웹 페이지, 정적 리소스, 외부 스캐너)을 실시간으로 수집하고 모니터링하는 통합 접근 로그 뷰어입니다.
+  - 상단 요약 KPI 카드(오늘/전체 누적 총 요청, API 요청, 정적 리소스, 에러율)와 3단 퀵 필터(전체, 일반 웹/API, 정적 리소스)를 지원합니다.
+  - 상세 검색(IP, HTTP 메서드, 상태 코드, 요청 경로) 및 초 단위 자동 새로고침(Auto-Refresh) 타이머를 제공합니다.
+  - 온디맨드(Lazy-Loading) 기반 Request/Response Payload 상세 뷰어 모달을 제공합니다.
+  - 250건 단위 청크 분할 삭제 및 프로그레스 바를 지원하는 안전한 수동 로그 정리 기능을 내장하고 있습니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - Font Awesome 6 CDN
+  - 백엔드 REST API:
+    - GET /api/access_logs (로그 목록 페이징 및 다중 필터링 조회)
+    - GET /api/access_logs/stats (트래픽 요약 집계 통계 조회)
+    - GET /api/access_logs/<int:log_id>/payload (개별 로그 상세 페이로드 Lazy 조회)
+    - POST /api/access_logs/cleanup (안전한 3단계 분할 로그 정리)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken)
+[변경 시 영향도]:
+  - access_logs 테이블 스키마 및 /api/access_logs 응답 JSON 구조 변경 시 테이블 렌더링(renderTable) 및 페이로드 뷰어(openPayloadModal)가 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}웹 접근 로그 - 미니서버 통합 관리 시스템{% endblock %}
 
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}웹 접근 로그{% endblock %}
 
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 대형 화면 7xl(1280px) 및 패딩 부여 -->
 {% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<!-- 헤더 섹션 -->
+<!-- [UI 섹션 1: 헤더 및 우측 상단 액션 툴바] -->
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -18,14 +44,14 @@
         </p>
     </div>
 
-    <!-- 우측 상단 액션 바 (에러 IP 분석, 자동 새로고침 & 수동 관리 드롭다운) -->
+    <!-- 우측 상단 액션 바 (에러 IP 분석 바로가기, 자동 새로고침 선택기 & 수동 로그 정리 드롭다운) -->
     <div class="flex items-center gap-2.5 flex-wrap">
         <!-- 🔍 에러 유발 IP 심층 분석 바로가기 버튼 [제안-039] -->
         <a href="/access_logs/error_ips" class="bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-semibold text-xs px-3 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
             <i class="fa-solid fa-shield-halved text-rose-500"></i> 에러 유발 IP 분석
         </a>
 
-        <!-- 자동 새로고침 선택기 -->
+        <!-- 자동 새로고침 선택기 및 카운트다운 뱃지 -->
         <div class="flex items-center gap-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-1.5 shadow-sm text-xs">
             <span class="text-slate-500 dark:text-slate-400 font-medium pl-1">
                 <i class="fa-solid fa-arrows-rotate text-brand-500" id="refreshIcon"></i> 자동갱신:
@@ -39,7 +65,7 @@
             <span id="countdownBadge" class="inline-block bg-brand-50 text-brand-600 dark:bg-brand-900/40 dark:text-brand-400 font-mono font-bold px-1.5 py-0.5 rounded text-[11px] min-w-[20px] text-center">5s</span>
         </div>
 
-        <!-- 수동 관리 메뉴 드롭다운 -->
+        <!-- 수동 로그 정리 드롭다운 메뉴 -->
         <div class="relative">
             <button type="button" onclick="toggleCleanupMenu()" class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium text-xs px-3 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
                 <i class="fa-solid fa-broom text-amber-500"></i> 로그 정리 <i class="fa-solid fa-chevron-down text-[10px]"></i>
@@ -60,7 +86,7 @@
     </div>
 </div>
 
-<!-- 📊 트래픽 요약 카드 섹션 및 기간 필터 -->
+<!-- [UI 섹션 2: 📊 트래픽 요약 카드 섹션 및 기간 필터 (오늘 / 전체 누적)] -->
 <div class="mb-6">
     <div class="flex items-center justify-between mb-3 px-1">
         <div class="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
@@ -78,6 +104,7 @@
         </div>
     </div>
 
+    <!-- 4개 KPI 요약 카드 그리드 -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <!-- 총 요청 카드 -->
         <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-3.5">
@@ -125,9 +152,9 @@
     </div>
 </div>
 
-<!-- 🔍 3단 퀵 필터 칩 & 검색 패널 -->
+<!-- [UI 섹션 3: 🔍 3단 퀵 필터 칩 & 다중 상세 검색 패널] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
-    <!-- 3단 퀵 필터 칩 -->
+    <!-- 3단 퀵 필터 칩 바 -->
     <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-100 dark:border-slate-700/60">
         <div class="flex items-center gap-2">
             <span class="text-xs font-bold text-slate-600 dark:text-slate-400 mr-1">
@@ -149,10 +176,10 @@
         </div>
     </div>
 
-    <!-- 상세 검색 폼 -->
+    <!-- 상세 검색 조건 폼 -->
     <form id="searchForm" class="space-y-3" onsubmit="handleSearch(event)">
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
-            <!-- IP 검색 -->
+            <!-- IP 주소 필터 -->
             <div class="md:col-span-3">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-location-dot text-brand-500 mr-1"></i> IP 주소
@@ -160,7 +187,7 @@
                 <input type="text" id="filterIp" placeholder="예: 192.168.0.1" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500">
             </div>
 
-            <!-- HTTP 메서드 -->
+            <!-- HTTP 메서드 필터 -->
             <div class="md:col-span-2">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-code-merge text-brand-500 mr-1"></i> 메서드
@@ -175,7 +202,7 @@
                 </select>
             </div>
 
-            <!-- 상태 코드 그룹 -->
+            <!-- 상태 코드 필터 -->
             <div class="md:col-span-2">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-traffic-light text-brand-500 mr-1"></i> 상태 코드
@@ -195,7 +222,7 @@
                 </select>
             </div>
 
-            <!-- 요청 경로(Path) 키워드 -->
+            <!-- 요청 경로(Request Path) 키워드 필터 -->
             <div class="md:col-span-3">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-route text-brand-500 mr-1"></i> 요청 경로 (Path)
@@ -203,7 +230,7 @@
                 <input type="text" id="filterPath" placeholder="/api/..., /login 등" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500">
             </div>
 
-            <!-- 검색 & 초기화 버튼 -->
+            <!-- 검색 실행 및 초기화 버튼 -->
             <div class="md:col-span-2 flex space-x-2">
                 <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-medium text-xs px-3 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-magnifying-glass"></i> 검색
@@ -216,7 +243,7 @@
     </form>
 </div>
 
-<!-- 📋 로그 테이블 목록 섹션 -->
+<!-- [UI 섹션 4: 📋 접근 로그 테이블 목록 및 페이지네이션] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden mb-6">
     <div class="overflow-x-auto">
         <table class="w-full text-left text-xs text-slate-600 dark:text-slate-300">
@@ -243,7 +270,7 @@
         </table>
     </div>
 
-    <!-- 하단 페이징 및 설정 바 -->
+    <!-- 하단 페이지당 건수 선택기 및 페이지네이션 네비게이션 바 -->
     <div class="p-4 bg-slate-50 dark:bg-slate-700/30 border-t border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
         <div class="flex items-center gap-2">
             <span class="text-slate-500 dark:text-slate-400">페이지당:</span>
@@ -255,12 +282,12 @@
         </div>
 
         <div id="paginationNav" class="flex items-center gap-1">
-            <!-- JS 동적 렌더링 -->
+            <!-- JS renderPagination()에 의해 동적 생성 -->
         </div>
     </div>
 </div>
 
-<!-- 🗑️ 수동 로그 정리 확인 모달 -->
+<!-- [UI 모듈: 🗑️ 수동 로그 정리 확인 모달] -->
 <div id="cleanupModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
         <div class="flex items-center gap-3 text-amber-500 mb-3">
@@ -288,7 +315,7 @@
     </div>
 </div>
 
-<!-- 🔍 Payload 상세보기 모달 -->
+<!-- [UI 모듈: 🔍 Payload 상세보기 모달 (On-Demand Lazy Loading)] -->
 <div id="payloadModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 max-h-[90vh] flex flex-col">
         <div class="flex items-center justify-between mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
@@ -324,7 +351,7 @@
 
 <script>
 // ==========================================
-// 🌐 전역 상태 관리
+// 🌐 전역 상태 관리 변수 정의
 // ==========================================
 let currentPage = 1;
 let currentPerPage = 50;
@@ -333,10 +360,10 @@ let autoRefreshTimer = null;
 let countdownTimer = null;
 let currentCountdown = 5;
 let activeCleanupAction = null;
-let currentLogsData = []; // Payload 참조용 캐시
+let currentLogsData = []; // Payload 참조용 로컬 캐시 배열
 
 // ==========================================
-// 🚀 초기화 및 이벤트 리스너
+// 🚀 초기화 및 이벤트 리스너 등록
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     // URL 쿼리 파라미터(?ip= 또는 ?search_ip=) 확인하여 자동 필터링 [제안-039 연동]
@@ -350,7 +377,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchLogs();
     startAutoRefresh(5);
 
-    // 외부 클릭 시 드롭다운 닫기
+    // 외부 클릭 시 수동 정리 드롭다운 닫기
     document.addEventListener('click', (e) => {
         const dropdown = document.getElementById('cleanupDropdown');
         if (!dropdown.contains(e.target) && !e.target.closest('button[onclick="toggleCleanupMenu()"]')) {
@@ -923,6 +950,9 @@ async function openPayloadModal(index) {
     }
 }
 
+/**
+ * [역할]: Payload 상세 모달을 닫고 일시정지되었던 자동 새로고침 타이머를 재개합니다.
+ */
 function closePayloadModal() {
     document.getElementById('payloadModal').classList.add('hidden');
     // 자동 새로고침 재개

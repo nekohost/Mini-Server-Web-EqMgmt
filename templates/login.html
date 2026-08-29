@@ -1,15 +1,38 @@
+<!--
+=============================================================================
+[화면명]: templates/login.html (Staging)
+[역할]:
+  - 시스템 사용자 인증 및 세션 발급을 위한 로그인 진입점 화면입니다.
+  - 아이디(LoginId) 및 비밀번호(Password)를 입력받아 비동기(/login) 인증을 수행하고 성공 시 메인 포털(/portal)로 이동합니다.
+  - URL 파라미터 기반 에러 감지(동시 로그인 중복 차단 'concurrent_login', 세션 만료 'session_expired') 메시지 배너를 표출합니다.
+  - '비밀번호를 잊으셨나요?' 모달 팝업을 통해 등록된 이메일로 비밀번호 재설정 메일 발송 API(/api/auth/request_password_reset)를 호출합니다.
+[의존성 관계]:
+  - 상속 템플릿: root_frame.html
+  - 백엔드 REST API:
+    - POST /login (사용자 로그인 인증 및 Flask 세션 발급)
+    - POST /api/auth/request_password_reset (비밀번호 재설정 메일 발송 요청)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (getCSRFToken)
+[변경 시 영향도]:
+  - 로그인 폼 필드 또는 CSRF 인증 정책 변경 시 loginForm submit 이벤트 핸들러가 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'root_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}로그인 - 미니서버 통합 관리 시스템{% endblock %}
 
 {% block body %}
+<!-- [UI 섹션 1: 중앙 로그인 카드 컨테이너] -->
 <div class="min-h-screen flex items-center justify-center p-4">
     <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-200 dark:border-slate-700">
+        <!-- 상단 시스템 로고 및 환영 타이틀 -->
         <div class="text-center mb-8">
             <h1 class="text-2xl font-bold text-slate-800 dark:text-slate-100">미니서버 통합 관리</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">계정 정보를 입력하여 로그인하세요</p>
         </div>
 
+        <!-- 로그인 폼 -->
         <form id="loginForm" class="space-y-5">
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">아이디</label>
@@ -29,6 +52,7 @@
                 </div>
             </div>
 
+            <!-- 로그인 실패 및 세션 만료 에러 메시지 배너 -->
             <div id="errorMessage" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center"></div>
 
             <button type="submit" 
@@ -37,13 +61,14 @@
             </button>
         </form>
 
+        <!-- 회원가입 페이지 링크 -->
         <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 text-center">
             <p class="text-sm text-slate-500 dark:text-slate-400">계정이 없으신가요? <a href="/register" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">회원가입하기</a></p>
         </div>
     </div>
 </div>
 
-<!-- 비밀번호 재설정 모달 -->
+<!-- [UI 모듈: 📧 비밀번호 재설정 요청 모달] -->
 <div id="resetModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
     <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-xl shadow-2xl p-6 relative">
         <button type="button" onclick="document.getElementById('resetModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
@@ -68,6 +93,9 @@
 
 {% block extra_scripts_base %}
 <script>
+    /**
+     * [역할]: 로그인 폼 제출 시 비동기(/login) POST 인증을 수행하고 성공 시 메인 화면으로 리다이렉트합니다.
+     */
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const LoginId = document.getElementById('LoginId').value;
@@ -100,6 +128,9 @@
         }
     });
 
+    /**
+     * [역할]: URL 쿼리 파라미터(?error=...)를 감지하여 동시 로그인 세션 파기 또는 만료 알림을 표출합니다.
+     */
     document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(window.location.search);
         const errorDiv = document.getElementById('errorMessage');
@@ -112,6 +143,9 @@
         }
     });
 
+    /**
+     * [역할]: 비밀번호 재설정 이메일 발송 폼 제출 이벤트 핸들러
+     */
     document.getElementById('resetRequestForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('resetEmail').value;

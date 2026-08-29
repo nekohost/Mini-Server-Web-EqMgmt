@@ -1,2 +1,61 @@
+# =============================================================================
+# [파일명]       requirements.txt
+# [파일 유형]     Python 패키지 의존성 목록 (pip install -r requirements.txt)
+# =============================================================================
+#
+# [역할]
+#   - 이 프로젝트의 Python 런타임에서 필요한 서드파티 패키지 목록을 선언하는 파일.
+#   - 미니서버(192.168.0.166) Linux Lite 환경에서 `pip install -r requirements.txt`
+#     명령을 실행하면, 아래 나열된 패키지들이 자동으로 설치됨.
+#   - Flask는 이 목록에 포함되지 않음 — 미니서버에 시스템 레벨로 사전 설치되어 있으며,
+#     별도의 가상환경(venv) 없이 글로벌 Python3 환경에서 구동되는 구조.
+#
+# [의존성 관계]
+#   - 상위 의존: 없음 (이 파일 자체가 프로젝트 의존성의 최상위 선언부)
+#   - 하위 피의존 (이 파일에 선언된 패키지에 의존하는 요소):
+#     · app.py                : python-dotenv → load_dotenv()로 .env 환경변수 로딩
+#                               (SECRET_KEY, FLASK_DEBUG, DB 경로, 메일 설정 등)
+#     · app.py                : requests → (간접 의존) HTTP 클라이언트 라이브러리
+#     · utils/mailer.py       : requests → Microsoft Graph API OAuth 2.0 토큰 요청
+#                               (POST https://login.microsoftonline.com/.../token)
+#                               및 메일 발송 API 호출
+#                               (POST https://graph.microsoft.com/v1.0/users/.../sendMail)
+#
+# [변경 시 영향도]
+#   - 패키지 추가 시: 미니서버에서 `pip install -r requirements.txt` 재실행 필요.
+#   - 패키지 제거 시: 해당 패키지를 import하는 모든 Python 모듈에서 ImportError 발생.
+#   - 버전 고정(pinning) 미적용 상태: 현재 최신 버전이 자동 설치됨.
+#     향후 프로덕션 안정성을 위해 `python-dotenv==1.0.0` 형태로 버전 고정을 권장.
+#   - Rule.md 제2-1조: "Python 3 + Flask" 기술 스택 준수.
+#   - Rule.md 제4-5-1조: .env 파일 기반 민감 정보 분리 → python-dotenv 필수 의존.
+#
+# [패키지별 상세 설명]
+# -----------------------------------------------------------------------------
+
+# --- python-dotenv -----------------------------------------------------------
+# [역할] .env 파일에서 환경변수를 읽어 os.environ에 주입하는 라이브러리.
+# [사용처] app.py 최상단 `from dotenv import load_dotenv` → `load_dotenv()` 호출.
+# [로딩 대상 환경변수 (.env 파일 내)]
+#   · SECRET_KEY          : Flask 세션 암호화 키 (Rule.md 제4-5-1조 하드코딩 금지)
+#   · FLASK_DEBUG         : 디버그 모드 on/off (Rule.md 제4-5-2조 환경변수 제어)
+#   · DATABASE_PATH       : SQLite3 DB 파일 경로 (equipment.db)
+#   · SESSION_LIFETIME    : 세션 만료 시간(분)
+#   · MAIL_TENANT_ID      : Microsoft 365 Azure AD 테넌트 ID
+#   · MAIL_CLIENT_ID      : Azure AD 앱 등록 클라이언트 ID
+#   · MAIL_CLIENT_SECRET  : Azure AD 앱 클라이언트 시크릿 (민감 정보)
+#   · MAIL_SENDER         : 발신자 이메일 주소
+# [의존성] 이 패키지가 없으면 load_dotenv() 실패 → 환경변수 미로딩 → 앱 기동 불가.
 python-dotenv
+
+# --- requests ----------------------------------------------------------------
+# [역할] HTTP 클라이언트 라이브러리. RESTful API 호출을 간결하게 수행.
+# [사용처] utils/mailer.py 내 2개 HTTP 요청:
+#   1. OAuth 2.0 토큰 취득: requests.post(token_url, data=token_data)
+#      → Microsoft login.microsoftonline.com에 client_credentials 그랜트 요청
+#      → 응답 JSON에서 access_token 추출
+#   2. 메일 발송: requests.post(send_url, headers=headers, json=email_message)
+#      → Microsoft Graph API v1.0 sendMail 엔드포인트 호출
+#      → Bearer 토큰 인증 헤더 탑재
+# [의존성] 이 패키지가 없으면 메일 발송 기능 전체 불가 (ImportError: No module named 'requests').
+# [참고] requests는 내부적으로 urllib3, certifi, charset-normalizer, idna를 추가 설치함.
 requests

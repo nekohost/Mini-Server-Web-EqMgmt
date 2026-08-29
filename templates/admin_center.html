@@ -1,31 +1,54 @@
+<!--
+=============================================================================
+[화면명]: templates/admin_center.html (Staging)
+[역할]:
+  - 시스템 관리자 전용 중앙 제어 센터 허브 화면입니다.
+  - 백엔드 RBAC(역할 기반 접근 제어) 시스템에 의해 현재 관리자에게 인가된 하위 관리 메뉴 목록을
+    비동기 조회하여 반응형 카드 그리드 형태로 렌더링합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - 백엔드 REST API: /api/menus/children/admin_center (관리자 하위 메뉴 목록 조회)
+[변경 시 영향도]:
+  - 메뉴 테이블(menus) 또는 관리자 메뉴 URL 라우팅 체계 변경 시 카드 링크 대상 화면에 영향이 있습니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
+
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}관리자 센터 - EqMgmt{% endblock %}
+
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}관리자 센터{% endblock %}
 
 {% block content %}
+<!-- [UI 섹션: 관리자 센터 헤더 안내] -->
 <div class="mb-6">
-    <h2 class="text-2xl font-bold text-slate-800">👑 관리자 센터</h2>
-    <p class="text-slate-500 text-sm mt-1">시스템 관리자 전용 메뉴 허브입니다.</p>
+    <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">👑 관리자 센터</h2>
+    <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">시스템 관리자 전용 메뉴 허브입니다.</p>
 </div>
 
-<!-- 서브 메뉴들이 렌더링 될 그리드 -->
+<!-- [UI 모듈: 인가된 하위 서브 메뉴들이 비동기 렌더링될 반응형 카드 그리드 (1열~4열)] -->
 <div id="admin-menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-    <!-- 자바스크립트로 렌더링 -->
+    <!-- 자바스크립트 DOMContentLoaded 이벤트에서 비동기 fetch 후 카드 동적 주입 -->
 </div>
 
 <script>
+// [실행 흐름]: DOM 로드 완료 시 관리자 하위 메뉴 API를 호출하여 카드를 조립 및 표출
 document.addEventListener('DOMContentLoaded', () => {
+    // [1] 관리자 센터 하위 메뉴 API 호출
     fetch('/api/menus/children/admin_center')
         .then(res => res.json())
         .then(menus => {
             const grid = document.getElementById('admin-menus-grid');
             grid.innerHTML = '';
             
+            // 인가된 관리자 메뉴가 없는 경우 안내 문구 표출
             if(menus.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500">할당된 관리자 메뉴가 없습니다.</div>`;
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500 dark:text-slate-400">할당된 관리자 메뉴가 없습니다.</div>`;
                 return;
             }
 
+            // [2] 메뉴 배열을 순회하며 반응형 카드 링크 생성 및 DOM 주입
             menus.forEach(menu => {
                 grid.innerHTML += `
                     <a href="${menu.Url}" class="group block bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 transform hover:-translate-y-1">

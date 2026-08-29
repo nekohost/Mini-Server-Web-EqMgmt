@@ -1,11 +1,34 @@
+<!--
+=============================================================================
+[화면명]: templates/miniserver_frame.html (Staging)
+[역할]:
+  - 시스템 인증 후 진입하는 모든 업무 화면의 공통 표준 레이아웃 템플릿(Base Application Frame)입니다.
+  - 최상위 root_frame.html을 상속받아 전역 네비게이션 바(GNB), 메인 컨텐츠 영역, 세션 타이머를 제공합니다.
+  - 상단 GNB 바 구성:
+    - 좌측: 브랜드 로고 및 템플릿별 동적 페이지 제목 블록({% block page_title %})
+    - 우측: 포털 복귀 링크({% block back_to_portal_link %}), 3단계 테마 전환 토글 버튼(#theme-toggle-btn),
+      세션 만료 카운트다운 타이머 배지(#session-timer-badge), 마이페이지 이동 링크(닉네임 및 역할 표출), 로그아웃 버튼
+  - 하단 스크립트 블록: static/js/session_timer.js 선로드 및 개별 화면 스크립트 블록({% block extra_scripts %}) 확장점 제공.
+[의존성 관계]:
+  - 상속 템플릿: root_frame.html
+  - 하위 자식 템플릿: portal.html, index.html, dashboard.html, admin_center.html, access_logs.html,
+    access_logs_error_ips.html, audit_logs.html, master_management.html, users_management.html,
+    permissions.html, approvals.html, mypage.html
+  - 정적 리소스 및 유틸:
+    - static/js/session_timer.js (세션 연장 및 타이머 렌더링)
+    - static/js/common.js (toggleTheme 등 전역 UI 유틸리티)
+[변경 시 영향도]:
+  - GNB 구조, Jinja2 블록명(page_title, container_class, content, extra_scripts) 변경 시 모든 업무 화면 템플릿이 영향을 받습니다.
+=============================================================================
+-->
 {% extends 'root_frame.html' %}
 
 {% block body %}
-    <!-- 전역 네비게이션 헤더 -->
+    <!-- [UI 섹션 1: 전역 네비게이션 헤더 (GNB)] -->
     <nav class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-30 shadow-sm transition-colors duration-200" aria-label="전역 네비게이션">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <!-- 좌측: 브랜드 로고 및 동적 메뉴명 -->
+                <!-- 좌측: 브랜드 로고 및 개별 화면 동적 타이틀 블록 -->
                 <div class="flex items-center space-x-3">
                     <a href="/portal" class="flex items-center space-x-2 text-brand-500 hover:text-brand-600 transition">
                         <i class="fa-solid fa-server text-xl sm:text-2xl"></i>
@@ -17,9 +40,9 @@
                     </h1>
                 </div>
 
-                <!-- 우측: 상태 표시 및 컨트롤 영역 -->
+                <!-- 우측: 상태 표시 및 제어 버튼군 -->
                 <div class="flex items-center space-x-2 sm:space-x-4">
-                    <!-- 포털 이동 버튼 (포털 메인 화면이 아닐 때만 표출) -->
+                    <!-- 포털 이동 버튼 (포털 화면에서는 오버라이드하여 숨김 가능) -->
                     {% block back_to_portal_link %}
                     <a id="smart-back-btn" href="/portal" class="text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-500 dark:hover:text-brand-400 transition flex items-center gap-1 mr-1 sm:mr-2">
                         <i class="fa-solid fa-arrow-left text-xs"></i>
@@ -32,10 +55,10 @@
                         <i id="theme-toggle-icon" class="fa-solid fa-desktop text-lg"></i>
                     </button>
 
-                    <!-- 세션 타이머 배지 -->
+                    <!-- 세션 만료 타이머 배지 컨테이너 (#session-timer-badge) -->
                     <span id="session-timer-badge" aria-live="polite"></span>
 
-                    <!-- 내 정보 (마이페이지 이동 버튼) -->
+                    <!-- 내 정보 (마이페이지 이동 배지) -->
                     {% if user %}
                     <a href="/mypage" class="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full border border-slate-200 dark:border-slate-600 transition flex items-center gap-1.5" title="마이페이지로 이동">
                         <span>👤 {{ user.NickName }}</span>
@@ -50,7 +73,7 @@
         </div>
     </nav>
 
-    <!-- 메인 컨텐츠 영역 -->
+    <!-- [UI 섹션 2: 메인 컨텐츠 영역 ({% block content %})] -->
     <main class="{% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}">
         {% block content %}{% endblock %}
     </main>

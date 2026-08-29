@@ -1,13 +1,37 @@
+<!--
+=============================================================================
+[화면명]: templates/audit_logs.html (Staging)
+[역할]:
+  - 시스템 내 모든 사용자 행위(로그인 성공/실패, 장비 등록/수정/삭제, 계정 권한 변경 등)의 보안 감사 로그 추적 화면입니다.
+  - 통합 키워드 검색, 대상 컬럼 지정(행위자ID, 이름, Action, IP, TargetId, Details), Match Mode(LIKE 부분 일치 / Exact 완전 일치)를 지원합니다.
+  - Action 유형(LOGIN, CREATE, UPDATE, DELETE) 및 시작일/종료일 기간 복합 필터링을 제공합니다.
+  - 테이블 컬럼 표시/숨김 동적 제어 및 페이지당 보기 개수(50~500, 커스텀 10~10000)를 지원하며, 이를 user_settings 테이블에 자동 영속화합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - Font Awesome 6 CDN
+  - 백엔드 REST API:
+    - GET /api/audit_logs (감사 로그 목록 페이징 및 다중 조건 조회)
+    - GET /api/user_settings (개인 맞춤형 컬럼/페이지 크기 설정 조회)
+    - POST /api/user_settings (개인 맞춤형 UI 환경설정 저장)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (getCSRFToken)
+[변경 시 영향도]:
+  - audit_logs 테이블 스키마 변경 시 renderTable()의 TD 컬럼 바인딩 및 searchField 옵션이 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}보안 감사 로그 - 미니서버 통합 관리 시스템{% endblock %}
 
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}보안 감사 로그{% endblock %}
 
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 대형 화면 7xl(1280px) 및 패딩 부여 -->
 {% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<!-- 헤더 섹션 -->
+<!-- [UI 섹션 1: 헤더 안내] -->
 <div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
     <div>
         <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
@@ -19,12 +43,11 @@
     </div>
 </div>
 
-<!-- 🔍 검색 및 필터 패널 -->
+<!-- [UI 섹션 2: 🔍 다중 복합 검색 및 필터 패널] -->
 <div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
     <form id="searchForm" class="space-y-4" onsubmit="handleSearch(event)">
-        <!-- 1행: 기본 키워드 검색 -->
+        <!-- 1행: 기본 키워드 및 검색 대상 컬럼, 일치 조건 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
-            
             <!-- 검색 컬럼 선택 -->
             <div class="md:col-span-3">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
@@ -41,7 +64,7 @@
                 </select>
             </div>
 
-            <!-- Match Mode (일치 / LIKE 선택) -->
+            <!-- Match Mode (LIKE 부분 일치 / Exact 완전 일치 라디오 버튼) -->
             <div class="md:col-span-3">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-magnifying-glass-chart text-brand-500 mr-1"></i> 일치 조건 옵션
@@ -76,7 +99,7 @@
                 </div>
             </div>
 
-            <!-- 검색 & 초기화 버튼 -->
+            <!-- 검색 실행 & 필터 초기화 버튼 -->
             <div class="md:col-span-2 flex space-x-2">
                 <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-magnifying-glass"></i> 검색
@@ -87,9 +110,9 @@
             </div>
         </div>
 
-        <!-- 2행: 🛠️ 상세 필터 (Action 유형, 시작일/종료일 동시 필터링) -->
+        <!-- 2행: 🛠️ 상세 필터 (Action 유형, 시작일/종료일 기간 필터) -->
         <div class="pt-3 border-t border-slate-200 dark:border-slate-700/60 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-12 gap-3 items-end">
-            <!-- Action 필터 -->
+            <!-- Action 유형 필터 -->
             <div class="md:col-span-4">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-bolt text-brand-500 mr-1"></i> 행위 유형(Action) 필터
@@ -103,7 +126,7 @@
                 </select>
             </div>
 
-            <!-- 시작일 필터 -->
+            <!-- 시작일 (From) -->
             <div class="md:col-span-4">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-calendar-day text-brand-500 mr-1"></i> 시작 일시 (From)
@@ -111,7 +134,7 @@
                 <input type="date" id="startDate" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
             </div>
 
-            <!-- 종료일 필터 -->
+            <!-- 종료일 (To) -->
             <div class="md:col-span-4">
                 <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
                     <i class="fa-solid fa-calendar-check text-brand-500 mr-1"></i> 종료 일시 (To)
@@ -122,10 +145,9 @@
     </form>
 </div>
 
-<!-- 📊 컨트롤 바: 표출 개수 설정 & 컬럼 커스텀 & 페이징 요약 -->
+<!-- [UI 섹션 3: 📊 컨트롤 바: 건수 요약, 컬럼 커스터마이징, 페이지당 표출 개수 설정] -->
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-t-xl border border-slate-200 dark:border-slate-700 gap-3">
-    
-    <!-- 데이터 건수 정보 -->
+    <!-- 데이터 건수 및 범위 안내 -->
     <div class="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
         <span class="bg-slate-200 dark:bg-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-800 dark:text-slate-200" id="totalCountBadge">
             총 0 건
@@ -135,7 +157,7 @@
         </span>
     </div>
 
-    <!-- 우측 컨트롤 옵션들: 컬럼 선택 + 페이지 크기 -->
+    <!-- 우측 옵션 컨트롤: 컬럼 표시/숨김 + 페이지 크기 -->
     <div class="flex flex-wrap items-center gap-2">
         <!-- 👁️ 컬럼 표시/숨김 커스터마이징 드롭다운 -->
         <div class="relative">
@@ -170,7 +192,7 @@
             </div>
         </div>
 
-        <!-- 한 페이지당 표출 개수 선택 -->
+        <!-- 한 페이지당 표출 개수 선택 (기본 200개 또는 커스텀) -->
         <div class="flex items-center space-x-1">
             <select id="pageSizeSelect" onchange="handlePageSizeChange(this.value)" 
                 class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 font-medium">
@@ -194,7 +216,7 @@
     </div>
 </div>
 
-<!-- 📋 감사 로그 데이터 테이블 -->
+<!-- [UI 섹션 4: 📋 감사 로그 데이터 테이블] -->
 <div class="bg-white dark:bg-slate-800 rounded-b-xl border-x border-b border-slate-200 dark:border-slate-700 overflow-x-auto shadow-sm">
     <table class="w-full text-left text-xs sm:text-sm">
         <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-700 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 uppercase font-semibold">
@@ -219,29 +241,33 @@
     </table>
 </div>
 
-<!-- 📄 전역 페이징 네비게이션 컨트롤 -->
+<!-- [UI 섹션 5: 📄 전역 페이징 네비게이션 컨트롤] -->
 <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
     <div class="text-xs text-slate-500 dark:text-slate-400">
         개인 설정(보기 개수 및 컬럼 숨김)이 <span class="text-brand-500 font-semibold">user_settings</span> DB 테이블에 자동 저장됩니다.
     </div>
     
     <div id="paginationNav" class="flex items-center space-x-1">
-        <!-- Page Navigation Buttons (Generated by JS) -->
+        <!-- JS renderPagination()에 의해 동적 생성 -->
     </div>
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
+    // [전역 상태 변수]: 현재 페이지 번호, 페이지당 표출 개수, 총 페이지 수, 숨김 처리된 컬럼 클래스명 배열
     let currentPage = 1;
     let perPage = 200;
     let totalPages = 1;
     let hiddenColumns = [];
 
+    /**
+     * [초기화]: 사용자 환경설정(user_settings)을 로드하고 바깥 클릭 이벤트 리스너를 등록
+     */
     document.addEventListener('DOMContentLoaded', () => {
         loadUserSettings();
 
-        // 바깥 클릭 시 컬럼 메뉴 닫기
+        // 바깥 클릭 시 컬럼 메뉴 드롭다운 닫기
         document.addEventListener('click', (e) => {
             const menu = document.getElementById('columnMenu');
             const btn = e.target.closest('button[onclick="toggleColumnMenu()"]');
@@ -251,6 +277,10 @@
         });
     });
 
+    /**
+     * [역할]: DB로부터 현재 사용자의 감사로그 페이지 크기 및 숨김 컬럼 설정을 조회하여 UI를 동기화하고 목록을 조회합니다.
+     * [의존성 관계]: /api/user_settings, fetchAuditLogs()
+     */
     async function loadUserSettings() {
         try {
             const res = await fetch('/api/user_settings');
@@ -271,6 +301,9 @@
         fetchAuditLogs();
     }
 
+    /**
+     * [역할]: 전달된 페이지 크기에 맞춰 셀렉트박스 및 직접 입력 인풋 UI를 업데이트합니다.
+     */
     function updatePageSizeUI(size) {
         const select = document.getElementById('pageSizeSelect');
         const customContainer = document.getElementById('customPageSizeContainer');
@@ -286,17 +319,26 @@
         }
     }
 
+    /**
+     * [역할]: hiddenColumns 배열 상태에 맞춰 컬럼 선택 체크박스 상태를 갱신합니다.
+     */
     function updateColumnCheckboxes() {
         document.querySelectorAll('.col-toggle').forEach(chk => {
             chk.checked = !hiddenColumns.includes(chk.value);
         });
     }
 
+    /**
+     * [역할]: 컬럼 표시/숨김 메뉴 드롭다운을 토글합니다.
+     */
     function toggleColumnMenu() {
         const menu = document.getElementById('columnMenu');
         menu.classList.toggle('hidden');
     }
 
+    /**
+     * [역할]: 컬럼 체크박스 변경 시 hiddenColumns 배열을 갱신하고 화면 스타일 적용 및 DB 저장을 트리거합니다.
+     */
     function handleColumnToggle(chk) {
         const colClass = chk.value;
         if (!chk.checked) {
@@ -308,6 +350,9 @@
         saveUserSettings({ audit_log_hidden_columns: hiddenColumns });
     }
 
+    /**
+     * [역할]: hiddenColumns 배열에 등록된 컬럼 클래스들에 'hidden' CSS 클래스를 부여하거나 제거합니다.
+     */
     function applyColumnVisibility() {
         ['col-id', 'col-created', 'col-actor', 'col-action', 'col-ip', 'col-target', 'col-details'].forEach(colClass => {
             const isHidden = hiddenColumns.includes(colClass);
@@ -321,13 +366,17 @@
         });
     }
 
+    /**
+     * [역할]: 검색 조건(필드, 일치옵션, 키워드, Action, 시작일, 종료일)과 페이징에 맞춰 감사 로그를 비동기 조회합니다.
+     * [의존성 관계]: /api/audit_logs, renderTable(), renderPagination(), applyColumnVisibility()
+     */
     async function fetchAuditLogs(page = 1) {
         currentPage = page;
         const field = document.getElementById('searchField').value;
         const matchType = document.querySelector('input[name="matchType"]:checked').value;
         const keyword = document.getElementById('keyword').value.trim();
 
-        // 다중 필터 값
+        // 다중 필터 값 수집
         const actionFilter = document.getElementById('actionFilter').value;
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
@@ -369,6 +418,9 @@
         }
     }
 
+    /**
+     * [역할]: 수신된 감사 로그 레코드 목록을 테이블 본문에 동적 렌더링합니다.
+     */
     function renderTable(logs) {
         const tbody = document.getElementById('auditLogTbody');
         if (!logs || logs.length === 0) {
@@ -405,6 +457,9 @@
         `).join('');
     }
 
+    /**
+     * [역할]: 페이징 메타데이터에 맞춰 페이지 네비게이션 버튼을 동적 생성합니다.
+     */
     function renderPagination(meta) {
         totalPages = meta.total_pages;
         
@@ -416,6 +471,7 @@
         const nav = document.getElementById('paginationNav');
         let html = '';
 
+        // 이전 페이지 버튼
         html += `
             <button onclick="fetchAuditLogs(${meta.page - 1})" ${meta.page <= 1 ? 'disabled' : ''} 
                 class="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 disabled:opacity-40 hover:bg-slate-50 font-medium">
@@ -429,6 +485,7 @@
             startPage = Math.max(1, endPage - 4);
         }
 
+        // 페이지 번호 버튼 목록
         for (let p = startPage; p <= endPage; p++) {
             const active = (p === meta.page);
             html += `
@@ -439,6 +496,7 @@
             `;
         }
 
+        // 다음 페이지 버튼
         html += `
             <button onclick="fetchAuditLogs(${meta.page + 1})" ${meta.page >= meta.total_pages ? 'disabled' : ''} 
                 class="px-3 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 disabled:opacity-40 hover:bg-slate-50 font-medium">
@@ -449,20 +507,32 @@
         nav.innerHTML = html;
     }
 
+    /**
+     * [역할]: 검색 폼 제출 핸들러
+     */
     function handleSearch(e) {
         e.preventDefault();
         fetchAuditLogs(1);
     }
 
+    /**
+     * [역할]: 필터 변경 시 1페이지부터 검색 트리거
+     */
     function triggerSearch() {
         fetchAuditLogs(1);
     }
 
+    /**
+     * [역할]: 검색어 키워드 즉시 삭제 및 재검색
+     */
     function clearKeyword() {
         document.getElementById('keyword').value = '';
         fetchAuditLogs(1);
     }
 
+    /**
+     * [역할]: 전체 검색 필터 초기화
+     */
     function resetFilters() {
         document.getElementById('searchField').value = 'all';
         document.querySelector('input[name="matchType"][value="like"]').checked = true;
@@ -473,6 +543,9 @@
         fetchAuditLogs(1);
     }
 
+    /**
+     * [역할]: 페이지 크기 셀렉트박스 변경 핸들러
+     */
     function handlePageSizeChange(val) {
         const customContainer = document.getElementById('customPageSizeContainer');
         if (val === 'custom') {
@@ -486,6 +559,9 @@
         }
     }
 
+    /**
+     * [역할]: 사용자 직접 입력 페이지 크기 적용
+     */
     function applyCustomPageSize() {
         const input = document.getElementById('customPageSizeInput');
         let num = parseInt(input.value);
@@ -498,6 +574,9 @@
         fetchAuditLogs(1);
     }
 
+    /**
+     * [역할]: 사용자 개인 설정을 백엔드 API에 POST하여 영속화
+     */
     async function saveUserSettings(payload) {
         try {
             await fetch('/api/user_settings', {

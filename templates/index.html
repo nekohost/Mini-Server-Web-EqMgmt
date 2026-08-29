@@ -1,17 +1,46 @@
+<!--
+=============================================================================
+[화면명]: templates/index.html (Staging)
+[역할]:
+  - 장비 자산 통합 관리 시스템의 핵심 메인 CRUD 화면입니다.
+  - "나의 장비(my)" 모드와 "공개 장비(public)" 모드를 단일 템플릿에서 조건부 지원하며,
+    임시저장함(Drafts) 토글, 실시간 장비 목록 조회, 신규 등록/수정/삭제 기능을 제공합니다.
+  - 3-Tier 계층형 카탈로그 트리 탐색기(LineupApp)를 내장하여 카테고리/제조사/모델노드/스펙옵션을 동적으로 바인딩합니다.
+  - 관리자(Role: admin) 접속 시 타 사용자 장비 소유자 지정 및 소유자별 필터/표시 기능을 지원합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - 백엔드 REST API:
+    - /api/me (현재 사용자 세션 및 권한 정보 조회)
+    - /api/equipment (장비 목록 조회, 등록, 수정, 삭제)
+    - /api/lineup_tree_all (3-Tier 전체 카탈로그 노드 및 스펙 옵션 트리 캐시 조회)
+    - /api/users/search (관리자 전용 장비 소유자 검색)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken, saveUserSettings)
+[변경 시 영향도]:
+  - DB equipment 스키마 컬럼 추가/수정 시 Rule.md 제4-2조(체크리스트)에 따라 본 템플릿의
+    폼 입력창(<input>), submitEquipment() payload 조립부, fetchEquipment() 테이블 렌더링 영역이 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의: 접속 모드(public: 공개 장비, my: 나의 장비)에 따라 분기 렌더링 -->
 {% block title %}{% if mode == 'public' %}공개 장비{% else %}나의 장비{% endif %} - 미니서버{% endblock %}
 
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}{% if mode == 'public' %}공개 장비{% else %}나의 장비{% endif %}{% endblock %}
 
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 대화면 6xl(1152px) 및 패딩 부여 -->
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
+<!-- [UI 섹션: 페이지 상단 헤더 및 액션 버튼 툴바] -->
 <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
+        <!-- 화면 메인 제목 (임시저장함 모드 진입 시 JS에 의해 동적 텍스트 변경) -->
         <h1 id="pageMainHeader" class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
             {% if mode == 'public' %} 공개 장비 {% else %} 나의 장비 {% endif %}
         </h1>
+        <!-- 공개 장비 모드 전용: 내 장비 포함 및 최상단 정렬 체크박스 (설정 변경 시 user_settings에 영속화) -->
         {% if mode == 'public' %}
         <div class="mt-2 flex items-center gap-2">
             <input type="checkbox" id="includeMineCheckbox" class="w-4 h-4 text-blue-600 rounded" onchange="window.saveUserSettings({show_my_equip_first: this.checked}); fetchEquipment()">
@@ -19,6 +48,8 @@
         </div>
         {% endif %}
     </div>
+    
+    <!-- 나의 장비 모드 전용 액션 버튼군: 신규 등록 버튼 + 임시저장함 토글 버튼 -->
     {% if mode == 'my' %}
     <div class="flex items-center gap-2">
         <button id="btnOpenAddModal" onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200">
@@ -29,13 +60,14 @@
         </button>
     </div>
     {% else %}
+    <!-- 공개 모드: 신규 장비 등록 단일 버튼 -->
     <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200">
         + 신규 장비 등록
     </button>
     {% endif %}
 </header>
 
-<!-- [UI 모듈 1] 장비 목록 테이블 -->
+<!-- [UI 모듈 1] 장비 목록 반응형 테이블 그리드 -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
@@ -46,11 +78,13 @@
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">제조사/모델</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">시리얼 넘버</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">구입일</th>
+                    <!-- 관리자 로그인 시에만 노출되는 소유자 컬럼 헤더 (기본 hidden) -->
                     <th id="ownerHeader" class="hidden px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">소유자</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">수정일</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리</th>
                 </tr>
             </thead>
+            <!-- 비동기 fetchEquipment() 호출 시 장비 레코드 tr 태그가 동적 렌더링되는 tbody -->
             <tbody id="equipmentTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
                 <!-- JS 렌더링 -->
             </tbody>
@@ -58,19 +92,23 @@
     </div>
 </div>
 
-<!-- [UI 모듈 2] 등록/수정 모달 (팝업) -->
+<!-- [UI 모듈 2] 신규 장비 등록 / 기존 장비 수정 모달 (팝업 폼) -->
 <div id="equipmentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
     <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
+        <!-- 모달 헤더 -->
         <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
             <h2 id="modalTitle" class="text-xl font-bold text-slate-800 dark:text-slate-100">신규 장비 등록</h2>
             <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
         </div>
+        
+        <!-- 장비 입력 폼 -->
         <form id="equipmentForm" class="p-6">
+            <!-- 숨김 필드: 수정 시 PK EquipmentId 및 관리자 지정 소유자 UserId -->
             <input type="hidden" id="EquipmentId">
-            <input type="hidden" id="UserId"> <!-- 선택된 소유자 UserId -->
+            <input type="hidden" id="UserId">
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- 관리자용 소유자 지정 영역 -->
+                <!-- [관리자 전용] 장비 소유자 수동 지정 및 검색 패널 (기본 hidden) -->
                 <div id="ownerSelectContainer" class="hidden md:col-span-2 bg-blue-50 dark:bg-slate-700 p-4 rounded-lg border border-blue-100 dark:border-slate-600 mb-2 flex items-center justify-between">
                     <div>
                         <p class="text-sm font-semibold text-blue-900 dark:text-blue-300">장비 소유자 지정</p>
@@ -81,14 +119,19 @@
                     </button>
                 </div>
 
+                <!-- 필수 입력: 장비 별명(Name) -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">장비 별명 (필수)</label>
                     <input type="text" id="Name" required class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
+                
+                <!-- 3-Tier 계층형 카탈로그 연동 구역 -->
                 <div class="md:col-span-2 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600 mb-2">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-600 pb-2">카탈로그 모델 선택</h3>
-                    <!-- 1차 마스터 -->
+                    
+                    <!-- 1차 마스터 분류 (카테고리 및 제조사) -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <!-- 1차 카테고리 셀렉트박스 및 신규 직접 입력창 -->
                         <div>
                             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리 (1차)</label>
                             <select id="CategorySelect" onchange="window.LineupApp.onRootChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
@@ -98,6 +141,7 @@
                                 <input type="text" id="CategoryCustom" placeholder="신규 카테고리명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                             </div>
                         </div>
+                        <!-- 1차 제조사 셀렉트박스 및 신규 직접 입력창 -->
                         <div>
                             <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">제조사 (1차)</label>
                             <select id="ManufacturerSelect" onchange="window.LineupApp.onRootChange()" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
@@ -109,16 +153,16 @@
                         </div>
                     </div>
                     
-                    <!-- N차 동적 트리 렌더링 컨테이너 -->
+                    <!-- N차 계층형 트리 렌더링 컨테이너: 상위 선택에 따라 하위 라인업 드롭다운이 재귀적 동적 추가됨 -->
                     <div id="dynamicTreeContainer" class="flex flex-col gap-3"></div>
                     
-                    <!-- N+1차 동적 옵션 렌더링 컨테이너 -->
+                    <!-- N+1차 최종 스펙/옵션 렌더링 컨테이너 (최하위 리프 노드 도달 시 노출) -->
                     <div id="dynamicOptionContainer" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-600 hidden">
                         <label class="block text-xs font-medium text-indigo-700 dark:text-indigo-300 mb-1">최종 스펙/옵션 (N+1차)</label>
                         <select id="OptionSelect" onchange="window.LineupApp.onOptionChange()" class="w-full bg-indigo-50 dark:bg-slate-700 text-slate-900 dark:text-white border border-indigo-200 dark:border-indigo-500 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-semibold">
                             <option value="">-- 옵션 선택 --</option>
                         </select>
-                        <!-- 신규 옵션 추가 패널 -->
+                        <!-- 신규 옵션 직접 추가 패널 (스펙 Key-Value 동적 행 추가 지원) -->
                         <div id="NewOptionPanel" class="mt-3 bg-white dark:bg-slate-800 p-3 border border-indigo-100 dark:border-slate-600 rounded shadow-sm hidden">
                             <input type="text" id="NewOptionName" placeholder="신규 옵션명 (예: 256GB / 블랙)" class="w-full mb-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded p-1.5 text-sm outline-none">
                             <div id="KeyValueContainer" class="flex flex-col gap-2"></div>
@@ -126,30 +170,40 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- 부가 자산 정보: 시리얼 넘버 -->
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">시리얼 넘버</label>
                     <input type="text" id="SerialNumber" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
+                <!-- 부가 자산 정보: 구입일 -->
                 <div>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">구입일</label>
                     <input type="date" id="PurchaseDate" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
+                <!-- 부가 자산 정보: 메모/비고 -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">메모/비고</label>
                     <textarea id="Memo" rows="2" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                 </div>
+                <!-- 공개 범위 설정 체크박스 -->
                 <div class="md:col-span-2 mt-2 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 p-3 rounded-lg flex items-center gap-3">
                     <input type="checkbox" id="IsPublic" class="w-5 h-5 text-blue-600 rounded focus:ring-blue-500">
                     <label for="IsPublic" class="text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">이 장비를 시스템에 '공개'합니다 (타인 조회 허용)</label>
                 </div>
             </div>
+            
+            <!-- 모달 하단 버튼 및 유효성 안내 구역 -->
             <div class="mt-6 flex flex-col gap-2">
+                <!-- 카탈로그 최종 옵션 미선택 시 정식 등록 잠금 안내 -->
                 <div id="submitLockNotice" class="text-xs text-amber-600 dark:text-amber-400 text-right">
                     ⚠️ 카탈로그의 최종 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.
                 </div>
                 <div class="flex justify-end gap-3" id="modalButtons">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-medium">취소</button>
+                    <!-- 임시저장 버튼 (옵션 미완성 상태에서도 초안 저장 가능) -->
                     <button type="button" id="btnSaveDraft" onclick="submitEquipment(true)" class="hidden px-4 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-lg font-bold shadow-md">임시저장</button>
+                    <!-- 정식 등록/발행 버튼 (유효성 충족 시 활성화) -->
                     <button type="button" id="btnFormalSubmit" onclick="submitEquipment(false)" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">저장하기</button>
                 </div>
             </div>
@@ -157,7 +211,7 @@
     </div>
 </div>
 
-<!-- [UI 모듈 3] 사용자 검색 모달 (관리자 전용) -->
+<!-- [UI 모듈 3] 관리자 전용 장비 소유자 검색 및 지정 모달 -->
 <div id="userSearchModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 p-4">
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
@@ -184,22 +238,33 @@
 
 {% block extra_scripts %}
 <script>
+    // [전역 상태 변수]: 현재 로드된 장비 목록 배열, 로그인 사용자 정보, 임시저장함 뷰 모드 여부
     let currentEquipmentData = [];
     let currentUser = null;
     let isDraftMode = false;
 
-    // XSS 방어 헬퍼 함수
+    /**
+     * [역할]: 동적 HTML 렌더링 시 XSS(Cross-Site Scripting) 취약점을 방어하기 위해 특수문자를 엔티티 코드로 이스케이프합니다.
+     * [의존성 관계]: 모든 innerHTML 동적 바인딩 함수
+     * [변경 시 영향도]: 렌더링 문자열의 보안 무결성 유지
+     */
     function escapeHtml(text) {
         if (!text) return '';
         const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
         return String(text).replace(/[&<>"']/g, m => map[m]);
     }
 
+    /**
+     * [역할]: 현재 로그인된 사용자 정보(/api/me)를 조회하여 관리자(Role: admin) 여부를 판정하고 소유자 관리 UI를 활성화합니다.
+     * [의존성 관계]: /api/me API, #ownerHeader, #ownerSelectContainer
+     * [변경 시 영향도]: 관리자 권한 여부에 따른 소유자 컬럼 및 검색 패널 표시 분기
+     */
     async function fetchUserInfo() {
         try {
             const res = await fetch('/api/me');
             currentUser = await res.json();
             
+            // 관리자 권한인 경우 테이블의 '소유자' 헤더 및 등록 폼의 '소유자 지정' 컨테이너를 노출
             if (currentUser.Role === 'admin') {
                 const ownerHeader = document.getElementById('ownerHeader');
                 const ownerSelectContainer = document.getElementById('ownerSelectContainer');
@@ -211,6 +276,10 @@
         }
     }
 
+    /**
+     * [모듈]: LineupApp (3-Tier 계층형 카탈로그 동적 네비게이터)
+     * [역할]: 전체 카탈로그 노드 및 스펙 옵션을 세션 스토리지에 캐싱하고, 카테고리/제조사 선택에 따라 N차 하위 모델 드롭다운을 동적 생성
+     */
     window.LineupApp = (function() {
         const CACHE_KEY = 'nodeCache_v2';
         let nodeCache_v2 = {
@@ -218,6 +287,9 @@
             tree: {}
         };
         
+        /**
+         * [초기화]: 세션 스토리지 캐시를 조회하거나 /api/lineup_tree_all을 호출하여 부모-자식 트리 맵을 구성하고 1차 셀렉트박스를 초기화
+         */
         async function init(forceRefresh = false) {
             try {
                 let data = null;
@@ -238,6 +310,7 @@
                 }
                 nodeCache_v2 = data;
                 
+                // parent_id 기준으로 노드 배열을 인접 리스트(tree) 형태로 매핑
                 nodeCache_v2.tree = {};
                 (nodeCache_v2.nodes || []).forEach(n => {
                     const pid = n.parent_id || 'root';
@@ -245,12 +318,14 @@
                     nodeCache_v2.tree[pid].push(n);
                 });
                 
+                // 1차 카테고리 옵션 바인딩
                 const catSelect = document.getElementById('CategorySelect');
                 if (catSelect) {
                     catSelect.innerHTML = '<option value="">-- 선택 --</option>' + 
                         (nodeCache_v2.categories || []).map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('') +
                         '<option value="__custom__">➕ 기타 (직접 입력...)</option>';
                 }
+                // 1차 제조사 옵션 바인딩
                 const mfgSelect = document.getElementById('ManufacturerSelect');
                 if (mfgSelect) {
                     mfgSelect.innerHTML = '<option value="">-- 선택 --</option>' + 
@@ -261,10 +336,16 @@
             } catch(e) { console.error('Tree load error:', e); }
         }
 
+        /**
+         * [캐시 무효화]: 신규 카테고리/제조사/옵션 등록 후 캐시를 강제 파기
+         */
         function invalidateCache() {
             try { sessionStorage.removeItem(CACHE_KEY); } catch(e) {}
         }
 
+        /**
+         * [제출 잠금 검증]: 최종 옵션이 올바르게 선택되었는지 검사하여 정식 등록 버튼의 활성/비활성 상태를 동적 갱신
+         */
         function updateSubmitLockState() {
             const btnFormal = document.getElementById('btnFormalSubmit');
             const notice = document.getElementById('submitLockNotice');
@@ -286,6 +367,9 @@
             }
         }
 
+        /**
+         * [1차 루트 변경 핸들러]: 카테고리/제조사 변경 시 직접 입력창 토글 및 1차 자식 노드 렌더링 트리거
+         */
         function onRootChange() {
             const catId = document.getElementById('CategorySelect').value;
             const mfgId = document.getElementById('ManufacturerSelect').value;
@@ -307,14 +391,19 @@
             updateSubmitLockState();
         }
 
+        /**
+         * [N차 자식 노드 재귀 렌더러]: 깊이(depth)에 따른 셀렉트박스를 생성하고, 변경 이벤트에 따라 다음 깊이를 재귀 생성
+         */
         function renderChildNodes(parentId, depth, nodesToRender = null) {
             const container = document.getElementById('dynamicTreeContainer');
+            // 현재 depth 이상의 기존 하위 셀렉트 행들을 정리
             Array.from(container.querySelectorAll('.lineup-select-row')).forEach(row => {
                 if(parseInt(row.dataset.depth) >= depth) row.remove();
             });
             document.getElementById('dynamicOptionContainer').classList.add('hidden');
 
             let nodes = nodesToRender || nodeCache_v2.tree[parentId] || [];
+            // 하위 노드가 없는 리프(Leaf) 노드 도달 시 최종 옵션 선택 패널 표시
             if(nodes.length === 0 && parentId) {
                 onLeafSelected(parentId);
                 return;
@@ -350,6 +439,9 @@
             updateSubmitLockState();
         }
 
+        /**
+         * [최하위 리프 노드 도달 핸들러]: 해당 모델 ID에 종속된 스펙/옵션 목록을 조회하여 셀렉트박스에 바인딩
+         */
         function onLeafSelected(nodeId) {
             const opts = (nodeCache_v2.options || []).filter(o => o.lineup_node_id == nodeId);
             const optContainer = document.getElementById('dynamicOptionContainer');
@@ -363,6 +455,9 @@
             onOptionChange();
         }
 
+        /**
+         * [옵션 변경 핸들러]: '__new__' 선택 시 신규 옵션명 및 Key-Value 입력 패널 노출
+         */
         function onOptionChange() {
             const val = document.getElementById('OptionSelect').value;
             const panel = document.getElementById('NewOptionPanel');
@@ -375,6 +470,9 @@
             updateSubmitLockState();
         }
 
+        /**
+         * [Key-Value 속성 행 동적 추가]: 신규 옵션의 세부 스펙(예: RAM, Storage) 입력 행 추가
+         */
         function addKeyValueRow() {
             const container = document.getElementById('KeyValueContainer');
             const row = document.createElement('div');
@@ -388,6 +486,9 @@
             updateSubmitLockState();
         }
 
+        /**
+         * [선택된 옵션 페이로드 수집]: 기존 옵션 ID 또는 신규 옵션 생성 데이터 객체를 조립하여 반환
+         */
         function getSelectedOptionData() {
             const optSelect = document.getElementById('OptionSelect');
             if (!optSelect) return null;
@@ -395,7 +496,7 @@
             if (!optVal) return null;
             if (optVal !== '__new__') return { option_id: optVal, isNew: false };
             
-            // 신규 옵션인 경우
+            // 신규 옵션인 경우 필드 수집 및 검증
             const newNameInput = document.getElementById('NewOptionName');
             const newName = newNameInput ? newNameInput.value.trim() : '';
             if (!newName) return { error: '신규 옵션명을 입력하세요.' };
@@ -424,6 +525,10 @@
         };
     })();
 
+    /**
+     * [역할]: '나의 장비 목록'과 '나의 임시저장 목록' 간 화면 모드를 전환하고 버튼 및 헤더 UI를 토글합니다.
+     * [의존성 관계]: isDraftMode 전역 변수, fetchEquipment()
+     */
     function toggleDraftMode() {
         isDraftMode = !isDraftMode;
         const mainHeader = document.getElementById('pageMainHeader');
@@ -442,6 +547,11 @@
         fetchEquipment();
     }
 
+    /**
+     * [역할]: 현재 모드(public/my/draft)에 맞춰 백엔드 장비 목록 API를 비동기 호출하고 테이블 본문을 렌더링합니다.
+     * [의존성 관계]: /api/equipment, currentUser, #equipmentTableBody
+     * [변경 시 영향도]: 장비 DB 컬럼 변경 시 테이블 컬럼 바인딩(Rule.md 제4-2-3-3조) 수정 필수
+     */
     async function fetchEquipment() {
         if (!currentUser) await fetchUserInfo();
 
@@ -461,6 +571,7 @@
         const tbody = document.getElementById('equipmentTableBody');
         tbody.innerHTML = '';
 
+        // 데이터가 없는 경우 빈 안내 문구 출력
         if (data.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -474,6 +585,7 @@
 
         const isAdmin = currentUser && currentUser.Role === 'admin';
 
+        // 장비 레코드 순회 렌더링
         data.forEach(item => {
             let badge = '';
             if (item.IsDraft === 1) {
@@ -528,8 +640,12 @@
         });
     }
 
+    /**
+     * [역할]: 신규 등록 또는 기존 장비 수정 모달을 초기화하고 화면에 노출합니다.
+     * [의존성 관계]: #equipmentModal, window.LineupApp, currentEquipmentData
+     */
     async function openModal(id = null) {
-        await window.LineupApp.init(); // 항상 최신 트리 보장
+        await window.LineupApp.init(); // 항상 최신 카탈로그 트리 보장
 
         const modal = document.getElementById('equipmentModal');
         const form = document.getElementById('equipmentForm');
@@ -549,6 +665,7 @@
         document.getElementById('IsPublic').checked = ('{{ mode }}' === 'public');
         document.getElementById('selectedOwnerDisplay').innerText = `기본값: (${currentUser ? currentUser.NickName : '본인'})`;
 
+        // 기존 장비 수정 모드
         if (id) {
             const item = currentEquipmentData.find(e => e.EquipmentId === id);
             if (item) {
@@ -578,6 +695,7 @@
                 }
             }
         } else {
+            // 신규 등록 모드
             title.innerText = '신규 장비 등록';
             btnSaveDraft.classList.remove('hidden');
             btnSaveDraft.innerText = '임시저장';
@@ -587,10 +705,18 @@
         modal.classList.remove('hidden');
     }
 
+    /**
+     * [역할]: 장비 등록/수정 모달을 숨깁니다.
+     */
     function closeModal() {
         document.getElementById('equipmentModal').classList.add('hidden');
     }
 
+    /**
+     * [역할]: 폼 입력값 및 카탈로그 옵션 데이터를 수집하여 백엔드로 POST/PUT 비동기 전송합니다.
+     * [의존성 관계]: /api/equipment, window.getCSRFToken(), showGlobalLoading()
+     * [변경 시 영향도]: DB 신규 컬럼 추가 시 payload 객체에 필드 추가(Rule.md 제4-2-3-2조) 필수
+     */
     async function submitEquipment(isDraft) {
         const id = document.getElementById('EquipmentId').value;
         const nameInput = document.getElementById('Name');
@@ -625,6 +751,7 @@
         };
         
         const optData = window.LineupApp.getSelectedOptionData();
+        // 정식 등록인 경우 카탈로그 스펙/옵션 필수 검증
         if (!isDraft) {
             if (!optData) {
                 alert('카탈로그 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.');
@@ -636,6 +763,7 @@
             }
         }
 
+        // [Rule.md 제4-2-3-2조]: 백엔드로 전송할 JSON 페이로드 객체 구성
         const payload = {
             Name: name,
             RootData: rootData,
@@ -681,6 +809,10 @@
         }
     }
 
+    /**
+     * [역할]: 특정 장비를 삭제(Soft-Delete) 처리합니다.
+     * [의존성 관계]: /api/equipment/:id (DELETE), window.getCSRFToken(), showGlobalLoading()
+     */
     async function deleteEquipment(id) {
         if (!confirm('정말로 이 장비를 삭제하시겠습니까?')) return;
         try {
@@ -704,6 +836,9 @@
         }
     }
 
+    /**
+     * [관리자 전용]: 소유자 검색 모달 열기
+     */
     function openUserSearchModal() {
         document.getElementById('userSearchModal').classList.remove('hidden');
         document.getElementById('userSearchKeyword').value = '';
@@ -712,10 +847,16 @@
         document.getElementById('userSearchKeyword').focus();
     }
 
+    /**
+     * [관리자 전용]: 소유자 검색 모달 닫기
+     */
     function closeUserSearchModal() {
         document.getElementById('userSearchModal').classList.add('hidden');
     }
 
+    /**
+     * [관리자 전용]: 입력 키워드로 사용자 검색 API 호출 및 결과 리스트 렌더링
+     */
     async function searchUser() {
         const q = document.getElementById('userSearchKeyword').value.trim();
         if (!q) return;
@@ -749,12 +890,16 @@
         }
     }
 
+    /**
+     * [관리자 전용]: 검색된 사용자 항목 클릭 시 장비 소유자로 바인딩
+     */
     function selectUser(userId, nickName) {
         document.getElementById('UserId').value = userId;
         document.getElementById('selectedOwnerDisplay').innerHTML = `지정됨: <strong class="text-blue-800 dark:text-blue-300">${escapeHtml(nickName)}</strong>`;
         closeUserSearchModal();
     }
 
+    // [초기 실행]: 화면 진입 시 즉시 장비 목록 조회 실행
     fetchEquipment();
 </script>
 {% endblock %}

@@ -1,10 +1,40 @@
+<!--
+=============================================================================
+[화면명]: templates/master_management.html (Staging)
+[역할]:
+  - 카테고리(Categories) 및 제조사(Manufacturers) 마스터 기준정보 표준화 관리 화면입니다.
+  - 탭 인터페이스를 통해 카테고리와 제조사 데이터를 분기 전환하여 실시간 조회합니다.
+  - 마스터 항목의 단건 추가, 수정(다국어 NameKo/NameEn 지원), 단건 삭제, 체크박스 기반 다중 일괄 삭제(bulkDelete)를 지원합니다.
+  - 2차 이중 모달(Merge Modal)을 통해 중복되거나 난립된 마스터 분류 항목들을 기준 항목으로 통폐합(Merge)하고,
+    연결된 기존 장비들의 분류 ID를 일괄 이전/보정하는 엔터프라이즈급 데이터 정제 기능을 제공합니다.
+[의존성 관계]:
+  - 상속 템플릿: miniserver_frame.html
+  - 백엔드 REST API:
+    - GET /api/master/manage/categories, GET /api/master/manage/manufacturers (목록 조회)
+    - POST /api/master/manage/:type (신규 등록)
+    - PUT /api/master/manage/:type/:id (단건 수정)
+    - DELETE /api/master/manage/:type/:id (단건 삭제)
+    - POST /api/master/manage/:type/delete_selected (선택 다중 일괄 삭제)
+    - POST /api/master/manage/:type/:id/merge_from (마스터 분류 통폐합)
+  - 정적 리소스 및 유틸:
+    - static/js/common.js (showGlobalLoading, hideGlobalLoading, getCSRFToken)
+[변경 시 영향도]:
+  - 카테고리/제조사 마스터 테이블 스키마 변경 시 renderMasterTable() 및 submitEdit() 페이로드가 동시 수정되어야 합니다.
+=============================================================================
+-->
 {% extends 'miniserver_frame.html' %}
 
+<!-- [1] 브라우저 탭 타이틀 정의 -->
 {% block title %}마스터 데이터 관리 - 미니서버{% endblock %}
+
+<!-- [2] 상단 네비게이션 헤더 페이지 제목 정의 -->
 {% block page_title %}마스터 데이터 관리{% endblock %}
+
+<!-- [3] 본문 컨테이너 반응형 폭 설정: 대화면 6xl(1152px) 및 패딩 부여 -->
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
+<!-- [UI 섹션 1: 헤더 안내] -->
 <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
     <div>
         <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
@@ -16,31 +46,34 @@
     </div>
 </header>
 
-<!-- 탭 컨트롤 및 액션 버튼 -->
+<!-- [UI 섹션 2: 탭 컨트롤 및 일괄 삭제 / 추가 액션 버튼 툴바] -->
 <div class="mb-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div class="flex gap-4">
+        <!-- 카테고리 탭 버튼 -->
         <button id="tabCategories" onclick="switchTab('categories')"
             class="py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors">
             🏷️ 카테고리 관리
         </button>
+        <!-- 제조사 탭 버튼 -->
         <button id="tabManufacturers" onclick="switchTab('manufacturers')"
             class="py-3 px-6 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors">
             🏭 제조사 관리
         </button>
     </div>
     <div class="flex gap-2 pb-2 sm:pb-0">
+        <!-- 체크박스 선택 일괄 삭제 버튼 -->
         <button onclick="bulkDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-sm shadow-md transition-colors flex items-center gap-1">
             🗑️ 선택 일괄 삭제
         </button>
+        <!-- 신규 마스터 항목 추가 모달 열기 버튼 -->
         <button onclick="openAddModal()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-sm shadow-md transition-colors flex items-center gap-1">
             ➕ 새 항목 추가
         </button>
     </div>
 </div>
 
-<!-- 데이터 테이블 -->
-<div
-    class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
+<!-- [UI 섹션 3: 마스터 데이터 테이블 목록] -->
+<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
     <div class="overflow-x-auto">
         <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
             <thead class="bg-slate-50 dark:bg-slate-700/50">
@@ -48,93 +81,67 @@
                     <th class="px-6 py-3 text-left w-12">
                         <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllCheckboxes()" class="w-4 h-4 text-blue-600 bg-white border-slate-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-slate-800 dark:bg-slate-700 dark:border-slate-600 cursor-pointer">
                     </th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        ID</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        기본 명칭 (Default)</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        한국어 (Korean)</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        영어 (English)</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        연결 장비 수</th>
-                    <th
-                        class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        승인 상태</th>
-                    <th
-                        class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        관리</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">ID</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">기본 명칭 (Default)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">한국어 (Korean)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">영어 (English)</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">연결 장비 수</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">승인 상태</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">관리</th>
                 </tr>
             </thead>
-            <tbody id="masterTableBody"
-                class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
-                <!-- JS 렌더링 -->
+            <tbody id="masterTableBody" class="bg-white dark:bg-slate-800 divide-y divide-slate-200 dark:divide-slate-700">
+                <!-- JavaScript renderMasterTable()에 의해 동적 바인딩 -->
             </tbody>
         </table>
     </div>
 </div>
 
-<!-- 1차 모달: 수정 & 통폐합 진입 -->
+<!-- [UI 모듈 1: 1차 모달: 신규 등록 / 수정 & 통폐합 모달 진입] -->
 <div id="editModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
-    <div
-        class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-        <div
-            class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
             <h3 id="editModalTitle" class="text-xl font-bold text-slate-800 dark:text-slate-100">마스터 항목 수정</h3>
-            <button onclick="closeEditModal()"
-                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+            <button onclick="closeEditModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
         </div>
         <div class="p-6 space-y-4">
             <input type="hidden" id="editItemId">
 
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">기본 식별 명칭 (필수)</label>
-                <input type="text" id="editName"
-                    class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="editName" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">한국어 명칭 (선택)</label>
-                <input type="text" id="editNameKo" placeholder="예: 노트북"
-                    class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="editNameKo" placeholder="예: 노트북" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">영어 명칭 (선택)</label>
-                <input type="text" id="editNameEn" placeholder="예: Laptop"
-                    class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <input type="text" id="editNameEn" placeholder="예: Laptop" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
 
             <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                <button type="button" id="btnMerge" onclick="openMergeModal()"
-                    class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-1">
+                <!-- 수정 모드에서만 노출되는 타 항목 통폐합 진입 버튼 -->
+                <button type="button" id="btnMerge" onclick="openMergeModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-1">
                     🔀 타 항목 통폐합(Merge)...
                 </button>
                 <div class="flex gap-2">
-                    <button type="button" onclick="closeEditModal()"
-                        class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
-                    <button type="button" id="btnSubmitEdit" onclick="submitEdit()"
-                        class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md">저장하기</button>
+                    <button type="button" onclick="closeEditModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
+                    <button type="button" id="btnSubmitEdit" onclick="submitEdit()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-bold shadow-md">저장하기</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 2차 이중 모달: 통폐합 대상 다중 선택 -->
+<!-- [UI 모듈 2: 2차 이중 모달: 통폐합 대상 다중 선택 패널] -->
 <div id="mergeModal" class="fixed inset-0 bg-black bg-opacity-60 hidden flex items-center justify-center z-50 p-4">
-    <div
-        class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-purple-300 dark:border-purple-800">
-        <div
-            class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50 dark:bg-purple-900/30">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-purple-300 dark:border-purple-800">
+        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-purple-50 dark:bg-purple-900/30">
             <h3 class="text-xl font-bold text-purple-900 dark:text-purple-200 flex items-center gap-2">
                 🔀 마스터 통폐합 (Merge)
             </h3>
-            <button onclick="closeMergeModal()"
-                class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
+            <button onclick="closeMergeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
         </div>
         <div class="p-6">
             <p class="text-sm text-slate-700 dark:text-slate-300 mb-2">
@@ -144,17 +151,13 @@
                 ※ 아래 체크한 항목들이 모두 현재 항목으로 **통합 흡수**됩니다. 선택된 항목에 연결되어 있던 기존 장비들의 분류 ID가 일괄 변경되며, 체크된 원본 마스터 항목은 파기됩니다.
             </p>
 
-            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3 max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-700/40 space-y-2"
-                id="mergeListContainer">
+            <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3 max-h-60 overflow-y-auto bg-slate-50 dark:bg-slate-700/40 space-y-2" id="mergeListContainer">
                 <!-- JS 렌더링 (체크박스 목록) -->
             </div>
 
             <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="closeMergeModal()"
-                    class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
-                <button type="button" onclick="submitMerge()"
-                    class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-md">선택
-                    항목 일괄 통합</button>
+                <button type="button" onclick="closeMergeModal()" class="px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-600 dark:text-slate-300 text-sm font-medium">취소</button>
+                <button type="button" onclick="submitMerge()" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-bold shadow-md">선택 항목 일괄 통합</button>
             </div>
         </div>
     </div>
@@ -164,10 +167,14 @@
 
 {% block extra_scripts %}
 <script>
-    let currentTab = 'categories'; // 'categories' or 'manufacturers'
+    // [전역 상태 변수]: 현재 활성 탭('categories' | 'manufacturers'), 마스터 데이터 목록 배열, 현재 수정 중인 항목
+    let currentTab = 'categories';
     let masterDataList = [];
     let activeItem = null;
 
+    /**
+     * [역할]: 현재 활성화된 탭(/api/master/manage/categories 또는 manufacturers)의 기준정보 목록을 비동기 조회하여 테이블에 렌더링합니다.
+     */
     async function fetchMasterData() {
         try {
             const res = await fetch(`/api/master/manage/${currentTab}`);
@@ -181,6 +188,9 @@
         }
     }
 
+    /**
+     * [역할]: 탭 전환(카테고리 <-> 제조사) 시 UI 스타일을 변경하고 새 데이터를 로드합니다.
+     */
     function switchTab(tab) {
         currentTab = tab;
         const tabCat = document.getElementById('tabCategories');
@@ -197,6 +207,9 @@
         fetchMasterData();
     }
 
+    /**
+     * [역할]: 수신된 마스터 데이터 목록을 테이블 행으로 동적 렌더링합니다.
+     */
     function renderMasterTable() {
         const tbody = document.getElementById('masterTableBody');
         tbody.innerHTML = '';
@@ -252,6 +265,9 @@
         });
     }
 
+    /**
+     * [역할]: 신규 마스터 등록 팝업 모달을 엽니다.
+     */
     function openAddModal() {
         activeItem = null;
         document.getElementById('editItemId').value = '';
@@ -265,6 +281,9 @@
         document.getElementById('editModal').classList.remove('hidden');
     }
 
+    /**
+     * [역할]: 기존 마스터 항목 수정 팝업 모달을 열고 데이터를 바인딩합니다.
+     */
     function openEditModal(id) {
         const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
         activeItem = masterDataList.find(i => i[idKey] === id);
@@ -281,10 +300,16 @@
         document.getElementById('editModal').classList.remove('hidden');
     }
 
+    /**
+     * [역할]: 1차 수정 모달을 닫습니다.
+     */
     function closeEditModal() {
         document.getElementById('editModal').classList.add('hidden');
     }
 
+    /**
+     * [역할]: 마스터 항목 생성(POST) 또는 수정(PUT) API를 호출합니다.
+     */
     async function submitEdit() {
         const id = document.getElementById('editItemId').value;
         const name = document.getElementById('editName').value.trim();
@@ -325,12 +350,18 @@
         }
     }
 
+    /**
+     * [역할]: 테이블 상단 전체 선택 체크박스 토글 핸들러
+     */
     function toggleAllCheckboxes() {
         const selectAll = document.getElementById('selectAllCheckbox');
         const checkboxes = document.querySelectorAll('.item-checkbox');
         checkboxes.forEach(cb => cb.checked = selectAll.checked);
     }
 
+    /**
+     * [역할]: 개별 체크박스 변경에 따른 전체 선택 체크박스 상태 동기화
+     */
     function updateSelectAllState() {
         const selectAll = document.getElementById('selectAllCheckbox');
         const checkboxes = document.querySelectorAll('.item-checkbox');
@@ -338,6 +369,9 @@
         selectAll.checked = checkboxes.length > 0 && checkedCount === checkboxes.length;
     }
 
+    /**
+     * [역할]: 체크된 다중 마스터 항목 일괄 삭제 API를 호출합니다.
+     */
     async function bulkDelete() {
         const checkedBoxes = document.querySelectorAll('.item-checkbox:checked');
         const itemIds = Array.from(checkedBoxes).map(cb => parseInt(cb.value));
@@ -373,6 +407,9 @@
         }
     }
 
+    /**
+     * [역할]: 특정 단건 마스터 항목을 삭제(DELETE) 처리합니다.
+     */
     async function deleteMasterItem(id) {
         if (!confirm('정말로 이 항목을 삭제하시겠습니까? 연결된 장비의 해당 분류는 초기화됩니다.')) return;
 
@@ -397,7 +434,12 @@
         }
     }
 
-    // 통폐합 2차 이중 모달 관련 함수
+    // ==========================================
+    // 🔀 통폐합(Merge) 2차 이중 모달 관련 함수
+    // ==========================================
+    /**
+     * [역할]: 2차 통폐합 모달을 열고, 현재 기준 항목을 제외한 타 마스터 항목 체크박스 목록을 렌더링합니다.
+     */
     function openMergeModal() {
         if (!activeItem) return;
         const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
@@ -432,10 +474,16 @@
         document.getElementById('mergeModal').classList.remove('hidden');
     }
 
+    /**
+     * [역할]: 2차 통폐합 모달을 닫습니다.
+     */
     function closeMergeModal() {
         document.getElementById('mergeModal').classList.add('hidden');
     }
 
+    /**
+     * [역할]: 선택한 타 마스터 항목들을 기준 항목으로 통폐합(Merge)하는 API를 호출합니다.
+     */
     async function submitMerge() {
         if (!activeItem) return;
         const idKey = currentTab === 'categories' ? 'CategoryId' : 'ManufacturerId';
@@ -478,6 +526,7 @@
         }
     }
 
+    // [초기 실행]: 마스터 데이터 로드
     fetchMasterData();
 </script>
 {% endblock %}
