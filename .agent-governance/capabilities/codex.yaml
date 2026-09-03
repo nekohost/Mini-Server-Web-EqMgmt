@@ -1,0 +1,26 @@
+platform: codex
+status: active-profile-runtime-verification-required
+file_read:
+  preferred: filesystem-read-tools
+file_edit:
+  preferred: apply_patch
+  verified_properties: [diff-visible, scoped]
+  unverified_properties: [ide-undo-compatible]
+terminal:
+  allowed: [read, inspect, approved-execute, validate]
+  general_writes_default: forbidden
+  general_write_fallback:
+    mode: proposal-only-before-explicit-approval
+    allowed_when: [structured-edit-unavailable, diff-visible, undo-or-equivalent-recovery-verified]
+    otherwise: forbidden
+conversation_storage:
+  preferred: apply_patch
+  basis: structured-diff-visible
+  undo_status: runtime-verification-required
+  terminal_fallback: user-approval-after-confirmed-omission-or-miswrite
+conversation_export:
+  exact_timestamps_guaranteed: false
+  exact_full_transcript_guaranteed: false
+  on_missing_capability: report-do-not-fabricate
+instruction_entrypoint: AGENTS.md
+

@@ -1,0 +1,54 @@
+version: 1
+source: ../legacy-sources/VALIDATION_METHODOLOGY.pre-node.md
+source_sha256: F8F114A0A75A416C6A99BF958C1F55C51FFAE68E70F8A022C19EE39BF6C385A9
+validations:
+  - { id: VAL-PREAMBLE, node: validation.kernel, summary: 계획 직후 코드와 운영 병합 전 검증 SOP }
+  - { id: VAL-CORE.1, node: validation.orchestration, summary: task 선작성과 순차 검증 및 종합 보고서 }
+  - { id: VAL-CORE.2, node: validation.kernel, summary: 객관적이고 건조한 판단 }
+  - { id: VAL-CORE.3, node: validation.kernel, summary: 실제 긍정과 부정의 독립 교차 검증 }
+  - { id: VAL-CORE.4, node: validation.kernel, summary: 관찰점 밖 위협의 자율 확장 발굴 }
+  - { id: VAL-PHASE.1.0, node: validation.phase.01-governance, summary: 거버넌스 준수성 심문 }
+  - { id: VAL-PHASE.1.1, node: validation.phase.01-governance, summary: 프론트엔드와 백엔드 로직 분리 }
+  - { id: VAL-PHASE.1.2, node: validation.phase.01-governance, summary: 스키마 비파괴와 데이터 보존 }
+  - { id: VAL-PHASE.1.3, node: validation.phase.01-governance, summary: 지정 격리 환경 강제 }
+  - { id: VAL-PHASE.1.4, node: validation.phase.01-governance, summary: 커스텀 규칙 수용 }
+  - { id: VAL-PHASE.1.5, node: validation.phase.01-governance, summary: 외부 라이브러리 인가 }
+  - { id: VAL-PHASE.2.0, node: validation.phase.02-user-intent, summary: 사용자 의도와 계획 간극 비교 }
+  - { id: VAL-PHASE.2.1, node: validation.phase.02-user-intent, summary: 고유 요구의 데이터 모델 반영 }
+  - { id: VAL-PHASE.2.2, node: validation.phase.02-user-intent, summary: 거버넌스 워크플로우 통합 }
+  - { id: VAL-PHASE.2.3, node: validation.phase.02-user-intent, summary: 사용자 제약 누락 점검 }
+  - { id: VAL-PHASE.2.4, node: validation.phase.02-user-intent, summary: UI UX 동선 반영 }
+  - { id: VAL-PHASE.2.5, node: validation.phase.02-user-intent, summary: 향후 확장 유연성 }
+  - { id: VAL-PHASE.3.0, node: validation.phase.03-static-logic, summary: 로컬 구동 없이 설계 병목 분석 }
+  - { id: VAL-PHASE.3.1, node: validation.phase.03-static-logic, summary: 데이터 폭증 스캔 락 쿼리 }
+  - { id: VAL-PHASE.3.2, node: validation.phase.03-static-logic, summary: 반복 호출과 메모리 누수 }
+  - { id: VAL-PHASE.3.3, node: validation.phase.03-static-logic, summary: 트랜잭션 예외와 롤백 }
+  - { id: VAL-PHASE.3.4, node: validation.phase.03-static-logic, summary: 비동기 경합과 교착 }
+  - { id: VAL-PHASE.3.5, node: validation.phase.03-static-logic, summary: 캐시 만료와 정합성 }
+  - { id: VAL-PHASE.4.0, node: validation.phase.04-production-impact, summary: 운영 병합 충돌 진단 }
+  - { id: VAL-PHASE.4.1, node: validation.phase.04-production-impact, summary: 라우터 주소와 우선순위 충돌 }
+  - { id: VAL-PHASE.4.2, node: validation.phase.04-production-impact, summary: 권한 제어 우회 }
+  - { id: VAL-PHASE.4.3, node: validation.phase.04-production-impact, summary: 레거시 침범과 개방 폐쇄 }
+  - { id: VAL-PHASE.4.4, node: validation.phase.04-production-impact, summary: 글로벌 상태 파급 }
+  - { id: VAL-PHASE.4.5, node: validation.phase.04-production-impact, summary: 기존 동작 Breaking Change }
+  - { id: VAL-PHASE.5.0, node: validation.phase.05-security-edge, summary: 악의적 조작과 극단 상황 방어 }
+  - { id: VAL-PHASE.5.1, node: validation.phase.05-security-edge, summary: SQL Injection XSS CSRF }
+  - { id: VAL-PHASE.5.2, node: validation.phase.05-security-edge, summary: Null 빈값 비정상 타입 }
+  - { id: VAL-PHASE.5.3, node: validation.phase.05-security-edge, summary: 민감 데이터 평문 노출 }
+  - { id: VAL-PHASE.5.4, node: validation.phase.05-security-edge, summary: 오류 내부 구조 노출 }
+  - { id: VAL-PHASE.6.0, node: validation.phase.06-rollback, summary: 안전한 이전 상태 복귀 }
+  - { id: VAL-PHASE.6.1, node: validation.phase.06-rollback, summary: Up과 Down 마이그레이션 }
+  - { id: VAL-PHASE.6.2, node: validation.phase.06-rollback, summary: 신규 데이터의 롤백 의존성 오염 }
+  - { id: VAL-PHASE.6.3, node: validation.phase.06-rollback, summary: 캐시와 세션 잔여 영향 }
+  - { id: VAL-PHASE.6.4, node: validation.phase.06-rollback, summary: 환경변수와 부분 롤백 충돌 }
+  - { id: VAL-PHASE.7.0, node: validation.phase.07-human-error, summary: 휴먼 에러와 UX 방어 }
+  - { id: VAL-PHASE.7.1, node: validation.phase.07-human-error, summary: 잘못된 동선 피드백 }
+  - { id: VAL-PHASE.7.2, node: validation.phase.07-human-error, summary: 데드엔드 UI }
+  - { id: VAL-PHASE.7.3, node: validation.phase.07-human-error, summary: 파괴적 액션 이중 확인 }
+  - { id: VAL-PHASE.7.4, node: validation.phase.07-human-error, summary: 프론트엔드 입력 1차 검증 }
+  - { id: VAL-PHASE.8.0, node: validation.phase.08-ai-meta, summary: AI 작업자 메타 거버넌스 }
+  - { id: VAL-PHASE.8.1, node: validation.phase.08-ai-meta, summary: scratch 정리 }
+  - { id: VAL-PHASE.8.2, node: validation.phase.08-ai-meta, summary: 로그 아티팩트 환각 오염 방지 }
+  - { id: VAL-PHASE.8.3, node: validation.phase.08-ai-meta, summary: 통제 규정 우회 금지 }
+  - { id: VAL-PHASE.8.4, node: validation.phase.08-ai-meta, summary: 승인 재촉 금지와 객관적 톤 }
+

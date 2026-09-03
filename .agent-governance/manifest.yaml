@@ -1,0 +1,81 @@
+schema_version: 1
+governance_version: 1.1.0
+status: active
+replaces_root_sources: true
+human_reference:
+  path: ../Rule.md
+  sha256: 0366391F84CF1F9C6AA30DB4E8E60927A05903A159E13AB815A2C586445AD7EB
+  section_baseline: traceability/rule-section-baseline.yaml
+  status: active
+  auto_load: false
+source_documents:
+  - path: legacy-sources/Rule.pre-node.md
+    sha256: 4424AFB35E27CE39DB600B2A0E27BD73053F155A4A936DBD371E495B97E75710
+  - path: legacy-sources/VALIDATION_METHODOLOGY.pre-node.md
+    sha256: F8F114A0A75A416C6A99BF958C1F55C51FFAE68E70F8A022C19EE39BF6C385A9
+  - path: legacy-sources/GEMINI.pre-node.md
+    sha256: AF879CD2D1CE46E30B7E0391CF1416294207338BE1913BB3A85B6B5C94DD6085
+always_load:
+  - core.kernel
+  - core.precedence
+  - core.task-modes
+  - context.project
+nodes:
+  core.kernel: core/kernel.md
+  core.precedence: core/precedence.md
+  core.task-modes: core/task-modes.md
+  governance.human-reference: governance/human-reference.md
+  governance.rule-sync: governance/rule-sync.md
+  context.project: context/project.md
+  context.stack: context/stack.md
+  context.deployment-topology: context/deployment-topology.md
+  engineering.data-model: engineering/data-model.md
+  engineering.schema-evolution: engineering/schema-evolution.md
+  engineering.code-comments: engineering/code-comments.md
+  engineering.data-integrity: engineering/data-integrity.md
+  engineering.security: engineering/security.md
+  engineering.frontend-responsive: engineering/frontend-responsive.md
+  operations.local-execution: operations/local-execution.md
+  operations.server-execution: operations/server-execution.md
+  operations.staging: operations/staging.md
+  records.conversation-integrity: records/conversation-integrity.md
+  records.conversation-storage: records/conversation-storage.md
+  records.timestamps: records/timestamps.md
+  records.encoding: records/encoding.md
+  records.scratch-retention: records/scratch-retention.md
+  workflow.proposals-roadmap: workflow/proposals-roadmap.md
+  workflow.plans: workflow/plans.md
+  workflow.staging-merge: workflow/staging-merge.md
+  workflow.completion-history: workflow/completion-history.md
+  workflow.multi-agent-handoff: workflow/multi-agent-handoff.md
+  tools.read-execute: tools/read-execute.md
+  tools.file-editing: tools/file-editing.md
+  tools.conversation-exception: tools/conversation-exception.md
+  validation.kernel: validation/kernel.md
+  validation.orchestration: validation/orchestration.md
+  validation.phase.01-governance: validation/phases/01-governance.md
+  validation.phase.02-user-intent: validation/phases/02-user-intent.md
+  validation.phase.03-static-logic: validation/phases/03-static-logic.md
+  validation.phase.04-production-impact: validation/phases/04-production-impact.md
+  validation.phase.05-security-edge: validation/phases/05-security-edge.md
+  validation.phase.06-rollback: validation/phases/06-rollback.md
+  validation.phase.07-human-error: validation/phases/07-human-error.md
+  validation.phase.08-ai-meta: validation/phases/08-ai-meta.md
+traceability:
+  rules: traceability/rule-map.yaml
+  validations: traceability/validation-map.yaml
+  entrypoints: traceability/entrypoint-map.yaml
+  human_rule: traceability/human-rule-map.yaml
+  rule_section_baseline: traceability/rule-section-baseline.yaml
+  exceptions: traceability/exceptions.md
+capabilities:
+  codex: capabilities/codex.yaml
+  gemini-antigravity: capabilities/gemini-antigravity.yaml
+  claude: capabilities/claude.yaml
+tooling:
+  runtime: node>=18
+  package: tooling/package.json
+  lockfile: tooling/package-lock.json
+  command: tooling/governance-tool.mjs
+  parser: yaml
+  parser_required: true

@@ -1,0 +1,287 @@
+schema_version: 1
+status: active
+human_reference: ../../Rule.md
+purpose: "사용자용 통합 Rule 조항과 AI 실행 노드 및 세 원본 추적 ID의 양방향 연결"
+activation_policy: fail-closed-on-mismatch
+mappings:
+  - node_id: core.kernel
+    node_path: core/kernel.md
+    human_rule_sections: ["4", "4-4-1", "6-4-3", "9-6", "9-6-1", "9-7", "10-1-2", "10-1-3", "10-1-4"]
+    source_rules: [RULE-4-PREAMBLE, RULE-4.4.1, RULE-6.4.3]
+    source_validations: [VAL-CORE.2, VAL-CORE.3, VAL-CORE.4]
+    source_entrypoints: [ENTRY-GEMINI.6, ENTRY-GEMINI.6.1, ENTRY-GEMINI.7]
+    source_human: []
+  - node_id: core.precedence
+    node_path: core/precedence.md
+    human_rule_sections: ["9-1", "9-2", "9-3"]
+    source_rules: []
+    source_validations: []
+    source_entrypoints: [ENTRY-GEMINI.1, ENTRY-GEMINI.2, ENTRY-GEMINI.3]
+    source_human: []
+  - node_id: core.task-modes
+    node_path: core/task-modes.md
+    human_rule_sections: ["9-3", "9-4", "9-5"]
+    source_rules: []
+    source_validations: []
+    source_entrypoints: [ENTRY-GEMINI.3, ENTRY-GEMINI.4, ENTRY-GEMINI.5]
+    source_human: []
+  - node_id: context.project
+    node_path: context/project.md
+    human_rule_sections: ["1-1", "1-3"]
+    source_rules: [RULE-1.1, RULE-1.3]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: context.stack
+    node_path: context/stack.md
+    human_rule_sections: ["2-1", "2-2", "2-3", "2-4", "2-5"]
+    source_rules: [RULE-2.1, RULE-2.2, RULE-2.3, RULE-2.4, RULE-2.5]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: context.deployment-topology
+    node_path: context/deployment-topology.md
+    human_rule_sections: ["1-2", "2-6", "2-7"]
+    source_rules: [RULE-1.2, RULE-2.6, RULE-2.7]
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-2.6-BACKUP]
+  - node_id: engineering.data-model
+    node_path: engineering/data-model.md
+    human_rule_sections: ["3-1-1", "3-1-2"]
+    source_rules: [RULE-3.1.1, RULE-3.1.2]
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-3.1.1-DB-DEFERRAL]
+  - node_id: engineering.schema-evolution
+    node_path: engineering/schema-evolution.md
+    human_rule_sections: ["4-1-1", "4-2-1", "4-2-2", "4-2-3-1", "4-2-3-2", "4-2-3-3"]
+    source_rules: [RULE-4.1.1, RULE-4.2.1, RULE-4.2.2, RULE-4.2.3.1, RULE-4.2.3.2, RULE-4.2.3.3]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: engineering.code-comments
+    node_path: engineering/code-comments.md
+    human_rule_sections: ["1-3", "4-3-1", "4-3-2", "4-3-3", "4-3-4"]
+    source_rules: [RULE-1.3, RULE-4.3.1, RULE-4.3.2, RULE-4.3.3, RULE-4.3.4]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: engineering.data-integrity
+    node_path: engineering/data-integrity.md
+    human_rule_sections: ["4-4-1", "4-4-2", "10-2-2", "10-4-3", "10-7-1", "10-7-2"]
+    source_rules: [RULE-4.4.1, RULE-4.4.2]
+    source_validations: [VAL-PHASE.1.2, VAL-PHASE.3.3, VAL-PHASE.6.1, VAL-PHASE.6.2]
+    source_entrypoints: []
+    source_human: []
+  - node_id: engineering.security
+    node_path: engineering/security.md
+    human_rule_sections: ["4-5-1", "4-5-2", "4-5-3", "6-1-4", "10-5-2", "10-6-1", "10-6-2", "10-6-3", "10-6-4"]
+    source_rules: [RULE-4.5.1, RULE-4.5.2, RULE-4.5.3, RULE-6.1.4]
+    source_validations: [VAL-PHASE.4.2, VAL-PHASE.5.1, VAL-PHASE.5.2, VAL-PHASE.5.3, VAL-PHASE.5.4]
+    source_entrypoints: []
+    source_human: []
+  - node_id: engineering.frontend-responsive
+    node_path: engineering/frontend-responsive.md
+    human_rule_sections: ["3-2-1", "3-2-2", "3-2-3", "3-2-4", "10-3-4", "10-8-1", "10-8-2", "10-8-4"]
+    source_rules: [RULE-3.2.1, RULE-3.2.2, RULE-3.2.3, RULE-3.2.4]
+    source_validations: [VAL-PHASE.2.4, VAL-PHASE.7.1, VAL-PHASE.7.2, VAL-PHASE.7.4]
+    source_entrypoints: []
+    source_human: []
+  - node_id: operations.local-execution
+    node_path: operations/local-execution.md
+    human_rule_sections: ["5-1-1", "10-4"]
+    source_rules: [RULE-5.1.1]
+    source_validations: [VAL-PHASE.3.0]
+    source_entrypoints: []
+    source_human: []
+  - node_id: operations.server-execution
+    node_path: operations/server-execution.md
+    human_rule_sections: ["5-1-2", "5-1-4"]
+    source_rules: [RULE-5.1.2, RULE-5.1.4]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: operations.staging
+    node_path: operations/staging.md
+    human_rule_sections: ["5-1-3", "7-3-1", "7-3-2", "10-2-3"]
+    source_rules: [RULE-5.1.3, RULE-7.3.1, RULE-7.3.2]
+    source_validations: [VAL-PHASE.1.3]
+    source_entrypoints: []
+    source_human: []
+  - node_id: records.conversation-integrity
+    node_path: records/conversation-integrity.md
+    human_rule_sections: ["6", "6-1-1", "6-1-2", "6-1-3", "6-1-4", "6-3-1", "6-3-2", "6-3-3", "6-3-4", "10-9-2"]
+    source_rules: [RULE-6-PREAMBLE, RULE-6.1.1, RULE-6.1.2, RULE-6.1.3, RULE-6.1.4, RULE-6.3.1, RULE-6.3.2, RULE-6.3.3, RULE-6.3.4]
+    source_validations: [VAL-PHASE.8.2]
+    source_entrypoints: []
+    source_human: []
+  - node_id: records.conversation-storage
+    node_path: records/conversation-storage.md
+    human_rule_sections: ["6-1-5", "6-1-6", "6-2-1", "6-2-2", "6-2-3", "6-2-4", "6-2-5", "6-2-6", "6-2-7", "6-2-8", "6-4-1", "6-4-2", "6-4-3"]
+    source_rules: [RULE-6.1.5, RULE-6.1.6, RULE-6.2.1, RULE-6.2.2, RULE-6.2.3, RULE-6.2.4, RULE-6.2.5, RULE-6.2.6, RULE-6.2.7, RULE-6.2.8, RULE-6.4.1, RULE-6.4.2, RULE-6.4.3]
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-6.1.6-PLATFORM]
+  - node_id: records.timestamps
+    node_path: records/timestamps.md
+    human_rule_sections: ["6-1-7", "6-4-4"]
+    source_rules: [RULE-6.1.7, RULE-6.4.4]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: records.encoding
+    node_path: records/encoding.md
+    human_rule_sections: ["6-1-8", "6-1-9"]
+    source_rules: [RULE-6.1.8, RULE-6.1.9]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: records.scratch-retention
+    node_path: records/scratch-retention.md
+    human_rule_sections: ["6-1-10-1", "6-1-10-2", "6-1-10-3", "10-9-1"]
+    source_rules: [RULE-6.1.10.1, RULE-6.1.10.2, RULE-6.1.10.3]
+    source_validations: [VAL-PHASE.8.1]
+    source_entrypoints: []
+    source_human: []
+  - node_id: workflow.proposals-roadmap
+    node_path: workflow/proposals-roadmap.md
+    human_rule_sections: ["7-1-1", "7-1-2"]
+    source_rules: [RULE-7.1.1, RULE-7.1.2]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: workflow.plans
+    node_path: workflow/plans.md
+    human_rule_sections: ["7", "7-2-1", "7-2-2", "10", "10-1-1"]
+    source_rules: [RULE-7-PREAMBLE, RULE-7.2.1, RULE-7.2.2]
+    source_validations: [VAL-PREAMBLE, VAL-CORE.1]
+    source_entrypoints: []
+    source_human: []
+  - node_id: workflow.staging-merge
+    node_path: workflow/staging-merge.md
+    human_rule_sections: ["7-3-1", "7-3-2", "7-3-3", "7-3-4", "10-5", "11-6", "11-7", "11-8"]
+    source_rules: [RULE-7.3.1, RULE-7.3.2, RULE-7.3.3, RULE-7.3.4]
+    source_validations: [VAL-PHASE.4.0]
+    source_entrypoints: []
+    source_human: [HUMAN-11.6, HUMAN-11.7, HUMAN-11.8]
+  - node_id: workflow.completion-history
+    node_path: workflow/completion-history.md
+    human_rule_sections: ["7-4-1", "7-4-2", "7-4-3"]
+    source_rules: [RULE-7.4.1, RULE-7.4.2, RULE-7.4.3]
+    source_validations: []
+    source_entrypoints: []
+    source_human: []
+  - node_id: workflow.multi-agent-handoff
+    node_path: workflow/multi-agent-handoff.md
+    human_rule_sections: ["6-1-3", "7-5-1", "7-5-2", "7-5-3", "7-5-4", "10-9-2", "10-9-3"]
+    source_rules: [RULE-6.1.3, RULE-7.5.1, RULE-7.5.2, RULE-7.5.3, RULE-7.5.4]
+    source_validations: [VAL-PHASE.8.2, VAL-PHASE.8.3]
+    source_entrypoints: []
+    source_human: []
+  - node_id: tools.read-execute
+    node_path: tools/read-execute.md
+    human_rule_sections: ["8", "8-1-1", "8-1-2"]
+    source_rules: [RULE-8-PREAMBLE, RULE-8.1.1, RULE-8.1.2]
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-8-TERMINAL-FALLBACK]
+  - node_id: tools.file-editing
+    node_path: tools/file-editing.md
+    human_rule_sections: ["8-2-1", "8-2-2"]
+    source_rules: [RULE-8.2.1, RULE-8.2.2]
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-8-TERMINAL-FALLBACK]
+  - node_id: tools.conversation-exception
+    node_path: tools/conversation-exception.md
+    human_rule_sections: ["6-1-6", "8-0"]
+    source_rules: [RULE-8.0, RULE-6.1.6]
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-6.1.6-PLATFORM]
+  - node_id: validation.kernel
+    node_path: validation/kernel.md
+    human_rule_sections: ["9-6", "9-6-1", "9-8", "10", "10-1-2", "10-1-3", "10-1-4"]
+    source_rules: []
+    source_validations: [VAL-PREAMBLE, VAL-CORE.2, VAL-CORE.3, VAL-CORE.4]
+    source_entrypoints: [ENTRY-GEMINI.6, ENTRY-GEMINI.6.1, ENTRY-GEMINI.8]
+    source_human: []
+  - node_id: validation.orchestration
+    node_path: validation/orchestration.md
+    human_rule_sections: ["9-5", "9-8", "10-1-1"]
+    source_rules: []
+    source_validations: [VAL-CORE.1]
+    source_entrypoints: [ENTRY-GEMINI.5, ENTRY-GEMINI.8]
+    source_human: []
+  - node_id: validation.phase.01-governance
+    node_path: validation/phases/01-governance.md
+    human_rule_sections: ["10-2", "10-2-1", "10-2-2", "10-2-3", "10-2-4", "10-2-5"]
+    source_rules: []
+    source_validations: [VAL-PHASE.1.0, VAL-PHASE.1.1, VAL-PHASE.1.2, VAL-PHASE.1.3, VAL-PHASE.1.4, VAL-PHASE.1.5]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.02-user-intent
+    node_path: validation/phases/02-user-intent.md
+    human_rule_sections: ["10-3", "10-3-1", "10-3-2", "10-3-3", "10-3-4", "10-3-5"]
+    source_rules: []
+    source_validations: [VAL-PHASE.2.0, VAL-PHASE.2.1, VAL-PHASE.2.2, VAL-PHASE.2.3, VAL-PHASE.2.4, VAL-PHASE.2.5]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.03-static-logic
+    node_path: validation/phases/03-static-logic.md
+    human_rule_sections: ["10-4", "10-4-1", "10-4-2", "10-4-3", "10-4-4", "10-4-5"]
+    source_rules: []
+    source_validations: [VAL-PHASE.3.0, VAL-PHASE.3.1, VAL-PHASE.3.2, VAL-PHASE.3.3, VAL-PHASE.3.4, VAL-PHASE.3.5]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.04-production-impact
+    node_path: validation/phases/04-production-impact.md
+    human_rule_sections: ["10-5", "10-5-1", "10-5-2", "10-5-3", "10-5-4", "10-5-5"]
+    source_rules: []
+    source_validations: [VAL-PHASE.4.0, VAL-PHASE.4.1, VAL-PHASE.4.2, VAL-PHASE.4.3, VAL-PHASE.4.4, VAL-PHASE.4.5]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.05-security-edge
+    node_path: validation/phases/05-security-edge.md
+    human_rule_sections: ["10-6", "10-6-1", "10-6-2", "10-6-3", "10-6-4"]
+    source_rules: []
+    source_validations: [VAL-PHASE.5.0, VAL-PHASE.5.1, VAL-PHASE.5.2, VAL-PHASE.5.3, VAL-PHASE.5.4]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.06-rollback
+    node_path: validation/phases/06-rollback.md
+    human_rule_sections: ["10-7", "10-7-1", "10-7-2", "10-7-3", "10-7-4"]
+    source_rules: []
+    source_validations: [VAL-PHASE.6.0, VAL-PHASE.6.1, VAL-PHASE.6.2, VAL-PHASE.6.3, VAL-PHASE.6.4]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.07-human-error
+    node_path: validation/phases/07-human-error.md
+    human_rule_sections: ["10-8", "10-8-1", "10-8-2", "10-8-3", "10-8-4"]
+    source_rules: []
+    source_validations: [VAL-PHASE.7.0, VAL-PHASE.7.1, VAL-PHASE.7.2, VAL-PHASE.7.3, VAL-PHASE.7.4]
+    source_entrypoints: []
+    source_human: []
+  - node_id: validation.phase.08-ai-meta
+    node_path: validation/phases/08-ai-meta.md
+    human_rule_sections: ["10-9", "10-9-1", "10-9-2", "10-9-3", "10-9-4"]
+    source_rules: []
+    source_validations: [VAL-PHASE.8.0, VAL-PHASE.8.1, VAL-PHASE.8.2, VAL-PHASE.8.3, VAL-PHASE.8.4]
+    source_entrypoints: []
+    source_human: []
+  - node_id: governance.human-reference
+    node_path: governance/human-reference.md
+    human_rule_sections: ["11-1", "11-2", "11-3", "11-4", "11-5", "11-6", "11-7", "11-8"]
+    source_rules: []
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-11.1, HUMAN-11.2, HUMAN-11.3, HUMAN-11.4, HUMAN-11.5, HUMAN-11.6, HUMAN-11.7, HUMAN-11.8]
+  - node_id: governance.rule-sync
+    node_path: governance/rule-sync.md
+    human_rule_sections: ["11-3", "11-4", "11-5", "11-6", "11-7", "11-8"]
+    source_rules: []
+    source_validations: []
+    source_entrypoints: []
+    source_human: [HUMAN-11.3, HUMAN-11.4, HUMAN-11.5, HUMAN-11.6, HUMAN-11.7, HUMAN-11.8]
+
