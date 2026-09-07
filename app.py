@@ -9,6 +9,7 @@ import queue
 import threading
 import atexit
 import time
+import tempfile
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -38,6 +39,81 @@ app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key_if_not_found')
 app.config['SESSION_COOKIE_HTTPONLY'] = True
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
+# ==========================================
+# 1-0-A. [제안-046] 서버 점검 상태 제어
+# ==========================================
+# 점검 상태는 복원 대상인 equipment.db가 아닌 보호된 런타임 파일에 보관합니다.
+MAINTENANCE_STATE_PATH = os.path.abspath(os.getenv(
+    'MAINTENANCE_STATE_PATH',
+    os.path.join(app.instance_path, 'maintenance-state.json')
+))
+MAINTENANCE_STATE_LOCK = threading.RLock()
+MAINTENANCE_STATES = frozenset({'NORMAL', 'DRAINING', 'RESTORING', 'RECOVERY'})
+
+
+def get_maintenance_state():
+    """
+    [역할]: DB와 분리된 점검 상태 파일을 읽어 안전한 상태 객체를 반환합니다.
+    [의존성 관계]: MAINTENANCE_STATE_PATH, json, os
+    [변경 시 영향도]: 로그인·전역 요청 게이트·관리자 점검 화면의 접근 정책에 영향을 줍니다.
+    """
+    if not os.path.exists(MAINTENANCE_STATE_PATH):
+        return {'state': 'NORMAL', 'message': '', 'expected_end_at': '', 'revision': 0}
+    try:
+        with MAINTENANCE_STATE_LOCK:
+            with open(MAINTENANCE_STATE_PATH, 'r', encoding='utf-8') as state_file:
+                state = json.load(state_file)
+        if not isinstance(state, dict) or state.get('state') not in MAINTENANCE_STATES:
+            return {'state': 'RECOVERY', 'message': '점검 상태를 확인하는 중입니다.', 'expected_end_at': '', 'revision': 0}
+        return {
+            'state': state['state'],
+            'message': str(state.get('message', ''))[:500],
+            'expected_end_at': str(state.get('expected_end_at', ''))[:32],
+            'started_at': str(state.get('started_at', ''))[:32],
+            'activated_by': str(state.get('activated_by', ''))[:128],
+            'revision': int(state.get('revision', 0))
+        }
+    except (OSError, ValueError, TypeError, json.JSONDecodeError):
+        return {'state': 'RECOVERY', 'message': '점검 상태를 확인하는 중입니다.', 'expected_end_at': '', 'revision': 0}
+
+
+def set_maintenance_state(state_name, message, expected_end_at, activated_by):
+    """
+    [역할]: 점검 상태를 임시 파일 기록 후 원자적 교체로 영구 저장합니다.
+    [의존성 관계]: get_maintenance_state(), MAINTENANCE_STATE_PATH, os.replace
+    [변경 시 영향도]: 점검 활성화·해제와 DB 복원 후 RECOVERY 유지 동작에 영향을 줍니다.
+    """
+    if state_name not in MAINTENANCE_STATES:
+        raise ValueError('허용되지 않은 점검 상태입니다.')
+    current_state = get_maintenance_state()
+    next_state = {
+        'state': state_name,
+        'message': str(message).strip()[:500],
+        'expected_end_at': str(expected_end_at).strip()[:32],
+        'started_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S') if state_name != 'NORMAL' else '',
+        'activated_by': str(activated_by)[:128] if state_name != 'NORMAL' else '',
+        'revision': current_state.get('revision', 0) + 1
+    }
+    state_directory = os.path.dirname(MAINTENANCE_STATE_PATH)
+    os.makedirs(state_directory, mode=0o700, exist_ok=True)
+    with MAINTENANCE_STATE_LOCK:
+        file_descriptor, temporary_path = tempfile.mkstemp(prefix='.maintenance-', suffix='.json', dir=state_directory)
+        try:
+            with os.fdopen(file_descriptor, 'w', encoding='utf-8') as state_file:
+                json.dump(next_state, state_file, ensure_ascii=False)
+                state_file.flush()
+                os.fsync(state_file.fileno())
+            os.replace(temporary_path, MAINTENANCE_STATE_PATH)
+            try:
+                os.chmod(MAINTENANCE_STATE_PATH, 0o600)
+            except OSError:
+                pass
+        except Exception:
+            if os.path.exists(temporary_path):
+                os.unlink(temporary_path)
+            raise
+    return next_state
 
 # ==========================================
 # 1-0. [제안-038] 동적 메타데이터 라우팅 엔진
@@ -480,7 +556,8 @@ def init_db():
         ('users_management', '사용자 관리', '/users_management', '전체 사용자 권한 및 계정 관리', 'admin_center', 3),
         ('approvals', '전자결재함', '/approvals', '전자결재 요청 및 승인 관리', 'admin_center', 4),
         ('master_management', '마스터 데이터 관리', '/master_management', '카테고리 및 제조사 마스터 관리', 'admin_center', 5),
-        ('access_logs', '웹 접근 로그', '/access_logs', '실시간 HTTP 트래픽 및 웹 접근 로그 모니터링', 'admin_center', 6)
+        ('access_logs', '웹 접근 로그', '/access_logs', '실시간 HTTP 트래픽 및 웹 접근 로그 모니터링', 'admin_center', 6),
+        ('maintenance_admin', '서버 점검 관리', '/maintenance_admin', '점검 모드 및 일반 사용자 접근 통제', 'admin_center', 7)
     ]
     for m in default_menus:
         try:
@@ -504,6 +581,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'master_management', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'access_logs', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'admin_center', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'maintenance_admin', 1, now))
     
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
@@ -514,6 +592,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'approvals', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'master_management', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'access_logs', 0, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'maintenance_admin', 0, now))
 
     conn.commit()
     conn.close()
@@ -903,6 +982,79 @@ def csrf_required(f):
     return decorated_function
 
 
+def get_server_session_role():
+    """
+    [역할]: 브라우저 세션 값 대신 users 테이블의 현재 역할을 확인합니다.
+    [의존성 관계]: session, get_db_connection(), users 테이블
+    [변경 시 영향도]: 점검 중 관리자 예외 처리와 역할 위조 방어에 영향을 줍니다.
+    """
+    user = session.get('user')
+    if not user or 'UserId' not in user:
+        return None
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT Role FROM users WHERE UserId = ?', (user['UserId'],))
+        row = cursor.fetchone()
+        conn.close()
+        return row['Role'] if row else None
+    except sqlite3.Error:
+        return None
+
+
+def maintenance_block_response(maintenance_state):
+    """
+    [역할]: 점검 중 차단된 HTML 및 API 요청에 일관된 503 응답을 생성합니다.
+    [의존성 관계]: render_template, jsonify, request
+    [변경 시 영향도]: 일반 사용자 점검 안내와 클라이언트 세션 폴링 동작에 영향을 줍니다.
+    """
+    public_state = {
+        'state': maintenance_state['state'],
+        'message': maintenance_state['message'],
+        'expected_end_at': maintenance_state['expected_end_at']
+    }
+    if request.path.startswith('/api/'):
+        response = jsonify({'success': False, 'reason': 'maintenance', 'maintenance': public_state})
+    else:
+        response = render_template('maintenance.html', maintenance=public_state)
+    response.status_code = 503
+    response.headers['Retry-After'] = '300'
+    response.headers['Cache-Control'] = 'no-store'
+    response.headers['X-Maintenance-Mode'] = maintenance_state['state']
+    return response
+
+
+@app.before_request
+def maintenance_request_gate():
+    """
+    [역할]: 점검 상태에서 일반 사용자와 DB 사용 요청을 중앙에서 차단합니다.
+    [의존성 관계]: get_maintenance_state(), get_server_session_role(), maintenance_block_response()
+    [변경 시 영향도]: 모든 페이지·API의 접근 가능 여부와 DB 복원 전 안전 구간에 영향을 줍니다.
+    """
+    maintenance_state = get_maintenance_state()
+    state_name = maintenance_state['state']
+    if state_name == 'NORMAL':
+        return None
+    # 정적 자원과 공개 점검 상태는 안내 화면 렌더링에 필요하므로 항상 허용합니다.
+    if request.path.startswith('/static/') or request.path in STATIC_METADATA_ROUTES_FROZEN or request.path == '/favicon.ico':
+        return None
+    # 세션 확인과 로그아웃은 클라이언트가 점검 안내로 이동하는 데 필요합니다.
+    if request.path in {'/api/check_session', '/api/maintenance/status', '/maintenance', '/logout'}:
+        return None
+    # DB 대상 복원 중에는 새 DB 연결을 만들 수 있는 요청을 관리자도 시작할 수 없습니다.
+    if state_name == 'RESTORING':
+        if request.path == '/login' and request.method == 'GET':
+            return None
+        return maintenance_block_response(maintenance_state)
+    # 점검 준비·복구 중에는 로그인 POST가 역할 검증을 수행하도록 통과시킵니다.
+    if request.path == '/login':
+        return None
+    # 관리자 예외는 브라우저의 Role 필드가 아니라 현재 DB 역할을 기준으로 판단합니다.
+    if get_server_session_role() == 'admin':
+        return None
+    return maintenance_block_response(maintenance_state)
+
+
 @app.before_request
 def before_request_func():
     """
@@ -1012,9 +1164,24 @@ def check_session():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT SessionToken FROM users WHERE UserId = ?', (user['UserId'],))
+    cursor.execute('SELECT SessionToken, Role FROM users WHERE UserId = ?', (user['UserId'],))
     db_token = cursor.fetchone()
     conn.close()
+
+    maintenance_state = get_maintenance_state()
+    if maintenance_state['state'] != 'NORMAL' and (
+        maintenance_state['state'] == 'RESTORING' or not db_token or db_token['Role'] != 'admin'
+    ):
+        response = jsonify({'valid': False, 'reason': 'maintenance', 'maintenance': {
+            'state': maintenance_state['state'],
+            'message': maintenance_state['message'],
+            'expected_end_at': maintenance_state['expected_end_at']
+        }})
+        response.status_code = 503
+        response.headers['Retry-After'] = '300'
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['X-Maintenance-Mode'] = maintenance_state['state']
+        return response
     
     if db_token and current_token != db_token['SessionToken']:
         return jsonify({"valid": False, "reason": "concurrent_login"}), 401
@@ -1274,9 +1441,80 @@ def check_menu_permission(menu_code):
     return bool(row and row['IsAllowed'] == 1)
 
 
+def validate_maintenance_admin_request(data, confirmation_text):
+    """
+    [역할]: 점검 상태 변경 전 현재 관리자의 역할·비밀번호·확인 문구를 재검증합니다.
+    [의존성 관계]: session, users 테이블, check_password_hash()
+    [변경 시 영향도]: 점검 활성화·해제 API의 오작동과 권한 상승 방어에 영향을 줍니다.
+    """
+    if not isinstance(data, dict):
+        return None, '요청 형식이 올바르지 않습니다.'
+    if data.get('confirmation') != confirmation_text:
+        return None, '확인 문구가 일치하지 않습니다.'
+    password = data.get('current_password')
+    if not isinstance(password, str) or not password:
+        return None, '현재 관리자 비밀번호를 입력해 주세요.'
+    session_user = session.get('user', {})
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('SELECT UserId, LoginId, Role, Password FROM users WHERE UserId = ?', (session_user.get('UserId'),))
+        user = cursor.fetchone()
+        conn.close()
+    except sqlite3.Error:
+        return None, '관리자 정보를 확인할 수 없습니다.'
+    if not user or user['Role'] != 'admin' or not check_password_hash(user['Password'], password):
+        return None, '관리자 인증에 실패했습니다.'
+    return user, None
+
+
+def expire_non_admin_sessions():
+    """
+    [역할]: 점검 활성화 시 모든 비관리자 세션 토큰을 일괄 무효화합니다.
+    [의존성 관계]: users.SessionToken, SQLite randomblob()
+    [변경 시 영향도]: 기존 일반 사용자 브라우저가 다음 폴링 또는 요청에서 로그아웃되는 동작에 영향을 줍니다.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) AS Count FROM users WHERE Role != 'admin'")
+    affected_count = cursor.fetchone()['Count']
+    cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16)) WHERE Role != 'admin'")
+    conn.commit()
+    conn.close()
+    return affected_count
+
+
 # ==========================================
 # 4. 화면 라우터 (뷰 페이지)
 # ==========================================
+
+@app.route('/api/maintenance/status', methods=['GET'])
+def api_maintenance_status():
+    """
+    [역할]: 로그인 화면과 세션 폴링에 공개 가능한 점검 안내 상태만 반환합니다.
+    [의존성 관계]: get_maintenance_state()
+    [변경 시 영향도]: 비로그인 사용자 점검 안내와 클라이언트 503 처리에 영향을 줍니다.
+    """
+    maintenance_state = get_maintenance_state()
+    return jsonify({
+        'active': maintenance_state['state'] != 'NORMAL',
+        'state': maintenance_state['state'],
+        'message': maintenance_state['message'],
+        'expected_end_at': maintenance_state['expected_end_at']
+    })
+
+
+@app.route('/maintenance')
+def maintenance_page():
+    """
+    [역할]: 점검 중 일반 사용자에게 안내 화면을 503 상태로 제공합니다.
+    [의존성 관계]: templates/maintenance.html, get_maintenance_state()
+    [변경 시 영향도]: 차단된 일반 HTML 요청의 안내 동선에 영향을 줍니다.
+    """
+    maintenance_state = get_maintenance_state()
+    if maintenance_state['state'] == 'NORMAL':
+        return redirect(url_for('login_page'))
+    return maintenance_block_response(maintenance_state)
 
 @app.route('/favicon.ico')
 def favicon():
@@ -1311,12 +1549,24 @@ def login_page():
     """
     if request.method == 'GET':
         user = session.get('user')
+        maintenance_state = get_maintenance_state()
         if user and 'UserId' in user:
-            if user.get('IsDeactivated'):
+            # 점검으로 만료된 일반 사용자 세션은 로그인 화면에서 즉시 비워 리다이렉트 루프를 막습니다.
+            if maintenance_state['state'] != 'NORMAL' and (
+                maintenance_state['state'] == 'RESTORING' or get_server_session_role() != 'admin'
+            ):
+                session.clear()
+            elif user.get('IsDeactivated'):
                 return redirect(url_for('deactivated_notice_page'))
-            return redirect(url_for('portal_page'))
+            else:
+                return redirect(url_for('portal_page'))
         session.pop('user', None)
-        return render_template('login.html')
+        return render_template('login.html', maintenance={
+            'active': maintenance_state['state'] != 'NORMAL',
+            'state': maintenance_state['state'],
+            'message': maintenance_state['message'],
+            'expected_end_at': maintenance_state['expected_end_at']
+        })
     
     data = request.json or request.form
     login_id = data.get('LoginId')
@@ -1344,6 +1594,23 @@ def login_page():
         return jsonify({"success": False, "message": "관리자에 의해 비활성화(정지)된 계정입니다. 관리자에게 문의하세요."}), 400
         
     if check_password_hash(user['Password'], password):
+        maintenance_state = get_maintenance_state()
+        if maintenance_state['state'] != 'NORMAL' and (
+            maintenance_state['state'] == 'RESTORING' or user['Role'] != 'admin'
+        ):
+            log_audit(None, login_id, 'LOGIN_BLOCKED_MAINTENANCE', 'users', user['UserId'], None, {
+                'MaintenanceState': maintenance_state['state']
+            })
+            response = jsonify({
+                'success': False,
+                'reason': 'maintenance',
+                'message': '현재 서버 점검 중입니다. 관리자 외 로그인은 제한됩니다.'
+            })
+            response.status_code = 503
+            response.headers['Retry-After'] = '300'
+            response.headers['Cache-Control'] = 'no-store'
+            response.headers['X-Maintenance-Mode'] = maintenance_state['state']
+            return response
         user_dict = {
             'UserId': user['UserId'],
             'LoginId': user['LoginId'],
@@ -1565,6 +1832,79 @@ def admin_center_page():
     if not check_menu_permission('admin_center'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('admin_center.html', user=session.get('user'))
+
+
+@app.route('/maintenance_admin')
+@login_required
+@admin_required
+def maintenance_admin_page():
+    """
+    [역할]: 관리자에게 점검 상태 확인·활성화·해제 화면을 렌더링합니다.
+    [의존성 관계]: check_menu_permission(), templates/maintenance_admin.html
+    [변경 시 영향도]: 관리자 센터의 제안-046 점검 제어 진입점에 영향을 줍니다.
+    """
+    if not check_menu_permission('maintenance_admin'):
+        return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
+    return render_template('maintenance_admin.html', user=session.get('user'), maintenance=get_maintenance_state())
+
+
+@app.route('/api/admin/maintenance/enable', methods=['POST'])
+@login_required
+@admin_required
+@csrf_required
+def api_enable_maintenance():
+    """
+    [역할]: 관리자 재인증 후 점검 모드를 활성화하고 비관리자 세션을 만료합니다.
+    [의존성 관계]: validate_maintenance_admin_request(), set_maintenance_state(), expire_non_admin_sessions()
+    [변경 시 영향도]: 일반 사용자 로그인·업무 요청 차단과 점검 공지 표시에 영향을 줍니다.
+    """
+    data = request.get_json(silent=True)
+    admin_user, error_message = validate_maintenance_admin_request(data, 'MAINTENANCE')
+    if error_message:
+        return jsonify({'success': False, 'message': error_message}), 400
+    message = data.get('message', '')
+    expected_end_at = data.get('expected_end_at', '')
+    if not isinstance(message, str) or not message.strip():
+        return jsonify({'success': False, 'message': '점검 안내 문구를 입력해 주세요.'}), 400
+    if not isinstance(expected_end_at, str) or len(expected_end_at) > 32:
+        return jsonify({'success': False, 'message': '예상 종료 시각 형식이 올바르지 않습니다.'}), 400
+    current_state = get_maintenance_state()
+    if current_state['state'] == 'RESTORING':
+        return jsonify({'success': False, 'message': 'DB 복원 중에는 점검 상태를 변경할 수 없습니다.'}), 409
+    try:
+        state = set_maintenance_state('DRAINING', message, expected_end_at, admin_user['LoginId'])
+        affected_count = expire_non_admin_sessions()
+        log_audit(admin_user['UserId'], admin_user['LoginId'], 'ENABLE_MAINTENANCE', 'system', None, None, {
+            'State': state['state'], 'ExpectedEndAt': state['expected_end_at'], 'ExpiredNonAdminSessions': affected_count
+        })
+        return jsonify({'success': True, 'message': '점검 모드를 활성화했습니다.', 'maintenance': state, 'expired_sessions': affected_count})
+    except (OSError, sqlite3.Error) as error:
+        return jsonify({'success': False, 'message': '점검 모드를 안전하게 활성화하지 못했습니다. 상태를 확인해 주세요.'}), 500
+
+
+@app.route('/api/admin/maintenance/disable', methods=['POST'])
+@login_required
+@admin_required
+@csrf_required
+def api_disable_maintenance():
+    """
+    [역할]: 관리자 재인증 후 점검 모드를 명시적으로 해제합니다.
+    [의존성 관계]: validate_maintenance_admin_request(), set_maintenance_state(), log_audit()
+    [변경 시 영향도]: 일반 사용자 로그인 및 업무 요청 재개 시점에 영향을 줍니다.
+    """
+    data = request.get_json(silent=True)
+    admin_user, error_message = validate_maintenance_admin_request(data, 'NORMAL')
+    if error_message:
+        return jsonify({'success': False, 'message': error_message}), 400
+    current_state = get_maintenance_state()
+    if current_state['state'] == 'RESTORING':
+        return jsonify({'success': False, 'message': 'DB 복원 중에는 점검 모드를 해제할 수 없습니다.'}), 409
+    try:
+        state = set_maintenance_state('NORMAL', '', '', admin_user['LoginId'])
+        log_audit(admin_user['UserId'], admin_user['LoginId'], 'DISABLE_MAINTENANCE', 'system', None, current_state, state)
+        return jsonify({'success': True, 'message': '점검 모드를 해제했습니다.', 'maintenance': state})
+    except (OSError, sqlite3.Error):
+        return jsonify({'success': False, 'message': '점검 모드를 해제하지 못했습니다. 상태를 확인해 주세요.'}), 500
 
 @app.route('/permissions')
 @login_required

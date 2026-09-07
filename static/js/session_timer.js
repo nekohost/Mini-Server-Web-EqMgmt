@@ -116,6 +116,9 @@
                 } else {
                     window.location.href = '/login?error=session_expired';
                 }
+            } else if (response.status === 503) {
+                // 제안-046: 점검 게이트가 기존 일반 사용자 세션을 차단한 경우 로그인 안내로 이동합니다.
+                window.location.href = '/login?error=maintenance';
             }
         } catch (err) {
             console.error('Session poll failed:', err);
