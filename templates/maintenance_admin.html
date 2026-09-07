@@ -8,31 +8,84 @@
         <h2 class="text-xl font-bold">현재 점검 상태</h2>
         <dl class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
             <div><dt class="text-slate-500">상태</dt><dd id="maintenance-state" class="font-semibold">{{ maintenance.state }}</dd></div>
-            <div><dt class="text-slate-500">예상 종료</dt><dd id="maintenance-end" class="font-semibold">{{ maintenance.expected_end_at or '-' }}</dd></div>
+            <div><dt class="text-slate-500">예상 종료</dt><dd id="maintenance-end" class="font-semibold">{{ (maintenance.display_end_at or maintenance.expected_end_at)|replace('T', ' ') if (maintenance.display_end_at or maintenance.expected_end_at) else '-' }}</dd></div>
             <div class="sm:col-span-2"><dt class="text-slate-500">안내 문구</dt><dd id="maintenance-message" class="font-semibold">{{ maintenance.message or '-' }}</dd></div>
         </dl>
     </section>
 
+    {% if maintenance.state == 'NORMAL' %}
     <section class="rounded-xl border border-amber-300 bg-amber-50 p-6 shadow-sm dark:border-amber-700 dark:bg-amber-950/30">
         <h2 class="text-xl font-bold text-amber-950 dark:text-amber-100">점검 모드 활성화</h2>
         <p class="mt-2 text-sm text-amber-900 dark:text-amber-200">일반 사용자의 로그인과 세션이 즉시 차단됩니다. 관리자만 계속 접속할 수 있습니다.</p>
         <form id="enable-form" class="mt-5 space-y-4">
-            <label class="block text-sm font-medium">점검 안내 문구<textarea id="enable-message" required maxlength="500" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900"></textarea></label>
-            <label class="block text-sm font-medium">예상 종료 시각<input id="enable-end" type="datetime-local" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900"></label>
-            <label class="block text-sm font-medium">현재 관리자 비밀번호<input id="enable-password" type="password" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900"></label>
-            <label class="block text-sm font-medium">확인 문구<input id="enable-confirmation" required placeholder="MAINTENANCE" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900"></label>
-            <button class="rounded-lg bg-amber-600 px-4 py-2 font-bold text-white hover:bg-amber-700">점검 모드 활성화</button>
+            <label class="block text-sm font-medium">점검 안내 문구
+                <textarea id="enable-message" required maxlength="500" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900" placeholder="예: 정기 서버 점검 및 데이터 안정화 작업을 진행합니다."></textarea>
+            </label>
+            <div class="grid gap-4 sm:grid-cols-2">
+                <label class="block text-sm font-medium">예상 종료 날짜
+                    <input id="enable-end-date" type="date" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
+                </label>
+                <label class="block text-sm font-medium">예상 종료 시간
+                    <input id="enable-end-time" type="text" list="time-options" placeholder="예: 18:00 (목록 선택 가능)" pattern="^([01]\d|2[0-3]):[0-5]\d$" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
+                    <datalist id="time-options">
+                        <option value="00:00"></option><option value="00:30"></option>
+                        <option value="01:00"></option><option value="01:30"></option>
+                        <option value="02:00"></option><option value="02:30"></option>
+                        <option value="03:00"></option><option value="03:30"></option>
+                        <option value="04:00"></option><option value="04:30"></option>
+                        <option value="05:00"></option><option value="05:30"></option>
+                        <option value="06:00"></option><option value="06:30"></option>
+                        <option value="07:00"></option><option value="07:30"></option>
+                        <option value="08:00"></option><option value="08:30"></option>
+                        <option value="09:00"></option><option value="09:30"></option>
+                        <option value="10:00"></option><option value="10:30"></option>
+                        <option value="11:00"></option><option value="11:30"></option>
+                        <option value="12:00"></option><option value="12:30"></option>
+                        <option value="13:00"></option><option value="13:30"></option>
+                        <option value="14:00"></option><option value="14:30"></option>
+                        <option value="15:00"></option><option value="15:30"></option>
+                        <option value="16:00"></option><option value="16:30"></option>
+                        <option value="17:00"></option><option value="17:30"></option>
+                        <option value="18:00"></option><option value="18:30"></option>
+                        <option value="19:00"></option><option value="19:30"></option>
+                        <option value="20:00"></option><option value="20:30"></option>
+                        <option value="21:00"></option><option value="21:30"></option>
+                        <option value="22:00"></option><option value="22:30"></option>
+                        <option value="23:00"></option><option value="23:30"></option>
+                    </datalist>
+                </label>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">※ 날짜와 시간을 모두 비워두면 종료 시각 미지정으로 처리됩니다. 입력 시 둘 다 지정해야 합니다.</p>
+            <label class="block text-sm font-medium">현재 관리자 비밀번호
+                <input id="enable-password" type="password" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900" placeholder="관리자 비밀번호를 입력하세요">
+            </label>
+            <label class="block text-sm font-medium">확인 문구 ('점검시작' 입력)
+                <input id="enable-confirmation" required placeholder="점검시작" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
+            </label>
+            <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2.5 font-bold text-white hover:bg-amber-700 transition">점검 모드 활성화</button>
         </form>
     </section>
-
+    {% elif maintenance.state in ['DRAINING', 'RECOVERY'] %}
     <section class="rounded-xl border border-emerald-300 bg-emerald-50 p-6 shadow-sm dark:border-emerald-700 dark:bg-emerald-950/30">
         <h2 class="text-xl font-bold text-emerald-950 dark:text-emerald-100">점검 모드 해제</h2>
+        <p class="mt-2 text-sm text-emerald-900 dark:text-emerald-200">점검 상태를 해제하고 일반 사용자의 로그인과 서비스 이용을 정상 재개합니다.</p>
         <form id="disable-form" class="mt-5 space-y-4">
-            <label class="block text-sm font-medium">현재 관리자 비밀번호<input id="disable-password" type="password" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900"></label>
-            <label class="block text-sm font-medium">확인 문구<input id="disable-confirmation" required placeholder="NORMAL" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900"></label>
-            <button class="rounded-lg bg-emerald-600 px-4 py-2 font-bold text-white hover:bg-emerald-700">점검 모드 해제</button>
+            <label class="block text-sm font-medium">현재 관리자 비밀번호
+                <input id="disable-password" type="password" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900" placeholder="관리자 비밀번호를 입력하세요">
+            </label>
+            <label class="block text-sm font-medium">확인 문구 ('점검종료' 입력)
+                <input id="disable-confirmation" required placeholder="점검종료" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
+            </label>
+            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2.5 font-bold text-white hover:bg-emerald-700 transition">점검 모드 해제</button>
         </form>
     </section>
+    {% elif maintenance.state == 'RESTORING' %}
+    <section class="rounded-xl border border-sky-300 bg-sky-50 p-6 shadow-sm dark:border-sky-700 dark:bg-sky-950/30">
+        <h2 class="text-xl font-bold text-sky-950 dark:text-sky-100">🔒 DB 복원 보호 중</h2>
+        <p class="mt-2 text-sm text-sky-900 dark:text-sky-200">현재 온라인 DB 복원 및 무결성 검증이 진행 중입니다. 복원 작업이 완료될 때까지 해제를 포함한 점검 상태 변경이 허용되지 않습니다.</p>
+    </section>
+    {% endif %}
+
     <p id="maintenance-result" class="hidden rounded-lg p-3 text-sm" role="alert"></p>
 </div>
 {% endblock %}
@@ -42,21 +95,74 @@
 const result = document.getElementById('maintenance-result');
 function showResult(message, success) {
     result.textContent = message;
-    result.className = `rounded-lg p-3 text-sm ${success ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`;
+    result.className = `rounded-lg p-3 text-sm ${success ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200' : 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-200'}`;
+    result.classList.remove('hidden');
 }
+
 async function submitMaintenance(url, payload) {
-    const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRFToken': window.getCSRFToken() }, body: JSON.stringify(payload) });
-    const data = await response.json();
-    showResult(data.message || '요청 결과를 확인해 주세요.', response.ok && data.success);
-    if (response.ok && data.success) window.location.reload();
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': window.getCSRFToken()
+            },
+            body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        showResult(data.message || '요청 결과를 확인해 주세요.', response.ok && data.success);
+        if (response.ok && data.success) {
+            setTimeout(() => window.location.reload(), 800);
+        }
+    } catch (err) {
+        showResult('서버와의 통신 중 오류가 발생했습니다.', false);
+    }
 }
-document.getElementById('enable-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    await submitMaintenance('/api/admin/maintenance/enable', { message: document.getElementById('enable-message').value, expected_end_at: document.getElementById('enable-end').value, current_password: document.getElementById('enable-password').value, confirmation: document.getElementById('enable-confirmation').value });
-});
-document.getElementById('disable-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    await submitMaintenance('/api/admin/maintenance/disable', { current_password: document.getElementById('disable-password').value, confirmation: document.getElementById('disable-confirmation').value });
-});
+
+const enableForm = document.getElementById('enable-form');
+if (enableForm) {
+    enableForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const message = document.getElementById('enable-message').value.trim();
+        const dateVal = document.getElementById('enable-end-date').value.trim();
+        const timeVal = document.getElementById('enable-end-time').value.trim();
+        const password = document.getElementById('enable-password').value;
+        const confirmation = document.getElementById('enable-confirmation').value.trim();
+
+        let expected_end_at = '';
+        if (dateVal || timeVal) {
+            if (!dateVal || !timeVal) {
+                showResult('예상 종료 날짜와 시간을 모두 입력하거나, 모두 비워 두어야 합니다.', false);
+                return;
+            }
+            if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(timeVal)) {
+                showResult('시간 형식이 올바르지 않습니다. (예: 18:00 또는 30분 단위 목록 선택)', false);
+                return;
+            }
+            expected_end_at = `${dateVal}T${timeVal}`;
+        }
+
+        await submitMaintenance('/api/admin/maintenance/enable', {
+            message: message,
+            expected_end_at: expected_end_at,
+            current_password: password,
+            confirmation: confirmation
+        });
+    });
+}
+
+const disableForm = document.getElementById('disable-form');
+if (disableForm) {
+    disableForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const password = document.getElementById('disable-password').value;
+        const confirmation = document.getElementById('disable-confirmation').value.trim();
+
+        await submitMaintenance('/api/admin/maintenance/disable', {
+            current_password: password,
+            confirmation: confirmation
+        });
+    });
+}
 </script>
 {% endblock %}

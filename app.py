@@ -50,6 +50,28 @@ MAINTENANCE_STATE_PATH = os.path.abspath(os.getenv(
 ))
 MAINTENANCE_STATE_LOCK = threading.RLock()
 MAINTENANCE_STATES = frozenset({'NORMAL', 'DRAINING', 'RESTORING', 'RECOVERY'})
+MAINTENANCE_ENABLE_CONFIRMATION = '점검시작'
+MAINTENANCE_DISABLE_CONFIRMATION = '점검종료'
+
+
+def validate_expected_end_at(value):
+    """
+    [역할]: 점검 예상 종료 시각의 포맷(YYYY-MM-DDTHH:MM)과 달력 일시 유효성을 검증합니다.
+    [의존성 관계]: datetime.strptime
+    [변경 시 영향도]: 점검 활성화 API의 예상 종료 시각 정합성에 영향을 줍니다.
+    """
+    if not isinstance(value, str):
+        return False, ''
+    trimmed = value.strip()
+    if not trimmed:
+        return True, ''
+    if len(trimmed) != 16:
+        return False, ''
+    try:
+        dt = datetime.strptime(trimmed, '%Y-%m-%dT%H:%M')
+        return True, dt.strftime('%Y-%m-%dT%H:%M')
+    except ValueError:
+        return False, ''
 
 
 def get_maintenance_state():
@@ -59,23 +81,26 @@ def get_maintenance_state():
     [변경 시 영향도]: 로그인·전역 요청 게이트·관리자 점검 화면의 접근 정책에 영향을 줍니다.
     """
     if not os.path.exists(MAINTENANCE_STATE_PATH):
-        return {'state': 'NORMAL', 'message': '', 'expected_end_at': '', 'revision': 0}
+        return {'state': 'NORMAL', 'message': '', 'expected_end_at': '', 'display_end_at': '', 'revision': 0}
     try:
         with MAINTENANCE_STATE_LOCK:
             with open(MAINTENANCE_STATE_PATH, 'r', encoding='utf-8') as state_file:
                 state = json.load(state_file)
         if not isinstance(state, dict) or state.get('state') not in MAINTENANCE_STATES:
-            return {'state': 'RECOVERY', 'message': '점검 상태를 확인하는 중입니다.', 'expected_end_at': '', 'revision': 0}
+            return {'state': 'RECOVERY', 'message': '점검 상태를 확인하는 중입니다.', 'expected_end_at': '', 'display_end_at': '', 'revision': 0}
+        expected_end_at = str(state.get('expected_end_at', ''))[:32]
+        display_end_at = expected_end_at.replace('T', ' ') if expected_end_at else ''
         return {
             'state': state['state'],
             'message': str(state.get('message', ''))[:500],
-            'expected_end_at': str(state.get('expected_end_at', ''))[:32],
+            'expected_end_at': expected_end_at,
+            'display_end_at': display_end_at,
             'started_at': str(state.get('started_at', ''))[:32],
             'activated_by': str(state.get('activated_by', ''))[:128],
             'revision': int(state.get('revision', 0))
         }
     except (OSError, ValueError, TypeError, json.JSONDecodeError):
-        return {'state': 'RECOVERY', 'message': '점검 상태를 확인하는 중입니다.', 'expected_end_at': '', 'revision': 0}
+        return {'state': 'RECOVERY', 'message': '점검 상태를 확인하는 중입니다.', 'expected_end_at': '', 'display_end_at': '', 'revision': 0}
 
 
 def set_maintenance_state(state_name, message, expected_end_at, activated_by):
@@ -1449,8 +1474,9 @@ def validate_maintenance_admin_request(data, confirmation_text):
     """
     if not isinstance(data, dict):
         return None, '요청 형식이 올바르지 않습니다.'
-    if data.get('confirmation') != confirmation_text:
-        return None, '확인 문구가 일치하지 않습니다.'
+    input_confirmation = str(data.get('confirmation', '')).strip()
+    if input_confirmation != confirmation_text:
+        return None, f"확인 문구가 일치하지 않습니다. ('{confirmation_text}'를 정확히 입력해 주세요.)"
     password = data.get('current_password')
     if not isinstance(password, str) or not password:
         return None, '현재 관리자 비밀번호를 입력해 주세요.'
@@ -1859,15 +1885,16 @@ def api_enable_maintenance():
     [변경 시 영향도]: 일반 사용자 로그인·업무 요청 차단과 점검 공지 표시에 영향을 줍니다.
     """
     data = request.get_json(silent=True)
-    admin_user, error_message = validate_maintenance_admin_request(data, 'MAINTENANCE')
+    admin_user, error_message = validate_maintenance_admin_request(data, MAINTENANCE_ENABLE_CONFIRMATION)
     if error_message:
         return jsonify({'success': False, 'message': error_message}), 400
     message = data.get('message', '')
-    expected_end_at = data.get('expected_end_at', '')
+    expected_end_at_raw = data.get('expected_end_at', '')
     if not isinstance(message, str) or not message.strip():
         return jsonify({'success': False, 'message': '점검 안내 문구를 입력해 주세요.'}), 400
-    if not isinstance(expected_end_at, str) or len(expected_end_at) > 32:
-        return jsonify({'success': False, 'message': '예상 종료 시각 형식이 올바르지 않습니다.'}), 400
+    is_valid_time, expected_end_at = validate_expected_end_at(expected_end_at_raw)
+    if not is_valid_time:
+        return jsonify({'success': False, 'message': '예상 종료 일시 형식이 올바르지 않습니다. (예: 2026-09-07T18:00)'}), 400
     current_state = get_maintenance_state()
     if current_state['state'] == 'RESTORING':
         return jsonify({'success': False, 'message': 'DB 복원 중에는 점검 상태를 변경할 수 없습니다.'}), 409
@@ -1893,7 +1920,7 @@ def api_disable_maintenance():
     [변경 시 영향도]: 일반 사용자 로그인 및 업무 요청 재개 시점에 영향을 줍니다.
     """
     data = request.get_json(silent=True)
-    admin_user, error_message = validate_maintenance_admin_request(data, 'NORMAL')
+    admin_user, error_message = validate_maintenance_admin_request(data, MAINTENANCE_DISABLE_CONFIRMATION)
     if error_message:
         return jsonify({'success': False, 'message': error_message}), 400
     current_state = get_maintenance_state()

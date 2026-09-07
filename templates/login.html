@@ -14,7 +14,7 @@
         <div class="mb-5 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-600 dark:bg-amber-950/40 dark:text-amber-100" role="alert">
             <p class="font-bold">서버 점검 중입니다.</p>
             <p class="mt-1">{{ maintenance.message or '안전한 서비스 점검을 진행하고 있습니다.' }}</p>
-            {% if maintenance.expected_end_at %}<p class="mt-1 text-xs">예상 종료: {{ maintenance.expected_end_at }}</p>{% endif %}
+            {% if maintenance.expected_end_at %}<p class="mt-1 text-xs">예상 종료: {{ maintenance.expected_end_at|replace('T', ' ') }}</p>{% endif %}
             <p class="mt-2 text-xs">관리자 계정만 로그인할 수 있습니다.</p>
         </div>
         {% endif %}
