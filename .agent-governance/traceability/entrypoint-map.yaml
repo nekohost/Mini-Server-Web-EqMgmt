@@ -1,0 +1,14 @@
+version: 1
+source: ../legacy-sources/GEMINI.pre-node.md
+source_sha256: AF879CD2D1CE46E30B7E0391CF1416294207338BE1913BB3A85B6B5C94DD6085
+entrypoints:
+  - { id: ENTRY-GEMINI.1, node: core.precedence, summary: 매 행위 전 적용 규칙 읽기 }
+  - { id: ENTRY-GEMINI.2, node: core.precedence, summary: 실제 행위 직전 규칙 적합성 판단 }
+  - { id: ENTRY-GEMINI.3, node: core.task-modes, summary: 규칙 충돌 시 실행 중지와 보고 }
+  - { id: ENTRY-GEMINI.4, node: core.task-modes, summary: 질문 답변과 보고 승인 후 작업 }
+  - { id: ENTRY-GEMINI.5, node: validation.orchestration, summary: Task 생성 후 순차 작업 }
+  - { id: ENTRY-GEMINI.6, node: core.kernel, summary: 과장 없는 객관적 문구 }
+  - { id: ENTRY-GEMINI.6.1, node: validation.kernel, summary: 실제 긍정과 부정의 근거 있는 판단 }
+  - { id: ENTRY-GEMINI.7, node: core.kernel, summary: 승인 재촉 금지 }
+  - { id: ENTRY-GEMINI.8, node: validation.orchestration, summary: 검증과 검토에 Validation 체인 적용 }
+

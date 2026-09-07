@@ -1,0 +1,92 @@
+version: 1
+source: ../legacy-sources/Rule.pre-node.md
+source_sha256: 4424AFB35E27CE39DB600B2A0E27BD73053F155A4A936DBD371E495B97E75710
+rules:
+  - { id: RULE-1.1, node: context.project, summary: Flask와 REST API 학습·운영 목적 }
+  - { id: RULE-1.2, node: context.deployment-topology, summary: Windows에서 GitHub를 거쳐 Linux Lite로 배포 }
+  - { id: RULE-1.3, node: engineering.code-comments, summary: 상세 주석과 의존성 여파 안내 }
+  - { id: RULE-2.1, node: context.stack, summary: Python 3과 Flask }
+  - { id: RULE-2.2, node: context.stack, summary: SQLite equipment.db }
+  - { id: RULE-2.3, node: context.stack, summary: DBeaver GUI }
+  - { id: RULE-2.4, node: context.stack, summary: HTML5 Vanilla JS Tailwind CDN }
+  - { id: RULE-2.5, node: context.stack, summary: 외부 의존성과 무의존 대안 동시 제안 }
+  - { id: RULE-2.6, node: context.deployment-topology, summary: 미니서버 IP와 포트 }
+  - { id: RULE-2.7, node: context.deployment-topology, summary: 실제 접속 URL }
+  - { id: RULE-3.1.1, node: engineering.data-model, summary: 장비 기본 필드 }
+  - { id: RULE-3.1.2, node: engineering.data-model, summary: CRUD 완전 제공 }
+  - { id: RULE-3.2.1, node: engineering.frontend-responsive, summary: 접은 모바일 1열 }
+  - { id: RULE-3.2.2, node: engineering.frontend-responsive, summary: 펼친 폴더블과 태블릿 2열 }
+  - { id: RULE-3.2.3, node: engineering.frontend-responsive, summary: PC 3~4열 }
+  - { id: RULE-3.2.4, node: engineering.frontend-responsive, summary: 무거운 JS 회피와 경량 Tailwind }
+  - { id: RULE-4-PREAMBLE, node: core.kernel, summary: 모든 AI 코드 작업에 설계 규칙 강제 }
+  - { id: RULE-4.1.1, node: engineering.schema-evolution, summary: sqlite3.Row 기반 확장성 }
+  - { id: RULE-4.2.1, node: engineering.schema-evolution, summary: init_db CREATE TABLE 동시 수정 }
+  - { id: RULE-4.2.2, node: engineering.schema-evolution, summary: add_equipment INSERT와 data.get 동시 수정 }
+  - { id: RULE-4.2.3.1, node: engineering.schema-evolution, summary: form input 동시 수정 }
+  - { id: RULE-4.2.3.2, node: engineering.schema-evolution, summary: JS payload 동시 수정 }
+  - { id: RULE-4.2.3.3, node: engineering.schema-evolution, summary: 카드 렌더링 동시 수정 }
+  - { id: RULE-4.3.1, node: engineering.code-comments, summary: 역할 메타 주석 }
+  - { id: RULE-4.3.2, node: engineering.code-comments, summary: 의존성 관계 메타 주석 }
+  - { id: RULE-4.3.3, node: engineering.code-comments, summary: 변경 영향도 메타 주석 }
+  - { id: RULE-4.3.4, node: engineering.code-comments, summary: 원문의 무번호 후단인 코드 행별 상세 주석 }
+  - { id: RULE-4.4.1, node: engineering.data-integrity, summary: DROP과 전체 초기화 금지 }
+  - { id: RULE-4.4.2, node: engineering.data-integrity, summary: ALTER 또는 안전한 이전 절차 사전 안내 }
+  - { id: RULE-4.5.1, node: engineering.security, summary: 비밀 하드코딩 금지와 환경변수 분리 }
+  - { id: RULE-4.5.2, node: engineering.security, summary: FLASK_DEBUG 환경변수 제어 }
+  - { id: RULE-4.5.3, node: engineering.security, summary: 세션 쿠키 CSRF 입력 불신 서버 권한 검사 }
+  - { id: RULE-5.1.1, node: operations.local-execution, summary: Windows 로컬 테스트 금지 }
+  - { id: RULE-5.1.2, node: operations.server-execution, summary: Linux Lite 서버에서 테스트와 구동 }
+  - { id: RULE-5.1.3, node: operations.staging, summary: Staging은 정적 검토용 복사본 }
+  - { id: RULE-5.1.4, node: operations.server-execution, summary: 서버 동기화 구동 접속 예시 }
+  - { id: RULE-6-PREAMBLE, node: records.conversation-integrity, summary: 대화를 날짜별 Markdown으로 기록 }
+  - { id: RULE-6.1.1, node: records.conversation-integrity, summary: 사용자와 AI 원문 무수정 보존 }
+  - { id: RULE-6.1.2, node: records.conversation-integrity, summary: 코드 설정 명령까지 완전 동일 보존 }
+  - { id: RULE-6.1.3, node: workflow.multi-agent-handoff, summary: 실제 모델명과 KST 헤더 }
+  - { id: RULE-6.1.4, node: records.conversation-integrity, summary: 비밀과 개인정보 자리표시자 치환 }
+  - { id: RULE-6.1.5, node: records.conversation-storage, summary: append 전용과 기존 기록 변경 제한 }
+  - { id: RULE-6.1.6, node: records.conversation-storage, summary: Chat 저장 수단과 일반 파일 편집 구분 }
+  - { id: RULE-6.1.7, node: records.timestamps, summary: Z 시간대 검증 }
+  - { id: RULE-6.1.8, node: records.encoding, summary: UTF-8 중간 파일을 통한 한글 보호 }
+  - { id: RULE-6.1.9, node: records.encoding, summary: PowerShell 리터럴 Here-String }
+  - { id: RULE-6.1.10.1, node: records.scratch-retention, summary: 10개 초과 FIFO 정리 }
+  - { id: RULE-6.1.10.2, node: records.scratch-retention, summary: 같은 턴 초과분 다음 턴 유예 }
+  - { id: RULE-6.1.10.3, node: records.scratch-retention, summary: scratch는 영구 문서 보존 대상이 아님 }
+  - { id: RULE-6.2.1, node: records.conversation-storage, summary: 대화 기록은 별도 승인 없이 진행 }
+  - { id: RULE-6.2.2, node: records.conversation-storage, summary: 중간 안내도 원문 기록 }
+  - { id: RULE-6.2.3, node: records.conversation-storage, summary: Chat 연월일 경로 }
+  - { id: RULE-6.2.4, node: records.conversation-storage, summary: 최종 응답 전 현재 날짜 확인 }
+  - { id: RULE-6.2.5, node: records.conversation-storage, summary: 기존 날짜 파일 끝에 기록 }
+  - { id: RULE-6.2.6, node: records.conversation-storage, summary: 날짜 파일이 없으면 폴더와 파일 생성 }
+  - { id: RULE-6.2.7, node: records.conversation-storage, summary: 날짜 변경 시 새 파일 }
+  - { id: RULE-6.2.8, node: records.conversation-storage, summary: 같은 날짜는 같은 파일에 이어쓰기 }
+  - { id: RULE-6.3.1, node: records.conversation-integrity, summary: 사용자 대화 헤더 형식 }
+  - { id: RULE-6.3.2, node: records.conversation-integrity, summary: 적용 변경과 제안 구분 }
+  - { id: RULE-6.3.3, node: records.conversation-integrity, summary: 제안 환경 대상 선행조건 기록 }
+  - { id: RULE-6.3.4, node: records.conversation-integrity, summary: 제안 코드 블록 원문 보존 }
+  - { id: RULE-6.4.1, node: records.conversation-storage, summary: 연월 하위 폴더와 두 자리 월 }
+  - { id: RULE-6.4.2, node: records.conversation-storage, summary: 두 자리 일 파일명 }
+  - { id: RULE-6.4.3, node: core.kernel, summary: 대화 삭제 덮어쓰기 재확인 }
+  - { id: RULE-6.4.4, node: records.timestamps, summary: 과거 미확인 시각 표기 예외 }
+  - { id: RULE-7-PREAMBLE, node: workflow.plans, summary: 문서 생명주기와 개발 파이프라인 강제 }
+  - { id: RULE-7.1.1, node: workflow.proposals-roadmap, summary: 제안 원본과 미구현 목록 병기 }
+  - { id: RULE-7.1.2, node: workflow.proposals-roadmap, summary: 승인 로드맵과 미구현 목록 병기 }
+  - { id: RULE-7.2.1, node: workflow.plans, summary: 작업 전 기획서 작성 }
+  - { id: RULE-7.2.2, node: workflow.plans, summary: Plans 날짜별 영구 기록 }
+  - { id: RULE-7.3.1, node: operations.staging, summary: 운영 수정 전 Staging 사용 }
+  - { id: RULE-7.3.2, node: operations.staging, summary: Staging 모의 코드 검증 }
+  - { id: RULE-7.3.3, node: workflow.staging-merge, summary: 승인 병합 후 Staging 정리 }
+  - { id: RULE-7.3.4, node: workflow.staging-merge, summary: Staging 계획의 Plans 아카이빙 }
+  - { id: RULE-7.4.1, node: workflow.completion-history, summary: 완료 후 제안과 로드맵 원본 보존 }
+  - { id: RULE-7.4.2, node: workflow.completion-history, summary: 완료 상태 갱신과 미구현 목록 제거 }
+  - { id: RULE-7.4.3, node: workflow.completion-history, summary: FEATURES에 최종 명세 기록 }
+  - { id: RULE-7.5.1, node: workflow.multi-agent-handoff, summary: 다양한 AI 교차 투입 }
+  - { id: RULE-7.5.2, node: workflow.multi-agent-handoff, summary: 현재 역할 인지와 필요 시 문의 }
+  - { id: RULE-7.5.3, node: workflow.multi-agent-handoff, summary: 승인 계획과 문서 방향성 승계 }
+  - { id: RULE-7.5.4, node: workflow.multi-agent-handoff, summary: 실제 AI 이름으로 대화 헤더 작성 }
+  - { id: RULE-8-PREAMBLE, node: tools.read-execute, summary: AI 도구 운용과 사용자 통제 }
+  - { id: RULE-8.0, node: tools.conversation-exception, summary: Chat 기록에 제6조 우선 }
+  - { id: RULE-8.1.1, node: tools.read-execute, summary: 터미널 읽기와 실행 용도 }
+  - { id: RULE-8.1.2, node: tools.read-execute, summary: 일반 파일 터미널 쓰기 금지 }
+  - { id: RULE-8.2.1, node: tools.file-editing, summary: 일반 쓰기는 내장 편집 API }
+  - { id: RULE-8.2.2, node: tools.file-editing, summary: Diff와 Undo 보장 }
+

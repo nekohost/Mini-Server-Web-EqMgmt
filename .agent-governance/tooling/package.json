@@ -1,0 +1,22 @@
+{
+  "name": "mini-server-eqmgmt-governance-tooling",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Read-only validator and deterministic context planner for the active AI governance tree.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "validate": "node governance-tool.mjs validate",
+    "sync-status": "node governance-tool.mjs sync-status",
+    "snapshot": "node governance-tool.mjs snapshot",
+    "test": "node governance-tool.test.mjs",
+    "context:example": "node governance-tool.mjs context --intent edit-rule --path Rule.md --section 3-1-1",
+    "sync-plan:example": "node governance-tool.mjs sync-plan --expected-rule-sha <sync-status-currentRuleHash> --section <all-changed-sections>"
+  },
+  "dependencies": {
+    "yaml": "2.9.0"
+  }
+}
+

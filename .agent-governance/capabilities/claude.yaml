@@ -1,0 +1,23 @@
+platform: claude
+status: active-profile-runtime-verification-required
+file_read:
+  preferred: available-structured-read-tool
+file_edit:
+  preferred: available-structured-edit-tool
+  required_properties: [diff-visible, undo-compatible, scoped]
+terminal:
+  allowed: [read, inspect, approved-execute, validate]
+  general_writes_default: forbidden
+  general_write_fallback:
+    mode: proposal-only-before-explicit-approval
+    allowed_when: [structured-edit-unavailable, diff-visible, undo-or-equivalent-recovery-verified]
+    otherwise: forbidden
+conversation_storage:
+  preferred: available-structured-edit-tool-when-reliable
+  terminal_fallback: user-approval-after-confirmed-omission-or-miswrite
+conversation_export:
+  exact_timestamps_guaranteed: runtime-dependent
+  exact_full_transcript_guaranteed: runtime-dependent
+  on_missing_capability: report-do-not-fabricate
+instruction_entrypoint: CLAUDE.md
+

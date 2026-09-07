@@ -1,0 +1,159 @@
+schema_version: 1
+default_load:
+  - core.kernel
+  - core.precedence
+  - core.task-modes
+  - context.project
+rules:
+  - id: human-rule-maintenance
+    match:
+      intents: [review-rule, edit-rule, sync-rule, audit-rule]
+      paths: [Rule.md, Staging/Rule.md]
+    load:
+      - governance.human-reference
+      - governance.rule-sync
+      - validation.kernel
+      - validation.orchestration
+      - validation.phase.01-governance
+      - validation.phase.02-user-intent
+      - validation.phase.03-static-logic
+      - validation.phase.04-production-impact
+      - validation.phase.05-security-edge
+      - validation.phase.06-rollback
+      - validation.phase.07-human-error
+      - validation.phase.08-ai-meta
+    human_reference_required: true
+    changed_rule_sections_required: true
+    dynamic_load:
+      source: traceability/human-rule-map.yaml
+      input: changed_rule_sections
+      match_key: human_rule_sections
+      on_missing_section: fail-closed
+    required_inputs:
+      - ../Rule.md
+      - manifest.yaml
+      - router.yaml
+      - traceability/human-rule-map.yaml
+      - traceability/rule-section-baseline.yaml
+  - id: question
+    match:
+      intents: [question, explain, status]
+    load: []
+    action_limit: read-only
+  - id: proposal-or-plan
+    match:
+      intents: [proposal, plan, review, architecture]
+    load:
+      - workflow.plans
+      - validation.kernel
+      - validation.orchestration
+      - validation.phase.01-governance
+      - validation.phase.02-user-intent
+      - validation.phase.03-static-logic
+      - validation.phase.04-production-impact
+      - validation.phase.05-security-edge
+      - validation.phase.06-rollback
+      - validation.phase.07-human-error
+      - validation.phase.08-ai-meta
+    action_limit: no-implementation
+  - id: schema-change
+    match:
+      intents: [add-column, alter-schema, migration]
+      paths: [app.py, db_migration.py, down_migration.py, templates/**]
+    load:
+      - context.stack
+      - engineering.data-model
+      - engineering.schema-evolution
+      - engineering.data-integrity
+      - engineering.code-comments
+      - operations.staging
+      - workflow.plans
+  - id: frontend-change
+    match:
+      intents: [frontend, ui, ux, responsive]
+      paths: [templates/**, static/**]
+    load:
+      - context.stack
+      - engineering.frontend-responsive
+      - engineering.code-comments
+      - operations.staging
+      - validation.phase.07-human-error
+  - id: security-change
+    match:
+      intents: [security, authentication, authorization, session, csrf, secret]
+    load:
+      - engineering.security
+      - engineering.data-integrity
+      - validation.phase.05-security-edge
+      - validation.phase.06-rollback
+  - id: conversation-record
+    match:
+      intents: [record-conversation, append-chat]
+      paths: [Chat/**]
+    load:
+      - records.conversation-integrity
+      - records.conversation-storage
+      - records.timestamps
+      - records.encoding
+      - records.scratch-retention
+      - tools.conversation-exception
+  - id: staging-work
+    match:
+      paths: [Staging/**]
+    load:
+      - operations.staging
+      - tools.read-execute
+      - tools.file-editing
+  - id: production-merge
+    match:
+      intents: [merge-production, deploy, release]
+    load:
+      - context.deployment-topology
+      - operations.server-execution
+      - workflow.staging-merge
+      - workflow.completion-history
+      - validation.phase.04-production-impact
+      - validation.phase.06-rollback
+  - id: destructive-data-action
+    match:
+      intents: [delete, overwrite, restore, drop, reset]
+    load:
+      - engineering.data-integrity
+      - engineering.security
+      - validation.phase.05-security-edge
+      - validation.phase.06-rollback
+      - validation.phase.07-human-error
+    approval: explicit-confirmation
+  - id: multi-agent-handoff
+    match:
+      intents: [handoff, resume-plan, continue-work]
+    load:
+      - workflow.multi-agent-handoff
+      - workflow.plans
+  - id: general-file-change
+    match:
+      intents: [implement, change, fix, create-file]
+    load:
+      - tools.read-execute
+      - tools.file-editing
+      - operations.staging
+      - workflow.plans
+routing_policy:
+  combine_all_matching_routes: true
+  deduplicate_nodes: true
+  preserve_manifest_order: true
+  fail_closed_on_missing_node: true
+  fail_closed_on_human_reference_mismatch: true
+  forbid_human_reference_in_general_routes: true
+  max_default_context_tokens: 8000
+  max_small_model_context_tokens: 4000
+  token_estimator: utf8-bytes-div-3-ceil
+  token_budget_is_model_agnostic_estimate: true
+  on_budget_exceeded: split-task-do-not-drop-rules
+  on_unclassified_intent: fail-closed
+  on_unmatched_path: fail-closed
+  context_loader: tooling/governance-tool.mjs
+  require_all_supplied_intents_matched: true
+  require_all_supplied_paths_matched: true
+
+
