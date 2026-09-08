@@ -1,10 +1,10 @@
 schema_version: 1
-governance_version: 1.1.1
+governance_version: 1.2.0
 status: active
 replaces_root_sources: true
 human_reference:
   path: ../Rule.md
-  sha256: CF8428BFDC14058B2D2BFE934751514DCA0D3E2655A9274D9AF40F043535F79E
+  sha256: 101AC771781BC9237B2126B4675803EEA0E895B4138410104383D6FCE1AD5269
   section_baseline: traceability/rule-section-baseline.yaml
   status: active
   auto_load: false
@@ -20,6 +20,7 @@ always_load:
   - core.precedence
   - core.task-modes
   - context.project
+  - records.conversation-automation
 nodes:
   core.kernel: core/kernel.md
   core.precedence: core/precedence.md
@@ -39,6 +40,7 @@ nodes:
   operations.server-execution: operations/server-execution.md
   operations.staging: operations/staging.md
   records.conversation-integrity: records/conversation-integrity.md
+  records.conversation-automation: records/conversation-automation.md
   records.conversation-storage: records/conversation-storage.md
   records.timestamps: records/timestamps.md
   records.encoding: records/encoding.md

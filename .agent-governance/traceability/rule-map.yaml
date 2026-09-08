@@ -43,22 +43,26 @@ rules:
   - { id: RULE-6.1.2, node: records.conversation-integrity, summary: 코드 설정 명령까지 완전 동일 보존 }
   - { id: RULE-6.1.3, node: workflow.multi-agent-handoff, summary: 실제 모델명과 KST 헤더 }
   - { id: RULE-6.1.4, node: records.conversation-integrity, summary: 비밀과 개인정보 자리표시자 치환 }
-  - { id: RULE-6.1.5, node: records.conversation-storage, summary: append 전용과 기존 기록 변경 제한 }
-  - { id: RULE-6.1.6, node: records.conversation-storage, summary: Chat 저장 수단과 일반 파일 편집 구분 }
-  - { id: RULE-6.1.7, node: records.timestamps, summary: Z 시간대 검증 }
-  - { id: RULE-6.1.8, node: records.encoding, summary: UTF-8 중간 파일을 통한 한글 보호 }
-  - { id: RULE-6.1.9, node: records.encoding, summary: PowerShell 리터럴 Here-String }
+  - { id: RULE-6.1.5, node: records.conversation-storage, summary: provenance 중복 방지와 원자적 시간순 저장 }
+  - { id: RULE-6.1.6, node: records.conversation-storage, summary: 전용 writer의 승인 범위와 수동 복구 구분 }
+  - { id: RULE-6.1.7, node: records.timestamps, summary: 원본 이벤트 시각의 KST 변환 }
+  - { id: RULE-6.1.8, node: records.encoding, summary: Node UTF-8 파일 처리로 한글 보호 }
+  - { id: RULE-6.1.9, node: records.encoding, summary: shell 보간 금지와 수동 PowerShell 예외 }
   - { id: RULE-6.1.10.1, node: records.scratch-retention, summary: 10개 초과 FIFO 정리 }
   - { id: RULE-6.1.10.2, node: records.scratch-retention, summary: 같은 턴 초과분 다음 턴 유예 }
   - { id: RULE-6.1.10.3, node: records.scratch-retention, summary: scratch는 영구 문서 보존 대상이 아님 }
-  - { id: RULE-6.2.1, node: records.conversation-storage, summary: 대화 기록은 별도 승인 없이 진행 }
-  - { id: RULE-6.2.2, node: records.conversation-storage, summary: 중간 안내도 원문 기록 }
-  - { id: RULE-6.2.3, node: records.conversation-storage, summary: Chat 연월일 경로 }
-  - { id: RULE-6.2.4, node: records.conversation-storage, summary: 최종 응답 전 현재 날짜 확인 }
-  - { id: RULE-6.2.5, node: records.conversation-storage, summary: 기존 날짜 파일 끝에 기록 }
-  - { id: RULE-6.2.6, node: records.conversation-storage, summary: 날짜 파일이 없으면 폴더와 파일 생성 }
-  - { id: RULE-6.2.7, node: records.conversation-storage, summary: 날짜 변경 시 새 파일 }
-  - { id: RULE-6.2.8, node: records.conversation-storage, summary: 같은 날짜는 같은 파일에 이어쓰기 }
+  - { id: RULE-6.2.1, node: records.conversation-storage, summary: 일반 작업마다 승인 없는 자동 기록 }
+  - { id: RULE-6.2.2, node: records.conversation-storage, summary: 표시 대화와 하위 handoff만 기록 }
+  - { id: RULE-6.2.3, node: records.conversation-storage, summary: 주 대화 companion 상태 경로 분리 }
+  - { id: RULE-6.2.4, node: records.conversation-automation, summary: manifest 전 ensure preflight }
+  - { id: RULE-6.2.5, node: records.conversation-automation, summary: fs.watch와 1.5초 stat 폴링 병행 }
+  - { id: RULE-6.2.6, node: records.conversation-automation, summary: 다음 턴 재조정과 날짜 파일 생성 }
+  - { id: RULE-6.2.7, node: records.conversation-automation, summary: Chat 반영 뒤 cursor와 receipt 갱신 }
+  - { id: RULE-6.2.8, node: records.conversation-automation, summary: 원본 시각과 source ordinal 안정 정렬 }
+  - { id: RULE-6.2.9, node: records.conversation-automation, summary: 기록 실패 상태와 일반 작업 차단 }
+  - { id: RULE-6.2.10, node: records.conversation-automation, summary: 기록기 명령과 단일 writer lifecycle }
+  - { id: RULE-6.2.11, node: records.conversation-automation, summary: 하위 작업 receipt와 64KiB companion }
+  - { id: RULE-6.2.12, node: records.conversation-automation, summary: Codex Antigravity 우선 활성화와 Claude 보류 }
   - { id: RULE-6.3.1, node: records.conversation-integrity, summary: 사용자 대화 헤더 형식 }
   - { id: RULE-6.3.2, node: records.conversation-integrity, summary: 적용 변경과 제안 구분 }
   - { id: RULE-6.3.3, node: records.conversation-integrity, summary: 제안 환경 대상 선행조건 기록 }
@@ -89,4 +93,3 @@ rules:
   - { id: RULE-8.1.2, node: tools.read-execute, summary: 일반 파일 터미널 쓰기 금지 }
   - { id: RULE-8.2.1, node: tools.file-editing, summary: 일반 쓰기는 내장 편집 API }
   - { id: RULE-8.2.2, node: tools.file-editing, summary: Diff와 Undo 보장 }
-

@@ -16,8 +16,11 @@ conversation_storage:
   preferred: available-structured-edit-tool-when-reliable
   terminal_fallback: user-approval-after-confirmed-omission-or-miswrite
 conversation_export:
-  exact_timestamps_guaranteed: runtime-dependent
-  exact_full_transcript_guaranteed: runtime-dependent
+  adapter: tooling/conversation-recorder/claude.mjs
+  exact_timestamps_guaranteed: false
+  exact_full_transcript_guaranteed: false
   on_missing_capability: report-do-not-fabricate
+conversation_automation:
+  status: unsupported
+  activation_condition: verified-source-schema-fixture-and-shadow-run
 instruction_entrypoint: CLAUDE.md
-

@@ -38,8 +38,8 @@ const passed = [];
 const validation = runSuccess(['validate']);
 // 전체 검증 상태가 pass인지 확인한다.
 assert.equal(validation.status, 'pass');
-// manifest와 human map의 노드 수가 모두 40개인지 확인한다.
-assert.deepEqual(validation.counts, { manifestNodes: 40, humanMapNodes: 40, errors: 0, warnings: 0 });
+// manifest와 human map의 노드 수가 모두 41개인지 확인한다.
+assert.deepEqual(validation.counts, { manifestNodes: 41, humanMapNodes: 41, errors: 0, warnings: 0 });
 // 정규 YAML 파서가 섹션 기준선을 포함한 10개 제어 파일을 실제 파싱했는지 확인한다.
 assert.equal(validation.parser.filesParsed, 10);
 // 선언·잠금·설치 버전이 모두 yaml 2.9.0으로 일치하는지 확인한다.
@@ -174,4 +174,3 @@ passed.push('regular YAML parser rejects duplicate keys');
 
 // 전체 회귀 결과를 사람이 읽을 수 있는 JSON으로 출력한다.
 process.stdout.write(`${JSON.stringify({ status: 'pass', tests: passed.length, passed }, null, 2)}\n`);
-

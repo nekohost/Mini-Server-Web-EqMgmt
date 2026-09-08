@@ -4,6 +4,8 @@
 
 `Rule.md`는 사용자용 통합 핸드북이다. 일반 작업에서는 자동으로 읽지 않으며, Rule 자체의 검토·개정·동기화 요청에서만 `Rule.md`와 `traceability/human-rule-map.yaml`을 함께 읽는다.
 
+대화 자동 기록 preflight `[ENTRY-GEMINI.RECORDER]`: 다른 검사보다 먼저 프로젝트 루트에서 `node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json`을 실행한다. 재조정이 실패하면 일반 작업을 시작하지 않고 `status --json`의 마지막 성공 상태와 오류를 보고한다.
+
 1. 작업 디렉터리는 프로젝트 루트로 고정한다. 각 작업 전 manifest를 확인하고 정규 파서 기반 `node .agent-governance/tooling/governance-tool.mjs validate`가 통과하는지 확인한다.
 2. 자연어 요청을 하나로 축약하지 않고 관련 intent와 대상 path를 모두 식별하여 context 명령에 전달한다. Rule 개정은 변경된 모든 section도 전달한다.
 3. context 명령이 출력한 pack의 노드를 부모에서 자식 순서로 읽고 행위 직전 활성 규칙과의 적합성을 판단한다.

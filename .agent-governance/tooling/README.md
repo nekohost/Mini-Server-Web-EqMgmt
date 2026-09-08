@@ -1,5 +1,15 @@
 # Governance Tooling
 
+대화 자동 기록기는 프로젝트 루트에서 다음 명령으로 사용한다.
+
+```text
+node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json
+node .agent-governance/tooling/conversation-recorder.mjs status --workspace . --json
+node .agent-governance/tooling/conversation-recorder.mjs verify --platform all --workspace . --json
+```
+
+`npm test`는 기존 governance 도구 시험과 대화 기록기 fixture 시험을 함께 실행한다.
+
 이 디렉터리는 활성 운영 거버넌스를 위한 읽기 전용 검사·라우팅 도구다. Flask 애플리케이션 및 Linux 미니서버 런타임과 분리된다. 아래 명령은 프로젝트 루트를 작업 디렉터리로 한다.
 
 ## 설치

@@ -4,6 +4,7 @@ default_load:
   - core.precedence
   - core.task-modes
   - context.project
+  - records.conversation-automation
 rules:
   - id: human-rule-maintenance
     match:
@@ -92,6 +93,7 @@ rules:
       paths: [Chat/**]
     load:
       - records.conversation-integrity
+      - records.conversation-automation
       - records.conversation-storage
       - records.timestamps
       - records.encoding
@@ -146,7 +148,7 @@ routing_policy:
   fail_closed_on_human_reference_mismatch: true
   forbid_human_reference_in_general_routes: true
   max_default_context_tokens: 8000
-  max_small_model_context_tokens: 4000
+  max_small_model_context_tokens: 5000
   token_estimator: utf8-bytes-div-3-ceil
   token_budget_is_model_agnostic_estimate: true
   on_budget_exceeded: split-task-do-not-drop-rules

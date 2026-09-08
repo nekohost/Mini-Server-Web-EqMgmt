@@ -4,6 +4,8 @@
 
 `Rule.md`는 사용자가 전체 정책을 읽는 통합 핸드북이다. 일반 작업에서는 자동으로 읽지 않으며, Rule 자체의 검토·개정·동기화 요청에서만 `Rule.md`와 `traceability/human-rule-map.yaml`을 함께 읽는다.
 
+대화 자동 기록 capability `[ENTRY-CLAUDE.RECORDER]`: Claude 원본 어댑터는 이번 버전에서 `unsupported`이다. 지원 검증 전에는 자동 기록 성공으로 보고하지 않으며 기존 승인된 수동 기록 절차를 사용한다. 후속 capability가 활성화되면 다른 검사보다 먼저 `conversation-recorder ensure --platform claude`를 실행한다.
+
 1. 작업 디렉터리는 프로젝트 루트로 고정한다. `.agent-governance/manifest.yaml`을 확인하고 정규 파서 기반 `node .agent-governance/tooling/governance-tool.mjs validate`가 통과하는지 확인한다.
 2. 관련 intent와 대상 path를 모두 context 명령에 전달하고 출력된 pack의 노드를 순서대로 읽는다. Rule 개정은 변경된 모든 section도 전달한다.
 3. 질문·제안·계획·구현·삭제 모드를 구분하고 승인 범위를 넘지 않는다. intent·path·section을 분류할 수 없거나 context 명령이 실패하면 추측하지 않고 중지한다.
@@ -16,5 +18,3 @@
 10. Rule 변경에서는 `sync-status`로 모든 추가·변경·삭제 섹션과 `currentRuleHash`를 확인한다. hash를 `sync-plan`·`validate`의 `--expected-rule-sha`로 고정하고, node digest·섹션 기준선·map·manifest까지 동시에 반영한다.
 
 플랫폼 도구 대응은 `.agent-governance/capabilities/claude.yaml`을 따른다.
-
-

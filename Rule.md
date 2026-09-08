@@ -332,31 +332,31 @@ AI가 제안한 코드, 설정 예시, 실행 명령과 중간 안내도 실제 
 
 #### 6-1-5. Append 기본값과 시간순 삽입
 
-대화 파일은 기본적으로 끝에 이어쓰기하며 기존 대화를 수정·제거하지 않습니다. 저장하려는 대화 블록의 확인된 KST 시각이 이미 기록된 가장 최근 블록보다 같거나 늦으면 그대로 append합니다. 더 이르면 최근 일부의 대화 헤더를 먼저 비교하여 시간순 위치에 블록 전체를 삽입합니다. 이때 기존 블록의 원문과 헤더는 수정·삭제하지 않고 순서만 조정합니다. 최근 비교 범위에서 위치를 확인할 수 없으면 본문 전체를 다시 읽지 않고 이전 구간의 헤더와 위치 정보만 제한적으로 추가 탐색합니다. 누락이나 잘못된 기록이 발견되면 사용자에게 정정 또는 제거를 제안합니다.
+전용 기록기는 각 원본 이벤트에 안정적인 `event_id`를 만들고 Chat 블록 앞에 원문·경로를 포함하지 않는 HTML provenance 표식을 둡니다. 확인된 KST 시각이 마지막 블록보다 같거나 늦으면 append하고 더 이르면 블록 전체를 시간순 위치에 삽입합니다. 임시 파일을 `fsync`한 뒤 원자적으로 교체하며 기존 대화의 원문·헤더를 수정하거나 제거하지 않습니다. 기록 후 cursor 갱신 전에 중단되어도 provenance를 대조해 같은 이벤트를 다시 쓰지 않습니다.
 
 > `[규칙 ID: RULE-6.1.5 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
 #### 6-1-6. Chat 저장 수단
 
-대화 저장은 완전성과 원문 보존을 우선합니다. Antigravity에서 터미널을 사용해 온 이유는 IDE 내장 API가 대화를 지속적으로 누락하거나 환각을 포함해 잘못 기록한 경험 때문이며, 이 경험을 다른 플랫폼에 일률적으로 적용하지 않습니다. Codex·VS Code·Codex Extension 등 현재 플랫폼의 구조화된 편집 도구가 원문 완전성, Diff 확인, Undo를 신뢰성 있게 제공하면 그 도구로 최종 저장하는 것을 우선합니다. 해당 도구에서 누락이나 오기입이 확인되면 터미널 저장의 필요성과 절차를 사용자에게 먼저 보고하고 승인을 받은 뒤 Chat 기록 예외를 적용합니다. 이 예외는 일반 소스·리소스 편집으로 자동 확장하지 않습니다.
+대화 저장은 `.agent-governance/tooling/conversation-recorder.mjs` 전용 writer가 수행합니다. 이 writer는 플랫폼 원본을 읽고 `Chat/`, `Chat/Subagents/`, `Chat/.state/`에만 기록하며 프로젝트당 단일 잠금, 원자적 교체, receipt와 재조정을 사용합니다. 대화 자동 기록은 별도 승인 없이 수행하며 일반 소스·리소스 편집 권한으로 확대하지 않습니다. 수동 복구가 필요할 때만 플랫폼 capability와 `tools.conversation-exception`의 승인 절차를 적용합니다.
 
 > `[규칙 ID: RULE-6.1.6 | 추가 정책 ID: HUMAN-6.1.6-PLATFORM | 주 노드: records.conversation-storage | 보조 노드: tools.conversation-exception | 경로: .agent-governance/records/conversation-storage.md]`
 
 #### 6-1-7. 타임스탬프 검증과 정렬 기준
 
-대화 블록의 KST 밀리초 헤더는 실제 사용자 발언 또는 AI 응답의 확인된 발생 시각을 사용합니다. 로그에 `Z`가 있어도 실제로 이미 KST일 수 있으므로 현재 KST와 비교하여 검증한 뒤 변환하고, 기계적으로 9시간을 더하지 않습니다. 저장 시에는 이 헤더 시각을 시간순 삽입의 기준으로 사용합니다. 실제 시각을 플랫폼에서 확인할 수 없으면 임의 시각을 만들지 않고 그 제한을 보고합니다. 다만 확인할 수 있는데도 불구하고 할 수 없다고 거짓말을 해서는 안됩니다.
+대화 블록의 KST 밀리초 헤더는 플랫폼 원본 이벤트에 저장된 실제 발생 시각을 검증한 뒤 `Asia/Seoul`로 변환해 사용합니다. 세션 파일의 폴더 날짜, 파일 수정 시각이나 기록기 실행 시각을 발언 시각으로 대신하지 않습니다. 원본에 offset이 없는 등 정확한 시각을 확정할 수 없으면 임의 시각을 만들지 않고 해당 이벤트를 오류 상태로 격리합니다.
 
 > `[규칙 ID: RULE-6.1.7 | 노드: records.timestamps | 경로: .agent-governance/records/timestamps.md]`
 
 #### 6-1-8. Windows UTF-8 보호
 
-PowerShell Chat append 시 한글을 명령 문자열에 직접 하드코딩하지 않습니다. IDE 편집 API로 UTF-8 중간 파일을 만든 뒤 `Get-Content -Encoding UTF8`로 읽어 append합니다.
+전용 기록기는 모든 원본과 Chat·상태 파일을 UTF-8로 명시하여 읽고 씁니다. Windows 기본 코드 페이지나 PowerShell 문자열 전달에 의존하지 않으며 한글, Markdown, 코드 블록, 백틱과 링크의 바이트를 보존합니다.
 
 > `[규칙 ID: RULE-6.1.8 | 노드: records.encoding | 경로: .agent-governance/records/encoding.md]`
 
 #### 6-1-9. PowerShell Here-String 보호
 
-Markdown을 PowerShell로 기록할 때 큰따옴표 확장 Here-String `@"..."@`을 사용하지 않습니다. 백틱과 제어 문자 변형을 막기 위해 작은따옴표 리터럴 Here-String `@'...'@`을 사용합니다.
+전용 기록기는 shell 문자열 보간이나 Here-String으로 대화 본문을 전달하지 않습니다. Node 파일 API로 원문을 직접 처리하며 수동 예외에서 PowerShell을 사용해야 할 때는 작은따옴표 리터럴 Here-String과 UTF-8 중간 파일 절차를 유지합니다.
 
 > `[규칙 ID: RULE-6.1.9 | 노드: records.encoding | 경로: .agent-governance/records/encoding.md]`
 
@@ -384,51 +384,75 @@ Markdown을 PowerShell로 기록할 때 큰따옴표 확장 Here-String `@"..."@
 
 #### 6-2-1. 승인 없는 기록
 
-대화 기록 추가는 별도의 사용자 승인 없이 진행합니다.
+대화 기록기는 모든 일반 작업에서 별도 `record-conversation` intent나 사용자 승인 없이 자동 실행됩니다. 이 승인은 대화 원본의 허용된 이벤트를 Chat에 투영하는 범위에 한정됩니다.
 
 > `[규칙 ID: RULE-6.2.1 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
 #### 6-2-2. 중간 안내 포함과 저장 시점
 
-사용자에게 실제 전달한 중간 안내는 최종 저장 시 원문과 동일하게 함께 기록합니다. 긴 작업의 모든 내부 추론·도구 호출·세부 과정마다 즉시 Chat을 갱신하도록 강제하지 않으며, 사용자에게 전달하지 않은 내부 작업 과정은 기록 대상이 아닙니다.
+사용자 발언, 사용자에게 실제 전달한 AI 중간 안내와 AI 최종 답변을 원문으로 기록합니다. 시스템·개발자 지시, 숨은 내부 추론, 도구 호출·결과와 자동 승인 심사는 기록하지 않습니다. 하위 에이전트는 작업 지시·사용자에게 전달 가능한 상태·부모에게 반환한 최종 결과만 별도 companion에 기록합니다.
 
 > `[규칙 ID: RULE-6.2.2 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
 #### 6-2-3. 기록 위치
 
-대화 기록 위치는 `Chat/YYYY/MM/DD.md`입니다.
+직접 대화와 하위 작업 receipt는 `Chat/YYYY/MM/DD.md`에 기록합니다. 하위 작업 원문은 `Chat/Subagents/YYYY/MM/DD/` 아래 64KiB 이하 순번 파일에 기록하고 cursor·receipt·health·잠금은 `Chat/.state/`에 둡니다.
 
 > `[규칙 ID: RULE-6.2.3 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
-#### 6-2-4. 현재 날짜 확인
+#### 6-2-4. 일반 작업 전 preflight
 
-AI는 최종 응답 전에 현재 날짜를 확인합니다.
+각 AI 진입점은 manifest 검증보다 먼저 활성화된 모든 어댑터를 대상으로 `conversation-recorder ensure --platform all`을 실행합니다. ensure는 watcher를 확인하기 전에 미반영 원본을 재조정하며 이 단계가 성공한 뒤에만 governance validate와 일반 작업을 진행합니다.
 
 > `[규칙 ID: RULE-6.2.4 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
-#### 6-2-5. 기존 날짜 파일과 최근 헤더 비교
+#### 6-2-5. watcher와 폴링
 
-현재 날짜 파일이 있으면 최근 32개 대화 헤더만 먼저 읽어 저장 블록의 시각과 비교합니다. 저장 시각이 마지막 헤더보다 같거나 늦으면 파일 끝에 원문을 이어 기록합니다. 더 이르면 해당 최근 범위의 시간순 위치에 블록 전체를 삽입합니다. 대상 시각이 그 범위보다 더 이르면 본문을 추가로 읽지 않고 이전 구간의 헤더와 위치 정보만 제한적으로 탐색하여 위치를 결정합니다.
+상주 watcher는 `fs.watch`를 빠른 변경 신호로 사용하고 1~2초 범위의 stat 폴링을 항상 병행하며 기본 간격은 1.5초입니다. 정확성은 폴링·cursor·provenance 재대조로 보장하고 watcher 정상 상태에서 원본 저장 후 5초 이내 반영을 목표로 합니다.
 
 > `[규칙 ID: RULE-6.2.5 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
-#### 6-2-6. 날짜 파일 생성
+#### 6-2-6. 재조정과 날짜 파일 생성
 
-현재 날짜 파일이 없으면 연도·월 폴더와 일자 파일을 생성합니다.
+watcher가 중단되었거나 이벤트 알림이 누락되어도 다음 일반 작업의 preflight가 마지막 성공 cursor 이후 원본을 모두 재조정합니다. 날짜 파일이 없으면 이벤트 발생 시각에 해당하는 연도·월 폴더와 일자 파일을 생성합니다.
 
 > `[규칙 ID: RULE-6.2.6 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
-#### 6-2-7. 날짜 변경
+#### 6-2-7. cursor와 receipt
 
-날짜가 바뀌면 이전 날짜 파일이 아니라 새 날짜 파일에 기록합니다.
+Chat 반영과 provenance 확인이 완료된 뒤에만 원본 fingerprint·cursor와 event receipt를 원자적으로 갱신합니다. 상태 파일에는 원문을 저장하지 않으며 손상 시 원본 이벤트와 Chat provenance를 대조해 복구합니다.
 
 > `[규칙 ID: RULE-6.2.7 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
 
 #### 6-2-8. 같은 날짜의 대화와 안정적 순서
 
-같은 날짜의 대화는 같은 일자 파일에 기록합니다. append를 기본값으로 하되, 확인된 시각이 더 이른 블록은 시간순 위치에 삽입합니다. 같은 시각의 블록은 기존 동률 블록 뒤에 기록하여 이미 확정된 순서를 유지합니다. 삽입 직전 최근 헤더가 바뀌었으면 오래된 판단으로 덮어쓰지 않고 최근 범위를 다시 확인합니다.
+같은 날짜의 직접 대화와 receipt는 같은 일자 파일에 기록합니다. 실제 이벤트 시각을 우선하고 동률이면 provider·thread·source ordinal 순으로 안정 정렬합니다. 이미 확정된 동률 블록을 다시 배열하지 않으며 쓰기 직전 대상 내용을 다시 읽어 수동 변경을 덮어쓰지 않습니다.
 
 > `[규칙 ID: RULE-6.2.8 | 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-storage.md]`
+
+#### 6-2-9. 실패 상태와 작업 차단
+
+어댑터 파싱, Chat 쓰기 또는 receipt 저장이 실패하면 해당 플랫폼 cursor를 전진시키지 않고 `status --json`과 오류 로그에 원문을 제외한 실패 범위를 기록합니다. preflight 재시도 뒤에도 복구되지 않으면 일반 작업을 시작하지 않고 마지막 성공 상태와 원인을 보고합니다.
+
+> `[규칙 ID: RULE-6.2.9 | 노드: records.conversation-automation | 경로: .agent-governance/records/conversation-automation.md]`
+
+#### 6-2-10. 기록기 명령과 단일 실행
+
+기록기는 `ensure`, `watch`, `reconcile`, `status --json`, `verify` 명령을 제공합니다. `Chat/.state/recorder.lock`으로 writer를 하나로 제한하고 watcher PID를 검증하여 중복 프로세스와 stale 상태를 구분합니다.
+
+> `[규칙 ID: RULE-6.2.10 | 노드: records.conversation-automation | 경로: .agent-governance/records/conversation-automation.md]`
+
+#### 6-2-11. 하위 에이전트 receipt와 companion
+
+주 대화에는 하위 에이전트의 시작·종료 시각, 플랫폼, 작업 식별자, 맡긴 작업, 상태와 상세 링크를 receipt로 남깁니다. companion에는 실제 작업 지시·상태·최종 handoff를 원문으로 남기며 64KiB를 넘으면 UTF-8 문자를 손상하지 않는 순번 파일로 나눕니다. 내부 추론·도구 원문·복제된 전체 컨텍스트는 어느 파일에도 기록하지 않습니다.
+
+> `[규칙 ID: RULE-6.2.11 | 노드: records.conversation-automation | 경로: .agent-governance/records/conversation-automation.md]`
+
+#### 6-2-12. 플랫폼 단계적 활성화
+
+1차 자동 기록은 실제 로컬 원본과 fixture가 검증된 Codex와 Antigravity에 활성화합니다. Antigravity는 `<appDataDir>/brain/<conversation-id>`의 workspace 연계와 부모 mailbox의 sender·recipient 메타데이터를 함께 사용합니다. Claude는 별도 capability 검증 전까지 `unsupported`를 반환하며 성공으로 보고하지 않습니다.
+
+> `[규칙 ID: RULE-6.2.12 | 노드: records.conversation-automation | 경로: .agent-governance/records/conversation-automation.md]`
 
 ### 6-3. 기록 포맷과 가독성
 

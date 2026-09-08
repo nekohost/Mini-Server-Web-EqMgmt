@@ -4,6 +4,8 @@
 
 `Rule.md`는 사용자가 전체 정책을 읽는 통합 핸드북이다. 일반 작업에서는 자동으로 읽지 않으며, Rule 자체의 검토·개정·동기화 요청에서만 `Rule.md`와 `traceability/human-rule-map.yaml`을 함께 읽는다.
 
+대화 자동 기록 preflight `[ENTRY-CODEX.RECORDER]`: 다른 검사보다 먼저 프로젝트 루트에서 `node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json`을 실행한다. 재조정이 실패하면 일반 작업을 시작하지 않고 `status --json`의 마지막 성공 상태와 오류를 보고한다.
+
 1. 작업 디렉터리는 프로젝트 루트로 고정한다. 각 작업 시작 시 `.agent-governance/manifest.yaml`을 확인하고 `node .agent-governance/tooling/governance-tool.mjs validate`가 통과하는지 확인한다.
 2. 자연어 요청을 하나로 축약하지 않고 관련 intent와 대상 path를 모두 식별한다. 분류할 수 없는 intent·path는 추측하지 않는다.
 3. `node .agent-governance/tooling/governance-tool.mjs context`에 모든 `--intent`와 `--path`를 전달하고 출력된 pack의 노드를 순서대로 읽는다. Rule 개정은 변경된 모든 `--section`도 전달한다.

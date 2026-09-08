@@ -19,8 +19,16 @@ conversation_storage:
   undo_status: runtime-verification-required
   terminal_fallback: user-approval-after-confirmed-omission-or-miswrite
 conversation_export:
-  exact_timestamps_guaranteed: false
-  exact_full_transcript_guaranteed: false
+  source: "%USERPROFILE%/.codex/sessions/**/*.jsonl"
+  adapter: tooling/conversation-recorder/codex.mjs
+  exact_timestamps_guaranteed: true
+  exact_full_transcript_guaranteed: true
+  supported_visible_events: [user, commentary, final_answer, subagent_task, subagent_status, subagent_final]
+  excluded_events: [system, developer, reasoning, tool_call, tool_result, guardian_review]
   on_missing_capability: report-do-not-fabricate
+conversation_automation:
+  status: active
+  preflight: "node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json"
+  watcher: fs-watch-plus-1500ms-stat-poll
 instruction_entrypoint: AGENTS.md
 

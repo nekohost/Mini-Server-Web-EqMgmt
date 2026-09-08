@@ -11,7 +11,8 @@
     "validate": "node governance-tool.mjs validate",
     "sync-status": "node governance-tool.mjs sync-status",
     "snapshot": "node governance-tool.mjs snapshot",
-    "test": "node governance-tool.test.mjs",
+    "test": "node governance-tool.test.mjs && node --test conversation-recorder.test.mjs",
+    "test:conversation": "node --test conversation-recorder.test.mjs",
     "context:example": "node governance-tool.mjs context --intent edit-rule --path Rule.md --section 3-1-1",
     "sync-plan:example": "node governance-tool.mjs sync-plan --expected-rule-sha <sync-status-currentRuleHash> --section <all-changed-sections>"
   },
@@ -19,4 +20,3 @@
     "yaml": "2.9.0"
   }
 }
-

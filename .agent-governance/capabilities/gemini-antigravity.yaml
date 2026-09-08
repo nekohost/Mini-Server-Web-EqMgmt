@@ -17,8 +17,17 @@ conversation_storage:
   known_risk: user-reported-persistent-omission-and-hallucinated-miswrite
   terminal_fallback: user-approval-after-risk-or-failure-confirmation
 conversation_export:
-  exact_timestamps_guaranteed: runtime-dependent
-  exact_full_transcript_guaranteed: runtime-dependent
+  source: "%USERPROFILE%/.gemini/antigravity*/brain/<conversation-id>/.system_generated"
+  adapter: tooling/conversation-recorder/antigravity.mjs
+  identity: workspace-match-plus-parent-mailbox-sender-recipient
+  exact_timestamps_guaranteed: true
+  exact_full_transcript_guaranteed: true
+  supported_visible_events: [user, final_answer, subagent_task, subagent_status, subagent_final]
+  excluded_events: [system, developer, reasoning, tool_call, tool_result]
   on_missing_capability: report-do-not-fabricate
+conversation_automation:
+  status: active
+  preflight: "node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json"
+  watcher: fs-watch-plus-1500ms-stat-poll
 instruction_entrypoint: GEMINI.md
 
