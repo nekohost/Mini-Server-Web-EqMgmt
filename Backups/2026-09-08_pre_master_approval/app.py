@@ -259,7 +259,7 @@ def register_dynamic_metadata_routes(app):
     """
     # 기본 정적 리소스(파비콘) 캐시 통합을 통한 성능 최적화
     STATIC_METADATA_ROUTES.add('/favicon.ico')
-
+    
     metadata_dir = os.path.join(os.path.dirname(__file__), 'Resources', 'metadata')
     if not os.path.exists(metadata_dir):
         print(f"[Init] Metadata directory not found: {metadata_dir}")
@@ -285,10 +285,10 @@ def register_dynamic_metadata_routes(app):
             # 동적 뷰 함수 생성 (클로저 변수 바인딩)
             def create_view_func(dir_path, filename):
                 return lambda: send_from_directory(dir_path, filename)
-
+            
             # 식별 가능한 고유한 endpoint명 지정
             endpoint_name = f"metadata_{route_path.replace('/', '_').replace('.', '_')}"
-
+            
             try:
                 app.add_url_rule(route_path, endpoint_name, create_view_func(root, file))
                 STATIC_METADATA_ROUTES.add(route_path)
@@ -334,10 +334,10 @@ def _write_logs_to_db(logs):
             INSERT INTO access_logs (IpAddress, HttpMethod, RequestPath, StatusCode, UserAgent, Referer, DurationMs, IsStatic, RequestPayload, ResponsePayload, CreatedAt)
             VALUES (:IpAddress, :HttpMethod, :RequestPath, :StatusCode, :UserAgent, :Referer, :DurationMs, :IsStatic, :RequestPayload, :ResponsePayload, :CreatedAt)
         """, logs)
-
+        
         # [사용자 지침: 추후 필요 시 주석 해제하여 활성화]
         # cur.execute("DELETE FROM access_logs WHERE LogId NOT IN (SELECT LogId FROM access_logs ORDER BY LogId DESC LIMIT 30000)")
-
+        
         conn.commit()
         conn.close()
     except Exception as e:
@@ -416,11 +416,11 @@ def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, ol
     try:
         ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
         user_agent = request.headers.get('User-Agent', '')
-
+        
         old_json = json.dumps(old_value, ensure_ascii=False) if old_value is not None else None
         new_json = json.dumps(new_value, ensure_ascii=False) if new_value is not None else None
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute('''
@@ -533,7 +533,7 @@ def init_db():
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_lineup_nodes_parent_id ON lineup_nodes(parent_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_equipment_options_lineup_node_id ON equipment_options(lineup_node_id);")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_equipments_option_id ON equipments(option_id);")
-
+    
     # A-1. 사용자 테이블 (users) - [제안-001, 025, 030, 034] 연관
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
@@ -676,7 +676,7 @@ def init_db():
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("DELETE FROM menus WHERE MenuCode = 'equipment'")
     cursor.execute("DELETE FROM role_menu_permissions WHERE MenuCode = 'equipment'")
-
+    
     default_menus = [
         ('my_equipment', '나의 장비', '/my_equipment', '내 장비 등록 및 관리', None, 1),
         ('public_equipment', '공개 장비', '/public_equipment', '공개 장비 및 전체 장비 조회', None, 2),
@@ -715,7 +715,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'admin_center', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'maintenance_admin', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'backup_restore', 1, now))
-
+    
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'permissions', 0, now))
@@ -747,13 +747,13 @@ def run_migration_if_needed(migration_name, migration_func):
         try:
             migration_func()
             now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+            
             conn2 = get_db_connection()
             c2 = conn2.cursor()
             c2.execute("INSERT INTO sys_migrations (MigrationName, AppliedAt) VALUES (?, ?)", (migration_name, now))
             conn2.commit()
             conn2.close()
-
+            
             print(f"[Migration Manager] '{migration_name}' successfully applied.")
         except Exception as e:
             print(f"[Migration Manager] Error applying '{migration_name}': {e}")
@@ -768,27 +768,27 @@ def migrate_menu_hierarchy():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-
+        
         cursor.execute("PRAGMA table_info(menus)")
         columns = [col['name'] for col in cursor.fetchall()]
         if 'ParentMenuCode' not in columns:
             cursor.execute("ALTER TABLE menus ADD COLUMN ParentMenuCode TEXT")
         if 'SortOrder' not in columns:
             cursor.execute("ALTER TABLE menus ADD COLUMN SortOrder INTEGER DEFAULT 0")
-
+            
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        
         cursor.execute('''
             INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ''', ('admin_center', '관리자 센터', '/admin_center', '시스템 관리자 전용 메뉴 허브', None, 4, now, now))
-
+        
         sub_menus = [('permissions', 1), ('audit_logs', 2), ('users_management', 3), ('approvals', 4), ('master_management', 5)]
         for menu_code, sort_order in sub_menus:
             cursor.execute('''
                 UPDATE menus SET ParentMenuCode = 'admin_center', SortOrder = ? WHERE MenuCode = ?
             ''', (sort_order, menu_code))
-
+            
         cursor.execute("SELECT Role FROM role_menu_permissions WHERE MenuCode = 'permissions' AND IsAllowed = 1")
         admin_roles = [r['Role'] for r in cursor.fetchall()]
         for role in admin_roles:
@@ -796,7 +796,7 @@ def migrate_menu_hierarchy():
                 INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt)
                 VALUES (?, 'admin_center', 1, ?)
             ''', (role, now))
-
+            
         conn.commit()
         conn.close()
     except Exception as e:
@@ -852,12 +852,12 @@ def migrate_access_logs_payload():
         cursor = conn.cursor()
         cursor.execute("PRAGMA table_info(access_logs)")
         columns = [info['name'] for info in cursor.fetchall()]
-
+        
         if 'RequestPayload' not in columns:
             cursor.execute("ALTER TABLE access_logs ADD COLUMN RequestPayload TEXT")
         if 'ResponsePayload' not in columns:
             cursor.execute("ALTER TABLE access_logs ADD COLUMN ResponsePayload TEXT")
-
+            
         conn.commit()
         conn.close()
     except Exception as e:
@@ -953,7 +953,7 @@ def migrate_relational_master():
     [역할] 제안-011-고도화 데이터베이스 마이그레이션 수행
     1. categories, manufacturers 테이블에 NameKo, NameEn 컬럼 추가
     2. equipment 테이블에 CategoryId, ManufacturerId 컬럼 추가
-    3. 기존 equipment의 Category, Manufacturer 텍스트 값을 categories, manufacturers 의 ID 값으로 연결하고,
+    3. 기존 equipment의 Category, Manufacturer 텍스트 값을 categories, manufacturers 의 ID 값으로 연결하고, 
        equipment.CategoryId, equipment.ManufacturerId 및 레거시 컬럼(Category, Manufacturer)에 동일한 ID 값을 업데이트
     [의존성 관계] categories, manufacturers, equipment 테이블
     [변경 시 영향도] 장비 데이터의 분류 저장이 텍스트에서 정수형 Key(ID) 기반으로 완전히 전환됩니다.
@@ -1027,7 +1027,7 @@ def migrate_relational_master():
 
             # equipment 테이블 업데이트 (CategoryId, ManufacturerId 및 레거시 Category, Manufacturer 컬럼에 ID 동일 업데이트)
             cursor.execute('''
-                UPDATE equipment
+                UPDATE equipment 
                 SET CategoryId = ?, ManufacturerId = ?, Category = ?, Manufacturer = ?
                 WHERE EquipmentId = ?
             ''', (new_cat_id, new_mfg_id, str(new_cat_id) if new_cat_id else None, str(new_mfg_id) if new_mfg_id else None, eq_id))
@@ -1051,7 +1051,7 @@ def migrate_passwords_to_hash():
         cursor = conn.cursor()
         cursor.execute("SELECT UserId, Password FROM users")
         users = cursor.fetchall()
-
+        
         for u in users:
             pwd = u['Password']
             # werkzeug 기본 해시 형태가 아니면 평문으로 간주
@@ -1059,7 +1059,7 @@ def migrate_passwords_to_hash():
                 hashed = generate_password_hash(pwd)
                 cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed, u['UserId']))
                 print(f"[Migration] User {u['UserId']} 의 평문 비밀번호가 안전하게 해싱되었습니다.")
-
+                
         conn.commit()
         conn.close()
     except Exception as e:
@@ -1077,14 +1077,14 @@ def migrate_email_features():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-
+        
         cursor.execute("PRAGMA table_info(users)")
         cols = [info['name'] for info in cursor.fetchall()]
         if 'Email' not in cols:
             cursor.execute("ALTER TABLE users ADD COLUMN Email TEXT")
-
+        
         cursor.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(Email) WHERE Email IS NOT NULL")
-
+        
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS email_verifications (
                 Email TEXT PRIMARY KEY,
@@ -1248,24 +1248,24 @@ def after_request_func(response):
     try:
         # 소요 시간 계산
         duration_ms = round((time.time() - g.get('start_time', time.time())) * 1000, 2)
-
+        
         # 정적 리소스 판별 조건식 (O(1) frozenset 활용)
         is_static = 1 if (
-            request.path.startswith('/static/') or
+            request.path.startswith('/static/') or 
             request.path in STATIC_METADATA_ROUTES_FROZEN
         ) else 0
-
+        
         # 안전한 IP 추출 (X-Forwarded-For 우선)
         raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
         ip_addr = raw_ip.split(',')[0].strip() if raw_ip else '127.0.0.1'
-
+        
         # [제안-013] DB 작업 API에는 비밀번호·DB 파일·일회성 토큰이 포함되므로 본문을 절대 로그에 남기지 않습니다.
         is_sensitive_database_operation = request.path.startswith('/api/admin/database/')
         # [제안-040, 043] 일반 변경 요청만 Payload를 수집하고 민감 DB 작업은 메타데이터만 기록합니다.
         request_payload = (request.get_data(as_text=True)
                            if request.method in ["POST", "PUT", "PATCH", "DELETE"]
                            and not is_sensitive_database_operation else None)
-
+        
         response_payload = None
         # [제안-043] /api/access_logs 계열 응답은 ResponsePayload에서 제외하여 재귀적 DB 비대화 및 락 교착 방어
         if (not is_static and not request.path.startswith('/api/access_logs')
@@ -1274,10 +1274,10 @@ def after_request_func(response):
                 response_payload = response.get_data(as_text=True)
             except Exception:
                 pass # 바이너리 데이터 등 텍스트 변환 실패 시 무시
-
+        
         # KST 일시 생성
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        
         # Non-blocking 큐 푸시
         push_access_log({
             'IpAddress': ip_addr,
@@ -1292,7 +1292,7 @@ def after_request_func(response):
             'ResponsePayload': response_payload,
             'CreatedAt': created_at
         })
-
+        
         # [사용자 지시로 주석 처리됨] 콘솔 직관적 모니터링을 위한 표준 출력
         # status_code = response.status_code
         # if status_code >= 500:
@@ -1304,7 +1304,7 @@ def after_request_func(response):
         # else:
         #     color = '\033[92m' # Green
         # reset = '\033[0m'
-        #
+        # 
         # if is_static:
         #     # 정적 파일 로그는 회색으로 눈에 덜 띄게 출력
         #     print(f"\033[90m[{created_at}] {ip_addr} - {request.method} {request.path} {status_code} {duration_ms}ms (Static)\033[0m")
@@ -1326,9 +1326,9 @@ def check_session():
     user = session.get('user')
     if not user or 'UserId' not in user:
         return jsonify({"valid": False, "reason": "session_expired"}), 401
-
+    
     current_token = session.get('session_token')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT SessionToken, Role FROM users WHERE UserId = ?', (user['UserId'],))
@@ -1349,10 +1349,10 @@ def check_session():
         response.headers['Cache-Control'] = 'no-store'
         response.headers['X-Maintenance-Mode'] = maintenance_state['state']
         return response
-
+    
     if db_token and current_token != db_token['SessionToken']:
         return jsonify({"valid": False, "reason": "concurrent_login"}), 401
-
+        
     return jsonify({"valid": True}), 200
 
 def migrate_users_session_token():
@@ -1409,18 +1409,18 @@ def cleanup_migration_artifacts():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-
+        
         # categories와 manufacturers에서 Name이 숫자로만 이루어진 행을 찾는다
         cursor.execute("SELECT CategoryId, Name FROM categories")
         for row in cursor.fetchall():
             if row['Name'].isdigit():
                 cursor.execute("DELETE FROM categories WHERE CategoryId = ?", (row['CategoryId'],))
-
+                
         cursor.execute("SELECT ManufacturerId, Name FROM manufacturers")
         for row in cursor.fetchall():
             if row['Name'].isdigit():
                 cursor.execute("DELETE FROM manufacturers WHERE ManufacturerId = ?", (row['ManufacturerId'],))
-
+                
         conn.commit()
         conn.close()
     except Exception as e:
@@ -1437,19 +1437,19 @@ def evaluate_user_lifecycle(user):
     """
     if not user:
         return {"status": "NOT_FOUND"}
-
+        
     user_dict = dict(user)
     user_id = user_dict.get('UserId')
     login_id = user_dict.get('LoginId')
     is_deactivated = user_dict.get('IsDeactivated') or 'N'
     deactivated_at_str = user_dict.get('DeactivatedAt')
     is_deleted = user_dict.get('IsDeleted') or 'N'
-
+    
     if is_deactivated == 'Y' and deactivated_at_str:
         try:
             deactivated_at = datetime.strptime(deactivated_at_str, '%Y-%m-%d %H:%M:%S')
             days_passed = (datetime.now() - deactivated_at).total_seconds() / 86400.0
-
+            
             # Phase 3: 1년(365일)+1일 = 366일 경과 -> DB Hard Delete
             if days_passed >= 366:
                 conn = get_db_connection()
@@ -1461,7 +1461,7 @@ def evaluate_user_lifecycle(user):
                 conn.close()
                 log_audit(None, login_id, 'SYSTEM_HARD_DELETE', 'users', user_id, None, {"reason": "1_year_elapsed"})
                 return {"status": "HARD_DELETED"}
-
+                
             # Phase 2: 30일 경과 -> Soft Delete 완료 (로그인 전면 차단)
             if days_passed >= 30:
                 if is_deleted != 'Y':
@@ -1473,18 +1473,18 @@ def evaluate_user_lifecycle(user):
                     conn.close()
                     log_audit(None, login_id, 'SYSTEM_SOFT_DELETE', 'users', user_id, None, {"reason": "30_days_elapsed"})
                 return {"status": "DELETED", "days_passed": days_passed}
-
+                
             # Phase 1: 30일 미만 -> 비활성화 유예 중
             days_left = max(0, 30 - int(days_passed))
             return {"status": "DEACTIVATED", "days_left": days_left, "days_passed": days_passed}
         except Exception as e:
             print(f"[Lifecycle Evaluation Error] {e}")
             return {"status": "DEACTIVATED", "days_left": 30}
-
+            
     elif is_deactivated == 'Y' and not deactivated_at_str:
         # 관리자 강제 정지 (무기한)
         return {"status": "ADMIN_SUSPENDED"}
-
+        
     elif is_deleted == 'Y':
         # 이미 Soft Delete 처리됨 -> 1년 경과 체크
         deleted_at_str = user_dict.get('DeletedAt') or deactivated_at_str
@@ -1505,7 +1505,7 @@ def evaluate_user_lifecycle(user):
             except Exception:
                 pass
         return {"status": "DELETED"}
-
+        
     return {"status": "ACTIVE"}
 
 
@@ -1528,25 +1528,25 @@ def login_required(f):
         """
         user = session.get('user')
         session_token = session.get('session_token')
-
+        
         if not user or 'UserId' not in user or not session_token:
             session.clear()
             if request.path.startswith('/api/'):
                 return jsonify({"error": "로그인이 필요합니다."}), 401
             return redirect(url_for('login_page'))
-
+            
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute("SELECT SessionToken, IsDeactivated, DeactivatedAt, IsDeleted FROM users WHERE UserId = ?", (user['UserId'],))
         db_user = cursor.fetchone()
         conn.close()
-
+        
         if not db_user or db_user['SessionToken'] != session_token:
             session.clear()
             if request.path.startswith('/api/'):
                 return jsonify({"error": "다른 기기에서 로그인하여 세션이 만료되었습니다."}), 401
             return redirect(url_for('login_page', error='concurrent_login'))
-
+            
         # 비활성화 샌드박싱: 비활성화 상태인 경우 허용된 엔드포인트 이외에는 접근 불가
         if db_user['IsDeactivated'] == 'Y' or session.get('user', {}).get('IsDeactivated'):
             allowed_paths = ['/deactivated_notice', '/api/users/withdraw/cancel', '/logout']
@@ -1598,13 +1598,13 @@ def check_menu_permission(menu_code):
         return False
     if user['Role'] == 'admin':
         return True
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT IsAllowed FROM role_menu_permissions WHERE Role = ? AND MenuCode = ?", (user['Role'], menu_code))
     row = cursor.fetchone()
     conn.close()
-
+    
     return bool(row and row['IsAllowed'] == 1)
 
 
@@ -2611,32 +2611,32 @@ def login_page():
             'message': maintenance_state['message'],
             'expected_end_at': maintenance_state['expected_end_at']
         })
-
+    
     data = request.json or request.form
     login_id = data.get('LoginId')
     password = data.get('Password')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM users WHERE LoginId = ?", (login_id,))
     user = cursor.fetchone()
     conn.close()
-
+    
     if not user:
         log_audit(None, login_id, 'LOGIN_FAILED', 'users', None, None, {"LoginId": login_id, "reason": "invalid_credentials"})
         return jsonify({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}), 400
-
+        
     eval_result = evaluate_user_lifecycle(user)
     status = eval_result['status']
-
+    
     if status in ['HARD_DELETED', 'DELETED']:
         log_audit(None, login_id, 'LOGIN_FAILED', 'users', None, None, {"LoginId": login_id, "reason": f"account_{status.lower()}"})
         return jsonify({"success": False, "message": "아이디 또는 비밀번호가 올바르지 않습니다."}), 400
-
+        
     if status == 'ADMIN_SUSPENDED':
         log_audit(None, login_id, 'LOGIN_FAILED', 'users', user['UserId'], None, {"LoginId": login_id, "reason": "admin_suspended"})
         return jsonify({"success": False, "message": "관리자에 의해 비활성화(정지)된 계정입니다. 관리자에게 문의하세요."}), 400
-
+        
     if check_password_hash(user['Password'], password):
         maintenance_state = get_maintenance_state()
         if maintenance_state['state'] != 'NORMAL' and (
@@ -2665,20 +2665,20 @@ def login_page():
             'IsDeactivated': (status == 'DEACTIVATED'),
             'DeactivationDaysLeft': eval_result.get('days_left', 30) if status == 'DEACTIVATED' else None
         }
-
+        
         session_token = os.urandom(24).hex()
         session['user'] = user_dict
         session['session_token'] = session_token
         session.permanent = True
-
+        
         conn_update = get_db_connection()
         cursor_update = conn_update.cursor()
         cursor_update.execute("UPDATE users SET SessionToken = ? WHERE UserId = ?", (session_token, user['UserId']))
         conn_update.commit()
         conn_update.close()
-
+        
         log_audit(user['UserId'], user['LoginId'], 'LOGIN_SUCCESS', 'users', user['UserId'], None, {"LoginId": login_id, "Status": status})
-
+        
         if status == 'DEACTIVATED':
             return jsonify({
                 "success": True,
@@ -2686,7 +2686,7 @@ def login_page():
                 "redirect": "/deactivated_notice",
                 "message": f"현재 회원 탈퇴 유예 중(D-{eval_result.get('days_left', 30)}일)입니다."
             })
-
+            
         return jsonify({"success": True, "message": "로그인 성공"})
     else:
         log_audit(None, login_id, 'LOGIN_FAILED', 'users', user['UserId'], None, {"LoginId": login_id, "reason": "invalid_password"})
@@ -2715,14 +2715,14 @@ def register_page():
     """
     if request.method == 'GET':
         return render_template('register.html')
-
+        
     data = request.json
     login_id = data.get('LoginId')
     name = data.get('Name')
     nickname = data.get('NickName')
     password = data.get('Password')
     email = data.get('Email')
-
+    
     # CSRF 검증 로직 수동 적용
     token = request.headers.get('X-CSRFToken')
     if not token or token != session.get('csrf_token'):
@@ -2733,22 +2733,22 @@ def register_page():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     # 1. 이메일 인증 여부 검증
     cursor.execute("SELECT IsVerified FROM email_verifications WHERE Email = ?", (email,))
     verif = cursor.fetchone()
     if not verif or verif['IsVerified'] != 1:
         conn.close()
         return jsonify({"success": False, "message": "이메일 인증이 완료되지 않았습니다."}), 400
-
+    
     # 중복 체크 및 탈퇴 복구 분기
     cursor.execute("SELECT * FROM users WHERE LoginId = ?", (login_id,))
     existing_user = cursor.fetchone()
-
+    
     if existing_user:
         eval_res = evaluate_user_lifecycle(existing_user)
         status = eval_res['status']
-
+        
         if status == 'DELETED':  # Phase 2 soft-deleted
             if name and existing_user['Name'] and name.strip() == existing_user['Name'].strip():
                 try:
@@ -2785,7 +2785,7 @@ def register_page():
     cursor.execute("SELECT COUNT(*) FROM users")
     count = cursor.fetchone()[0]
     role = 'admin' if count == 0 else 'user'
-
+    
     try:
         cursor.execute('''
             INSERT INTO users (LoginId, Name, NickName, Password, Email, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
@@ -2794,7 +2794,7 @@ def register_page():
         new_id = cursor.lastrowid
         conn.commit()
         conn.close()
-
+        
         log_audit(new_id, login_id, 'REGISTER', 'users', new_id, None, {"LoginId": login_id, "Role": role})
         return jsonify({"success": True, "message": "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요."})
     except sqlite3.IntegrityError:
@@ -3118,9 +3118,9 @@ def get_lineup_tree_all():
                 SELECT id, parent_id, category_id, manufacturer_id, name, depth, status, 1 AS level
                 FROM lineup_nodes
                 WHERE parent_id IS NULL AND status = 'APPROVED'
-
+                
                 UNION ALL
-
+                
                 -- Recursive Member: 하위 노드 순회 (최대 50단계 제한)
                 SELECT n.id, n.parent_id, n.category_id, n.manufacturer_id, n.name, n.depth, n.status, nt.level + 1
                 FROM lineup_nodes n
@@ -3212,7 +3212,7 @@ def create_lineup_node():
         # [NULL 중복 락 방어]: 루트 노드 중복 명시적 방어
         if parent_id is None:
             cursor.execute("""
-                SELECT id FROM lineup_nodes
+                SELECT id FROM lineup_nodes 
                 WHERE parent_id IS NULL AND category_id = ? AND manufacturer_id = ? AND name = ?
             """, (category_id, manufacturer_id, name))
             if cursor.fetchone():
@@ -3312,7 +3312,7 @@ def update_lineup_node(node_id):
         final_name = new_name if new_name else node['name']
 
         cursor.execute("""
-            UPDATE lineup_nodes
+            UPDATE lineup_nodes 
             SET name = ?, parent_id = ?, depth = ?
             WHERE id = ?
         """, (final_name, new_parent_id, new_depth, node_id))
@@ -3454,7 +3454,7 @@ def api_equipments_v2():
         try:
             # 3-Tier 복합 JOIN 조회 (대시보드 및 장비 목록 공통)
             cursor.execute("""
-                SELECT
+                SELECT 
                     e.id AS EquipmentId,
                     e.name AS Name,
                     e.serial_number AS SerialNumber,
@@ -3602,7 +3602,7 @@ def api_user_settings():
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if request.method == 'GET':
         cursor.execute("SELECT PreferencesJSON FROM user_settings WHERE UserId = ?", (user['UserId'],))
         row = cursor.fetchone()
@@ -3610,26 +3610,26 @@ def api_user_settings():
         if row and row['PreferencesJSON']:
             return jsonify({"success": True, "settings": json.loads(row['PreferencesJSON'])})
         return jsonify({"success": True, "settings": {}})
-
+        
     elif request.method == 'POST':
         data = request.json
         now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+        
         cursor.execute("SELECT PreferencesJSON FROM user_settings WHERE UserId = ?", (user['UserId'],))
         row = cursor.fetchone()
         current_settings = {}
         if row and row['PreferencesJSON']:
             current_settings = json.loads(row['PreferencesJSON'])
-
+            
         current_settings.update(data)
         new_json = json.dumps(current_settings, ensure_ascii=False)
-
+        
         cursor.execute("SELECT UserId FROM user_settings WHERE UserId = ?", (user['UserId'],))
         if cursor.fetchone():
             cursor.execute("UPDATE user_settings SET PreferencesJSON = ?, UpdatedAt = ? WHERE UserId = ?", (new_json, now, user['UserId']))
         else:
             cursor.execute("INSERT INTO user_settings (UserId, PreferencesJSON, UpdatedAt) VALUES (?, ?, ?)", (user['UserId'], new_json, now))
-
+            
         conn.commit()
         conn.close()
         return jsonify({"success": True, "settings": current_settings})
@@ -3748,9 +3748,9 @@ def api_audit_logs():
 
         # 4. 전체 카운트 쿼리 (users 테이블과 LEFT JOIN)
         count_query = f"""
-            SELECT COUNT(*)
-            FROM audit_logs a
-            LEFT JOIN users u ON a.ActorLoginId = u.LoginId
+            SELECT COUNT(*) 
+            FROM audit_logs a 
+            LEFT JOIN users u ON a.ActorLoginId = u.LoginId 
             {where_stmt}
         """
         cursor.execute(count_query, params)
@@ -3758,10 +3758,10 @@ def api_audit_logs():
 
         # 5. 데이터 목록 쿼리
         data_query = f"""
-            SELECT
-                a.AuditId, a.ActorId, a.ActorLoginId,
-                COALESCE(u.Name, a.ActorLoginId, 'System') AS ActorName,
-                a.Action, a.TargetTable, a.TargetId, a.IpAddress,
+            SELECT 
+                a.AuditId, a.ActorId, a.ActorLoginId, 
+                COALESCE(u.Name, a.ActorLoginId, 'System') AS ActorName, 
+                a.Action, a.TargetTable, a.TargetId, a.IpAddress, 
                 a.OldValue, a.NewValue, a.UserAgent, a.CreatedAt
             FROM audit_logs a
             LEFT JOIN users u ON a.ActorLoginId = u.LoginId
@@ -3783,7 +3783,7 @@ def api_audit_logs():
                 details_parts.append(f"이전: {r['OldValue']}")
             if r['NewValue']:
                 details_parts.append(f"변경: {r['NewValue']}")
-
+            
             details_str = " | ".join(details_parts) if details_parts else "-"
 
             logs.append({
@@ -3831,11 +3831,11 @@ def api_dashboard_stats():
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     # 1. 내 장비 수
     cursor.execute("SELECT COUNT(*) as count FROM equipments WHERE user_id = ? AND (is_draft = 0 OR is_draft IS NULL)", (user['UserId'],))
     my_eq_count = cursor.fetchone()['count']
-
+    
     # 2. 총 장비 수
     if user['Role'] == 'admin':
         cursor.execute("SELECT COUNT(*) as count FROM equipments WHERE (is_draft = 0 OR is_draft IS NULL)")
@@ -3843,17 +3843,17 @@ def api_dashboard_stats():
     else:
         cursor.execute("SELECT COUNT(*) as count FROM equipments WHERE (is_public = 1 OR user_id = ?) AND (is_draft = 0 OR is_draft IS NULL)", (user['UserId'],))
         total_count = cursor.fetchone()['count']
-
+        
     # 권한별 기본 WHERE절 조건 (AND로 이어붙일 앞부분)
     base_where = "(e.is_draft = 0 OR e.is_draft IS NULL)"
     params_base = []
     if user['Role'] != 'admin':
         base_where += " AND (e.is_public = 1 OR e.user_id = ?)"
         params_base.append(user['UserId'])
-
+        
     # 3. 카테고리별 통계 (3-Tier JOIN)
     cursor.execute(f'''
-        SELECT COALESCE(cat.Name, '미분류') as ResolvedCategory, COUNT(e.id) as count
+        SELECT COALESCE(cat.Name, '미분류') as ResolvedCategory, COUNT(e.id) as count 
         FROM equipments e
         LEFT JOIN equipment_options opt ON e.option_id = opt.id
         LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
@@ -3865,7 +3865,7 @@ def api_dashboard_stats():
 
     # 4. 제조사별 통계 (3-Tier JOIN)
     cursor.execute(f'''
-        SELECT COALESCE(mfg.Name, '미분류') as ResolvedManufacturer, COUNT(e.id) as count
+        SELECT COALESCE(mfg.Name, '미분류') as ResolvedManufacturer, COUNT(e.id) as count 
         FROM equipments e
         LEFT JOIN equipment_options opt ON e.option_id = opt.id
         LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
@@ -3878,7 +3878,7 @@ def api_dashboard_stats():
     # 5. 복합 조건 검색 (카테고리 + 제조사 모두 선택 시)
     req_cat_id = request.args.get('category_id')
     req_man_id = request.args.get('manufacturer_id')
-
+    
     combined_stats = None
     if req_cat_id and req_man_id:
         status_query = f'''
@@ -3902,14 +3902,14 @@ def api_dashboard_stats():
         '''
         cursor.execute(list_query, params_base + [req_cat_id, req_man_id])
         equipment_list = [dict(row) for row in cursor.fetchall()]
-
+        
         combined_stats = {
             "status_distribution": status_distribution,
             "equipment_list": equipment_list
         }
 
     conn.close()
-
+    
     return jsonify({
         "success": True,
         "data": {
@@ -3933,11 +3933,11 @@ def api_dashboard_master_options():
     cursor = conn.cursor()
     cursor.execute("SELECT CategoryId AS CategoryId, CategoryId AS id, Name AS DisplayName, Name AS name FROM categories ORDER BY CategoryId")
     cats = [dict(row) for row in cursor.fetchall()]
-
+    
     cursor.execute("SELECT ManufacturerId AS ManufacturerId, ManufacturerId AS id, Name AS DisplayName, Name AS name FROM manufacturers ORDER BY ManufacturerId")
     mans = [dict(row) for row in cursor.fetchall()]
     conn.close()
-
+    
     return jsonify({
         "success": True,
         "categories": cats,
@@ -3960,22 +3960,22 @@ def api_change_my_password():
     data = request.json
     current_pw = data.get('current_password')
     new_pw = data.get('new_password')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT Password FROM users WHERE UserId = ?", (user['UserId'],))
     db_user = cursor.fetchone()
-
+    
     if not db_user or not check_password_hash(db_user['Password'], current_pw):
         conn.close()
         return jsonify({"success": False, "message": "현재 비밀번호가 일치하지 않습니다."}), 400
-
+        
     hashed_new = generate_password_hash(new_pw)
     cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed_new, user['UserId']))
-
+    
     # 비밀번호 변경 로그 남기기
     log_audit(user['UserId'], user['LoginId'], 'CHANGE_PASSWORD', 'users', user['UserId'], None, None)
-
+    
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": "비밀번호가 성공적으로 변경되었습니다."})
@@ -3992,35 +3992,35 @@ def api_user_withdraw():
     user = session['user']
     data = request.json or {}
     password = data.get('password')
-
+    
     if not password:
         return jsonify({"success": False, "message": "비밀번호를 입력하세요."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT Password FROM users WHERE UserId = ?", (user['UserId'],))
     db_user = cursor.fetchone()
-
+    
     if not db_user or not check_password_hash(db_user['Password'], password):
         conn.close()
         return jsonify({"success": False, "message": "비밀번호가 올바르지 않습니다."}), 400
-
+        
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     new_token = os.urandom(24).hex()
-
+    
     cursor.execute('''
-        UPDATE users
-        SET IsDeactivated = 'Y', DeactivatedAt = ?, SessionToken = ?
+        UPDATE users 
+        SET IsDeactivated = 'Y', DeactivatedAt = ?, SessionToken = ? 
         WHERE UserId = ?
     ''', (now_str, new_token, user['UserId']))
-
+    
     conn.commit()
     conn.close()
-
+    
     session['user']['IsDeactivated'] = True
     session['user']['DeactivationDaysLeft'] = 30
     session['session_token'] = new_token
-
+    
     log_audit(user['UserId'], user['LoginId'], 'USER_WITHDRAW_REQUEST', 'users', user['UserId'], None, {"DeactivatedAt": now_str})
     return jsonify({"success": True, "message": "회원 탈퇴 신청이 완료되었습니다. 30일간의 비활성화 유예기간이 적용됩니다."})
 
@@ -4034,21 +4034,21 @@ def api_user_withdraw_cancel():
     [변경 시 영향도] deactivated_notice.html의 비활성화 철회 버튼 및 사용자 계정 상태에 영향을 줍니다.
     """
     user = session['user']
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        UPDATE users
-        SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
+        UPDATE users 
+        SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL 
         WHERE UserId = ?
     ''', (user['UserId'],))
-
+    
     conn.commit()
     conn.close()
-
+    
     session['user']['IsDeactivated'] = False
     session['user'].pop('DeactivationDaysLeft', None)
-
+    
     log_audit(user['UserId'], user['LoginId'], 'USER_WITHDRAW_CANCEL', 'users', user['UserId'], None, None)
     return jsonify({"success": True, "message": "비활성화가 성공적으로 철회되었으며 계정이 정상 복구되었습니다."})
 
@@ -4064,37 +4064,37 @@ def api_update_email():
     user = session['user']
     data = request.json or {}
     new_email = data.get('email', '').strip()
-
+    
     if not new_email:
         return jsonify({"success": False, "message": "이메일을 입력해주세요."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     # 1. 인증 완료 여부 확인
     cursor.execute("SELECT IsVerified FROM email_verifications WHERE Email = ?", (new_email,))
     verif = cursor.fetchone()
     if not verif or verif['IsVerified'] != 1:
         conn.close()
         return jsonify({"success": False, "message": "이메일 인증이 완료되지 않았습니다."}), 400
-
+        
     # 2. 이메일 중복 확인 (IntegrityError 처리)
     try:
-        cursor.execute("UPDATE users SET Email = ?, UpdatedAt = ? WHERE UserId = ?",
+        cursor.execute("UPDATE users SET Email = ?, UpdatedAt = ? WHERE UserId = ?", 
                        (new_email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user['UserId']))
         conn.commit()
     except sqlite3.IntegrityError:
         conn.close()
         return jsonify({"success": False, "message": "이미 다른 계정에서 사용 중인 이메일입니다."}), 400
-
+        
     # 성공 시 인증 기록 삭제 및 세션 업데이트
     cursor.execute("DELETE FROM email_verifications WHERE Email = ?", (new_email,))
     conn.commit()
     conn.close()
-
+    
     session['user']['Email'] = new_email
     log_audit(user['UserId'], user['LoginId'], 'UPDATE_EMAIL', 'users', user['UserId'], None, {"NewEmail": new_email})
-
+    
     return jsonify({"success": True, "message": "이메일 주소가 성공적으로 변경되었습니다."})
 
 
@@ -4110,31 +4110,31 @@ def api_update_profile():
     user = session.get('user')
     if not user or 'UserId' not in user:
         return jsonify({"success": False, "message": "로그인이 필요한 서비스입니다."}), 401
-
+        
     data = request.json or {}
     new_login_id = data.get('login_id', '').strip()
     new_name = data.get('name', '').strip()
     new_nickname = data.get('nickname', '').strip()
     current_password = data.get('current_password', '').strip()
-
+    
     if not new_login_id or not new_name or not new_nickname or not current_password:
         return jsonify({"success": False, "message": "모든 필드를 입력해 주세요."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute("SELECT * FROM users WHERE UserId = ?", (user['UserId'],))
     db_user = cursor.fetchone()
-
+    
     if not db_user:
         conn.close()
         return jsonify({"success": False, "message": "사용자 정보를 찾을 수 없습니다."}), 404
-
+        
     # 현재 비밀번호 대조 검증
     if not check_password_hash(db_user['Password'], current_password):
         conn.close()
         return jsonify({"success": False, "message": "현재 비밀번호가 올바르지 않습니다."}), 400
-
+        
     # 아이디 변경 시 타 계정 중복 체크
     if new_login_id != db_user['LoginId']:
         cursor.execute("SELECT UserId FROM users WHERE LoginId = ? AND UserId != ?", (new_login_id, user['UserId']))
@@ -4143,7 +4143,7 @@ def api_update_profile():
             return jsonify({"success": False, "message": "이미 사용 중인 아이디입니다."}), 400
 
     now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    
     try:
         cursor.execute('''
             UPDATE users
@@ -4183,13 +4183,13 @@ def api_get_users():
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT UserId, LoginId, Name, NickName, Role, CreatedAt, IsDeactivated, DeactivatedAt, IsDeleted, DeletedAt FROM users ORDER BY UserId DESC")
     rows = cursor.fetchall()
     conn.close()
-
+    
     result = []
     for row in rows:
         user_dict = dict(row)
@@ -4199,7 +4199,7 @@ def api_get_users():
         user_dict['Status'] = eval_res['status']
         user_dict['DaysLeft'] = eval_res.get('days_left', 0)
         result.append(user_dict)
-
+        
     return jsonify({"success": True, "data": result})
 
 @app.route('/api/users/<int:target_user_id>/toggle_deactivation', methods=['POST'])
@@ -4214,15 +4214,15 @@ def api_toggle_user_deactivation(target_user_id):
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     deactivate = request.json.get('deactivate', True)
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if deactivate:
         cursor.execute('''
-            UPDATE users
+            UPDATE users 
             SET IsDeactivated = 'Y', DeactivatedAt = NULL, SessionToken = hex(randomblob(16))
             WHERE UserId = ?
         ''', (target_user_id,))
@@ -4230,13 +4230,13 @@ def api_toggle_user_deactivation(target_user_id):
         msg = "계정이 비활성화(정지) 처리되었습니다."
     else:
         cursor.execute('''
-            UPDATE users
+            UPDATE users 
             SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
             WHERE UserId = ?
         ''', (target_user_id,))
         log_audit(user['UserId'], user['LoginId'], 'ADMIN_UNSUSPEND_USER', 'users', target_user_id, None, None)
         msg = "계정이 정상 활성화되었습니다."
-
+        
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": msg})
@@ -4253,20 +4253,20 @@ def api_deactivate_selected_users():
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     target_ids = request.json.get('user_ids', [])
     deactivate = request.json.get('deactivate', True)
-
+    
     if not target_ids or not isinstance(target_ids, list):
         return jsonify({"success": False, "message": "대상을 선택해주세요."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     placeholders = ','.join(['?'] * len(target_ids))
-
+    
     if deactivate:
         cursor.execute(f'''
-            UPDATE users
+            UPDATE users 
             SET IsDeactivated = 'Y', DeactivatedAt = NULL, SessionToken = hex(randomblob(16))
             WHERE UserId IN ({placeholders})
         ''', tuple(target_ids))
@@ -4274,13 +4274,13 @@ def api_deactivate_selected_users():
         msg = f"{len(target_ids)}명의 계정이 비활성화 처리되었습니다."
     else:
         cursor.execute(f'''
-            UPDATE users
+            UPDATE users 
             SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
             WHERE UserId IN ({placeholders})
         ''', tuple(target_ids))
         log_audit(user['UserId'], user['LoginId'], 'ADMIN_BULK_UNSUSPEND', 'users', None, None, {"TargetIds": target_ids})
         msg = f"{len(target_ids)}명의 계정이 활성화 처리되었습니다."
-
+        
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": msg})
@@ -4297,24 +4297,24 @@ def api_update_user_role(target_user_id):
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     new_role = request.json.get('role')
     if new_role not in ['admin', 'user']:
         return jsonify({"success": False, "message": "잘못된 권한입니다."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute("SELECT Role FROM users WHERE UserId = ?", (target_user_id,))
     target = cursor.fetchone()
     if not target:
         conn.close()
         return jsonify({"success": False, "message": "사용자를 찾을 수 없습니다."}), 404
-
+        
     old_role = target['Role']
     cursor.execute("UPDATE users SET Role = ? WHERE UserId = ?", (new_role, target_user_id))
     log_audit(user['UserId'], user['LoginId'], 'UPDATE_ROLE', 'users', target_user_id, {"Role": old_role}, {"Role": new_role})
-
+    
     conn.commit()
     conn.close()
     return jsonify({"success": True})
@@ -4331,16 +4331,16 @@ def api_reset_user_password(target_user_id):
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     # 임시 비밀번호는 관리자가 지정할 수 있도록 하거나 고정 '1234'
     temp_pw = request.json.get('temp_password', '1234')
     hashed_pw = generate_password_hash(temp_pw)
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed_pw, target_user_id))
     log_audit(user['UserId'], user['LoginId'], 'RESET_PASSWORD', 'users', target_user_id, None, None)
-
+    
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"비밀번호가 '{temp_pw}'로 초기화되었습니다."})
@@ -4360,12 +4360,12 @@ def api_force_logout_all():
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     include_me = request.json.get('include_me', False)
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if include_me:
         # 모든 유저의 세션 갱신 (본인 포함)
         cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16))")
@@ -4374,14 +4374,14 @@ def api_force_logout_all():
         # 본인 제외 모든 유저 세션 갱신
         cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16)) WHERE UserId != ?", (user['UserId'],))
         log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_ALL', 'users', None, None, {"IncludeMe": False})
-
+        
     conn.commit()
     conn.close()
-
+    
     # 만약 본인 포함이면 현재 세션 정보의 토큰도 만료되게 하여 즉각 튕기게 함
     if include_me:
         session.clear()
-
+        
     return jsonify({"success": True, "message": "성공적으로 세션이 만료되었습니다."})
 
 @app.route('/api/system/force_logout/selected', methods=['POST'])
@@ -4396,26 +4396,26 @@ def api_force_logout_selected():
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     target_ids = request.json.get('user_ids', [])
     if not target_ids or not isinstance(target_ids, list):
         return jsonify({"success": False, "message": "대상 유저가 지정되지 않았습니다."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     placeholders = ','.join(['?'] * len(target_ids))
     cursor.execute(f"UPDATE users SET SessionToken = hex(randomblob(16)) WHERE UserId IN ({placeholders})", tuple(target_ids))
-
+    
     log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_SELECTED', 'users', None, None, {"TargetIds": target_ids})
-
+    
     conn.commit()
     conn.close()
-
+    
     # 혹시 선택 대상에 본인이 포함되어 있다면 현재 세션 clear
     if user['UserId'] in target_ids:
         session.clear()
-
+        
     return jsonify({"success": True, "message": f"{len(target_ids)}명의 사용자 세션이 강제 만료되었습니다."})
 
 # ------------------------------------------
@@ -4433,48 +4433,48 @@ def api_delete_selected_users():
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     target_ids = request.json.get('user_ids', [])
     if not target_ids or not isinstance(target_ids, list):
         return jsonify({"success": False, "message": "삭제할 대상을 선택해주세요."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     placeholders = ','.join(['?'] * len(target_ids))
     cursor.execute(f"SELECT UserId, LoginId FROM users WHERE UserId IN ({placeholders})", tuple(target_ids))
     target_users = cursor.fetchall()
-
+    
     if not target_users:
         conn.close()
         return jsonify({"success": False, "message": "삭제할 대상 사용자를 찾을 수 없습니다."}), 404
-
+        
     deleted_ids = [u['UserId'] for u in target_users]
     deleted_logins = [u['LoginId'] for u in target_users]
-
+    
     del_placeholders = ','.join(['?'] * len(deleted_ids))
     del_tuple = tuple(deleted_ids)
-
+    
     # 1. user_settings 레코드 삭제
     cursor.execute(f"DELETE FROM user_settings WHERE UserId IN ({del_placeholders})", del_tuple)
-
+    
     # 2. 관련 장비 소유권 해제 (데이터 보존을 위해 공개 장비로 전환)
     cursor.execute(f"UPDATE equipments SET user_id = NULL, is_public = 1 WHERE user_id IN ({del_placeholders})", del_tuple)
-
+    
     # 3. users 계정 즉시 파기
     cursor.execute(f"DELETE FROM users WHERE UserId IN ({del_placeholders})", del_tuple)
-
+    
     # 4. 보안 감사 로그 기록
-    log_audit(user['UserId'], user['LoginId'], 'DELETE_USER', 'users', None,
+    log_audit(user['UserId'], user['LoginId'], 'DELETE_USER', 'users', None, 
               {"DeletedUserIds": deleted_ids, "DeletedLogins": deleted_logins}, None)
-
+              
     conn.commit()
     conn.close()
-
+    
     # 만약 본인이 삭제 대상에 포함되어 있다면 세션 파기
     if user['UserId'] in deleted_ids:
         session.clear()
-
+        
     return jsonify({"success": True, "message": f"총 {len(deleted_ids)}명의 계정이 즉시 삭제되었습니다."})
 
 # ------------------------------------------
@@ -4490,10 +4490,10 @@ def get_portal_menus():
     """
     user = session['user']
     role = user['Role']
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if role == 'admin':
         cursor.execute("SELECT * FROM menus WHERE ParentMenuCode IS NULL ORDER BY SortOrder ASC, MenuId ASC")
     else:
@@ -4503,10 +4503,10 @@ def get_portal_menus():
             WHERE p.Role = ? AND p.IsAllowed = 1 AND m.ParentMenuCode IS NULL
             ORDER BY m.SortOrder ASC, m.MenuId ASC
         ''', (role,))
-
+        
     rows = cursor.fetchall()
     conn.close()
-
+    
     return jsonify([dict(row) for row in rows])
 
 @app.route('/api/menus/children/<parent_code>')
@@ -4519,10 +4519,10 @@ def get_children_menus(parent_code):
     """
     user = session['user']
     role = user['Role']
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if role == 'admin':
         cursor.execute("SELECT * FROM menus WHERE ParentMenuCode = ? ORDER BY SortOrder ASC", (parent_code,))
     else:
@@ -4532,7 +4532,7 @@ def get_children_menus(parent_code):
             WHERE p.Role = ? AND p.IsAllowed = 1 AND m.ParentMenuCode = ?
             ORDER BY m.SortOrder ASC
         ''', (role, parent_code))
-
+        
     menus = [dict(r) for r in cursor.fetchall()]
     conn.close()
     return jsonify(menus)
@@ -4549,23 +4549,23 @@ def search_users():
     """
     if session['user']['Role'] != 'admin':
         return jsonify({"error": "권한이 없습니다."}), 403
-
+        
     q = request.args.get('q', '').strip()
     if not q:
         return jsonify([])
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     like_q = f"%{q}%"
     cursor.execute('''
-        SELECT UserId, LoginId, Name, NickName
-        FROM users
+        SELECT UserId, LoginId, Name, NickName 
+        FROM users 
         WHERE LoginId LIKE ? OR Name LIKE ? OR NickName LIKE ?
         ORDER BY NickName ASC LIMIT 20
     ''', (like_q, like_q, like_q))
     rows = cursor.fetchall()
     conn.close()
-
+    
     return jsonify([dict(row) for row in rows])
 
 
@@ -4604,7 +4604,7 @@ def get_approvals():
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if user['Role'] == 'admin':
         cursor.execute('''
             SELECT a.*, u.NickName as RequesterNickName, u.Name as RequesterName
@@ -4620,7 +4620,7 @@ def get_approvals():
             WHERE a.RequesterId = ?
             ORDER BY a.RequestId DESC
         ''', (user['UserId'],))
-
+        
     rows = cursor.fetchall()
     conn.close()
     return jsonify({"success": True, "data": [dict(r) for r in rows]})
@@ -4638,71 +4638,33 @@ def process_approval(req_id):
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "관리자만 승인/반려할 수 있습니다."}), 403
-
+        
     data = request.json
     action = data.get('action')  # 'approve' or 'reject'
     reject_reason = data.get('reject_reason', '')
     replacement_name = data.get('replacement_name', '').strip() if data.get('replacement_name') else ''
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute("SELECT * FROM approval_requests WHERE RequestId = ?", (req_id,))
     req = cursor.fetchone()
     if not req:
         conn.close()
         return jsonify({"success": False, "message": "해당 결재 건을 찾을 수 없습니다."}), 404
-
+        
     req_dict = dict(req)
     req_data = json.loads(req_dict['RequestDataJSON'])
     target_name = req_data.get('name')
     req_type = req_dict['RequestType']
-
+    
     if action == 'approve':
         cursor.execute("UPDATE approval_requests SET Status = 'APPROVED', ApproverId = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], now, req_id))
         if req_type == 'ADD_CATEGORY':
             cursor.execute("UPDATE categories SET IsApproved = 1 WHERE Name = ?", (target_name,))
-            cursor.execute("""
-                UPDATE lineup_nodes SET status = 'APPROVED'
-                WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipment_options SET status = 'APPROVED'
-                WHERE lineup_node_id IN (
-                    SELECT id FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
-                ) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipments SET is_draft = 0
-                WHERE option_id IN (
-                    SELECT opt.id FROM equipment_options opt
-                    JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                    JOIN categories cat ON node.category_id = cat.CategoryId
-                    WHERE cat.Name = ?
-                ) AND is_draft = 1
-            """, (target_name,))
         elif req_type == 'ADD_MANUFACTURER':
             cursor.execute("UPDATE manufacturers SET IsApproved = 1 WHERE Name = ?", (target_name,))
-            cursor.execute("""
-                UPDATE lineup_nodes SET status = 'APPROVED'
-                WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipment_options SET status = 'APPROVED'
-                WHERE lineup_node_id IN (
-                    SELECT id FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
-                ) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipments SET is_draft = 0
-                WHERE option_id IN (
-                    SELECT opt.id FROM equipment_options opt
-                    JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                    JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
-                    WHERE mfg.Name = ?
-                ) AND is_draft = 1
-            """, (target_name,))
         elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
             node_id = req_data.get('node_id')
             if node_id:
@@ -4716,34 +4678,18 @@ def process_approval(req_id):
             else:
                 cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE option_name = ? AND status = 'PENDING'", (target_name,))
         log_audit(user['UserId'], user['LoginId'], 'APPROVE_REQUEST', 'approval_requests', req_id, req_dict, {"Status": "APPROVED"})
-
+        
     elif action == 'reject':
         cursor.execute("UPDATE approval_requests SET Status = 'REJECTED', ApproverId = ?, RejectReason = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], reject_reason, now, req_id))
-
-        # 대체 이름이 지정된 경우 장비 및 노드 분류 일괄 업데이트 및 미승인 항목 삭제
+        
+        # 대체 이름이 지정된 경우 장비 테이블 일괄 업데이트 및 미승인 항목 삭제
         if req_type == 'ADD_CATEGORY':
             if replacement_name:
-                cursor.execute("SELECT CategoryId FROM categories WHERE Name = ?", (replacement_name,))
-                rep_row = cursor.fetchone()
-                if rep_row:
-                    cursor.execute("""
-                        UPDATE lineup_nodes SET category_id = ?
-                        WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
-                    """, (rep_row['CategoryId'], target_name))
                 cursor.execute("UPDATE equipment SET Category = ? WHERE Category = ?", (replacement_name, target_name))
-            cursor.execute("DELETE FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'", (target_name,))
             cursor.execute("DELETE FROM categories WHERE Name = ? AND IsApproved = 0", (target_name,))
         elif req_type == 'ADD_MANUFACTURER':
             if replacement_name:
-                cursor.execute("SELECT ManufacturerId FROM manufacturers WHERE Name = ?", (replacement_name,))
-                rep_row = cursor.fetchone()
-                if rep_row:
-                    cursor.execute("""
-                        UPDATE lineup_nodes SET manufacturer_id = ?
-                        WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
-                    """, (rep_row['ManufacturerId'], target_name))
                 cursor.execute("UPDATE equipment SET Manufacturer = ? WHERE Manufacturer = ?", (replacement_name, target_name))
-            cursor.execute("DELETE FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'", (target_name,))
             cursor.execute("DELETE FROM manufacturers WHERE Name = ? AND IsApproved = 0", (target_name,))
         elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
             node_id = req_data.get('node_id')
@@ -4757,9 +4703,9 @@ def process_approval(req_id):
                 cursor.execute("DELETE FROM equipment_options WHERE id = ? AND status = 'PENDING'", (opt_id,))
             else:
                 cursor.execute("DELETE FROM equipment_options WHERE option_name = ? AND status = 'PENDING'", (target_name,))
-
+            
         log_audit(user['UserId'], user['LoginId'], 'REJECT_REQUEST', 'approval_requests', req_id, req_dict, {"Status": "REJECTED", "Reason": reject_reason, "Replacement": replacement_name})
-
+        
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": "결재 처리가 완료되었습니다."})
@@ -4777,11 +4723,11 @@ def get_equipment():
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     req_type = request.args.get('type', 'my')
     include_mine = request.args.get('include_mine', 'false').lower() == 'true'
     is_draft = request.args.get('is_draft', '0') == '1'
-
+    
     base_select = '''
         SELECT e.id AS EquipmentId, e.id AS id,
                e.name AS Name, e.serial_number AS SerialNumber,
@@ -4807,14 +4753,14 @@ def get_equipment():
             WHERE e.user_id = ? AND e.is_draft = 1
             ORDER BY e.id DESC
         ''', (user['UserId'],))
-
+        
     elif req_type == 'my':
         cursor.execute(f'''
             {base_select}
             WHERE e.user_id = ? AND (e.is_draft = 0 OR e.is_draft IS NULL)
             ORDER BY e.id DESC
         ''', (user['UserId'],))
-
+        
     elif req_type == 'public':
         if user['Role'] == 'admin':
             cursor.execute(f'''
@@ -4840,7 +4786,7 @@ def get_equipment():
 
     rows = cursor.fetchall()
     conn.close()
-
+    
     result = []
     for row in rows:
         item = dict(row)
@@ -4869,11 +4815,11 @@ def add_equipment():
     data = request.json or {}
     user = session['user']
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    
     target_user_id = user['UserId']
     if user['Role'] == 'admin' and data.get('UserId'):
         target_user_id = data.get('UserId')
-
+    
     name = (data.get('Name') or data.get('name') or '').strip()
     if not name:
         return jsonify({"error": "장비 별명(이름)을 입력하세요."}), 400
@@ -4881,17 +4827,7 @@ def add_equipment():
     serial_number = (data.get('SerialNumber') or data.get('serial_number') or '').strip() or None
     purchase_date = data.get('PurchaseDate') or data.get('purchase_date')
     memo = (data.get('Memo') or data.get('memo') or '').strip()
-    root_data = data.get('RootData') or {}
-    cat_select_val = str(root_data.get('categoryId') or '')
-    cat_custom_val = (root_data.get('categoryCustom') or '').strip()
-    mfg_select_val = str(root_data.get('manufacturerId') or '')
-    mfg_custom_val = (root_data.get('manufacturerCustom') or '').strip()
-
-    has_custom_cat = (cat_select_val == '__custom__' and cat_custom_val)
-    has_custom_mfg = (mfg_select_val == '__custom__' and mfg_custom_val)
-    has_custom_root = has_custom_cat or has_custom_mfg
-
-    is_draft = 1 if (has_custom_root or data.get('IsDraft') or data.get('is_draft')) else 0
+    is_draft = 1 if (data.get('IsDraft') or data.get('is_draft')) else 0
     is_public = 0 if is_draft == 1 else (1 if data.get('IsPublic') or data.get('is_public') else 0)
 
     opt_data = data.get('OptionData') or {}
@@ -4908,111 +4844,30 @@ def add_equipment():
                 conn.close()
                 return jsonify({"error": "이미 등록된 시리얼 넘버입니다."}), 400
 
-        # [신규 커스텀 분류 및 전자결재 파이프라인]
-        if has_custom_root:
-            final_cat_id = None
-            final_mfg_id = None
+        # OptionData 해석
+        if isinstance(opt_data, dict) and opt_data.get('isNew'):
+            new_opt_name = (opt_data.get('option_name') or '').strip()
+            specs_json = opt_data.get('specs_json') or '{}'
+            lineup_node_id = opt_data.get('lineup_node_id')
 
-            # 1. 카테고리 처리
-            if has_custom_cat:
-                cursor.execute("SELECT CategoryId, IsApproved FROM categories WHERE Name = ?", (cat_custom_val,))
-                cat_row = cursor.fetchone()
-                if cat_row:
-                    final_cat_id = cat_row['CategoryId']
-                else:
-                    cursor.execute("INSERT INTO categories (Name, IsApproved, CreatedAt) VALUES (?, 0, ?)", (cat_custom_val, now))
-                    final_cat_id = cursor.lastrowid
+            if not lineup_node_id:
+                conn.close()
+                return jsonify({"error": "소속될 카탈로그 노드를 선택해야 합니다."}), 400
+            if not new_opt_name:
+                conn.close()
+                return jsonify({"error": "신규 옵션명을 입력하세요."}), 400
 
-                # 결재 상신 (중복 PENDING 방어)
-                cursor.execute("SELECT RequestId FROM approval_requests WHERE RequestType = 'ADD_CATEGORY' AND Status = 'PENDING' AND json_extract(RequestDataJSON, '$.name') = ?", (cat_custom_val,))
-                if not cursor.fetchone():
-                    req_payload = json.dumps({"type": "Category", "name": cat_custom_val, "category_id": final_cat_id}, ensure_ascii=False)
-                    cursor.execute("""
-                        INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
-                        VALUES (?, 'ADD_CATEGORY', ?, 'PENDING', ?, ?)
-                    """, (user['UserId'], req_payload, now, now))
-            else:
-                try:
-                    final_cat_id = int(cat_select_val) if cat_select_val else None
-                except ValueError:
-                    final_cat_id = None
+            status = 'APPROVED'
+            cursor.execute("""
+                INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (lineup_node_id, new_opt_name, specs_json, status, user['UserId'], now))
+            option_id = cursor.lastrowid
 
-            # 2. 제조사 처리
-            if has_custom_mfg:
-                cursor.execute("SELECT ManufacturerId, IsApproved FROM manufacturers WHERE Name = ?", (mfg_custom_val,))
-                mfg_row = cursor.fetchone()
-                if mfg_row:
-                    final_mfg_id = mfg_row['ManufacturerId']
-                else:
-                    cursor.execute("INSERT INTO manufacturers (Name, IsApproved, CreatedAt) VALUES (?, 0, ?)", (mfg_custom_val, now))
-                    final_mfg_id = cursor.lastrowid
-
-                # 결재 상신 (중복 PENDING 방어)
-                cursor.execute("SELECT RequestId FROM approval_requests WHERE RequestType = 'ADD_MANUFACTURER' AND Status = 'PENDING' AND json_extract(RequestDataJSON, '$.name') = ?", (mfg_custom_val,))
-                if not cursor.fetchone():
-                    req_payload = json.dumps({"type": "Manufacturer", "name": mfg_custom_val, "manufacturer_id": final_mfg_id}, ensure_ascii=False)
-                    cursor.execute("""
-                        INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
-                        VALUES (?, 'ADD_MANUFACTURER', ?, 'PENDING', ?, ?)
-                    """, (user['UserId'], req_payload, now, now))
-            else:
-                try:
-                    final_mfg_id = int(mfg_select_val) if mfg_select_val else None
-                except ValueError:
-                    final_mfg_id = None
-
-            # 3. 임시 라인업 노드 및 옵션 연계
-            if final_cat_id and final_mfg_id:
-                cursor.execute("""
-                    SELECT id FROM lineup_nodes
-                    WHERE parent_id IS NULL AND category_id = ? AND manufacturer_id = ?
-                """, (final_cat_id, final_mfg_id))
-                node_row = cursor.fetchone()
-                if node_row:
-                    temp_node_id = node_row['id']
-                else:
-                    cursor.execute("""
-                        INSERT INTO lineup_nodes (parent_id, category_id, manufacturer_id, name, depth, status, requested_by, created_at)
-                        VALUES (NULL, ?, ?, '기본 모델', 1, 'PENDING', ?, ?)
-                    """, (final_cat_id, final_mfg_id, user['UserId'], now))
-                    temp_node_id = cursor.lastrowid
-
-                cursor.execute("SELECT id FROM equipment_options WHERE lineup_node_id = ? LIMIT 1", (temp_node_id,))
-                opt_row = cursor.fetchone()
-                if opt_row:
-                    option_id = opt_row['id']
-                else:
-                    cursor.execute("""
-                        INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by, created_at)
-                        VALUES (?, '기본 사양', '{}', 'PENDING', ?, ?)
-                    """, (temp_node_id, user['UserId'], now))
-                    option_id = cursor.lastrowid
-
-        # OptionData 해석 (정규 선택 모드)
-        if not option_id:
-            if isinstance(opt_data, dict) and opt_data.get('isNew'):
-                new_opt_name = (opt_data.get('option_name') or '').strip()
-                specs_json = opt_data.get('specs_json') or '{}'
-                lineup_node_id = opt_data.get('lineup_node_id')
-
-                if not lineup_node_id:
-                    conn.close()
-                    return jsonify({"error": "소속될 카탈로그 노드를 선택해야 합니다."}), 400
-                if not new_opt_name:
-                    conn.close()
-                    return jsonify({"error": "신규 옵션명을 입력하세요."}), 400
-
-                status = 'APPROVED'
-                cursor.execute("""
-                    INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """, (lineup_node_id, new_opt_name, specs_json, status, user['UserId'], now))
-                option_id = cursor.lastrowid
-
-            elif isinstance(opt_data, dict) and opt_data.get('option_id'):
-                option_id = int(opt_data['option_id'])
-            elif data.get('option_id'):
-                option_id = int(data['option_id'])
+        elif isinstance(opt_data, dict) and opt_data.get('option_id'):
+            option_id = int(opt_data['option_id'])
+        elif data.get('option_id'):
+            option_id = int(data['option_id'])
 
         if not option_id and not is_draft:
             conn.close()
@@ -5048,7 +4903,7 @@ def add_equipment():
             now,
             now
         ))
-
+        
         new_id = cursor.lastrowid
 
         # 3-Tier 감사 로그 적재
@@ -5059,17 +4914,9 @@ def add_equipment():
 
         conn.commit()
         conn.close()
-
+        
         log_audit(user['UserId'], user['LoginId'], 'INSERT', 'equipments', new_id, None, data)
-
-        if has_custom_root:
-            msg = "신규 분류 승인 요청이 전자결재함에 상신되었으며, 장비는 임시저장되었습니다. 관리자 승인 후 정식 활성화됩니다."
-        elif is_draft == 1:
-            msg = "임시저장되었습니다."
-        else:
-            msg = "성공적으로 등록되었습니다!"
-
-        return jsonify({"message": msg, "equipment_id": new_id, "is_draft": is_draft})
+        return jsonify({"message": "임시저장되었습니다." if is_draft == 1 else "성공적으로 등록되었습니다!"})
 
     except Exception as e:
         conn.rollback()
@@ -5090,10 +4937,10 @@ def update_equipment(eq_id):
     data = request.json or {}
     user = session['user']
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute("SELECT * FROM equipments WHERE id = ?", (eq_id,))
     old_row = cursor.fetchone()
     if not old_row:
@@ -5145,7 +4992,7 @@ def update_equipment(eq_id):
             option_id = int(opt_data['option_id'])
 
     cursor.execute('''
-        UPDATE equipments
+        UPDATE equipments 
         SET option_id=?, name=?, serial_number=?, purchase_date=?, memo=?, user_id=?, is_public=?, is_draft=?, updated_at=?
         WHERE id=?
     ''', (
@@ -5160,7 +5007,7 @@ def update_equipment(eq_id):
         now,
         eq_id
     ))
-
+    
     # 감사 로그 적재
     cursor.execute('''
         INSERT INTO equipments_audit_log (equipment_id, action_type, old_value, new_value, changed_by, changed_at)
@@ -5169,7 +5016,7 @@ def update_equipment(eq_id):
 
     conn.commit()
     conn.close()
-
+    
     log_audit(user['UserId'], user['LoginId'], 'UPDATE', 'equipments', eq_id, old_dict, data)
     return jsonify({"message": "수정되었습니다."})
 
@@ -5187,7 +5034,7 @@ def delete_equipment(eq_id):
     user = session['user']
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute("SELECT * FROM equipments WHERE id = ?", (eq_id,))
     old_row = cursor.fetchone()
     if not old_row:
@@ -5208,7 +5055,7 @@ def delete_equipment(eq_id):
     cursor.execute("DELETE FROM equipments WHERE id = ?", (eq_id,))
     conn.commit()
     conn.close()
-
+    
     log_audit(user['UserId'], user['LoginId'], 'DELETE', 'equipments', eq_id, old_dict, None)
     return jsonify({"message": "삭제되었습니다."})
 
@@ -5224,15 +5071,15 @@ def get_permissions():
     """
     if session['user']['Role'] != 'admin':
         return jsonify({"error": "관리자만 접근할 수 있습니다."}), 403
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('''
-        SELECT
-            r.Role,
-            m.MenuCode,
-            m.MenuName,
-            m.ParentMenuCode,
+        SELECT 
+            r.Role, 
+            m.MenuCode, 
+            m.MenuName, 
+            m.ParentMenuCode, 
             m.SortOrder,
             COALESCE(p.IsAllowed, 0) as IsAllowed
         FROM (SELECT DISTINCT Role FROM users UNION SELECT 'admin' UNION SELECT 'user') r
@@ -5242,7 +5089,7 @@ def get_permissions():
     ''')
     rows = cursor.fetchall()
     conn.close()
-
+    
     return jsonify([dict(r) for r in rows])
 
 
@@ -5259,29 +5106,29 @@ def update_permissions():
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"error": "관리자만 접근할 수 있습니다."}), 403
-
-    data = request.json
+        
+    data = request.json 
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute("SELECT * FROM role_menu_permissions")
     old_perms = [dict(r) for r in cursor.fetchall()]
-
+    
     cursor.execute("SELECT MenuCode, ParentMenuCode FROM menus")
     menus_meta = {r['MenuCode']: r['ParentMenuCode'] for r in cursor.fetchall()}
-
+    
     future_perms = {}
     for r in old_perms:
         if r['Role'] not in future_perms: future_perms[r['Role']] = {}
         future_perms[r['Role']][r['MenuCode']] = r['IsAllowed']
-
+        
     for item in data:
         role = item['Role']
         if role not in future_perms: future_perms[role] = {}
         future_perms[role][item['MenuCode']] = item['IsAllowed']
-
+        
     # 부모-자식 모순 검증
     for role, perms in future_perms.items():
         for menu_code, is_allowed in perms.items():
@@ -5292,17 +5139,17 @@ def update_permissions():
                         conn.close()
                         return jsonify({"error": f"하위 메뉴({menu_code})가 활성화되었으나 상위 메뉴({parent})가 비활성화 상태입니다. 권한 구조가 모순됩니다."}), 400
                     parent = menus_meta.get(parent)
-
+    
     for item in data:
         cursor.execute('''
             INSERT INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt)
             VALUES (?, ?, ?, ?)
             ON CONFLICT(Role, MenuCode) DO UPDATE SET IsAllowed=excluded.IsAllowed, UpdatedAt=excluded.UpdatedAt
         ''', (item['Role'], item['MenuCode'], item['IsAllowed'], now))
-
+        
     conn.commit()
     conn.close()
-
+    
     log_audit(user['UserId'], user['LoginId'], 'UPDATE_PERMISSIONS', 'role_menu_permissions', None, old_perms, data)
     return jsonify({"success": True, "message": "권한 설정이 업데이트되었습니다."})
 
@@ -5321,46 +5168,40 @@ def get_or_create_master_management_item(target_type):
     """
     if session['user']['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     if request.method == 'GET':
-        try:
-            if target_type == 'categories':
-                cursor.execute('''
-                    SELECT c.CategoryId as CategoryId, c.CategoryId as id, c.Name as Name, c.NameKo as NameKo, c.NameEn as NameEn,
-                           c.IsApproved as IsApproved, c.CreatedAt as CreatedAt,
-                           COUNT(e.id) as UsageCount
-                    FROM categories c
-                    LEFT JOIN lineup_nodes node ON c.CategoryId = node.category_id
-                    LEFT JOIN equipment_options opt ON node.id = opt.lineup_node_id
-                    LEFT JOIN equipments e ON opt.id = e.option_id
-                    GROUP BY c.CategoryId
-                    ORDER BY c.CategoryId DESC
-                ''')
-            elif target_type == 'manufacturers':
-                cursor.execute('''
-                    SELECT m.ManufacturerId as ManufacturerId, m.ManufacturerId as id, m.Name as Name, m.NameKo as NameKo, m.NameEn as NameEn,
-                           m.IsApproved as IsApproved, m.CreatedAt as CreatedAt,
-                           COUNT(e.id) as UsageCount
-                    FROM manufacturers m
-                    LEFT JOIN lineup_nodes node ON m.ManufacturerId = node.manufacturer_id
-                    LEFT JOIN equipment_options opt ON node.id = opt.lineup_node_id
-                    LEFT JOIN equipments e ON opt.id = e.option_id
-                    GROUP BY m.ManufacturerId
-                    ORDER BY m.ManufacturerId DESC
-                ''')
-            else:
-                conn.close()
-                return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
-
-            rows = cursor.fetchall()
+        if target_type == 'categories':
+            cursor.execute('''
+                SELECT c.id as CategoryId, c.id, c.name as Name, c.name as NameKo, c.name as NameEn, 1 as IsApproved, c.created_at as CreatedAt,
+                       COUNT(e.id) as UsageCount
+                FROM categories c
+                LEFT JOIN lineup_nodes node ON c.id = node.category_id
+                LEFT JOIN equipment_options opt ON node.id = opt.lineup_node_id
+                LEFT JOIN equipments e ON opt.id = e.option_id
+                GROUP BY c.id
+                ORDER BY c.id DESC
+            ''')
+        elif target_type == 'manufacturers':
+            cursor.execute('''
+                SELECT m.id as ManufacturerId, m.id, m.name as Name, m.name as NameKo, m.name as NameEn, 1 as IsApproved, m.created_at as CreatedAt,
+                       COUNT(e.id) as UsageCount
+                FROM manufacturers m
+                LEFT JOIN lineup_nodes node ON m.id = node.manufacturer_id
+                LEFT JOIN equipment_options opt ON node.id = opt.lineup_node_id
+                LEFT JOIN equipments e ON opt.id = e.option_id
+                GROUP BY m.id
+                ORDER BY m.id DESC
+            ''')
+        else:
             conn.close()
-            return jsonify({"success": True, "data": [dict(r) for r in rows]})
-        except Exception as e:
-            conn.close()
-            return jsonify({"success": False, "message": f"마스터 데이터 조회 중 오류가 발생했습니다: {str(e)}"}), 500
+            return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
+            
+        rows = cursor.fetchall()
+        conn.close()
+        return jsonify({"success": True, "data": [dict(r) for r in rows]})
 
     elif request.method == 'POST':
         data = request.json or {}
@@ -5451,16 +5292,16 @@ def update_or_delete_master_item(target_type, item_id):
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     table_name = 'categories' if target_type == 'categories' else ('manufacturers' if target_type == 'manufacturers' else None)
     id_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
     fk_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
     legacy_col = 'Category' if target_type == 'categories' else 'Manufacturer'
     lineup_fk = 'category_id' if target_type == 'categories' else 'manufacturer_id'
-
+    
     if not table_name:
         conn.close()
         return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
@@ -5470,37 +5311,37 @@ def update_or_delete_master_item(target_type, item_id):
         name = data.get('Name', '').strip()
         name_ko = data.get('NameKo', '').strip() if data.get('NameKo') else None
         name_en = data.get('NameEn', '').strip() if data.get('NameEn') else None
-
+        
         if not name:
             conn.close()
             return jsonify({"success": False, "message": "기본 명칭(Name)은 필수입니다."}), 400
-
+            
         cursor.execute(f"SELECT * FROM {table_name} WHERE {id_col} = ?", (item_id,))
         old_item = cursor.fetchone()
         if not old_item:
             conn.close()
             return jsonify({"success": False, "message": "해당 마스터 항목을 찾을 수 없습니다."}), 404
-
+            
         cursor.execute(f"UPDATE {table_name} SET Name = ?, NameKo = ?, NameEn = ? WHERE {id_col} = ?",
                        (name, name_ko, name_en, item_id))
-
+                       
         log_audit(user['UserId'], user['LoginId'], 'UPDATE_MASTER', table_name, item_id, dict(old_item), data)
         conn.commit()
         conn.close()
         return jsonify({"success": True, "message": "성공적으로 수정되었습니다."})
-
+        
     elif request.method == 'DELETE':
         cursor.execute(f"SELECT * FROM {table_name} WHERE {id_col} = ?", (item_id,))
         old_item = cursor.fetchone()
         if not old_item:
             conn.close()
             return jsonify({"success": False, "message": "해당 마스터 항목을 찾을 수 없습니다."}), 404
-
+            
         # lineup_nodes 및 equipment의 관련 컬럼을 NULL 처리
         cursor.execute(f"UPDATE lineup_nodes SET {lineup_fk} = NULL WHERE {lineup_fk} = ?", (item_id,))
         cursor.execute(f"UPDATE equipment SET {fk_col} = NULL, {legacy_col} = NULL WHERE {fk_col} = ?", (item_id,))
         cursor.execute(f"DELETE FROM {table_name} WHERE {id_col} = ?", (item_id,))
-
+        
         log_audit(user['UserId'], user['LoginId'], 'DELETE_MASTER', table_name, item_id, dict(old_item), None)
         conn.commit()
         conn.close()
@@ -5519,43 +5360,43 @@ def merge_master_items(target_type, target_id):
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
-
+        
     data = request.json
     source_ids = data.get('source_ids', [])
     if not source_ids or not isinstance(source_ids, list):
         return jsonify({"success": False, "message": "통합할 대상 항목을 1개 이상 선택해야 합니다."}), 400
-
+        
     table_name = 'categories' if target_type == 'categories' else ('manufacturers' if target_type == 'manufacturers' else None)
     id_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
     fk_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
     legacy_col = 'Category' if target_type == 'categories' else 'Manufacturer'
     lineup_fk = 'category_id' if target_type == 'categories' else 'manufacturer_id'
-
+    
     if not table_name:
         return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
-
+        
     conn = get_db_connection()
     cursor = conn.cursor()
-
+    
     cursor.execute(f"SELECT * FROM {table_name} WHERE {id_col} = ?", (target_id,))
     target_item = cursor.fetchone()
     if not target_item:
         conn.close()
         return jsonify({"success": False, "message": "기준 마스터 항목을 찾을 수 없습니다."}), 404
-
+        
     placeholders = ','.join(['?'] * len(source_ids))
-
+    
     # 1. lineup_nodes 및 equipment 테이블의 ID 및 레거시 컬럼 일괄 UPDATE
     cursor.execute(f"UPDATE lineup_nodes SET {lineup_fk} = ? WHERE {lineup_fk} IN ({placeholders})", (target_id, *source_ids))
     cursor.execute(f"UPDATE equipment SET {fk_col} = ?, {legacy_col} = ? WHERE {fk_col} IN ({placeholders})",
                    (target_id, str(target_id), *source_ids))
-
+                   
     # 2. 통합 대상 마스터 항목 삭제
     cursor.execute(f"DELETE FROM {table_name} WHERE {id_col} IN ({placeholders})", tuple(source_ids))
-
-    log_audit(user['UserId'], user['LoginId'], 'MERGE_MASTER', table_name, target_id,
+    
+    log_audit(user['UserId'], user['LoginId'], 'MERGE_MASTER', table_name, target_id, 
               {"SourceIds": source_ids}, {"TargetId": target_id})
-
+              
     conn.commit()
     conn.close()
     return jsonify({"success": True, "message": f"총 {len(source_ids)}개의 항목이 성공적으로 통폐합되었습니다."})
@@ -5605,7 +5446,7 @@ def api_send_pin_logic():
     subject = "[미니서버] 이메일 인증 PIN 번호 안내"
     body_html = f"<p>인증 PIN 번호: <strong>{pin_code}</strong> (3분 유효)</p>"
     success, msg = send_email(email, subject, body_html)
-
+    
     if success:
         return jsonify({"success": True, "message": "인증 PIN 코드가 발송되었습니다."})
     return jsonify({"success": False, "message": "메일 발송 실패."}), 500
@@ -5682,7 +5523,7 @@ def api_request_password_reset_logic():
 
     reset_url = request.host_url.rstrip('/') + f"reset_password?token={raw_token}&email={email}"
     success, msg = send_email(email, "[미니서버] 비밀번호 재설정", f"<a href='{reset_url}'>비밀번호 재설정하기</a>")
-
+    
     return jsonify({"success": True, "message": "비밀번호 재설정 링크가 발송되었습니다."})
 
 
@@ -5714,14 +5555,14 @@ def api_reset_password_logic():
     cursor = conn.cursor()
     cursor.execute("SELECT UserId FROM users WHERE Email = ? AND IsDeleted = 'N'", (email,))
     user = cursor.fetchone()
-
+    
     if not user:
         conn.close()
         return jsonify({"success": False, "message": "잘못된 요청입니다."}), 400
-
+        
     cursor.execute("SELECT * FROM password_resets WHERE UserId = ? AND IsUsed = 0 AND ExpiresAt > ? ORDER BY ExpiresAt DESC", (user['UserId'], now_str))
     resets = cursor.fetchall()
-
+    
     valid_req = None
     for req in resets:
         if check_password_hash(req['TokenHash'], token):
@@ -5734,11 +5575,11 @@ def api_reset_password_logic():
 
     hashed_pw = generate_password_hash(new_password)
     new_session_token = secrets.token_hex(32)
-    cursor.execute("UPDATE users SET Password = ?, SessionToken = ?, UpdatedAt = ? WHERE UserId = ?",
+    cursor.execute("UPDATE users SET Password = ?, SessionToken = ?, UpdatedAt = ? WHERE UserId = ?", 
                    (hashed_pw, new_session_token, now_str, user['UserId']))
     cursor.execute("UPDATE password_resets SET IsUsed = 1 WHERE TokenHash = ?", (valid_req['TokenHash'],))
     conn.commit()
-
+    
     log_audit(user['UserId'], 'System', 'RESET_PASSWORD', 'users', user['UserId'])
     conn.close()
 
@@ -5812,7 +5653,7 @@ def api_get_access_logs():
 
     # [제안-045] 목록 조회 시 페이로드 본문 대신 경량 플래그(0 또는 1)만 조회
     cursor.execute(f"""
-        SELECT
+        SELECT 
             LogId, IpAddress, HttpMethod, RequestPath, StatusCode, UserAgent, Referer, DurationMs, IsStatic,
             CASE WHEN RequestPayload IS NOT NULL AND RequestPayload != '' THEN 1 ELSE 0 END AS HasRequestPayload,
             CASE WHEN ResponsePayload IS NOT NULL AND ResponsePayload != '' THEN 1 ELSE 0 END AS HasResponsePayload,
@@ -5822,7 +5663,7 @@ def api_get_access_logs():
         ORDER BY LogId DESC
         LIMIT ? OFFSET ?
     """, params + [per_page, offset])
-
+    
     rows = cursor.fetchall()
     conn.close()
 
@@ -5888,7 +5729,7 @@ def api_get_access_log_stats():
 
     if period == 'all':
         cursor.execute("""
-            SELECT
+            SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN IsStatic = 0 THEN 1 ELSE 0 END) as api_count,
                 SUM(CASE WHEN IsStatic = 1 THEN 1 ELSE 0 END) as static_count,
@@ -5901,7 +5742,7 @@ def api_get_access_log_stats():
         today_start = f"{today_str} 00:00:00"
 
         cursor.execute("""
-            SELECT
+            SELECT 
                 COUNT(*) as total,
                 SUM(CASE WHEN IsStatic = 0 THEN 1 ELSE 0 END) as api_count,
                 SUM(CASE WHEN IsStatic = 1 THEN 1 ELSE 0 END) as static_count,
@@ -5998,29 +5839,29 @@ def api_cleanup_access_logs():
             if action == 'older_30d':
                 cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
                 cursor.execute("""
-                    DELETE FROM access_logs
+                    DELETE FROM access_logs 
                     WHERE LogId IN (
-                        SELECT LogId FROM access_logs
-                        WHERE CreatedAt < ?
+                        SELECT LogId FROM access_logs 
+                        WHERE CreatedAt < ? 
                         ORDER BY CreatedAt ASC
                         LIMIT ?
                     )
                 """, (cutoff_date, chunk_size))
             elif action == 'static_only':
                 cursor.execute("""
-                    DELETE FROM access_logs
+                    DELETE FROM access_logs 
                     WHERE LogId IN (
-                        SELECT LogId FROM access_logs
-                        WHERE IsStatic = 1
+                        SELECT LogId FROM access_logs 
+                        WHERE IsStatic = 1 
                         ORDER BY CreatedAt ASC
                         LIMIT ?
                     )
                 """, (chunk_size,))
             elif action == 'all':
                 cursor.execute("""
-                    DELETE FROM access_logs
+                    DELETE FROM access_logs 
                     WHERE LogId IN (
-                        SELECT LogId FROM access_logs
+                        SELECT LogId FROM access_logs 
                         ORDER BY CreatedAt ASC
                         LIMIT ?
                     )
@@ -6066,7 +5907,7 @@ def api_access_logs_error_ips():
     cursor = conn.cursor()
 
     query = """
-        SELECT
+        SELECT 
             IpAddress,
             COUNT(LogId) AS TotalErrorCount,
             MAX(CreatedAt) AS LastErrorAt,

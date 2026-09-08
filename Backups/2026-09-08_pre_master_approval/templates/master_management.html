@@ -285,12 +285,6 @@
         document.getElementById('editModal').classList.add('hidden');
     }
 
-    function invalidateNodeCache() {
-        try {
-            sessionStorage.removeItem('nodeCache_v2');
-        } catch(e) {}
-    }
-
     async function submitEdit() {
         const id = document.getElementById('editItemId').value;
         const name = document.getElementById('editName').value.trim();
@@ -319,7 +313,6 @@
 
             const result = await res.json();
             if (result.success) {
-                invalidateNodeCache();
                 closeEditModal();
                 fetchMasterData();
             } else {
@@ -368,7 +361,6 @@
             });
             const result = await res.json();
             if (result.success) {
-                invalidateNodeCache();
                 document.getElementById('selectAllCheckbox').checked = false;
                 fetchMasterData();
             } else {
@@ -394,7 +386,6 @@
             });
             const result = await res.json();
             if (result.success) {
-                invalidateNodeCache();
                 fetchMasterData();
             } else {
                 alert('삭제 실패: ' + result.message);
@@ -473,7 +464,6 @@
 
             const result = await res.json();
             if (result.success) {
-                invalidateNodeCache();
                 alert(result.message);
                 closeMergeModal();
                 closeEditModal();
@@ -481,7 +471,6 @@
             } else {
                 alert('통폐합 실패: ' + result.message);
             }
-
         } catch (err) {
             alert('통신 오류가 발생했습니다.');
         } finally {

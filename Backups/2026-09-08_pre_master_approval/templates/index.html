@@ -95,7 +95,7 @@
                                 <option value="">-- 선택 --</option>
                             </select>
                             <div id="CategoryCustomBox" class="mt-2 hidden">
-                                <input type="text" id="CategoryCustom" oninput="window.LineupApp.updateSubmitLockState()" placeholder="신규 카테고리명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <input type="text" id="CategoryCustom" placeholder="신규 카테고리명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                             </div>
                         </div>
                         <div>
@@ -104,7 +104,7 @@
                                 <option value="">-- 선택 --</option>
                             </select>
                             <div id="ManufacturerCustomBox" class="mt-2 hidden">
-                                <input type="text" id="ManufacturerCustom" oninput="window.LineupApp.updateSubmitLockState()" placeholder="신규 제조사명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                                <input type="text" id="ManufacturerCustom" placeholder="신규 제조사명 직접 입력" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-blue-400 dark:border-blue-500 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
                             </div>
                         </div>
                     </div>
@@ -270,49 +270,6 @@
             const notice = document.getElementById('submitLockNotice');
             if (!btnFormal) return;
 
-            const catSelectVal = document.getElementById('CategorySelect')?.value || '';
-            const mfgSelectVal = document.getElementById('ManufacturerSelect')?.value || '';
-            const isCustomCategory = (catSelectVal === '__custom__');
-            const isCustomManufacturer = (mfgSelectVal === '__custom__');
-            const hasCustomRoot = isCustomCategory || isCustomManufacturer;
-
-            if (hasCustomRoot) {
-                const catCustomVal = document.getElementById('CategoryCustom')?.value.trim() || '';
-                const mfgCustomVal = document.getElementById('ManufacturerCustom')?.value.trim() || '';
-                const isCustomValid = (!isCustomCategory || catCustomVal) && (!isCustomManufacturer || mfgCustomVal);
-
-                if (isCustomValid) {
-                    btnFormal.disabled = false;
-                    btnFormal.classList.remove('opacity-50', 'cursor-not-allowed');
-                    btnFormal.removeAttribute('title');
-                    btnFormal.innerText = '신규 분류 승인 요청 및 임시등록';
-                    btnFormal.classList.add('bg-amber-600', 'hover:bg-amber-700');
-                    btnFormal.classList.remove('bg-blue-600', 'hover:bg-blue-700');
-                    if (notice) {
-                        notice.classList.remove('hidden');
-                        notice.className = 'text-xs text-amber-600 dark:text-amber-400 text-right font-semibold';
-                        notice.innerText = 'ℹ️ 신규 분류가 포함되어 있습니다. 등록 시 전자결재 승인 요청이 함께 상신되며, 관리자 승인 전까지 임시저장 상태로 보관됩니다.';
-                    }
-                } else {
-                    btnFormal.disabled = true;
-                    btnFormal.classList.add('opacity-50', 'cursor-not-allowed');
-                    btnFormal.innerText = '저장하기';
-                    btnFormal.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                    btnFormal.classList.remove('bg-amber-600', 'hover:bg-amber-700');
-                    if (notice) {
-                        notice.classList.remove('hidden');
-                        notice.className = 'text-xs text-amber-600 dark:text-amber-400 text-right';
-                        notice.innerText = '⚠️ 직접 입력할 신규 카테고리/제조사 명칭을 입력해야 승인 요청이 가능합니다.';
-                    }
-                }
-                return;
-            }
-
-            // 일반 정규 선택 모드
-            btnFormal.innerText = '저장하기';
-            btnFormal.classList.add('bg-blue-600', 'hover:bg-blue-700');
-            btnFormal.classList.remove('bg-amber-600', 'hover:bg-amber-700');
-
             const optData = getSelectedOptionData();
             const isValid = optData && !optData.error;
 
@@ -325,11 +282,7 @@
                 btnFormal.disabled = true;
                 btnFormal.classList.add('opacity-50', 'cursor-not-allowed');
                 btnFormal.title = '모든 하위 옵션을 선택해야 합니다.';
-                if (notice) {
-                    notice.classList.remove('hidden');
-                    notice.className = 'text-xs text-amber-600 dark:text-amber-400 text-right';
-                    notice.innerText = '⚠️ 카탈로그의 최종 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.';
-                }
+                if (notice) notice.classList.remove('hidden');
             }
         }
 
@@ -576,7 +529,7 @@
     }
 
     async function openModal(id = null) {
-        await window.LineupApp.init(true); // 항상 최신 카탈로그 트리 강제 갱신
+        await window.LineupApp.init(); // 항상 최신 트리 보장
 
         const modal = document.getElementById('equipmentModal');
         const form = document.getElementById('equipmentForm');
@@ -663,38 +616,22 @@
 
         const catSelectVal = document.getElementById('CategorySelect')?.value || '';
         const mfgSelectVal = document.getElementById('ManufacturerSelect')?.value || '';
-        const isCustomCategory = (catSelectVal === '__custom__');
-        const isCustomManufacturer = (mfgSelectVal === '__custom__');
-        const hasCustomRoot = isCustomCategory || isCustomManufacturer;
         
         let rootData = {
-            categoryId: isCustomCategory ? '__custom__' : catSelectVal,
-            categoryCustom: isCustomCategory ? document.getElementById('CategoryCustom')?.value.trim() : '',
-            manufacturerId: isCustomManufacturer ? '__custom__' : mfgSelectVal,
-            manufacturerCustom: isCustomManufacturer ? document.getElementById('ManufacturerCustom')?.value.trim() : ''
+            categoryId: (catSelectVal === '__custom__') ? '__custom__' : catSelectVal,
+            categoryCustom: (catSelectVal === '__custom__') ? document.getElementById('CategoryCustom')?.value.trim() : '',
+            manufacturerId: (mfgSelectVal === '__custom__') ? '__custom__' : mfgSelectVal,
+            manufacturerCustom: (mfgSelectVal === '__custom__') ? document.getElementById('ManufacturerCustom')?.value.trim() : ''
         };
         
         const optData = window.LineupApp.getSelectedOptionData();
-        if (!isDraft && !hasCustomRoot) {
+        if (!isDraft) {
             if (!optData) {
                 alert('카탈로그 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.');
                 return;
             }
             if (optData.error) {
                 alert(optData.error);
-                return;
-            }
-        }
-
-        if (hasCustomRoot) {
-            if (isCustomCategory && !rootData.categoryCustom) {
-                alert('직접 입력할 신규 카테고리 명칭을 입력해 주세요.');
-                document.getElementById('CategoryCustom')?.focus();
-                return;
-            }
-            if (isCustomManufacturer && !rootData.manufacturerCustom) {
-                alert('직접 입력할 신규 제조사 명칭을 입력해 주세요.');
-                document.getElementById('ManufacturerCustom')?.focus();
                 return;
             }
         }
@@ -708,7 +645,7 @@
             Memo: document.getElementById('Memo')?.value.trim() || '',
             UserId: document.getElementById('UserId')?.value || null,
             IsPublic: document.getElementById('IsPublic')?.checked || false,
-            IsDraft: (isDraft || hasCustomRoot) ? 1 : 0
+            IsDraft: isDraft ? 1 : 0
         };
 
         const url = id ? `/api/equipment/${id}` : '/api/equipment';
