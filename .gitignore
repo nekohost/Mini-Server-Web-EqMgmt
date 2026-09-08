@@ -6,8 +6,15 @@ __pycache__/
 .Python
 env/
 venv/
+.venv/
 
 # 채팅 기록 로컬에만 보관 (Github 푸시 방지)
 Chat/
 scratch/
 Temp/
+
+# 제안-013: 운영 DB와 백업·복원 런타임 작업 사본은 Git에 올리지 않음
+instance/
+*.db
+*.sqlite
+*.sqlite3

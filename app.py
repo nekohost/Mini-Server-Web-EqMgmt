@@ -1,7 +1,7 @@
 # ==========================================
 # 1. 필요한 외부 라이브러리 불러오기
 # ==========================================
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory, g
+from flask import Flask, render_template, request, jsonify, redirect, url_for, session, send_from_directory, send_file, g, has_request_context
 import sqlite3
 import os
 import json
@@ -10,6 +10,9 @@ import threading
 import atexit
 import time
 import tempfile
+import hashlib
+import shutil
+from pathlib import Path
 from datetime import datetime, timedelta
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -52,6 +55,109 @@ MAINTENANCE_STATE_LOCK = threading.RLock()
 MAINTENANCE_STATES = frozenset({'NORMAL', 'DRAINING', 'RESTORING', 'RECOVERY'})
 MAINTENANCE_ENABLE_CONFIRMATION = '점검시작'
 MAINTENANCE_DISABLE_CONFIRMATION = '점검종료'
+
+# ==========================================
+# 1-0-B. [제안-013] DB 백업·복원 런타임 경계
+# ==========================================
+DATABASE_PATH = os.path.abspath(os.getenv('DATABASE_PATH', 'equipment.db'))
+DATABASE_OPERATION_ROOT = os.path.abspath(os.getenv(
+    'DATABASE_OPERATION_ROOT', os.path.join(app.instance_path, 'database-operations')
+))
+DATABASE_UPLOAD_LIMIT = 512 * 1024 * 1024
+DATABASE_DRAIN_TIMEOUT = 30.0
+# 후보 파일은 검증 후 30분만 보관해 장기 잔존을 막습니다.
+DATABASE_CANDIDATE_RETENTION_SECONDS = 30 * 60
+# 복원 직전 자동 백업은 수동 복구를 위해 7일 동안만 보관합니다.
+DATABASE_AUTOMATIC_BACKUP_RETENTION_SECONDS = 7 * 24 * 60 * 60
+# 중단된 다운로드 작업이 남긴 임시 백업은 한 시간 뒤 제거합니다.
+DATABASE_DOWNLOAD_BACKUP_RETENTION_SECONDS = 60 * 60
+# DB 교체 작업이 실패하기 전 필요한 여유 공간을 보수적으로 확보합니다.
+DATABASE_OPERATION_RESERVE_BYTES = 64 * 1024 * 1024
+DATABASE_RESTORE_CONFIRMATION = '데이터베이스 복원'
+DATABASE_REQUIRED_TABLES = frozenset({'users', 'equipment', 'audit_logs', 'sys_migrations'})
+DATABASE_GATE = threading.Condition(threading.RLock())
+DATABASE_RESTORE_LOCK = threading.Lock()
+DATABASE_RESTORE_ACTIVE = False
+ACTIVE_DATABASE_CONNECTIONS = 0
+ACCESS_LOG_ACCEPTING = threading.Event()
+ACCESS_LOG_ACCEPTING.set()
+DATABASE_CANDIDATES = {}
+DATABASE_CANDIDATES_LOCK = threading.RLock()
+DATABASE_JOBS = {}
+DATABASE_JOBS_LOCK = threading.RLock()
+
+
+class TrackedDatabaseConnection(sqlite3.Connection):
+    """
+    [역할]: 앱 DB 연결의 닫힘을 감지해 복원 전 연결 배출 계수를 정확히 감소시킵니다.
+    [의존성 관계]: DATABASE_GATE, ACTIVE_DATABASE_CONNECTIONS
+    [변경 시 영향도]: 모든 get_db_connection() 호출과 DB 복원 대기 시간에 영향을 줍니다.
+    """
+    def close(self):
+        global ACTIVE_DATABASE_CONNECTIONS
+        if not getattr(self, '_proposal013_released', False):
+            # 같은 연결을 중복 종료해도 연결 계수는 한 번만 감소시킵니다.
+            self._proposal013_released = True
+            # 복원 대기자를 깨워 닫힌 연결을 즉시 반영합니다.
+            with DATABASE_GATE:
+                # 예외 경로의 중복 종료에도 음수 계수를 만들지 않습니다.
+                ACTIVE_DATABASE_CONNECTIONS = max(0, ACTIVE_DATABASE_CONNECTIONS - 1)
+                # 대기 중인 복원 작업에 연결 종료를 알립니다.
+                DATABASE_GATE.notify_all()
+        # SQLite의 실제 파일 핸들은 부모 구현에 맡깁니다.
+        return super().close()
+
+
+def open_application_database(timeout=5.0):
+    """
+    [역할]: 복원 중 신규 연결을 차단하고 추적 가능한 SQLite 연결을 생성합니다.
+    [의존성 관계]: DATABASE_PATH, TrackedDatabaseConnection, DATABASE_GATE
+    [변경 시 영향도]: 앱과 접근 로그 워커의 모든 정상 DB 접근에 영향을 줍니다.
+    """
+    global ACTIVE_DATABASE_CONNECTIONS
+    with DATABASE_GATE:
+        if DATABASE_RESTORE_ACTIVE:
+            raise sqlite3.OperationalError('데이터베이스 복원 중에는 새 연결을 만들 수 없습니다.')
+        ACTIVE_DATABASE_CONNECTIONS += 1
+    try:
+        # 기존 코드가 기대하는 sqlite3.Connection 인터페이스를 유지하는 하위 클래스를 생성합니다.
+        conn = sqlite3.connect(DATABASE_PATH, timeout=timeout, factory=TrackedDatabaseConnection)
+        # 행 이름 접근을 기존 전체 코드와 동일하게 제공합니다.
+        conn.row_factory = sqlite3.Row
+        # 요청 범위에서 열린 연결은 예외·조기 반환에도 teardown에서 반드시 종료합니다.
+        if has_request_context():
+            # 한 요청에서 만든 연결 목록을 Flask 요청 저장소에 보관합니다.
+            request_connections = getattr(g, '_proposal013_database_connections', [])
+            # 새 연결을 요청 종료 정리 대상에 추가합니다.
+            request_connections.append(conn)
+            # 수정된 목록을 요청 지역 저장소에 다시 기록합니다.
+            g._proposal013_database_connections = request_connections
+        # 추적 가능한 연결을 호출자에게 반환합니다.
+        return conn
+    except Exception:
+        with DATABASE_GATE:
+            ACTIVE_DATABASE_CONNECTIONS = max(0, ACTIVE_DATABASE_CONNECTIONS - 1)
+            DATABASE_GATE.notify_all()
+        raise
+
+
+@app.teardown_request
+def release_request_database_connections(error=None):
+    """
+    [역할]: 요청 중 예외·조기 반환으로 남은 추적 DB 연결을 종료합니다.
+    [의존성 관계]: flask.g, TrackedDatabaseConnection.close()
+    [변경 시 영향도]: 모든 웹 요청의 복원 전 연결 배출 계수에 영향을 줍니다.
+    """
+    # 현재 요청에서 기록한 연결 목록이 없으면 빈 목록으로 처리합니다.
+    request_connections = getattr(g, '_proposal013_database_connections', [])
+    # 각 연결을 역순으로 닫아 가장 최근 작업부터 정리합니다.
+    for connection in reversed(request_connections):
+        try:
+            # 이미 명시적으로 닫힌 연결도 추적 클래스가 안전하게 무시합니다.
+            connection.close()
+        except sqlite3.Error:
+            # 종료 실패가 기존 웹 응답을 덮어쓰지 않도록 격리합니다.
+            app.logger.warning('제안-013 요청 DB 연결을 정리하지 못했습니다.')
 
 
 def validate_expected_end_at(value):
@@ -205,6 +311,8 @@ def push_access_log(log_data):
     [의존성 관계]: @app.after_request 인터셉터에서 호출
     [변경 시 영향도]: 큐가 꽉 차더라도 웹 요청을 지연시키지 않고 즉시 응답 (Fail-Open)
     """
+    if not ACCESS_LOG_ACCEPTING.is_set():
+        return
     try:
         access_log_queue.put_nowait(log_data)
     except queue.Full:
@@ -217,7 +325,7 @@ def _write_logs_to_db(logs):
     [변경 시 영향도]: 디스크 I/O 최적화 및 접근 로그 영구 저장에 영향을 줍니다.
     """
     try:
-        conn = sqlite3.connect('equipment.db', timeout=5.0)
+        conn = open_application_database(timeout=5.0)
         cur = conn.cursor()
         cur.execute("PRAGMA journal_mode = WAL;")
         cur.execute("PRAGMA synchronous = NORMAL;")
@@ -296,9 +404,7 @@ def get_db_connection():
     [의존성 관계]: sqlite3 모듈, equipment.db 파일
     [변경 시 영향도]: 모든 DB 통신 로직에 영향을 줍니다.
     """
-    conn = sqlite3.connect('equipment.db')
-    conn.row_factory = sqlite3.Row 
-    return conn
+    return open_application_database(timeout=5.0)
 
 
 def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, old_value=None, new_value=None):
@@ -582,7 +688,8 @@ def init_db():
         ('approvals', '전자결재함', '/approvals', '전자결재 요청 및 승인 관리', 'admin_center', 4),
         ('master_management', '마스터 데이터 관리', '/master_management', '카테고리 및 제조사 마스터 관리', 'admin_center', 5),
         ('access_logs', '웹 접근 로그', '/access_logs', '실시간 HTTP 트래픽 및 웹 접근 로그 모니터링', 'admin_center', 6),
-        ('maintenance_admin', '서버 점검 관리', '/maintenance_admin', '점검 모드 및 일반 사용자 접근 통제', 'admin_center', 7)
+        ('maintenance_admin', '서버 점검 관리', '/maintenance_admin', '점검 모드 및 일반 사용자 접근 통제', 'admin_center', 7),
+        ('backup_restore', 'DB 백업 및 복원', '/backup_restore', '운영 DB 백업 다운로드와 검증된 복원', 'admin_center', 8)
     ]
     for m in default_menus:
         try:
@@ -607,6 +714,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'access_logs', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'admin_center', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'maintenance_admin', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('admin', 'backup_restore', 1, now))
     
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'my_equipment', 1, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'public_equipment', 1, now))
@@ -618,6 +726,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'master_management', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'access_logs', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'maintenance_admin', 0, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'backup_restore', 0, now))
 
     conn.commit()
     conn.close()
@@ -755,6 +864,31 @@ def migrate_access_logs_payload():
         print(f"[Migration Error] migrate_access_logs_payload: {str(e)}")
 
 run_migration_if_needed('proposal_040_access_logs_payload', migrate_access_logs_payload)
+
+def migrate_backup_restore_menu():
+    """
+    [역할]: 제안-013 관리자 DB 백업·복원 메뉴와 역할별 권한을 추가합니다.
+    [의존성 관계]: menus, role_menu_permissions 테이블과 관리자 센터 계층
+    [변경 시 영향도]: 관리자 센터에 DB 백업·복원 진입 카드가 추가됩니다.
+    """
+    conn = get_db_connection()
+    try:
+        cursor = conn.cursor()
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        cursor.execute('''
+            INSERT OR IGNORE INTO menus
+                (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt)
+            VALUES ('backup_restore', 'DB 백업 및 복원', '/backup_restore',
+                    '운영 DB 백업 다운로드와 검증된 복원', 'admin_center', 8, ?, ?)
+        ''', (now, now))
+        cursor.execute("UPDATE menus SET ParentMenuCode='admin_center', SortOrder=8 WHERE MenuCode='backup_restore'")
+        cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES ('admin', 'backup_restore', 1, ?)", (now,))
+        cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES ('user', 'backup_restore', 0, ?)", (now,))
+        conn.commit()
+    finally:
+        conn.close()
+
+run_migration_if_needed('proposal_013_backup_restore_menu', migrate_backup_restore_menu)
 
 def migrate_equipment_is_public():
     """
@@ -1066,6 +1200,9 @@ def maintenance_request_gate():
     # 세션 확인과 로그아웃은 클라이언트가 점검 안내로 이동하는 데 필요합니다.
     if request.path in {'/api/check_session', '/api/maintenance/status', '/maintenance', '/logout'}:
         return None
+    # 복원으로 관리자 세션이 만료된 뒤에도 일회성 모니터 토큰으로 최종 결과만 조회할 수 있습니다.
+    if request.method == 'GET' and request.path.startswith('/api/admin/database/restore-status/'):
+        return None
     # DB 대상 복원 중에는 새 DB 연결을 만들 수 있는 요청을 관리자도 시작할 수 없습니다.
     if state_name == 'RESTORING':
         if request.path == '/login' and request.method == 'GET':
@@ -1122,12 +1259,17 @@ def after_request_func(response):
         raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
         ip_addr = raw_ip.split(',')[0].strip() if raw_ip else '127.0.0.1'
         
-        # [제안-040, 043] Request / Response Payload 무제한 추출 (단, /api/access_logs 자체의 재귀적 로깅 루프 방어)
-        request_payload = request.get_data(as_text=True) if request.method in ["POST", "PUT", "PATCH", "DELETE"] else None
+        # [제안-013] DB 작업 API에는 비밀번호·DB 파일·일회성 토큰이 포함되므로 본문을 절대 로그에 남기지 않습니다.
+        is_sensitive_database_operation = request.path.startswith('/api/admin/database/')
+        # [제안-040, 043] 일반 변경 요청만 Payload를 수집하고 민감 DB 작업은 메타데이터만 기록합니다.
+        request_payload = (request.get_data(as_text=True)
+                           if request.method in ["POST", "PUT", "PATCH", "DELETE"]
+                           and not is_sensitive_database_operation else None)
         
         response_payload = None
         # [제안-043] /api/access_logs 계열 응답은 ResponsePayload에서 제외하여 재귀적 DB 비대화 및 락 교착 방어
-        if not is_static and not request.path.startswith('/api/access_logs'):
+        if (not is_static and not request.path.startswith('/api/access_logs')
+                and not is_sensitive_database_operation):
             try:
                 response_payload = response.get_data(as_text=True)
             except Exception:
@@ -1508,6 +1650,882 @@ def expire_non_admin_sessions():
     conn.commit()
     conn.close()
     return affected_count
+
+
+def ensure_database_operation_directories():
+    """
+    [역할]: 정적 웹 경로 밖에 후보·백업·작업 저널 디렉터리를 준비합니다.
+    [의존성 관계]: DATABASE_OPERATION_ROOT, os.makedirs()
+    [변경 시 영향도]: DB 사본의 저장 위치와 서비스 계정 파일 권한에 영향을 줍니다.
+    """
+    directories = {}
+    for name in ('candidates', 'backups', 'jobs'):
+        path = os.path.join(DATABASE_OPERATION_ROOT, name)
+        os.makedirs(path, mode=0o700, exist_ok=True)
+        directories[name] = path
+    return directories
+
+
+def safe_database_operation_error_message():
+    """
+    [역할]: DB 작업 실패 시 내부 경로·SQLite 오류를 숨긴 안전한 안내 문구를 반환합니다.
+    [의존성 관계]: 후보 검증·복원 API의 예외 처리
+    [변경 시 영향도]: 관리자 화면과 상태 API의 정보 노출 범위에 영향을 줍니다.
+    """
+    # 사용자에게는 원인 코드 대신 재검증 가능한 공통 안내만 제공합니다.
+    return 'DB 작업을 완료하지 못했습니다. 파일, 관리자 인증 및 서버 작업 공간을 확인해 주세요.'
+
+
+def quote_sql_identifier(identifier):
+    """
+    [역할]: SQLite 식별자를 안전하게 큰따옴표로 감싸 PRAGMA 동적 구문의 파손을 막습니다.
+    [의존성 관계]: validate_database_compatibility()
+    [변경 시 영향도]: 특수문자가 포함된 기존 테이블·인덱스 이름의 스키마 비교에 영향을 줍니다.
+    """
+    # SQLite 식별자 안의 큰따옴표는 두 번 반복해 이스케이프합니다.
+    return '"' + str(identifier).replace('"', '""') + '"'
+
+
+def build_database_schema_contract(connection):
+    """
+    [역할]: 테이블·컬럼·외래키·인덱스·트리거·뷰의 호환성 계약을 정규화합니다.
+    [의존성 관계]: sqlite_master, PRAGMA table_info/foreign_key_list/index_list/index_xinfo
+    [변경 시 영향도]: 업로드 후보와 복원 DB의 실행 가능 스키마 판정에 영향을 줍니다.
+    """
+    # SQLite 내부 객체를 제외한 앱 객체의 정의를 읽습니다.
+    objects = connection.execute(
+        "SELECT type, name, tbl_name, COALESCE(sql, '') AS sql "
+        "FROM sqlite_master WHERE type IN ('table', 'index', 'trigger', 'view') "
+        "AND name NOT LIKE 'sqlite_%' ORDER BY type, name"
+    ).fetchall()
+    # 이름으로 계약을 비교할 수 있도록 사전을 준비합니다.
+    contract = {}
+    # 각 객체의 구조와 관련 PRAGMA 결과를 함께 저장합니다.
+    for object_type, name, table_name, sql in objects:
+        # SQL 서식 차이는 제거하되 정의의 의미는 그대로 유지합니다.
+        normalized_sql = ' '.join((sql or '').split())
+        # 테이블은 컬럼·외래키·인덱스 계약을 추가로 기록합니다.
+        if object_type == 'table':
+            # 컬럼 순서와 타입·NULL·기본값·PK 정보를 보존합니다.
+            columns = tuple(tuple(row) for row in connection.execute(
+                f'PRAGMA table_info({quote_sql_identifier(name)})'
+            ).fetchall())
+            # 외래키의 대상과 갱신·삭제 정책을 보존합니다.
+            foreign_keys = tuple(tuple(row) for row in connection.execute(
+                f'PRAGMA foreign_key_list({quote_sql_identifier(name)})'
+            ).fetchall())
+            # 테이블마다 선언된 인덱스의 유일성·부분 인덱스 정보를 보존합니다.
+            indexes = []
+            for index_row in connection.execute(f'PRAGMA index_list({quote_sql_identifier(name)})').fetchall():
+                # index_list 결과의 이름은 두 번째 값이고 인덱스 SQL은 sqlite_master에 별도 존재합니다.
+                index_name = index_row[1]
+                # 인덱스 구성 컬럼과 정렬·키 여부를 함께 기록합니다.
+                index_columns = tuple(tuple(row) for row in connection.execute(
+                    f'PRAGMA index_xinfo({quote_sql_identifier(index_name)})'
+                ).fetchall())
+                # 행 전체와 구성 컬럼을 하나의 불변 계약으로 추가합니다.
+                indexes.append((tuple(index_row), index_columns))
+            # 비교 순서를 고정해 DB 내부 반환 순서에 좌우되지 않게 합니다.
+            contract[(object_type, name)] = (table_name, normalized_sql, columns, foreign_keys, tuple(indexes))
+        else:
+            # 인덱스·트리거·뷰는 sqlite_master의 이름·대상·정규화 SQL로 비교합니다.
+            contract[(object_type, name)] = (table_name, normalized_sql)
+    # 호출자가 포함 관계와 지문을 모두 사용할 수 있도록 계약을 반환합니다.
+    return contract
+
+
+def calculate_database_file_sha256(path):
+    """
+    [역할]: DB 파일을 일정 크기 블록으로 읽어 비교 화면용 SHA-256을 계산합니다.
+    [의존성 관계]: hashlib, inspect_database_file()
+    [변경 시 영향도]: 현재 DB와 후보 DB를 사람이 식별하는 비교 정보에 영향을 줍니다.
+    """
+    # 파일 전체를 메모리에 올리지 않는 해시 객체를 준비합니다.
+    digest = hashlib.sha256()
+    # 큰 파일도 제한된 메모리로 처리하도록 블록 단위로 읽습니다.
+    with Path(path).open('rb') as database_file:
+        # EOF까지 반복합니다.
+        while True:
+            # 1MiB 단위로 파일 내용을 읽습니다.
+            chunk = database_file.read(1024 * 1024)
+            # 더 읽을 내용이 없으면 반복을 종료합니다.
+            if not chunk:
+                break
+            # 읽은 바이트를 해시에 반영합니다.
+            digest.update(chunk)
+    # 화면과 감사 기록에서 사용할 16진수 지문을 반환합니다.
+    return digest.hexdigest()
+
+
+def ensure_database_operation_space(required_bytes):
+    """
+    [역할]: 업로드·백업·원복 전에 DB와 작업 디렉터리 양쪽의 여유 공간을 검사합니다.
+    [의존성 관계]: shutil.disk_usage(), DATABASE_PATH, DATABASE_OPERATION_ROOT
+    [변경 시 영향도]: 저장 공간 부족으로 인한 부분 백업과 원복 실패 방지에 영향을 줍니다.
+    """
+    # 음수 또는 비정상 입력은 최소 안전 여유 공간으로 보정합니다.
+    required_space = max(DATABASE_OPERATION_RESERVE_BYTES, int(required_bytes))
+    # 작업 사본을 만드는 파일시스템과 운영 DB가 있는 파일시스템을 모두 검사합니다.
+    roots = {DATABASE_OPERATION_ROOT, os.path.dirname(DATABASE_PATH) or os.getcwd()}
+    # 각 파일시스템에 필요한 공간이 있는지 확인합니다.
+    for root in roots:
+        # 대상 경로가 없으면 먼저 상위 작업 경로를 준비합니다.
+        os.makedirs(root, mode=0o700, exist_ok=True)
+        # 현재 사용 가능한 바이트 수를 읽습니다.
+        free_bytes = shutil.disk_usage(root).free
+        # 필요한 여유보다 작으면 실제 파일 작업 전에 중단합니다.
+        if free_bytes < required_space:
+            raise OSError('DB 작업에 필요한 저장 공간이 부족합니다.')
+
+
+def purge_expired_database_operation_files():
+    """
+    [역할]: 재시작 뒤에도 남을 수 있는 후보·다운로드·자동 백업·저널 파일을 보존 정책대로 정리합니다.
+    [의존성 관계]: ensure_database_operation_directories(), os.stat(), os.unlink()
+    [변경 시 영향도]: 민감 DB 사본의 잔존 시간과 작업 디렉터리 용량에 영향을 줍니다.
+    """
+    # 필요한 세 하위 디렉터리를 확보합니다.
+    directories = ensure_database_operation_directories()
+    # 현재 시간으로 각 파일의 보관 기간을 계산합니다.
+    now = time.time()
+    # 후보 파일은 메모리 상태와 무관하게 생성 시점 기준 30분 뒤 삭제합니다.
+    policies = (
+        (directories['candidates'], DATABASE_CANDIDATE_RETENTION_SECONDS, lambda name: name.endswith('.db')),
+        (directories['backups'], DATABASE_AUTOMATIC_BACKUP_RETENTION_SECONDS, lambda name: name.startswith('before-restore-') and name.endswith('.db')),
+        (directories['backups'], DATABASE_DOWNLOAD_BACKUP_RETENTION_SECONDS, lambda name: name.startswith('equipment-backup-') and name.endswith('.db')),
+        (directories['jobs'], DATABASE_AUTOMATIC_BACKUP_RETENTION_SECONDS, lambda name: name.endswith('.json') or name.endswith('.tmp')),
+    )
+    # 각 경로와 보존 정책을 순회합니다.
+    for directory, retention_seconds, matches in policies:
+        # 하위 경로만 대상으로 삼아 외부 파일을 삭제하지 않습니다.
+        for entry in Path(directory).iterdir():
+            # 정책과 맞지 않거나 일반 파일이 아니면 건너뜁니다.
+            if not entry.is_file() or not matches(entry.name):
+                continue
+            # 마지막 수정 시각 기준으로 보존 기간을 넘긴 파일만 삭제합니다.
+            if now - entry.stat().st_mtime > retention_seconds:
+                try:
+                    # 명시적으로 확인한 작업 디렉터리 파일만 제거합니다.
+                    entry.unlink()
+                except OSError:
+                    # 정리 실패가 DB 작업 자체를 막지 않도록 다음 파일을 계속 처리합니다.
+                    app.logger.warning('제안-013 만료 작업 파일을 정리하지 못했습니다.')
+
+
+def remove_database_operation_file(path):
+    """
+    [역할]: 확인된 작업 디렉터리 파일을 응답 종료·오류 처리에서 안전하게 삭제합니다.
+    [의존성 관계]: os.path.exists(), os.unlink()
+    [변경 시 영향도]: 다운로드 임시 백업과 실패한 후보 파일의 서버 잔존 시간에 영향을 줍니다.
+    """
+    try:
+        # 존재하는 파일만 삭제해 이미 정리된 응답 종료도 안전하게 처리합니다.
+        if path and os.path.exists(path):
+            # 호출자가 만든 명시적 작업 파일만 제거합니다.
+            os.unlink(path)
+    except OSError:
+        # 응답 종료 단계의 삭제 실패는 클라이언트 응답을 깨지 않도록 서버 로그에만 남깁니다.
+        app.logger.warning('제안-013 작업 파일을 정리하지 못했습니다.')
+
+
+def inspect_database_file(database_path, admin_login_id=None, admin_password=None):
+    """
+    [역할]: 읽기 전용으로 SQLite 무결성·외래키·필수 테이블·후보 관리자 인증을 검증합니다.
+    [의존성 관계]: DATABASE_REQUIRED_TABLES, sqlite3, check_password_hash()
+    [변경 시 영향도]: 업로드 후보 승인과 복원 후 자동 검증 결과에 영향을 줍니다.
+    """
+    path = Path(database_path).resolve()
+    if not path.is_file() or path.stat().st_size < 100:
+        raise ValueError('유효한 데이터베이스 파일이 아닙니다.')
+    with path.open('rb') as database_file:
+        if database_file.read(16) != b'SQLite format 3\x00':
+            raise ValueError('SQLite 데이터베이스 파일만 사용할 수 있습니다.')
+    uri = path.as_uri() + '?mode=ro'
+    conn = sqlite3.connect(uri, uri=True, timeout=5.0)
+    conn.row_factory = sqlite3.Row
+    try:
+        integrity = conn.execute('PRAGMA integrity_check').fetchone()[0]
+        if integrity != 'ok':
+            raise ValueError('데이터베이스 무결성 검사에 실패했습니다.')
+        foreign_key_errors = conn.execute('PRAGMA foreign_key_check').fetchmany(1)
+        if foreign_key_errors:
+            raise ValueError('외래키 무결성 검사에 실패했습니다.')
+        tables = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        missing_tables = sorted(DATABASE_REQUIRED_TABLES - tables)
+        if missing_tables:
+            raise ValueError('필수 테이블이 없습니다: ' + ', '.join(missing_tables))
+        # 필수 테이블의 행 수를 비교 화면에 제공할 사전으로 준비합니다.
+        counts = {}
+        for table_name in sorted(DATABASE_REQUIRED_TABLES):
+            # 상수 집합의 테이블 이름도 식별자 인용을 거쳐 안전하게 사용합니다.
+            counts[table_name] = conn.execute(f'SELECT COUNT(*) FROM {quote_sql_identifier(table_name)}').fetchone()[0]
+        if admin_login_id is not None:
+            row = conn.execute(
+                "SELECT LoginId, Password, Role FROM users WHERE LoginId = ? AND Role = 'admin'",
+                (admin_login_id,)
+            ).fetchone()
+            if not row or not check_password_hash(row['Password'], admin_password or ''):
+                raise ValueError('후보 DB의 관리자 계정 인증에 실패했습니다.')
+        # 파일 상태를 한 번 읽어 비교 값의 시간·크기를 일관되게 만듭니다.
+        file_stat = path.stat()
+        # 전체 스키마 계약을 직렬화 가능한 목록으로 바꿔 화면 지문을 계산합니다.
+        schema_contract = build_database_schema_contract(conn)
+        # tuple 키를 JSON 객체 키로 사용하지 않도록 객체별 목록으로 변환합니다.
+        schema_contract_payload = [
+            {'type': object_type, 'name': object_name, 'definition': definition}
+            for (object_type, object_name), definition in sorted(schema_contract.items())
+        ]
+        # 마이그레이션 적용 수는 사람이 버전 차이를 빠르게 판단하는 보조 정보입니다.
+        migration_count = conn.execute('SELECT COUNT(*) FROM sys_migrations').fetchone()[0]
+        # 민감하지 않은 파일·스키마 비교 정보를 반환합니다.
+        return {
+            'size': file_stat.st_size,
+            'sha256': calculate_database_file_sha256(path),
+            'modified_at': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+            'schema_fingerprint': hashlib.sha256(json.dumps(schema_contract_payload, ensure_ascii=False, default=list, sort_keys=True).encode('utf-8')).hexdigest(),
+            'migration_count': migration_count,
+            'tables': counts,
+            'integrity': 'ok'
+        }
+    finally:
+        conn.close()
+
+
+def validate_database_compatibility(candidate_path, baseline_path):
+    """
+    [역할]: 현재 DB의 모든 앱 테이블·컬럼·마이그레이션이 후보 DB에도 존재하는지 비교합니다.
+    [의존성 관계]: sqlite_master, PRAGMA table_info, sys_migrations
+    [변경 시 영향도]: 구버전 또는 일부 스키마가 빠진 후보 DB의 운영 적용 차단에 영향을 줍니다.
+    """
+    def open_read_only(path):
+        return sqlite3.connect(Path(path).resolve().as_uri() + '?mode=ro', uri=True, timeout=5.0)
+
+    baseline = open_read_only(baseline_path)
+    candidate = open_read_only(candidate_path)
+    try:
+        # 운영 DB의 전체 스키마 계약을 기준선으로 만듭니다.
+        baseline_contract = build_database_schema_contract(baseline)
+        # 후보 DB의 전체 스키마 계약을 같은 형식으로 만듭니다.
+        candidate_contract = build_database_schema_contract(candidate)
+        # 운영에 존재하는 모든 객체가 후보에도 존재해야 합니다.
+        missing_objects = sorted(set(baseline_contract) - set(candidate_contract))
+        if missing_objects:
+            raise ValueError('현재 서비스에 필요한 스키마 객체가 후보 DB에 없습니다.')
+        # 테이블 정의, 컬럼, 외래키, 인덱스, 트리거, 뷰가 모두 같아야 합니다.
+        changed_objects = [key for key, value in baseline_contract.items() if candidate_contract.get(key) != value]
+        if changed_objects:
+            raise ValueError('후보 DB의 테이블·제약조건·인덱스·트리거·뷰가 현재 서비스와 호환되지 않습니다.')
+        baseline_migrations = {row[0] for row in baseline.execute('SELECT MigrationName FROM sys_migrations')}
+        candidate_migrations = {row[0] for row in candidate.execute('SELECT MigrationName FROM sys_migrations')}
+        missing_migrations = sorted(baseline_migrations - candidate_migrations)
+        if missing_migrations:
+            raise ValueError('후보 DB에 적용되지 않은 마이그레이션이 있습니다: ' + ', '.join(missing_migrations))
+    finally:
+        candidate.close()
+        baseline.close()
+
+
+def create_online_backup(destination_path):
+    """
+    [역할]: SQLite 온라인 백업 API로 현재 DB의 일관된 스냅샷을 생성하고 재검증합니다.
+    [의존성 관계]: get_db_connection(), sqlite3.Connection.backup(), inspect_database_file()
+    [변경 시 영향도]: 관리자 다운로드 백업과 복원 직전 자동 원복 지점에 영향을 줍니다.
+    """
+    source = get_db_connection()
+    destination = sqlite3.connect(destination_path)
+    try:
+        source.backup(destination, pages=256, sleep=0.01)
+        destination.commit()
+    finally:
+        destination.close()
+        source.close()
+    try:
+        os.chmod(destination_path, 0o600)
+    except OSError:
+        pass
+    return inspect_database_file(destination_path)
+
+
+def purge_expired_database_candidates():
+    """
+    [역할]: 30분이 지난 미사용 후보 DB를 메모리와 디스크에서 제거합니다.
+    [의존성 관계]: DATABASE_CANDIDATES, DATABASE_CANDIDATES_LOCK
+    [변경 시 영향도]: 민감한 업로드 DB의 서버 잔존 시간과 디스크 사용량에 영향을 줍니다.
+    """
+    # 디스크 기반 정리를 먼저 수행해 프로세스 재시작 뒤의 후보도 제거합니다.
+    purge_expired_database_operation_files()
+    # 메모리에 남은 후보 ID와 파일 경로를 함께 제거할 목록입니다.
+    expired_paths = []
+    with DATABASE_CANDIDATES_LOCK:
+        for candidate_id, candidate in list(DATABASE_CANDIDATES.items()):
+            # 후보의 서버 검증 권한은 고정된 보존 기간 뒤 만료합니다.
+            if candidate.get('expires_at', 0) < time.time():
+                expired_paths.append(candidate.get('path'))
+                DATABASE_CANDIDATES.pop(candidate_id, None)
+    for candidate_path in expired_paths:
+        if candidate_path and os.path.exists(candidate_path):
+            try:
+                os.unlink(candidate_path)
+            except OSError:
+                pass
+
+
+def update_database_job(job_id, **changes):
+    """
+    [역할]: 복원 작업 상태를 메모리와 DB 외부 원자적 JSON 저널에 함께 기록합니다.
+    [의존성 관계]: DATABASE_JOBS, DATABASE_OPERATION_ROOT, os.replace()
+    [변경 시 영향도]: 세션 만료 이후 진행 상태 조회와 장애 진단에 영향을 줍니다.
+    """
+    # 디렉터리 준비와 보존 정책 적용은 상태 기록 전에 수행합니다.
+    directories = ensure_database_operation_directories()
+    with DATABASE_JOBS_LOCK:
+        # 메모리 상태는 파일 저널 실패와 무관하게 최신 진행 상태를 유지합니다.
+        job = DATABASE_JOBS[job_id]
+        # 호출자가 전달한 안전한 공개 상태 값을 반영합니다.
+        job.update(changes)
+        # 상태 갱신 시각은 서버 기준 시각으로 기록합니다.
+        job['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        # 비밀번호·경로·모니터 토큰은 외부 저널과 공개 응답에서 제외합니다.
+        public_job = {key: value for key, value in job.items()
+                      if key not in {'monitor_token', 'candidate_path', 'candidate_admin_password', 'error'}}
+    # 원자 교체 전용 임시 경로를 준비합니다.
+    temporary_path = os.path.join(directories['jobs'], f'.{job_id}.tmp')
+    # 세션이 사라진 뒤 장애 원인을 확인할 최종 저널 경로를 준비합니다.
+    final_path = os.path.join(directories['jobs'], f'{job_id}.json')
+    try:
+        # JSON을 임시 파일에 완전히 기록합니다.
+        with open(temporary_path, 'w', encoding='utf-8') as job_file:
+            # UTF-8 JSON에는 공개 상태만 저장합니다.
+            json.dump(public_job, job_file, ensure_ascii=False)
+            # Python 버퍼를 운영체제 버퍼로 밀어냅니다.
+            job_file.flush()
+            # 전원·프로세스 장애에도 기록을 최대한 보존하도록 동기화합니다.
+            os.fsync(job_file.fileno())
+        # 임시 파일을 한 번에 교체해 잘린 저널을 피합니다.
+        os.replace(temporary_path, final_path)
+    except OSError:
+        # 저널 실패는 복원·원복 안전 작업을 중단시키지 않는 보조 장애입니다.
+        app.logger.error('제안-013 작업 저널을 기록하지 못했습니다.')
+        try:
+            # 남은 임시 파일은 다음 작업에 영향을 주지 않도록 정리합니다.
+            os.unlink(temporary_path)
+        except OSError:
+            # 임시 파일 정리 실패도 안전 작업을 중단시키지 않습니다.
+            pass
+    # 파일 기록 여부와 무관하게 메모리의 최신 공개 상태를 반환합니다.
+    return dict(public_job)
+
+
+def record_database_job_progress(job_id, **changes):
+    """
+    [역할]: 상태 저널의 예상 밖 실패가 DB 복원·원복 본체를 중단시키지 않게 격리합니다.
+    [의존성 관계]: update_database_job(), DATABASE_JOBS
+    [변경 시 영향도]: 복원 중 파일시스템 오류가 발생해도 자동 원복이 계속되는 동작에 영향을 줍니다.
+    """
+    try:
+        # 일반 경로에서는 메모리와 외부 저널 상태를 함께 갱신합니다.
+        return update_database_job(job_id, **changes)
+    except OSError:
+        # 저널 계층의 예상 밖 I/O 실패는 서버 로그에만 남깁니다.
+        app.logger.error('제안-013 작업 진행 상태를 기록하지 못했습니다.')
+        with DATABASE_JOBS_LOCK:
+            # 메모리 상태는 사용 가능한 범위에서 갱신해 모니터링 화면을 유지합니다.
+            job = DATABASE_JOBS[job_id]
+            # 호출자가 전달한 진행 상태를 반영합니다.
+            job.update(changes)
+            # 갱신 시각도 메모리 상태에 기록합니다.
+            job['updated_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # 비밀값을 제외한 상태만 복사해 반환합니다.
+            return {key: value for key, value in job.items()
+                    if key not in {'monitor_token', 'candidate_path', 'candidate_admin_password', 'error'}}
+
+
+def write_database_operation_journal(action, actor_login_id, details):
+    """
+    [역할]: 백업·후보 검증·복원의 최소 감사 정보를 DB 외부 JSON 이벤트로 남깁니다.
+    [의존성 관계]: ensure_database_operation_directories(), json, os.replace()
+    [변경 시 영향도]: DB 자체가 교체돼도 남아야 하는 관리자 작업 추적성에 영향을 줍니다.
+    """
+    # 외부 작업 저널의 디렉터리를 준비합니다.
+    directories = ensure_database_operation_directories()
+    # 비밀번호·토큰·경로 없이 작업 식별 정보만 구성합니다.
+    event = {
+        'event_id': uuid.uuid4().hex,
+        'action': action,
+        'actor_login_id': actor_login_id,
+        'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'details': details
+    }
+    # 임시 파일과 최종 파일 경로를 분리해 원자적 저장을 수행합니다.
+    temporary_path = os.path.join(directories['jobs'], f'.event-{event["event_id"]}.tmp')
+    final_path = os.path.join(directories['jobs'], f'event-{event["event_id"]}.json')
+    try:
+        # 공개 가능한 이벤트만 UTF-8 JSON으로 기록합니다.
+        with open(temporary_path, 'w', encoding='utf-8') as event_file:
+            # 사람이 읽을 수 있는 한글을 유지한 JSON을 작성합니다.
+            json.dump(event, event_file, ensure_ascii=False)
+            # 사용자 공간 버퍼를 운영체제에 반영합니다.
+            event_file.flush()
+            # 디스크 동기화로 이벤트 기록의 신뢰도를 높입니다.
+            os.fsync(event_file.fileno())
+        # 완성된 파일만 최종 이름으로 노출합니다.
+        os.replace(temporary_path, final_path)
+    except OSError:
+        # 감사 저널 실패는 민감 DB 작업을 중단시키지 않고 서버 로그에만 남깁니다.
+        app.logger.error('제안-013 감사 이벤트 저널을 기록하지 못했습니다.')
+        try:
+            # 실패한 임시 파일을 제거합니다.
+            os.unlink(temporary_path)
+        except OSError:
+            # 정리 실패는 다음 작업을 막지 않습니다.
+            pass
+
+
+def write_database_operation_audit(action, actor_login_id, details):
+    """
+    [역할]: 복원 동결 중에도 현재 DB에 제안-013 결과를 보안 감사 로그로 기록합니다.
+    [의존성 관계]: audit_logs 테이블, DATABASE_PATH
+    [변경 시 영향도]: 백업·복원 행위의 사후 추적성과 복원 DB 내용에 영향을 줍니다.
+    """
+    # 연결 변수를 미리 준비해 연결 생성 실패도 안전하게 처리합니다.
+    conn = None
+    try:
+        # 복원 동결 중에는 추적 계수와 무관한 전용 연결로 감사 로그를 기록합니다.
+        conn = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+        # 민감한 세부정보가 제거된 감사 행을 추가합니다.
+        conn.execute('''
+            INSERT INTO audit_logs
+                (ActorId, ActorLoginId, IpAddress, UserAgent, TargetTable, TargetId,
+                 Action, OldValue, NewValue, CreatedAt)
+            VALUES (NULL, ?, NULL, 'proposal-013-worker', 'database', NULL, ?, NULL, ?, ?)
+        ''', (actor_login_id, action, json.dumps(details, ensure_ascii=False),
+              datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        # 감사 행을 즉시 확정합니다.
+        conn.commit()
+    except sqlite3.Error:
+        # 감사 기록 실패가 자동 원복·복원 성공 처리를 방해하지 않게 격리합니다.
+        app.logger.error('제안-013 DB 감사 로그를 기록하지 못했습니다.')
+    finally:
+        # 실제 연결이 열린 경우에만 파일 핸들을 정리합니다.
+        if conn is not None:
+            conn.close()
+
+
+def run_database_restore_job(job_id):
+    """
+    [역할]: 로그 배출·DB 연결 동결·자동 백업·온라인 복원·검증·자동 원복을 직렬 실행합니다.
+    [의존성 관계]: DATABASE_RESTORE_LOCK, DATABASE_GATE, create_online_backup(), inspect_database_file()
+    [변경 시 영향도]: 운영 DB 전체 내용, 세션 토큰, 점검 상태와 장애 복구 가능성에 영향을 줍니다.
+    """
+    global DATABASE_RESTORE_ACTIVE
+    # 예외가 초기 상태 조회 전에 발생해도 finally와 실패 기록이 동작하도록 기본 작업 정보를 둡니다.
+    job = {}
+    # 복원 전 자동 백업 경로는 실제 생성 뒤에만 원복 대상으로 사용합니다.
+    before_restore_path = None
+    # 원복 완료 여부는 관리자 안내와 최종 작업 상태에만 사용합니다.
+    rollback_succeeded = False
+    with DATABASE_RESTORE_LOCK:
+        try:
+            with DATABASE_JOBS_LOCK:
+                # 비밀번호를 포함한 내부 작업 정보를 워커 로컬 사본으로 읽습니다.
+                job = dict(DATABASE_JOBS[job_id])
+            # 재시작 뒤 남은 후보·백업·저널 파일을 작업 전 정리합니다.
+            purge_expired_database_operation_files()
+            # 후보·자동 백업·DB 교체에 필요한 보수적 여유 공간을 먼저 확보합니다.
+            ensure_database_operation_space(
+                (os.path.getsize(DATABASE_PATH) * 2) + os.path.getsize(job['candidate_path']) + DATABASE_OPERATION_RESERVE_BYTES
+            )
+            # 저널 I/O 실패도 메모리 상태와 실제 복원 절차를 멈추지 않습니다.
+            record_database_job_progress(job_id, state='draining', message='접근 로그와 기존 DB 연결을 안전하게 비우는 중입니다.')
+            # 새 접근 로그가 DB 배출 대기열에 들어오지 않도록 잠시 멈춥니다.
+            ACCESS_LOG_ACCEPTING.clear()
+            # 로그 배출과 기존 연결 종료에 공유할 제한 시각을 계산합니다.
+            drain_deadline = time.monotonic() + DATABASE_DRAIN_TIMEOUT
+            # 이미 큐에 들어온 접근 로그가 모두 기록될 때까지 짧게 기다립니다.
+            while access_log_queue.unfinished_tasks and time.monotonic() < drain_deadline:
+                time.sleep(0.05)
+            # 제한 시간 뒤에도 남은 로그가 있으면 DB 교체 전 중단합니다.
+            if access_log_queue.unfinished_tasks:
+                raise TimeoutError('접근 로그 배출 제한 시간을 초과했습니다.')
+            with DATABASE_GATE:
+                # 이 시점부터 모든 새 앱 DB 연결 생성을 차단합니다.
+                DATABASE_RESTORE_ACTIVE = True
+                # 이미 시작한 요청의 추적 연결이 모두 닫힐 때까지 기다립니다.
+                while ACTIVE_DATABASE_CONNECTIONS and time.monotonic() < drain_deadline:
+                    DATABASE_GATE.wait(timeout=0.1)
+                # 누수 또는 장기 요청이 남으면 실제 DB를 변경하지 않습니다.
+                if ACTIVE_DATABASE_CONNECTIONS:
+                    raise TimeoutError('기존 DB 연결 종료 제한 시간을 초과했습니다.')
+
+            # 관리자·일반 사용자 모두 새 DB 요청을 시작하지 못하도록 복원 상태를 공개합니다.
+            set_maintenance_state('RESTORING', '데이터베이스를 안전하게 복원하고 있습니다.', job['expected_end_at'], job['actor_login_id'])
+            # 자동 백업을 저장할 보호된 작업 디렉터리를 읽습니다.
+            directories = ensure_database_operation_directories()
+            # 현재 운영 DB를 되돌릴 수 있는 고유 자동 백업 파일명을 만듭니다.
+            before_restore_path = os.path.join(directories['backups'], f'before-restore-{job_id}.db')
+            # 진행 기록은 보조 기능이므로 파일 I/O 실패가 스냅샷을 막지 않습니다.
+            record_database_job_progress(job_id, state='snapshotting', message='복원 직전 자동 백업을 만드는 중입니다.')
+            # 운영 DB와 자동 백업 대상 연결을 별도로 엽니다.
+            live_source = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+            snapshot = sqlite3.connect(before_restore_path)
+            try:
+                # SQLite 온라인 백업 API로 일관된 원복 지점을 만듭니다.
+                live_source.backup(snapshot, pages=256, sleep=0.01)
+                # 백업 대상의 마지막 페이지를 확정합니다.
+                snapshot.commit()
+            finally:
+                # 대상 연결을 먼저 닫아 완성된 백업 파일을 보장합니다.
+                snapshot.close()
+                # 원본 연결도 즉시 닫아 잠금을 남기지 않습니다.
+                live_source.close()
+            # 자동 백업 자체가 손상되지 않았는지 복원 전에 확인합니다.
+            inspect_database_file(before_restore_path)
+
+            # 후보 파일을 운영 DB로 쓰기 직전에 진행 상태를 갱신합니다.
+            record_database_job_progress(job_id, state='restoring', message='검증된 후보 DB를 적용하는 중입니다.')
+            # 후보는 읽기 전용 URI로 열어 워커가 후보를 수정하지 못하게 합니다.
+            candidate = sqlite3.connect(Path(job['candidate_path']).resolve().as_uri() + '?mode=ro', uri=True, timeout=10.0)
+            # 운영 DB는 백업 API의 대상 연결로 엽니다.
+            live_target = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+            try:
+                # 검증된 후보의 전체 스냅샷을 운영 DB로 적용합니다.
+                candidate.backup(live_target, pages=256, sleep=0.01)
+                # 적용된 변경을 디스크에 확정합니다.
+                live_target.commit()
+            finally:
+                # 대상부터 닫아 쓰기 잠금을 해제합니다.
+                live_target.close()
+                # 후보 연결도 닫아 파일 핸들을 정리합니다.
+                candidate.close()
+
+            # 적용 후 무결성·스키마·후보 관리자 인증을 다시 검사합니다.
+            record_database_job_progress(job_id, state='validating', message='복원된 DB의 무결성과 관리자 계정을 확인하는 중입니다.')
+            result = inspect_database_file(DATABASE_PATH, job['candidate_admin_login_id'], job['candidate_admin_password'])
+            # 성공한 DB의 모든 세션 토큰을 바꿔 과거 로그인 세션을 무효화합니다.
+            live = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+            try:
+                live.execute("UPDATE users SET SessionToken = hex(randomblob(16))")
+                live.commit()
+            finally:
+                live.close()
+            # DB 감사 로그에는 비밀번호·경로 없이 복원 성공 결과만 기록합니다.
+            write_database_operation_audit('RESTORE_DATABASE', job['actor_login_id'], {
+                'job_id': job_id, 'result': result
+            })
+            # DB 외부 저널에도 복원 성공 이벤트를 남깁니다.
+            write_database_operation_journal('RESTORE_DATABASE', job['actor_login_id'], {
+                'job_id': job_id, 'result_sha256': result['sha256']
+            })
+            # 관리자가 확인할 때까지 점검을 유지하는 복구 상태로 전환합니다.
+            set_maintenance_state('RECOVERY', 'DB 복원이 완료되었습니다. 관리자가 확인한 뒤 점검을 종료합니다.', job['expected_end_at'], job['actor_login_id'])
+            # 최종 성공 상태를 기록합니다.
+            record_database_job_progress(job_id, state='succeeded', message='데이터베이스 복원과 검증이 완료되었습니다.', result=result)
+        except Exception as error:
+            # 기술 오류는 제한된 서버 로그에만 남기고 공개 작업 상태에는 넣지 않습니다.
+            app.logger.exception('제안-013 DB 복원 작업이 실패했습니다: job_id=%s', job_id)
+            # 자동 백업이 만들어진 경우에만 원복을 시도합니다.
+            if before_restore_path and os.path.exists(before_restore_path):
+                try:
+                    # 저널 갱신 실패와 무관하게 실제 원복을 우선 수행합니다.
+                    record_database_job_progress(job_id, state='rolling_back', message='복원 실패로 직전 자동 백업을 되돌리는 중입니다.')
+                    # 검증된 자동 백업을 읽기 전용으로 엽니다.
+                    rollback_source = sqlite3.connect(Path(before_restore_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=10.0)
+                    # 원복 대상인 운영 DB 연결을 엽니다.
+                    live_target = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+                    try:
+                        # 복원 직전 백업을 운영 DB로 되돌립니다.
+                        rollback_source.backup(live_target, pages=256, sleep=0.01)
+                        # 원복 내용을 디스크에 확정합니다.
+                        live_target.commit()
+                    finally:
+                        # 대상 연결과 원복 원본 연결을 모두 정리합니다.
+                        live_target.close()
+                        rollback_source.close()
+                    # 원복된 DB도 다시 무결성 검사를 통과해야 성공으로 판정합니다.
+                    inspect_database_file(DATABASE_PATH)
+                    # 실제 원복과 재검증이 모두 성공했음을 기록합니다.
+                    rollback_succeeded = True
+                    # 원복 성공 감사는 DB와 외부 저널에 각각 남깁니다.
+                    write_database_operation_audit('RESTORE_DATABASE_FAILED', job.get('actor_login_id'), {
+                        'job_id': job_id, 'rollback_succeeded': True
+                    })
+                    write_database_operation_journal('RESTORE_DATABASE_FAILED', job.get('actor_login_id'), {
+                        'job_id': job_id, 'rollback_succeeded': True
+                    })
+                except Exception:
+                    # 원복 자체의 기술 오류는 공개 응답에 포함하지 않습니다.
+                    app.logger.exception('제안-013 DB 자동 원복이 실패했습니다: job_id=%s', job_id)
+                    rollback_succeeded = False
+            # 원복 결과에 따라 사용자가 이해할 수 있는 한국어 안내를 선택합니다.
+            recovery_message = ('복원에 실패하여 직전 DB로 자동 원복했습니다.' if rollback_succeeded
+                                else '복원과 자동 원복을 완료하지 못했습니다. 점검을 유지하고 수동 복구가 필요합니다.')
+            try:
+                # 자동 점검 해제를 막기 위해 실패 후에도 복구 상태를 유지합니다.
+                set_maintenance_state('RECOVERY', recovery_message, '', 'system')
+            except OSError:
+                # 상태 파일 실패도 워커 정리와 메모리 상태 갱신을 방해하지 않습니다.
+                app.logger.error('제안-013 복구 상태를 기록하지 못했습니다.')
+            # 공개 상태에는 내부 오류 원문 대신 안전한 코드만 남깁니다.
+            record_database_job_progress(job_id, state='failed', message=recovery_message, error_code='RESTORE_FAILED',
+                                         rollback_succeeded=rollback_succeeded)
+        finally:
+            # 후보 파일 경로는 워커 로컬 복사본에서만 읽습니다.
+            candidate_path = job.get('candidate_path') if 'job' in locals() else None
+            if candidate_path and os.path.exists(candidate_path):
+                try:
+                    # 성공·실패와 무관하게 업로드 후보 사본을 즉시 제거합니다.
+                    os.unlink(candidate_path)
+                except OSError:
+                    # 삭제 실패는 보존 정책 정리에서 다시 시도합니다.
+                    pass
+            with DATABASE_JOBS_LOCK:
+                if job_id in DATABASE_JOBS:
+                    # 메모리 작업 상태에서도 후보 관리자 비밀번호를 즉시 제거합니다.
+                    DATABASE_JOBS[job_id].pop('candidate_admin_password', None)
+            with DATABASE_GATE:
+                # 다음 정상 요청이 새 DB 연결을 만들 수 있도록 동결을 해제합니다.
+                DATABASE_RESTORE_ACTIVE = False
+                # 동결 해제를 기다리는 요청에 상태 변화를 알립니다.
+                DATABASE_GATE.notify_all()
+            # 접근 로그 워커의 신규 큐 적재를 재개합니다.
+            ACCESS_LOG_ACCEPTING.set()
+
+
+@app.route('/backup_restore')
+@login_required
+@admin_required
+def backup_restore_page():
+    """
+    [역할]: 관리자 DB 백업·복원 화면을 렌더링합니다.
+    [의존성 관계]: templates/backup_restore.html, 점검 상태
+    [변경 시 영향도]: 제안-013 관리자 UI 진입점에 영향을 줍니다.
+    """
+    if not check_menu_permission('backup_restore'):
+        return redirect(url_for('portal_page'))
+    return render_template('backup_restore.html', user=session.get('user'), maintenance=get_maintenance_state(),
+                           restore_confirmation=DATABASE_RESTORE_CONFIRMATION)
+
+
+@app.route('/api/admin/database/backup', methods=['POST'])
+@login_required
+@admin_required
+@csrf_required
+def api_download_database_backup():
+    """
+    [역할]: 점검 중 현재 DB의 검증된 온라인 백업을 첨부 파일로 내려보냅니다.
+    [의존성 관계]: create_online_backup(), send_file()
+    [변경 시 영향도]: 계정과 장비 데이터가 포함된 민감한 DB 사본 다운로드에 영향을 줍니다.
+    """
+    # 점검 상태가 아니면 민감한 DB 사본 생성을 허용하지 않습니다.
+    if get_maintenance_state()['state'] not in {'DRAINING', 'RECOVERY'}:
+        return jsonify({'success': False, 'message': 'DB 백업은 점검 모드에서만 가능합니다.'}), 409
+    # 재시작 뒤 남은 임시 사본을 새 다운로드 전에 정리합니다.
+    purge_expired_database_operation_files()
+    # 호출자 감사에 사용할 서버 세션의 관리자 정보를 읽습니다.
+    admin_user = session.get('user', {})
+    # 실패 시 제거할 경로를 미리 준비합니다.
+    backup_path = None
+    try:
+        # 현재 DB 사본과 안전 여유 공간을 만들 수 있는지 두 파일시스템에서 확인합니다.
+        ensure_database_operation_space(os.path.getsize(DATABASE_PATH) + DATABASE_OPERATION_RESERVE_BYTES)
+        # 정적 웹 경로 밖의 백업 저장소를 준비합니다.
+        directories = ensure_database_operation_directories()
+        # 반복 클릭에도 충돌하지 않는 시간·UUID 조합의 파일명을 생성합니다.
+        stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
+        backup_path = os.path.join(directories['backups'], f'equipment-backup-{stamp}-{uuid.uuid4().hex[:8]}.db')
+        # SQLite 온라인 백업과 재검증을 수행합니다.
+        backup_summary = create_online_backup(backup_path)
+        # DB 내부 감사 로그에는 백업 파일 자체가 아닌 안전한 지문만 남깁니다.
+        write_database_operation_audit('DOWNLOAD_DATABASE_BACKUP', admin_user.get('LoginId'), {
+            'sha256': backup_summary['sha256'], 'size': backup_summary['size']
+        })
+        # DB 교체 뒤에도 남는 외부 이벤트 저널을 작성합니다.
+        write_database_operation_journal('DOWNLOAD_DATABASE_BACKUP', admin_user.get('LoginId'), {
+            'sha256': backup_summary['sha256'], 'size': backup_summary['size']
+        })
+        # 첨부 응답을 만들되 HTTP 캐시가 DB 내용을 보관하지 못하게 합니다.
+        response = send_file(backup_path, as_attachment=True, download_name=f'equipment-backup-{stamp}.db',
+                             mimetype='application/vnd.sqlite3', conditional=False)
+        # 브라우저·프록시의 응답 캐시를 명시적으로 금지합니다.
+        response.headers['Cache-Control'] = 'no-store, max-age=0'
+        # 오래된 HTTP 캐시 구현에도 캐시 금지를 알립니다.
+        response.headers['Pragma'] = 'no-cache'
+        # 전송 완료 또는 클라이언트 중단 뒤 서버 임시 백업을 삭제합니다.
+        response.call_on_close(lambda: remove_database_operation_file(backup_path))
+        # 바이너리 다운로드 응답을 반환합니다.
+        return response
+    except (OSError, sqlite3.Error, ValueError):
+        # 중간에 생성된 민감 사본은 오류 응답 전에 제거합니다.
+        remove_database_operation_file(backup_path)
+        # 내부 경로·SQLite 오류를 노출하지 않는 공통 안내를 반환합니다.
+        return jsonify({'success': False, 'message': safe_database_operation_error_message()}), 500
+
+
+@app.route('/api/admin/database/candidate', methods=['POST'])
+@login_required
+@admin_required
+@csrf_required
+def api_upload_database_candidate():
+    """
+    [역할]: 후보 DB를 크기 제한 내 저장하고 무결성·필수 테이블·후보 관리자 인증을 검증합니다.
+    [의존성 관계]: request.files, inspect_database_file(), DATABASE_CANDIDATES
+    [변경 시 영향도]: 복원 가능한 파일과 관리자 계정의 승인 경계에 영향을 줍니다.
+    """
+    purge_expired_database_candidates()
+    if get_maintenance_state()['state'] not in {'DRAINING', 'RECOVERY'}:
+        return jsonify({'success': False, 'message': '후보 DB 검증은 점검 모드에서만 가능합니다.'}), 409
+    # 요청 전체가 파일 제한을 크게 넘으면 multipart 파싱 전 거부합니다.
+    if request.content_length and request.content_length > DATABASE_UPLOAD_LIMIT + (1024 * 1024):
+        return jsonify({'success': False, 'message': '업로드 파일은 512MB를 초과할 수 없습니다.'}), 413
+    upload = request.files.get('database')
+    current_password = request.form.get('current_password', '')
+    candidate_login_id = request.form.get('candidate_admin_login_id', '').strip()
+    candidate_password = request.form.get('candidate_admin_password', '')
+    admin_user, error_message = validate_maintenance_admin_request(
+        {'current_password': current_password, 'confirmation': DATABASE_RESTORE_CONFIRMATION},
+        DATABASE_RESTORE_CONFIRMATION
+    )
+    if error_message:
+        return jsonify({'success': False, 'message': error_message}), 400
+    if not upload or not candidate_login_id or not candidate_password:
+        return jsonify({'success': False, 'message': 'DB 파일과 후보 DB 관리자 계정을 모두 입력해 주세요.'}), 400
+    # 예상 업로드 크기를 알 수 없으면 최대 제한을 기준으로 여유 공간을 확보합니다.
+    try:
+        ensure_database_operation_space((request.content_length or DATABASE_UPLOAD_LIMIT) + DATABASE_OPERATION_RESERVE_BYTES)
+    except OSError:
+        # 파일 쓰기 전 용량 부족을 안전한 안내와 감사 이벤트로 종료합니다.
+        write_database_operation_audit('VALIDATE_DATABASE_CANDIDATE_FAILED', admin_user['LoginId'], {'reason': 'insufficient_space'})
+        write_database_operation_journal('VALIDATE_DATABASE_CANDIDATE_FAILED', admin_user['LoginId'], {'reason': 'insufficient_space'})
+        return jsonify({'success': False, 'message': safe_database_operation_error_message()}), 507
+    # 후보 사본을 정적 경로 밖에 저장할 디렉터리를 준비합니다.
+    directories = ensure_database_operation_directories()
+    candidate_id = uuid.uuid4().hex
+    candidate_path = os.path.join(directories['candidates'], f'{candidate_id}.db')
+    written = 0
+    try:
+        with open(candidate_path, 'xb') as candidate_file:
+            while True:
+                chunk = upload.stream.read(1024 * 1024)
+                if not chunk:
+                    break
+                written += len(chunk)
+                if written > DATABASE_UPLOAD_LIMIT:
+                    raise ValueError('업로드 파일은 512MB를 초과할 수 없습니다.')
+                candidate_file.write(chunk)
+            candidate_file.flush()
+            os.fsync(candidate_file.fileno())
+        try:
+            os.chmod(candidate_path, 0o600)
+        except OSError:
+            pass
+        candidate_summary = inspect_database_file(candidate_path, candidate_login_id, candidate_password)
+        validate_database_compatibility(candidate_path, DATABASE_PATH)
+        live_summary = inspect_database_file(DATABASE_PATH)
+    except (OSError, sqlite3.Error, ValueError):
+        remove_database_operation_file(candidate_path)
+        # 실패 사실도 비밀값 없이 내부·외부 감사 기록에 남깁니다.
+        write_database_operation_audit('VALIDATE_DATABASE_CANDIDATE_FAILED', admin_user['LoginId'], {'candidate_id': candidate_id})
+        write_database_operation_journal('VALIDATE_DATABASE_CANDIDATE_FAILED', admin_user['LoginId'], {'candidate_id': candidate_id})
+        # DB 엔진의 원문 오류 대신 안전한 한국어 안내를 반환합니다.
+        return jsonify({'success': False, 'message': safe_database_operation_error_message()}), 400
+    # 메모리 후보 상태와 응답에 공통으로 사용할 서버 업로드 시각을 생성합니다.
+    uploaded_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with DATABASE_CANDIDATES_LOCK:
+        # 검증 통과 후보는 서버 메모리에서만 복원 권한과 연결합니다.
+        DATABASE_CANDIDATES[candidate_id] = {
+            'path': candidate_path, 'admin_login_id': candidate_login_id,
+            'expires_at': time.time() + DATABASE_CANDIDATE_RETENTION_SECONDS, 'uploaded_by': admin_user['LoginId'],
+            'uploaded_at': uploaded_at
+        }
+    # 성공 감사에는 후보 ID와 비교 가능한 지문만 남깁니다.
+    write_database_operation_audit('VALIDATE_DATABASE_CANDIDATE', admin_user['LoginId'], {
+        'candidate_id': candidate_id, 'sha256': candidate_summary['sha256'], 'size': candidate_summary['size']
+    })
+    # DB가 교체돼도 남는 외부 이벤트 저널을 기록합니다.
+    write_database_operation_journal('VALIDATE_DATABASE_CANDIDATE', admin_user['LoginId'], {
+        'candidate_id': candidate_id, 'sha256': candidate_summary['sha256'], 'size': candidate_summary['size']
+    })
+    response = jsonify({'success': True, 'message': '후보 DB 검증을 통과했습니다.', 'candidate_id': candidate_id,
+                        'candidate': candidate_summary, 'current': live_summary, 'uploaded_at': uploaded_at})
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/api/admin/database/restore', methods=['POST'])
+@login_required
+@admin_required
+@csrf_required
+def api_start_database_restore():
+    """
+    [역할]: 한국어 이중 확인과 양쪽 관리자 인증 후 단일 비동기 복원 작업을 시작합니다.
+    [의존성 관계]: DATABASE_CANDIDATES, DATABASE_RESTORE_LOCK, run_database_restore_job()
+    [변경 시 영향도]: 운영 DB 전체 교체와 모든 로그인 세션 만료에 영향을 줍니다.
+    """
+    data = request.get_json(silent=True)
+    admin_user, error_message = validate_maintenance_admin_request(data, DATABASE_RESTORE_CONFIRMATION)
+    if error_message:
+        return jsonify({'success': False, 'message': error_message}), 400
+    if get_maintenance_state()['state'] not in {'DRAINING', 'RECOVERY'}:
+        return jsonify({'success': False, 'message': 'DB 복원은 점검 모드에서만 가능합니다.'}), 409
+    # 문자열이 아닌 ID도 안전하게 문자열로 바꿔 사전 조회에 사용합니다.
+    candidate_id = str(data.get('candidate_id', ''))
+    with DATABASE_CANDIDATES_LOCK:
+        candidate = dict(DATABASE_CANDIDATES.get(candidate_id) or {})
+    if not candidate or candidate.get('expires_at', 0) < time.time():
+        return jsonify({'success': False, 'message': '후보 DB가 없거나 검증 유효 시간이 만료되었습니다.'}), 400
+    # 다른 관리자가 올린 후보를 오인·재사용하지 못하게 업로더와 현재 사용자를 일치시킵니다.
+    if candidate.get('uploaded_by') != admin_user['LoginId']:
+        return jsonify({'success': False, 'message': '현재 관리자가 검증한 후보 DB만 복원할 수 있습니다.'}), 403
+    candidate_login_id = str(data.get('candidate_admin_login_id', '')).strip()
+    candidate_password = data.get('candidate_admin_password', '')
+    try:
+        inspect_database_file(candidate['path'], candidate_login_id, candidate_password)
+    except (OSError, sqlite3.Error, ValueError):
+        # 재검증 실패는 내부 구현 정보를 숨긴 공통 안내로 처리합니다.
+        return jsonify({'success': False, 'message': safe_database_operation_error_message()}), 400
+    job_id = uuid.uuid4().hex
+    monitor_token = secrets.token_urlsafe(32)
+    maintenance = get_maintenance_state()
+    with DATABASE_JOBS_LOCK:
+        if any(item.get('state') not in {'succeeded', 'failed'} for item in DATABASE_JOBS.values()):
+            return jsonify({'success': False, 'message': '이미 다른 DB 복원 작업이 진행 중입니다.'}), 409
+        DATABASE_JOBS[job_id] = {
+            'job_id': job_id, 'monitor_token': monitor_token, 'candidate_path': candidate['path'],
+            'candidate_admin_login_id': candidate_login_id, 'candidate_admin_password': candidate_password,
+            'actor_login_id': admin_user['LoginId'], 'expected_end_at': maintenance.get('expected_end_at', ''),
+            'state': 'queued', 'message': '복원 작업이 대기 중입니다.',
+            'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+    with DATABASE_CANDIDATES_LOCK:
+        DATABASE_CANDIDATES.pop(candidate_id, None)
+    update_database_job(job_id)
+    worker = threading.Thread(target=run_database_restore_job, args=(job_id,), daemon=True)
+    worker.start()
+    response = jsonify({'success': True, 'message': 'DB 복원 작업을 시작했습니다.', 'job_id': job_id,
+                        'monitor_token': monitor_token})
+    response.headers['Cache-Control'] = 'no-store'
+    return response, 202
+
+
+@app.route('/api/admin/database/restore-status/<job_id>', methods=['GET'])
+def api_database_restore_status(job_id):
+    """
+    [역할]: 세션 만료와 RESTORING 중에도 일회성 토큰으로 해당 작업의 공개 상태만 반환합니다.
+    [의존성 관계]: DATABASE_JOBS, secrets.compare_digest()
+    [변경 시 영향도]: 복원 진행 화면의 폴링과 내부 정보 비노출에 영향을 줍니다.
+    """
+    # URL·Gunicorn access log에 남지 않는 전용 요청 헤더에서만 토큰을 받습니다.
+    supplied_token = request.headers.get('X-Restore-Monitor-Token', '')
+    with DATABASE_JOBS_LOCK:
+        job = dict(DATABASE_JOBS.get(job_id) or {})
+    if not job or not supplied_token or not secrets.compare_digest(supplied_token, job.get('monitor_token', '')):
+        return jsonify({'success': False, 'message': '복원 작업을 확인할 수 없습니다.'}), 404
+    # 내부 오류 원문, 비밀번호, 경로, 토큰은 상태 응답에서 모두 제외합니다.
+    public_job = {key: value for key, value in job.items()
+                  if key not in {'monitor_token', 'candidate_path', 'candidate_admin_password', 'error'}}
+    response = jsonify({'success': True, 'job': public_job})
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 # ==========================================
