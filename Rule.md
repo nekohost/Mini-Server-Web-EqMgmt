@@ -252,9 +252,28 @@ Windows PC는 소스 작성과 Git Push 용도로만 사용하며 애플리케�
 
 #### 5-1-2. Linux Lite 테스트와 구동
 
-모든 실제 테스트와 구동은 미니서버 `192.168.0.166`에 SSH로 접속하여 수행합니다.
+모든 실제 테스트와 구동은 미니서버 또는 사용자가 검증 대상으로 지정한 백업 Linux 서버에 SSH로 접속하여 수행합니다.
 
-> `[규칙 ID: RULE-5.1.2 | 노드: operations.server-execution | 경로: .agent-governance/operations/server-execution.md]`
+여기서 **운영 소스 반영**은 Windows 프로젝트 루트에 승인된 Staging 변경을 병합하는 작업이며, **Linux 서비스 적용**은 Git 원격의 승인 commit을 Linux 서버에 pull하고 서비스를 시작·재시작하는 작업입니다. 두 단계는 서로 다른 작업입니다.
+
+실제 테스트를 Linux에서 수행한다는 규칙은 테스트 환경을 정하는 규칙입니다. Linux 실행 검증이 아직 수행되지 않았다는 이유만으로 사용자 승인된 운영 소스 반영이나 Git push를 선행 차단하지 않습니다.
+
+표준 순서는 다음과 같습니다.
+
+1. Windows의 `Staging/`에 구현 후보를 작성합니다.
+2. Staging 소스를 구동하지 않고 정적 검사와 Validation 1~8을 수행합니다.
+3. 검사 결과와 미해결 위험을 사용자에게 보고하고 운영 소스 병합 승인을 받습니다.
+4. 승인된 변경만 Windows 프로젝트 루트의 운영 소스에 병합합니다.
+5. 운영 소스와 승인된 Staging 결과의 동일성 및 정적 검사를 다시 확인합니다.
+6. 영구 보존 예외를 이관한 뒤 Staging 임시 파일을 정리합니다.
+7. 운영 소스, 계획, Task, 보고서를 같은 변경 범위로 commit하고 Git 원격에 push합니다.
+8. 미니서버 또는 사용자가 지정한 백업 Linux 서버에서 정확한 commit을 pull하고 일치 여부를 확인합니다.
+9. Linux의 격리된 모의 데이터 또는 승인된 시험 조건에서 구문·의존성·기능 검증을 수행합니다.
+10. 검증 결과에 따라 서비스를 시작·재시작하고 브라우저/API 동작을 확인합니다.
+
+Linux 검증이 실패하면 서버에서 즉석 수정하지 않습니다. Windows Staging으로 돌아가 수정·정적 검증·승인·운영 소스 병합·push·pull 순서를 다시 수행합니다.
+
+> `[규칙 ID: RULE-5.1.2 | 추가 정책 ID: HUMAN-5.1.2-ORDER | 노드: operations.server-execution | 경로: .agent-governance/operations/server-execution.md]`
 
 #### 5-1-3. Staging의 목적
 

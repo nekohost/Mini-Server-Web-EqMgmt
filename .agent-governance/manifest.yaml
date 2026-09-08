@@ -1,10 +1,10 @@
 schema_version: 1
-governance_version: 1.1.0
+governance_version: 1.1.1
 status: active
 replaces_root_sources: true
 human_reference:
   path: ../Rule.md
-  sha256: 0366391F84CF1F9C6AA30DB4E8E60927A05903A159E13AB815A2C586445AD7EB
+  sha256: CF8428BFDC14058B2D2BFE934751514DCA0D3E2655A9274D9AF40F043535F79E
   section_baseline: traceability/rule-section-baseline.yaml
   status: active
   auto_load: false

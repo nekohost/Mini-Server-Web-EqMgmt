@@ -101,7 +101,7 @@ mappings:
     source_rules: [RULE-5.1.2, RULE-5.1.4]
     source_validations: []
     source_entrypoints: []
-    source_human: []
+    source_human: [HUMAN-5.1.2-ORDER]
   - node_id: operations.staging
     node_path: operations/staging.md
     human_rule_sections: ["5-1-3", "7-3-1", "7-3-2", "10-2-3"]
@@ -284,4 +284,3 @@ mappings:
     source_validations: []
     source_entrypoints: []
     source_human: [HUMAN-11.3, HUMAN-11.4, HUMAN-11.5, HUMAN-11.6, HUMAN-11.7, HUMAN-11.8]
-
