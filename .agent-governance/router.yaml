@@ -132,6 +132,13 @@ rules:
     load:
       - workflow.multi-agent-handoff
       - workflow.plans
+  - id: document-archive
+    match:
+      paths: [Plans/**, Tasks/**, Reports/**, Report/**]
+    load:
+      - workflow.plans
+      - tools.read-execute
+      - tools.file-editing
   - id: general-file-change
     match:
       intents: [implement, change, fix, create-file]

@@ -1,0 +1,936 @@
+schema_version: 1
+status: completed
+updated_at: 2026-09-09T04:40:07.399Z
+total_mappings: 100
+plans_count: 42
+tasks_count: 15
+reports_count: 43
+mappings:
+  Plans/2026-08-04_Layout_Hierarchy_Architecture_Plan.md: Plans/2026/08/04/001_Layout_Hierarchy_Architecture_Plan.md
+  Plans/2026-08-04_Users_Management_Plan.md: Plans/2026/08/04/002_Users_Management_Plan.md
+  Plans/2026-08-11_Master_Management_Enhancement_Plan.md: Plans/2026/08/11/001_Master_Management_Enhancement_Plan.md
+  Plans/2026-08-11_User_Withdrawal_Lifecycle_Plan.md: Plans/2026/08/11/002_User_Withdrawal_Lifecycle_Plan.md
+  Plans/2026-08-11_Dashboard_Stats_Fix_Plan.md: Plans/2026/08/11/003_Dashboard_Stats_Fix_Plan.md
+  Plans/2026-08-11_Dashboard_Stats_Expansion_Plan.md: Plans/2026/08/11/004_Dashboard_Stats_Expansion_Plan.md
+  Plans/2026-08-12_Dashboard_JS_Bugfix_Plan.md: Plans/2026/08/12/001_Dashboard_JS_Bugfix_Plan.md
+  Plans/2026-08-12_Proposal030_MailingService_Plan.md: Plans/2026/08/12/002_Proposal030_MailingService_Plan.md
+  Plans/2026-08-12_Proposal034_UserProfileUpdate_Plan.md: Plans/2026/08/12/003_Proposal034_UserProfileUpdate_Plan.md
+  Plans/2026-08-13_AdminCenter_Plan.md: Plans/2026/08/13/001_AdminCenter_Plan.md
+  Plans/2026-08-14_CSRF_Global_Security_Plan.md: Plans/2026/08/14/001_CSRF_Global_Security_Plan.md
+  Plans/2026-08-15_Access_Logs_Monitoring_Plan.md: Plans/2026/08/15/001_Access_Logs_Monitoring_Plan.md
+  Plans/2026-08-15_Menu_Name_Normalization_Plan.md: Plans/2026/08/15/002_Menu_Name_Normalization_Plan.md
+  Plans/2026-08-17_Proposal038_Dynamic_Metadata_Routing_Plan.md: Plans/2026/08/17/001_Proposal038_Dynamic_Metadata_Routing_Plan.md
+  Plans/2026-08-18_Proposal039_Error_IP_Analysis_Plan.md: Plans/2026/08/18/001_Proposal039_Error_IP_Analysis_Plan.md
+  Plans/2026-08-19_Proposal036_Equipment_Hierarchy_Plan.md: Plans/2026/08/19/001_Proposal036_Equipment_Hierarchy_Plan.md
+  Plans/2026-08-20_Proposal040_Access_Log_Payload_Plan.md: Plans/2026/08/20/001_Proposal040_Access_Log_Payload_Plan.md
+  Plans/2026-08-21_Proposal041_Access_Logs_Stats_Period_Toggle_Plan.md: Plans/2026/08/21/001_Proposal041_Access_Logs_Stats_Period_Toggle_Plan.md
+  Plans/2026-08-21_Proposal042_Python314_Reloader_Crash_Fix_Plan.md: Plans/2026/08/21/002_Proposal042_Python314_Reloader_Crash_Fix_Plan.md
+  Plans/2026-08-21_Proposal043_AccessLogs_ResponsePayload_Recursive_Fix_Plan.md:
+    Plans/2026/08/21/003_Proposal043_AccessLogs_ResponsePayload_Recursive_Fix_Plan.md
+  Plans/2026-08-21_Proposal044_AccessLogs_Chunk_Cleanup_Plan.md: Plans/2026/08/21/004_Proposal044_AccessLogs_Chunk_Cleanup_Plan.md
+  Plans/2026-08-21_Proposal045_AccessLog_LazyLoad_Plan.md: Plans/2026/08/21/005_Proposal045_AccessLog_LazyLoad_Plan.md
+  Plans/2026-08-21_Code_Comment_Enhancement_Plan.md: Plans/2026/08/21/006_Code_Comment_Enhancement_Plan.md
+  Plans/2026-09-01_Proposal013_DB_Backup_Restore_Implementation_Plan.md: Plans/2026/09/01/001_Proposal013_DB_Backup_Restore_Implementation_Plan.md
+  Plans/2026-09-01_Proposal013_DB_Backup_Restore_Plan.md: Plans/2026/09/01/002_Proposal013_DB_Backup_Restore_Plan.md
+  Plans/2026-09-01_Rule_Governance_Node_Migration_Plan.md: Plans/2026/09/01/003_Rule_Governance_Node_Migration_Plan.md
+  Plans/2026-09-02_Staging_Governance_Terra_Gemini_Remediation_Plan.md: Plans/2026/09/02/001_Staging_Governance_Terra_Gemini_Remediation_Plan.md
+  Plans/2026-09-02_Staging_Rule_도구정책_동기화_Plan.md: Plans/2026/09/02/002_Staging_Rule_도구정책_동기화_Plan.md
+  Plans/2026-09-03_App_Py_Educational_Comments_Restoration_Plan.md: Plans/2026/09/03/001_App_Py_Educational_Comments_Restoration_Plan.md
+  Plans/2026-09-03_App_Py_Encoding_Syntax_Repair_Plan.md: Plans/2026/09/03/002_App_Py_Encoding_Syntax_Repair_Plan.md
+  Plans/2026-09-03_Chat_Chronological_Append_Plan.md: Plans/2026/09/03/003_Chat_Chronological_Append_Plan.md
+  Plans/2026-09-03_Rule_Governance_Production_Promotion_Plan.md: Plans/2026/09/03/004_Rule_Governance_Production_Promotion_Plan.md
+  Plans/2026-09-03_Rule_Node_Sync_Assurance_Plan.md: Plans/2026/09/03/005_Rule_Node_Sync_Assurance_Plan.md
+  Plans/2026-09-03_WebMCP_Implementation_Plan.md: Plans/2026/09/03/006_WebMCP_Implementation_Plan.md
+  Plans/2026-09-07_Proposal013_DB_Backup_Restore_Task.md: Tasks/2026/09/07/001_Proposal013_DB_Backup_Restore_Task.md
+  Plans/2026-09-07_Proposal046_Server_Maintenance_Mode_Task.md: Tasks/2026/09/07/002_Proposal046_Server_Maintenance_Mode_Task.md
+  Plans/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Task.md:
+    Tasks/2026/09/07/003_Proposal046_Logging_and_Maintenance_UI_Improvement_Task.md
+  Plans/2026-09-07_Conversation_History_Recovery_Task.md: Tasks/2026/09/07/004_Conversation_History_Recovery_Task.md
+  Plans/2026-09-07_Master_Data_and_Approval_Pipeline_Improvement_Task.md: Tasks/2026/09/07/005_Master_Data_and_Approval_Pipeline_Improvement_Task.md
+  Plans/2026-09-07_Proposal013_DB_Backup_Restore_Plan.md: Plans/2026/09/07/001_Proposal013_DB_Backup_Restore_Plan.md
+  Plans/2026-09-07_Proposal046_Server_Maintenance_Mode_Plan.md: Plans/2026/09/07/002_Proposal046_Server_Maintenance_Mode_Plan.md
+  Plans/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan.md:
+    Plans/2026/09/07/003_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan.md
+  Plans/2026-09-07_Master_Data_and_Approval_Pipeline_Improvement_Plan.md: Plans/2026/09/07/004_Master_Data_and_Approval_Pipeline_Improvement_Plan.md
+  Plans/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Task.md:
+    Tasks/2026/09/08/001_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Task.md
+  Plans/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Task.md: Tasks/2026/09/08/002_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Task.md
+  Plans/2026-09-08_Conversation_Auto_Record_Failure_Analysis_Task.md: Tasks/2026/09/08/003_Conversation_Auto_Record_Failure_Analysis_Task.md
+  Plans/2026-09-08_Conversation_Automatic_Recording_Implementation_Task.md: Tasks/2026/09/08/004_Conversation_Automatic_Recording_Implementation_Task.md
+  Plans/2026-09-08_Conversation_Automatic_Recording_Improvement_Task.md: Tasks/2026/09/08/005_Conversation_Automatic_Recording_Improvement_Task.md
+  Plans/2026-09-08_Conversation_History_Recovery_Followup_Task.md: Tasks/2026/09/08/006_Conversation_History_Recovery_Followup_Task.md
+  Plans/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan.md: Plans/2026/09/08/001_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan.md
+  Plans/2026-09-08_Conversation_Automatic_Recording_Improvement_Plan.md: Plans/2026/09/08/002_Conversation_Automatic_Recording_Improvement_Plan.md
+  Plans/2026-09-09_Plan_Task_Report_Archive_Reorganization_Implementation_Task.md:
+    Tasks/2026/09/09/001_Plan_Task_Report_Archive_Reorganization_Implementation_Task.md
+  Plans/2026-09-09_Plan_Task_Report_Archive_Reorganization_Task.md: Tasks/2026/09/09/002_Plan_Task_Report_Archive_Reorganization_Task.md
+  Plans/2026-09-09_Antigravity_Repeated_Error_Analysis_Task.md: Tasks/2026/09/09/003_Antigravity_Repeated_Error_Analysis_Task.md
+  Plans/2026-09-09_Antigravity_Repeated_Error_Mitigation_Task.md: Tasks/2026/09/09/004_Antigravity_Repeated_Error_Mitigation_Task.md
+  Plans/2026-09-09_Plan_Task_Report_Archive_Reorganization_Plan.md: Plans/2026/09/09/001_Plan_Task_Report_Archive_Reorganization_Plan.md
+  Plans/2026-09-09_Antigravity_Repeated_Error_Mitigation_Plan.md: Plans/2026/09/09/002_Antigravity_Repeated_Error_Mitigation_Plan.md
+  Report/2026-09-03_App_Py_Comment_Task_Control_Plane_Validation_Report.md: Reports/2026/09/03/001_App_Py_Comment_Task_Control_Plane_Validation_Report.md
+  Report/2026-09-03_App_Py_Educational_Comments_Plan_Validation_Report.md: Reports/2026/09/03/002_App_Py_Educational_Comments_Plan_Validation_Report.md
+  Report/2026-09-03_App_Py_Encoding_Syntax_Repair_Validation_Report.md: Reports/2026/09/03/003_App_Py_Encoding_Syntax_Repair_Validation_Report.md
+  Report/2026-09-03_App_Py_Whole_File_Corruption_Audit_Report.md: Reports/2026/09/03/004_App_Py_Whole_File_Corruption_Audit_Report.md
+  Report/2026-09-03_Chat_Chronological_Append_Promotion_Report.md: Reports/2026/09/03/005_Chat_Chronological_Append_Promotion_Report.md
+  Report/2026-09-03_Conversation_Storage_Ordering_Diagnosis_Report.md: Reports/2026/09/03/006_Conversation_Storage_Ordering_Diagnosis_Report.md
+  Report/2026-09-03_Rule_Governance_Production_Promotion_Report.md: Reports/2026/09/03/007_Rule_Governance_Production_Promotion_Report.md
+  Report/2026-09-03_Staging_Human_Rule_Validation_Report.md: Reports/2026/09/03/008_Staging_Human_Rule_Validation_Report.md
+  Report/2026-09-03_Staging_Qualitative_Validation_Report.md: Reports/2026/09/03/009_Staging_Qualitative_Validation_Report.md
+  Report/2026-09-03_Staging_Rule_Node_Sync_Assurance_Validation_Report.md: Reports/2026/09/03/010_Staging_Rule_Node_Sync_Assurance_Validation_Report.md
+  Report/2026-09-03_Staging_Rule_Tooling_Sync_Validation_Report.md: Reports/2026/09/03/011_Staging_Rule_Tooling_Sync_Validation_Report.md
+  Report/2026-09-03_Staging_Terra_Gemini_Remediation_Validation_Report.md: Reports/2026/09/03/012_Staging_Terra_Gemini_Remediation_Validation_Report.md
+  Report/2026-09-04_Missing_Chat_Records_Audit_Report.md: Reports/2026/09/04/001_Missing_Chat_Records_Audit_Report.md
+  Report/2026-09-07_Proposal013_DB_Backup_Restore_Plan_Validation_Report.md:
+    Reports/2026/09/07/001_Proposal013_DB_Backup_Restore_Plan_Validation_Report.md
+  Report/2026-09-07_Proposal046_Server_Maintenance_Mode_Plan_Validation_Report.md:
+    Reports/2026/09/07/002_Proposal046_Server_Maintenance_Mode_Plan_Validation_Report.md
+  Report/2026-09-07_Proposal046_Staging_Implementation_Validation_Report.md:
+    Reports/2026/09/07/003_Proposal046_Staging_Implementation_Validation_Report.md
+  Report/2026-09-07_Proposal046_Staging_Production_Readiness_Review_Report.md:
+    Reports/2026/09/07/004_Proposal046_Staging_Production_Readiness_Review_Report.md
+  Report/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan_Validation_Report.md:
+    Reports/2026/09/07/005_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan_Validation_Report.md
+  Report/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Production_Merge_Validation_Report.md:
+    Reports/2026/09/07/006_Proposal046_Logging_and_Maintenance_UI_Improvement_Production_Merge_Validation_Report.md
+  Report/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Staging_Validation_Report.md:
+    Reports/2026/09/07/007_Proposal046_Logging_and_Maintenance_UI_Improvement_Staging_Validation_Report.md
+  Report/2026-09-07_Proposal013_Staging_Implementation_Validation_Report.md:
+    Reports/2026/09/07/008_Proposal013_Staging_Implementation_Validation_Report.md
+  Report/2026-09-07_Proposal013_Staging_Production_Readiness_Report.md: Reports/2026/09/07/009_Proposal013_Staging_Production_Readiness_Report.md
+  Report/2026-09-07_Conversation_History_Recovery_Report.md: Reports/2026/09/07/010_Conversation_History_Recovery_Report.md
+  Report/2026-09-07_Master_Data_and_Approval_Pipeline_Improvement_Plan_Validation_Report.md:
+    Reports/2026/09/07/011_Master_Data_and_Approval_Pipeline_Improvement_Plan_Validation_Report.md
+  Report/2026-09-08_Proposal013_Remediation_Validation_Report.md: Reports/2026/09/08/001_Proposal013_Remediation_Validation_Report.md
+  Report/2026-09-08_Proposal013_Static_Review_Report.md: Reports/2026/09/08/002_Proposal013_Static_Review_Report.md
+  Report/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Report.md:
+    Reports/2026/09/08/003_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Report.md
+  Report/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan_Validation_Report.md:
+    Reports/2026/09/08/004_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan_Validation_Report.md
+  Report/2026-09-08_Master_Data_and_Approval_Pipeline_Improvement_Staging_Validation_Report.md:
+    Reports/2026/09/08/005_Master_Data_and_Approval_Pipeline_Improvement_Staging_Validation_Report.md
+  Report/2026-09-08_Master_Data_and_Approval_Pipeline_Production_Promotion_Report.md:
+    Reports/2026/09/08/006_Master_Data_and_Approval_Pipeline_Production_Promotion_Report.md
+  Report/2026-09-08_Master_Data_and_Approval_Pipeline_Staging_Review_Report.md:
+    Reports/2026/09/08/007_Master_Data_and_Approval_Pipeline_Staging_Review_Report.md
+  Report/2026-09-08_Conversation_Auto_Record_Failure_Analysis_Report.md: Reports/2026/09/08/008_Conversation_Auto_Record_Failure_Analysis_Report.md
+  Report/2026-09-08_Conversation_Automatic_Recording_Improvement_Plan_Validation_Report.md:
+    Reports/2026/09/08/009_Conversation_Automatic_Recording_Improvement_Plan_Validation_Report.md
+  Report/2026-09-08_Conversation_Automatic_Recording_Plan_Revision_Validation_Report.md:
+    Reports/2026/09/08/010_Conversation_Automatic_Recording_Plan_Revision_Validation_Report.md
+  Report/2026-09-08_Conversation_History_Recovery_Followup_Report.md: Reports/2026/09/08/011_Conversation_History_Recovery_Followup_Report.md
+  Report/2026-09-09_Plan_Task_Report_Archive_Reorganization_Plan_Validation_Report.md:
+    Reports/2026/09/09/001_Plan_Task_Report_Archive_Reorganization_Plan_Validation_Report.md
+  Report/2026-09-09_Plan_Task_Report_Archive_Reorganization_Production_Readiness_Review_Report.md:
+    Reports/2026/09/09/002_Plan_Task_Report_Archive_Reorganization_Production_Readiness_Review_Report.md
+  Report/2026-09-09_Plan_Task_Report_Archive_Reorganization_Staging_Validation_Report.md:
+    Reports/2026/09/09/003_Plan_Task_Report_Archive_Reorganization_Staging_Validation_Report.md
+  Report/2026-09-09_Conversation_Automatic_Recording_Implementation_Report.md:
+    Reports/2026/09/09/004_Conversation_Automatic_Recording_Implementation_Report.md
+  Report/2026-09-09_Conversation_Automatic_Recording_Staging_Validation_Report.md:
+    Reports/2026/09/09/005_Conversation_Automatic_Recording_Staging_Validation_Report.md
+  Report/2026-09-09_Antigravity_Repeated_Error_Analysis_Report.md: Reports/2026/09/09/006_Antigravity_Repeated_Error_Analysis_Report.md
+  Report/2026-09-09_Antigravity_Repeated_Error_Mitigation_Plan_Validation_Report.md:
+    Reports/2026/09/09/007_Antigravity_Repeated_Error_Mitigation_Plan_Validation_Report.md
+  Report/2026-09-09_Antigravity_Repeated_Error_Mitigation_Report.md: Reports/2026/09/09/008_Antigravity_Repeated_Error_Mitigation_Report.md
+records:
+  - source: Plans/2026-08-04_Layout_Hierarchy_Architecture_Plan.md
+    destination: Plans/2026/08/04/001_Layout_Hierarchy_Architecture_Plan.md
+    type: plan
+    date: 2026-08-04
+    sequence: "001"
+    document_time: 2026-08-04T14:36:44+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-04_Users_Management_Plan.md
+    destination: Plans/2026/08/04/002_Users_Management_Plan.md
+    type: plan
+    date: 2026-08-04
+    sequence: "002"
+    document_time: 2026-08-11T14:19:38+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-11_Master_Management_Enhancement_Plan.md
+    destination: Plans/2026/08/11/001_Master_Management_Enhancement_Plan.md
+    type: plan
+    date: 2026-08-11
+    sequence: "001"
+    document_time: 2026-08-11T15:09:12+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-11_User_Withdrawal_Lifecycle_Plan.md
+    destination: Plans/2026/08/11/002_User_Withdrawal_Lifecycle_Plan.md
+    type: plan
+    date: 2026-08-11
+    sequence: "002"
+    document_time: 2026-08-11T20:44:06+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-11_Dashboard_Stats_Fix_Plan.md
+    destination: Plans/2026/08/11/003_Dashboard_Stats_Fix_Plan.md
+    type: plan
+    date: 2026-08-11
+    sequence: "003"
+    document_time: 2026-08-11T22:55:07+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-11_Dashboard_Stats_Expansion_Plan.md
+    destination: Plans/2026/08/11/004_Dashboard_Stats_Expansion_Plan.md
+    type: plan
+    date: 2026-08-11
+    sequence: "004"
+    document_time: 2026-08-12T00:27:46+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-12_Dashboard_JS_Bugfix_Plan.md
+    destination: Plans/2026/08/12/001_Dashboard_JS_Bugfix_Plan.md
+    type: plan
+    date: 2026-08-12
+    sequence: "001"
+    document_time: 2026-08-12T00:57:25+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-12_Proposal030_MailingService_Plan.md
+    destination: Plans/2026/08/12/002_Proposal030_MailingService_Plan.md
+    type: plan
+    date: 2026-08-12
+    sequence: "002"
+    document_time: 2026-08-12T12:59:42+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-12_Proposal034_UserProfileUpdate_Plan.md
+    destination: Plans/2026/08/12/003_Proposal034_UserProfileUpdate_Plan.md
+    type: plan
+    date: 2026-08-12
+    sequence: "003"
+    document_time: 2026-08-12T15:44:57+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-13_AdminCenter_Plan.md
+    destination: Plans/2026/08/13/001_AdminCenter_Plan.md
+    type: plan
+    date: 2026-08-13
+    sequence: "001"
+    document_time: 2026-08-13T16:17:01+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-14_CSRF_Global_Security_Plan.md
+    destination: Plans/2026/08/14/001_CSRF_Global_Security_Plan.md
+    type: plan
+    date: 2026-08-14
+    sequence: "001"
+    document_time: 2026-08-14T11:17:08+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-15_Access_Logs_Monitoring_Plan.md
+    destination: Plans/2026/08/15/001_Access_Logs_Monitoring_Plan.md
+    type: plan
+    date: 2026-08-15
+    sequence: "001"
+    document_time: 2026-08-15T02:13:47+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-15_Menu_Name_Normalization_Plan.md
+    destination: Plans/2026/08/15/002_Menu_Name_Normalization_Plan.md
+    type: plan
+    date: 2026-08-15
+    sequence: "002"
+    document_time: 2026-08-15T11:29:39+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-17_Proposal038_Dynamic_Metadata_Routing_Plan.md
+    destination: Plans/2026/08/17/001_Proposal038_Dynamic_Metadata_Routing_Plan.md
+    type: plan
+    date: 2026-08-17
+    sequence: "001"
+    document_time: 2026-08-18T11:52:41+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-18_Proposal039_Error_IP_Analysis_Plan.md
+    destination: Plans/2026/08/18/001_Proposal039_Error_IP_Analysis_Plan.md
+    type: plan
+    date: 2026-08-18
+    sequence: "001"
+    document_time: 2026-08-18T16:15:09+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-19_Proposal036_Equipment_Hierarchy_Plan.md
+    destination: Plans/2026/08/19/001_Proposal036_Equipment_Hierarchy_Plan.md
+    type: plan
+    date: 2026-08-19
+    sequence: "001"
+    document_time: 2026-08-20T16:40:12+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-20_Proposal040_Access_Log_Payload_Plan.md
+    destination: Plans/2026/08/20/001_Proposal040_Access_Log_Payload_Plan.md
+    type: plan
+    date: 2026-08-20
+    sequence: "001"
+    document_time: 2026-08-20T16:40:12+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-21_Proposal041_Access_Logs_Stats_Period_Toggle_Plan.md
+    destination: Plans/2026/08/21/001_Proposal041_Access_Logs_Stats_Period_Toggle_Plan.md
+    type: plan
+    date: 2026-08-21
+    sequence: "001"
+    document_time: 2026-08-21T10:15:46+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-21_Proposal042_Python314_Reloader_Crash_Fix_Plan.md
+    destination: Plans/2026/08/21/002_Proposal042_Python314_Reloader_Crash_Fix_Plan.md
+    type: plan
+    date: 2026-08-21
+    sequence: "002"
+    document_time: 2026-08-21T10:45:55+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-21_Proposal043_AccessLogs_ResponsePayload_Recursive_Fix_Plan.md
+    destination: Plans/2026/08/21/003_Proposal043_AccessLogs_ResponsePayload_Recursive_Fix_Plan.md
+    type: plan
+    date: 2026-08-21
+    sequence: "003"
+    document_time: 2026-08-21T11:19:11+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-21_Proposal044_AccessLogs_Chunk_Cleanup_Plan.md
+    destination: Plans/2026/08/21/004_Proposal044_AccessLogs_Chunk_Cleanup_Plan.md
+    type: plan
+    date: 2026-08-21
+    sequence: "004"
+    document_time: 2026-08-21T12:41:53+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-21_Proposal045_AccessLog_LazyLoad_Plan.md
+    destination: Plans/2026/08/21/005_Proposal045_AccessLog_LazyLoad_Plan.md
+    type: plan
+    date: 2026-08-21
+    sequence: "005"
+    document_time: 2026-08-21T13:12:05+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-08-21_Code_Comment_Enhancement_Plan.md
+    destination: Plans/2026/08/21/006_Code_Comment_Enhancement_Plan.md
+    type: plan
+    date: 2026-08-21
+    sequence: "006"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-01_Proposal013_DB_Backup_Restore_Implementation_Plan.md
+    destination: Plans/2026/09/01/001_Proposal013_DB_Backup_Restore_Implementation_Plan.md
+    type: plan
+    date: 2026-09-01
+    sequence: "001"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-01_Proposal013_DB_Backup_Restore_Plan.md
+    destination: Plans/2026/09/01/002_Proposal013_DB_Backup_Restore_Plan.md
+    type: plan
+    date: 2026-09-01
+    sequence: "002"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-01_Rule_Governance_Node_Migration_Plan.md
+    destination: Plans/2026/09/01/003_Rule_Governance_Node_Migration_Plan.md
+    type: plan
+    date: 2026-09-01
+    sequence: "003"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-02_Staging_Governance_Terra_Gemini_Remediation_Plan.md
+    destination: Plans/2026/09/02/001_Staging_Governance_Terra_Gemini_Remediation_Plan.md
+    type: plan
+    date: 2026-09-02
+    sequence: "001"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-02_Staging_Rule_도구정책_동기화_Plan.md
+    destination: Plans/2026/09/02/002_Staging_Rule_도구정책_동기화_Plan.md
+    type: plan
+    date: 2026-09-02
+    sequence: "002"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-03_App_Py_Educational_Comments_Restoration_Plan.md
+    destination: Plans/2026/09/03/001_App_Py_Educational_Comments_Restoration_Plan.md
+    type: plan
+    date: 2026-09-03
+    sequence: "001"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-03_App_Py_Encoding_Syntax_Repair_Plan.md
+    destination: Plans/2026/09/03/002_App_Py_Encoding_Syntax_Repair_Plan.md
+    type: plan
+    date: 2026-09-03
+    sequence: "002"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-03_Chat_Chronological_Append_Plan.md
+    destination: Plans/2026/09/03/003_Chat_Chronological_Append_Plan.md
+    type: plan
+    date: 2026-09-03
+    sequence: "003"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-03_Rule_Governance_Production_Promotion_Plan.md
+    destination: Plans/2026/09/03/004_Rule_Governance_Production_Promotion_Plan.md
+    type: plan
+    date: 2026-09-03
+    sequence: "004"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-03_Rule_Node_Sync_Assurance_Plan.md
+    destination: Plans/2026/09/03/005_Rule_Node_Sync_Assurance_Plan.md
+    type: plan
+    date: 2026-09-03
+    sequence: "005"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-03_WebMCP_Implementation_Plan.md
+    destination: Plans/2026/09/03/006_WebMCP_Implementation_Plan.md
+    type: plan
+    date: 2026-09-03
+    sequence: "006"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Proposal013_DB_Backup_Restore_Task.md
+    destination: Tasks/2026/09/07/001_Proposal013_DB_Backup_Restore_Task.md
+    type: task
+    date: 2026-09-07
+    sequence: "001"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Proposal046_Server_Maintenance_Mode_Task.md
+    destination: Tasks/2026/09/07/002_Proposal046_Server_Maintenance_Mode_Task.md
+    type: task
+    date: 2026-09-07
+    sequence: "002"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Task.md
+    destination: Tasks/2026/09/07/003_Proposal046_Logging_and_Maintenance_UI_Improvement_Task.md
+    type: task
+    date: 2026-09-07
+    sequence: "003"
+    document_time: 2026-09-07T15:46:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Conversation_History_Recovery_Task.md
+    destination: Tasks/2026/09/07/004_Conversation_History_Recovery_Task.md
+    type: task
+    date: 2026-09-07
+    sequence: "004"
+    document_time: 2026-09-08T09:26:32+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Master_Data_and_Approval_Pipeline_Improvement_Task.md
+    destination: Tasks/2026/09/07/005_Master_Data_and_Approval_Pipeline_Improvement_Task.md
+    type: task
+    date: 2026-09-07
+    sequence: "005"
+    document_time: 2026-09-08T09:56:33+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Proposal013_DB_Backup_Restore_Plan.md
+    destination: Plans/2026/09/07/001_Proposal013_DB_Backup_Restore_Plan.md
+    type: plan
+    date: 2026-09-07
+    sequence: "001"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Proposal046_Server_Maintenance_Mode_Plan.md
+    destination: Plans/2026/09/07/002_Proposal046_Server_Maintenance_Mode_Plan.md
+    type: plan
+    date: 2026-09-07
+    sequence: "002"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan.md
+    destination: Plans/2026/09/07/003_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan.md
+    type: plan
+    date: 2026-09-07
+    sequence: "003"
+    document_time: 2026-09-07T15:46:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-07_Master_Data_and_Approval_Pipeline_Improvement_Plan.md
+    destination: Plans/2026/09/07/004_Master_Data_and_Approval_Pipeline_Improvement_Plan.md
+    type: plan
+    date: 2026-09-07
+    sequence: "004"
+    document_time: 2026-09-08T09:26:32+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Task.md
+    destination: Tasks/2026/09/08/001_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Task.md
+    type: task
+    date: 2026-09-08
+    sequence: "001"
+    document_time: 2026-09-08T09:56:26+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Task.md
+    destination: Tasks/2026/09/08/002_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Task.md
+    type: task
+    date: 2026-09-08
+    sequence: "002"
+    document_time: 2026-09-08T09:56:26+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Conversation_Auto_Record_Failure_Analysis_Task.md
+    destination: Tasks/2026/09/08/003_Conversation_Auto_Record_Failure_Analysis_Task.md
+    type: task
+    date: 2026-09-08
+    sequence: "003"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Conversation_Automatic_Recording_Implementation_Task.md
+    destination: Tasks/2026/09/08/004_Conversation_Automatic_Recording_Implementation_Task.md
+    type: task
+    date: 2026-09-08
+    sequence: "004"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Conversation_Automatic_Recording_Improvement_Task.md
+    destination: Tasks/2026/09/08/005_Conversation_Automatic_Recording_Improvement_Task.md
+    type: task
+    date: 2026-09-08
+    sequence: "005"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Conversation_History_Recovery_Followup_Task.md
+    destination: Tasks/2026/09/08/006_Conversation_History_Recovery_Followup_Task.md
+    type: task
+    date: 2026-09-08
+    sequence: "006"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan.md
+    destination: Plans/2026/09/08/001_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan.md
+    type: plan
+    date: 2026-09-08
+    sequence: "001"
+    document_time: 2026-09-08T09:56:26+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-08_Conversation_Automatic_Recording_Improvement_Plan.md
+    destination: Plans/2026/09/08/002_Conversation_Automatic_Recording_Improvement_Plan.md
+    type: plan
+    date: 2026-09-08
+    sequence: "002"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-09_Plan_Task_Report_Archive_Reorganization_Implementation_Task.md
+    destination: Tasks/2026/09/09/001_Plan_Task_Report_Archive_Reorganization_Implementation_Task.md
+    type: task
+    date: 2026-09-09
+    sequence: "001"
+    document_time: 2026-09-09 23:59:59
+    sort_basis: document_timestamp
+    confidence: high
+  - source: Plans/2026-09-09_Plan_Task_Report_Archive_Reorganization_Task.md
+    destination: Tasks/2026/09/09/002_Plan_Task_Report_Archive_Reorganization_Task.md
+    type: task
+    date: 2026-09-09
+    sequence: "002"
+    document_time: 2026-09-09 23:59:59
+    sort_basis: document_timestamp
+    confidence: high
+  - source: Plans/2026-09-09_Antigravity_Repeated_Error_Analysis_Task.md
+    destination: Tasks/2026/09/09/003_Antigravity_Repeated_Error_Analysis_Task.md
+    type: task
+    date: 2026-09-09
+    sequence: "003"
+    document_time: 2026-09-09T13:17:59+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-09_Antigravity_Repeated_Error_Mitigation_Task.md
+    destination: Tasks/2026/09/09/004_Antigravity_Repeated_Error_Mitigation_Task.md
+    type: task
+    date: 2026-09-09
+    sequence: "004"
+    document_time: 2026-09-09T13:17:59+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Plans/2026-09-09_Plan_Task_Report_Archive_Reorganization_Plan.md
+    destination: Plans/2026/09/09/001_Plan_Task_Report_Archive_Reorganization_Plan.md
+    type: plan
+    date: 2026-09-09
+    sequence: "001"
+    document_time: 2026-09-09 23:59:59
+    sort_basis: document_timestamp
+    confidence: high
+  - source: Plans/2026-09-09_Antigravity_Repeated_Error_Mitigation_Plan.md
+    destination: Plans/2026/09/09/002_Antigravity_Repeated_Error_Mitigation_Plan.md
+    type: plan
+    date: 2026-09-09
+    sequence: "002"
+    document_time: 2026-09-09T13:17:59+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_App_Py_Comment_Task_Control_Plane_Validation_Report.md
+    destination: Reports/2026/09/03/001_App_Py_Comment_Task_Control_Plane_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "001"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_App_Py_Educational_Comments_Plan_Validation_Report.md
+    destination: Reports/2026/09/03/002_App_Py_Educational_Comments_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "002"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_App_Py_Encoding_Syntax_Repair_Validation_Report.md
+    destination: Reports/2026/09/03/003_App_Py_Encoding_Syntax_Repair_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "003"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_App_Py_Whole_File_Corruption_Audit_Report.md
+    destination: Reports/2026/09/03/004_App_Py_Whole_File_Corruption_Audit_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "004"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Chat_Chronological_Append_Promotion_Report.md
+    destination: Reports/2026/09/03/005_Chat_Chronological_Append_Promotion_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "005"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Conversation_Storage_Ordering_Diagnosis_Report.md
+    destination: Reports/2026/09/03/006_Conversation_Storage_Ordering_Diagnosis_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "006"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Rule_Governance_Production_Promotion_Report.md
+    destination: Reports/2026/09/03/007_Rule_Governance_Production_Promotion_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "007"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Staging_Human_Rule_Validation_Report.md
+    destination: Reports/2026/09/03/008_Staging_Human_Rule_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "008"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Staging_Qualitative_Validation_Report.md
+    destination: Reports/2026/09/03/009_Staging_Qualitative_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "009"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Staging_Rule_Node_Sync_Assurance_Validation_Report.md
+    destination: Reports/2026/09/03/010_Staging_Rule_Node_Sync_Assurance_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "010"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Staging_Rule_Tooling_Sync_Validation_Report.md
+    destination: Reports/2026/09/03/011_Staging_Rule_Tooling_Sync_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "011"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-03_Staging_Terra_Gemini_Remediation_Validation_Report.md
+    destination: Reports/2026/09/03/012_Staging_Terra_Gemini_Remediation_Validation_Report.md
+    type: report
+    date: 2026-09-03
+    sequence: "012"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-04_Missing_Chat_Records_Audit_Report.md
+    destination: Reports/2026/09/04/001_Missing_Chat_Records_Audit_Report.md
+    type: report
+    date: 2026-09-04
+    sequence: "001"
+    document_time: 2026-09-07T09:59:40+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal013_DB_Backup_Restore_Plan_Validation_Report.md
+    destination: Reports/2026/09/07/001_Proposal013_DB_Backup_Restore_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "001"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal046_Server_Maintenance_Mode_Plan_Validation_Report.md
+    destination: Reports/2026/09/07/002_Proposal046_Server_Maintenance_Mode_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "002"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal046_Staging_Implementation_Validation_Report.md
+    destination: Reports/2026/09/07/003_Proposal046_Staging_Implementation_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "003"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal046_Staging_Production_Readiness_Review_Report.md
+    destination: Reports/2026/09/07/004_Proposal046_Staging_Production_Readiness_Review_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "004"
+    document_time: 2026-09-07T12:41:43+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan_Validation_Report.md
+    destination: Reports/2026/09/07/005_Proposal046_Logging_and_Maintenance_UI_Improvement_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "005"
+    document_time: 2026-09-07T15:46:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Production_Merge_Validation_Report.md
+    destination: Reports/2026/09/07/006_Proposal046_Logging_and_Maintenance_UI_Improvement_Production_Merge_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "006"
+    document_time: 2026-09-07T15:46:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal046_Logging_and_Maintenance_UI_Improvement_Staging_Validation_Report.md
+    destination: Reports/2026/09/07/007_Proposal046_Logging_and_Maintenance_UI_Improvement_Staging_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "007"
+    document_time: 2026-09-07T15:46:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal013_Staging_Implementation_Validation_Report.md
+    destination: Reports/2026/09/07/008_Proposal013_Staging_Implementation_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "008"
+    document_time: 2026-09-08T09:20:39+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Proposal013_Staging_Production_Readiness_Report.md
+    destination: Reports/2026/09/07/009_Proposal013_Staging_Production_Readiness_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "009"
+    document_time: 2026-09-08T09:20:39+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Conversation_History_Recovery_Report.md
+    destination: Reports/2026/09/07/010_Conversation_History_Recovery_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "010"
+    document_time: 2026-09-08T09:26:32+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-07_Master_Data_and_Approval_Pipeline_Improvement_Plan_Validation_Report.md
+    destination: Reports/2026/09/07/011_Master_Data_and_Approval_Pipeline_Improvement_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-07
+    sequence: "011"
+    document_time: 2026-09-08T09:26:32+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Proposal013_Remediation_Validation_Report.md
+    destination: Reports/2026/09/08/001_Proposal013_Remediation_Validation_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "001"
+    document_time: 2026-09-08T09:20:39+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Proposal013_Static_Review_Report.md
+    destination: Reports/2026/09/08/002_Proposal013_Static_Review_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "002"
+    document_time: 2026-09-08T09:20:39+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Report.md
+    destination: Reports/2026/09/08/003_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Implementation_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "003"
+    document_time: 2026-09-08T09:56:26+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan_Validation_Report.md
+    destination: Reports/2026/09/08/004_Rule_5-1-2_Deployment_Test_Order_Reinforcement_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "004"
+    document_time: 2026-09-08T09:56:26+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Master_Data_and_Approval_Pipeline_Improvement_Staging_Validation_Report.md
+    destination: Reports/2026/09/08/005_Master_Data_and_Approval_Pipeline_Improvement_Staging_Validation_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "005"
+    document_time: 2026-09-08T09:56:33+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Master_Data_and_Approval_Pipeline_Production_Promotion_Report.md
+    destination: Reports/2026/09/08/006_Master_Data_and_Approval_Pipeline_Production_Promotion_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "006"
+    document_time: 2026-09-08T09:56:33+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Master_Data_and_Approval_Pipeline_Staging_Review_Report.md
+    destination: Reports/2026/09/08/007_Master_Data_and_Approval_Pipeline_Staging_Review_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "007"
+    document_time: 2026-09-08T09:56:33+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Conversation_Auto_Record_Failure_Analysis_Report.md
+    destination: Reports/2026/09/08/008_Conversation_Auto_Record_Failure_Analysis_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "008"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Conversation_Automatic_Recording_Improvement_Plan_Validation_Report.md
+    destination: Reports/2026/09/08/009_Conversation_Automatic_Recording_Improvement_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "009"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Conversation_Automatic_Recording_Plan_Revision_Validation_Report.md
+    destination: Reports/2026/09/08/010_Conversation_Automatic_Recording_Plan_Revision_Validation_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "010"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-08_Conversation_History_Recovery_Followup_Report.md
+    destination: Reports/2026/09/08/011_Conversation_History_Recovery_Followup_Report.md
+    type: report
+    date: 2026-09-08
+    sequence: "011"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-09_Plan_Task_Report_Archive_Reorganization_Plan_Validation_Report.md
+    destination: Reports/2026/09/09/001_Plan_Task_Report_Archive_Reorganization_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "001"
+    document_time: 2026-09-09 23:59:59
+    sort_basis: document_timestamp
+    confidence: high
+  - source: Report/2026-09-09_Plan_Task_Report_Archive_Reorganization_Production_Readiness_Review_Report.md
+    destination: Reports/2026/09/09/002_Plan_Task_Report_Archive_Reorganization_Production_Readiness_Review_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "002"
+    document_time: 2026-09-09 23:59:59
+    sort_basis: document_timestamp
+    confidence: high
+  - source: Report/2026-09-09_Plan_Task_Report_Archive_Reorganization_Staging_Validation_Report.md
+    destination: Reports/2026/09/09/003_Plan_Task_Report_Archive_Reorganization_Staging_Validation_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "003"
+    document_time: 2026-09-09 23:59:59
+    sort_basis: document_timestamp
+    confidence: high
+  - source: Report/2026-09-09_Conversation_Automatic_Recording_Implementation_Report.md
+    destination: Reports/2026/09/09/004_Conversation_Automatic_Recording_Implementation_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "004"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-09_Conversation_Automatic_Recording_Staging_Validation_Report.md
+    destination: Reports/2026/09/09/005_Conversation_Automatic_Recording_Staging_Validation_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "005"
+    document_time: 2026-09-09T08:01:21+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-09_Antigravity_Repeated_Error_Analysis_Report.md
+    destination: Reports/2026/09/09/006_Antigravity_Repeated_Error_Analysis_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "006"
+    document_time: 2026-09-09T13:17:59+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-09_Antigravity_Repeated_Error_Mitigation_Plan_Validation_Report.md
+    destination: Reports/2026/09/09/007_Antigravity_Repeated_Error_Mitigation_Plan_Validation_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "007"
+    document_time: 2026-09-09T13:17:59+09:00
+    sort_basis: git_first_added
+    confidence: medium
+  - source: Report/2026-09-09_Antigravity_Repeated_Error_Mitigation_Report.md
+    destination: Reports/2026/09/09/008_Antigravity_Repeated_Error_Mitigation_Report.md
+    type: report
+    date: 2026-09-09
+    sequence: "008"
+    document_time: 2026-09-09T13:17:59+09:00
+    sort_basis: git_first_added
+    confidence: medium

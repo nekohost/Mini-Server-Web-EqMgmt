@@ -376,7 +376,7 @@ AI가 제안한 코드, 설정 예시, 실행 명령과 중간 안내도 실제 
 
 ##### 6-1-10-3. 영구 문서와의 구분
 
-`scratch/` 임시 파일은 `Chat/` 및 `Plans/` 영구 문서와 무관하며 문서 생명주기 보존 대상이 아닙니다.
+`scratch/` 임시 파일은 `Chat/`, `Plans/`, `Tasks/`, `Reports/` 영구 문서와 무관하며 문서 생명주기 보존 대상이 아닙니다.
 
 > `[규칙 ID: RULE-6.1.10.3 | 노드: records.scratch-retention | 경로: .agent-governance/records/scratch-retention.md]`
 
@@ -538,9 +538,21 @@ AI는 기능 추가와 코드 수정 시 아래 문서·개발 파이프라인�
 
 #### 7-2-2. Plans 영구 기록
 
-모든 기획 문서는 `Plans/YYYY-MM-DD_XXX_Plan.md` 형식으로 `Plans/`에 영구 기록하고 조율합니다.
+모든 기획 문서는 `Plans/YYYY/MM/DD/NNN_<작업명>_Plan.md` 형식으로 `Plans/`의 연·월·일 계층에 영구 기록하고 조율합니다. 순번은 일자별 세 자리 숫자(`001_`부터)를 사용하며 파일명에서 날짜 접두사는 생략합니다.
 
 > `[규칙 ID: RULE-7.2.2 | 노드: workflow.plans | 경로: .agent-governance/workflow/plans.md]`
+
+#### 7-2-3. Tasks 독립 파일 분리
+
+Task는 Plan 본문에 합치지 않고 `Tasks/YYYY/MM/DD/NNN_<작업명>_Task.md`에 독립 파일로 분리하여 보존합니다. Plan과 Task는 공통 `work_id`와 상호 상대 경로 링크로 연결하며, Plan이 필요 없는 단순 작업도 독립 Task를 가질 수 있습니다.
+
+> `[규칙 ID: RULE-7.2.3 | 노드: workflow.plans | 경로: .agent-governance/workflow/plans.md]`
+
+#### 7-2-4. Reports 영구 기록
+
+검증 및 점검 보고서는 `Reports/YYYY/MM/DD/NNN_<작업명>_Report.md` 형식으로 `Reports/`의 연·월·일 계층에 영구 기록합니다. Plan·Task와 공통 `work_id`로 연결하여 문서 추적성을 유지합니다.
+
+> `[규칙 ID: RULE-7.2.4 | 노드: workflow.plans | 경로: .agent-governance/workflow/plans.md]`
 
 ### 7-3. 임시 검증 및 병합
 
@@ -564,7 +576,7 @@ AI는 기능 추가와 코드 수정 시 아래 문서·개발 파이프라인�
 
 #### 7-3-4. Staging 계획서 아카이빙
 
-`Staging_PLAN.md`는 즉시 삭제하지 않습니다. 먼저 `Plans/YYYY-MM-DD_작업내용_Plan.md`로 이관하여 영구 보존한 뒤 삭제합니다.
+`Staging_PLAN.md`는 즉시 삭제하지 않습니다. 먼저 `Plans/YYYY/MM/DD/NNN_작업내용_Plan.md`로 이관하여 영구 보존한 뒤 삭제합니다.
 
 > `[규칙 ID: RULE-7.3.4 | 노드: workflow.staging-merge | 경로: .agent-governance/workflow/staging-merge.md]`
 
@@ -604,7 +616,7 @@ AI는 자신이 기획·검토를 수행하는지 코딩·실행을 수행하는
 
 #### 7-5-3. 승인된 맥락 승계
 
-새 AI는 직전 AI의 사용자 승인 계획(`Plans/`, `Staging_PLAN.md`)과 `ROADMAP.md`, `UNIMPLEMENTED_ROADMAP.md` 등 관련 문서의 방향성을 읽고 존중합니다.
+새 AI는 직전 AI의 사용자 승인 계획과 실행 대장(`Plans/`, `Tasks/`, `Reports/`, `Staging_PLAN.md`)과 `ROADMAP.md`, `UNIMPLEMENTED_ROADMAP.md` 등 관련 문서의 방향성을 함께 읽고 존중합니다.
 
 > `[규칙 ID: RULE-7.5.3 | 노드: workflow.multi-agent-handoff | 경로: .agent-governance/workflow/multi-agent-handoff.md]`
 
@@ -726,7 +738,7 @@ AI는 실제 행위 직전에 선택된 규칙이 요청과 행위에 어떻게 
 
 #### 10-1-1. 순차 검증
 
-`task.md` 아티팩트 또는 동등한 Task 목록을 먼저 만들고 1단계부터 8단계까지 순서대로 점검합니다. 각 단계 결과를 종합 검증 보고서에 누적합니다.
+`task.md` 아티팩트 또는 `Tasks/YYYY/MM/DD/NNN_<작업명>_Task.md`를 먼저 만들고 1단계부터 8단계까지 순서대로 점검합니다. 각 단계 결과는 `Reports/YYYY/MM/DD/NNN_<작업명>_Report.md`에 누적합니다.
 
 > `[검증 ID: VAL-CORE.1 | 노드: validation.orchestration | 경로: .agent-governance/validation/orchestration.md]`
 

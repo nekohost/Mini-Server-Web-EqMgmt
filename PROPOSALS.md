@@ -596,7 +596,7 @@
   - **결정 사유:** 기존 마스터 관리 화면에서는 이미 존재하는 항목의 수정 및 단일 삭제만 제공되어 항목 추가 시 셀렉트 박스에서 '기타'를 통해 전자결재 상신 과정을 거쳐야만 했습니다. 카테고리 및 제조사를 직접 신규 추가할 수 있는 버튼/모달 UI를 신설하고, 다수 마스터 데이터 정리 편의성을 위한 체크박스 기반 선택 일괄 삭제 기능을 추가하여 관리 효율성과 UX를 대폭 향상시킵니다.
   - **구현 우선순위:** [상] 마스터 데이터 관리 효율성 향상에 필수적인 기능입니다.
   - **구현 가능성:** [매우 높음] `app.py`에 POST API 신설 및 `master_management.html` UI/UX 개선을 통해 완전하게 구현 완료.
-  - **관련 파일:** `app.py`, `templates/master_management.html`, `Plans/2026-08-11_Master_Management_Enhancement_Plan.md`
+  - **관련 파일:** `app.py`, `templates/master_management.html`, `Plans/2026/08/11/001_Master_Management_Enhancement_Plan.md`
   - **영향도 및 의존성:** `categories`, `manufacturers`, `equipment` 테이블 및 마스터 관리 화면.
   - **추정 난이도:** 중 (Medium) - 백엔드 API 추가 및 프론트엔드 체크박스/모달 처리.
   - **상세 내용:**

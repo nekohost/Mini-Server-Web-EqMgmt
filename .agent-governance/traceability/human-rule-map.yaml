@@ -160,8 +160,8 @@ mappings:
     source_human: []
   - node_id: workflow.plans
     node_path: workflow/plans.md
-    human_rule_sections: ["7", "7-2-1", "7-2-2", "10", "10-1-1"]
-    source_rules: [RULE-7-PREAMBLE, RULE-7.2.1, RULE-7.2.2]
+    human_rule_sections: ["7", "7-2-1", "7-2-2", "7-2-3", "7-2-4", "10", "10-1-1"]
+    source_rules: [RULE-7-PREAMBLE, RULE-7.2.1, RULE-7.2.2, RULE-7.2.3, RULE-7.2.4]
     source_validations: [VAL-PREAMBLE, VAL-CORE.1]
     source_entrypoints: []
     source_human: []
