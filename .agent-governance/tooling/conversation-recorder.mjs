@@ -16,7 +16,28 @@ import { emptyState, eventAlreadyRecorded, isProcessAlive, normalizeNewlines, pr
 
 const CLI_PATH = fileURLToPath(import.meta.url);
 const DEFAULT_POLL_INTERVAL_MS = 1500;
+const STATE_HEARTBEAT_INTERVAL_MS = 60_000;
 const ACTIVE_PLATFORMS = ['codex', 'antigravity'];
+
+// 폴링 시각만 달라진 상태는 논리적으로 같은 상태로 취급한다.
+function persistentStateView(state) {
+  const copy = structuredClone(state);
+  delete copy.updatedAt;
+  for (const health of Object.values(copy.health ?? {})) {
+    if (health && typeof health === 'object') {
+      delete health.checkedAt;
+      delete health.lastReconcileAt;
+    }
+  }
+  return copy;
+}
+
+// 논리 상태가 바뀌거나 heartbeat 기한이 지난 경우에만 디스크 저장을 허용한다.
+export function shouldPersistState(previousState, nextState, nowMs = Date.now(), heartbeatMs = STATE_HEARTBEAT_INTERVAL_MS) {
+  if (JSON.stringify(persistentStateView(previousState)) !== JSON.stringify(persistentStateView(nextState))) return true;
+  const lastWriteMs = Date.parse(previousState.updatedAt ?? '');
+  return !Number.isFinite(lastWriteMs) || nowMs - lastWriteMs >= heartbeatMs;
+}
 
 // 단순하고 예측 가능한 --key value CLI 인자를 해석한다.
 export function parseArguments(argv) {
@@ -90,13 +111,14 @@ export async function reconcileOnce(options) {
   await mkdir(paths.stateRoot, { recursive: true });
   return withWriterLock(paths.writerLockPath, async () => {
     const state = await readState(paths.statePath);
+    const previousState = structuredClone(state);
     const results = await collectPlatforms(options, state, options.force);
     const failed = results.filter((result) => result.status === 'error' || (result.status === 'unsupported' && options.platforms.length === 1));
     // 실패한 플랫폼은 snapshot과 cursor를 전진시키지 않고 원인만 health에 남긴다.
     for (const result of results) state.health[result.platform] = { status: result.status, errors: result.errors, checkedAt: new Date().toISOString() };
     if (failed.length > 0) {
       if (!options.dryRun) {
-        await writeState(paths.statePath, state);
+        if (shouldPersistState(previousState, state)) await writeState(paths.statePath, state);
         await recordFailure(paths, failed.flatMap((result) => result.errors).join(' | '));
       }
       throw new Error(failed.map((result) => `${result.platform}: ${result.errors.join(' | ')}`).join('; '));
@@ -112,7 +134,9 @@ export async function reconcileOnce(options) {
         if (result.platform === 'antigravity' && result.registeredConversations) state.registeredConversations.antigravity = result.registeredConversations;
       }
       state.health.recorder = { status: 'ok', lastReconcileAt: new Date().toISOString(), platforms: options.platforms };
-      await writeState(paths.statePath, state);
+      const statePersisted = shouldPersistState(previousState, state);
+      if (statePersisted) await writeState(paths.statePath, state);
+      return { command: 'reconcile', workspace: options.workspaceRoot, dryRun: options.dryRun, statePersisted, platforms: results.map((result) => ({ platform: result.platform, status: result.status, events: result.events.length, errors: result.errors })), projection };
     }
     return { command: 'reconcile', workspace: options.workspaceRoot, dryRun: options.dryRun, platforms: results.map((result) => ({ platform: result.platform, status: result.status, events: result.events.length, errors: result.errors })), projection };
   }, { waitMs: 5000 });

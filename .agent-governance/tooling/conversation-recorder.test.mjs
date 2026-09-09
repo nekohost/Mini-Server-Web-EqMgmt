@@ -3,7 +3,7 @@
 // [변경 시 영향도] 원본 스키마나 기록 형식을 바꾸면 성공·실패 fixture를 함께 갱신해야 한다.
 
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { collectAntigravityEvents } from './conversation-recorder/antigravity.mjs';
 import { parseCodexTranscript } from './conversation-recorder/codex.mjs';
 import { COMPANION_LIMIT_BYTES, createEvent, emptyState, projectEvents, redactSecrets, splitCompanionBlocks, toKstParts, withWriterLock } from './conversation-recorder/core.mjs';
-import { ensureWatcher, parseArguments, reconcileOnce, recorderStatus, verifyRecording } from './conversation-recorder.mjs';
+import { ensureWatcher, parseArguments, reconcileOnce, recorderStatus, shouldPersistState, verifyRecording } from './conversation-recorder.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURES = path.join(HERE, 'fixtures', 'conversation-recorder');
@@ -157,10 +157,30 @@ test('reconcile은 fs.watch 알림 없이 stat 변화로 새 이벤트를 반영
   const started = Date.now();
   const second = await reconcileOnce(options);
   assert.equal(second.projection.written, 1);
+  assert.equal(second.statePersisted, true);
   assert.ok(Date.now() - started < 5000);
+  const statePath = path.join(workspace, 'Chat', '.state', 'conversation-recorder.json');
+  const stateBeforeIdlePoll = await stat(statePath);
+  const third = await reconcileOnce(options);
+  const stateAfterIdlePoll = await stat(statePath);
+  assert.equal(third.statePersisted, false);
+  assert.equal(stateAfterIdlePoll.mtimeMs, stateBeforeIdlePoll.mtimeMs);
   const verified = await verifyRecording(options);
   assert.equal(verified.ok, true);
   assert.equal(verified.sourceEvents, 3);
+});
+
+test('상태 저장 판단은 논리 변경과 60초 heartbeat를 구분한다', () => {
+  const previous = emptyState();
+  previous.updatedAt = '2026-09-09T00:00:00.000Z';
+  previous.health.recorder = { status: 'ok', lastReconcileAt: '2026-09-09T00:00:00.000Z', platforms: ['codex'] };
+  const timestampOnly = structuredClone(previous);
+  timestampOnly.health.recorder.lastReconcileAt = '2026-09-09T00:00:01.500Z';
+  assert.equal(shouldPersistState(previous, timestampOnly, Date.parse('2026-09-09T00:00:30.000Z')), false);
+  assert.equal(shouldPersistState(previous, timestampOnly, Date.parse('2026-09-09T00:01:00.000Z')), true);
+  const changed = structuredClone(timestampOnly);
+  changed.sources.example = { size: 1, mtimeMs: 1 };
+  assert.equal(shouldPersistState(previous, changed, Date.parse('2026-09-09T00:00:01.500Z')), true);
 });
 
 test('CLI는 Windows 보강 폴링 범위를 1~2초로 제한한다', () => {

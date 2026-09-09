@@ -12,6 +12,14 @@ terminal:
     mode: proposal-only-before-explicit-approval
     allowed_when: [structured-edit-unavailable, diff-visible, undo-or-equivalent-recovery-verified]
     otherwise: forbidden
+windows_search:
+  known_broken: grep_search-with-drive-letter-absolute-output
+  preferred: run-command-rg-from-workspace-root-with-relative-paths
+  verification: inspect-command-exit-code-and-complete-output
+persistent_command_grants:
+  multiline: forbidden
+  preferred: scoped-single-line-command-or-temporary-script
+  reason: antigravity-grant-parser-rejects-persisted-multiline-command-patterns
 conversation_storage:
   preferred: ide-structured-edit-api-when-reliable
   known_risk: user-reported-persistent-omission-and-hallucinated-miswrite
@@ -30,4 +38,3 @@ conversation_automation:
   preflight: "node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json"
   watcher: fs-watch-plus-1500ms-stat-poll
 instruction_entrypoint: GEMINI.md
-
