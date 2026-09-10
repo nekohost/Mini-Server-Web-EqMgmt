@@ -3,6 +3,7 @@
 // [변경 시 영향도] 이벤트 ID, 시각, 필터 또는 쓰기 규칙을 바꾸면 fixture와 기존 cursor 호환성을 함께 검증해야 한다.
 
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { constants as fsConstants } from 'node:fs';
 import { access, mkdir, open, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -13,6 +14,8 @@ export const STATE_VERSION = 1;
 export const COMPANION_LIMIT_BYTES = 64 * 1024;
 // 대화 이벤트 provenance 주석의 고정 형식은 재시작 후 중복 판정 기준으로 사용한다.
 export const EVENT_MARKER_PREFIX = '<!-- conversation-event:';
+// PID 재사용을 구분할 수 있도록 현재 Node 프로세스의 시작 시각을 모듈 수명 동안 고정한다.
+export const CURRENT_PROCESS_STARTED_AT = new Date(Date.now() - process.uptime() * 1000).toISOString();
 
 // 운영체제별 구분자와 대소문자 차이를 제거하여 workspace 경로를 비교한다.
 export function normalizePathForComparison(value) {
@@ -209,6 +212,49 @@ export function isProcessAlive(pid) {
   }
 }
 
+// recorder 레코드와 운영체제가 보고한 프로세스 시작 시각이 같은 owner를 가리키는지 판정한다.
+export function processStartMatchesRecord(record, observedStartedAt, toleranceMs = 2000) {
+  // 프로세스 시작 시각을 확인할 수 없으면 lock을 빼앗지 않도록 판정을 유보한다.
+  const observedMs = Date.parse(observedStartedAt ?? '');
+  if (!Number.isFinite(observedMs)) return null;
+  // 신규 레코드는 owner 프로세스의 시작 시각 자체를 저장하므로 양방향 허용 오차로 비교한다.
+  const recordedProcessStartMs = Date.parse(record?.processStartedAt ?? '');
+  if (Number.isFinite(recordedProcessStartMs)) return Math.abs(observedMs - recordedProcessStartMs) <= toleranceMs;
+  // 이전 형식에서는 owner가 lock 또는 watcher 레코드보다 먼저 시작했어야 한다는 조건을 사용한다.
+  const legacyReferenceMs = Date.parse(record?.createdAt ?? record?.startedAt ?? '');
+  if (!Number.isFinite(legacyReferenceMs)) return null;
+  // 레코드보다 나중에 시작한 동일 PID는 운영체제가 PID를 재사용한 다른 프로세스다.
+  return observedMs <= legacyReferenceMs + toleranceMs;
+}
+
+// Windows에서 숫자로 검증한 PID의 실제 프로세스 시작 시각을 조회한다.
+function readProcessStartedAt(pid) {
+  // 현재 프로세스는 외부 명령 없이 모듈 시작 시 고정한 값을 사용한다.
+  if (pid === process.pid) return CURRENT_PROCESS_STARTED_AT;
+  // 이 프로젝트의 recorder 운영 환경이 아닌 플랫폼에서는 PID 존재 검사의 fail-safe를 유지한다.
+  if (process.platform !== 'win32') return null;
+  // 숫자 PID만 PowerShell 식에 넣어 shell 해석이나 외부 문자열 삽입 가능성을 차단한다.
+  if (!Number.isInteger(pid) || pid <= 0) return null;
+  const command = `(Get-Process -Id ${pid} -ErrorAction Stop).StartTime.ToUniversalTime().ToString('o')`;
+  const result = spawnSync('powershell.exe', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', command], { encoding: 'utf8', windowsHide: true, timeout: 2000 });
+  // 권한·종료 race·timeout 등으로 조회하지 못하면 stale로 단정하지 않는다.
+  if (result.error || result.status !== 0) return null;
+  const parsedMs = Date.parse(String(result.stdout ?? '').trim());
+  // PowerShell 출력이 예상 형식이 아니면 fail-safe 판정을 위해 null을 반환한다.
+  return Number.isFinite(parsedMs) ? new Date(parsedMs).toISOString() : null;
+}
+
+// PID 존재와 프로세스 시작 시각을 함께 확인하여 PID 재사용을 활성 owner로 오인하지 않는다.
+export function isRecordedProcessAlive(record) {
+  // 레코드의 PID를 정수로 정규화하고 기존 생존 검사로 빠른 부재 판정을 수행한다.
+  const pid = Number(record?.pid);
+  if (!isProcessAlive(pid)) return false;
+  // 살아 있는 PID의 실제 시작 시각을 레코드와 비교한다.
+  const identityMatch = processStartMatchesRecord(record, readProcessStartedAt(pid));
+  // 시작 시각 조회 실패는 active로 취급하여 실제 writer lock을 훔치지 않는다.
+  return identityMatch !== false;
+}
+
 // 짧은 임계구역에 프로젝트 단일 writer lock을 적용한다.
 export async function withWriterLock(lockPath, callback, { waitMs = 0, pollMs = 50 } = {}) {
   // 상태 디렉터리를 lock 생성 전에 준비한다.
@@ -221,7 +267,7 @@ export async function withWriterLock(lockPath, callback, { waitMs = 0, pollMs = 
       const handle = await open(lockPath, 'wx');
       try {
         // PID와 시각을 남겨 stale 판정 근거를 제공한다.
-        await handle.writeFile(JSON.stringify({ pid: process.pid, createdAt: new Date().toISOString() }), 'utf8');
+        await handle.writeFile(JSON.stringify({ pid: process.pid, processStartedAt: CURRENT_PROCESS_STARTED_AT, createdAt: new Date().toISOString() }), 'utf8');
         // 사용자의 writer 작업을 lock 안에서 실행한다.
         return await callback();
       } finally {
@@ -241,7 +287,7 @@ export async function withWriterLock(lockPath, callback, { waitMs = 0, pollMs = 
         throw new Error(`대화 기록 lock을 판독할 수 없습니다: ${lockPath}`);
       }
       // 살아 있는 프로세스의 lock은 빼앗지 않고 호출자가 허용한 시간만 기다린다.
-      if (isProcessAlive(Number(lockInfo.pid))) {
+      if (isRecordedProcessAlive(lockInfo)) {
         if (Date.now() < deadline) {
           await new Promise((resolve) => setTimeout(resolve, pollMs));
           continue;

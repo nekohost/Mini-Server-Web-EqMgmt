@@ -181,6 +181,7 @@ export function getGitFirstAddedDate(filePath, workspaceRoot) {
     const rel = path.relative(workspaceRoot, filePath).replace(/\\/g, '/');
     const out = execFileSync('git', ['log', '--diff-filter=A', '--format=%aI', '-1', '--', rel], {
       cwd: workspaceRoot,
+      env: { ...process.env, GIT_OPTIONAL_LOCKS: '0' },
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'ignore']
     }).trim();

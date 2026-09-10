@@ -29,9 +29,17 @@ export function extractAntigravityUserRequest(content) {
 }
 
 // transcript의 최소 메타데이터를 먼저 읽어 main/worker 관계를 판정한다.
-function inspectConversation(text, conversationId, workspaceRoot) {
+function inspectConversation(text, conversationId, workspaceRoot, fullText = null) {
   // 전체 JSONL을 엄격히 파싱한다.
   const rows = parseJsonLines(text, `Antigravity ${conversationId}`);
+  let fullRows = null;
+  if (typeof fullText === 'string' && fullText.length > 0) {
+    try {
+      fullRows = parseJsonLines(fullText, `Antigravity Full ${conversationId}`);
+    } catch {
+      fullRows = null;
+    }
+  }
   // 실제 사용자 입력 행만 세어 장기 상위 세션과 단일 위임 세션을 구분하는 보조 근거로 사용한다.
   const userRows = rows.filter((row) => row.value?.source === 'USER_EXPLICIT' && row.value?.type === 'USER_INPUT' && row.value?.status === 'DONE');
   // child가 부모에게 보낸 message receipt의 대상 conversation ID를 수집한다.
@@ -48,7 +56,7 @@ function inspectConversation(text, conversationId, workspaceRoot) {
   const workspaceNeedle = normalizePathForComparison(workspaceRoot);
   const workspaceMatch = normalizeTranscriptForSearch(text).includes(workspaceNeedle);
   // 후속 변환에 재사용할 rows와 판정 메타데이터를 반환한다.
-  return { conversationId, rows, userRows, sentTargets, workspaceMatch };
+  return { conversationId, rows, fullRows, userRows, sentTargets, workspaceMatch };
 }
 
 // 상위 대화 또는 확인된 worker의 허용 이벤트를 공통 이벤트로 변환한다.
@@ -72,11 +80,21 @@ function conversationEvents(info, { isSubagent = false, parentThreadId = '' } = 
       continue;
     }
     // 사용자에게 보이는 최종 MODEL 응답은 content가 있는 완료 PLANNER_RESPONSE다.
-    const visibleFinal = item?.source === 'MODEL' && item?.type === 'PLANNER_RESPONSE' && item?.status === 'DONE' && typeof item.content === 'string' && item.content.length > 0 && !item.thinking && (!Array.isArray(item.tool_calls) || item.tool_calls.length === 0);
-    // 도구 계획, thinking과 GENERIC tool output은 제외한다.
+    const visibleFinal = item?.source === 'MODEL' && item?.type === 'PLANNER_RESPONSE' && item?.status === 'DONE' && typeof item.content === 'string' && item.content.length > 0 && (!Array.isArray(item.tool_calls) || item.tool_calls.length === 0);
+    // 도구 계획과 GENERIC tool output은 제외한다.
     if (!visibleFinal) continue;
+    let content = item.content;
+    // 텍스트가 축약된 경우 full transcript의 원본 본문을 사용한다.
+    if (Array.isArray(item?.truncated_fields) && item.truncated_fields.includes('content') && Array.isArray(info.fullRows)) {
+      const fullMatch = info.fullRows[row.lineNumber - 1]?.value?.step_index === item.step_index
+        ? info.fullRows[row.lineNumber - 1]?.value
+        : info.fullRows.find((candidate) => candidate.value?.step_index === item.step_index)?.value;
+      if (typeof fullMatch?.content === 'string' && fullMatch.content.length > 0) {
+        content = fullMatch.content;
+      }
+    }
     // 직접 최종 답변 또는 하위 handoff 원문을 기록한다.
-    events.push(createEvent({ provider: 'antigravity', threadId: info.conversationId, sourceEventId: `step-${item.step_index}`, sourceOrdinal: Number(item.step_index ?? row.lineNumber), occurredAt: item.created_at, actor: 'assistant', channel: isSubagent ? 'subagent_final' : 'final_answer', speaker: isSubagent ? 'Gemini 하위 에이전트 → 부모' : 'Gemini', content: item.content, destination: isSubagent ? 'subagent' : 'main', parentThreadId, agentId, taskName: agentId }));
+    events.push(createEvent({ provider: 'antigravity', threadId: info.conversationId, sourceEventId: `step-${item.step_index}`, sourceOrdinal: Number(item.step_index ?? row.lineNumber), occurredAt: item.created_at, actor: 'assistant', channel: isSubagent ? 'subagent_final' : 'final_answer', speaker: isSubagent ? 'Gemini 하위 에이전트 → 부모' : 'Gemini', content, destination: isSubagent ? 'subagent' : 'main', parentThreadId, agentId, taskName: agentId }));
   }
   // 허용된 이벤트만 반환한다.
   return events;
@@ -97,9 +115,10 @@ async function discoverConversationFiles(roots) {
         // Antigravity가 제공하는 축약 없는 표준 transcript만 사용한다.
         const conversationPath = path.join(root, entry.name);
         const transcriptPath = path.join(conversationPath, '.system_generated', 'logs', 'transcript.jsonl');
+        const transcriptFullPath = path.join(conversationPath, '.system_generated', 'logs', 'transcript_full.jsonl');
         const messagesPath = path.join(conversationPath, '.system_generated', 'messages');
         // 존재 여부는 이후 stat에서 검증한다.
-        discovered.push({ conversationId: entry.name, conversationPath, transcriptPath, messagesPath });
+        discovered.push({ conversationId: entry.name, conversationPath, transcriptPath, transcriptFullPath, messagesPath });
       }
     } catch (error) {
       // 설치 변형 하나가 없으면 다른 루트를 계속 검사한다.
@@ -235,8 +254,16 @@ export async function collectAntigravityEvents({ workspaceRoot, state, homeDirec
       if (!force && !registered && !related && state.sources[candidate.transcriptPath] === fingerprint) continue;
       // UTF-8 transcript 전체를 한 conversation 단위로 읽는다.
       const text = await readFile(candidate.transcriptPath, 'utf8');
+      let fullText = null;
+      if (candidate.transcriptFullPath) {
+        try {
+          fullText = await readFile(candidate.transcriptFullPath, 'utf8');
+        } catch (error) {
+          if (error.code !== 'ENOENT') errors.push(`${candidate.transcriptFullPath}: ${error.message}`);
+        }
+      }
       // workspace 포함 여부와 parent receipt를 검사한다.
-      inspected.push(inspectConversation(text, candidate.conversationId, workspaceRoot));
+      inspected.push(inspectConversation(text, candidate.conversationId, workspaceRoot, fullText));
     } catch (error) {
       // 파일 부재는 discover와 실제 생성 사이 race일 수 있으므로 다음 polling에서 재시도한다.
       delete snapshots[candidate.transcriptPath];

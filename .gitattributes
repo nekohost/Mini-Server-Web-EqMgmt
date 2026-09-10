@@ -1,0 +1,8 @@
+# Git 재체크아웃이 거버넌스 원본 바이트 hash를 플랫폼별 줄바꿈으로 바꾸지 않도록 LF를 고정한다.
+.gitattributes text eol=lf
+Rule.md text eol=lf
+AGENTS.md text eol=lf
+GEMINI.md text eol=lf
+CLAUDE.md text eol=lf
+CHATGPT.md text eol=lf
+.agent-governance/** text eol=lf

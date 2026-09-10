@@ -12,6 +12,11 @@ terminal:
     mode: proposal-only-before-explicit-approval
     allowed_when: [structured-edit-unavailable, diff-visible, undo-or-equivalent-recovery-verified]
     otherwise: forbidden
+git_read_only:
+  preferred: "node .agent-governance/tooling/git-readonly.mjs -- <subcommand> <args>"
+  required_environment: { GIT_OPTIONAL_LOCKS: "0" }
+  direct_status_or_diff_without_optional_lock: forbidden
+  scope: [status, diff, log, show, rev-parse, ls-files, fsck, check-attr, check-ignore, for-each-ref]
 conversation_storage:
   preferred: available-structured-edit-tool-when-reliable
   terminal_fallback: user-approval-after-confirmed-omission-or-miswrite
@@ -23,4 +28,10 @@ conversation_export:
 conversation_automation:
   status: unsupported
   activation_condition: verified-source-schema-fixture-and-shadow-run
+scope:
+  default_owner: project-task-when-active
+  external_reference: owner-unchanged
+  external_execution: owner-unchanged-when-subordinate-to-project-task
+  foreign_governed_write: nested-handoff-required
+  full_switch: explicit-user-intent-required
 instruction_entrypoint: CLAUDE.md

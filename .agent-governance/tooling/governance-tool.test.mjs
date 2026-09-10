@@ -38,16 +38,17 @@ const passed = [];
 const validation = runSuccess(['validate']);
 // 전체 검증 상태가 pass인지 확인한다.
 assert.equal(validation.status, 'pass');
-// manifest와 human map의 노드 수가 모두 41개인지 확인한다.
-assert.deepEqual(validation.counts, { manifestNodes: 41, humanMapNodes: 41, errors: 0, warnings: 0 });
-// 정규 YAML 파서가 섹션 기준선을 포함한 10개 제어 파일을 실제 파싱했는지 확인한다.
-assert.equal(validation.parser.filesParsed, 10);
+// manifest와 human map의 노드 수가 모두 42개인지 확인한다.
+assert.deepEqual(validation.counts, { manifestNodes: 42, humanMapNodes: 42, errors: 0, warnings: 0 });
+// 정규 YAML 파서가 섹션 기준선을 포함한 11개 제어 파일을 실제 파싱했는지 확인한다.
+assert.equal(validation.parser.filesParsed, 11);
 // 선언·잠금·설치 버전이 모두 yaml 2.9.0으로 일치하는지 확인한다.
 assert.equal(validation.parser.configuredVersion, '2.9.0');
 // 잠금 버전의 일치를 확인한다.
 assert.equal(validation.parser.lockedVersion, '2.9.0');
 // 설치 버전의 일치를 확인한다.
 assert.equal(validation.parser.installedVersion, '2.9.0');
+assert.ok(validation.platformBootstrap.files.includes('CHATGPT.md'));
 // 통과 목록에 검증 시나리오를 추가한다.
 passed.push('validate parses YAML/front matter and checks bidirectional invariants');
 
@@ -59,8 +60,19 @@ assert.ok(catalog.knownIntents.includes('edit-rule'));
 assert.ok(catalog.routes.some((route) => route.id === 'schema-change'));
 // 프론트엔드 route 존재를 독립적으로 확인한다.
 assert.ok(catalog.routes.some((route) => route.id === 'frontend-change'));
+assert.ok(catalog.routes.some((route) => route.id === 'scope-boundary'));
 // 통과 목록에 route 카탈로그 시나리오를 추가한다.
 passed.push('catalog exposes every supported intent and path route');
+
+const normalScopeContext = runSuccess(['context', '--intent', 'question']);
+assert.ok(normalScopeContext.nodes.includes('context.scope-boundary'));
+passed.push('project context always loads the scope-boundary node');
+
+const externalReferenceContext = runSuccess(['context', '--intent', 'question', '--intent', 'external-reference', '--path', 'D:/Lab/Hermes-Command-Builder']);
+assert.ok(externalReferenceContext.matchedRoutes.includes('scope-boundary'));
+const unclassifiedExternalPath = runFailure(['context', '--intent', 'question', '--path', 'D:/Lab/Hermes-Command-Builder']);
+assert.match(unclassifiedExternalPath.error, /scope intent/);
+passed.push('external paths require an explicit scope intent and route safely');
 
 // 기준선과 현재 Rule이 동기화 상태인지 먼저 확인한다.
 const syncStatus = runSuccess(['sync-status']);

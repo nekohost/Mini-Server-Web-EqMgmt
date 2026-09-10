@@ -5,6 +5,14 @@ rules:
   - { id: RULE-1.1, node: context.project, summary: Flask와 REST API 학습·운영 목적 }
   - { id: RULE-1.2, node: context.deployment-topology, summary: Windows에서 GitHub를 거쳐 Linux Lite로 배포 }
   - { id: RULE-1.3, node: engineering.code-comments, summary: 상세 주석과 의존성 여파 안내 }
+  - { id: RULE-1.4, node: context.scope-boundary, summary: 프로젝트 작업의 owner reference execution 경계 }
+  - { id: RULE-1.4.1, node: context.scope-boundary, summary: 사용자 의도와 작업 연속성 기반 owner scope }
+  - { id: RULE-1.4.2, node: context.scope-boundary, summary: 외부 read-only reference는 owner 유지 }
+  - { id: RULE-1.4.3, node: context.scope-boundary, summary: 프로젝트 지원 외부 execution도 owner 유지 }
+  - { id: RULE-1.4.4, node: context.scope-boundary, summary: foreign governed workspace read와 write 구분 }
+  - { id: RULE-1.4.5, node: context.scope-boundary, summary: foreign write nested handoff와 대상 governance 우선 }
+  - { id: RULE-1.4.6, node: context.scope-boundary, summary: 명시적 full switch와 부모 owner 복귀 }
+  - { id: RULE-1.4.7, node: context.scope-boundary, summary: 플랫폼 도구의 scope 중립성과 binding 차이 }
   - { id: RULE-2.1, node: context.stack, summary: Python 3과 Flask }
   - { id: RULE-2.2, node: context.stack, summary: SQLite equipment.db }
   - { id: RULE-2.3, node: context.stack, summary: DBeaver GUI }
@@ -63,6 +71,7 @@ rules:
   - { id: RULE-6.2.10, node: records.conversation-automation, summary: 기록기 명령과 단일 writer lifecycle }
   - { id: RULE-6.2.11, node: records.conversation-automation, summary: 하위 작업 receipt와 64KiB companion }
   - { id: RULE-6.2.12, node: records.conversation-automation, summary: Codex Antigravity 우선 활성화와 Claude 보류 }
+  - { id: RULE-6.2.13, node: context.scope-boundary, summary: owner 기반 scope-aware 기록과 adapter 한계 }
   - { id: RULE-6.3.1, node: records.conversation-integrity, summary: 사용자 대화 헤더 형식 }
   - { id: RULE-6.3.2, node: records.conversation-integrity, summary: 적용 변경과 제안 구분 }
   - { id: RULE-6.3.3, node: records.conversation-integrity, summary: 제안 환경 대상 선행조건 기록 }
@@ -76,6 +85,8 @@ rules:
   - { id: RULE-7.1.2, node: workflow.proposals-roadmap, summary: 승인 로드맵과 미구현 목록 병기 }
   - { id: RULE-7.2.1, node: workflow.plans, summary: 작업 전 기획서 작성 }
   - { id: RULE-7.2.2, node: workflow.plans, summary: Plans 날짜별 영구 기록 }
+  - { id: RULE-7.2.3, node: workflow.plans, summary: Task 독립 파일과 work_id 연결 }
+  - { id: RULE-7.2.4, node: workflow.plans, summary: Reports 날짜별 영구 기록과 work_id 연결 }
   - { id: RULE-7.3.1, node: operations.staging, summary: 운영 수정 전 Staging 사용 }
   - { id: RULE-7.3.2, node: operations.staging, summary: Staging 모의 코드 검증 }
   - { id: RULE-7.3.3, node: workflow.staging-merge, summary: 승인 병합 후 Staging 정리 }

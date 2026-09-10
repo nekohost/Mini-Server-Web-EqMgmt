@@ -4,6 +4,7 @@ default_load:
   - core.precedence
   - core.task-modes
   - context.project
+  - context.scope-boundary
   - records.conversation-automation
 rules:
   - id: human-rule-maintenance
@@ -126,6 +127,16 @@ rules:
       - validation.phase.06-rollback
       - validation.phase.07-human-error
     approval: explicit-confirmation
+  - id: scope-boundary
+    match:
+      intents: [scope-check, external-reference, inspect-external, external-execution, support-project-environment, nested-handoff, mutate-foreign-workspace, switch-scope]
+    load:
+      - context.scope-boundary
+      - workflow.multi-agent-handoff
+      - validation.kernel
+      - validation.phase.01-governance
+      - validation.phase.06-rollback
+      - validation.phase.08-ai-meta
   - id: multi-agent-handoff
     match:
       intents: [handoff, resume-plan, continue-work]
@@ -164,5 +175,7 @@ routing_policy:
   context_loader: tooling/governance-tool.mjs
   require_all_supplied_intents_matched: true
   require_all_supplied_paths_matched: true
+  external_paths_require_scope_intent: true
+  external_path_scope_intents: [scope-check, external-reference, inspect-external, external-execution, support-project-environment, nested-handoff, mutate-foreign-workspace, switch-scope]
 
 

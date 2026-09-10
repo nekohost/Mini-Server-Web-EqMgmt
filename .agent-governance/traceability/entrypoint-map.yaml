@@ -5,6 +5,10 @@ entrypoints:
   - { id: ENTRY-CODEX.RECORDER, node: records.conversation-automation, summary: Codex 일반 작업 전 ensure와 재조정 }
   - { id: ENTRY-GEMINI.RECORDER, node: records.conversation-automation, summary: Antigravity 일반 작업 전 ensure와 재조정 }
   - { id: ENTRY-CLAUDE.RECORDER, node: records.conversation-automation, summary: Claude 미지원 상태와 후속 활성화 조건 }
+  - { id: ENTRY-CODEX.SCOPE, node: context.scope-boundary, summary: project-bound Codex owner와 외부 reference/execution 경계 }
+  - { id: ENTRY-GEMINI.SCOPE, node: context.scope-boundary, summary: project-bound Antigravity owner와 외부 reference/execution 경계 }
+  - { id: ENTRY-CLAUDE.SCOPE, node: context.scope-boundary, summary: Claude 프로젝트 owner와 cross-scope 경계 }
+  - { id: ENTRY-CHATGPT.SCOPE, node: context.scope-boundary, summary: ChatGPT Remote Desktop의 dynamic owner와 cross-scope 경계 }
   - { id: ENTRY-GEMINI.1, node: core.precedence, summary: 매 행위 전 적용 규칙 읽기 }
   - { id: ENTRY-GEMINI.2, node: core.precedence, summary: 실제 행위 직전 규칙 적합성 판단 }
   - { id: ENTRY-GEMINI.3, node: core.task-modes, summary: 규칙 충돌 시 실행 중지와 보고 }

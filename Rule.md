@@ -31,6 +31,53 @@ Windows PC에서 소스코드 작성과 Git Push를 수행하고, GitHub를 거�
 
 ---
 
+### 1-4. 프로젝트 작업의 Scope 경계
+
+Mini-Server 작업은 저장소 경로만이 아니라 사용자가 부여한 작업 목적과 연속성을 기준으로 owner를 판정합니다. 외부 참조·외부 실행·다른 governed workspace 위임을 서로 구분합니다.
+
+> `[규칙 ID: RULE-1.4 | 노드: context.scope-boundary | 경로: .agent-governance/context/scope-boundary.md]`
+
+#### 1-4-1. Owner scope
+
+사용자가 Mini-Server 프로젝트 작업을 지시했거나 기존 Mini-Server 작업을 계속하고 있다면 이 프로젝트가 부모 작업의 owner입니다. owner는 작업 목적·승인·기록·기본 governance를 소유하며 단순한 경로 또는 도구 변화로 바뀌지 않습니다.
+
+> `[규칙 ID: RULE-1.4.1 | 노드: context.scope-boundary | 경로: .agent-governance/context/scope-boundary.md]`
+
+#### 1-4-2. Reference scope
+
+프로젝트 문제 해결을 위해 다른 폴더·저장소·OS·IDE·Git·네트워크 상태·외부 자료를 읽거나 관찰하는 것은 reference scope입니다. read-only 참조 대상이 프로젝트 밖에 있다는 이유만으로 General 또는 다른 프로젝트로 owner를 전환하지 않습니다.
+
+> `[규칙 ID: RULE-1.4.2 | 노드: context.scope-boundary | 경로: .agent-governance/context/scope-boundary.md]`
+
+#### 1-4-3. Execution scope
+
+프로젝트를 계속 진행하기 위해 필요한 PC 전역 설정, VS Code·Git·extension·네트워크·도구 환경 같은 비독립 execution target은 Mini-Server owner를 유지한 채 이 프로젝트의 승인·안전 규칙과 플랫폼 capability에 따라 조치할 수 있습니다. 실행 위치가 저장소 밖이라는 사실만으로 General 작업이 되지 않습니다.
+
+> `[규칙 ID: RULE-1.4.3 | 주 노드: context.scope-boundary | 보조 노드: core.precedence | 경로: .agent-governance/context/scope-boundary.md]`
+
+#### 1-4-4. Foreign governed workspace의 읽기와 쓰기
+
+다른 `Rule.md`와 governance를 가진 workspace를 읽기만 하는 경우 reference로 유지합니다. 그 workspace 내부의 실제 변경이 필요하면 부모 owner는 Mini-Server로 유지하되 대상 변경만 nested handoff subtask로 분리합니다.
+
+> `[규칙 ID: RULE-1.4.4 | 노드: context.scope-boundary | 경로: .agent-governance/context/scope-boundary.md]`
+#### 1-4-5. Nested handoff의 권한
+
+nested handoff에서는 대상 workspace의 bootstrap과 governance를 읽고 그 workspace 내부 변경에는 대상 governance를 적용합니다. Mini-Server governance는 부모 작업의 목적·승인 범위를 유지하지만 대상 governance를 완화할 수 없습니다. 두 규칙을 함께 만족할 수 없으면 충돌 지점과 필요한 사용자 결정을 보고합니다.
+
+> `[규칙 ID: RULE-1.4.5 | 주 노드: context.scope-boundary | 보조 노드: core.precedence | 경로: .agent-governance/context/scope-boundary.md]`
+
+#### 1-4-6. Full scope switch와 복귀
+
+사용자가 Mini-Server 작업과 독립된 새 작업을 지시하거나 owner 전환 의도를 명확히 표시한 경우에만 General 또는 다른 프로젝트로 full scope switch합니다. reference 또는 nested handoff가 끝나면 별도 full switch 지시가 없는 한 Mini-Server 부모 owner로 복귀합니다.
+
+> `[규칙 ID: RULE-1.4.6 | 노드: context.scope-boundary | 경로: .agent-governance/context/scope-boundary.md]`
+
+#### 1-4-7. 플랫폼과 도구의 scope 중립성
+
+VS Code의 Codex·Antigravity처럼 프로젝트 workspace에서 시작된 세션은 Mini-Server를 기본 owner로 취급할 수 있습니다. ChatGPT + Remote Desktop Commander처럼 여러 workspace를 다룰 수 있는 환경은 사용자 의도와 현재 작업 연속성으로 active owner를 추적합니다. 어떤 경우에도 사용 도구나 Remote Desktop 접근 자체만으로 General 전환을 판정하지 않습니다.
+
+> `[규칙 ID: RULE-1.4.7 | 노드: context.scope-boundary | 경로: .agent-governance/context/scope-boundary.md]`
+
 ## 2. 기술 스택 및 네트워크 정보
 
 ### 2-1. Language & Backend
@@ -346,6 +393,8 @@ AI가 제안한 코드, 설정 예시, 실행 명령과 중간 안내도 실제 
 
 대화 블록의 KST 밀리초 헤더는 플랫폼 원본 이벤트에 저장된 실제 발생 시각을 검증한 뒤 `Asia/Seoul`로 변환해 사용합니다. 세션 파일의 폴더 날짜, 파일 수정 시각이나 기록기 실행 시각을 발언 시각으로 대신하지 않습니다. 원본에 offset이 없는 등 정확한 시각을 확정할 수 없으면 임의 시각을 만들지 않고 해당 이벤트를 오류 상태로 격리합니다.
 
+다만 6-1-7 조항은 VSCode의 Codex나 Antigravity, Claude Code 처럼 정확한 시간을 알 수 있는 경우에 강제된다. ChatGPT + Remote Desktop Commander 와 같이 정확한 source timestamp 가 제공되지 않는 경우에는 해당 대화 턴의 가장 마지막 도구 호출시간이나 알 수 있는 가장 마지막 답변 시간으로 갈음한다.
+
 > `[규칙 ID: RULE-6.1.7 | 노드: records.timestamps | 경로: .agent-governance/records/timestamps.md]`
 
 #### 6-1-8. Windows UTF-8 보호
@@ -432,7 +481,7 @@ Chat 반영과 provenance 확인이 완료된 뒤에만 원본 fingerprint·curs
 
 #### 6-2-9. 실패 상태와 작업 차단
 
-어댑터 파싱, Chat 쓰기 또는 receipt 저장이 실패하면 해당 플랫폼 cursor를 전진시키지 않고 `status --json`과 오류 로그에 원문을 제외한 실패 범위를 기록합니다. preflight 재시도 뒤에도 복구되지 않으면 일반 작업을 시작하지 않고 마지막 성공 상태와 원인을 보고합니다.
+어댑터 파싱, Chat 쓰기 또는 receipt 저장이 실패하면 해당 플랫폼 cursor를 전진시키지 않고 `status --json`과 오류 로그에 원문을 제외한 실패 범위를 기록합니다. preflight 재시도 뒤에도 복구되지 않으면 원래 요청의 일반 작업을 시작하지 않고 마지막 성공 상태와 원인을 보고합니다. 다만 실패 원인이 recorder 자체, Chat 저장·잠금·원자적 교체, 또는 이 preflight를 구성하는 Rule·노드에 있고 사용자가 복구를 명시 승인했거나 플랫폼 capability에 검증된 recovery 경로가 정의되어 있으면 recorder 진단·증거 보존·백업·복구·관련 Rule/노드 검토 및 그 기록에 필요한 최소 작업만 허용합니다. 이 예외는 기능 구현·운영 병합·무관한 일반 파일 변경으로 확대하지 않으며, 복구 후 `conversation-recorder ensure`와 `governance-tool validate`가 성공하기 전에는 원래 일반 작업으로 복귀하지 않습니다.
 
 > `[규칙 ID: RULE-6.2.9 | 노드: records.conversation-automation | 경로: .agent-governance/records/conversation-automation.md]`
 
@@ -453,6 +502,11 @@ Chat 반영과 provenance 확인이 완료된 뒤에만 원본 fingerprint·curs
 1차 자동 기록은 실제 로컬 원본과 fixture가 검증된 Codex와 Antigravity에 활성화합니다. Antigravity는 `<appDataDir>/brain/<conversation-id>`의 workspace 연계와 부모 mailbox의 sender·recipient 메타데이터를 함께 사용합니다. Claude는 별도 capability 검증 전까지 `unsupported`를 반환하며 성공으로 보고하지 않습니다.
 
 > `[규칙 ID: RULE-6.2.12 | 노드: records.conversation-automation | 경로: .agent-governance/records/conversation-automation.md]`
+#### 6-2-13. Scope-aware 기록 경계
+
+프로젝트 owner 상태에서 수행한 외부 reference와 비독립 execution은 Mini-Server 작업 기록에 포함할 수 있습니다. full scope switch 이후의 독립 General·다른 프로젝트 턴은 Mini-Server Chat의 소유 대상이 아니며, nested handoff의 상세 기록은 대상 scope가 소유하고 부모 프로젝트에는 최소 receipt만 남깁니다. 현재 플랫폼 원본이 per-turn owner 신호를 제공하지 않으면 recorder가 의미 추정으로 원문을 삭제·이동하지 않고 capability 제한을 보고하며, full switch는 별도 owner context로 명시적으로 handoff하는 방식을 우선합니다.
+
+> `[규칙 ID: RULE-6.2.13 | 주 노드: context.scope-boundary | 보조 노드: records.conversation-automation, records.conversation-storage | 경로: .agent-governance/context/scope-boundary.md]`
 
 ### 6-3. 기록 포맷과 가독성
 

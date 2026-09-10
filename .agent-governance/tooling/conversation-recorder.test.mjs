@@ -10,7 +10,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 import { collectAntigravityEvents } from './conversation-recorder/antigravity.mjs';
 import { parseCodexTranscript } from './conversation-recorder/codex.mjs';
-import { COMPANION_LIMIT_BYTES, createEvent, emptyState, projectEvents, redactSecrets, splitCompanionBlocks, toKstParts, withWriterLock } from './conversation-recorder/core.mjs';
+import { COMPANION_LIMIT_BYTES, createEvent, emptyState, processStartMatchesRecord, projectEvents, redactSecrets, splitCompanionBlocks, toKstParts, withWriterLock } from './conversation-recorder/core.mjs';
 import { ensureWatcher, parseArguments, reconcileOnce, recorderStatus, shouldPersistState, verifyRecording } from './conversation-recorder.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -120,6 +120,31 @@ test('Antigravity workspace registry는 새 직접 conversation 첫 턴을 식�
   assert.equal(result.events[0].channel, 'user');
 });
 
+test('Antigravity thinking 동반 최종 답변과 축약 원문 복원을 지원한다', async (context) => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'conversation-recorder-antigravity-thinking-'));
+  context.after(() => rm(temporary, { recursive: true, force: true }));
+  const conversationId = '44444444-4444-4444-4444-444444444444';
+  const brain = path.join(temporary, '.gemini', 'antigravity', 'brain');
+  const logs = path.join(brain, conversationId, '.system_generated', 'logs');
+  const cache = path.join(temporary, '.gemini', 'antigravity-cli', 'cache');
+  await Promise.all([mkdir(logs, { recursive: true }), mkdir(cache, { recursive: true })]);
+  const userTurn = JSON.stringify({ source: 'USER_EXPLICIT', type: 'USER_INPUT', status: 'DONE', step_index: 1, created_at: '2026-09-08T02:00:00.000Z', content: '<USER_REQUEST>\n요청 본문\n</USER_REQUEST>' });
+  const modelCompact = JSON.stringify({ source: 'MODEL', type: 'PLANNER_RESPONSE', status: 'DONE', step_index: 2, created_at: '2026-09-08T02:00:01.000Z', thinking: '내부 추론 과정', content: '축약된 답변...', tool_calls: [], truncated_fields: ['content'] });
+  const modelFull = JSON.stringify({ source: 'MODEL', type: 'PLANNER_RESPONSE', status: 'DONE', step_index: 2, created_at: '2026-09-08T02:00:01.000Z', thinking: '내부 추론 과정', content: '축약되지 않은 완전한 원본 최종 답변 본문', tool_calls: [] });
+  await Promise.all([
+    writeFile(path.join(logs, 'transcript.jsonl'), `${userTurn}\n${modelCompact}\n`, 'utf8'),
+    writeFile(path.join(logs, 'transcript_full.jsonl'), `${userTurn}\n${modelFull}\n`, 'utf8'),
+    writeFile(path.join(cache, 'conversation_metadata.json'), JSON.stringify({ [FIXTURE_WORKSPACE]: conversationId }), 'utf8'),
+  ]);
+  const result = await collectAntigravityEvents({ workspaceRoot: FIXTURE_WORKSPACE, state: emptyState(), homeDirectory: temporary, roots: [brain], force: true });
+  assert.equal(result.status, 'ok');
+  assert.equal(result.events.length, 2);
+  assert.equal(result.events[0].channel, 'user');
+  assert.equal(result.events[1].channel, 'final_answer');
+  assert.equal(result.events[1].content, '축약되지 않은 완전한 원본 최종 답변 본문');
+  assert.ok(!result.events[1].content.includes('내부 추론 과정'));
+});
+
 test('writer lock은 동시 writer와 살아 있는 PID lock을 거부한다', async (context) => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'conversation-recorder-lock-'));
   context.after(() => rm(temporary, { recursive: true, force: true }));
@@ -130,6 +155,29 @@ test('writer lock은 동시 writer와 살아 있는 PID lock을 거부한다', a
   await assert.rejects(() => withWriterLock(lockPath, async () => {}), /writer가 실행 중/);
   release();
   await held;
+});
+
+test('writer lock은 살아 있는 재사용 PID의 이전 형식 stale lock을 회수한다', async (context) => {
+  const temporary = await mkdtemp(path.join(os.tmpdir(), 'conversation-recorder-reused-pid-lock-'));
+  context.after(() => rm(temporary, { recursive: true, force: true }));
+  const lockPath = path.join(temporary, 'writer.lock');
+  await writeFile(lockPath, JSON.stringify({ pid: process.pid, createdAt: '2000-01-01T00:00:00.000Z' }), 'utf8');
+  let entered = false;
+  await withWriterLock(lockPath, async () => { entered = true; });
+  assert.equal(entered, true);
+  await assert.rejects(() => stat(lockPath), { code: 'ENOENT' });
+});
+
+test('프로세스 시작 시각 판정은 신규 identity와 이전 레코드의 PID 재사용을 구분한다', () => {
+  assert.equal(processStartMatchesRecord(
+    { processStartedAt: '2026-09-09T10:00:00.000Z', createdAt: '2026-09-09T10:01:00.000Z' },
+    '2026-09-09T10:00:00.500Z',
+  ), true);
+  assert.equal(processStartMatchesRecord(
+    { pid: 20216, createdAt: '2026-09-09T10:19:51.344Z' },
+    '2026-09-09T10:22:17.368Z',
+  ), false);
+  assert.equal(processStartMatchesRecord({ pid: 20216 }, null), null);
 });
 
 test('손상 JSONL은 cursor 전진 대신 명시적 오류가 된다', () => {
@@ -216,4 +264,16 @@ test('ensure는 watcher 하나만 시작하고 다음 호출에서 같은 PID를
   assert.equal(second.watcher.pid, watcherPid);
   const status = await recorderStatus(options);
   assert.equal(status.watcher.running, true);
+});
+
+test('status는 살아 있는 재사용 PID의 오래된 watcher 레코드를 실행 중으로 표시하지 않는다', async (context) => {
+  const workspace = await mkdtemp(path.join(os.tmpdir(), 'conversation-recorder-reused-pid-status-'));
+  context.after(() => rm(workspace, { recursive: true, force: true }));
+  const stateRoot = path.join(workspace, 'Chat', '.state');
+  await mkdir(stateRoot, { recursive: true });
+  await writeFile(path.join(stateRoot, 'recorder.pid.json'), JSON.stringify({ pid: process.pid, startedAt: '2000-01-01T00:00:00.000Z', intervalMs: 1500 }), 'utf8');
+  const options = { workspaceRoot: workspace, chatRoot: path.join(workspace, 'Chat'), homeDirectory: path.join(workspace, 'home'), platforms: ['codex'], dryRun: false, force: false, intervalMs: 1500 };
+  const status = await recorderStatus(options);
+  assert.equal(status.watcher.running, false);
+  assert.equal(status.watcher.pid, null);
 });

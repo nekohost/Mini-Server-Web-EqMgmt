@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { collectAntigravityEvents, defaultAntigravityRoots } from './conversation-recorder/antigravity.mjs';
 import { collectClaudeEvents } from './conversation-recorder/claude.mjs';
 import { collectCodexEvents } from './conversation-recorder/codex.mjs';
-import { emptyState, eventAlreadyRecorded, isProcessAlive, normalizeNewlines, projectEvents, readState, withWriterLock, writeFileAtomic, writeState } from './conversation-recorder/core.mjs';
+import { CURRENT_PROCESS_STARTED_AT, emptyState, eventAlreadyRecorded, isRecordedProcessAlive, normalizeNewlines, projectEvents, readState, withWriterLock, writeFileAtomic, writeState } from './conversation-recorder/core.mjs';
 
 const CLI_PATH = fileURLToPath(import.meta.url);
 const DEFAULT_POLL_INTERVAL_MS = 1500;
@@ -209,7 +209,7 @@ export async function recorderStatus(options) {
   const state = await readState(paths.statePath);
   let pidInfo = null;
   try { pidInfo = JSON.parse(await readFile(paths.pidPath, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-  const alive = Boolean(pidInfo?.pid && isProcessAlive(Number(pidInfo.pid)));
+  const alive = Boolean(pidInfo?.pid && isRecordedProcessAlive(pidInfo));
   return { command: 'status', workspace: options.workspaceRoot, watcher: { running: alive, pid: alive ? Number(pidInfo.pid) : null, startedAt: alive ? pidInfo.startedAt : null, intervalMs: alive ? pidInfo.intervalMs : null }, state: { updatedAt: state.updatedAt, health: state.health, receipts: Object.keys(state.receipts).length, trackedSources: Object.keys(state.sources).length, registeredConversations: state.registeredConversations } };
 }
 
@@ -221,7 +221,7 @@ export async function ensureWatcher(options) {
   const watcher = await withWriterLock(paths.startLockPath, async () => {
     let current = null;
     try { current = JSON.parse(await readFile(paths.pidPath, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-    if (current?.pid && isProcessAlive(Number(current.pid))) return { started: false, pid: Number(current.pid) };
+    if (current?.pid && isRecordedProcessAlive(current)) return { started: false, pid: Number(current.pid) };
     // 현재 node 실행 파일과 고정된 절대 경로를 사용해 shell 해석을 거치지 않는다.
     const args = [CLI_PATH, 'watch', '--workspace', options.workspaceRoot, '--chat-root', options.chatRoot, '--home', options.homeDirectory, '--platform', options.platforms.join(','), '--interval-ms', String(options.intervalMs), '--json'];
     const child = spawn(process.execPath, args, { detached: true, stdio: 'ignore', windowsHide: true });
@@ -238,8 +238,8 @@ export async function runWatcher(options) {
   await mkdir(paths.stateRoot, { recursive: true });
   let current = null;
   try { current = JSON.parse(await readFile(paths.pidPath, 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
-  if (current?.pid && Number(current.pid) !== process.pid && isProcessAlive(Number(current.pid))) return { command: 'watch', running: false, reason: `watcher가 이미 실행 중입니다. PID=${current.pid}` };
-  await writeFileAtomic(paths.pidPath, `${JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString(), intervalMs: options.intervalMs, platforms: options.platforms }, null, 2)}\n`);
+  if (current?.pid && Number(current.pid) !== process.pid && isRecordedProcessAlive(current)) return { command: 'watch', running: false, reason: `watcher가 이미 실행 중입니다. PID=${current.pid}` };
+  await writeFileAtomic(paths.pidPath, `${JSON.stringify({ pid: process.pid, processStartedAt: CURRENT_PROCESS_STARTED_AT, startedAt: new Date().toISOString(), intervalMs: options.intervalMs, platforms: options.platforms }, null, 2)}\n`);
   let wakeRequested = true;
   let wakeResolver = null;
   let stopping = false;

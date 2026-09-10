@@ -1,4 +1,5 @@
 {
+  "antigravity.enableInlineDiff": false,
   "files.watcherExclude": {
     "**/Chat/.state/**": true
   }

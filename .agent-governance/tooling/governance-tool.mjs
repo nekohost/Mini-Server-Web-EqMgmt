@@ -27,6 +27,8 @@ const MANIFEST_FILE = path.join(GOVERNANCE_ROOT, 'manifest.yaml');
 const ROUTER_FILE = path.join(GOVERNANCE_ROOT, 'router.yaml');
 // 양방향 사용자 Rule 추적성 원장의 고정 경로를 관리한다.
 const HUMAN_MAP_FILE = path.join(GOVERNANCE_ROOT, 'traceability', 'human-rule-map.yaml');
+const RULE_MAP_FILE = path.join(GOVERNANCE_ROOT, 'traceability', 'rule-map.yaml');
+const ENTRYPOINT_MAP_FILE = path.join(GOVERNANCE_ROOT, 'traceability', 'entrypoint-map.yaml');
 // 승인된 Rule 섹션별 기준선의 고정 경로를 관리한다.
 const RULE_SECTION_BASELINE_FILE = path.join(GOVERNANCE_ROOT, 'traceability', 'rule-section-baseline.yaml');
 // 거버넌스 도구 의존성 선언 파일 경로를 관리한다.
@@ -358,6 +360,8 @@ function loadGovernance() {
   const router = parseYamlFile(ROUTER_FILE);
   // human map을 정규 YAML로 파싱한다.
   const humanMap = parseYamlFile(HUMAN_MAP_FILE);
+  const ruleMap = parseYamlFile(RULE_MAP_FILE);
+  const entrypointMap = parseYamlFile(ENTRYPOINT_MAP_FILE);
   // 노드 ID별 파싱 결과를 저장한다.
   const nodes = new Map();
   // manifest 객체 삽입 순서대로 각 노드를 로드한다.
@@ -370,7 +374,7 @@ function loadGovernance() {
     nodes.set(nodeId, { id: nodeId, relativePath, filePath, ...parsed });
   }
   // 공통 로딩 결과를 반환한다.
-  return { manifest, router, humanMap, nodes };
+  return { manifest, router, humanMap, ruleMap, entrypointMap, nodes };
 }
 
 // 선택 노드와 그 모든 부모를 집합에 추가한다.
@@ -515,7 +519,17 @@ function createContext(governance, options) {
       }
     }
   }
-  // route가 하나도 없으면 기본 노드만으로 성공 처리하지 않는다.
+  // 프로젝트 루트 밖의 실제 path는 owner 경계 분류 없이 일반 intent가 암묵적으로 소비하지 못하게 한다.
+  if (governance.router.routing_policy?.external_paths_require_scope_intent) {
+    const scopeIntents = new Set(arrayValue(governance.router.routing_policy?.external_path_scope_intents).map(String));
+    const hasScopeIntent = options.intents.some((intent) => scopeIntents.has(intent));
+    const externalPaths = options.paths.filter((candidate) => {
+      const resolved = path.resolve(PROJECT_ROOT, candidate);
+      const relative = path.relative(PROJECT_ROOT, resolved);
+      return relative.startsWith('..') || path.isAbsolute(relative);
+    });
+    if (externalPaths.length > 0 && !hasScopeIntent) errors.push(`외부 path에는 scope intent가 필요합니다: ${externalPaths.join(', ')}`);
+  }  // route가 하나도 없으면 기본 노드만으로 성공 처리하지 않는다.
   if (matchedRoutes.length === 0) errors.push('일치하는 route가 없습니다.');
   // 정책이 요구하면 모든 supplied intent가 적어도 하나의 intent route에 일치해야 한다.
   if (governance.router.routing_policy?.require_all_supplied_intents_matched) {
@@ -761,7 +775,23 @@ function validateGovernance(governance, options = {}) {
     // 각 manifest 노드는 human map에 정확히 한 번 존재해야 한다.
     if (!mappedIds.has(nodeId)) errors.push(`human map 누락 노드: ${nodeId}`);
   }
-  // 모든 노드에 대해 부모 순환을 실제 탐색한다.
+  // rule-map과 entrypoint-map의 ID 집합을 node front matter와 양방향으로 대조한다.
+  const ruleMapIds = new Set(arrayValue(governance.ruleMap?.rules).map((item) => String(item.id)));
+  const entrypointMapIds = new Set(arrayValue(governance.entrypointMap?.entrypoints).map((item) => String(item.id)));
+  const nodeRuleIds = new Set();
+  const nodeEntrypointIds = new Set();
+  for (const node of governance.nodes.values()) {
+    for (const ruleId of arrayValue(node.frontMatter.source_rules).map(String)) {
+      nodeRuleIds.add(ruleId);
+      if (!ruleMapIds.has(ruleId)) errors.push(`rule-map에 없는 source_rule: ${node.id} -> ${ruleId}`);
+    }
+    for (const entryId of arrayValue(node.frontMatter.source_entrypoints).map(String)) {
+      nodeEntrypointIds.add(entryId);
+      if (!entrypointMapIds.has(entryId)) errors.push(`entrypoint-map에 없는 source_entrypoint: ${node.id} -> ${entryId}`);
+    }
+  }
+  for (const ruleId of ruleMapIds) if (!nodeRuleIds.has(ruleId)) errors.push(`node에서 역참조되지 않는 rule-map ID: ${ruleId}`);
+  for (const entryId of entrypointMapIds) if (!nodeEntrypointIds.has(entryId)) errors.push(`node에서 역참조되지 않는 entrypoint-map ID: ${entryId}`);  // 모든 노드에 대해 부모 순환을 실제 탐색한다.
   for (const [nodeId] of manifestEntries) addWithParents(nodeId, governance.nodes, new Set());
   // router가 직접 로드하는 모든 노드 ID를 수집한다.
   const routerNodeIds = new Set(arrayValue(governance.router.default_load));
@@ -769,7 +799,13 @@ function validateGovernance(governance, options = {}) {
   for (const rule of arrayValue(governance.router.rules)) for (const nodeId of arrayValue(rule.load)) routerNodeIds.add(nodeId);
   // 미등록 router 노드는 fail-closed 오류다.
   for (const nodeId of routerNodeIds) if (!governance.nodes.has(nodeId)) errors.push(`router의 미등록 노드: ${nodeId}`);
-  // 사용자용 Rule 파일의 실제 경로를 manifest 기준으로 해석한다.
+  // manifest always_load와 router default_load가 달라지면 진입 경로에 따라 필수 안전 노드가 누락될 수 있다.
+  if (!sameStringSet(governance.manifest.always_load, governance.router.default_load)) errors.push('manifest always_load와 router default_load가 일치하지 않습니다.');
+  if (!arrayValue(governance.manifest.always_load).includes('context.scope-boundary')) errors.push('context.scope-boundary가 always_load에 없습니다.');
+  if (governance.router.routing_policy?.external_paths_require_scope_intent !== true) errors.push('외부 path scope intent 강제가 활성화되지 않았습니다.');
+  const requiredScopeIntents = ['external-reference', 'external-execution', 'nested-handoff', 'switch-scope'];
+  const configuredScopeIntents = arrayValue(governance.router.routing_policy?.external_path_scope_intents).map(String);
+  for (const intent of requiredScopeIntents) if (!configuredScopeIntents.includes(intent)) errors.push(`외부 path 필수 scope intent 누락: ${intent}`);  // 사용자용 Rule 파일의 실제 경로를 manifest 기준으로 해석한다.
   const ruleFile = path.resolve(GOVERNANCE_ROOT, governance.manifest.human_reference?.path ?? '');
   // manifest가 기준선 경로까지 선언해야 섹션 동기화 계약이 명시된다.
   if (governance.manifest.human_reference?.section_baseline !== 'traceability/rule-section-baseline.yaml') errors.push('manifest human_reference.section_baseline 불일치');
@@ -871,13 +907,24 @@ function validateGovernance(governance, options = {}) {
   if (codexCapability.status !== 'active-profile-runtime-verification-required') errors.push('Codex capability가 활성 runtime verification 상태가 아닙니다.');
   // IDE Undo를 검증된 속성으로 선언하면 안 된다.
   if (arrayValue(codexCapability.file_edit?.verified_properties).includes('ide-undo-compatible')) errors.push('Codex IDE Undo가 검증된 속성으로 잘못 선언되었습니다.');
+  // ChatGPT + Remote Desktop capability는 cross-scope owner와 기록 한계를 과장하지 않아야 한다.
+  const chatgptCapabilityPath = governance.manifest.capabilities?.['chatgpt-remote'];
+  if (!chatgptCapabilityPath || !fs.existsSync(path.join(GOVERNANCE_ROOT, chatgptCapabilityPath))) {
+    errors.push('ChatGPT Remote Desktop capability가 없습니다.');
+  } else {
+    const chatgptCapability = parseYamlFile(path.join(GOVERNANCE_ROOT, chatgptCapabilityPath));
+    if (chatgptCapability.status !== 'active-profile-runtime-verification-required') errors.push('ChatGPT capability가 active runtime verification 상태가 아닙니다.');
+    if (chatgptCapability.workspace_binding?.remote_desktop_is_scope_neutral !== true) errors.push('Remote Desktop이 scope 중립 capability로 선언되지 않았습니다.');
+    if (chatgptCapability.scope?.foreign_governed_write !== 'nested-handoff-required') errors.push('ChatGPT foreign governed write의 nested handoff 계약이 없습니다.');
+    if (chatgptCapability.conversation_export?.automatic_project_recording !== false) errors.push('ChatGPT 자동 프로젝트 기록 capability를 과장했습니다.');
+  }
   // 실제 parser와 lockfile 경로가 존재하는지 확인한다.
   for (const toolingPath of [governance.manifest.tooling?.package, governance.manifest.tooling?.lockfile, governance.manifest.tooling?.command]) {
     // 값 누락 또는 파일 누락을 오류로 처리한다.
     if (!toolingPath || !fs.existsSync(path.resolve(GOVERNANCE_ROOT, toolingPath))) errors.push(`tooling 파일 누락: ${toolingPath ?? '<미정>'}`);
   }
   // 세 플랫폼 진입점이 동일한 프로젝트 루트 동기화 명령을 안내하는지 정적 smoke 검사한다.
-  const bootstrapFiles = ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md'];
+  const bootstrapFiles = ['AGENTS.md', 'GEMINI.md', 'CLAUDE.md', 'CHATGPT.md'];
   // 각 진입점의 존재와 필수 명령 문자열을 확인한다.
   for (const bootstrapFile of bootstrapFiles) {
     // 프로젝트 루트의 플랫폼별 진입점 경로를 계산한다.

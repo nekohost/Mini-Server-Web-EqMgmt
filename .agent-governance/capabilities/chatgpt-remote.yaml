@@ -1,0 +1,24 @@
+platform: chatgpt-remote-desktop-commander
+status: active-profile-runtime-verification-required
+workspace_binding:
+  mode: dynamic-user-intent-and-active-owner
+  remote_desktop_is_scope_neutral: true
+  project_path_reference_does_not_switch_owner: true
+file_read:
+  preferred: remote-desktop-structured-read-tools
+file_edit:
+  preferred: remote-desktop-structured-file-edit-tools
+  terminal_fallback: governed-by-tools.file-editing
+terminal:
+  allowed: [read, inspect, approved-execute, validate]
+  writes: governed-by-tools.file-editing-and-user-approval
+scope:
+  external_reference: owner-unchanged
+  external_execution: owner-unchanged-when-subordinate-to-project-task
+  foreign_governed_write: nested-handoff-required
+  full_switch: explicit-user-intent-required
+conversation_export:
+  status: not-integrated
+  automatic_project_recording: false
+  on_missing_capability: report-do-not-fabricate
+instruction_entrypoint: CHATGPT.md

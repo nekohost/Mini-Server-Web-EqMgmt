@@ -13,6 +13,11 @@ terminal:
     mode: proposal-only-before-explicit-approval
     allowed_when: [structured-edit-unavailable, diff-visible, undo-or-equivalent-recovery-verified]
     otherwise: forbidden
+git_read_only:
+  preferred: "node .agent-governance/tooling/git-readonly.mjs -- <subcommand> <args>"
+  required_environment: { GIT_OPTIONAL_LOCKS: "0" }
+  direct_status_or_diff_without_optional_lock: forbidden
+  scope: [status, diff, log, show, rev-parse, ls-files, fsck, check-attr, check-ignore, for-each-ref]
 conversation_storage:
   preferred: apply_patch
   basis: structured-diff-visible
@@ -30,5 +35,10 @@ conversation_automation:
   status: active
   preflight: "node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json"
   watcher: fs-watch-plus-1500ms-stat-poll
+scope:
+  default_owner: workspace-project
+  external_reference: owner-unchanged
+  external_execution: owner-unchanged-when-subordinate-to-project-task
+  foreign_governed_write: nested-handoff-required
+  full_switch: explicit-user-intent-required
 instruction_entrypoint: AGENTS.md
-
