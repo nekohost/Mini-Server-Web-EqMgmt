@@ -10,6 +10,7 @@ related_artifacts:
 
 - 최초 작성일: 2026-09-09
 - 3차 개정일: 2026-09-10
+- 4차 개정일: 2026-09-10
 - 최종 상태 갱신일: 2026-09-10
 - `work_id`: `WORK-20260909-GIT-INDEX-PREVENTION`
 - 상태: **핵심 완료 — 예방 조치 및 Process Monitor 위험 경로 실증 완료, 정확한 0바이트 실패 조건만 미재현**
@@ -32,6 +33,7 @@ related_artifacts:
 - [x] Process Monitor 반입 및 통제 재현 승인 검토 보고서 발행
 - [x] 격리 저장소에서 Process Monitor 호출 스택 및 `WriteFile` 증거 캡처
 - [x] 캡처 결과와 Codex 중단 지점을 반영한 최종 증거·인계 보고서 발행
+- [x] Plan 005를 4차 개정하여 예방 조치 완료 상태 및 잔여 forensic 과제 분리 반영
 - [ ] 과거 사건에서 index가 정확히 0바이트가 되는 Windows/동시성 실패 조건 재현 — 재발 시 forensic follow-up, 예방 완료의 차단 조건 아님
 
 ## 현재 완료 기준

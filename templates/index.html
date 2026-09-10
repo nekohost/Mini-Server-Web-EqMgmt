@@ -120,7 +120,7 @@
                         </select>
                         <!-- 신규 옵션 추가 패널 -->
                         <div id="NewOptionPanel" class="mt-3 bg-white dark:bg-slate-800 p-3 border border-indigo-100 dark:border-slate-600 rounded shadow-sm hidden">
-                            <input type="text" id="NewOptionName" placeholder="신규 옵션명 (예: 256GB / 블랙)" class="w-full mb-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded p-1.5 text-sm outline-none">
+                            <input type="text" id="NewOptionName" oninput="window.LineupApp.updateSubmitLockState()" placeholder="신규 옵션명 (예: 256GB / 블랙)" class="w-full mb-2 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded p-1.5 text-sm outline-none">
                             <div id="KeyValueContainer" class="flex flex-col gap-2"></div>
                             <button type="button" onclick="window.LineupApp.addKeyValueRow()" class="mt-2 text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded hover:bg-indigo-200 dark:hover:bg-indigo-800 transition">+ 속성(Key-Value) 추가</button>
                         </div>
@@ -183,6 +183,7 @@
 {% endblock %}
 
 {% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/lineup_registration.js') }}"></script>
 <script>
     let currentEquipmentData = [];
     let currentUser = null;
@@ -212,6 +213,8 @@
     }
 
     window.LineupApp = (function() {
+        let selectedNodeId = null; // 옵션 대상 노드를 추적합니다.
+        let nodeBusy = false; // 노드 요청 중 저장을 차단합니다.
         const CACHE_KEY = 'nodeCache_v2';
         let nodeCache_v2 = {
             categories: [], manufacturers: [], nodes: [], options: [],
@@ -258,7 +261,7 @@
                         '<option value="__custom__">➕ 기타 (직접 입력...)</option>';
                 }
                 updateSubmitLockState();
-            } catch(e) { console.error('Tree load error:', e); }
+            } catch(e) { console.error('Tree load error:', e); throw e; }
         }
 
         function invalidateCache() {
@@ -314,7 +317,7 @@
             btnFormal.classList.remove('bg-amber-600', 'hover:bg-amber-700');
 
             const optData = getSelectedOptionData();
-            const isValid = optData && !optData.error;
+            const isValid = !nodeBusy && optData && !optData.error;
 
             if (isValid) {
                 btnFormal.disabled = false;
@@ -340,60 +343,91 @@
             document.getElementById('CategoryCustomBox').classList.toggle('hidden', catId !== '__custom__');
             document.getElementById('ManufacturerCustomBox').classList.toggle('hidden', mfgId !== '__custom__');
             
+            selectedNodeId = null;
+            document.getElementById('OptionSelect').value = '';
             document.getElementById('dynamicTreeContainer').innerHTML = '';
             document.getElementById('dynamicOptionContainer').classList.add('hidden');
             
             if (catId && catId !== '__custom__' && mfgId && mfgId !== '__custom__') {
                 const rootNodes = (nodeCache_v2.tree['root'] || []).filter(n => n.category_id == catId && n.manufacturer_id == mfgId);
-                if(rootNodes.length > 0) {
-                    renderChildNodes(null, 1, rootNodes);
-                } else {
-                    document.getElementById('dynamicTreeContainer').innerHTML = `<div class="p-3 bg-amber-50 text-amber-700 text-sm rounded border border-amber-200">해당 분류에 등록된 하위 카탈로그(라인업)가 없습니다. 신규 노드 등록은 관리자에게 문의하세요.</div>`;
-                }
+                renderChildNodes(null, 1, rootNodes);
             }
             updateSubmitLockState();
         }
 
+        // [역할] 노드 생성 패널을 연결합니다. [의존성 관계] lineup_registration.js와 트리 캐시. [변경 시 영향도] 생성 후 등록 경로.
+        const nodeRegistration = window.createLineupNodeRegistration({
+            onApproved: async (result, payload) => {
+                const currentCategory = document.getElementById('CategorySelect').value; // 요청 중 필터 변경 여부를 확인합니다.
+                const currentManufacturer = document.getElementById('ManufacturerSelect').value;
+                if (currentCategory != payload.category_id || currentManufacturer != payload.manufacturer_id) return;
+                invalidateCache(); // 생성된 승인 노드가 보이도록 캐시를 갱신합니다.
+                await init(true);
+                document.getElementById('CategorySelect').value = String(payload.category_id);
+                document.getElementById('ManufacturerSelect').value = String(payload.manufacturer_id);
+                onRootChange();
+                const path = []; // 실제 부모 연결에서 루트부터 생성 노드까지 재구성합니다.
+                const visited = new Set();
+                let node = nodeCache_v2.nodes.find(item => item.id == result.node_id);
+                while (node) {
+                    if (visited.has(node.id) || path.length >= 50) throw new Error('노드 경로를 확인해 주세요.');
+                    visited.add(node.id);
+                    path.unshift(node);
+                    node = nodeCache_v2.nodes.find(item => item.id == node.parent_id);
+                }
+                for (const item of path) {
+                    const row = document.querySelector('.lineup-select-row[data-parent="' + (item.parent_id || 'root') + '"] select');
+                    if (!row) throw new Error('생성된 노드를 다시 선택해 주세요.');
+                    row.value = String(item.id);
+                    row.dispatchEvent(new Event('change'));
+                }
+            },
+            onBusy: busy => { nodeBusy = busy; updateSubmitLockState(); },
+            onPending: result => alert(result.message)
+        });
+
+        // [역할] 같은 부모의 목록과 생성 패널을 표시합니다. [의존성 관계] 캐시·onLeafSelected. [변경 시 영향도] 옵션과 하위 노드 공존.
         function renderChildNodes(parentId, depth, nodesToRender = null) {
             const container = document.getElementById('dynamicTreeContainer');
-            Array.from(container.querySelectorAll('.lineup-select-row')).forEach(row => {
-                if(parseInt(row.dataset.depth) >= depth) row.remove();
+            container.querySelectorAll('.lineup-select-row').forEach(row => {
+                if (Number(row.dataset.depth) >= depth) row.remove(); // 하위 선택만 정리합니다.
             });
+            selectedNodeId = parentId || null;
+            document.getElementById('OptionSelect').value = ''; // 숨겨진 이전 옵션 제출을 차단합니다.
             document.getElementById('dynamicOptionContainer').classList.add('hidden');
-
-            let nodes = nodesToRender || nodeCache_v2.tree[parentId] || [];
-            if(nodes.length === 0 && parentId) {
-                onLeafSelected(parentId);
-                return;
-            }
-            if(nodes.length === 0) {
-                updateSubmitLockState();
-                return;
-            }
-
+            if (parentId) onLeafSelected(parentId); // 자식이 있어도 현재 노드의 기존 옵션을 유지합니다.
+            if (depth > 50) { updateSubmitLockState(); return; }
+            const nodes = nodesToRender || nodeCache_v2.tree[parentId] || [];
             const row = document.createElement('div');
-            row.className = 'lineup-select-row flex gap-2 items-center';
+            row.className = 'lineup-select-row flex flex-col gap-2';
             row.dataset.depth = depth;
-            
+            row.dataset.parent = parentId || 'root';
             const select = document.createElement('select');
-            select.className = 'flex-1 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm';
-            select.innerHTML = `<option value="">-- ${depth}차 상세 모델 선택 --</option>` + 
-                nodes.map(n => `<option value="${n.id}">${escapeHtml(n.name)}</option>`).join('');
-            
-            select.onchange = (e) => {
-                const val = e.target.value;
-                if(val) renderChildNodes(val, depth + 1);
+            select.className = 'w-full rounded-lg border border-slate-300 bg-white p-2 text-sm dark:bg-slate-700 dark:text-white';
+            select.add(new Option(parentId ? '-- 하위 모델 선택 (선택 사항) --' : '-- 모델 선택 --', ''));
+            nodes.forEach(node => select.add(new Option(node.name, node.id))); // 이름은 HTML로 해석하지 않습니다.
+            select.addEventListener('change', () => {
+                if (select.value) renderChildNodes(select.value, depth + 1);
                 else {
-                    Array.from(container.querySelectorAll('.lineup-select-row')).forEach(r => {
-                        if(parseInt(r.dataset.depth) > depth) r.remove();
+                    container.querySelectorAll('.lineup-select-row').forEach(child => {
+                        if (Number(child.dataset.depth) > depth) child.remove();
                     });
+                    selectedNodeId = parentId || null;
+                    document.getElementById('OptionSelect').value = '';
                     document.getElementById('dynamicOptionContainer').classList.add('hidden');
+                    if (parentId) onLeafSelected(parentId);
                 }
                 updateSubmitLockState();
-            };
-            
-            row.appendChild(select);
-            container.appendChild(row);
+            });
+            const panel = document.createElement('div');
+            nodeRegistration.mount(panel, {
+                categoryId: Number(document.getElementById('CategorySelect').value),
+                manufacturerId: Number(document.getElementById('ManufacturerSelect').value),
+                parentId: parentId ? Number(parentId) : null,
+                depth
+            });
+            row.append(select, panel);
+            container.append(row);
             updateSubmitLockState();
         }
 
@@ -438,6 +472,7 @@
         function getSelectedOptionData() {
             const optSelect = document.getElementById('OptionSelect');
             if (!optSelect) return null;
+            if (!selectedNodeId || nodeBusy || document.getElementById('dynamicOptionContainer').classList.contains('hidden')) return null;
             const optVal = optSelect.value;
             if (!optVal) return null;
             if (optVal !== '__new__') return { option_id: optVal, isNew: false };
@@ -454,9 +489,7 @@
                 if (k && v) specs[k] = v;
             });
             
-            const selects = document.querySelectorAll('.lineup-select-row select');
-            let leafNodeId = null;
-            if (selects.length > 0) leafNodeId = selects[selects.length - 1].value;
+            const leafNodeId = selectedNodeId; // 옵션 대상은 현재 선택한 노드입니다.
             
             return {
                 isNew: true,
@@ -467,7 +500,7 @@
         }
 
         return {
-            init, invalidateCache, updateSubmitLockState, onRootChange, onOptionChange, addKeyValueRow, getSelectedOptionData
+            init, invalidateCache, updateSubmitLockState, onRootChange, onOptionChange, addKeyValueRow, getSelectedOptionData, isBusy: () => nodeBusy
         };
     })();
 
@@ -639,6 +672,7 @@
     }
 
     async function submitEquipment(isDraft) {
+        if (window.LineupApp.isBusy()) { alert('노드 등록이 끝난 후 저장해 주세요.'); return; }
         const id = document.getElementById('EquipmentId').value;
         const nameInput = document.getElementById('Name');
         const name = nameInput ? nameInput.value.trim() : '';

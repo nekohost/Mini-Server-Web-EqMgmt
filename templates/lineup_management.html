@@ -1,0 +1,353 @@
+{% extends 'miniserver_frame.html' %}
+{% block title %}라인업 노드 관리 - EqMgmt{% endblock %}
+{% block page_title %}라인업 노드 관리{% endblock %}
+
+{% block content %}
+<!--
+  [역할] 관리자가 카테고리·제조사별 라인업 트리를 조회하고 노드를 생성·수정·이동·삭제합니다.
+  [의존성 관계] /api/admin/lineup_nodes, /api/lineup_node CRUD, miniserver_frame.html을 사용합니다.
+  [변경 시 영향도] 관리자 센터의 카탈로그 계층 관리 UX에 영향을 줍니다.
+-->
+<section class="mx-auto max-w-7xl space-y-5" aria-labelledby="lineup-page-title">
+    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h2 id="lineup-page-title" class="text-2xl font-bold text-slate-900 dark:text-white">라인업 노드 관리</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">장비등록에 사용되는 가변 깊이 모델 트리를 관리합니다.</p>
+        </div>
+        <button id="addRootButton" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+            + 최상위 노드 추가
+        </button>
+    </header>
+
+    <div id="pageMessage" class="hidden rounded-lg border px-4 py-3 text-sm" role="status" aria-live="polite"></div>
+
+    <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2">
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            카테고리
+            <select id="categoryFilter" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
+        </label>
+        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200">
+            제조사
+            <select id="manufacturerFilter" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
+        </label>
+    </div>
+
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="노드 상태 요약">
+        <div class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"><p class="text-xs text-slate-500">전체</p><p id="totalCount" class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">0</p></div>
+        <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><p class="text-xs text-emerald-700 dark:text-emerald-300">승인</p><p id="approvedCount" class="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-300">0</p></div>
+        <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30"><p class="text-xs text-amber-700 dark:text-amber-300">승인 대기</p><p id="pendingCount" class="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-300">0</p></div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800"><p class="text-xs text-slate-500">연결 장비</p><p id="equipmentCount" class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">0</p></div>
+    </div>
+
+    <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
+        <div class="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
+            <h3 class="font-bold text-slate-800 dark:text-slate-100">선택 조합의 노드 트리</h3>
+            <p class="mt-1 text-xs text-slate-500">이동은 같은 카테고리·제조사 조합 안에서만 가능합니다.</p>
+        </div>
+        <div id="treeContainer" class="min-h-48 p-3 sm:p-5" aria-live="polite"></div>
+    </div>
+</section>
+
+<div id="nodeModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="nodeModalTitle">
+    <form id="nodeForm" class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+        <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
+            <h3 id="nodeModalTitle" class="text-lg font-bold text-slate-900 dark:text-white">노드 추가</h3>
+            <button id="closeModalButton" type="button" class="text-2xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="닫기">&times;</button>
+        </div>
+        <div class="space-y-4 p-5">
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                노드 이름
+                <input id="nodeName" type="text" maxlength="100" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white">
+            </label>
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                상위 노드
+                <select id="parentNode" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
+                <span class="mt-1 block text-xs font-normal text-slate-500">최상위를 선택하면 루트 노드가 됩니다.</span>
+            </label>
+            <p id="modalMessage" class="hidden rounded-lg border px-3 py-2 text-sm" role="alert"></p>
+        </div>
+        <div class="flex justify-end gap-2 border-t border-slate-200 px-5 py-4 dark:border-slate-700">
+            <button id="cancelModalButton" type="button" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 dark:border-slate-600 dark:text-slate-200">취소</button>
+            <button id="saveNodeButton" type="submit" class="rounded-lg bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">저장</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function initializeLineupManagement() {
+    'use strict';
+
+    const state = { snapshot: { categories: [], manufacturers: [], nodes: [] }, mode: 'create', activeNodeId: null, busy: false, rendered: new Set() };
+    const elements = {
+        category: document.getElementById('categoryFilter'), manufacturer: document.getElementById('manufacturerFilter'),
+        tree: document.getElementById('treeContainer'), pageMessage: document.getElementById('pageMessage'),
+        addRoot: document.getElementById('addRootButton'), total: document.getElementById('totalCount'),
+        approved: document.getElementById('approvedCount'), pending: document.getElementById('pendingCount'),
+        equipment: document.getElementById('equipmentCount'), modal: document.getElementById('nodeModal'),
+        form: document.getElementById('nodeForm'), title: document.getElementById('nodeModalTitle'),
+        name: document.getElementById('nodeName'), parent: document.getElementById('parentNode'),
+        modalMessage: document.getElementById('modalMessage'), save: document.getElementById('saveNodeButton')
+    };
+
+    function makeElement(tagName, className, text) {
+        /* [역할] API 문자열을 HTML로 실행하지 않고 textContent로 표시합니다. */
+        const element = document.createElement(tagName);
+        if (className) element.className = className;
+        if (text !== undefined) element.textContent = text;
+        return element;
+    }
+
+    function showMessage(message, kind = 'error', target = elements.pageMessage) {
+        /* [역할] 페이지 또는 모달의 오류·성공 상태를 일관된 색상으로 표시합니다. */
+        const classes = kind === 'success'
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/30 dark:text-emerald-200'
+            : 'border-red-200 bg-red-50 text-red-800 dark:border-red-900 dark:bg-red-950/30 dark:text-red-200';
+        target.className = `rounded-lg border px-4 py-3 text-sm ${classes}`;
+        target.textContent = message;
+        target.classList.remove('hidden');
+    }
+
+    function selectedIds() {
+        /* [역할] 필터의 문자열 값을 안전한 숫자 조합으로 반환합니다. */
+        return { categoryId: Number(elements.category.value), manufacturerId: Number(elements.manufacturer.value) };
+    }
+
+    function filteredNodes() {
+        /* [역할] 현재 카테고리·제조사 조합에 속한 전체 상태 노드를 반환합니다. */
+        const ids = selectedIds();
+        return state.snapshot.nodes.filter(node => Number(node.category_id) === ids.categoryId && Number(node.manufacturer_id) === ids.manufacturerId);
+    }
+
+    function fillSelect(select, items, placeholder) {
+        /* [역할] 마스터 필터 옵션을 안전한 DOM 방식으로 재구성합니다. */
+        select.replaceChildren(new Option(placeholder, ''));
+        items.forEach(item => {
+            const suffix = item.is_approved ? '' : ' (미승인)';
+            select.append(new Option(`${item.name}${suffix}`, String(item.id)));
+        });
+    }
+
+    function chooseInitialCombination() {
+        /* [역할] 기존 노드 조합을 우선하고 없으면 승인된 첫 마스터 조합을 선택합니다. */
+        const firstNode = state.snapshot.nodes[0];
+        const firstCategory = state.snapshot.categories.find(item => item.is_approved);
+        const firstManufacturer = state.snapshot.manufacturers.find(item => item.is_approved);
+        elements.category.value = String(firstNode?.category_id || firstCategory?.id || '');
+        elements.manufacturer.value = String(firstNode?.manufacturer_id || firstManufacturer?.id || '');
+    }
+
+    function statusBadge(status) {
+        /* [역할] 노드 상태를 색상과 텍스트가 함께 있는 badge로 표시합니다. */
+        const styles = status === 'APPROVED'
+            ? ['bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300', '승인']
+            : status === 'PENDING'
+                ? ['bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300', '승인 대기']
+                : ['bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300', status || '알 수 없음'];
+        return makeElement('span', `rounded-full px-2 py-0.5 text-xs font-bold ${styles[0]}`, styles[1]);
+    }
+
+    function collectDescendantIds(rootId, nodes) {
+        /* [역할] 이동 대상 목록에서 자기 서브트리를 제외하기 위한 자손 집합을 계산합니다. */
+        const children = new Map();
+        nodes.forEach(node => {
+            const key = node.parent_id === null ? null : Number(node.parent_id);
+            if (!children.has(key)) children.set(key, []);
+            children.get(key).push(node);
+        });
+        const result = new Set([Number(rootId)]);
+        const queue = [Number(rootId)];
+        while (queue.length) {
+            const current = queue.shift();
+            (children.get(current) || []).forEach(child => {
+                if (!result.has(Number(child.id))) {
+                    result.add(Number(child.id));
+                    queue.push(Number(child.id));
+                }
+            });
+        }
+        return result;
+    }
+
+    function updateSummary(nodes) {
+        /* [역할] 필터된 트리의 전체·상태·연결 장비 수를 갱신합니다. */
+        elements.total.textContent = String(nodes.length);
+        elements.approved.textContent = String(nodes.filter(node => node.status === 'APPROVED').length);
+        elements.pending.textContent = String(nodes.filter(node => node.status === 'PENDING').length);
+        elements.equipment.textContent = String(nodes.reduce((sum, node) => sum + Number(node.equipment_count || 0), 0));
+    }
+
+    function renderNode(node, childrenByParent, level) {
+        /* [역할] 한 노드와 자손을 들여쓰기된 반응형 트리 카드로 렌더링합니다. */
+        if (state.rendered.has(Number(node.id))) return makeElement('p', 'text-red-600', '순환 연결을 확인해 주세요.');
+        state.rendered.add(Number(node.id));
+        const wrapper = makeElement('div', 'space-y-2');
+        const card = makeElement('article', 'rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40');
+        card.style.marginLeft = `${Math.min(level, 8) * 12}px`;
+        const row = makeElement('div', 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between');
+        const info = makeElement('div', 'min-w-0');
+        const titleRow = makeElement('div', 'flex flex-wrap items-center gap-2');
+        titleRow.append(makeElement('strong', 'break-all text-sm text-slate-900 dark:text-white', node.name), statusBadge(node.status));
+        const metrics = makeElement('p', 'mt-1 text-xs text-slate-500 dark:text-slate-400', `깊이 ${node.depth} · 자식 ${node.child_count || 0} · 옵션 ${node.option_count || 0} · 장비 ${node.equipment_count || 0}`);
+        info.append(titleRow, metrics);
+
+        const actions = makeElement('div', 'flex flex-wrap gap-2');
+        const add = makeElement('button', 'rounded border border-blue-300 px-2.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300', '+ 하위');
+        add.type = 'button'; add.addEventListener('click', () => openCreateModal(node.id));
+        const edit = makeElement('button', 'rounded border border-slate-300 px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-white dark:border-slate-600 dark:text-slate-200', '수정·이동');
+        edit.type = 'button'; edit.addEventListener('click', () => openEditModal(node.id));
+        const remove = makeElement('button', 'rounded border border-red-300 px-2.5 py-1.5 text-xs font-bold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40 dark:border-red-900 dark:text-red-300', '삭제');
+        remove.type = 'button';
+        remove.disabled = Number(node.child_count || 0) > 0 || Number(node.option_count || 0) > 0;
+        remove.title = remove.disabled ? '하위 노드 또는 옵션이 연결되어 있습니다.' : '연결이 없는 노드를 삭제합니다.';
+        remove.addEventListener('click', () => removeNode(node));
+        add.disabled = node.status !== 'APPROVED' || Number(node.depth) >= 50;
+        edit.disabled = node.status !== 'APPROVED';
+        remove.disabled = remove.disabled || node.status !== 'APPROVED';
+        if (node.status !== 'APPROVED') { add.title = edit.title = remove.title = '전자결재함에서 승인 요청을 처리해 주세요.'; }
+        actions.append(add, edit, remove);
+        row.append(info, actions); card.append(row); wrapper.append(card);
+        (childrenByParent.get(Number(node.id)) || []).forEach(child => wrapper.append(renderNode(child, childrenByParent, level + 1)));
+        return wrapper;
+    }
+
+    function renderTree() {
+        /* [역할] 필터 조합의 루트·자손과 연결이 끊긴 노드를 모두 가시화합니다. */
+        const nodes = filteredNodes();
+        updateSummary(nodes);
+        elements.tree.replaceChildren();
+        state.rendered.clear();
+        const ids = selectedIds();
+        const selectedCategory = state.snapshot.categories.find(item => item.id === ids.categoryId);
+        const selectedManufacturer = state.snapshot.manufacturers.find(item => item.id === ids.manufacturerId);
+        elements.addRoot.disabled = !selectedCategory?.is_approved || !selectedManufacturer?.is_approved;
+        if (!ids.categoryId || !ids.manufacturerId) {
+            elements.tree.append(makeElement('p', 'py-10 text-center text-sm text-slate-500', '카테고리와 제조사를 선택해 주세요.'));
+            return;
+        }
+        if (!nodes.length) {
+            elements.tree.append(makeElement('p', 'py-10 text-center text-sm text-slate-500', '등록된 노드가 없습니다. “최상위 노드 추가”로 시작할 수 있습니다.'));
+            return;
+        }
+
+        const byParent = new Map();
+        nodes.forEach(node => {
+            const key = node.parent_id === null ? null : Number(node.parent_id);
+            if (!byParent.has(key)) byParent.set(key, []);
+            byParent.get(key).push(node);
+        });
+        (byParent.get(null) || []).forEach(root => elements.tree.append(renderNode(root, byParent, 0)));
+        const visibleIds = new Set(nodes.map(node => Number(node.id)));
+        const orphans = nodes.filter(node => !state.rendered.has(Number(node.id)));
+        if (orphans.length) {
+            elements.tree.append(makeElement('p', 'mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700', '상위 연결이 끊겼거나 다른 조합에 연결된 노드가 있습니다. 운영 병합 전 데이터 정합성 점검이 필요합니다.'));
+            orphans.forEach(node => { if (!state.rendered.has(Number(node.id))) elements.tree.append(renderNode(node, byParent, 0)); });
+        }
+    }
+
+    function fillParentOptions(selectedParentId, excludedIds = new Set()) {
+        /* [역할] 현재 조합 안에서만 안전한 이동·생성 부모 후보를 제공합니다. */
+        elements.parent.replaceChildren(new Option('최상위 노드', ''));
+        filteredNodes().filter(node => !excludedIds.has(Number(node.id)) && node.status === 'APPROVED').forEach(node => {
+            elements.parent.append(new Option(`${'— '.repeat(Math.max(0, Number(node.depth) - 1))}${node.name}`, String(node.id)));
+        });
+        elements.parent.value = selectedParentId === null || selectedParentId === undefined ? '' : String(selectedParentId);
+    }
+
+    function openCreateModal(parentId = null) {
+        /* [역할] 현재 조합에 루트 또는 지정 부모의 하위 노드를 추가하는 모달을 엽니다. */
+        state.mode = 'create'; state.activeNodeId = null;
+        elements.title.textContent = parentId ? '하위 노드 추가' : '최상위 노드 추가';
+        elements.name.value = ''; fillParentOptions(parentId); elements.modalMessage.classList.add('hidden');
+        elements.modal.classList.remove('hidden'); elements.modal.classList.add('flex'); elements.name.focus();
+    }
+
+    function openEditModal(nodeId) {
+        /* [역할] 자기 자신과 자손을 부모 후보에서 제외한 수정·이동 모달을 엽니다. */
+        const node = filteredNodes().find(item => Number(item.id) === Number(nodeId));
+        if (!node) return;
+        state.mode = 'edit'; state.activeNodeId = Number(nodeId);
+        elements.title.textContent = '노드 수정·이동'; elements.name.value = node.name;
+        fillParentOptions(node.parent_id, collectDescendantIds(nodeId, filteredNodes()));
+        elements.modalMessage.classList.add('hidden'); elements.modal.classList.remove('hidden'); elements.modal.classList.add('flex'); elements.name.focus();
+    }
+
+    function closeModal() {
+        /* [역할] 편집 상태를 정리하고 노드 모달을 닫습니다. */
+        elements.modal.classList.add('hidden'); elements.modal.classList.remove('flex'); elements.form.reset();
+    }
+
+    async function apiRequest(url, requestOptions = {}) {
+        /* [역할] JSON·CSRF·오류 처리를 노드 관리 요청에 공통 적용합니다. */
+        const options = Object.assign({}, requestOptions);
+        options.headers = Object.assign({ 'X-CSRFToken': window.getCSRFToken() }, requestOptions.headers || {});
+        if (requestOptions.body) options.headers['Content-Type'] = 'application/json';
+        const response = await fetch(url, options);
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok || !result.success) throw new Error(result.message || '요청 처리에 실패했습니다.');
+        return result;
+    }
+
+    async function loadSnapshot(preserveSelection = true) {
+        /* [역할] 관리자 스냅샷을 새로 읽고 필터·트리·카운트를 동기화합니다. */
+        const previous = selectedIds();
+        elements.tree.replaceChildren(makeElement('p', 'py-10 text-center text-sm text-slate-500', '노드 목록을 불러오는 중입니다…'));
+        try {
+            const result = await apiRequest('/api/admin/lineup_nodes');
+            state.snapshot = result;
+            fillSelect(elements.category, result.categories || [], '-- 카테고리 선택 --');
+            fillSelect(elements.manufacturer, result.manufacturers || [], '-- 제조사 선택 --');
+            if (preserveSelection && previous.categoryId && previous.manufacturerId) {
+                elements.category.value = String(previous.categoryId); elements.manufacturer.value = String(previous.manufacturerId);
+            } else chooseInitialCombination();
+            renderTree();
+        } catch (error) {
+            showMessage(error.message); elements.tree.replaceChildren(makeElement('p', 'py-10 text-center text-sm text-red-600', '노드 목록을 불러오지 못했습니다.'));
+        }
+    }
+
+    async function saveNode(event) {
+        /* [역할] 생성 또는 수정 요청을 한 번만 전송하고 성공 후 스냅샷을 갱신합니다. */
+        event.preventDefault();
+        if (state.busy) return;
+        const name = elements.name.value.trim();
+        const ids = selectedIds();
+        if (!name) { showMessage('노드 이름을 입력해 주세요.', 'error', elements.modalMessage); elements.name.focus(); return; }
+        state.busy = true; elements.save.disabled = true;
+        try {
+            const isCreate = state.mode === 'create';
+            const payload = isCreate
+                ? { name, category_id: ids.categoryId, manufacturer_id: ids.manufacturerId, parent_id: elements.parent.value || null }
+                : { name, parent_id: elements.parent.value || null };
+            const url = isCreate ? '/api/lineup_node' : `/api/lineup_node/${state.activeNodeId}`;
+            const result = await apiRequest(url, { method: isCreate ? 'POST' : 'PUT', body: JSON.stringify(payload) });
+            closeModal(); try { sessionStorage.removeItem('nodeCache_v2'); } catch (_) { /* 저장소 제한 시 다음 조회로 갱신합니다. */ } await loadSnapshot(true); showMessage(result.message, 'success');
+        } catch (error) {
+            showMessage(error.message, 'error', elements.modalMessage);
+        } finally {
+            state.busy = false; elements.save.disabled = false;
+        }
+    }
+
+    async function removeNode(node) {
+        /* [역할] 명시 확인 후 말단 노드 삭제를 요청하고 서버 제약 결과를 반영합니다. */
+        if (!window.confirm(`“${node.name}” 노드를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) return;
+        try {
+            const result = await apiRequest(`/api/lineup_node/${node.id}`, { method: 'DELETE' });
+            try { sessionStorage.removeItem('nodeCache_v2'); } catch (_) { /* 저장소 제한 시 다음 조회로 갱신합니다. */ } await loadSnapshot(true); showMessage(result.message, 'success');
+        } catch (error) { showMessage(error.message); }
+    }
+
+    elements.category.addEventListener('change', renderTree);
+    elements.manufacturer.addEventListener('change', renderTree);
+    elements.addRoot.addEventListener('click', () => openCreateModal(null));
+    elements.form.addEventListener('submit', saveNode);
+    document.getElementById('closeModalButton').addEventListener('click', closeModal);
+    document.getElementById('cancelModalButton').addEventListener('click', closeModal);
+    elements.modal.addEventListener('click', event => { if (event.target === elements.modal) closeModal(); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && !elements.modal.classList.contains('hidden')) closeModal(); });
+    loadSnapshot(false);
+})();
+</script>
+{% endblock %}

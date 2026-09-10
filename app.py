@@ -890,6 +890,27 @@ def migrate_backup_restore_menu():
 
 run_migration_if_needed('proposal_013_backup_restore_menu', migrate_backup_restore_menu)
 
+def migrate_lineup_management_menu():
+    """[역할] 기존 설치에 노드 관리 메뉴와 역할 권한을 추가합니다.
+    [의존성 관계] menus, role_menu_permissions, run_migration_if_needed.
+    [변경 시 영향도] 관리자 센터에 새 카드가 표시되며 기존 메뉴 순서는 유지됩니다.
+    """
+    connection = get_db_connection()  # 앱이 관리하는 연결을 사용합니다.
+    try:  # 실패하면 migration 완료로 기록하지 않습니다.
+        now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')  # 메뉴 기록 시각입니다.
+        connection.execute(  # 새 메뉴만 멱등하게 추가합니다.
+            "INSERT OR IGNORE INTO menus (MenuCode, MenuName, Url, Description, ParentMenuCode, SortOrder, CreatedAt, UpdatedAt) VALUES ('lineup_management', '라인업 노드 관리', '/lineup_management', '장비 카탈로그 노드 추가·수정·이동·삭제', 'admin_center', 9, ?, ?)",
+            (now, now)
+        )
+        connection.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES ('admin', 'lineup_management', 1, ?)", (now,))  # 관리자 기본 허용.
+        connection.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES ('user', 'lineup_management', 0, ?)", (now,))  # 일반 사용자 기본 거부.
+        connection.commit()  # 두 테이블 변경을 함께 확정합니다.
+    finally:  # 오류가 발생해도 연결은 반환합니다.
+        connection.close()
+
+
+run_migration_if_needed('proposal_047_lineup_management_menu', migrate_lineup_management_menu)  # 최초 한 번 적용합니다.
+
 def migrate_equipment_is_public():
     """
     [역할]: 장비 테이블에 IsPublic 컬럼이 없으면 동적으로 추가합니다.
@@ -3165,202 +3186,39 @@ def get_lineup_tree_all():
         return jsonify({"success": False, "message": "카탈로그 트리를 불러오는 중 오류가 발생했습니다."}), 400
 
 
-@app.route('/api/lineup_node', methods=['POST'])
-@login_required
-@csrf_required
-def create_lineup_node():
+# [제안-047] 노드 API 연결: 기존 세 route를 대체하여 URL 중복을 방지합니다.
+from utils.lineup_routes import build_lineup_node_blueprint  # 검증된 노드 route factory를 연결합니다.
+
+
+def audit_lineup_change(connection, action, node_id, before, after):
+    """[역할] 노드 변경과 감사 이력을 같은 transaction에 기록합니다.
+    [의존성 관계] audit_logs, session, 노드 Blueprint.
+    [변경 시 영향도] 감사 실패 시 노드 변경도 함께 rollback됩니다.
     """
-    [역할]: 신규 카탈로그 라인업 노드 등록 및 승인 신청
-    [보안/방어]:
-      - [NULL 중복 락 방어] parent_id IS NULL 시 백엔드 2차 SELECT 중복 검사
-      - [MAX_DEPTH 방어] 깊이 50 초과 생성 차단
-      - [권한] 관리자는 자동 APPROVED, 일반 사용자는 PENDING 승인 큐 적재
+    user = session['user']  # 인증 decorator를 통과한 요청자입니다.
+    connection.execute(  # 별도 연결의 쓰기 잠금 충돌을 방지합니다.
+        "INSERT INTO audit_logs (ActorId, ActorLoginId, IpAddress, UserAgent, TargetTable, TargetId, Action, OldValue, NewValue, CreatedAt) VALUES (?, ?, ?, ?, 'lineup_nodes', ?, ?, ?, ?, ?)",
+        (user['UserId'], user['LoginId'], request.remote_addr, request.headers.get('User-Agent', ''),
+         node_id, action, json.dumps(before, ensure_ascii=False), json.dumps(after, ensure_ascii=False),
+         datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+    )
+
+
+app.register_blueprint(build_lineup_node_blueprint(  # 로그인·관리자·CSRF 정책을 재사용합니다.
+    get_db_connection, login_required, admin_required, csrf_required,
+    audit_callback=audit_lineup_change, error_logger=app.logger.error
+))
+
+
+@app.route('/lineup_management')  # 관리자 센터에서 연결하는 노드 관리 화면입니다.
+@login_required  # 활성 로그인 세션을 확인합니다.
+@admin_required  # 메뉴 노출 여부와 별도로 관리자 권한을 강제합니다.
+def lineup_management_page():
+    """[역할] 관리자 노드 관리 화면을 제공합니다.
+    [의존성 관계] lineup_management.html, 관리자 인증.
+    [변경 시 영향도] 카탈로그 관리 진입점에 영향을 줍니다.
     """
-    try:
-        data = request.json or {}
-        name = (data.get('name') or '').strip()
-        category_id = data.get('category_id')
-        manufacturer_id = data.get('manufacturer_id')
-        parent_id = data.get('parent_id')  # None 또는 정수
-
-        if not name:
-            return jsonify({"success": False, "message": "노드 이름을 입력해 주세요."}), 400
-        if not category_id or not manufacturer_id:
-            return jsonify({"success": False, "message": "카테고리와 제조사를 선택해 주세요."}), 400
-
-        user = session.get('user', {})
-        user_id = user.get('UserId')
-        is_admin = (user.get('Role') == 'admin')
-        status = 'APPROVED' if is_admin else 'PENDING'
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # 깊이(Depth) 계산 및 MAX_DEPTH 검증
-        current_depth = 1
-        if parent_id:
-            cursor.execute("SELECT depth, category_id, manufacturer_id FROM lineup_nodes WHERE id = ?", (parent_id,))
-            parent_row = cursor.fetchone()
-            if not parent_row:
-                conn.close()
-                return jsonify({"success": False, "message": "상위 노드를 찾을 수 없습니다."}), 400
-            current_depth = parent_row['depth'] + 1
-            if current_depth > MAX_TREE_DEPTH:
-                conn.close()
-                return jsonify({"success": False, "message": f"트리의 최대 깊이({MAX_TREE_DEPTH}단계)를 초과할 수 없습니다."}), 400
-
-        # [NULL 중복 락 방어]: 루트 노드 중복 명시적 방어
-        if parent_id is None:
-            cursor.execute("""
-                SELECT id FROM lineup_nodes
-                WHERE parent_id IS NULL AND category_id = ? AND manufacturer_id = ? AND name = ?
-            """, (category_id, manufacturer_id, name))
-            if cursor.fetchone():
-                conn.close()
-                return jsonify({"success": False, "message": "해당 카테고리/제조사에 동일한 이름의 최상위 모델이 이미 존재합니다."}), 400
-        else:
-            cursor.execute("SELECT id FROM lineup_nodes WHERE parent_id = ? AND name = ?", (parent_id, name))
-            if cursor.fetchone():
-                conn.close()
-                return jsonify({"success": False, "message": "동일한 상위 노드 아래에 같은 이름의 하위 항목이 이미 존재합니다."}), 400
-
-        cursor.execute("""
-            INSERT INTO lineup_nodes (parent_id, category_id, manufacturer_id, name, depth, status, requested_by)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (parent_id, category_id, manufacturer_id, name, current_depth, status, user_id))
-
-        new_node_id = cursor.lastrowid
-
-        # 일반 사용자 신청 시 approval_requests 에 승인 요청 등록
-        if not is_admin:
-            now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            req_data = json.dumps({
-                "type": "Lineup_Node",
-                "node_id": new_node_id,
-                "name": name,
-                "parent_id": parent_id,
-                "category_id": category_id,
-                "manufacturer_id": manufacturer_id,
-                "depth": current_depth
-            }, ensure_ascii=False)
-            cursor.execute("""
-                INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
-                VALUES (?, 'Lineup_Node', ?, 'PENDING', ?, ?)
-            """, (user_id, req_data, now_str, now_str))
-
-        conn.commit()
-        conn.close()
-
-        msg = "신규 모델이 등록되었습니다." if is_admin else "신규 모델 등록 신청이 완료되었습니다. 관리자 승인 후 활성화됩니다."
-        return jsonify({"success": True, "node_id": new_node_id, "status": status, "message": msg})
-
-    except Exception as e:
-        print(f"[API Error] create_lineup_node: {e}")
-        return jsonify({"success": False, "message": f"노드 등록 중 오류가 발생했습니다: {str(e)}"}), 400
-
-
-@app.route('/api/lineup_node/<int:node_id>', methods=['PUT'])
-@login_required
-@admin_required
-@csrf_required
-def update_lineup_node(node_id):
-    """
-    [역할]: 라인업 노드 정보 수정 및 부모 노드 이동 (관리자 전용)
-    [순환 참조(Cyclic Reference) 방어]:
-      - 새 부모 노드가 자기 자신이거나 자신의 하위 자손 노드인 경우를 DFS로 탐색하여 원천 차단
-    """
-    try:
-        data = request.json or {}
-        new_name = (data.get('name') or '').strip()
-        new_parent_id = data.get('parent_id')  # None 또는 int
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("SELECT * FROM lineup_nodes WHERE id = ?", (node_id,))
-        node = cursor.fetchone()
-        if not node:
-            conn.close()
-            return jsonify({"success": False, "message": "수정할 노드를 찾을 수 없습니다."}), 404
-
-        # [순환 참조 방어 검증 1] 자기 자신을 부모로 지정 방어
-        if new_parent_id is not None and int(new_parent_id) == node_id:
-            conn.close()
-            return jsonify({"success": False, "message": "자기 자신을 부모 노드로 지정할 수 없습니다. (순환 참조 방어)"}), 400
-
-        # [순환 참조 방어 검증 2] 자신의 하위 자손 노드를 부모로 지정 방어 (DFS)
-        if new_parent_id is not None:
-            new_parent_id = int(new_parent_id)
-            descendant_ids = _get_all_descendant_node_ids(cursor, node_id)
-            if new_parent_id in descendant_ids:
-                conn.close()
-                return jsonify({"success": False, "message": "자신의 하위 자손 노드를 부모로 지정할 수 없습니다. (순환 참조 고리 방어)"}), 400
-
-            cursor.execute("SELECT depth FROM lineup_nodes WHERE id = ?", (new_parent_id,))
-            parent_row = cursor.fetchone()
-            if not parent_row:
-                conn.close()
-                return jsonify({"success": False, "message": "지정한 부모 노드가 존재하지 않습니다."}), 400
-            new_depth = parent_row['depth'] + 1
-        else:
-            new_depth = 1
-
-        if new_depth > MAX_TREE_DEPTH:
-            conn.close()
-            return jsonify({"success": False, "message": f"트리의 최대 깊이({MAX_TREE_DEPTH}단계)를 초과할 수 없습니다."}), 400
-
-        final_name = new_name if new_name else node['name']
-
-        cursor.execute("""
-            UPDATE lineup_nodes
-            SET name = ?, parent_id = ?, depth = ?
-            WHERE id = ?
-        """, (final_name, new_parent_id, new_depth, node_id))
-
-        conn.commit()
-        conn.close()
-
-        return jsonify({"success": True, "message": "노드 정보가 성공적으로 수정되었습니다."})
-
-    except Exception as e:
-        print(f"[API Error] update_lineup_node: {e}")
-        return jsonify({"success": False, "message": f"노드 수정 중 오류가 발생했습니다: {str(e)}"}), 400
-
-
-@app.route('/api/lineup_node/<int:node_id>', methods=['DELETE'])
-@login_required
-@admin_required
-@csrf_required
-def delete_lineup_node(node_id):
-    """
-    [역할]: 라인업 노드 삭제 (관리자 전용)
-    [파괴적 액션 방어]: 하위 자식 노드 또는 연계된 옵션/장비가 있을 경우 삭제 거부
-    """
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # 하위 노드 존재 여부 확인
-        cursor.execute("SELECT COUNT(*) FROM lineup_nodes WHERE parent_id = ?", (node_id,))
-        if cursor.fetchone()[0] > 0:
-            conn.close()
-            return jsonify({"success": False, "message": "하위 모델이 연결되어 있어 삭제할 수 없습니다. 하위 모델을 먼저 삭제해 주세요."}), 400
-
-        # 하위 옵션 존재 여부 확인
-        cursor.execute("SELECT COUNT(*) FROM equipment_options WHERE lineup_node_id = ?", (node_id,))
-        if cursor.fetchone()[0] > 0:
-            conn.close()
-            return jsonify({"success": False, "message": "연결된 옵션 스펙이 존재하여 삭제할 수 없습니다."}), 400
-
-        cursor.execute("DELETE FROM lineup_nodes WHERE id = ?", (node_id,))
-        conn.commit()
-        conn.close()
-
-        return jsonify({"success": True, "message": "노드가 안전하게 삭제되었습니다."})
-
-    except Exception as e:
-        print(f"[API Error] delete_lineup_node: {e}")
-        return jsonify({"success": False, "message": f"노드 삭제 중 오류가 발생했습니다: {str(e)}"}), 400
+    return render_template('lineup_management.html', user=session['user'])  # 공통 frame을 사용합니다.
 
 
 @app.route('/api/equipment_option', methods=['POST'])
