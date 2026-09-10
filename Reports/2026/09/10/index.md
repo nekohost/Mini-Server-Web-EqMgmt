@@ -1,6 +1,6 @@
 # [Index] Reports 2026-09-10
 
-총 12건의 문서가 등록되어 있습니다.
+총 17건의 문서가 등록되어 있습니다.
 
 | 순번 | 문서 제목 | 작업 ID (`work_id`) | 작성 시각 (KST) |
 | :---: | :--- | :---: | :---: |
@@ -16,3 +16,8 @@
 | 010 | [노드 구현물 제안 귀속 검토 및 047 등록](./010_Lineup_Node_Proposal_Classification_Report.md) | `WORK-20260910-LINEUP-NODE-MANAGEMENT` | 2026-09-10 |
 | 011 | [제안 047 운영 반영 전 검토](./011_Proposal047_Production_Review_Report.md) | `WORK-20260910-LINEUP-NODE-MANAGEMENT` | 2026-09-10 |
 | 012 | [제안 047 운영 소스 반영 결과](./012_Proposal047_Production_Merge_Report.md) | `WORK-20260910-LINEUP-NODE-MANAGEMENT` | 2026-09-10 |
+| 013 | [제안 047 및 현재 작업 트리 Git Push](./013_Proposal047_Git_Push_Report.md) | `WORK-20260910-PROPOSAL047-GIT-PUSH` | 2026-09-10 |
+| 014 | [장비등록 모달 및 노드 추가 UX 후속 보완 Validation 1~8](./014_Lineup_Registration_UX_Followup_Validation_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |
+| 015 | [장비등록 모달 및 노드 추가 UX 후속 보완 Staging 결과](./015_Lineup_Registration_UX_Followup_Staging_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |
+| 016 | [장비등록 모달 및 노드 추가 UX 후속 보완 구현물 검토](./016_Lineup_Registration_UX_Followup_Review_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |
+| 017 | [장비등록 모달 및 노드 추가 UX 후속 보완 운영 반영](./017_Lineup_Registration_UX_Followup_Production_Merge_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |

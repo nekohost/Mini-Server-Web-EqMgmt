@@ -60,12 +60,13 @@
 
 <!-- [UI 모듈 2] 등록/수정 모달 (팝업) -->
 <div id="equipmentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-40 p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
+    <div id="equipmentModalPanel" class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col" style="max-height: calc(100vh - 2rem); max-height: calc(100dvh - 2rem);">
+        <div id="equipmentModalHeader" class="shrink-0 px-6 py-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-700/50">
             <h2 id="modalTitle" class="text-xl font-bold text-slate-800 dark:text-slate-100">신규 장비 등록</h2>
             <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-2xl">&times;</button>
         </div>
-        <form id="equipmentForm" class="p-6">
+        <form id="equipmentForm" class="min-h-0 flex flex-1 flex-col overflow-hidden">
+            <div id="equipmentModalBody" class="min-h-0 flex-1 overflow-y-auto p-6">
             <input type="hidden" id="EquipmentId">
             <input type="hidden" id="UserId"> <!-- 선택된 소유자 UserId -->
             
@@ -143,7 +144,8 @@
                     <label for="IsPublic" class="text-sm font-bold text-slate-700 dark:text-slate-300 cursor-pointer">이 장비를 시스템에 '공개'합니다 (타인 조회 허용)</label>
                 </div>
             </div>
-            <div class="mt-6 flex flex-col gap-2">
+            </div>
+            <div id="equipmentModalFooter" class="shrink-0 border-t border-slate-200 bg-white px-6 py-4 dark:border-slate-700 dark:bg-slate-800 flex flex-col gap-2">
                 <div id="submitLockNotice" class="text-xs text-amber-600 dark:text-amber-400 text-right">
                     ⚠️ 카탈로그의 최종 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.
                 </div>
@@ -386,46 +388,74 @@
             onPending: result => alert(result.message)
         });
 
-        // [역할] 같은 부모의 목록과 생성 패널을 표시합니다. [의존성 관계] 캐시·onLeafSelected. [변경 시 영향도] 옵션과 하위 노드 공존.
+        // [역할] 같은 부모의 기존 노드 목록을 표시하고, 명시적인 추가 선택에서만 생성 패널을 엽니다.
         function renderChildNodes(parentId, depth, nodesToRender = null) {
             const container = document.getElementById('dynamicTreeContainer');
             container.querySelectorAll('.lineup-select-row').forEach(row => {
-                if (Number(row.dataset.depth) >= depth) row.remove(); // 하위 선택만 정리합니다.
+                if (Number(row.dataset.depth) >= depth) row.remove(); // 현재 단계 이하를 다시 구성합니다.
             });
             selectedNodeId = parentId || null;
-            document.getElementById('OptionSelect').value = ''; // 숨겨진 이전 옵션 제출을 차단합니다.
+            document.getElementById('OptionSelect').value = '';
             document.getElementById('dynamicOptionContainer').classList.add('hidden');
-            if (parentId) onLeafSelected(parentId); // 자식이 있어도 현재 노드의 기존 옵션을 유지합니다.
+            if (parentId) onLeafSelected(parentId); // 자식 선택 전에는 현재 노드의 기존 옵션을 사용할 수 있습니다.
             if (depth > 50) { updateSubmitLockState(); return; }
+
             const nodes = nodesToRender || nodeCache_v2.tree[parentId] || [];
             const row = document.createElement('div');
             row.className = 'lineup-select-row flex flex-col gap-2';
             row.dataset.depth = depth;
             row.dataset.parent = parentId || 'root';
+
             const select = document.createElement('select');
             select.className = 'w-full rounded-lg border border-slate-300 bg-white p-2 text-sm dark:bg-slate-700 dark:text-white';
-            select.add(new Option(parentId ? '-- 하위 모델 선택 (선택 사항) --' : '-- 모델 선택 --', ''));
-            nodes.forEach(node => select.add(new Option(node.name, node.id))); // 이름은 HTML로 해석하지 않습니다.
+            const emptyLabel = parentId ? '-- 등록된 하위 모델 없음 (➕ 노드 추가 선택) --' : '-- 등록된 모델 없음 (➕ 노드 추가 선택) --';
+            const defaultLabel = parentId ? '-- 하위 모델 선택 (선택 사항) --' : '-- 모델 선택 --';
+            select.add(new Option(nodes.length === 0 ? emptyLabel : defaultLabel, ''));
+            nodes.forEach(node => select.add(new Option(node.name, node.id)));
+            select.add(new Option(parentId ? '➕ 새 하위 노드 추가' : '➕ 새 최상위 노드 추가', '__add_node__'));
+
+            const panel = document.createElement('div');
+            panel.className = 'hidden';
+
+            function clearDeeperRows() {
+                container.querySelectorAll('.lineup-select-row').forEach(child => {
+                    if (Number(child.dataset.depth) > depth) child.remove();
+                });
+            }
+
+            function hideNodePanel() {
+                panel.classList.add('hidden');
+                if (typeof panel.replaceChildren === 'function') panel.replaceChildren();
+                else panel.innerHTML = '';
+            }
+
             select.addEventListener('change', () => {
+                clearDeeperRows();
+                hideNodePanel();
+                document.getElementById('OptionSelect').value = '';
+                document.getElementById('dynamicOptionContainer').classList.add('hidden');
+
+                if (select.value === '__add_node__') {
+                    selectedNodeId = parentId || null;
+                    panel.classList.remove('hidden');
+                    nodeRegistration.mount(panel, {
+                        categoryId: Number(document.getElementById('CategorySelect').value),
+                        manufacturerId: Number(document.getElementById('ManufacturerSelect').value),
+                        parentId: parentId ? Number(parentId) : null,
+                        depth
+                    });
+                    updateSubmitLockState();
+                    return;
+                }
+
                 if (select.value) renderChildNodes(select.value, depth + 1);
                 else {
-                    container.querySelectorAll('.lineup-select-row').forEach(child => {
-                        if (Number(child.dataset.depth) > depth) child.remove();
-                    });
                     selectedNodeId = parentId || null;
-                    document.getElementById('OptionSelect').value = '';
-                    document.getElementById('dynamicOptionContainer').classList.add('hidden');
                     if (parentId) onLeafSelected(parentId);
                 }
                 updateSubmitLockState();
             });
-            const panel = document.createElement('div');
-            nodeRegistration.mount(panel, {
-                categoryId: Number(document.getElementById('CategorySelect').value),
-                manufacturerId: Number(document.getElementById('ManufacturerSelect').value),
-                parentId: parentId ? Number(parentId) : null,
-                depth
-            });
+
             row.append(select, panel);
             container.append(row);
             updateSubmitLockState();
@@ -618,6 +648,8 @@
         const btnFormalSubmit = document.getElementById('btnFormalSubmit');
 
         form.reset();
+        const modalBody = document.getElementById('equipmentModalBody');
+        if (modalBody) modalBody.scrollTop = 0;
         document.getElementById('EquipmentId').value = '';
         document.getElementById('UserId').value = ''; 
         document.getElementById('CategoryCustomBox').classList.add('hidden');
