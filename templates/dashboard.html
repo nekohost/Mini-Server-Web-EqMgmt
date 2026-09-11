@@ -193,6 +193,12 @@
         }
     }
 
+    function escapeDashboardText(value) {
+        const text = document.createElement('span');
+        text.textContent = String(value);
+        return text.innerHTML;
+    }
+
     function renderCombinedStats(stats) {
         document.getElementById('combinedResultArea').classList.remove('hidden');
         document.getElementById('combinedCount').innerText = stats.equipment_list.length;
@@ -208,14 +214,14 @@
         stats.equipment_list.forEach(eq => {
             const row = `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${eq.Name || '-'}</td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">${eq.ModelName || '-'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${escapeDashboardText(eq.Name || '-')}</td>
+                    <td class="px-4 py-3 whitespace-normal break-words text-sm text-slate-600 dark:text-slate-400">${escapeDashboardText(eq.FullModelName || eq.ModelName || '-')}</td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
                         <span class="px-2 py-1 text-xs font-medium rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                            ${eq.Status}
+                            ${escapeDashboardText(eq.Status || '-')}
                         </span>
                     </td>
-                    <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">${eq.PurchaseDate || '-'}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">${escapeDashboardText(eq.PurchaseDate || '-')}</td>
                 </tr>
             `;
             tbody.innerHTML += row;

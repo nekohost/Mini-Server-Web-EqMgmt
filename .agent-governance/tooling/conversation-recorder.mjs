@@ -3,7 +3,7 @@
 // [의존성 관계] conversation-recorder 하위 core와 Codex·Antigravity·Claude 어댑터만 사용한다.
 // [변경 시 영향도] 명령 의미나 상태 경로를 바꾸면 세 진입점, 운영 가이드, fixture와 capability를 함께 갱신해야 한다.
 
-import { watch as watchFileSystem } from 'node:fs';
+import { readFileSync, watch as watchFileSystem } from 'node:fs';
 import { mkdir, readFile, readdir, rm } from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
@@ -13,6 +13,7 @@ import { collectAntigravityEvents, defaultAntigravityRoots } from './conversatio
 import { collectClaudeEvents } from './conversation-recorder/claude.mjs';
 import { collectCodexEvents } from './conversation-recorder/codex.mjs';
 import { CURRENT_PROCESS_STARTED_AT, emptyState, eventAlreadyRecorded, isRecordedProcessAlive, normalizeNewlines, projectEvents, readState, withWriterLock, writeFileAtomic, writeState } from './conversation-recorder/core.mjs';
+import { ingestRoutedEnvelope } from './conversation-recorder/routed-ingest.mjs';
 
 const CLI_PATH = fileURLToPath(import.meta.url);
 const DEFAULT_POLL_INTERVAL_MS = 1500;
@@ -300,7 +301,10 @@ export async function runWatcher(options) {
 async function main() {
   const options = parseArguments(process.argv.slice(2));
   let result;
-  if (options.command === 'reconcile') result = await reconcileOnce(options);
+  if (options.command === 'ingest-routed') {
+    const envelope = JSON.parse(readFileSync(0, 'utf8').replace(/^\uFEFF/, ''));
+    result = await ingestRoutedEnvelope(envelope, { workspaceRoot: options.workspaceRoot, chatRoot: options.chatRoot });
+  } else if (options.command === 'reconcile') result = await reconcileOnce(options);
   else if (options.command === 'ensure') result = await ensureWatcher(options);
   else if (options.command === 'watch') result = await runWatcher(options);
   else if (options.command === 'status') result = await recorderStatus(options);

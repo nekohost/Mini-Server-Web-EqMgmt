@@ -75,7 +75,7 @@ function conversationEvents(info, { isSubagent = false, parentThreadId = '' } = 
       // wrapper가 없거나 빈 요청이면 기록하지 않는다.
       if (!content) continue;
       // 하위 conversation의 유일한 user request는 부모가 맡긴 task로 companion에 보낸다.
-      events.push(createEvent({ provider: 'antigravity', threadId: info.conversationId, sourceEventId: `step-${item.step_index}`, sourceOrdinal: Number(item.step_index ?? row.lineNumber), occurredAt: item.created_at, actor: isSubagent ? 'parent' : 'user', channel: isSubagent ? 'subagent_task' : 'user', speaker: isSubagent ? '부모 → Gemini 하위 에이전트' : '사용자', content, destination: isSubagent ? 'subagent' : 'main', parentThreadId, agentId, taskName: agentId }));
+      events.push(createEvent({ provider: 'antigravity', threadId: info.conversationId, sourceEventId: `step-${item.step_index}`, sourceOrdinal: Number(item.step_index ?? row.lineNumber), occurredAt: item.created_at, actor: isSubagent ? 'parent' : 'user', channel: isSubagent ? 'subagent_task' : 'user', speaker: isSubagent ? '부모 → Gemini 하위 에이전트' : '사용자 → Gemini', content, destination: isSubagent ? 'subagent' : 'main', parentThreadId, agentId, taskName: agentId }));
       // 같은 행을 MODEL로 다시 처리하지 않는다.
       continue;
     }

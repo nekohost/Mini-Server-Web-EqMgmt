@@ -4,7 +4,7 @@
 
 `Rule.md`는 인간용 통합 참조본이다. 일반 작업에서는 manifest/router가 선택한 node를 우선 사용하고 Rule 개정·감사 시에만 Rule과 human-rule-map을 함께 읽는다.
 
-대화 기록 상태: 현재 project recorder는 Codex·Antigravity 원본만 자동 수집한다. ChatGPT 직접 대화는 adapter가 없으므로 자동 기록 성공으로 주장하지 않는다. 프로젝트 작업 전 `conversation-recorder ensure --platform all --workspace . --json`은 기존 활성 adapter의 무결성 확인 목적으로 실행할 수 있다.
+대화 기록 상태: Codex·Antigravity raw collector는 기존 watcher가 자동 수집한다. ChatGPT native/raw transcript collector는 여전히 없으며 `automatic_project_recording: false`다. 대신 General dispatcher가 session owner와 historical `routing_revision`을 확정한 visible user/commentary/final event는 `chatgpt-remote` capability의 agent-mediated routed ingest로 이 프로젝트에 전달할 수 있다. 이 경로는 target/authority governance fingerprint를 검증한 뒤 기존 project recorder의 writer lock·provenance·atomic write를 재사용한다. routed event 전달 성공을 ChatGPT 플랫폼 자체의 native 자동 수집으로 표현하지 않는다.
 
 Scope ownership `[ENTRY-CHATGPT.SCOPE]`: Remote Desktop Commander 사용이나 프로젝트 밖 경로 접근은 owner 전환 근거가 아니다. 현재 Mini-Server 부모 작업을 위한 reference/execution이면 프로젝트 owner를 유지하고, foreign governed workspace write만 nested handoff하며, 새 독립 작업으로 사용자 의도가 바뀔 때만 full scope switch한다.
 
@@ -15,6 +15,8 @@ Scope ownership `[ENTRY-CHATGPT.SCOPE]`: Remote Desktop Commander 사용이나 �
 5. 실제 작업은 Task/Plan/Report 연속성을 확인한다.
 6. 일반 파일 쓰기는 구조화된 편집 수단을 우선하며 터미널 fallback은 `tools.file-editing`을 따른다.
 7. Rule 변경은 `sync-status` → `sync-plan --expected-rule-sha` → node/map/baseline/manifest 동기화 → validate 순서를 따른다.
-8. scope 또는 governance 충돌을 추측으로 해소하지 않고 사용자 결정을 받는다.
+8. routed ChatGPT event는 General dispatcher가 확정한 revision과 owner를 그대로 따르며 현재 디렉터리나 도구 위치로 destination을 재판정하지 않는다.
+9. scope 또는 governance 충돌을 추측으로 해소하지 않고 사용자 결정을 받는다.
 
 플랫폼 capability는 `.agent-governance/capabilities/chatgpt-remote.yaml`을 따른다.
+10. 같은 ChatGPT conversation에서는 최초 명시적 owner 선택 때 만든 conversation-local opaque `session_key`를 계속 재사용한다. 실제 routed delivery receipt가 없는 이벤트를 저장된 것으로 간주하지 않으며, exact timestamp/session binding을 확인할 수 없는 과거 구간은 현재 시각으로 꾸며 backfill하지 않는다.

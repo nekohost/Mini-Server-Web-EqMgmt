@@ -1,7 +1,7 @@
 ---
 artifact_id: PLAN-20260910-004
 work_id: WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP
-created_at: 2026-09-10T19:54:00+09:00
+created_at: 2026-09-10T19:54:00.000+09:00
 related_artifacts:
   - ../../../../Tasks/2026/09/10/007_Lineup_Registration_Modal_and_Node_Add_UX_Followup_Task.md
   - ../../../../Reports/2026/09/10/014_Lineup_Registration_UX_Followup_Validation_Report.md

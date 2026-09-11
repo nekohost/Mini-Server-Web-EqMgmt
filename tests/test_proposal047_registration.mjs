@@ -19,6 +19,7 @@ class Element {
     addEventListener(name, handler) { this.listeners[name] = handler; }
     dispatchEvent(event) { this.listeners[event.type]?.(event); }
     removeAttribute() {}
+    setAttribute(name, value) { this[name] = value; }
     querySelectorAll(selector) { return this.children.flatMap(c => [...(c.className?.includes(selector.slice(1)) ? [c] : []), ...c.querySelectorAll(selector)]); }
 }
 

@@ -1,6 +1,6 @@
 # [Index] Reports 2026-09-10
 
-총 17건의 문서가 등록되어 있습니다.
+총 18건의 문서가 등록되어 있습니다.
 
 | 순번 | 문서 제목 | 작업 ID (`work_id`) | 작성 시각 (KST) |
 | :---: | :--- | :---: | :---: |
@@ -21,3 +21,4 @@
 | 015 | [장비등록 모달 및 노드 추가 UX 후속 보완 Staging 결과](./015_Lineup_Registration_UX_Followup_Staging_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |
 | 016 | [장비등록 모달 및 노드 추가 UX 후속 보완 구현물 검토](./016_Lineup_Registration_UX_Followup_Review_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |
 | 017 | [장비등록 모달 및 노드 추가 UX 후속 보완 운영 반영](./017_Lineup_Registration_UX_Followup_Production_Merge_Report.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 2026-09-10 |
+| 018 | [ChatGPT Scope Routed Conversation Recording Validation 1~8](./018_ChatGPT_Scope_Routed_Conversation_Recording_Validation_Report.md) | `WORK-20260910-CHATGPT-SCOPE-ROUTED-RECORDING` | 2026-09-10 |

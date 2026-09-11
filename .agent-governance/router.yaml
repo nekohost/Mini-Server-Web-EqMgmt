@@ -90,7 +90,7 @@ rules:
       - validation.phase.06-rollback
   - id: conversation-record
     match:
-      intents: [record-conversation, append-chat]
+      intents: [record-conversation, append-chat, ingest-routed-conversation]
       paths: [Chat/**]
     load:
       - records.conversation-integrity

@@ -53,11 +53,16 @@ class LineupNodeServiceTests(unittest.TestCase):
             CREATE TABLE equipment_options (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 lineup_node_id INTEGER NOT NULL,
-                option_name TEXT NOT NULL
+                option_name TEXT NOT NULL,
+                specs_json TEXT DEFAULT '{}',
+                status TEXT DEFAULT 'APPROVED',
+                requested_by INTEGER,
+                created_at TEXT
             );
             CREATE TABLE equipments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                option_id INTEGER NOT NULL
+                option_id INTEGER NOT NULL,
+                is_draft INTEGER DEFAULT 0
             );
             CREATE TABLE approval_requests (
                 RequestId INTEGER PRIMARY KEY AUTOINCREMENT,

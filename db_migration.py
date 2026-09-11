@@ -134,8 +134,7 @@ def run_migration():
                 old_value TEXT,
                 new_value TEXT,
                 changed_by INTEGER,
-                changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (equipment_id) REFERENCES equipments(id)
+                changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         ''')
 

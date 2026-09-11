@@ -917,9 +917,14 @@ function validateGovernance(governance, options = {}) {
     if (chatgptCapability.workspace_binding?.remote_desktop_is_scope_neutral !== true) errors.push('Remote Desktop이 scope 중립 capability로 선언되지 않았습니다.');
     if (chatgptCapability.scope?.foreign_governed_write !== 'nested-handoff-required') errors.push('ChatGPT foreign governed write의 nested handoff 계약이 없습니다.');
     if (chatgptCapability.conversation_export?.automatic_project_recording !== false) errors.push('ChatGPT 자동 프로젝트 기록 capability를 과장했습니다.');
+    if (chatgptCapability.conversation_export?.status !== 'routed-ingest-supported') errors.push('ChatGPT routed-ingest capability 상태가 활성화되지 않았습니다.');
+    if (chatgptCapability.conversation_export?.native_raw_collector !== false) errors.push('ChatGPT native/raw collector를 잘못 활성화했습니다.');
+    if (chatgptCapability.conversation_export?.agent_mediated_routed_ingest !== true) errors.push('ChatGPT agent-mediated routed ingest 선언이 없습니다.');
+    const routedIngest = chatgptCapability.conversation_export?.routed_ingest;
+    if (routedIngest?.authority !== 'general-dispatcher' || routedIngest?.transport !== 'stdin-json' || routedIngest?.envelope_schema !== 'general.routed-conversation-envelope.v1' || routedIngest?.entrypoint !== '.agent-governance/tooling/conversation-recorder.mjs' || routedIngest?.command !== 'ingest-routed') errors.push('ChatGPT routed-ingest contract가 일치하지 않습니다.');
   }
   // 실제 parser와 lockfile 경로가 존재하는지 확인한다.
-  for (const toolingPath of [governance.manifest.tooling?.package, governance.manifest.tooling?.lockfile, governance.manifest.tooling?.command]) {
+  for (const toolingPath of [governance.manifest.tooling?.package, governance.manifest.tooling?.lockfile, governance.manifest.tooling?.command, governance.manifest.tooling?.routed_ingest]) {
     // 값 누락 또는 파일 누락을 오류로 처리한다.
     if (!toolingPath || !fs.existsSync(path.resolve(GOVERNANCE_ROOT, toolingPath))) errors.push(`tooling 파일 누락: ${toolingPath ?? '<미정>'}`);
   }

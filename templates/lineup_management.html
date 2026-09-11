@@ -12,7 +12,7 @@
     <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h2 id="lineup-page-title" class="text-2xl font-bold text-slate-900 dark:text-white">라인업 노드 관리</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">장비등록에 사용되는 가변 깊이 모델 트리를 관리합니다.</p>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">모델 트리와 옵션을 관리합니다. 장비를 삭제해도 옵션은 남으며, 미사용 옵션만 별도로 삭제할 수 있습니다.</p>
         </div>
         <button id="addRootButton" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
             + 최상위 노드 추가
@@ -42,7 +42,9 @@
     <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div class="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
             <h3 class="font-bold text-slate-800 dark:text-slate-100">선택 조합의 노드 트리</h3>
-            <p class="mt-1 text-xs text-slate-500">이동은 같은 카테고리·제조사 조합 안에서만 가능합니다.</p>
+            <p class="mt-1 text-xs text-slate-500">이동은 같은 카테고리·제조사 조합 안에서만 가능합니다. 임시저장 장비도 옵션 사용량에 포함됩니다.</p>
+            <label class="mt-2 block text-sm"><input id="unusedOptionsOnly" type="checkbox"> 미사용 옵션만 표시</label>
+            <a href="/approvals" class="text-sm text-blue-600 underline">미승인 항목은 전자결재함에서 처리</a>
         </div>
         <div id="treeContainer" class="min-h-48 p-3 sm:p-5" aria-live="polite"></div>
     </div>
@@ -72,6 +74,24 @@
         </div>
     </form>
 </div>
+<dialog id="optionDialog" class="w-full max-w-lg rounded-xl bg-white p-5 text-slate-900 shadow-xl backdrop:bg-black/60 dark:bg-slate-800 dark:text-white" aria-labelledby="optionDialogTitle">
+    <form id="optionForm" class="space-y-4">
+        <h3 id="optionDialogTitle" class="text-lg font-bold">옵션 관리</h3>
+        <p id="optionNodeLabel" class="break-all text-sm"></p>
+        <label class="block text-sm">옵션 이름 (1~100자)
+            <input id="optionName" required maxlength="100" class="mt-1 w-full rounded border p-2 dark:bg-slate-700">
+        </label>
+        <label class="block text-sm">스펙 JSON (예: {"메모리":"16GB"})
+            <textarea id="optionSpecs" rows="6" required class="mt-1 w-full rounded border p-2 font-mono text-sm dark:bg-slate-700"></textarea>
+        </label>
+        <p class="text-xs text-amber-700 dark:text-amber-300">옵션 수정은 이 옵션을 사용하는 모든 장비에 적용됩니다. 소속 노드는 변경하지 않습니다.</p>
+        <p id="optionMessage" class="hidden" role="alert"></p>
+        <div class="flex justify-end gap-3">
+            <button type="button" id="cancelOptionButton" class="rounded border px-4 py-2">취소</button>
+            <button type="submit" id="saveOptionButton" class="rounded bg-blue-600 px-4 py-2 text-white disabled:opacity-50">저장</button>
+        </div>
+    </form>
+</dialog>
 {% endblock %}
 
 {% block extra_scripts %}
@@ -189,7 +209,7 @@
         const info = makeElement('div', 'min-w-0');
         const titleRow = makeElement('div', 'flex flex-wrap items-center gap-2');
         titleRow.append(makeElement('strong', 'break-all text-sm text-slate-900 dark:text-white', node.name), statusBadge(node.status));
-        const metrics = makeElement('p', 'mt-1 text-xs text-slate-500 dark:text-slate-400', `깊이 ${node.depth} · 자식 ${node.child_count || 0} · 옵션 ${node.option_count || 0} · 장비 ${node.equipment_count || 0}`);
+        const metrics = makeElement('p', 'mt-1 text-xs text-slate-500 dark:text-slate-400', `깊이 ${node.depth} · 자식 ${node.child_count || 0} · 옵션 ${node.option_count || 0} · 활성 장비 ${node.active_equipment_count || 0} · 임시저장 ${node.draft_equipment_count || 0}`);
         info.append(titleRow, metrics);
 
         const actions = makeElement('div', 'flex flex-wrap gap-2');
@@ -207,7 +227,7 @@
         remove.disabled = remove.disabled || node.status !== 'APPROVED';
         if (node.status !== 'APPROVED') { add.title = edit.title = remove.title = '전자결재함에서 승인 요청을 처리해 주세요.'; }
         actions.append(add, edit, remove);
-        row.append(info, actions); card.append(row); wrapper.append(card);
+        row.append(info, actions); card.append(row, renderOptions(node)); wrapper.append(card);
         (childrenByParent.get(Number(node.id)) || []).forEach(child => wrapper.append(renderNode(child, childrenByParent, level + 1)));
         return wrapper;
     }
@@ -339,6 +359,85 @@
         } catch (error) { showMessage(error.message); }
     }
 
+    let editingOption = null;
+    const optionDialog = document.getElementById('optionDialog');
+    const optionForm = document.getElementById('optionForm');
+    const optionMessage = document.getElementById('optionMessage');
+    const optionSave = document.getElementById('saveOptionButton');
+
+    function openOption(node, option = null) {
+        /* [역할] 선택 노드의 옵션 생성/수정 폼을 표시합니다. DOM text만 사용합니다. */
+        editingOption = { node, option };
+        document.getElementById('optionDialogTitle').textContent = option ? '옵션 수정' : '옵션 추가';
+        document.getElementById('optionNodeLabel').textContent = `소속 노드: ${node.name} (#${node.id})`;
+        document.getElementById('optionName').value = option?.option_name || '';
+        try { document.getElementById('optionSpecs').value = JSON.stringify(JSON.parse(option?.specs_json || '{}'), null, 2); }
+        catch (_) { document.getElementById('optionSpecs').value = option.specs_json; }
+        optionMessage.classList.add('hidden'); optionDialog.showModal();
+        document.getElementById('optionName').focus();
+    }
+
+    function renderOptions(node) {
+        /* [역할] 승인 상태와 활성/임시저장 사용량을 구분하여 옵션 CRUD를 제공합니다. */
+        const section = makeElement('details', 'mt-3 border-t pt-2');
+        section.append(makeElement('summary', 'cursor-pointer text-sm font-semibold', `옵션 관리 (${node.option_count || 0})`));
+        const add = makeElement('button', 'my-2 rounded border px-3 py-1 text-sm disabled:opacity-40', '+ 옵션 추가');
+        add.type = 'button'; add.disabled = node.status !== 'APPROVED';
+        add.addEventListener('click', () => openOption(node)); section.append(add);
+        const unusedOnly = document.getElementById('unusedOptionsOnly').checked;
+        const options = (state.snapshot.options || []).filter(opt => Number(opt.lineup_node_id) === Number(node.id));
+        options.filter(opt => !unusedOnly || !(opt.active_equipment_count + opt.draft_equipment_count)).forEach(opt => {
+            const used = opt.active_equipment_count + opt.draft_equipment_count;
+            const card = makeElement('div', 'my-2 rounded border p-3 text-sm');
+            card.append(makeElement('strong', 'break-all', opt.option_name), statusBadge(opt.status));
+            card.append(makeElement('p', 'mt-1 text-xs', `옵션 #${opt.id} · 활성 ${opt.active_equipment_count} · 임시저장 ${opt.draft_equipment_count}`));
+            card.append(makeElement('pre', 'my-2 whitespace-pre-wrap break-all text-xs', opt.specs_json || '{}'));
+            const edit = makeElement('button', 'mr-2 rounded border px-3 py-1 disabled:opacity-40', '수정');
+            edit.type = 'button'; edit.disabled = opt.status !== 'APPROVED' || node.status !== 'APPROVED';
+            edit.addEventListener('click', () => openOption(node, opt));
+            const remove = makeElement('button', 'rounded border px-3 py-1 text-red-600 disabled:opacity-40', '삭제');
+            remove.type = 'button'; remove.disabled = used > 0 || opt.status !== 'APPROVED';
+            const reason = opt.status !== 'APPROVED' ? '전자결재함에서 처리해 주세요.' : used > 0 ? '사용 중인 장비(임시저장 포함)가 있어 삭제할 수 없습니다.' : '미사용 옵션입니다. 삭제 후 복구할 수 없습니다.';
+            remove.title = reason;
+            remove.addEventListener('click', async () => {
+                if (state.busy || !window.confirm(`“${opt.option_name}” 옵션을 삭제할까요? 복구할 수 없습니다.`)) return;
+                state.busy = true; remove.disabled = true;
+                try {
+                    const result = await apiRequest(`/api/equipment_option/${opt.id}`, { method: 'DELETE' });
+                    try { sessionStorage.removeItem('nodeCache_v2'); } catch (_) { /* 다음 조회로 갱신 */ }
+                    await loadSnapshot(true); showMessage(result.message, 'success');
+                } catch (error) { showMessage(error.message); remove.disabled = false; }
+                finally { state.busy = false; }
+            });
+            card.append(edit, remove, makeElement('p', 'mt-1 text-xs text-slate-500', reason)); section.append(card);
+        });
+        if (!options.length) section.append(makeElement('p', 'text-xs text-slate-500', '등록된 옵션이 없습니다.'));
+        return section;
+    }
+
+    optionForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (state.busy || !editingOption) return;
+        let specs;
+        try {
+            specs = JSON.parse(document.getElementById('optionSpecs').value);
+            if (!specs || Array.isArray(specs) || typeof specs !== 'object') throw new Error();
+        } catch (_) { showMessage('스펙은 올바른 JSON 객체로 입력해 주세요.', 'error', optionMessage); return; }
+        state.busy = true; optionSave.disabled = true;
+        const { node, option } = editingOption;
+        try {
+            const result = await apiRequest(option ? `/api/equipment_option/${option.id}` : '/api/equipment_option', {
+                method: option ? 'PUT' : 'POST', body: JSON.stringify({ lineup_node_id: node.id, option_name: document.getElementById('optionName').value.trim(), specs })
+            });
+            optionDialog.close();
+            try { sessionStorage.removeItem('nodeCache_v2'); } catch (_) { /* 다음 조회로 갱신 */ }
+            await loadSnapshot(true); showMessage(result.message, 'success');
+        } catch (error) { showMessage(error.message, 'error', optionMessage); }
+        finally { state.busy = false; optionSave.disabled = false; }
+    });
+    document.getElementById('cancelOptionButton').addEventListener('click', () => { if (!state.busy) optionDialog.close(); });
+    optionDialog.addEventListener('cancel', event => { if (state.busy) event.preventDefault(); });
+    document.getElementById('unusedOptionsOnly').addEventListener('change', renderTree);
     elements.category.addEventListener('change', renderTree);
     elements.manufacturer.addEventListener('change', renderTree);
     elements.addRoot.addEventListener('click', () => openCreateModal(null));

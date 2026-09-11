@@ -23,6 +23,8 @@ import string
 import uuid
 import secrets
 from utils.mailer import send_email
+from utils.lineup_node_service import add_full_model_names, save_option, delete_option, LineupNodeError
+from utils.equipment_audit_migration import migrate_equipment_audit_log, private_directory
 import warnings
 
 # [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
@@ -524,8 +526,7 @@ def init_db():
             old_value TEXT,
             new_value TEXT,
             changed_by INTEGER,
-            changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (equipment_id) REFERENCES equipments(id)
+            changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     ''')
 
@@ -733,6 +734,8 @@ def init_db():
 
 # 서버 실행 시 DB 준비 (기존 데이터 보존 원칙 적용)
 init_db()
+# 승인된 무손실 migration: 사전 백업 후 감사 FK만 제거하며 실패 시 시작 중단.
+migrate_equipment_audit_log(DATABASE_PATH, os.path.join(DATABASE_OPERATION_ROOT, 'migration-backups'))
 
 def run_migration_if_needed(migration_name, migration_func):
     """
@@ -1679,11 +1682,11 @@ def ensure_database_operation_directories():
     [의존성 관계]: DATABASE_OPERATION_ROOT, os.makedirs()
     [변경 시 영향도]: DB 사본의 저장 위치와 서비스 계정 파일 권한에 영향을 줍니다.
     """
+    private_directory(DATABASE_OPERATION_ROOT)
     directories = {}
     for name in ('candidates', 'backups', 'jobs'):
-        path = os.path.join(DATABASE_OPERATION_ROOT, name)
-        os.makedirs(path, mode=0o700, exist_ok=True)
-        directories[name] = path
+        path = private_directory(os.path.join(DATABASE_OPERATION_ROOT, name))
+        directories[name] = str(path)
     return directories
 
 
@@ -1952,18 +1955,20 @@ def create_online_backup(destination_path):
     [의존성 관계]: get_db_connection(), sqlite3.Connection.backup(), inspect_database_file()
     [변경 시 영향도]: 관리자 다운로드 백업과 복원 직전 자동 원복 지점에 영향을 줍니다.
     """
+    # 생성 순간부터 0600, 기존 파일 덮어쓰기 금지.
+    descriptor = os.open(destination_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+    os.close(descriptor)
     source = get_db_connection()
-    destination = sqlite3.connect(destination_path)
+    destination = None
     try:
+        destination = sqlite3.connect(destination_path)
         source.backup(destination, pages=256, sleep=0.01)
         destination.commit()
     finally:
-        destination.close()
+        if destination is not None:
+            destination.close()
         source.close()
-    try:
-        os.chmod(destination_path, 0o600)
-    except OSError:
-        pass
+    os.chmod(destination_path, 0o600)
     return inspect_database_file(destination_path)
 
 
@@ -2341,12 +2346,13 @@ def api_download_database_backup():
     if get_maintenance_state()['state'] not in {'DRAINING', 'RECOVERY'}:
         return jsonify({'success': False, 'message': 'DB 백업은 점검 모드에서만 가능합니다.'}), 409
     # 재시작 뒤 남은 임시 사본을 새 다운로드 전에 정리합니다.
-    purge_expired_database_operation_files()
     # 호출자 감사에 사용할 서버 세션의 관리자 정보를 읽습니다.
     admin_user = session.get('user', {})
     # 실패 시 제거할 경로를 미리 준비합니다.
     backup_path = None
+    stage = 'prepare'
     try:
+        purge_expired_database_operation_files()
         # 현재 DB 사본과 안전 여유 공간을 만들 수 있는지 두 파일시스템에서 확인합니다.
         ensure_database_operation_space(os.path.getsize(DATABASE_PATH) + DATABASE_OPERATION_RESERVE_BYTES)
         # 정적 웹 경로 밖의 백업 저장소를 준비합니다.
@@ -2355,7 +2361,9 @@ def api_download_database_backup():
         stamp = datetime.now().strftime('%Y%m%d-%H%M%S')
         backup_path = os.path.join(directories['backups'], f'equipment-backup-{stamp}-{uuid.uuid4().hex[:8]}.db')
         # SQLite 온라인 백업과 재검증을 수행합니다.
+        stage = 'backup_validate'
         backup_summary = create_online_backup(backup_path)
+        stage = 'audit'
         # DB 내부 감사 로그에는 백업 파일 자체가 아닌 안전한 지문만 남깁니다.
         write_database_operation_audit('DOWNLOAD_DATABASE_BACKUP', admin_user.get('LoginId'), {
             'sha256': backup_summary['sha256'], 'size': backup_summary['size']
@@ -2365,6 +2373,7 @@ def api_download_database_backup():
             'sha256': backup_summary['sha256'], 'size': backup_summary['size']
         })
         # 첨부 응답을 만들되 HTTP 캐시가 DB 내용을 보관하지 못하게 합니다.
+        stage = 'download'
         response = send_file(backup_path, as_attachment=True, download_name=f'equipment-backup-{stamp}.db',
                              mimetype='application/vnd.sqlite3', conditional=False)
         # 브라우저·프록시의 응답 캐시를 명시적으로 금지합니다.
@@ -2372,14 +2381,19 @@ def api_download_database_backup():
         # 오래된 HTTP 캐시 구현에도 캐시 금지를 알립니다.
         response.headers['Pragma'] = 'no-cache'
         # 전송 완료 또는 클라이언트 중단 뒤 서버 임시 백업을 삭제합니다.
+        response.direct_passthrough = False  # 전송 후 close callback 실행을 보장합니다.
         response.call_on_close(lambda: remove_database_operation_file(backup_path))
         # 바이너리 다운로드 응답을 반환합니다.
         return response
-    except (OSError, sqlite3.Error, ValueError):
+    except (OSError, sqlite3.Error, ValueError) as error:
         # 중간에 생성된 민감 사본은 오류 응답 전에 제거합니다.
         remove_database_operation_file(backup_path)
         # 내부 경로·SQLite 오류를 노출하지 않는 공통 안내를 반환합니다.
-        return jsonify({'success': False, 'message': safe_database_operation_error_message()}), 500
+        error_id = uuid.uuid4().hex[:12]
+        reason = 'foreign_key_check' if isinstance(error, ValueError) and str(error) == '외래키 무결성 검사에 실패했습니다.' else type(error).__name__
+        app.logger.error('database-backup failed error_id=%s stage=%s reason=%s', error_id, stage, reason)
+        return jsonify({'success': False, 'error_id': error_id,
+                        'message': safe_database_operation_error_message() + f' 오류 ID: {error_id}'}), 500
 
 
 @app.route('/api/admin/database/candidate', methods=['POST'])
@@ -3190,15 +3204,16 @@ def get_lineup_tree_all():
 from utils.lineup_routes import build_lineup_node_blueprint  # 검증된 노드 route factory를 연결합니다.
 
 
-def audit_lineup_change(connection, action, node_id, before, after):
+def audit_lineup_change(connection, action, node_id, before, after, table=None):
     """[역할] 노드 변경과 감사 이력을 같은 transaction에 기록합니다.
     [의존성 관계] audit_logs, session, 노드 Blueprint.
     [변경 시 영향도] 감사 실패 시 노드 변경도 함께 rollback됩니다.
     """
     user = session['user']  # 인증 decorator를 통과한 요청자입니다.
     connection.execute(  # 별도 연결의 쓰기 잠금 충돌을 방지합니다.
-        "INSERT INTO audit_logs (ActorId, ActorLoginId, IpAddress, UserAgent, TargetTable, TargetId, Action, OldValue, NewValue, CreatedAt) VALUES (?, ?, ?, ?, 'lineup_nodes', ?, ?, ?, ?, ?)",
+        "INSERT INTO audit_logs (ActorId, ActorLoginId, IpAddress, UserAgent, TargetTable, TargetId, Action, OldValue, NewValue, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         (user['UserId'], user['LoginId'], request.remote_addr, request.headers.get('User-Agent', ''),
+         table or ('equipment_options' if action.endswith('_OPTION') else 'lineup_nodes'),
          node_id, action, json.dumps(before, ensure_ascii=False), json.dumps(after, ensure_ascii=False),
          datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     )
@@ -3221,81 +3236,61 @@ def lineup_management_page():
     return render_template('lineup_management.html', user=session['user'])  # 공통 frame을 사용합니다.
 
 
+def handle_option_change(option_id=None):
+    """[역할] 옵션 변경과 감사를 동일 transaction으로 처리합니다.
+    [의존성 관계] save_option/delete_option, 인증·CSRF, audit_logs.
+    [변경 시 영향도] 옵션 CRUD 및 일반 사용자 결재 생성에 영향을 줍니다.
+    """
+    conn = get_db_connection()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        if request.method == 'DELETE':
+            before = delete_option(conn, option_id)
+            result = {'option_id': option_id}
+            audit_lineup_change(conn, 'DELETE_OPTION', option_id, before, None)
+        else:
+            result = save_option(conn, request.get_json(silent=True), session['user'], option_id)
+            before = result.pop('before')
+            audit_lineup_change(conn, 'UPDATE_OPTION' if option_id else 'CREATE_OPTION', result['option_id'], before, result)
+        conn.commit()
+        message = '옵션 변경이 완료되었습니다.' if result.get('status') != 'PENDING' else '옵션 승인 요청이 전자결재함에 등록되었습니다.'
+        return jsonify({'success': True, **result, 'message': message}), (201 if request.method == 'POST' else 200)
+    except LineupNodeError as error:
+        conn.rollback()
+        return jsonify({'success': False, 'message': str(error)}), error.status_code
+    except Exception as error:
+        conn.rollback()
+        app.logger.error('equipment-option failed operation=%s reason=%s', request.method, type(error).__name__)
+        return jsonify({'success': False, 'message': '옵션 작업을 완료하지 못했습니다.'}), 500
+    finally:
+        conn.close()
+
+
 @app.route('/api/equipment_option', methods=['POST'])
 @login_required
 @csrf_required
 def create_equipment_option():
-    """
-    [역할]: N차 라인업 노드에 귀속되는 N+1차 옵션 스펙 조합 등록
-    [JSON 밸리데이션]: specs_json 포맷 검증 및 Key-Value 정합성 보장
-    """
-    try:
-        data = request.json or {}
-        lineup_node_id = data.get('lineup_node_id')
-        option_name = (data.get('option_name') or '').strip()
-        specs = data.get('specs') or {}
-
-        if not lineup_node_id:
-            return jsonify({"success": False, "message": "소속될 모델 노드를 선택해 주세요."}), 400
-        if not option_name:
-            return jsonify({"success": False, "message": "옵션 조합명을 입력해 주세요."}), 400
-
-        specs_json_str = json.dumps(specs, ensure_ascii=False) if isinstance(specs, dict) else '{}'
-
-        user = session.get('user', {})
-        user_id = user.get('UserId')
-        is_admin = (user.get('Role') == 'admin')
-        status = 'APPROVED' if is_admin else 'PENDING'
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by)
-            VALUES (?, ?, ?, ?, ?)
-        """, (lineup_node_id, option_name, specs_json_str, status, user_id))
-
-        new_opt_id = cursor.lastrowid
-        conn.commit()
-        conn.close()
-
-        msg = "옵션 스펙이 등록되었습니다." if is_admin else "옵션 등록 신청이 완료되었습니다. 관리자 승인 후 활성화됩니다."
-        return jsonify({"success": True, "option_id": new_opt_id, "status": status, "message": msg})
-
-    except Exception as e:
-        print(f"[API Error] create_equipment_option: {e}")
-        return jsonify({"success": False, "message": f"옵션 등록 중 오류: {str(e)}"}), 400
+    """Create an approved option as admin or a pending approval as user."""
+    return handle_option_change()
 
 
-@app.route('/api/equipment_option/<int:option_id>', methods=['DELETE'])
+@app.route('/api/equipment_option/<int:option_id>', methods=['PUT', 'DELETE'])
 @login_required
 @admin_required
 @csrf_required
-def delete_equipment_option(option_id):
-    """
-    [역할]: 3-Tier 카탈로그 옵션 스펙 조합 삭제 (관리자 전용)
-    [파괴적 액션 방어]: 연계된 실제 장비(equipments)가 존재할 경우 삭제 거부
-    """
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
+def manage_equipment_option(option_id):
+    """Admin-only edit/delete; draft and active references are protected."""
+    return handle_option_change(option_id)
 
-        # 장비 참조 여부 검증
-        cursor.execute("SELECT COUNT(*) FROM equipments WHERE option_id = ?", (option_id,))
-        eq_count = cursor.fetchone()[0]
-        if eq_count > 0:
-            conn.close()
-            return jsonify({"success": False, "message": f"해당 옵션에 연결된 장비가 {eq_count}건 존재하여 삭제할 수 없습니다."}), 400
 
-        cursor.execute("DELETE FROM equipment_options WHERE id = ?", (option_id,))
-        conn.commit()
-        conn.close()
-
-        return jsonify({"success": True, "message": "옵션이 안전하게 삭제되었습니다."})
-
-    except Exception as e:
-        print(f"[API Error] delete_equipment_option: {e}")
-        return jsonify({"success": False, "message": f"옵션 삭제 중 오류: {str(e)}"}), 400
+def require_equipment_option(connection, option_id, is_draft, user):
+    """Validate option existence and pending ownership inside the writer transaction."""
+    row = connection.execute("SELECT opt.status, opt.requested_by, n.status AS node_status FROM equipment_options opt LEFT JOIN lineup_nodes n ON n.id=opt.lineup_node_id WHERE opt.id=?", (option_id,)).fetchone()
+    if row is None or (row['status'] != 'APPROVED' and
+                       not (is_draft and row['status'] == 'PENDING' and (user['Role'] == 'admin' or row['requested_by'] == user['UserId']))):
+        raise ValueError("선택한 옵션이 삭제되었거나 사용할 수 없습니다. 새로고침해 주세요.")
+    if row['node_status'] != 'APPROVED' and not (is_draft and row['node_status'] == 'PENDING'):
+        raise ValueError("선택한 모델 노드를 사용할 수 없습니다.")
 
 
 @app.route('/api/equipments_v2', methods=['GET', 'POST'])
@@ -3341,8 +3336,9 @@ def api_equipments_v2():
                 JOIN categories cat ON node.category_id = cat.CategoryId
                 JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
                 LEFT JOIN users u ON e.user_id = u.UserId
+                WHERE COALESCE(e.is_draft, 0) = 0 AND (? = 'admin' OR e.user_id = ? OR e.is_public = 1)
                 ORDER BY e.id DESC;
-            """)
+            """, (session['user']['Role'], session['user']['UserId']))
             rows = cursor.fetchall()
             result = []
             for r in rows:
@@ -3356,6 +3352,7 @@ def api_equipments_v2():
                     item['Specs'] = {}
                 result.append(item)
 
+            add_full_model_names(conn, result)
             conn.close()
             return jsonify({"success": True, "equipments": result})
 
@@ -3391,6 +3388,8 @@ def api_equipments_v2():
             user_id = user.get('UserId')
             now_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+            conn.execute('BEGIN IMMEDIATE')
+            require_equipment_option(conn, option_id, 0, user)
             # 시리얼 중복 검증
             if serial_number:
                 cursor.execute("SELECT id FROM equipments WHERE serial_number = ?", (serial_number,))
@@ -3751,7 +3750,7 @@ def api_dashboard_stats():
         status_distribution = [{"status": row['status'], "count": row['count']} for row in cursor.fetchall()]
 
         list_query = f'''
-            SELECT e.id as EquipmentId, e.name as Name, node.name as ModelName, '정상' as Status, e.purchase_date as PurchaseDate
+            SELECT e.id as EquipmentId, e.name as Name, node.name as ModelName, node.id as LineupNodeId, '정상' as Status, e.purchase_date as PurchaseDate
             FROM equipments e
             LEFT JOIN equipment_options opt ON e.option_id = opt.id
             LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
@@ -3759,7 +3758,7 @@ def api_dashboard_stats():
             ORDER BY e.id DESC
         '''
         cursor.execute(list_query, params_base + [req_cat_id, req_man_id])
-        equipment_list = [dict(row) for row in cursor.fetchall()]
+        equipment_list = add_full_model_names(conn, [dict(row) for row in cursor.fetchall()])
 
         combined_stats = {
             "status_distribution": status_distribution,
@@ -4697,7 +4696,6 @@ def get_equipment():
         cursor.execute("SELECT * FROM equipments WHERE 1=0")
 
     rows = cursor.fetchall()
-    conn.close()
 
     result = []
     for row in rows:
@@ -4711,6 +4709,8 @@ def get_equipment():
             item['Specs'] = {}
         result.append(item)
 
+    add_full_model_names(conn, result)
+    conn.close()
     return jsonify(result)
 
 
@@ -4759,6 +4759,7 @@ def add_equipment():
     cursor = conn.cursor()
 
     try:
+        conn.execute('BEGIN IMMEDIATE')
         # 시리얼 중복 검증
         if serial_number:
             cursor.execute("SELECT id FROM equipments WHERE serial_number = ?", (serial_number,))
@@ -4891,6 +4892,7 @@ def add_equipment():
                 else:
                     option_id = 1
 
+        require_equipment_option(conn, option_id, is_draft, user)
         cursor.execute('''
             INSERT INTO equipments (option_id, name, serial_number, purchase_date, status, memo, user_id, is_public, is_draft, created_at, updated_at)
             VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?)
@@ -4952,84 +4954,88 @@ def update_equipment(eq_id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM equipments WHERE id = ?", (eq_id,))
-    old_row = cursor.fetchone()
-    if not old_row:
+    try:
+        conn.execute('BEGIN IMMEDIATE')
+        cursor.execute("SELECT * FROM equipments WHERE id = ?", (eq_id,))
+        old_row = cursor.fetchone()
+        if not old_row:
+            return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
+
+        old_dict = dict(old_row)
+        if user['Role'] != 'admin' and old_dict['user_id'] != user['UserId']:
+            return jsonify({"error": "수정 권한이 없습니다."}), 403
+
+        target_user_id = old_dict['user_id']
+        if user['Role'] == 'admin' and data.get('UserId'):
+            target_user_id = data.get('UserId')
+
+        if old_dict.get('is_draft') == 0:
+            is_draft = 0
+            is_public = 1 if data.get('IsPublic') or data.get('is_public') else 0
+        else:
+            is_draft = 1 if (data.get('IsDraft') or data.get('is_draft')) else 0
+            is_public = 0 if is_draft == 1 else (1 if data.get('IsPublic') or data.get('is_public') else 0)
+
+        name = (data.get('Name') or data.get('name') or old_dict['name']).strip()
+        serial_number = (data.get('SerialNumber') or data.get('serial_number') or '').strip() or None
+        purchase_date = data.get('PurchaseDate') or data.get('purchase_date') or old_dict.get('purchase_date')
+        memo = (data.get('Memo') or data.get('memo') or '').strip()
+
+        # 시리얼 중복 검증 (자신 제외)
+        if serial_number and serial_number != old_dict.get('serial_number'):
+            cursor.execute("SELECT id FROM equipments WHERE serial_number = ? AND id != ?", (serial_number, eq_id))
+            if cursor.fetchone():
+                return jsonify({"error": "이미 등록된 시리얼 넘버입니다."}), 400
+
+        opt_data = data.get('OptionData')
+        option_id = old_dict['option_id']
+        if isinstance(opt_data, dict):
+            if opt_data.get('isNew'):
+                new_opt_name = (opt_data.get('option_name') or '').strip()
+                specs_json = opt_data.get('specs_json') or '{}'
+                lineup_node_id = opt_data.get('lineup_node_id')
+                if lineup_node_id and new_opt_name:
+                    cursor.execute("""
+                        INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by, created_at)
+                        VALUES (?, ?, ?, 'APPROVED', ?, ?)
+                    """, (lineup_node_id, new_opt_name, specs_json, user['UserId'], now))
+                    option_id = cursor.lastrowid
+            elif opt_data.get('option_id'):
+                option_id = int(opt_data['option_id'])
+
+        require_equipment_option(conn, option_id, is_draft, user)
+        cursor.execute('''
+            UPDATE equipments
+            SET option_id=?, name=?, serial_number=?, purchase_date=?, memo=?, user_id=?, is_public=?, is_draft=?, updated_at=?
+            WHERE id=?
+        ''', (
+            option_id,
+            name,
+            serial_number,
+            purchase_date,
+            memo,
+            target_user_id,
+            is_public,
+            is_draft,
+            now,
+            eq_id
+        ))
+
+        # 감사 로그 적재
+        cursor.execute('''
+            INSERT INTO equipments_audit_log (equipment_id, action_type, old_value, new_value, changed_by, changed_at)
+            VALUES (?, 'UPDATE', ?, ?, ?, ?)
+        ''', (eq_id, json.dumps(old_dict, ensure_ascii=False), json.dumps(data, ensure_ascii=False), user['UserId'], now))
+
+        audit_lineup_change(conn, 'UPDATE', eq_id, old_dict, data, table='equipments')
+        conn.commit()
+        return jsonify({"message": "수정되었습니다."})
+    except (ValueError, sqlite3.Error) as error:
+        conn.rollback()
+        app.logger.error('equipment-update failed reason=%s', type(error).__name__)
+        return jsonify({"error": "장비 수정에 실패했습니다. 옵션과 입력값을 확인해 주세요."}), 400
+    finally:
         conn.close()
-        return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
-
-    old_dict = dict(old_row)
-    if user['Role'] != 'admin' and old_dict['user_id'] != user['UserId']:
-        conn.close()
-        return jsonify({"error": "수정 권한이 없습니다."}), 403
-
-    target_user_id = old_dict['user_id']
-    if user['Role'] == 'admin' and data.get('UserId'):
-        target_user_id = data.get('UserId')
-
-    if old_dict.get('is_draft') == 0:
-        is_draft = 0
-        is_public = 1 if data.get('IsPublic') or data.get('is_public') else 0
-    else:
-        is_draft = 1 if (data.get('IsDraft') or data.get('is_draft')) else 0
-        is_public = 0 if is_draft == 1 else (1 if data.get('IsPublic') or data.get('is_public') else 0)
-
-    name = (data.get('Name') or data.get('name') or old_dict['name']).strip()
-    serial_number = (data.get('SerialNumber') or data.get('serial_number') or '').strip() or None
-    purchase_date = data.get('PurchaseDate') or data.get('purchase_date') or old_dict.get('purchase_date')
-    memo = (data.get('Memo') or data.get('memo') or '').strip()
-
-    # 시리얼 중복 검증 (자신 제외)
-    if serial_number and serial_number != old_dict.get('serial_number'):
-        cursor.execute("SELECT id FROM equipments WHERE serial_number = ? AND id != ?", (serial_number, eq_id))
-        if cursor.fetchone():
-            conn.close()
-            return jsonify({"error": "이미 등록된 시리얼 넘버입니다."}), 400
-
-    opt_data = data.get('OptionData')
-    option_id = old_dict['option_id']
-    if isinstance(opt_data, dict):
-        if opt_data.get('isNew'):
-            new_opt_name = (opt_data.get('option_name') or '').strip()
-            specs_json = opt_data.get('specs_json') or '{}'
-            lineup_node_id = opt_data.get('lineup_node_id')
-            if lineup_node_id and new_opt_name:
-                cursor.execute("""
-                    INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by, created_at)
-                    VALUES (?, ?, ?, 'APPROVED', ?, ?)
-                """, (lineup_node_id, new_opt_name, specs_json, user['UserId'], now))
-                option_id = cursor.lastrowid
-        elif opt_data.get('option_id'):
-            option_id = int(opt_data['option_id'])
-
-    cursor.execute('''
-        UPDATE equipments
-        SET option_id=?, name=?, serial_number=?, purchase_date=?, memo=?, user_id=?, is_public=?, is_draft=?, updated_at=?
-        WHERE id=?
-    ''', (
-        option_id,
-        name,
-        serial_number,
-        purchase_date,
-        memo,
-        target_user_id,
-        is_public,
-        is_draft,
-        now,
-        eq_id
-    ))
-
-    # 감사 로그 적재
-    cursor.execute('''
-        INSERT INTO equipments_audit_log (equipment_id, action_type, old_value, new_value, changed_by, changed_at)
-        VALUES (?, 'UPDATE', ?, ?, ?, ?)
-    ''', (eq_id, json.dumps(old_dict, ensure_ascii=False), json.dumps(data, ensure_ascii=False), user['UserId'], now))
-
-    conn.commit()
-    conn.close()
-
-    log_audit(user['UserId'], user['LoginId'], 'UPDATE', 'equipments', eq_id, old_dict, data)
-    return jsonify({"message": "수정되었습니다."})
 
 
 # 장비 삭제
@@ -5037,38 +5043,37 @@ def update_equipment(eq_id):
 @login_required
 @csrf_required
 def delete_equipment(eq_id):
-    """
-    [역할] 특정 3-Tier 장비를 DB에서 완전히 삭제(DELETE) 합니다.
-    [의존성 관계] equipments, equipments_audit_log 테이블, log_audit()
-    [변경 시 영향도] 타인 장비 삭제 권한 탈취 방어선이므로 삭제 로직 변경에 주의해야 합니다.
+    """[역할] 장비만 실제 삭제하고 옵션·삭제 감사 이력은 보존합니다.
+    [의존성 관계] 독립 감사 테이블, writer transaction, audit_logs.
+    [변경 시 영향도] 권한·중복 삭제·감사 실패 시 원자적 rollback을 보장합니다.
     """
     user = session['user']
     conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM equipments WHERE id = ?", (eq_id,))
-    old_row = cursor.fetchone()
-    if not old_row:
+    try:
+        conn.execute('BEGIN IMMEDIATE')
+        row = conn.execute("SELECT * FROM equipments WHERE id=?", (eq_id,)).fetchone()
+        if row is None:
+            return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
+        old_dict = dict(row)
+        if user['Role'] != 'admin' and old_dict['user_id'] != user['UserId']:
+            return jsonify({"error": "삭제 권한이 없습니다."}), 403
+        conn.execute("""
+            INSERT INTO equipments_audit_log (equipment_id, action_type, old_value, changed_by, changed_at)
+            VALUES (?, 'DELETE', ?, ?, ?)
+        """, (eq_id, json.dumps(old_dict, ensure_ascii=False), user['UserId'], datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+        cursor = conn.execute("DELETE FROM equipments WHERE id=?", (eq_id,))
+        if cursor.rowcount != 1:
+            raise ValueError("equipment changed concurrently")
+        audit_lineup_change(conn, 'DELETE', eq_id, old_dict, None, table='equipments')
+        conn.commit()
+        return jsonify({"message": "삭제되었습니다. 카탈로그 옵션은 관리자 화면에서 별도로 관리합니다.",
+                        "option_id": old_dict['option_id']})
+    except (ValueError, sqlite3.Error) as error:
+        conn.rollback()
+        app.logger.error('equipment-delete failed reason=%s', type(error).__name__)
+        return jsonify({"error": "장비 삭제를 완료하지 못했습니다."}), 500
+    finally:
         conn.close()
-        return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
-
-    old_dict = dict(old_row)
-    if user['Role'] != 'admin' and old_dict['user_id'] != user['UserId']:
-        conn.close()
-        return jsonify({"error": "삭제 권한이 없습니다."}), 403
-
-    now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    cursor.execute('''
-        INSERT INTO equipments_audit_log (equipment_id, action_type, old_value, changed_by, changed_at)
-        VALUES (?, 'DELETE', ?, ?, ?)
-    ''', (eq_id, json.dumps(old_dict, ensure_ascii=False), user['UserId'], now))
-
-    cursor.execute("DELETE FROM equipments WHERE id = ?", (eq_id,))
-    conn.commit()
-    conn.close()
-
-    log_audit(user['UserId'], user['LoginId'], 'DELETE', 'equipments', eq_id, old_dict, None)
-    return jsonify({"message": "삭제되었습니다."})
 
 
 # 권한 설정 조회

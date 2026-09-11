@@ -93,7 +93,7 @@ export function parseCodexTranscript(text, { workspaceRoot, sourceLabel = 'codex
       continue;
     }
     // 직접 사용자·assistant 대화는 날짜별 주 Chat에 기록한다.
-    events.push(createEvent({ provider: 'codex', threadId, sourceEventId: payload.id ?? `line-${row.lineNumber}`, sourceOrdinal: row.lineNumber, occurredAt, actor: payload.role, channel: payload.role === 'user' ? 'user' : payload.phase, speaker: payload.role === 'user' ? '사용자' : 'Codex', content, destination: 'main' }));
+    events.push(createEvent({ provider: 'codex', threadId, sourceEventId: payload.id ?? `line-${row.lineNumber}`, sourceOrdinal: row.lineNumber, occurredAt, actor: payload.role, channel: payload.role === 'user' ? 'user' : payload.phase, speaker: payload.role === 'user' ? '사용자 → Codex' : 'Codex', content, destination: 'main' }));
   }
   // 세션 분류와 이벤트를 반환한다.
   return { matchedWorkspace: true, isSubagent, events, threadId };

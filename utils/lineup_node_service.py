@@ -420,4 +420,153 @@ def get_admin_snapshot(connection: Any) -> dict[str, list[dict[str, Any]]]:
     )
     columns = [description[0] for description in cursor.description]
     nodes = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    return {"categories": categories, "manufacturers": manufacturers, "nodes": nodes}
+    cursor.execute("""
+        SELECT opt.id, opt.lineup_node_id, opt.option_name, opt.specs_json, opt.status,
+               opt.requested_by, opt.created_at,
+               SUM(CASE WHEN e.id IS NOT NULL AND COALESCE(e.is_draft, 0) = 0 THEN 1 ELSE 0 END) AS active_equipment_count,
+               SUM(CASE WHEN e.id IS NOT NULL AND COALESCE(e.is_draft, 0) <> 0 THEN 1 ELSE 0 END) AS draft_equipment_count
+        FROM equipment_options opt LEFT JOIN equipments e ON e.option_id = opt.id
+        GROUP BY opt.id ORDER BY opt.option_name COLLATE NOCASE, opt.id
+    """)
+    columns = [description[0] for description in cursor.description]
+    options = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    usage = defaultdict(lambda: [0, 0])
+    for option in options:
+        try:
+            option["specs"] = json.loads(option["specs_json"] or "{}")
+            if not isinstance(option["specs"], dict):
+                option["specs"] = {}
+        except (ValueError, TypeError):
+            option["specs"] = {}
+        usage[option["lineup_node_id"]][0] += option["active_equipment_count"]
+        usage[option["lineup_node_id"]][1] += option["draft_equipment_count"]
+    for node in nodes:
+        node["active_equipment_count"], node["draft_equipment_count"] = usage[node["id"]]
+    return {"categories": categories, "manufacturers": manufacturers, "nodes": nodes, "options": options}
+
+
+def add_full_model_names(connection: Any, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """[역할] ModelName/ID는 유지하고 루트부터 말단까지 FullModelName을 추가합니다.
+    [의존성 관계] 부모 연결을 1회 조회하며 요청 내 경로를 캐시합니다.
+    [변경 시 영향도] 나의/공개 장비와 대시보드 모델 표시. 손상 트리는 말단명 폴백.
+    """
+    if not items:
+        return items
+    nodes = {row[0]: row for row in connection.execute(
+        "SELECT id, parent_id, name, category_id, manufacturer_id FROM lineup_nodes")}
+    cache: dict[int, tuple[str, ...] | None] = {}
+    for item in items:
+        leaf_id = item.get("LineupNodeId")
+        trail, seen, current, base = [], set(), leaf_id, ()
+        valid = current in nodes
+        while valid and current is not None:
+            if current in seen or len(trail) >= MAX_TREE_DEPTH or current not in nodes:
+                valid = False
+                break
+            row = nodes[current]
+            if row[3:] != nodes[leaf_id][3:] or not isinstance(row[2], str) or not row[2].strip():
+                valid = False
+                break
+            if current in cache:
+                base = cache[current]
+                valid = base is not None and len(base) + len(trail) <= MAX_TREE_DEPTH
+                break
+            seen.add(current)
+            trail.append(current)
+            current = row[1]
+        if valid:
+            for node_id in reversed(trail):
+                base = (*base, nodes[node_id][2])
+                cache[node_id] = base
+            path = cache.get(leaf_id, base)
+            item["FullModelName"] = " / ".join(path)
+        else:
+            # Do not cache a failure caused by this leaf's total depth as a
+            # failure of its otherwise valid ancestors.
+            item["FullModelName"] = item.get("ModelName") or "-"
+    return items
+
+
+def save_option(connection: Any, payload: Mapping[str, Any], actor: Mapping[str, Any], option_id=None) -> dict[str, Any]:
+    """[역할] 옵션 생성·이름/스펙 수정을 검증하고 일반 사용자는 결재를 생성합니다.
+    [의존성 관계] 호출자가 BEGIN IMMEDIATE, 감사, commit/rollback을 담당합니다.
+    [변경 시 영향도] 승인 우회 및 중복·잘못된 옵션 참조를 방지합니다.
+    """
+    if not isinstance(payload, dict):
+        raise LineupNodeError("JSON 객체를 입력해 주세요.")
+    cursor = connection.cursor()
+    before = None
+    if option_id is not None:
+        before = _editable_option(cursor, option_id)
+        if actor.get("Role") != "admin":
+            raise LineupNodeError("관리자만 옵션을 수정할 수 있습니다.", 403)
+        if "lineup_node_id" in payload and _required_int(payload["lineup_node_id"], "노드") != before["lineup_node_id"]:
+            raise LineupNodeError("옵션의 소속 노드는 변경할 수 없습니다.", 409)
+    node_id = before["lineup_node_id"] if before else _required_int(payload.get("lineup_node_id"), "노드")
+    node = _fetch_node(cursor, node_id)
+    if not node:
+        raise LineupNodeError("소속 모델 노드를 찾을 수 없습니다.", 404)
+    if node["status"] != "APPROVED":
+        raise LineupNodeError("승인된 노드에만 옵션을 등록·수정할 수 있습니다.", 409)
+    name = payload.get("option_name")
+    if not isinstance(name, str) or not name.strip() or len(name.strip()) > 100:
+        raise LineupNodeError("옵션 이름은 1~100자로 입력해 주세요.")
+    name = name.strip()
+    specs = payload.get("specs", {})
+    if not isinstance(specs, dict) or any(not isinstance(k, str) or not k.strip() or len(k) > 100 or
+        not isinstance(v, (str, int, float, bool, type(None))) for k, v in specs.items()):
+        raise LineupNodeError("스펙은 이름과 단일 값으로 이루어진 JSON 객체여야 합니다.")
+    try:
+        specs_json = json.dumps(specs, ensure_ascii=False, allow_nan=False)
+    except (TypeError, ValueError) as error:
+        raise LineupNodeError("스펙에 올바른 JSON 값을 입력해 주세요.") from error
+    if len(specs_json.encode("utf-8")) > 16384:
+        raise LineupNodeError("옵션 스펙은 16KB 이하여야 합니다.")
+    if cursor.execute("SELECT id FROM equipment_options WHERE lineup_node_id=? AND LOWER(option_name)=LOWER(?) AND id<>?",
+                      (node_id, name, option_id or 0)).fetchone():
+        raise LineupNodeError("같은 노드에 동일 이름의 옵션이 있습니다.", 409)
+    actor_id = _required_int(actor.get("UserId"), "사용자")
+    status = "APPROVED" if actor.get("Role") == "admin" else "PENDING"
+    if before:
+        cursor.execute("UPDATE equipment_options SET option_name=?, specs_json=? WHERE id=? AND status='APPROVED'",
+                       (name, specs_json, option_id))
+    else:
+        cursor.execute("INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by) VALUES (?,?,?,?,?)",
+                       (node_id, name, specs_json, status, actor_id))
+        option_id = cursor.lastrowid
+        if status == "PENDING":
+            now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            request_data = json.dumps({"type": "Equipment_Option", "option_id": option_id, "option_name": name,
+                                      "lineup_node_id": node_id, "specs": specs}, ensure_ascii=False)
+            cursor.execute("INSERT INTO approval_requests (RequesterId,RequestType,RequestDataJSON,Status,CreatedAt,UpdatedAt) VALUES (?,'Equipment_Option',?,'PENDING',?,?)",
+                           (actor_id, request_data, now, now))
+    return {"option_id": option_id, "lineup_node_id": node_id, "option_name": name, "specs": specs, "status": status, "before": before}
+
+
+def _editable_option(cursor: Any, option_id: Any) -> dict[str, Any]:
+    """Fetch an existing approved option; pending/rejected items stay in approvals."""
+    option_id = _required_int(option_id, "옵션")
+    cursor.execute("SELECT id, lineup_node_id, option_name, specs_json, status FROM equipment_options WHERE id=?", (option_id,))
+    row = cursor.fetchone()
+    if not row:
+        raise LineupNodeError("옵션을 찾을 수 없습니다.", 404)
+    result = dict(zip([item[0] for item in cursor.description], row))
+    if result["status"] != "APPROVED":
+        raise LineupNodeError("미승인 옵션은 전자결재함에서 처리해 주세요.", 409)
+    return result
+
+
+def delete_option(connection: Any, option_id: Any) -> dict[str, Any]:
+    """[역할] 활성/임시저장 장비 참조가 모두 0인 승인 옵션만 삭제합니다.
+    [의존성 관계] 호출자의 BEGIN IMMEDIATE 및 같은 transaction 감사 기록.
+    [변경 시 영향도] 마지막 장비 삭제 뒤 남은 카탈로그를 명시적으로 정리합니다.
+    """
+    cursor = connection.cursor()
+    before = _editable_option(cursor, option_id)
+    count = cursor.execute("SELECT COUNT(*) FROM equipments WHERE option_id=?", (option_id,)).fetchone()[0]
+    if count:
+        raise LineupNodeError(f"활성 또는 임시저장 장비 {count}건이 사용 중이므로 삭제할 수 없습니다.", 409)
+    cursor.execute("DELETE FROM equipment_options WHERE id=? AND status='APPROVED' AND NOT EXISTS (SELECT 1 FROM equipments WHERE option_id=?)", (option_id, option_id))
+    if cursor.rowcount != 1:
+        raise LineupNodeError("옵션 상태가 변경되었습니다. 새로고침 후 다시 시도해 주세요.", 409)
+    return before

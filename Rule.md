@@ -508,11 +508,17 @@ Chat 반영과 provenance 확인이 완료된 뒤에만 원본 fingerprint·curs
 
 > `[규칙 ID: RULE-6.2.13 | 주 노드: context.scope-boundary | 보조 노드: records.conversation-automation, records.conversation-storage | 경로: .agent-governance/context/scope-boundary.md]`
 
+#### 6-2-14. ChatGPT scope-routed 기록
+
+ChatGPT + Remote Desktop Commander 직접 대화는 native/raw transcript collector가 아니라 General dispatcher의 session-local owner와 historical `routing_revision`을 authority로 사용하는 agent-mediated routed ingest로 기록합니다. General은 foreign Chat 경로를 추측하지 않고 대상 governance와 `chatgpt-remote` capability를 검증한 뒤 대상이 선언한 entrypoint에만 normalized event를 전달합니다. Mini-Server recorder는 자기 workspace와 General authority의 Rule·manifest·capability·bootstrap fingerprint가 모두 일치하는 event만 기존 project writer lock, provenance, atomic replace와 receipt 체계로 기록합니다. Native ChatGPT 자동 수집은 별도 검증 전까지 비활성으로 유지하며 routed event 단위의 성공과 플랫폼 전체 자동 수집 성공을 구분합니다.
+
+> `[규칙 ID: RULE-6.2.14 | 주 노드: records.conversation-automation | 보조 노드: records.conversation-storage | 경로: .agent-governance/records/conversation-automation.md]`
+
 ### 6-3. 기록 포맷과 가독성
 
 #### 6-3-1. 사용자 헤더
 
-사용자 항목은 `## 사용자 YYYY-MM-DD HH:mm:ss.000` 형식을 사용합니다.
+사용자 항목은 수신 AI를 확인할 수 있으면 `## 사용자 → Codex YYYY-MM-DD HH:mm:ss.000`, `## 사용자 → Gemini ...`처럼 실제 수신 AI를 명시합니다. 확인할 수 없으면 `## 사용자 ...`를 유지하며 추측하지 않습니다. 이 규격은 새로 기록하는 직접 사용자 발언에 적용하고, 기존 대화 헤더·원문·provenance와 부모→하위 에이전트 표기는 바꾸지 않습니다. 기존 수신 AI 미표기 기록도 동일 원본·시각·본문 대조로 중복 없이 인식해야 합니다.
 
 > `[규칙 ID: RULE-6.3.1 | 노드: records.conversation-integrity | 경로: .agent-governance/records/conversation-integrity.md]`
 

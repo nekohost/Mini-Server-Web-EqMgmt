@@ -1,6 +1,6 @@
 # [Index] Tasks 2026-09-10
 
-총 8건의 문서가 등록되어 있습니다.
+총 9건의 문서가 등록되어 있습니다.
 
 | 순번 | 문서 제목 | 작업 ID (`work_id`) | 상태 |
 | :---: | :--- | :---: | :---: |
@@ -12,3 +12,4 @@
 | 006 | [제안 047 및 현재 작업 트리 Git Push](./006_Proposal047_Git_Push_Task.md) | `WORK-20260910-PROPOSAL047-GIT-PUSH` | 완료 |
 | 007 | [장비등록 모달 및 노드 추가 UX 후속 보완](./007_Lineup_Registration_Modal_and_Node_Add_UX_Followup_Task.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 운영 소스 반영 완료 |
 | 008 | [장비등록 UX 후속 보완 운영 소스 반영](./008_Lineup_Registration_UX_Followup_Production_Merge_Task.md) | `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP` | 운영 소스 반영 완료 / Git·Linux 미수행 |
+| 009 | [ChatGPT Scope Routed Conversation Recording](./009_ChatGPT_Scope_Routed_Conversation_Recording_Task.md) | `WORK-20260910-CHATGPT-SCOPE-ROUTED-RECORDING` | 완료 / 6/6 / 남은 단계 0 |

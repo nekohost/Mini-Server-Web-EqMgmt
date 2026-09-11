@@ -318,7 +318,14 @@ export function eventAlreadyRecorded(markdown, event) {
   // 새 형식 provenance가 있으면 content와 무관하게 같은 원본 event로 확정한다.
   if (markdown.includes(`${EVENT_MARKER_PREFIX} ${event.eventId} -->`)) return { matched: true, mode: 'provenance' };
   // 복원된 기존 파일에는 provenance가 없으므로 정확한 헤더와 원문 블록도 호환 판정한다.
-  const header = `## ${event.speaker} ${event.time.header}\n\n`;
+  const speakers = [event.speaker];
+  if (event.actor === 'user' && event.speaker.startsWith('사용자 → ')) speakers.push('사용자');
+  if (event.actor === 'user' && event.speaker === '사용자') {
+    const recipient = { codex: 'Codex', antigravity: 'Gemini' }[event.provider];
+    if (recipient) speakers.push(`사용자 → ${recipient}`);
+  }
+  for (const speaker of speakers) {
+  const header = `## ${speaker} ${event.time.header}\n\n`;
   // 해당 헤더의 모든 위치를 검사하여 동률 시각의 다른 발언과 구분한다.
   let searchFrom = 0;
   while (true) {
@@ -337,6 +344,7 @@ export function eventAlreadyRecorded(markdown, event) {
     if (existingBody === event.content.replace(/\n+$/, '')) return { matched: true, mode: 'legacy-exact' };
     // 같은 시각의 다음 헤더를 계속 검사한다.
     searchFrom = bodyStart;
+  }
   }
   // provenance와 legacy exact 모두 없으면 새 기록이 필요하다.
   return { matched: false, mode: 'none' };

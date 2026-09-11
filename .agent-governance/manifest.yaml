@@ -1,10 +1,10 @@
 schema_version: 1
-governance_version: 1.4.0
+governance_version: 1.5.1
 status: active
 replaces_root_sources: true
 human_reference:
   path: ../Rule.md
-  sha256: A5D0D845C298D98268746326812D1279A3F72CE0D9E9B0C63D7EBE34F2D98E39
+  sha256: FB892DF180847BCF752908665697761D3259F5E04CE1063AD0BEB0D0B03FCF5B
   section_baseline: traceability/rule-section-baseline.yaml
   status: active
   auto_load: false
@@ -84,3 +84,5 @@ tooling:
   command: tooling/governance-tool.mjs
   parser: yaml
   parser_required: true
+  routed_ingest: tooling/conversation-recorder/routed-ingest.mjs
+  chatgpt_routed_cross_scope_test: tooling/chatgpt-routed-cross-scope.test.mjs

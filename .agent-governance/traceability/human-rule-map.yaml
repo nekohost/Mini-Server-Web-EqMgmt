@@ -116,6 +116,7 @@ mappings:
     source_validations: [VAL-PHASE.1.3]
     source_entrypoints: []
     source_human: []
+  # 1.5.1: 6-3-1 수신 AI 표기, 과거 헤더 보존. section/HUMAN 역포인터 변경 없음.
   - node_id: records.conversation-integrity
     node_path: records/conversation-integrity.md
     human_rule_sections: ["6", "6-1-1", "6-1-2", "6-1-3", "6-1-4", "6-3-1", "6-3-2", "6-3-3", "6-3-4", "10-9-2"]
@@ -125,15 +126,15 @@ mappings:
     source_human: []
   - node_id: records.conversation-storage
     node_path: records/conversation-storage.md
-    human_rule_sections: ["6-1-5", "6-1-6", "6-2-1", "6-2-2", "6-2-3", "6-2-4", "6-2-5", "6-2-6", "6-2-7", "6-2-8", "6-2-9", "6-2-10", "6-2-11", "6-2-12", "6-2-13", "6-4-1", "6-4-2", "6-4-3"]
-    source_rules: [RULE-6.1.5, RULE-6.1.6, RULE-6.2.1, RULE-6.2.2, RULE-6.2.3, RULE-6.2.4, RULE-6.2.5, RULE-6.2.6, RULE-6.2.7, RULE-6.2.8, RULE-6.2.9, RULE-6.2.10, RULE-6.2.11, RULE-6.2.12, RULE-6.2.13, RULE-6.4.1, RULE-6.4.2, RULE-6.4.3]
+    human_rule_sections: ["6-1-5", "6-1-6", "6-2-1", "6-2-2", "6-2-3", "6-2-4", "6-2-5", "6-2-6", "6-2-7", "6-2-8", "6-2-9", "6-2-10", "6-2-11", "6-2-12", "6-2-13", "6-2-14", "6-4-1", "6-4-2", "6-4-3"]
+    source_rules: [RULE-6.1.5, RULE-6.1.6, RULE-6.2.1, RULE-6.2.2, RULE-6.2.3, RULE-6.2.4, RULE-6.2.5, RULE-6.2.6, RULE-6.2.7, RULE-6.2.8, RULE-6.2.9, RULE-6.2.10, RULE-6.2.11, RULE-6.2.12, RULE-6.2.13, RULE-6.2.14, RULE-6.4.1, RULE-6.4.2, RULE-6.4.3]
     source_validations: []
     source_entrypoints: []
     source_human: [HUMAN-6.1.6-PLATFORM]
   - node_id: records.conversation-automation
     node_path: records/conversation-automation.md
-    human_rule_sections: ["6-2-4", "6-2-5", "6-2-6", "6-2-7", "6-2-8", "6-2-9", "6-2-10", "6-2-11", "6-2-12", "6-2-13"]
-    source_rules: [RULE-6.2.4, RULE-6.2.5, RULE-6.2.6, RULE-6.2.7, RULE-6.2.8, RULE-6.2.9, RULE-6.2.10, RULE-6.2.11, RULE-6.2.12, RULE-6.2.13]
+    human_rule_sections: ["6-2-4", "6-2-5", "6-2-6", "6-2-7", "6-2-8", "6-2-9", "6-2-10", "6-2-11", "6-2-12", "6-2-13", "6-2-14"]
+    source_rules: [RULE-6.2.4, RULE-6.2.5, RULE-6.2.6, RULE-6.2.7, RULE-6.2.8, RULE-6.2.9, RULE-6.2.10, RULE-6.2.11, RULE-6.2.12, RULE-6.2.13, RULE-6.2.14]
     source_validations: []
     source_entrypoints: [ENTRY-CODEX.RECORDER, ENTRY-GEMINI.RECORDER, ENTRY-CLAUDE.RECORDER]
     source_human: []

@@ -71,6 +71,7 @@ rules:
   - { id: RULE-6.2.10, node: records.conversation-automation, summary: 기록기 명령과 단일 writer lifecycle }
   - { id: RULE-6.2.11, node: records.conversation-automation, summary: 하위 작업 receipt와 64KiB companion }
   - { id: RULE-6.2.12, node: records.conversation-automation, summary: Codex Antigravity 우선 활성화와 Claude 보류 }
+  - { id: RULE-6.2.14, node: records.conversation-automation, summary: ChatGPT General dispatcher scope-routed agent-mediated ingest }
   - { id: RULE-6.2.13, node: context.scope-boundary, summary: owner 기반 scope-aware 기록과 adapter 한계 }
   - { id: RULE-6.3.1, node: records.conversation-integrity, summary: 사용자 대화 헤더 형식 }
   - { id: RULE-6.3.2, node: records.conversation-integrity, summary: 적용 변경과 제안 구분 }

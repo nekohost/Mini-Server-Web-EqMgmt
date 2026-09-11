@@ -18,7 +18,22 @@ scope:
   foreign_governed_write: nested-handoff-required
   full_switch: explicit-user-intent-required
 conversation_export:
-  status: not-integrated
+  status: routed-ingest-supported
   automatic_project_recording: false
+  native_raw_collector: false
+  agent_mediated_routed_ingest: true
+  routed_ingest:
+    authority: general-dispatcher
+    authority_workspace: D:\General
+    transport: stdin-json
+    envelope_schema: general.routed-conversation-envelope.v1
+    entrypoint: .agent-governance/tooling/conversation-recorder.mjs
+    command: ingest-routed
+    target_owner_verification: required
+    target_governance_fingerprint: required
+    authority_governance_fingerprint: required
+    raw_session_key_persisted: false
+    raw_thread_id_persisted: false
+    raw_source_event_id_persisted: false
   on_missing_capability: report-do-not-fabricate
 instruction_entrypoint: CHATGPT.md
