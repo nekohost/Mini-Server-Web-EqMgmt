@@ -544,6 +544,7 @@ def init_db():
             NickName TEXT,
             Password TEXT NOT NULL,
             Role TEXT NOT NULL,
+            SessionToken TEXT,
             CreatedAt TEXT,
             UpdatedAt TEXT,
             IsDeactivated TEXT DEFAULT 'N',
@@ -1397,6 +1398,9 @@ def migrate_users_session_token():
         conn.close()
     except Exception as e:
         print(f"[Migration Error (SessionToken)] {e}")
+        raise
+
+migrate_users_session_token()
 
 def migrate_users_soft_delete():
     """
