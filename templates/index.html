@@ -88,6 +88,7 @@
                 </div>
                 <div class="md:col-span-2 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600 mb-2">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-600 pb-2">카탈로그 모델 선택</h3>
+                    <div id="catalogBindingStatus" class="hidden mb-3 rounded-lg border px-3 py-2 text-xs" role="status" aria-live="polite"></div>
                     <!-- 1차 마스터 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -217,6 +218,7 @@
     window.LineupApp = (function() {
         let selectedNodeId = null; // 옵션 대상 노드를 추적합니다.
         let nodeBusy = false; // 노드 요청 중 저장을 차단합니다.
+        let editSelection = { equipmentId: null, originalOptionId: null, restoring: false, dirty: false, preserveExisting: false }; // 수정 모달의 원본 연결과 사용자 변경을 분리합니다.
         const CACHE_KEY = 'nodeCache_v2';
         let nodeCache_v2 = {
             categories: [], manufacturers: [], nodes: [], options: [],
@@ -266,6 +268,53 @@
             } catch(e) { console.error('Tree load error:', e); throw e; }
         }
 
+        /**
+         * [역할] 수정 모달마다 카탈로그 연결 상태와 안내를 초기화합니다.
+         * [의존성 관계] openModal, restoreSelection, catalogBindingStatus.
+         * [변경 시 영향도] 서로 다른 장비 또는 신규 등록 사이의 선택 상태 격리에 영향을 줍니다.
+         */
+        function resetSelectionState(item = null) {
+            selectedNodeId = null; // 이전 모달의 말단 노드를 제거합니다.
+            editSelection = { // 현재 장비의 원본 옵션을 별도 상태로 보존합니다.
+                equipmentId: item?.EquipmentId ?? null, // null이면 신규 등록 모드입니다.
+                originalOptionId: item?.OptionId ?? null, // 미변경 PUT에서 재전송하지 않을 기준값입니다.
+                restoring: false, // 프로그램 복원 이벤트와 사용자 입력을 구분합니다.
+                dirty: false, // 사용자가 카탈로그 선택을 변경했는지 추적합니다.
+                preserveExisting: Boolean(item?.OptionId) // 복원 실패에서도 기존 연결을 보존할 수 있습니다.
+            };
+            const status = document.getElementById('catalogBindingStatus'); // 현재 연결 안내 영역을 찾습니다.
+            if (status) { status.textContent = ''; status.className = 'hidden mb-3 rounded-lg border px-3 py-2 text-xs'; } // 이전 안내를 제거합니다.
+        }
+
+        /**
+         * [역할] 현재 카탈로그 연결의 복원·보존·변경 상태를 모달 안에 표시합니다.
+         * [의존성 관계] restoreSelection, markSelectionDirty.
+         * [변경 시 영향도] 복원 실패와 사용자 변경의 피드백에 영향을 줍니다.
+         */
+        function showCatalogBindingStatus(message, tone = 'info') {
+            const status = document.getElementById('catalogBindingStatus'); // 안내 영역이 없는 구형 DOM도 허용합니다.
+            if (!status) return; // 테스트 또는 부분 렌더링에서는 안전하게 종료합니다.
+            const tones = { // 의미별 색상은 다크 모드에서도 읽을 수 있게 유지합니다.
+                success: 'mb-3 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs text-emerald-700 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
+                warning: 'mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-700 dark:border-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+                info: 'mb-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+            };
+            status.className = tones[tone] || tones.info; // 정의되지 않은 tone은 안전한 정보 스타일로 대체합니다.
+            status.textContent = message; // 카탈로그 문자열을 HTML로 해석하지 않습니다.
+        }
+
+        /**
+         * [역할] 프로그램 복원이 아닌 실제 사용자 카탈로그 조작을 표시합니다.
+         * [의존성 관계] 루트·노드·옵션 change handler.
+         * [변경 시 영향도] 미변경 option_id 보존과 불완전 변경 저장 차단에 영향을 줍니다.
+         */
+        function markSelectionDirty() {
+            if (editSelection.restoring) return; // 복원 과정의 change 이벤트는 사용자 변경이 아닙니다.
+            editSelection.dirty = true; // 이후 저장은 현재 선택의 완전성을 요구합니다.
+            editSelection.preserveExisting = false; // 원본 자동 보존 모드를 해제합니다.
+            if (editSelection.equipmentId) showCatalogBindingStatus('카탈로그 연결을 변경 중입니다. 모델 경로와 옵션을 끝까지 선택해 주세요.', 'info'); // 수정 모드에만 변경 안내를 표시합니다.
+        }
+
         function invalidateCache() {
             try { sessionStorage.removeItem(CACHE_KEY); } catch(e) {}
         }
@@ -282,6 +331,12 @@
             const hasCustomRoot = isCustomCategory || isCustomManufacturer;
 
             if (hasCustomRoot) {
+                if (editSelection.equipmentId) { // 수정 API는 신규 루트 승인 요청을 처리하지 않으므로 오동작을 차단합니다.
+                    btnFormal.disabled = true; // 기존 연결이 조용히 유지되는 잘못된 성공을 막습니다.
+                    btnFormal.classList.add('opacity-50', 'cursor-not-allowed'); // 비활성 상태를 시각적으로 표시합니다.
+                    if (notice) { notice.classList.remove('hidden'); notice.innerText = '⚠️ 장비 수정에서는 승인된 카테고리와 제조사를 선택해 주세요.'; } // 가능한 복구 동선을 안내합니다.
+                    return; // 신규 등록 전용 분류 승인 흐름으로 진입하지 않습니다.
+                }
                 const catCustomVal = document.getElementById('CategoryCustom')?.value.trim() || '';
                 const mfgCustomVal = document.getElementById('ManufacturerCustom')?.value.trim() || '';
                 const isCustomValid = (!isCustomCategory || catCustomVal) && (!isCustomManufacturer || mfgCustomVal);
@@ -318,8 +373,8 @@
             btnFormal.classList.add('bg-blue-600', 'hover:bg-blue-700');
             btnFormal.classList.remove('bg-amber-600', 'hover:bg-amber-700');
 
-            const optData = getSelectedOptionData();
-            const isValid = !nodeBusy && optData && !optData.error;
+            const submission = getSubmissionState(); // 복원된 원본 보존도 유효한 수정 상태로 인정합니다.
+            const isValid = !nodeBusy && submission.valid; // 신규·변경 선택은 기존 완전성 검사를 유지합니다.
 
             if (isValid) {
                 btnFormal.disabled = false;
@@ -339,6 +394,7 @@
         }
 
         function onRootChange() {
+            markSelectionDirty(); // 사용자가 카테고리 또는 제조사를 바꾸면 원본 보존을 해제합니다.
             const catId = document.getElementById('CategorySelect').value;
             const mfgId = document.getElementById('ManufacturerSelect').value;
             
@@ -432,6 +488,7 @@
             }
 
             select.addEventListener('change', () => {
+                markSelectionDirty(); // 노드 선택 변경을 원본 연결과 구분합니다.
                 clearDeeperRows();
                 hideNodePanel();
                 document.getElementById('OptionSelect').value = '';
@@ -477,6 +534,7 @@
         }
 
         function onOptionChange() {
+            markSelectionDirty(); // 옵션 변경 또는 신규 옵션 선택을 추적합니다.
             const val = document.getElementById('OptionSelect').value;
             const panel = document.getElementById('NewOptionPanel');
             if (val === '__new__') {
@@ -531,8 +589,91 @@
             };
         }
 
+        /**
+         * [역할] 장비가 추종하는 카탈로그 경로와 옵션을 수정 선택기에 복원합니다.
+         * [의존성 관계] GET /api/equipment의 ID 필드, nodeCache_v2, renderChildNodes.
+         * [변경 시 영향도] 수정 모달 초기값과 손상·승인대기 연결의 보존 동작에 영향을 줍니다.
+         */
+        function restoreSelection(item) {
+            resetSelectionState(item); // 이전 모달 상태를 제거하고 현재 원본 옵션을 기록합니다.
+            editSelection.restoring = true; // 아래 change 이벤트를 사용자 변경으로 기록하지 않습니다.
+            try {
+                const categoryId = item?.CategoryId; // 목록 API가 제공한 현재 카테고리를 사용합니다.
+                const manufacturerId = item?.ManufacturerId; // 목록 API가 제공한 현재 제조사를 사용합니다.
+                const nodeId = item?.LineupNodeId; // 실제 옵션이 연결된 대상 노드입니다.
+                const optionId = item?.OptionId; // 장비가 현재 추종하는 옵션입니다.
+                if (!categoryId || !manufacturerId || !nodeId || !optionId) throw new Error('현재 카탈로그 연결 ID가 완전하지 않습니다.'); // 불완전 관계를 자동 추측하지 않습니다.
+                if (!(nodeCache_v2.categories || []).some(category => String(category.id) === String(categoryId))) throw new Error('현재 카테고리가 승인 목록에 없습니다.'); // 승인 범위 밖 루트를 구분합니다.
+                if (!(nodeCache_v2.manufacturers || []).some(manufacturer => String(manufacturer.id) === String(manufacturerId))) throw new Error('현재 제조사가 승인 목록에 없습니다.'); // 승인 범위 밖 제조사를 구분합니다.
+                const targetNode = (nodeCache_v2.nodes || []).find(node => String(node.id) === String(nodeId)); // 현재 대상 노드를 캐시에서 찾습니다.
+                if (!targetNode) throw new Error('현재 모델 노드가 승인 트리에 없습니다.'); // 삭제·대기·손상 연결은 보존 경로로 전환합니다.
+                const targetOption = (nodeCache_v2.options || []).find(option => String(option.id) === String(optionId)); // 현재 옵션을 찾습니다.
+                if (!targetOption || String(targetOption.lineup_node_id) !== String(nodeId)) throw new Error('현재 옵션이 모델 노드와 일치하지 않습니다.'); // 다른 노드 옵션을 선택하지 않습니다.
+
+                const path = []; // 루트부터 대상까지 실제 ID 경로를 구성합니다.
+                const visited = new Set(); // 순환 계층을 탐지합니다.
+                let cursor = targetNode; // 말단에서 부모 방향으로 순회합니다.
+                while (cursor) {
+                    if (visited.has(String(cursor.id)) || path.length >= 50) throw new Error('모델 노드 경로가 순환하거나 너무 깊습니다.'); // 무한 순회를 차단합니다.
+                    if (String(cursor.category_id) !== String(categoryId) || String(cursor.manufacturer_id) !== String(manufacturerId)) throw new Error('모델 노드의 카테고리 또는 제조사가 일치하지 않습니다.'); // 교차 루트 손상을 거부합니다.
+                    visited.add(String(cursor.id)); // 현재 노드를 검사 완료로 기록합니다.
+                    path.unshift(cursor); // 역추적 결과를 루트 순서로 정렬합니다.
+                    if (cursor.parent_id == null) break; // 루트에 도달하면 종료합니다.
+                    cursor = (nodeCache_v2.nodes || []).find(node => String(node.id) === String(cursor.parent_id)); // 다음 부모를 찾습니다.
+                    if (!cursor) throw new Error('모델 노드의 상위 경로를 찾을 수 없습니다.'); // 끊긴 계층을 자동 보정하지 않습니다.
+                }
+
+                document.getElementById('CategorySelect').value = String(categoryId); // 첫 번째 루트 선택값을 복원합니다.
+                document.getElementById('ManufacturerSelect').value = String(manufacturerId); // 두 번째 루트 선택값을 복원합니다.
+                onRootChange(); // 루트 조건에 맞는 첫 노드 행을 생성합니다.
+                for (const node of path) {
+                    const parentKey = node.parent_id == null ? 'root' : String(node.parent_id); // 현재 행을 부모 ID로 식별합니다.
+                    const select = document.querySelector('.lineup-select-row[data-parent="' + parentKey + '"] select'); // 렌더링된 단계 선택기를 찾습니다.
+                    if (!select || !Array.from(select.options || select.children || []).some(option => String(option.value) === String(node.id))) throw new Error('모델 노드 선택 경로를 렌더링하지 못했습니다.'); // 누락된 선택지를 거부합니다.
+                    select.value = String(node.id); // 해당 단계의 기존 노드를 선택합니다.
+                    select.dispatchEvent(new Event('change')); // 다음 단계와 현재 노드 옵션을 기존 로직으로 생성합니다.
+                }
+                const optionSelect = document.getElementById('OptionSelect'); // 최종 옵션 선택기를 찾습니다.
+                if (!optionSelect || !Array.from(optionSelect.options || optionSelect.children || []).some(option => String(option.value) === String(optionId))) throw new Error('현재 옵션을 선택기에 표시하지 못했습니다.'); // 옵션 누락을 자동 대체하지 않습니다.
+                optionSelect.value = String(optionId); // 기존 옵션을 실제 선택값으로 지정합니다.
+                onOptionChange(); // 신규 옵션 패널과 잠금 상태를 동기화합니다.
+                editSelection.dirty = false; // 복원 완료는 사용자 변경이 아닙니다.
+                editSelection.preserveExisting = true; // 미변경 저장은 서버의 transaction 시점 연결을 유지합니다.
+                showCatalogBindingStatus(`현재 연결을 불러왔습니다: ${item.FullModelName || item.ModelName || '모델'} / ${item.OptionName || '옵션'}`, 'success'); // 안전한 textContent 안내를 표시합니다.
+                return { restored: true, preserved: true }; // 테스트와 openModal이 결과를 구분할 수 있습니다.
+            } catch (error) {
+                selectedNodeId = null; // 부분 복원된 말단 상태를 제거합니다.
+                document.getElementById('CategorySelect').value = ''; // 잘못된 부분 루트 선택을 제거합니다.
+                document.getElementById('ManufacturerSelect').value = ''; // 잘못된 부분 제조사 선택을 제거합니다.
+                document.getElementById('dynamicTreeContainer').innerHTML = ''; // 부분 노드 행을 제거합니다.
+                document.getElementById('dynamicOptionContainer').classList.add('hidden'); // 사용할 수 없는 옵션 선택기를 숨깁니다.
+                editSelection.dirty = false; // 사용자가 변경한 상태로 오인하지 않습니다.
+                editSelection.preserveExisting = Boolean(editSelection.originalOptionId); // 기존 option_id가 있으면 기본 정보 수정에서 보존합니다.
+                const currentLabel = [item?.FullModelName || item?.ModelName, item?.OptionName].filter(Boolean).join(' / ') || '현재 연결'; // 목록에 남은 안전한 표시명을 구성합니다.
+                showCatalogBindingStatus(`${currentLabel}을(를) 선택기에 복원하지 못했습니다. 카탈로그를 바꾸지 않으면 기존 연결은 유지됩니다. (${error.message})`, 'warning'); // 자동 대체 없는 복구 안내를 표시합니다.
+                return { restored: false, preserved: editSelection.preserveExisting, reason: error.message }; // 호출자가 실패와 보존 가능성을 확인합니다.
+            } finally {
+                editSelection.restoring = false; // 이후 change 이벤트는 사용자 조작으로 기록합니다.
+                updateSubmitLockState(); // 최종 복원 또는 보존 상태로 버튼을 갱신합니다.
+            }
+        }
+
+        /**
+         * [역할] 신규·수정 모드에 맞는 카탈로그 저장 가능성과 payload를 반환합니다.
+         * [의존성 관계] updateSubmitLockState, submitEquipment, getSelectedOptionData.
+         * [변경 시 영향도] 미변경 연결 보존과 불완전 변경 저장 차단에 영향을 줍니다.
+         */
+        function getSubmissionState() {
+            if (nodeBusy) return { valid: false, optionData: null, dirty: editSelection.dirty }; // 노드 생성 중 저장을 차단합니다.
+            if (editSelection.equipmentId && editSelection.preserveExisting && !editSelection.dirty && editSelection.originalOptionId) return { valid: true, optionData: null, dirty: false, preserved: true }; // 미변경 수정은 기존 option_id를 서버에서 유지합니다.
+            const optionData = getSelectedOptionData(); // 신규 또는 실제 변경 선택을 읽습니다.
+            if (!optionData || optionData.error) return { valid: false, optionData, error: optionData?.error, dirty: editSelection.dirty }; // 불완전 선택과 신규 옵션 오류를 전달합니다.
+            const sameExistingOption = editSelection.equipmentId && !optionData.isNew && String(optionData.option_id) === String(editSelection.originalOptionId); // 원래 옵션 재선택을 식별합니다.
+            return { valid: true, optionData: sameExistingOption ? null : optionData, dirty: editSelection.dirty, preserved: sameExistingOption }; // 동일 옵션은 불필요하게 재전송하지 않습니다.
+        }
+
         return {
-            init, invalidateCache, updateSubmitLockState, onRootChange, onOptionChange, addKeyValueRow, getSelectedOptionData, isBusy: () => nodeBusy
+            init, invalidateCache, resetSelectionState, restoreSelection, getSubmissionState, updateSubmitLockState, onRootChange, onOptionChange, addKeyValueRow, getSelectedOptionData, isBusy: () => nodeBusy
         };
     })();
 
@@ -650,7 +791,8 @@
     }
 
     async function openModal(id = null) {
-        await window.LineupApp.init(true); // 항상 최신 카탈로그 트리 강제 갱신
+        try { await window.LineupApp.init(true); } // 항상 최신 카탈로그 트리 강제 갱신
+        catch (error) { alert('카탈로그 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.'); return; } // 빈 선택기로 수정하지 않도록 모달 진입을 중단합니다.
 
         const modal = document.getElementById('equipmentModal');
         const form = document.getElementById('equipmentForm');
@@ -673,6 +815,7 @@
         document.getElementById('dynamicOptionContainer').classList.add('hidden');
         document.getElementById('IsPublic').checked = ('{{ mode }}' === 'public');
         document.getElementById('selectedOwnerDisplay').innerText = `기본값: (${currentUser ? currentUser.NickName : '본인'})`;
+        window.LineupApp.resetSelectionState(); // 신규·수정 모달 사이의 내부 선택 상태를 먼저 비웁니다.
 
         if (id) {
             const item = currentEquipmentData.find(e => e.EquipmentId === id);
@@ -689,7 +832,7 @@
                     document.getElementById('selectedOwnerDisplay').innerText = `현재 소유자: ${item.OwnerNickName}`;
                 }
 
-                console.warn('기존 장비 수정 모드 트리 바인딩은 별도 제공 예정입니다.');
+                window.LineupApp.restoreSelection(item); // 현재 장비의 카테고리·노드 경로·옵션을 실제 선택기에 복원합니다.
 
                 if (item.IsDraft === 1) {
                     title.innerText = '임시 저장 장비 수정';
@@ -759,14 +902,15 @@
             manufacturerCustom: isCustomManufacturer ? document.getElementById('ManufacturerCustom')?.value.trim() : ''
         };
         
-        const optData = window.LineupApp.getSelectedOptionData();
-        if (!isDraft && !hasCustomRoot) {
-            if (!optData) {
+        const catalogSubmission = window.LineupApp.getSubmissionState(); // 미변경 보존과 실제 변경 payload를 구분합니다.
+        const optData = catalogSubmission.optionData; // PUT에는 변경된 카탈로그만 포함합니다.
+        if (id && hasCustomRoot) { // 수정 API가 처리하지 않는 신규 루트 승인 요청을 차단합니다.
+            alert('장비 수정에서는 승인된 카테고리와 제조사를 선택해 주세요.');
+            return;
+        }
+        if (!hasCustomRoot && ((!isDraft && !catalogSubmission.valid) || (id && catalogSubmission.dirty && !catalogSubmission.valid))) {
+            if (!catalogSubmission.valid) {
                 alert('카탈로그 모델 및 스펙/옵션을 선택해야 정식 등록이 가능합니다.');
-                return;
-            }
-            if (optData.error) {
-                alert(optData.error);
                 return;
             }
         }

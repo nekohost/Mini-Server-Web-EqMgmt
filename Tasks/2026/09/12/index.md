@@ -5,3 +5,4 @@
 - [003 Context 차단 원인 비교 검토](./003_Context_Routing_Diagnosis_Task.md) — 당시 1.5.1 검토 완료. 후속 명확성 개선은 004에서 별도 승인·구현.
 - [004 거버넌스 Context 명확성 개선](./004_Governance_Context_Clarity_Task.md) — 운영 검증·commit·push·원격 일치 확인 완료.
 - [005 공식 모델명 Staging/운영 배포](./005_Official_Model_Name_Task.md) — 백업 Linux 서버 적용 완료, 인증 브라우저 검증 대기.
+- [006 장비 수정 카탈로그 선택 복원](./006_Equipment_Edit_Catalog_Selection_Task.md) — 운영 소스 병합·JavaScript 31건·commit·push 완료, Linux 실행 검증 대기.
