@@ -49,4 +49,12 @@ related_artifacts:
 
 ## 배포 결과
 
-Git 커밋·푸시와 백업 Linux 서버 적용 결과는 후속 검증 직후 이 절에 기록한다.
+- 구현 commit `f74c8bdd524577f21a5f915a7ad9a042efd7b0bf`를 `origin/main`에 push했다.
+- 백업 Linux 서버는 `7975604`에서 `f74c8bd`로 fast-forward 됐다.
+- 서버의 기존 untracked `.venv.incomplete-20260907/`, `equipment.db.before-session-token-20260907.bak`는 이번 추적 파일과 겹치지 않아 그대로 보존했다.
+- 최초 `unittest discover`는 루트 자동 탐색이 테스트 디렉터리를 찾지 못해 0건이었다. `-s tests -p 'test_*.py'`를 명시해 재실행했고 69/69가 통과했다. 의도된 실패 경로 ERROR 로그가 출력됐지만 최종 unittest 결과는 `OK`였다.
+- 기존 PID 54444의 작업 디렉터리, Python 실행 파일, 포트 5000 소유를 확인한 뒤 해당 프로세스에만 SIGTERM을 보냈다.
+- 새 서비스 PID는 55646이며 `.venv/bin/python -u app.py`가 `0.0.0.0:5000`을 소유한다.
+- `https://nekohost.org/login`은 HTTP 200, 비인증 `https://nekohost.org/api/check_session`은 예상대로 HTTP 401이다.
+- Computer Use를 통한 브라우저 렌더링 검증을 시도했으나 현재 사용 가능한 브라우저 표면이 없어 수행하지 못했다. 이를 성공으로 간주하지 않았으며, 실제 운영 템플릿 함수 실행 테스트 32/32와 공개 HTTP 상태를 배포 검증 근거로 사용했다.
+- 배포 결과 기록 시각: `2026-09-13T00:26:48.889+09:00`.

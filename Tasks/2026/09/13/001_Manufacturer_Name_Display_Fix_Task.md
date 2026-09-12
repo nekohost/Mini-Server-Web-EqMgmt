@@ -19,9 +19,9 @@ related_artifacts:
 - [x] `tests/test_release_frontend.mjs` 회귀 계약 보강
 - [x] 운영 정적·회귀 테스트 및 governance validate 통과 (Node 32/32)
 - [x] Staging 임시 산출물 정리
-- [ ] Report에 Validation 1~8 및 배포 결과 기록
-- [ ] Git 커밋 및 origin/main push
-- [ ] 백업 Linux 서버 pull·테스트·서비스 재시작·HTTP 확인
+- [x] Report에 Validation 1~8 및 배포 결과 기록
+- [x] Git 구현 커밋 `f74c8bd` 및 origin/main push
+- [x] 백업 Linux 서버 pull·Python 69/69·서비스 재시작·HTTP 확인
 
 ## 중단 조건
 
