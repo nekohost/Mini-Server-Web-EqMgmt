@@ -9,7 +9,7 @@ related_artifacts:
 # 5개 계획 운영 반영 검증 보고서
 
 - 작성: 2026-09-11T10:27:58.365+09:00 (파일 생성 시각 기준)
-- 상태: Windows 운영 소스 반영·통합 회귀 완료 / Git commit·push 및 Linux 실적용 대기.
+- 상태: 2026-09-12 Git·백업 Linux 실검증/적용 완료 / 주 서버 SSH 인증 불가. 아래 이전 수행 기록은 원형 보존.
 
 ## 검증 1~8: 사전 검토 (순서대로 적용)
 
@@ -62,4 +62,10 @@ SQLite 재구축은 새 테이블 생성→명시적 복사→원본 제거→�
 - conversation recorder verify: **ok=true**, sourceEvents 1336, missing 0, missingReceipts 0, duplicates 0.
 - git diff --check: **PASS**.
 - archive validator 잔여 3건은 별도 WORK-20260911-ALL-UNIMPLEMENTED-ROADMAP-PLANNING의 Task 004 timestamp 및 아직 생성되지 않은 Plan 004/Report 005 링크이며 본 릴리스 결함으로 처리하지 않는다. 해당 별도 세션 문서는 수정하지 않았다.
-- Git commit/push와 Linux DB migration·서비스/브라우저 검증은 아직 수행하지 않았으므로 완료로 주장하지 않는다.
+- Git commit/push와 Linux DB migration·서비스/브라우저 검증은 당시 아직 수행하지 않았으므로 완료로 주장하지 않았다.
+
+## 2026-09-12 재개 결과
+
+기존 39개 Linux 회귀가 모두 통과했다. 이후 DB 계약 개선을 포함한 55개 Linux 회귀, 23개 Node 기능 회귀와 54개 거버넌스 회귀가 통과했다. commit/push와 백업 서버 실제 서비스 적용을 완료하고 과거 DRAINING 상태를 NORMAL로 정상 종료했다. 백업 서버의 main fetch/upstream 누락도 수정했다.
+
+실행 코드 87e28bc, PID 48811. 주 서버 192.168.0.166은 제공 키의 인증이 거절되어 적용하지 못했다. 상세 증거와 복구 사본은 [DB 계약 운영 반영 보고서](../12/003_Database_Contract_Production_Release_Report.md)에 기록한다.

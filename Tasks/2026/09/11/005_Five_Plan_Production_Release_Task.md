@@ -9,7 +9,7 @@ related_artifacts:
 # 5개 계획 운영 반영 Task
 
 - 작성: 2026-09-11T10:27:58.365+09:00 (파일 생성 시각 기준)
-- 상태: Windows 운영 소스 반영·통합 회귀 완료 / Git·Linux 적용 대기
+- 상태: 운영 소스·Git·백업 Linux 검증/적용 완료 / 주 서버 SSH 인증 불가
 - 승인: 사용자 명시 승인(추가 확인 없이 Staging → 운영 소스 → commit/push → 가능한 Linux 적용).
 - 제외: app.py 교육용 주석 재구축. 기존 변경과 기존 대화 이력은 보존한다.
 
@@ -23,9 +23,9 @@ related_artifacts:
 - [x] 수신 AI 기록 Staging 재기반 및 Rule 동기화 (계획 09/09/004)
 - [x] 순차 검증 1~8 및 교차 시나리오, 운영 소스 병합·재검증
 - [x] 릴리스 Task/Report/일자별 index를 실제 상태로 정합화
-- [ ] Staging 릴리스 후보 정리 (Linux 실검증 후)
-- [ ] commit/push 및 원격 commit 확인
-- [ ] Linux 적용·격리 테스트·서비스 확인 (인증 불가 시 정확한 잔여 절차 보고)
+- [x] Staging 릴리스 후보 정리 (Linux 실검증 후; 25개 모두 5acf978 원본과 일치 확인)
+- [x] commit/push 및 원격 commit 확인
+- [x] 백업 Linux 적용·격리 테스트·서비스 확인; 주 서버 SSH 인증 거절을 별도 기록
 
 ## 기록
 

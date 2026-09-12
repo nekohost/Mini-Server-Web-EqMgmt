@@ -1,6 +1,6 @@
 # [Index] Reports 2026-09-11
 
-총 5건의 문서가 등록되어 있습니다.
+총 6건의 문서가 등록되어 있습니다.
 
 | 순번 | 문서 제목 | 작업 ID (`work_id`) | 작성 시각 (KST) |
 | :---: | :--- | :---: | :---: |
@@ -9,3 +9,4 @@
 | 003 | [장비 삭제·옵션 관리·노드 사용량 정합성 Validation 1~8](./003_Equipment_Deletion_and_Node_Usage_Consistency_Validation_Report.md) | `WORK-20260911-EQUIPMENT-DELETION-NODE-USAGE` | 2026-09-11 |
 | 004 | [장비 감사 로그 외래키 및 제안 013 백업 실패 개선 Validation 1~8](./004_Equipment_Audit_FK_and_Proposal013_Backup_Remediation_Validation_Report.md) | `WORK-20260911-EQUIPMENT-AUDIT-FK-BACKUP-REMEDIATION` | 2026-09-11 |
 | 006 | [5개 계획 운영 반영 검증 보고서](./006_Five_Plan_Production_Release_Report.md) | `WORK-20260911-FIVE-PLAN-PRODUCTION-RELEASE` | 2026-09-11 |
+| 005 | [전체 미구현 로드맵 계획 검증](./005_All_Unimplemented_Roadmap_Plan_Validation_Report.md) | `WORK-20260911-ALL-UNIMPLEMENTED-ROADMAP-PLANNING` | 2026-09-12 재개 완료 |
