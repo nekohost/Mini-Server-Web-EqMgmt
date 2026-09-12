@@ -1,12 +1,12 @@
 ---
 id: core.precedence
-version: 1
+version: 2
 parent: core.kernel
 source_rules: []
 source_validations: []
 source_entrypoints: [ENTRY-GEMINI.1, ENTRY-GEMINI.2, ENTRY-GEMINI.3]
 human_rule_sections: ["9-1", "9-2", "9-3"]
-source_section_digest: 9ECB5674699A4C3F3317DB41A8B3BE4BB3AFCBE6584B1FC292D1C39789EAB76D
+source_section_digest: 24B9713A69BF921E899210C5DF3F21580989A6F2A4BCAF10E419AEA0A3416FC1
 always_load: true
 may_relax_parent: false
 ---
@@ -25,3 +25,5 @@ may_relax_parent: false
 규칙 파일을 읽지 못하거나 manifest와 실제 파일이 다르면 성공으로 간주하지 않는다.
 
 
+
+Context 입력·실패 처리는 `governance.context-routing`을 따른다.

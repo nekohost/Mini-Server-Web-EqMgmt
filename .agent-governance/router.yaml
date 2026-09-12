@@ -10,7 +10,7 @@ rules:
   - id: human-rule-maintenance
     match:
       intents: [review-rule, edit-rule, sync-rule, audit-rule]
-      paths: [Rule.md, Staging/Rule.md]
+      paths: [Rule.md, Staging/Rule.md, Staging/**/Rule.md]
     load:
       - governance.human-reference
       - governance.rule-sync
@@ -61,7 +61,7 @@ rules:
   - id: schema-change
     match:
       intents: [add-column, alter-schema, migration]
-      paths: [app.py, db_migration.py, down_migration.py, templates/**]
+      path_hints: [app.py, db_migration.py, down_migration.py, utils/**, templates/**, Staging/**]
     load:
       - context.stack
       - engineering.data-model
@@ -73,7 +73,7 @@ rules:
   - id: frontend-change
     match:
       intents: [frontend, ui, ux, responsive]
-      paths: [templates/**, static/**]
+      path_hints: [templates/**, static/**, Staging/**]
     load:
       - context.stack
       - engineering.frontend-responsive
@@ -159,6 +159,50 @@ rules:
       - operations.staging
       - workflow.plans
 routing_policy:
+  context_contract_node: governance.context-routing
+  independent_path_validation: true
+  context_requires_valid_governance: true
+  registered_project_paths:
+    - app.py
+    - db_migration.py
+    - down_migration.py
+    - requirements.txt
+    - README.md
+    - Rule.md
+    - AGENTS.md
+    - GEMINI.md
+    - CLAUDE.md
+    - CHATGPT.md
+    - FEATURES.md
+    - ROADMAP.md
+    - PROPOSALS.md
+    - UNIMPLEMENTED_ROADMAP.md
+    - UNIMPLEMENTED_PROPOSALS.md
+    - VALIDATION_METHODOLOGY.md
+    - Staging_PLAN.md
+    - .gitignore
+    - .gitattributes
+    - .env.example
+    - .env
+    - equipment.db
+    - instance/**
+    - .git/**
+    - .agent-governance/**
+    - .github/**
+    - templates/**
+    - static/**
+    - utils/**
+    - tests/**
+    - tools/**
+    - systemd/**
+    - docs/**
+    - Plans/**
+    - Tasks/**
+    - Reports/**
+    - Report/**
+    - Chat/**
+    - Staging/**
+    - scratch/**
   combine_all_matching_routes: true
   deduplicate_nodes: true
   preserve_manifest_order: true
@@ -177,5 +221,3 @@ routing_policy:
   require_all_supplied_paths_matched: true
   external_paths_require_scope_intent: true
   external_path_scope_intents: [scope-check, external-reference, inspect-external, external-execution, support-project-environment, nested-handoff, mutate-foreign-workspace, switch-scope]
-
-

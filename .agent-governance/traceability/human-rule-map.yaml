@@ -1,3 +1,4 @@
+# 1.6.0: Rule 9-1/9-3 입력·진단 계약 확장. 기존 core.precedence/core.task-modes 역포인터와 ID를 유지한다.
 schema_version: 1
 status: active
 human_reference: ../../Rule.md
@@ -299,3 +300,10 @@ mappings:
     source_validations: []
     source_entrypoints: []
     source_human: [HUMAN-11.3, HUMAN-11.4, HUMAN-11.5, HUMAN-11.6, HUMAN-11.7, HUMAN-11.8]
+  - node_id: governance.context-routing
+    node_path: governance/context-routing.md
+    human_rule_sections: ["9-1", "9-3"]
+    source_rules: []
+    source_validations: []
+    source_entrypoints: []
+    source_human: []

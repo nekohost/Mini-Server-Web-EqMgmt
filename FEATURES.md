@@ -186,3 +186,12 @@
 - 제안 046 점검 모드는 사용자 정상 작동 확인을 받은 개발 완료 기능이다. 제안 013 백업/복원과 047 노드/옵션 기능은 Linux 회귀와 백업 서버 적용까지 확인했다.
 - 적용 상태: 백업 서버 실행·점검 NORMAL. 주 서버는 SSH 인증 불가로 신규 적용 미완료.
 - [운영 안내](docs/database-contract-operation.md), [검증 보고서](Reports/2026/09/12/003_Database_Contract_Production_Release_Report.md).
+
+## 11. AI 거버넌스 Context 입력·진단 (2026-09-12)
+
+- 운영 거버넌스 1.6.0: migration/UI 필수 규칙 선택과 경로 검증을 분리하여 Staging 후보만 선언해도 필요한 보호 노드를 포함한다.
+- 실제 작업 대상 `--path`와 읽기 전용 참고·영향 대상 `--reference-path`를 구분한다. 경로 선언과 context 성공은 수정 승인이 아니다.
+- 미등록 intent, 등록된 intent의 경로 불일치, 미분류 경로, 외부 scope 누락, section·정책 오류를 구조화 진단으로 구분한다.
+- 실패 시 일반 구현은 계속 차단한다. 기존 승인 범위의 읽기 전용 진단과 근거 있는 입력 정정 후 validate·새 context·전체 pack 읽기를 통과해야 재개한다.
+- Rule 9-1·9-3, 네 플랫폼 진입점, 노드·추적성·도구·안내 문서를 함께 동기화한다. 기존 안전 조건이나 컨텍스트 예산을 완화하지 않는다.
+- [검증 보고서](Reports/2026/09/12/005_Governance_Context_Clarity_Report.md). 장비 공식 모델명 기능과 운영 DB 변경은 이번 반영에 포함하지 않는다.

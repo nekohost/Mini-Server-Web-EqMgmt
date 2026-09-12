@@ -1,10 +1,10 @@
 schema_version: 1
-governance_version: 1.5.1
+governance_version: 1.6.0
 status: active
 replaces_root_sources: true
 human_reference:
   path: ../Rule.md
-  sha256: FB892DF180847BCF752908665697761D3259F5E04CE1063AD0BEB0D0B03FCF5B
+  sha256: 37257C4FB401B88093CBA604A68C5C5E67616B4EF98A2EF97C29E547CE53901D
   section_baseline: traceability/rule-section-baseline.yaml
   status: active
   auto_load: false
@@ -28,6 +28,7 @@ nodes:
   core.task-modes: core/task-modes.md
   governance.human-reference: governance/human-reference.md
   governance.rule-sync: governance/rule-sync.md
+  governance.context-routing: governance/context-routing.md
   context.project: context/project.md
   context.scope-boundary: context/scope-boundary.md
   context.stack: context/stack.md

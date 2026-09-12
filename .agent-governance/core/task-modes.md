@@ -1,12 +1,12 @@
 ---
 id: core.task-modes
-version: 1
+version: 2
 parent: core.kernel
 source_rules: []
 source_validations: []
 source_entrypoints: [ENTRY-GEMINI.3, ENTRY-GEMINI.4, ENTRY-GEMINI.5]
 human_rule_sections: ["9-3", "9-4", "9-5"]
-source_section_digest: 2718530E2C1423C2360BF8CF3893DE101FF8742E7D0AF94DE96C89A91A3A4AB0
+source_section_digest: 510665118A200C1C10AA18AD530D99F8BB1CFA4220263E812B6D6B7F59655BE9
 always_load: true
 may_relax_parent: false
 ---
@@ -34,3 +34,5 @@ may_relax_parent: false
 안전한 읽기·분석은 계속할 수 있다. 결과를 크게 바꾸는 선택이나 파괴적 작업은 질문으로 해소한다.
 
 
+
+Context 실패 시 일반 구현 중단과 읽기 전용 진단·입력 정정·재개 조건은 `governance.context-routing`을 따른다.

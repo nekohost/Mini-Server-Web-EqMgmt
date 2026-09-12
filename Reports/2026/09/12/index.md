@@ -3,3 +3,5 @@
 - [001 실제 DB 구조 감사](./001_Backup_DB_Structure_Audit_Report.md)
 - [002 DB 계약 개선 계획 검토](./002_Database_Contract_and_Integrity_Hardening_Review_Report.md)
 - [003 DB 계약 및 중단 릴리스 운영 반영 결과](./003_Database_Contract_Production_Release_Report.md)
+- [004 Context 차단 원인 비교 검토](./004_Context_Routing_Diagnosis_Report.md)
+- [005 거버넌스 Context 명확성 개선 검증](./005_Governance_Context_Clarity_Report.md)

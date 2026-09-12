@@ -20,3 +20,7 @@ Scope ownership `[ENTRY-CHATGPT.SCOPE]`: Remote Desktop Commander 사용이나 �
 
 플랫폼 capability는 `.agent-governance/capabilities/chatgpt-remote.yaml`을 따른다.
 10. 같은 ChatGPT conversation에서는 최초 명시적 owner 선택 때 만든 conversation-local opaque `session_key`를 계속 재사용한다. 실제 routed delivery receipt가 없는 이벤트를 저장된 것으로 간주하지 않으며, exact timestamp/session binding을 확인할 수 없는 과거 구간은 현재 시각으로 꾸며 backfill하지 않는다.
+
+## Context 진단 계약 (Rule 9-1·9-3)
+
+먼저 `governance-tool.mjs catalog`로 작업 종류·경로를 확인한다. 실제 대상은 `--path`, 읽기 전용 참고·영향 대상은 `--reference-path`로 구분한다. Staging 후보만으로 DB/UI intent의 필수 규칙을 선택할 수 있으며 참고 경로는 수정 승인이 아니다. 실패 시 일반 구현은 중단하되 승인 범위 안의 읽기 전용 진단·근거 있는 입력 정정은 가능하다. validate와 새 context 성공 및 전체 pack 읽기 후에만 재개한다. 규칙 축소·무관한 경로 추가·정책/권한 충돌의 자동 해소는 금지한다. 구조화 diagnostics의 원인과 정정 근거를 기록한다.

@@ -18,9 +18,13 @@ Scope ownership `[ENTRY-CODEX.SCOPE]`: VS Code workspace에서 시작된 Codex �
 8. 필요한 노드가 없거나 규칙이 충돌하면 실행을 중지하고 규칙 ID와 영향을 보고한다.
 9. 객관적으로 보고하고 승인을 재촉하지 않는다.
 10. 통합 Rule·노드·추적성 원장이 불일치하면 활성화를 중지하고 사용자에게 보고한다.
-11. context 도구가 실패하거나 요구한 intent·path·section이 미등록이면 수동으로 노드를 줄여 진행하지 않고 fail-closed 한다.
+11. context 도구가 실패하면 일반 구현을 fail-closed로 중단하고 아래 Context 진단 계약을 따른다. 수동으로 규칙 노드를 줄여 진행하지 않는다.
 12. Rule 변경에서는 먼저 `sync-status`의 전체 변경 섹션과 `currentRuleHash`를 확인하고, 그 hash를 `sync-plan`·`validate`의 `--expected-rule-sha`로 사용한다. 대상 노드 digest·섹션 기준선·map·manifest를 함께 갱신하기 전에는 병합하지 않는다.
 
 플랫폼 도구 대응은 `.agent-governance/capabilities/codex.yaml`을 따른다.
 
 
+
+## Context 진단 계약 (Rule 9-1·9-3)
+
+먼저 `governance-tool.mjs catalog`로 작업 종류·경로를 확인한다. 실제 대상은 `--path`, 읽기 전용 참고·영향 대상은 `--reference-path`로 구분한다. Staging 후보만으로 DB/UI intent의 필수 규칙을 선택할 수 있으며 참고 경로는 수정 승인이 아니다. 실패 시 일반 구현은 중단하되 승인 범위 안의 읽기 전용 진단·근거 있는 입력 정정은 가능하다. validate와 새 context 성공 및 전체 pack 읽기 후에만 재개한다. 규칙 축소·무관한 경로 추가·정책/권한 충돌의 자동 해소는 금지한다. 구조화 diagnostics의 원인과 정정 근거를 기록한다.

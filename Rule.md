@@ -736,7 +736,9 @@ Chat 기록 외의 소스 코드, 문서, 리소스 쓰기는 IDE 또는 에이�
 
 AI는 매 행위 전 안전 커널을 확인하고, 각 작업을 시작하기 전에 manifest와 router를 통해 적용 규칙 노드를 읽습니다.
 
-> `[원본 ID: ENTRY-GEMINI.1 | 주 노드: core.precedence | 보조 노드: core.kernel | 경로: .agent-governance/core/precedence.md]`
+먼저 `catalog`로 지원 작업 종류와 경로를 확인합니다. `--path`에는 실제 작업 대상을, `--reference-path`에는 읽기 전용 참고·영향 대상을 별도로 선언합니다. 둘 다 적용 규칙 선택에 사용하지만 참고 경로가 수정 권한을 부여하지 않습니다. DB migration·컬럼 변경과 UI 작업의 필수 안전 노드는 intent로 선택하고, 경로 유효성은 정규화 후 독립 검증합니다. 일반 intent로 미등록 경로를 자동 허용하지 않습니다. Staging은 실제 후보 경로 그대로 선언하며 통과 목적으로 무관한 운영 경로를 추가하거나 원본 경로를 자동 추측하지 않습니다. 모든 관련 intent와 두 종류의 경로, 필요한 section을 전달하고 반환된 pack의 노드를 빠짐없이 읽습니다.
+
+> `[원본 ID: ENTRY-GEMINI.1 | 주 노드: core.precedence | 보조 노드: core.kernel, governance.context-routing | 경로: .agent-governance/core/precedence.md]`
 
 ### 9-2. 행위 직전 적합성 판단
 
@@ -748,7 +750,9 @@ AI는 실제 행위 직전에 선택된 규칙이 요청과 행위에 어떻게 
 
 사용자 요청이 활성 규칙과 충돌하면 작업을 실행하지 않습니다. 충돌 규칙 ID, 요청과의 충돌 지점, 실행 영향, 필요한 사용자 결정을 아티팩트로 보고하고 재지시를 기다립니다.
 
-> `[원본 ID: ENTRY-GEMINI.3 | 주 노드: core.task-modes | 보조 노드: core.precedence | 경로: .agent-governance/core/task-modes.md]`
+Context 실패 시 일반 구현은 중단하며 실패한 pack이나 수동 축소한 규칙으로 진행하지 않습니다. 오류의 미등록 intent·등록된 intent의 경로 불일치·미분류 경로·외부 scope 누락·section 누락·정책 불일치를 구분합니다. 기존 승인 범위 안에서 catalog·규칙·도구를 읽어 진단하고, 근거로 확정할 수 있는 입력 오류만 정책을 바꾸지 않고 정정·재시도할 수 있습니다. `validate`와 새 `context`가 모두 성공하고 전체 pack을 읽은 뒤에만 기존 승인 범위에서 재개합니다. 이 진단은 별도 승인을 반복 요구하지 않지만 권한 부족·규칙 충돌·실제 미등록 작업·정책 변경 필요는 자동 해소하지 않습니다. 오류 근거와 정정 내용을 기록하고 같은 실패의 무한 재시도를 하지 않습니다.
+
+> `[원본 ID: ENTRY-GEMINI.3 | 주 노드: core.task-modes | 보조 노드: core.precedence, governance.context-routing | 경로: .agent-governance/core/task-modes.md]`
 
 ### 9-4. 질문과 승인 경계
 

@@ -1,6 +1,6 @@
 // [역할] 운영 거버넌스 YAML을 정규 파서로 검증하고 결정적 노드 목록과 Rule 동기화 계획을 출력한다.
 // [의존성 관계] manifest.yaml, router.yaml, human-rule-map.yaml, 각 Markdown 노드, 루트 Rule.md, npm yaml 패키지에 의존한다.
-// [변경 시 영향도] 출력 스키마나 검증 규칙을 바꾸면 세 제품 진입점, governance.rule-sync, README, 검증 보고서를 함께 갱신해야 한다.
+// [변경 시 영향도] 출력 스키마나 검증 규칙을 바꾸면 네 플랫폼 진입점, governance.rule-sync, README, 검증 보고서를 함께 갱신해야 한다.
 
 // Node 내장 파일 시스템 API를 읽기 전용 검사에 사용한다.
 import fs from 'node:fs';
@@ -12,6 +12,8 @@ import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 // 정규 YAML 구문과 중복 키를 실제 파싱하기 위해 yaml 패키지를 사용한다.
 import { parseDocument } from 'yaml';
+// [역할] 입력 역할·오류 분류를 공유한다. [의존성 관계] context-input. [변경 시 영향도] CLI diagnostics.
+import { ContextInputError, CONTEXT_RECOVERY, diagnostic, classifyPaths } from './context-input.mjs';
 
 // 현재 도구 파일의 절대 경로를 확보한다.
 const TOOL_FILE = fileURLToPath(import.meta.url);
@@ -281,7 +283,7 @@ function parseArguments(argv) {
   // 첫 번째 인수를 하위 명령으로 사용하고 없으면 help로 처리한다.
   const command = argv[0] ?? 'help';
   // 모든 반복 옵션과 플래그의 기본값을 선언한다.
-  const options = { intents: [], paths: [], sections: [], expectedRuleSha: null, smallModel: false, json: true };
+  const options = { intents: [], paths: [], referencePaths: [], sections: [], expectedRuleSha: null, smallModel: false, json: true };
   // 하위 명령 다음 인수부터 한 개씩 검사한다.
   for (let index = 1; index < argv.length; index += 1) {
     // 현재 옵션 이름을 읽는다.
@@ -289,7 +291,7 @@ function parseArguments(argv) {
     // --intent 다음 값을 intents 배열에 추가한다.
     if (token === '--intent') {
       // 값 누락을 명시 오류로 처리한다.
-      if (!argv[index + 1]) throw new Error('--intent 값이 필요합니다.');
+      if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--intent 값이 필요합니다.')]);
       // 정규화한 intent를 저장한다.
       options.intents.push(argv[index + 1]);
       // 소비한 값 인덱스를 건너뛴다.
@@ -300,7 +302,7 @@ function parseArguments(argv) {
     // --path 다음 값을 paths 배열에 추가한다.
     if (token === '--path') {
       // 값 누락을 명시 오류로 처리한다.
-      if (!argv[index + 1]) throw new Error('--path 값이 필요합니다.');
+      if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--path 값이 필요합니다.')]);
       // 정규화 전 원본 경로를 저장한다.
       options.paths.push(argv[index + 1]);
       // 소비한 값 인덱스를 건너뛴다.
@@ -308,10 +310,17 @@ function parseArguments(argv) {
       // 다음 옵션으로 이동한다.
       continue;
     }
+    // 참고·영향 경로는 실제 작업 경로와 별도 저장한다.
+    if (token === '--reference-path') {
+      if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--reference-path 값이 필요합니다.')]); // 값 누락을 명시한다.
+      options.referencePaths.push(argv[index + 1]); // 읽기 전용 역할을 유지한다.
+      index += 1; // 값 인수를 소비한다.
+      continue; // 다음 옵션을 처리한다.
+    }
     // --section 다음 값을 sections 배열에 추가한다.
     if (token === '--section') {
       // 값 누락을 명시 오류로 처리한다.
-      if (!argv[index + 1]) throw new Error('--section 값이 필요합니다.');
+      if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--section 값이 필요합니다.')]);
       // Rule 섹션 번호를 문자열로 저장한다.
       options.sections.push(argv[index + 1]);
       // 소비한 값 인덱스를 건너뛴다.
@@ -322,7 +331,7 @@ function parseArguments(argv) {
     // --expected-rule-sha는 계획 생성 또는 검증 직전 관측한 Rule 상태를 고정한다.
     if (token === '--expected-rule-sha') {
       // SHA-256 값 누락은 동시성 방어를 무력화하므로 즉시 거부한다.
-      if (!argv[index + 1]) throw new Error('--expected-rule-sha 값이 필요합니다.');
+      if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--expected-rule-sha 값이 필요합니다.')]);
       // 대소문자와 공백 차이를 없앤 SHA-256 문자열을 보관한다.
       options.expectedRuleSha = String(argv[index + 1]).trim().toUpperCase();
       // 소비한 값 인수를 건너뛴다.
@@ -338,7 +347,7 @@ function parseArguments(argv) {
       continue;
     }
     // 정의되지 않은 옵션은 자동 무시하지 않고 실패한다.
-    throw new Error(`알 수 없는 옵션: ${token}`);
+    throw new ContextInputError([diagnostic('UNKNOWN_OPTION', `알 수 없는 옵션: ${token}`, { hint: 'help에서 지원 옵션을 확인하세요.' })]);
   }
   // 중복 입력을 제거해 결정적인 인수 객체를 반환한다.
   return {
@@ -347,6 +356,7 @@ function parseArguments(argv) {
       ...options,
       intents: [...new Set(options.intents)],
       paths: [...new Set(options.paths)],
+      referencePaths: [...new Set(options.referencePaths)], // 참고 경로도 중복만 제거한다.
       sections: [...new Set(options.sections)],
     },
   };
@@ -461,111 +471,58 @@ function buildPacks(selectedIds, baseIds, governance, budget) {
 
 // router 규칙과 입력 intent·path·section으로 실제 로딩 노드를 계산한다.
 function createContext(governance, options) {
-  // route 매칭과 동적 섹션 오류를 누적한다.
-  const errors = [];
-  // 매칭된 route ID를 입력 순서대로 보존한다.
-  const matchedRoutes = [];
-  // route가 요구하는 비노드 입력 파일을 누적한다.
-  const requiredInputs = new Set();
-  // 기본 노드부터 선택 집합에 추가한다.
-  const selected = new Set();
-  // router default_load의 부모 체인을 포함한다.
-  for (const nodeId of arrayValue(governance.router.default_load)) addWithParents(nodeId, governance.nodes, selected);
-  // 각 supplied intent가 실제 intent route에 소비되었는지 추적한다.
-  const matchedIntents = new Set();
-  // 각 supplied path가 실제 route에 소비되었는지 추적한다.
-  const matchedPaths = new Set();
-  // router의 모든 규칙을 선언 순서대로 검사한다.
-  for (const rule of arrayValue(governance.router.rules)) {
-    // 현재 route가 선언한 intent 목록을 정규화한다.
-    const routeIntents = arrayValue(rule.match?.intents).map(String);
-    // 현재 route가 선언한 path 패턴 목록을 정규화한다.
-    const routePaths = arrayValue(rule.match?.paths).map(String);
-    // intent 조건이 없으면 true이고, 있으면 입력 intent 중 하나가 일치해야 한다.
-    const intentMatches = routeIntents.length === 0 || options.intents.some((intent) => routeIntents.includes(intent));
-    // path 조건이 없으면 true이고, 있으면 입력 path 중 하나가 패턴과 일치해야 한다.
-    const pathMatches = routePaths.length === 0 || options.paths.some((candidate) => routePaths.some((pattern) => globMatches(pattern, candidate)));
-    // 두 조건을 모두 만족하지 않으면 현재 route를 건너뛴다.
-    if (!intentMatches || !pathMatches) continue;
-    // 매칭된 route ID를 기록한다.
-    matchedRoutes.push(rule.id);
-    // 현재 route가 소비한 supplied intent를 기록한다.
-    for (const intent of options.intents) if (routeIntents.includes(intent)) matchedIntents.add(intent);
-    // 경로 조건이 없는 매칭 route는 모든 supplied path를 처리한 것으로 기록한다.
-    if (routePaths.length === 0) for (const candidate of options.paths) matchedPaths.add(candidate);
-    // 경로 조건이 있는 route는 실제 일치한 path만 기록한다.
-    for (const candidate of options.paths) if (routePaths.some((pattern) => globMatches(pattern, candidate))) matchedPaths.add(candidate);
-    // route의 고정 노드와 부모를 선택 집합에 추가한다.
-    for (const nodeId of arrayValue(rule.load)) addWithParents(nodeId, governance.nodes, selected);
-    // route가 요구하는 입력 파일을 출력에 추가한다.
-    for (const inputPath of arrayValue(rule.required_inputs)) requiredInputs.add(inputPath);
-    // 변경 섹션 필수 route에서 섹션이 없으면 fail-closed 오류를 추가한다.
-    if (rule.changed_rule_sections_required && options.sections.length === 0) errors.push(`${rule.id}: --section이 필요합니다.`);
-    // dynamic_load가 선언된 route는 human map에서 섹션 대상 노드를 추가한다.
-    if (rule.dynamic_load && options.sections.length > 0) {
-      // 각 변경 섹션을 독립적으로 해석한다.
-      for (const section of options.sections) {
-        // 해당 섹션을 역참조하는 모든 mapping을 찾는다.
-        const mappings = arrayValue(governance.humanMap.mappings).filter((mapping) => arrayValue(mapping.human_rule_sections).map(String).includes(section));
-        // 미등록 섹션은 자동 추측하지 않고 오류를 추가한다.
-        if (mappings.length === 0) {
-          // 정확한 누락 섹션을 보고한다.
-          errors.push(`${rule.id}: human-rule-map에 없는 섹션 ${section}`);
-          // 다음 섹션으로 이동한다.
-          continue;
-        }
-        // 모든 역참조 대상 노드와 부모를 선택 집합에 추가한다.
-        for (const mapping of mappings) addWithParents(mapping.node_id, governance.nodes, selected);
-      }
+  const issues = []; // 오류는 등록·매칭·경로·정책별로 분리한다.
+  const matchedRoutes = []; // 매칭 순서를 유지한다.
+  const requiredInputs = new Set(); // Rule 유지보수의 필수 원문을 보존한다.
+  const selected = new Set(); // 선택 노드의 중복을 제거한다.
+  const matchedIntents = new Set(); // 실제 선택된 intent route를 추적한다.
+  const rules = arrayValue(governance.router.rules); // 검증된 route만 처리한다.
+  const knownIntents = new Set(rules.flatMap(rule => arrayValue(rule.match?.intents))); // 등록 여부를 경로와 독립 판정한다.
+  const classified = classifyPaths(options, governance.router, PROJECT_ROOT, globMatches); // 실제/참고 경로를 독립 검증한다.
+  const allPaths = classified.entries.map(entry => entry.normalized); // 두 역할 모두 적용 규칙 판단에 사용한다.
+  issues.push(...classified.diagnostics); // 미분류 경로를 일반 intent로 덮어쓰지 않는다.
+  for (const nodeId of arrayValue(governance.router.default_load)) addWithParents(nodeId, governance.nodes, selected); // 공통 커널을 먼저 넣는다.
+  addWithParents(governance.router.routing_policy.context_contract_node, governance.nodes, selected); // 상세 계약을 모든 context에 포함하되 pack마다 중복하지 않는다.
+  for (const rule of rules) { // 선언 순서대로 모든 route를 합친다.
+    const routeIntents = arrayValue(rule.match?.intents).map(String); // 작업 종류 조건이다.
+    const routePaths = arrayValue(rule.match?.paths).map(String); // 경로 한정이 필요한 route만 조건을 가진다.
+    const intentMatches = routeIntents.length === 0 || options.intents.some(intent => routeIntents.includes(intent)); // schema/UI는 이 조건만으로 필수 노드를 선택한다.
+    const pathMatches = routePaths.length === 0 || allPaths.some(candidate => routePaths.some(pattern => globMatches(pattern, candidate))); // 참고 경로도 보수적으로 규칙을 추가한다.
+    if (!intentMatches || !pathMatches) continue; // 불일치한 route를 선택하지 않는다.
+    matchedRoutes.push(rule.id); // 선택 근거를 응답에 제공한다.
+    for (const intent of options.intents) if (routeIntents.includes(intent)) matchedIntents.add(intent); // 소비된 입력을 기록한다.
+    for (const nodeId of arrayValue(rule.load)) addWithParents(nodeId, governance.nodes, selected); // 부모 체인을 빠짐없이 포함한다.
+    for (const inputPath of arrayValue(rule.required_inputs)) requiredInputs.add(inputPath); // 추가 원문 입력을 기록한다.
+    if (rule.changed_rule_sections_required && options.sections.length === 0) issues.push(diagnostic('MISSING_SECTION', `${rule.id}: --section이 필요합니다.`, { route: rule.id, hint: 'sync-status와 검토 대상 섹션을 확인하세요.' })); // 필수 섹션 생략은 실패다.
+    if (rule.dynamic_load) for (const section of options.sections) { // section마다 추적성 역포인터를 적용한다.
+      const mappings = arrayValue(governance.humanMap.mappings).filter(mapping => arrayValue(mapping.human_rule_sections).map(String).includes(section)); // 모든 대상 노드를 찾는다.
+      if (mappings.length === 0) issues.push(diagnostic('UNKNOWN_SECTION', `human-rule-map에 없는 섹션 ${section}`, { section })); // 섹션 번호를 추측하지 않는다.
+      for (const mapping of mappings) addWithParents(mapping.node_id, governance.nodes, selected); // 모든 역참조를 포함한다.
     }
   }
-  // 프로젝트 루트 밖의 실제 path는 owner 경계 분류 없이 일반 intent가 암묵적으로 소비하지 못하게 한다.
-  if (governance.router.routing_policy?.external_paths_require_scope_intent) {
-    const scopeIntents = new Set(arrayValue(governance.router.routing_policy?.external_path_scope_intents).map(String));
-    const hasScopeIntent = options.intents.some((intent) => scopeIntents.has(intent));
-    const externalPaths = options.paths.filter((candidate) => {
-      const resolved = path.resolve(PROJECT_ROOT, candidate);
-      const relative = path.relative(PROJECT_ROOT, resolved);
-      return relative.startsWith('..') || path.isAbsolute(relative);
-    });
-    if (externalPaths.length > 0 && !hasScopeIntent) errors.push(`외부 path에는 scope intent가 필요합니다: ${externalPaths.join(', ')}`);
-  }  // route가 하나도 없으면 기본 노드만으로 성공 처리하지 않는다.
-  if (matchedRoutes.length === 0) errors.push('일치하는 route가 없습니다.');
-  // 정책이 요구하면 모든 supplied intent가 적어도 하나의 intent route에 일치해야 한다.
-  if (governance.router.routing_policy?.require_all_supplied_intents_matched) {
-    // 소비되지 않은 intent를 각각 오류로 보고한다.
-    for (const intent of options.intents) if (!matchedIntents.has(intent)) errors.push(`미등록 또는 미매칭 intent: ${intent}`);
+  for (const intent of options.intents) { // 등록 안 됨과 조건 불일치를 구분한다.
+    if (!knownIntents.has(intent)) issues.push(diagnostic('UNKNOWN_INTENT', `미등록 intent: ${intent}`, { intent, hint: 'catalog의 knownIntents에서 의미가 맞는 분류를 확인하세요.' })); // 신규 분류를 자동 등록하지 않는다.
+    else if (!matchedIntents.has(intent)) issues.push(diagnostic('INTENT_PATH_MISMATCH', `등록된 intent의 경로 조건 불일치: ${intent}`, { intent, routes: rules.filter(rule => arrayValue(rule.match?.intents).includes(intent)).map(rule => ({ id: rule.id, expectedPaths: arrayValue(rule.match?.paths) })), hint: '실제 대상·참고 관계를 확인하세요. 통과 목적의 무관한 경로 추가는 금지합니다.' })); // 등록 사실과 필요한 조건을 함께 제공한다.
   }
-  // 정책이 요구하면 모든 supplied path가 적어도 하나의 route에 일치해야 한다.
-  if (governance.router.routing_policy?.require_all_supplied_paths_matched) {
-    // 소비되지 않은 path를 각각 오류로 보고한다.
-    for (const candidate of options.paths) if (!matchedPaths.has(candidate)) errors.push(`미매칭 path: ${candidate}`);
-  }
-  // 오류가 있으면 context pack을 생성하지 않고 예외로 중지한다.
-  if (errors.length > 0) throw new Error(errors.join(' | '));
-  // 선택된 모든 노드를 manifest 순서로 정렬한다.
-  const nodes = manifestOrder([...selected], governance.manifest);
-  // 모델 유형에 따른 토큰 예산을 선택한다.
-  const budget = Number(options.smallModel ? governance.router.routing_policy?.max_small_model_context_tokens : governance.router.routing_policy?.max_default_context_tokens);
-  // 항상 보존할 default_load를 base로 pack을 분할한다.
-  const packs = buildPacks(nodes, arrayValue(governance.router.default_load), governance, budget);
-  // 단일 노드조차 예산에 들어가지 않는 pack을 찾는다.
-  const overBudgetPacks = packs.map((pack, index) => ({ ...pack, index: index + 1 })).filter((pack) => pack.overBudget);
-  // 예산을 지킬 수 없으면 규칙을 버리지 않고 실패한다.
-  if (overBudgetPacks.length > 0) throw new Error(`분할 후에도 context 예산을 초과합니다: pack ${overBudgetPacks.map((pack) => pack.index).join(', ')}`);
-  // 모델이 그대로 소비할 결정적 JSON 구조를 반환한다.
-  return {
-    schemaVersion: 1,
-    governanceVersion: governance.manifest.governance_version,
-    inputs: { intents: options.intents, paths: options.paths, sections: options.sections, smallModel: options.smallModel },
-    matchedRoutes,
-    requiredInputs: [...requiredInputs],
-    budget,
-    tokenEstimator: governance.router.routing_policy?.token_estimator,
-    tokenBudgetIsModelAgnosticEstimate: Boolean(governance.router.routing_policy?.token_budget_is_model_agnostic_estimate),
-    splitRequired: packs.length > 1,
-    nodes,
-    packs,
+  const mutationIntents = ['implement', 'change', 'fix', 'create-file', 'migration', 'add-column', 'alter-schema', 'frontend', 'ui', 'ux', 'responsive', 'edit-rule', 'sync-rule', 'merge-production', 'deploy', 'release', 'delete', 'overwrite', 'restore', 'drop', 'reset']; // 변경 행위는 실제 대상이 있어야 한다.
+  if (!options.paths.length && options.intents.some(intent => mutationIntents.includes(intent))) issues.push(diagnostic('MISSING_TARGET_PATH', '변경 작업에는 실제 대상 --path가 필요합니다. 참고 경로는 수정 대상이 아닙니다.')); // reference-only 변경 요청을 거부한다.
+  const targetPaths = new Set(classified.entries.filter(entry => entry.role === 'target').map(entry => entry.normalized)); // 정규화 후 같은 경로의 역할 충돌을 검사한다.
+  for (const entry of classified.entries) if (entry.role === 'reference' && targetPaths.has(entry.normalized)) issues.push(diagnostic('PATH_ROLE_CONFLICT', `대상과 참고 역할이 겹칩니다: ${entry.input}`, { input: entry.input })); // 어느 역할인지 임의 결정하지 않는다.
+  if (options.sections.length && !rules.some(rule => matchedRoutes.includes(rule.id) && rule.dynamic_load)) issues.push(diagnostic('SECTION_WITHOUT_RULE_CONTEXT', '--section은 Rule 검토·변경 context에서만 사용합니다.')); // 무시되는 섹션 입력도 차단한다.
+  if (!matchedRoutes.length) issues.push(diagnostic('NO_MATCHING_ROUTE', '일치하는 route가 없습니다.')); // 기본 노드만으로 성공하지 않는다.
+  if (issues.length) throw new ContextInputError(issues); // 오류가 있으면 nodes/packs를 반환하지 않는다.
+  const nodes = manifestOrder([...selected], governance.manifest); // manifest 순서를 유지한다.
+  const budget = Number(options.smallModel ? governance.router.routing_policy.max_small_model_context_tokens : governance.router.routing_policy.max_default_context_tokens); // 기존 예산을 유지한다.
+  const packs = buildPacks(nodes, arrayValue(governance.router.default_load), governance, budget); // 공통 커널을 보존하여 분할한다.
+  if (packs.some(pack => pack.overBudget)) throw new ContextInputError([diagnostic('CONTEXT_BUDGET_EXCEEDED', '분할 후에도 context 예산을 초과합니다. 규칙을 제거하지 말고 작업을 분할하세요.')]); // 규칙 축소로 통과시키지 않는다.
+  return { // 기존 키를 보존하며 경로 역할과 안내를 추가한다.
+    schemaVersion: 1, governanceVersion: governance.manifest.governance_version, // 정책 버전을 명시한다.
+    inputs: { intents: options.intents, paths: options.paths, referencePaths: options.referencePaths, sections: options.sections, smallModel: options.smallModel }, // 원본 입력을 역할별 보존한다.
+    pathRoles: classified.entries, // 정규화·scope 판정 근거를 제공한다.
+    authorization: 'Context selects rules only; reference paths never grant write permission.', // 도구 성공과 사용자 승인을 분리한다.
+    matchedRoutes, requiredInputs: [...requiredInputs], budget, // 소비자가 기존 키를 계속 사용할 수 있다.
+    tokenEstimator: governance.router.routing_policy.token_estimator, tokenBudgetIsModelAgnosticEstimate: true, // 예산은 계획치다.
+    splitRequired: packs.length > 1, nodes, packs, // 전체 pack을 그대로 반환한다.
   };
 }
 
@@ -664,6 +621,7 @@ function createCatalog(governance) {
     intents: arrayValue(rule.match?.intents),
     // route가 인식하는 모든 path 패턴을 보존한다.
     paths: arrayValue(rule.match?.paths),
+    pathHints: arrayValue(rule.match?.path_hints), // 필수 조건이 아닌 사용 예시를 분리한다.
     // route가 로드하는 고정 노드 목록을 보존한다.
     load: arrayValue(rule.load),
     // Rule 변경 섹션 요구 여부를 명시한다.
@@ -672,7 +630,7 @@ function createCatalog(governance) {
   // 중복을 제거한 지원 intent 목록을 정렬한다.
   const knownIntents = [...new Set(routes.flatMap((route) => route.intents))].sort();
   // 중복을 제거한 path 패턴 목록을 정렬한다.
-  const knownPathPatterns = [...new Set(routes.flatMap((route) => route.paths))].sort();
+  const knownPathPatterns = [...new Set(arrayValue(governance.router.routing_policy.registered_project_paths))].sort();
   // AI가 입력 전 대조할 카탈로그를 반환한다.
   return {
     schemaVersion: 1,
@@ -680,7 +638,8 @@ function createCatalog(governance) {
     knownIntents,
     knownPathPatterns,
     routes,
-    instruction: '사용자 요청을 하나로 축약하지 말고 관련 intent와 path를 모두 선택한다. 목록에 없거나 판단할 수 없으면 fail-closed 한다.',
+    pathOptions: { '--path': '실제 작업 대상', '--reference-path': '읽기 전용 참고·영향 대상; 수정 권한 없음' }, // 역할을 catalog에 명시한다.
+    instruction: '사용자 요청을 하나로 축약하지 말고 관련 intent와 path를 모두 선택한다. Staging 후보는 실제 경로 그대로 선언한다. 미분류 입력은 구현을 중단하고 diagnostics를 따라 읽기 전용 진단한다.',
   };
 }
 
@@ -897,6 +856,15 @@ function validateGovernance(governance, options = {}) {
   if (!governance.nodes.has('governance.rule-sync')) errors.push('governance.rule-sync 노드가 없습니다.');
   // router가 실제 context loader를 선언하는지 확인한다.
   if (governance.router.routing_policy?.context_loader !== 'tooling/governance-tool.mjs') errors.push('router context_loader가 거버넌스 도구를 가리키지 않습니다.');
+  // Context 입력 계약의 보호 장치가 설정에서 제거되지 않았는지 확인한다.
+  if (governance.router.routing_policy?.independent_path_validation !== true || governance.router.routing_policy?.context_requires_valid_governance !== true) errors.push('context 입력·정책 독립 검증이 필요합니다.'); // generic intent 우회를 방지한다.
+  const registeredPaths = arrayValue(governance.router.routing_policy?.registered_project_paths); // 경로 등록부가 명시되어야 한다.
+  if (governance.router.routing_policy?.context_contract_node !== 'governance.context-routing' || !governance.nodes.has('governance.context-routing')) errors.push('Context 상세 계약 노드가 필요합니다.'); // 입력 계약 누락을 차단한다.
+  if (!registeredPaths.length || registeredPaths.some(pattern => typeof pattern !== 'string' || ['*', '**'].includes(pattern))) errors.push('명시적인 registered_project_paths가 필요합니다.'); // 전체 경로 무조건 허용은 금지한다.
+  for (const routeId of ['schema-change', 'frontend-change']) { // DB/UI 필수 노드는 경로에 종속하지 않는다.
+    const route = arrayValue(governance.router.rules).find(item => item.id === routeId); // 핵심 route를 조회한다.
+    if (!route || arrayValue(route.match?.paths).length) errors.push(`${routeId} 필수 규칙은 intent로 선택해야 합니다.`); // 회귀로 AND 경로 제한이 생기면 차단한다.
+  }
   // 운영 manifest와 사용자 Rule 원장의 활성 상태를 검사한다.
   if (governance.manifest.status !== 'active') errors.push('manifest가 active 상태가 아닙니다.');
   if (governance.manifest.replaces_root_sources !== true) errors.push('manifest가 루트 거버넌스 활성화를 선언하지 않았습니다.');
@@ -974,7 +942,7 @@ function helpText() {
     'Usage:',
     '  node .agent-governance/tooling/governance-tool.mjs validate [--expected-rule-sha <sha256>]',
     '  node .agent-governance/tooling/governance-tool.mjs catalog',
-    '  node .agent-governance/tooling/governance-tool.mjs context --intent <id> [--intent <id>] --path <path> [--path <path>] [--section <n>] [--small-model]',
+    '  node .agent-governance/tooling/governance-tool.mjs context --intent <id> [--intent <id>] --path <path> [--path <path>] [--reference-path <path>] [--section <n>] [--small-model]',
     '  node .agent-governance/tooling/governance-tool.mjs sync-status',
     '  node .agent-governance/tooling/governance-tool.mjs sync-plan --expected-rule-sha <sha256> --section <n> [--section <n>]',
     '  node .agent-governance/tooling/governance-tool.mjs snapshot',
@@ -1023,7 +991,9 @@ function main() {
   // context 명령은 router 기반 결정적 노드 pack을 출력한다.
   if (command === 'context') {
     // 최소 한 개 intent 또는 path가 없으면 모호한 요청으로 실패한다.
-    if (options.intents.length === 0 && options.paths.length === 0) throw new Error('context에는 --intent 또는 --path가 필요합니다.');
+    if (options.intents.length === 0 && options.paths.length === 0 && options.referencePaths.length === 0) throw new Error('context에는 --intent 또는 --path가 필요합니다.');
+    const validation = validateGovernance(governance, options); // 해시·노드·규칙 정합성이 깨진 context는 활성화하지 않는다.
+    if (validation.status !== 'pass') throw new ContextInputError([diagnostic('POLICY_VALIDATION_FAILED', '거버넌스 정합성 검증에 실패했습니다.', { errors: validation.errors })]); // 정상 pack 반환을 차단한다.
     // 계산한 context 구조를 출력한다.
     printJson(createContext(governance, options));
     // 정상 종료한다.
@@ -1063,11 +1033,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === TOOL_FILE) try {
   // Error 객체와 기타 throw 값을 모두 문자열 메시지로 정규화한다.
   const message = error instanceof Error ? error.message : String(error);
   // 실패 상태와 메시지를 표준 오류에 JSON으로 출력한다.
-  process.stderr.write(`${JSON.stringify({ status: 'fail', error: message }, null, 2)}\n`);
+  process.stderr.write(`${JSON.stringify({ status: 'fail', error: message, diagnostics: error.diagnostics || [diagnostic('POLICY_OR_TOOL_ERROR', message)], recovery: CONTEXT_RECOVERY }, null, 2)}\n`);
   // 셸과 호출 AI가 실패를 감지하도록 종료 코드를 설정한다.
   process.exitCode = 1;
 }
 
 // 회귀 테스트는 동일한 섹션 비교·digest 구현을 직접 검증한다.
 export { compareRuleSections, mappingSourceSectionDigest, parseRuleSections };
-

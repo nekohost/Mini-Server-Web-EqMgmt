@@ -10,7 +10,7 @@ Scope ownership `[ENTRY-CLAUDE.SCOPE]`: Mini-Server 작업으로 시작된 Claud
 
 1. 작업 디렉터리는 프로젝트 루트로 고정한다. `.agent-governance/manifest.yaml`을 확인하고 정규 파서 기반 `node .agent-governance/tooling/governance-tool.mjs validate`가 통과하는지 확인한다.
 2. 관련 intent와 대상 path를 모두 context 명령에 전달하고 출력된 pack의 노드를 순서대로 읽는다. Rule 개정은 변경된 모든 section도 전달한다.
-3. 질문·제안·계획·구현·삭제 모드를 구분하고 승인 범위를 넘지 않는다. intent·path·section을 분류할 수 없거나 context 명령이 실패하면 추측하지 않고 중지한다.
+3. 질문·제안·계획·구현·삭제 모드를 구분하고 승인 범위를 넘지 않는다. intent·path·section을 분류할 수 없거나 context 명령이 실패하면 일반 구현을 중단하고 아래 Context 진단 계약을 따른다.
 4. 실제 작업은 Task를 만들어 순차 수행한다.
 5. 계획 또는 검토는 Validation 1~8단계를 고정 순서로 수행한다.
 6. 규칙 누락이나 충돌 시 추측하지 않고 ID와 영향을 보고한다.
@@ -20,3 +20,7 @@ Scope ownership `[ENTRY-CLAUDE.SCOPE]`: Mini-Server 작업으로 시작된 Claud
 10. Rule 변경에서는 `sync-status`로 모든 추가·변경·삭제 섹션과 `currentRuleHash`를 확인한다. hash를 `sync-plan`·`validate`의 `--expected-rule-sha`로 고정하고, node digest·섹션 기준선·map·manifest까지 동시에 반영한다.
 
 플랫폼 도구 대응은 `.agent-governance/capabilities/claude.yaml`을 따른다.
+
+## Context 진단 계약 (Rule 9-1·9-3)
+
+먼저 `governance-tool.mjs catalog`로 작업 종류·경로를 확인한다. 실제 대상은 `--path`, 읽기 전용 참고·영향 대상은 `--reference-path`로 구분한다. Staging 후보만으로 DB/UI intent의 필수 규칙을 선택할 수 있으며 참고 경로는 수정 승인이 아니다. 실패 시 일반 구현은 중단하되 승인 범위 안의 읽기 전용 진단·근거 있는 입력 정정은 가능하다. validate와 새 context 성공 및 전체 pack 읽기 후에만 재개한다. 규칙 축소·무관한 경로 추가·정책/권한 충돌의 자동 해소는 금지한다. 구조화 diagnostics의 원인과 정정 근거를 기록한다.
