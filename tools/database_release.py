@@ -116,7 +116,7 @@ def start_service(database, backups, expected_head):
         if process.poll() is not None:  # 앱 초기화 실패를 즉시 탐지합니다.
             raise RuntimeError('service exited during startup; inspect private release log')  # 로그의 민감 내용은 자동 출력하지 않습니다.
         try:  # 실제 요청으로 가용성을 검사합니다.
-            with urllib.request.urlopen('http://127.0.0.1:5000/api/check_session', timeout=1) as response:  # 비인증 세션 상태를 확인합니다.
+            with urllib.request.urlopen('http://127.0.0.1:5000/login', timeout=1) as response:  # 비인증 세션 API는 401이 정상이며 공개 로그인 페이지로 기동을 확인합니다.
                 if response.status == 200:  # 정상 응답만 성공으로 판정합니다.
                     return {'service': 'running', 'pid': process.pid, 'commit': actual_head, 'backup': backup, 'http': 200}  # 복구에 필요한 최소 정보입니다.
         except OSError:  # 아직 초기화 중인 경우만 다시 시도합니다.
