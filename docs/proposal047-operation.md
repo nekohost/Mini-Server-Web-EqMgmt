@@ -1,6 +1,6 @@
 # 제안 047 운영 소스 반영 및 Linux 확인 안내
 
-2026-09-10 사용자 승인에 따라 운영 소스 반영을 완료했다. 아래 초기 통합 명세는 설계 이력이며, 현재 구현은 app.py, utils/lineup_node_service.py, utils/lineup_routes.py, templates/index.html, templates/lineup_management.html, static/js/lineup_registration.js에 있다. 메뉴는 기존 순서를 유지하고 SortOrder 9로 추가한다. Linux 서비스 적용·브라우저 확인은 아직 수행하지 않았다.
+2026-09-10 사용자 승인에 따라 운영 소스 반영을 완료했고, 2026-09-12 공식 모델명 후속 보완을 백업 Linux 서버의 DB v2와 서비스에 적용했다. 아래 초기 통합 명세는 설계 이력이며, 현재 구현은 app.py, utils/model_names.py, utils/lineup_node_service.py, utils/lineup_routes.py, templates/index.html, templates/lineup_management.html, static/js/lineup_registration.js에 있다. 메뉴는 기존 순서를 유지하고 SortOrder 9로 추가한다. Linux 회귀·사본 migration·공개 HTTP는 검증했으며 인증된 실브라우저 공식명 확인은 대기한다.
 
 현재 회귀 검증: Python unittest discover -s tests -p test_proposal047_nodes.py (메모리 DB 13건), node --test tests/test_proposal047_registration.mjs (등록 선택기 상태 전이 3건). 아래 Staging 경로의 초기 검증 명령은 이 두 명령으로 대체한다.
 

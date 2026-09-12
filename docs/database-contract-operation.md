@@ -1,4 +1,4 @@
-# Database contract v1 운영 안내
+# Database contract v2 운영 안내
 
 현재 필수 모델은 equipments → equipment_options → lineup_nodes다. equipment는 1차 전환에서 보존하며 삭제하지 않는다. 정상 연결은 FK ON을 강제하고 백업·복원은 schema version과 구조의 의미 계약을 비교한다.
 
@@ -23,6 +23,6 @@ git pull --ff-only
 
 check-copy는 실제 DB를 mode=ro로 조회하고 사본에서 기동·migration·행 지문·down/up·조회 계획을 검증한다. 앱 프로세스가 없는 상태에서 start에 동일 DB·backups와 --expected-head의 전체 commit SHA를 전달하면 변경 전 사본을 남기고 기존 app.py 방식으로 기동한다. /login 200이 기동 확인이며 인증되지 않은 /api/check_session 401은 정상이다. 자동 재기동 서비스 등록은 이번 변경에 포함하지 않았다.
 
-복구 사본과 JSON 증거는 제한된 디렉터리에 보존된다. 코드만 되돌려도 새 인덱스는 이전 코드와 공존한다. DB down이 필요하면 서비스를 중지하고 utils.database_contract.rollback_contract(database_path, backup_root)를 호출한다. 이는 v1 인덱스 4개·명명 이력 1개·user_version만 되돌리며 업무 행과 감사 테이블을 보존한다. 기존 down_migration.py는 평탄화 보관 기능이며 v1 rollback을 대신하지 않는다.
+복구 사본과 JSON 증거는 제한된 디렉터리에 보존된다. 코드만 되돌려도 새 인덱스와 nullable 공식명 컬럼은 이전 코드와 공존한다. DB down이 필요하면 서비스를 중지한다. 공식명 값이 모두 NULL일 때에만 `utils.database_contract.rollback_official_models(database_path, backup_root)`로 v2→v1을 먼저 수행하고, 필요할 때 `rollback_contract(database_path, backup_root)`로 v1→v0을 수행한다. 공식명 값이 하나라도 있으면 v2 down은 데이터 손실 방지를 위해 거부된다. 업무 행과 감사 테이블은 보존하며, 기존 down_migration.py는 평탄화 보관 기능이므로 이 계약 rollback을 대신하지 않는다.
 
 컬럼 물리 순서 이외의 정의 차이는 자동 허용하지 않는다. 새로운 제약·컬럼·뷰·트리거를 추가할 때 버전과 신규 DB/역사 DB 호환성 테스트를 함께 갱신해야 한다.

@@ -10,7 +10,7 @@ related_artifacts:
 
 # 공식 모델명 표시 후속 보완 계획
 
-상태: Windows 운영 소스 병합 및 정적 검증 완료, Linux 동작·브라우저 검증 대기. 제안 047 및 09/11 전체 노드 경로 표시의 후속 보완이며 별도 신규 제안 번호를 만들지 않는다. 기존 계획·원본 구현 이력은 보존하고 이번 추가 스키마 변경·회귀를 독립 문서로 관리한다.
+상태: Windows 운영 소스 병합, Git push, 백업 Linux 서버의 사본 검증·DB v2 migration·서비스 적용·공개 HTTP 검증 완료. 인증된 실브라우저 공식명 입력·표시 확인만 대기한다. 제안 047 및 09/11 전체 노드 경로 표시의 후속 보완이며 별도 신규 제안 번호를 만들지 않는다. 기존 계획·원본 구현 이력은 보존하고 이번 추가 스키마 변경·회귀를 독립 문서로 관리한다.
 
 ## 표시·수정 계약
 
@@ -43,4 +43,4 @@ Windows에서는 AST/문법·정적 계약·원본 대비 diff만 검사한다. 
 
 ## 운영 소스 병합 기록
 
-사용자의 후속 운영 반영 승인에 따라 기준 commit과 기존 파일 14개의 baseline SHA, 후보 17개의 candidate SHA, 신규 파일 3개의 운영 경로 부재를 재검증한 뒤 운영 소스에 병합했다. Staging 전용 README·manifest·diff·검사 도구는 운영 코드에 복사하지 않았다. Python 정적 검사와 JavaScript 회귀 10건이 통과했으며, 실제 DB migration·서비스 재시작·Git commit/push·Linux 및 실브라우저 검증은 아직 수행하지 않았다.
+사용자의 후속 운영 반영 승인에 따라 기준 commit과 기존 파일 14개의 baseline SHA, 후보 17개의 candidate SHA, 신규 파일 3개의 운영 경로 부재를 재검증한 뒤 운영 소스에 병합했다. Staging 전용 README·manifest·diff·검사 도구는 운영 코드에 복사하지 않았다. Python 정적 검사와 JavaScript 회귀 10건이 통과했다. 이후 구현 commit `f5b37690939c9c255500114cde87a477e5452e4d`을 push하고 백업 Linux 서버에서 Python 69건, 실제 DB 읽기 전용 기반 사본 migration·행 보존·down/up, 운영 전 백업, DB v2 적용과 공개 HTTP를 검증했다. 인증된 실브라우저 검증은 남아 있다.

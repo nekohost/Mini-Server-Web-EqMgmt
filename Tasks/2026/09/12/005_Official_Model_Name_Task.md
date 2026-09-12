@@ -21,9 +21,11 @@ related_artifacts:
 - [x] 기준 commit·baseline/candidate SHA·신규 경로 재검증
 - [x] 운영 대상 17개 파일 병합, Staging 전용 4개 파일 제외
 - [x] 운영 소스 정적 재검증 및 JavaScript 회귀 10건 통과
-- [ ] Linux Python 동작 회귀·실제 DB 사본 migration 검증
-- [ ] 실브라우저 관리자 및 내/공개/임시 목록 검증
+- [x] 구현 commit/push 및 백업 Linux 서버 fast-forward·commit 일치 확인
+- [x] Linux Python 69건·실제 DB 사본 migration/down/up·행 보존 검증
+- [x] 운영 전 private snapshot·DB v2 migration·서비스 재기동·공개 HTTP 검증
+- [ ] 인증된 실브라우저 관리자 및 내/공개/임시 목록 검증
 
 최초 승인 범위는 Staging까지였고, 후속 사용자 지시로 Windows 운영 소스 병합까지 확대됐다. 실제 DB 변경·서비스 구동·commit/push는 이번 후속 지시에 포함하지 않는다.
 
-결과: 운영 소스 병합·정적 검증 완료. JavaScript 전체 회귀 10건은 실행 통과했다. 신규 Python 14건은 작성했으나 Linux에서 아직 실행하지 않았다. 후속 Linux·브라우저 검증 절차는 보고서에 보존한다.
+결과: 운영 소스 병합과 구현 commit/push, 백업 Linux 서버 적용까지 완료했다. JavaScript 10건과 Linux Python 전체 69건이 통과했고, 실제 DB는 사본 검증 후 v2로 전진 migration됐다. 공개 도메인 HTTP는 정상이다. 인증된 실브라우저 기능 확인만 남아 있다.

@@ -87,4 +87,13 @@ Linux에서 기존 회귀와 신규 Python 14건/JavaScript 2건 실행, 실제 
 7. 휴먼 에러: 빈값 해제·공유 범위·비상속·긴 이름 UI 안내를 포함했다. 실제 화면 조작은 후속 검증 대상이다.
 8. AI 메타: Windows 운영 소스 병합 완료와 Linux 서비스 적용 완료를 구분했다. Git commit/push, 서버 pull·재시작, 실제 DB 변경은 수행하지 않았다.
 
-남은 단계는 Git 반영 승인 이후 표준 배포 순서에 따른 Linux Python 회귀, 실제 DB 사본 migration, 서비스 및 실브라우저 검증이다.
+## Linux 배포 및 실제 DB 적용
+
+- 구현 commit `f5b37690939c9c255500114cde87a477e5452e4d`을 origin/main에 push하고 백업 Linux 서버 저장소를 fast-forward했다. 서버의 기존 미추적 백업과 불완전 가상환경 디렉터리는 변경하지 않았다.
+- `.venv/bin/python -m unittest discover` 전체 69건이 통과했다. 의도된 실패 경로의 ERROR 로그가 출력됐지만 최종 unittest 결과는 `OK`다. 서버에 Node.js가 없어 JavaScript 재실행은 불가했으며, 동일 commit의 Windows Node 회귀 10/10과 governance validate 오류·경고 0 결과를 사용했다.
+- 실제 DB는 읽기 전용으로 열고 private snapshot에서 v1→v2 migration, 행 지문 보존, 조건부 2→1 및 1→0 down, 0→2 재적용, 멱등성, 인덱스 조회 계획을 검증했다. 결과는 `copy_check=pass`, `rows_preserved`, `rollback=pass`, `schema_version=2`다.
+- 기존 PID 48811의 저장소 경로·실행 파일·포트 소유를 확인한 후 SIGTERM으로 그 프로세스만 종료했다. 운영 전 사본 `production-before-20260912T094756Z-f1197750379d4b8e92e01b6cf743c5bc.db`를 권한 600으로 생성한 뒤 새 PID 51642를 시작했다.
+- 실제 DB는 v2, `official_model_name TEXT` nullable 컬럼과 `official_model_name_v2` 이력을 갖는다. 무결성은 `ok`, FK 위반 0이며 노드 12·옵션 1·장비 1이 보존됐다. 기존 공식명은 추측 채움 없이 0건이다.
+- Windows와 서버에서 `https://nekohost.org/login` 200 및 TLS 검증 성공을 확인했고, 비인증 `/api/check_session` 401도 정상이다.
+
+주 서버는 현재 제공된 SSH 키로 인증되지 않아 변경하지 않았다. 이번 대화에서 실제 검증 대상으로 사용해 온 백업 Linux 서버에만 적용했다. 브라우저 자동화 표면이 제공되지 않아 인증된 관리자 공식명 입력·해제와 내/공개/임시 목록의 화면 확인은 수행하지 못했다. 이는 남은 사용자 검증 항목이며 서비스·DB 배포 실패는 아니다.
