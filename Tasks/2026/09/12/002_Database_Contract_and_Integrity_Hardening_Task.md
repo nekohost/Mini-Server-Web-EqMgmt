@@ -54,4 +54,5 @@ related_artifacts:
 - 실제 DB 사본의 기동·행 보존·버전 down/up·신규 DB 교차 호환성 통과.
 - 백업 서버 실제 DB version=1, integrity=ok, FK 위반 0. 서비스 PID 48811, 점검 NORMAL.
 - 주 서버 192.168.0.166 적용은 현재 키의 SSH 인증 거절로 미완료다. 위 운영 적용 체크는 사용자 지정 백업 서버에 해당한다.
+- 백업 서버 내부 HTTP는 정상이나 Windows PC에서 :5000 직접 접속은 시간 초과다. Nginx 설정 열람/sudo 권한이 없어 외부 브라우저 경로 검증은 잔여로 남긴다.
 - 최종 보고서: ../../../../Reports/2026/09/12/003_Database_Contract_Production_Release_Report.md

@@ -90,8 +90,12 @@ related_artifacts:
 
 최종 상태: 백업 서버 적용 완료, 중단 문서 작업 완료, 주 서버 적용은 SSH 인증 불가로 미완료.
 
+백업 서버의 HTTP 검증은 해당 Linux 서버에서 localhost 및 자신의 LAN IP로 수행했다. Windows PC에서 백업 서버의 :5000/login 직접 접속은 5초 시간 초과이며 :80/login은 Nginx 404다. Nginx 사이트 설정은 현재 계정에 읽기 권한이 없고 sudo 비대화형 실행도 허용되지 않는다. 따라서 PC → 실제 서비스 URL의 브라우저 접근까지 완료했다고 주장하지 않는다. 기존 방화벽/프록시 설정을 임의 변경하지 않았으며 해당 접근 경로 확인은 인프라 권한이 필요한 잔여다.
+
 ## 문서와 Staging 정리
 
 이전 릴리스 후보 25개는 Git 5acf978의 파일과 일치했고, 새 후보 8개는 현재 commit과 동일했다(새 helper 2개는 파일 끝의 빈 줄 1개만 차이). 검증 후 해당 33개 복사본을 Staging에서 제거했다. 이전 overlay 검사 스크립트는 scratch/release-20260912-recovery/validate_release_governance.mjs에 복구 사본을 두었다. 모든 실제 구현 소스는 Git에서 복구할 수 있다.
 
 이전 감사 문서의 누락 front matter와 임의 00:00 작성 시각을 관측된 파일 생성 시각으로 보정했다. 중단 Task 004의 예약 Plan/Report를 작성하여 깨진 링크를 해결했다. 영구 기록 본문과 사용자 접근 로그는 삭제하지 않았다.
+
+정리 후 archive validator 오류 0, governance validator 오류/경고 0, recorder verify missing/duplicate 0, Node 회귀 23/23을 확인했다. 711d3e2까지 문서와 원격/서버 HEAD가 일치했고 작업 트리는 clean이었다. 그 뒤 추가 변경은 이 네트워크 검증 제한 기록뿐이며 실행 앱 소스는 87e28bc와 같다.
