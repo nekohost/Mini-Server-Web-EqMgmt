@@ -1938,6 +1938,9 @@ def validate_database_compatibility(candidate_path, baseline_path):
         # 운영에 존재하는 모든 객체가 후보에도 존재해야 합니다.
         missing_objects = sorted(set(baseline_contract) - set(candidate_contract))
         if missing_objects:
+            missing_non_indexes = [key for key in missing_objects if key[0] != 'index']
+            if not missing_non_indexes:
+                raise ValueError('후보 DB의 테이블·제약조건·인덱스·트리거·뷰가 현재 서비스와 호환되지 않습니다.')
             raise ValueError('현재 서비스에 필요한 스키마 객체가 후보 DB에 없습니다.')
         # 테이블 정의, 컬럼, 외래키, 인덱스, 트리거, 뷰가 모두 같아야 합니다.
         changed_objects = [key for key, value in baseline_contract.items() if candidate_contract.get(key) != value]
@@ -3748,7 +3751,6 @@ def api_dashboard_stats():
             LEFT JOIN equipment_options opt ON e.option_id = opt.id
             LEFT JOIN lineup_nodes node ON opt.lineup_node_id = node.id
             WHERE {base_where} AND node.category_id = ? AND node.manufacturer_id = ?
-            GROUP BY status
         '''
         cursor.execute(status_query, params_base + [req_cat_id, req_man_id])
         status_distribution = [{"status": row['status'], "count": row['count']} for row in cursor.fetchall()]
