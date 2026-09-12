@@ -51,7 +51,7 @@
 </section>
 
 <div id="nodeModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="nodeModalTitle">
-    <form id="nodeForm" class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
+    <form id="nodeForm" class="max-h-[90dvh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-800">
         <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4 dark:border-slate-700">
             <h3 id="nodeModalTitle" class="text-lg font-bold text-slate-900 dark:text-white">노드 추가</h3>
             <button id="closeModalButton" type="button" class="text-2xl leading-none text-slate-400 hover:text-slate-700 dark:hover:text-white" aria-label="닫기">&times;</button>
@@ -61,6 +61,13 @@
                 노드 이름
                 <input id="nodeName" type="text" maxlength="100" required class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white">
             </label>
+            <!-- [역할] 분류명과 실제 제품 전체 이름을 분리합니다. [의존성 관계] official_model_name. [변경 시 영향도] 같은 노드에 직접 연결된 모든 장비의 표시. -->
+            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200">
+                공식 모델명 (선택)
+                <input id="officialModelName" type="text" maxlength="200" aria-describedby="officialModelNameHelp" placeholder="예: Beelink SER8" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white">
+                <span id="officialModelNameHelp" class="mt-1 block text-xs font-normal text-slate-500">제조사를 포함한 실제 전체 제품명을 200자 이내로 입력하세요. 비우면 기존 분류 경로를 표시합니다. 하위 노드에는 자동 상속하지 않습니다.</span>
+            </label>
+            <p id="officialModelImpact" class="text-xs text-amber-700 dark:text-amber-300">이 노드에 직접 연결된 모든 옵션·장비가 같은 공식 모델명을 공유합니다.</p>
             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-200">
                 상위 노드
                 <select id="parentNode" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
@@ -108,6 +115,7 @@
         equipment: document.getElementById('equipmentCount'), modal: document.getElementById('nodeModal'),
         form: document.getElementById('nodeForm'), title: document.getElementById('nodeModalTitle'),
         name: document.getElementById('nodeName'), parent: document.getElementById('parentNode'),
+        officialName: document.getElementById('officialModelName'), impact: document.getElementById('officialModelImpact'), // 분류명과 독립된 입력·영향 안내입니다.
         modalMessage: document.getElementById('modalMessage'), save: document.getElementById('saveNodeButton')
     };
 
@@ -211,6 +219,7 @@
         titleRow.append(makeElement('strong', 'break-all text-sm text-slate-900 dark:text-white', node.name), statusBadge(node.status));
         const metrics = makeElement('p', 'mt-1 text-xs text-slate-500 dark:text-slate-400', `깊이 ${node.depth} · 자식 ${node.child_count || 0} · 옵션 ${node.option_count || 0} · 활성 장비 ${node.active_equipment_count || 0} · 임시저장 ${node.draft_equipment_count || 0}`);
         info.append(titleRow, metrics);
+        info.append(makeElement('p', 'mt-1 break-words text-sm text-blue-700 dark:text-blue-300', node.official_model_name ? `공식 모델명: ${node.official_model_name}` : '공식 모델명 미지정 · 분류 경로 표시')); // API 문자열은 textContent로만 표시합니다.
 
         const actions = makeElement('div', 'flex flex-wrap gap-2');
         const add = makeElement('button', 'rounded border border-blue-300 px-2.5 py-1.5 text-xs font-bold text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-300', '+ 하위');
@@ -280,6 +289,7 @@
         state.mode = 'create'; state.activeNodeId = null;
         elements.title.textContent = parentId ? '하위 노드 추가' : '최상위 노드 추가';
         elements.name.value = ''; fillParentOptions(parentId); elements.modalMessage.classList.add('hidden');
+        elements.officialName.value = ''; elements.impact.textContent = '이 노드에 직접 연결될 옵션·장비가 같은 공식 모델명을 공유합니다. 상위 공식명은 상속하지 않습니다.'; // 이전 편집 값이 새 노드로 누출되지 않습니다.
         elements.modal.classList.remove('hidden'); elements.modal.classList.add('flex'); elements.name.focus();
     }
 
@@ -289,6 +299,8 @@
         if (!node) return;
         state.mode = 'edit'; state.activeNodeId = Number(nodeId);
         elements.title.textContent = '노드 수정·이동'; elements.name.value = node.name;
+        elements.officialName.value = node.official_model_name || ''; // 누락된 값은 미지정으로 표시합니다.
+        elements.impact.textContent = `직접 연결된 옵션 ${node.option_count || 0}개·장비 ${node.equipment_count || 0}개에 함께 적용됩니다. 비우고 저장하면 공식명 지정이 해제됩니다.`; // 공유 변경 범위를 저장 전에 안내합니다.
         fillParentOptions(node.parent_id, collectDescendantIds(nodeId, filteredNodes()));
         elements.modalMessage.classList.add('hidden'); elements.modal.classList.remove('hidden'); elements.modal.classList.add('flex'); elements.name.focus();
     }
@@ -332,6 +344,8 @@
         event.preventDefault();
         if (state.busy) return;
         const name = elements.name.value.trim();
+        const officialModelName = elements.officialName.value.trim(); // 서버에서도 같은 입력을 재검증합니다.
+        if ([...officialModelName].length > 200 || /[\u0000-\u001f\u007f-\u009f]/u.test(elements.officialName.value)) { showMessage('공식 모델명은 제어문자 없이 200자 이내로 입력해 주세요.', 'error', elements.modalMessage); elements.officialName.focus(); return; } // 잘못된 입력을 요청 전에 안내합니다.
         const ids = selectedIds();
         if (!name) { showMessage('노드 이름을 입력해 주세요.', 'error', elements.modalMessage); elements.name.focus(); return; }
         state.busy = true; elements.save.disabled = true;
@@ -340,6 +354,7 @@
             const payload = isCreate
                 ? { name, category_id: ids.categoryId, manufacturer_id: ids.manufacturerId, parent_id: elements.parent.value || null }
                 : { name, parent_id: elements.parent.value || null };
+            payload.official_model_name = officialModelName || null; // 빈 입력은 기존 값을 해제하는 명시적인 null입니다.
             const url = isCreate ? '/api/lineup_node' : `/api/lineup_node/${state.activeNodeId}`;
             const result = await apiRequest(url, { method: isCreate ? 'POST' : 'PUT', body: JSON.stringify(payload) });
             closeModal(); try { sessionStorage.removeItem('nodeCache_v2'); } catch (_) { /* 저장소 제한 시 다음 조회로 갱신합니다. */ } await loadSnapshot(true); showMessage(result.message, 'success');

@@ -47,6 +47,7 @@ class ReleaseApiTests(unittest.TestCase):
         self.login('admin')
         with sqlite3.connect(self.module.DATABASE_PATH) as conn:
             conn.execute('DELETE FROM equipments')
+            conn.execute('UPDATE lineup_nodes SET official_model_name=NULL')  # 테스트 사이 공식명 상태를 초기화합니다.
             conn.execute('DELETE FROM equipment_options')
             conn.execute('DELETE FROM equipments_audit_log')
             conn.execute("INSERT INTO equipment_options(id,lineup_node_id,option_name,specs_json,status) VALUES(10001,10002,'16GB','{}','APPROVED')")
@@ -101,6 +102,43 @@ class ReleaseApiTests(unittest.TestCase):
         self.assertEqual(self.client.get('/api/equipments_v2').get_json()['equipments'][0]['FullModelName'], 'Root / Leaf')
         stats = self.client.get('/api/dashboard/stats?category_id=10001&manufacturer_id=10001').get_json()
         self.assertEqual(stats['data']['combined_stats']['equipment_list'][0]['FullModelName'], 'Root / Leaf')
+
+    def test_official_name_all_lists_and_audit(self):
+        """[역할] 관리자 수정부터 내/공개/임시/v2/대시보드까지 검사합니다. [의존성 관계] 격리 앱. [변경 시 영향도] 표시 일관성."""
+        result = self.client.put('/api/lineup_node/10002', json={'official_model_name': 'Beelink SER8'}, headers=self.headers)  # 실제 권한/CSRF 경로입니다.
+        self.assertEqual(result.status_code, 200)  # 수정이 성공해야 합니다.
+        self.login('user')  # 장비 소유자입니다.
+        self.assertEqual(self.client.get('/api/equipment?type=my').get_json()[0]['DisplayModelName'], 'Beelink SER8')  # 내 장비입니다.
+        self.assertEqual(self.client.get('/api/equipments_v2').get_json()['equipments'][0]['OfficialModelName'], 'Beelink SER8')  # 공통 v2입니다.
+        stats = self.client.get('/api/dashboard/stats?category_id=10001&manufacturer_id=10001').get_json()  # 복합 검색입니다.
+        self.assertEqual(stats['data']['combined_stats']['equipment_list'][0]['DisplayModelName'], 'Beelink SER8')  # 같은 표시 계약입니다.
+        with sqlite3.connect(self.module.DATABASE_PATH) as conn:  # fixture에서 공개 상태를 만듭니다.
+            conn.execute('UPDATE equipments SET is_public=1')  # 운영 장비는 수정하지 않습니다.
+            row = conn.execute("SELECT OldValue,NewValue FROM audit_logs WHERE Action='UPDATE_LINEUP_NODE' AND TargetId=10002 ORDER BY AuditId DESC LIMIT 1").fetchone()  # 실제 audit_logs.AuditId로 최신 이력을 확인합니다.
+            self.assertIsNotNone(row)  # 같은 transaction 감사가 있어야 합니다.
+            self.assertIn('Beelink SER8', row[1])  # 변경 후 값이 기록됩니다.
+        self.assertEqual(self.client.get('/api/equipment?type=public&include_mine=true').get_json()[0]['OfficialModelName'], 'Beelink SER8')  # 공개 장비입니다.
+        with sqlite3.connect(self.module.DATABASE_PATH) as conn:  # 임시저장도 표시를 공유합니다.
+            conn.execute('UPDATE equipments SET is_draft=1')  # fixture 상태만 바꿉니다.
+        self.assertEqual(self.client.get('/api/equipment?is_draft=1').get_json()[0]['DisplayModelName'], 'Beelink SER8')  # 임시 목록입니다.
+
+    def test_official_name_permissions_csrf_and_failed_audit(self):
+        """[역할] 이름 수정의 권한/감사 실패를 검사합니다. [의존성 관계] route decorator. [변경 시 영향도] 403/rollback."""
+        endpoint = '/api/lineup_node/10002'  # 실제 존재하는 fixture 노드입니다.
+        self.assertEqual(self.client.put(endpoint, json={'official_model_name': 'Bypass'}).status_code, 403)  # CSRF가 필요합니다.
+        self.login('user')  # 일반 사용자는 수정 권한이 없습니다.
+        self.assertEqual(self.client.put(endpoint, json={'official_model_name': 'Bypass'}, headers=self.headers).status_code, 403)  # 관리자 검사가 유지됩니다.
+        self.assertEqual(self.client.post('/api/lineup_node', json={'name': 'New', 'category_id': 10001, 'manufacturer_id': 10001, 'official_model_name': 'Bypass'}, headers=self.headers).status_code, 403)  # 생성 우회도 거부합니다.
+        self.login('admin')  # 감사 실패 경로를 검사합니다.
+        with sqlite3.connect(self.module.DATABASE_PATH) as conn:  # 이미 Blueprint에 바인딩된 callback의 실제 감사 SQL에서 실패하도록 만듭니다.
+            conn.execute("CREATE TRIGGER official_audit_failure BEFORE INSERT ON audit_logs WHEN NEW.Action='UPDATE_LINEUP_NODE' BEGIN SELECT RAISE(ABORT, 'fixture-only'); END")  # fixture DB만 대상으로 합니다.
+        try:  # 실제 transaction rollback을 검증합니다.
+            self.assertEqual(self.client.put(endpoint, json={'official_model_name': 'Not committed'}, headers=self.headers).status_code, 500)  # 안전한 실패 응답입니다.
+        finally:  # 다른 회귀에 실패 주입이 남지 않습니다.
+            with sqlite3.connect(self.module.DATABASE_PATH) as conn:  # 같은 fixture의 trigger만 정리합니다.
+                conn.execute('DROP TRIGGER official_audit_failure')  # 업무 테이블은 제거하지 않습니다.
+        with sqlite3.connect(self.module.DATABASE_PATH) as conn:  # DB 변경도 취소되었어야 합니다.
+            self.assertIsNone(conn.execute('SELECT official_model_name FROM lineup_nodes WHERE id=10002').fetchone()[0])  # 부분 저장을 허용하지 않습니다.
 
     def test_backup_http_attachment_and_private_temp_cleanup(self):
         self.module.set_maintenance_state('DRAINING', 'fixture', '', 'fixture-10001')

@@ -13,7 +13,7 @@ import time  # 기동 확인의 제한된 재시도를 수행합니다.
 import urllib.request  # 실제 HTTP 응답을 확인합니다.
 ROOT = Path(__file__).resolve().parents[1]  # 이 스크립트의 저장소를 owner로 고정합니다.
 sys.path.insert(0, str(ROOT))  # 공통 DB 계약 모듈을 사용합니다.
-from utils.database_contract import connect_database, assert_integrity, private_snapshot, quote_identifier, migrate_contract, rollback_contract, SCHEMA_VERSION  # 공유된 migration만 실행합니다.
+from utils.database_contract import connect_database, assert_integrity, private_snapshot, quote_identifier, migrate_contract, rollback_contract, rollback_official_models, SCHEMA_VERSION  # 공유된 migration만 실행합니다.
 
 
 def query_measurements(connection):
@@ -34,16 +34,18 @@ def query_measurements(connection):
     return result  # 전후 차이를 보고서에 사용합니다.
 
 
-def row_fingerprints(connection):
+def row_fingerprints(connection, baseline=None):
     """[역할] 업무 행의 원문을 출력하지 않고 보존 여부를 확인합니다. [의존성 관계] SQLite. [변경 시 영향도] 배포 게이트."""
     result = {}  # 모든 기존 테이블의 typed-row 지문을 기록합니다.
     for (name,) in connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name!='sys_migrations' ORDER BY name").fetchall():  # migration 이력만 변화가 허용됩니다.
+        columns = baseline[name]['columns'] if baseline is not None and name in baseline else [row[1] for row in connection.execute(f'PRAGMA table_info({quote_identifier(name)})')]  # 원래 컬럼을 고정하여 새 NULL 컬럼을 데이터 변경으로 오판하지 않습니다.
+        projection = ','.join(quote_identifier(column) for column in columns)  # 기준선의 모든 기존 컬럼을 비교합니다.
         digest, count = hashlib.sha256(), 0  # 한 테이블씩 처리합니다.
-        for row in connection.execute(f'SELECT * FROM {quote_identifier(name)} ORDER BY rowid'):  # 현재 스키마는 rowid 테이블입니다.
+        for row in connection.execute(f'SELECT {projection} FROM {quote_identifier(name)} ORDER BY rowid'):  # 현재 스키마는 rowid 테이블입니다.
             digest.update(repr(tuple(row)).encode('utf-8'))  # NULL·JSON·문자열을 구분합니다.
             digest.update(b'\n')  # 행 경계를 보존합니다.
             count += 1  # 건수를 별도로 기록합니다.
-        result[name] = {'count': count, 'sha256': digest.hexdigest()}  # 원문은 포함하지 않습니다.
+        result[name] = {'columns': columns, 'count': count, 'sha256': digest.hexdigest()}  # 원문은 포함하지 않습니다.
     return result  # 동작 후 동일 결과와 대조합니다.
 
 
@@ -71,7 +73,10 @@ def check_copy(database, backups):
         copy = connect_database(path)  # migration 결과를 검사합니다.
         try:  # 검사 연결의 수명을 제한합니다.
             assert_integrity(copy)  # FK와 계층 무결성을 재확인합니다.
-            after = row_fingerprints(copy)  # 테이블 데이터가 그대로인지 대조합니다.
+            after = row_fingerprints(copy, before)  # 테이블 데이터가 그대로인지 대조합니다.
+            has_official_names = copy.execute('SELECT 1 FROM lineup_nodes WHERE official_model_name IS NOT NULL LIMIT 1').fetchone() is not None  # 공식명이 실제로 사용 중인지 확인합니다.
+            if 'official_model_name' not in before['lineup_nodes']['columns'] and has_official_names:  # migration에서 기존 값을 추측해 채우지 않았는지 검사합니다.
+                raise ValueError('unexpected official model backfill')  # 예상 밖 데이터 변경은 차단합니다.
             query_after = query_measurements(copy)  # 동일 조건으로 적용 후 계획을 측정합니다.
             if before != after:  # 자동 초기화에 의한 예상 밖 변화도 차단합니다.
                 raise ValueError('production copy row preservation failed')  # 운영 적용을 진행하지 않습니다.
@@ -79,12 +84,31 @@ def check_copy(database, backups):
                 raise ValueError('copy schema version mismatch')  # 부분 migration을 거부합니다.
         finally:  # down/up 전에 잠금을 해제합니다.
             copy.close()  # 열린 reader가 남지 않습니다.
-        rollback_contract(path, backups / 'copy-rollback')  # 사본에서만 다운 리허설을 실행합니다.
+        if has_official_names:  # 새 값이 있는 DB는 down 거부가 정상 안전 동작입니다.
+            try:  # 실제 함수가 거부하는지 확인합니다.
+                rollback_official_models(path, backups / 'copy-rollback')  # 사본에서도 데이터를 삭제하지 않습니다.
+            except ValueError as error:  # 값 보존 게이트만 정상 거부로 인정합니다.
+                if 'lose data' not in str(error):  # 다른 실패는 테스트 실패입니다.
+                    raise  # 오류를 숨기지 않습니다.
+            else:  # 값이 있는데 down했다면 심각한 오류입니다.
+                raise ValueError('populated official model rollback was not blocked')  # 검증을 중단합니다.
+            rollback_result = 'blocked-preserves-populated-fields'  # down 성공과 구분합니다.
+        else:  # 모든 공식명이 NULL인 사본에서만 역전이를 시험합니다.
+            rollback_official_models(path, backups / 'copy-rollback')  # v2→1을 먼저 검사합니다.
+            rollback_contract(path, backups / 'copy-rollback')  # v1→0의 기존 down도 시험합니다.
+            rollback_result = 'pass'  # 실제 down/up 수행 여부를 표시합니다.
         migrate_contract(path, backups / 'copy-rollback')  # 전진 재적용의 멱등성을 확인합니다.
         repeat = migrate_contract(path, backups / 'copy-rollback')  # 두 번째 실행은 변경이 없어야 합니다.
         if repeat['applied']:  # 반복 쓰기를 허용하지 않습니다.
             raise ValueError('migration not idempotent')  # 검증 실패로 처리합니다.
-        return {'copy_check': 'pass', 'rows_preserved': before, 'schema_version': SCHEMA_VERSION, 'rollback': 'pass', 'copy': str(path), 'queries_before': query_before, 'queries_after': query_after}  # 검증 증거만 반환합니다.
+        final = connect_database(path)  # down/up 이후 데이터도 재검사합니다.
+        try:  # 검증 연결을 제한합니다.
+            assert_integrity(final)  # 참조 관계를 다시 확인합니다.
+            if row_fingerprints(final, before) != before:  # 공식명이 있던 기준선은 그 값까지 비교합니다.
+                raise ValueError('post-rollback row preservation failed')  # 역전이 데이터 손실을 놓치지 않습니다.
+        finally:  # 연결을 닫습니다.
+            final.close()  # 잠금을 반환합니다.
+        return {'copy_check': 'pass', 'rows_preserved': before, 'schema_version': SCHEMA_VERSION, 'rollback': rollback_result, 'copy': str(path), 'queries_before': query_before, 'queries_after': query_after}  # 검증 증거만 반환합니다.
     finally:  # import 후 실패에서도 독립 worker를 정리합니다.
         if hasattr(module, 'shutdown_event'):  # 부분 import를 고려합니다.
             module.shutdown_event.set()  # 해당 모듈 worker에만 종료 신호를 줍니다.

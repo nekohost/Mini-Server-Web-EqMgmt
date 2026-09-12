@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 from utils.database_contract import connect_database, configure_connection, schema_contract, migrate_contract, rollback_contract, INDEXES
+from utils.database_contract import SCHEMA_VERSION, rollback_official_models  # 현재 버전과 이전 v1 계약을 구별합니다.
 
 
 @unittest.skipIf(os.name == 'nt', 'Linux execution only')
@@ -199,12 +200,12 @@ class DatabaseContractTests(unittest.TestCase):
         path = self.root / 'mismatch.db'
         candidate = connect_database(path)
         self.connection.backup(candidate)
-        candidate.execute('PRAGMA user_version=2')
+        candidate.execute(f'PRAGMA user_version={SCHEMA_VERSION + 1}')  # 지원하지 않는 미래 버전입니다.
         candidate.close()
         with self.assertRaisesRegex(ValueError, '버전'):
             self.module.validate_database_compatibility(path, self.module.DATABASE_PATH)
         candidate = connect_database(path)
-        candidate.execute('PRAGMA user_version=1')
+        candidate.execute(f'PRAGMA user_version={SCHEMA_VERSION}')  # 구조는 현재 버전으로 복원합니다.
         candidate.execute('DROP INDEX idx_contract_equipment_owner')
         candidate.close()
         with self.assertRaisesRegex(ValueError, '인덱스'):
@@ -217,6 +218,7 @@ class DatabaseContractTests(unittest.TestCase):
         self.connection.backup(candidate)
         before = tuple(candidate.execute('SELECT * FROM equipments').fetchone())
         candidate.close()
+        self.assertEqual(rollback_official_models(path, self.root / 'rollback-backups')['version'], 1)  # NULL 컬럼만 안전하게 down합니다.
         self.assertEqual(rollback_contract(path, self.root / 'rollback-backups')['version'], 0)
         self.assertTrue(migrate_contract(path, self.root / 'rollback-backups')['applied'])
         self.assertFalse(migrate_contract(path, self.root / 'rollback-backups')['applied'])

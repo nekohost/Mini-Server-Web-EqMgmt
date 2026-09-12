@@ -48,7 +48,8 @@ class LineupNodeServiceTests(unittest.TestCase):
                 depth INTEGER NOT NULL,
                 status TEXT NOT NULL,
                 requested_by INTEGER,
-                created_at TEXT
+                created_at TEXT,
+                official_model_name TEXT CHECK (official_model_name IS NULL OR (typeof(official_model_name) = 'text' AND length(official_model_name) BETWEEN 1 AND 200))
             );
             CREATE TABLE equipment_options (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

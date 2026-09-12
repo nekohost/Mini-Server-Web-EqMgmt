@@ -122,7 +122,7 @@ def build_lineup_node_blueprint(
         try:
             connection.execute("BEGIN IMMEDIATE")  # 중복 검사와 변경을 직렬화합니다.
             result = update_node(connection, node_id, request.get_json(silent=True))
-            record_audit(connection, "UPDATE_LINEUP_NODE", node_id, None, result)
+            record_audit(connection, "UPDATE_LINEUP_NODE", node_id, result.get("before"), {key: value for key, value in result.items() if key != "before"})  # 이전·이후 공식명을 같은 트랜잭션 감사에 기록합니다.
             connection.commit()
             return jsonify({"success": True, **result, "message": "노드가 수정되었습니다."})
         except LineupNodeError as error:

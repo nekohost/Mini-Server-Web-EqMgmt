@@ -31,21 +31,21 @@
         const rows = await response.json();
         if (!Array.isArray(rows)) throw new Error('Invalid equipment response');
         const needle = query.trim().toLocaleLowerCase();
-        const matching = rows.filter(row => [row.Name, row.CategoryName, row.ManufacturerName, row.FullModelName || row.ModelName, row.OptionName]
+        const matching = rows.filter(row => [row.Name, row.CategoryName, row.ManufacturerName, row.OfficialModelName, row.FullModelName || row.ModelName, row.OptionName] // 공식명과 분류 경로 모두 검색하되 기존 화면 범위를 유지합니다.
             .some(value => String(value || '').toLocaleLowerCase().includes(needle)));
         const boundedText = value => String(value || '').slice(0, 6000);
         return JSON.stringify({ scope: Object.fromEntries(scope), total: matching.length, offset,
             has_more: offset + limit < matching.length,
             equipments: matching.slice(offset, offset + limit).map(row => ({
                 equipment_id: row.EquipmentId, name: boundedText(row.Name), category: boundedText(row.CategoryName),
-                manufacturer: boundedText(row.ManufacturerName), model: boundedText(row.FullModelName || row.ModelName),
+                manufacturer: boundedText(row.ManufacturerName), model: boundedText(row.OfficialModelName || row.FullModelName || row.ModelName), // 목록과 동일한 우선순위입니다.
                 option: boundedText(row.OptionName)
             }))
         });
     }
 
     const properties = {
-        query: { type: 'string', maxLength: 100, description: 'Name, category, manufacturer, full model path or option text.' },
+        query: { type: 'string', maxLength: 100, description: 'Name, category, manufacturer, official model name, full model path or option text.' }, // 새 검색 가능 필드를 설명합니다.
         limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
         offset: { type: 'integer', minimum: 0, maximum: 100000, default: 0 }
     };

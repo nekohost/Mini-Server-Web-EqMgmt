@@ -621,7 +621,9 @@
                         </span>
                     </td>
                     <td class="px-6 py-4 whitespace-normal break-words min-w-48 max-w-md text-sm text-slate-600 dark:text-slate-300">
-                        ${escapeHtml(mfgDisplayName)} / ${escapeHtml(item.FullModelName || item.ModelName || '-')}
+                        <!-- 공식명은 전체 제품명이라 제조사를 다시 붙이지 않고, 미지정은 기존 표시를 유지합니다. -->
+                        ${item.OfficialModelName ? escapeHtml(item.OfficialModelName) : `${escapeHtml(mfgDisplayName)} / ${escapeHtml(item.FullModelName || item.ModelName || '-')}`}
+                        ${item.OfficialModelName ? `<div class="mt-1 break-words text-xs text-slate-400">분류: ${escapeHtml(item.FullModelName || item.ModelName || '-')}</div>` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400 font-mono">
                         ${escapeHtml(item.SerialNumber || '-')}

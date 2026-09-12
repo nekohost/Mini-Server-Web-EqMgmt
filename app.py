@@ -26,6 +26,7 @@ from utils.mailer import send_email
 from utils.lineup_node_service import add_full_model_names, save_option, delete_option, LineupNodeError
 from utils.equipment_audit_migration import migrate_equipment_audit_log, private_directory
 from utils.database_contract import configure_connection, connect_database, schema_contract, migrate_contract, REQUIRED_TABLES, FINGERPRINT_VERSION, MIGRATION as CONTRACT_MIGRATION  # DB 연결·버전 계약을 공유합니다.
+from utils.database_contract import assert_contract_version  # 백업 호환성에서도 v1/v2 컬럼·이력을 교차 검사합니다.
 from utils.master_data_service import reference_counts, delete_masters, merge_masters, MasterDataError  # 마스터 관계를 원자적으로 보존합니다.
 import warnings
 
@@ -476,6 +477,7 @@ def init_db():
     ''')
 
     # [제안-036] 3-Tier 가변 트리 및 옵션/장비 스키마
+    # [공식 모델명] 기본 CREATE는 이력을 유지하고 아래 migrate_contract가 새 DB와 기존 DB에 동일한 v2 컬럼 정의를 적용합니다.
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS lineup_nodes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -1936,6 +1938,12 @@ def validate_database_compatibility(candidate_path, baseline_path):
             raise ValueError('후보 DB에 적용되지 않은 마이그레이션이 있습니다: ' + ', '.join(missing_migrations))
         if version > 0 and (CONTRACT_MIGRATION not in baseline_migrations or CONTRACT_MIGRATION not in candidate_migrations):  # 정수 버전의 근거 이력은 필수입니다.
             raise ValueError('후보 DB의 스키마 버전 이력이 일치하지 않습니다.')
+        if version > 0:  # 컬럼이 같더라도 v2 이력 누락이나 부분 반영은 허용하지 않습니다.
+            try:  # 읽기 전용 비교 중 어떤 DB도 migration하지 않습니다.
+                assert_contract_version(baseline)  # 현재 기준선의 버전·이력·컬럼도 정상이어야 합니다.
+                assert_contract_version(candidate)  # 원본 업로드를 수정하지 않고 후보를 검사합니다.
+            except ValueError as error:  # 민감한 내부 구조 대신 안전한 호환성 안내를 반환합니다.
+                raise ValueError('후보 DB의 스키마 버전·공식 모델명 계약이 일치하지 않습니다.') from error
     finally:
         candidate.close()
         baseline.close()

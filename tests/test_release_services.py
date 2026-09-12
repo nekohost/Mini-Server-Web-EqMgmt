@@ -112,13 +112,14 @@ class CatalogReleaseTests(unittest.TestCase):
         self.addCleanup(self.c.close)
         self.c.executescript("""
             CREATE TABLE lineup_nodes(id INTEGER PRIMARY KEY, parent_id INTEGER, category_id INTEGER, manufacturer_id INTEGER,
-                name TEXT, depth INTEGER, status TEXT, requested_by INTEGER, created_at TEXT);
+                name TEXT, depth INTEGER, status TEXT, requested_by INTEGER, created_at TEXT,
+                official_model_name TEXT CHECK (official_model_name IS NULL OR (typeof(official_model_name) = 'text' AND length(official_model_name) BETWEEN 1 AND 200)));
             CREATE TABLE equipment_options(id INTEGER PRIMARY KEY, lineup_node_id INTEGER, option_name TEXT,
                 specs_json TEXT, status TEXT, requested_by INTEGER, created_at TEXT);
             CREATE TABLE equipments(id INTEGER PRIMARY KEY, option_id INTEGER, is_draft INTEGER);
             CREATE TABLE approval_requests(RequestId INTEGER PRIMARY KEY, RequesterId INTEGER, RequestType TEXT,
                 RequestDataJSON TEXT, Status TEXT, CreatedAt TEXT, UpdatedAt TEXT);
-            INSERT INTO lineup_nodes VALUES(1,NULL,1,1,'Root',99,'APPROVED',1,''),(2,1,1,1,'Branch',99,'APPROVED',1,''),
+            INSERT INTO lineup_nodes(id,parent_id,category_id,manufacturer_id,name,depth,status,requested_by,created_at) VALUES(1,NULL,1,1,'Root',99,'APPROVED',1,''),(2,1,1,1,'Branch',99,'APPROVED',1,''),
                 (3,2,1,1,'Leaf',99,'APPROVED',1,''),(4,99,1,1,'Orphan',1,'APPROVED',1,'');
         """)
         self.admin = {'UserId': 1, 'Role': 'admin'}
@@ -143,7 +144,7 @@ class CatalogReleaseTests(unittest.TestCase):
         self.c.execute('UPDATE lineup_nodes SET parent_id=1, category_id=2 WHERE id=2')
         items = add_full_model_names(self.c, [self.item(1, 'Root'), self.item(2, 'Branch')])
         self.assertEqual(items[1]['FullModelName'], 'Branch')
-        self.c.executemany("INSERT INTO lineup_nodes VALUES(?,?,1,1,?,1,'APPROVED',1,'')", ((i, i-1 if i>10 else None, str(i)) for i in range(10, 61)))
+        self.c.executemany("INSERT INTO lineup_nodes(id,parent_id,category_id,manufacturer_id,name,depth,status,requested_by,created_at) VALUES(?,?,1,1,?,1,'APPROVED',1,'')", ((i, i-1 if i>10 else None, str(i)) for i in range(10, 61)))  # 새 컬럼은 미지정 상태로 둡니다.
         self.assertEqual(add_full_model_names(self.c, [self.item(60, '60')])[0]['FullModelName'], '60')
         self.assertEqual(len(add_full_model_names(self.c, [self.item(59, '59')])[0]['FullModelName'].split(' / ')), 50)
 

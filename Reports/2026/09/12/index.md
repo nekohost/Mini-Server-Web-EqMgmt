@@ -5,3 +5,4 @@
 - [003 DB 계약 및 중단 릴리스 운영 반영 결과](./003_Database_Contract_Production_Release_Report.md)
 - [004 Context 차단 원인 비교 검토](./004_Context_Routing_Diagnosis_Report.md)
 - [005 거버넌스 Context 명확성 개선 검증](./005_Governance_Context_Clarity_Report.md)
+- [006 공식 모델명 Staging 검토 및 운영 소스 병합](./006_Official_Model_Name_Staging_Report.md)

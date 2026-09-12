@@ -11,6 +11,7 @@ import json
 from collections import defaultdict, deque
 from datetime import datetime
 from typing import Any, Mapping
+from utils.model_names import normalize_official_model_name  # 공식명은 분류명과 별도 계약으로 검증합니다.
 
 
 MAX_TREE_DEPTH = 50
@@ -77,6 +78,18 @@ def _node_name(value: Any) -> str:
     return normalized
 
 
+
+def _official_model_name(value: Any) -> str | None:
+    """[역할] 공통 공식명 검증 오류를 안전한 노드 API 오류로 변환합니다.
+    [의존성 관계] model_names.normalize_official_model_name.
+    [변경 시 영향도] 관리자 생성·수정의 400 응답과 미지정 표현.
+    """
+    try:  # 공통 입력 계약을 우회하지 않습니다.
+        return normalize_official_model_name(value)  # 빈값은 NULL로 저장합니다.
+    except ValueError as error:  # 예상된 사용자 입력 오류만 변환합니다.
+        raise LineupNodeError(str(error)) from error  # 내부 예외는 기존 route의 500 처리를 따릅니다.
+
+
 def _fetch_node(cursor: Any, node_id: int) -> dict[str, Any] | None:
     """[역할] row_factory 설정과 무관하게 단일 노드를 사전 형태로 조회합니다.
 
@@ -87,7 +100,7 @@ def _fetch_node(cursor: Any, node_id: int) -> dict[str, Any] | None:
     cursor.execute(
         """
         SELECT id, parent_id, category_id, manufacturer_id, name, depth, status,
-               requested_by, created_at
+               requested_by, created_at, official_model_name
         FROM lineup_nodes
         WHERE id = ?
         """,
@@ -227,6 +240,9 @@ def create_node(
         raise LineupNodeError("JSON 객체를 입력해 주세요.")
     cursor = connection.cursor()
     name = _node_name(payload.get("name"))
+    if actor.get("Role") != "admin" and "official_model_name" in payload:  # 일반 노드 결재로 공식명 지정 권한을 우회하지 못하게 합니다.
+        raise LineupNodeError("공식 모델명은 관리자만 지정할 수 있습니다.", 403)  # 아직 어떤 행도 생성하지 않았습니다.
+    official_name = _official_model_name(payload.get("official_model_name"))  # 생략한 기존 요청은 NULL로 저장합니다.
     category_id = _required_int(payload.get("category_id"), "카테고리")
     manufacturer_id = _required_int(payload.get("manufacturer_id"), "제조사")
     parent_id = _optional_int(payload.get("parent_id"), "상위 노드")
@@ -261,10 +277,10 @@ def create_node(
     cursor.execute(
         """
         INSERT INTO lineup_nodes
-            (parent_id, category_id, manufacturer_id, name, depth, status, requested_by, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            (parent_id, category_id, manufacturer_id, name, depth, status, requested_by, created_at, official_model_name)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (parent_id, category_id, manufacturer_id, name, depth, status, actor_id, created_at),
+        (parent_id, category_id, manufacturer_id, name, depth, status, actor_id, created_at, official_name),  # 값은 SQL과 분리해 바인딩합니다.
     )
     node_id = int(cursor.lastrowid)
 
@@ -290,7 +306,7 @@ def create_node(
             (actor_id, request_data, created_at, created_at),
         )
 
-    return {"node_id": node_id, "status": status, "depth": depth, "name": name}
+    return {"node_id": node_id, "status": status, "depth": depth, "name": name, "official_model_name": official_name}  # 생성 응답과 감사에 공식명도 포함합니다.
 
 
 def update_node(connection: Any, node_id_value: Any, payload: Mapping[str, Any]) -> dict[str, Any]:
@@ -311,6 +327,7 @@ def update_node(connection: Any, node_id_value: Any, payload: Mapping[str, Any])
         raise LineupNodeError("승인 대기 노드는 전자결재함에서 처리해 주세요.", 409)
 
     name = _node_name(payload.get("name", node["name"]))
+    official_name = _official_model_name(payload.get("official_model_name", node["official_model_name"]))  # 키 생략은 유지, null/빈값은 해제합니다.
     parent_id = _optional_int(payload.get("parent_id", node["parent_id"]), "상위 노드")
     if parent_id == node_id:
         raise LineupNodeError("자기 자신을 상위 노드로 지정할 수 없습니다.")
@@ -346,8 +363,8 @@ def update_node(connection: Any, node_id_value: Any, payload: Mapping[str, Any])
     )
 
     cursor.execute(
-        "UPDATE lineup_nodes SET name = ?, parent_id = ?, depth = ? WHERE id = ?",
-        (name, parent_id, new_depth, node_id),
+        "UPDATE lineup_nodes SET name = ?, parent_id = ?, depth = ?, official_model_name = ? WHERE id = ?",  # 이름·이동·공식명은 같은 transaction입니다.
+        (name, parent_id, new_depth, official_name, node_id),  # 자손의 공식명은 수정하거나 상속하지 않습니다.
     )
     for descendant_id, offset in subtree.items():
         if descendant_id != node_id:
@@ -355,7 +372,7 @@ def update_node(connection: Any, node_id_value: Any, payload: Mapping[str, Any])
                 "UPDATE lineup_nodes SET depth = ? WHERE id = ?",
                 (new_depth + offset, descendant_id),
             )
-    return {"node_id": node_id, "name": name, "parent_id": parent_id, "depth": new_depth}
+    return {"node_id": node_id, "name": name, "parent_id": parent_id, "depth": new_depth, "official_model_name": official_name, "before": node}  # 같은 감사에 이전·이후 값을 보관합니다.
 
 
 def delete_node(connection: Any, node_id_value: Any) -> dict[str, Any]:
@@ -379,7 +396,7 @@ def delete_node(connection: Any, node_id_value: Any) -> dict[str, Any]:
     if int(cursor.fetchone()[0]) > 0:
         raise LineupNodeError("연결된 옵션이 있어 삭제할 수 없습니다.", 409)
     cursor.execute("DELETE FROM lineup_nodes WHERE id = ?", (node_id,))
-    return {"node_id": node_id, "name": node["name"]}
+    return {"node_id": node_id, "name": node["name"], "official_model_name": node["official_model_name"]}  # 삭제 감사에서도 기존 공식명을 보존합니다.
 
 
 def get_admin_snapshot(connection: Any) -> dict[str, list[dict[str, Any]]]:
@@ -407,7 +424,7 @@ def get_admin_snapshot(connection: Any) -> dict[str, list[dict[str, Any]]]:
     cursor.execute(
         """
         SELECT n.id, n.parent_id, n.category_id, n.manufacturer_id, n.name,
-               n.depth, n.status, n.requested_by, n.created_at,
+               n.depth, n.status, n.requested_by, n.created_at, n.official_model_name,
                (SELECT COUNT(*) FROM lineup_nodes child WHERE child.parent_id = n.id) AS child_count,
                (SELECT COUNT(*) FROM equipment_options opt WHERE opt.lineup_node_id = n.id) AS option_count,
                (SELECT COUNT(*)
@@ -446,17 +463,18 @@ def get_admin_snapshot(connection: Any) -> dict[str, list[dict[str, Any]]]:
 
 
 def add_full_model_names(connection: Any, items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """[역할] ModelName/ID는 유지하고 루트부터 말단까지 FullModelName을 추가합니다.
+    """[역할] 기존 ModelName/ID/FullModelName을 유지하고 공식명과 우선 표시명을 추가합니다.
     [의존성 관계] 부모 연결을 1회 조회하며 요청 내 경로를 캐시합니다.
     [변경 시 영향도] 나의/공개 장비와 대시보드 모델 표시. 손상 트리는 말단명 폴백.
     """
     if not items:
         return items
     nodes = {row[0]: row for row in connection.execute(
-        "SELECT id, parent_id, name, category_id, manufacturer_id FROM lineup_nodes")}
+        "SELECT id, parent_id, name, category_id, manufacturer_id, official_model_name FROM lineup_nodes")}
     cache: dict[int, tuple[str, ...] | None] = {}
     for item in items:
         leaf_id = item.get("LineupNodeId")
+        item["OfficialModelName"] = nodes[leaf_id][5] if leaf_id in nodes else None  # 해당 노드의 값만 사용하며 조상 값을 상속하지 않습니다.
         trail, seen, current, base = [], set(), leaf_id, ()
         valid = current in nodes
         while valid and current is not None:
@@ -464,7 +482,7 @@ def add_full_model_names(connection: Any, items: list[dict[str, Any]]) -> list[d
                 valid = False
                 break
             row = nodes[current]
-            if row[3:] != nodes[leaf_id][3:] or not isinstance(row[2], str) or not row[2].strip():
+            if row[3:5] != nodes[leaf_id][3:5] or not isinstance(row[2], str) or not row[2].strip():
                 valid = False
                 break
             if current in cache:
@@ -484,6 +502,7 @@ def add_full_model_names(connection: Any, items: list[dict[str, Any]]) -> list[d
             # Do not cache a failure caused by this leaf's total depth as a
             # failure of its otherwise valid ancestors.
             item["FullModelName"] = item.get("ModelName") or "-"
+        item["DisplayModelName"] = item["OfficialModelName"] or item["FullModelName"] or item.get("ModelName") or "-"  # 기존 두 이름의 의미는 보존합니다.
     return items
 
 

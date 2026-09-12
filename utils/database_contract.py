@@ -1,4 +1,4 @@
-"""Connection policy, order-independent schema contracts and reversible v1 migration."""
+"""Connection policy and atomic v1/v2 schema contracts with data-preserving rollback gates."""
 
 import hashlib  # 백업과 스키마 지문을 계산합니다.
 import json  # 비민감 검증 증거를 기록합니다.
@@ -10,7 +10,11 @@ from datetime import datetime, timezone  # migration 시각은 UTC로 기록합�
 import uuid  # 백업 파일 이름 충돌을 방지합니다.
 from utils.equipment_audit_migration import private_directory  # 검증된 사본 디렉터리 보호를 재사용합니다.
 
-SCHEMA_VERSION = 1  # 최초로 명시한 현재 3-Tier 계약 버전입니다.
+from utils.model_names import OFFICIAL_MODEL_COLUMN, normalize_official_model_name  # DB와 API의 공식명 계약을 공유합니다.
+
+BASE_SCHEMA_VERSION = 1  # 기존 인덱스 계약의 버전은 유지합니다.
+SCHEMA_VERSION = 2  # 공식 모델명 컬럼이 포함된 현재 계약입니다.
+OFFICIAL_MODEL_MIGRATION = 'official_model_name_v2'  # 새 컬럼과 정수 버전을 교차 확인합니다.
 FINGERPRINT_VERSION = 2  # 컬럼 물리 순서를 제외하는 지문 형식입니다.
 MIGRATION = 'database_contract_v1'  # 명명 이력과 정수 버전을 연결합니다.
 REQUIRED_TABLES = frozenset({  # 레거시 equipment는 현재 기능의 필수 테이블이 아닙니다.
@@ -159,39 +163,102 @@ def private_snapshot(connection, database_path, backup_root, label):
     return str(path)  # 호출자는 복구 위치만 보고합니다.
 
 
-def migrate_contract(database_path, backup_root):
-    """[역할] 기존 행을 보존하고 인덱스·정수 버전을 원자적으로 적용합니다.
-    [의존성 관계] init_db와 기존 migration 완료 후 호출; sys_migrations.
-    [변경 시 영향도] 실패 시 rollback, 사전 검증 사본은 자동 삭제하지 않습니다.
+def assert_official_model_schema(connection):
+    """[역할] v2 컬럼의 실제 정의와 저장값을 검증합니다.
+    [의존성 관계] schema_contract의 SQL 토큰화, 공통 모델명 입력 계약.
+    [변경 시 영향도] 부분 migration·동일 이름의 잘못된 컬럼을 자동 수용하지 않습니다.
     """
-    connection = connect_database(database_path, timeout=30)  # 정상 FK 정책을 적용합니다.
-    try:  # 전체 변경을 하나의 writer 트랜잭션으로 묶습니다.
-        connection.execute('BEGIN IMMEDIATE')  # 다른 writer와 migration 경합을 방지합니다.
-        version = connection.execute('PRAGMA user_version').fetchone()[0]  # 예상치 못한 버전은 거부합니다.
-        recorded = connection.execute('SELECT 1 FROM sys_migrations WHERE MigrationName=?', (MIGRATION,)).fetchone()  # 명명 이력을 교차 검사합니다.
-        if version not in (0, SCHEMA_VERSION) or bool(recorded) != (version == SCHEMA_VERSION):  # 부분 migration을 자동 승인하지 않습니다.
-            raise ValueError('database schema version/history mismatch')  # 현재 코드의 지원 범위를 벗어났습니다.
-        assert_integrity(connection)  # 적용 전 파일·논리 무결성을 검사합니다.
-        if recorded:  # 재실행은 스키마 계약을 확인하고 종료합니다.
-            for name, sql in INDEXES.items():  # 누락/변조된 인덱스도 탐지합니다.
-                row = connection.execute('SELECT sql FROM sqlite_master WHERE type=\'index\' AND name=?', (name,)).fetchone()  # 이름 충돌을 확인합니다.
-                if not row or sql_tokens(row[0]) != sql_tokens(sql):  # 동일 이름의 잘못된 구조를 거부합니다.
-                    raise ValueError('database contract index mismatch')  # 무조건 IF NOT EXISTS로 숨기지 않습니다.
+    row = connection.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='lineup_nodes'").fetchone()  # 신뢰된 대상 테이블만 검사합니다.
+    if not row or sql_tokens(OFFICIAL_MODEL_COLUMN) not in table_definition(row[0])[0]:  # 이름뿐 아니라 CHECK와 TEXT 정의를 확인합니다.
+        raise ValueError('official model column contract mismatch')  # DB 값은 오류에 노출하지 않습니다.
+    for (value,) in connection.execute('SELECT official_model_name FROM lineup_nodes WHERE official_model_name IS NOT NULL'):  # 미지정 기존 행은 변경하지 않습니다.
+        if normalize_official_model_name(value) != value:  # 임의 trim/보정으로 원본을 덮어쓰지 않습니다.
+            raise ValueError('official model value contract mismatch')  # 명시적인 데이터 검토가 필요합니다.
+
+
+def assert_contract_version(connection):
+    """[역할] 정수 버전·두 migration 이력·컬럼 존재를 교차 검증합니다.
+    [의존성 관계] migrate_contract와 down, 백업 호환성 검사.
+    [변경 시 영향도] 미래 버전·부분 반영·수동 컬럼 추가의 잘못된 성공을 차단합니다.
+    """
+    version = connection.execute('PRAGMA user_version').fetchone()[0]  # 지원 버전만 받습니다.
+    names = {row[0] for row in connection.execute('SELECT MigrationName FROM sys_migrations')}  # 역사적 다른 이력은 유지합니다.
+    columns = {row[1] for row in connection.execute('PRAGMA table_info(lineup_nodes)')}  # 새 컬럼의 존재를 별도 검사합니다.
+    if version not in (0, BASE_SCHEMA_VERSION, SCHEMA_VERSION):  # 예측하지 못한 버전은 변경하지 않습니다.
+        raise ValueError('database schema version/history mismatch')  # 기존 오류 계약을 유지합니다.
+    if (MIGRATION in names) != (version >= BASE_SCHEMA_VERSION) or (OFFICIAL_MODEL_MIGRATION in names) != (version == SCHEMA_VERSION):  # 두 단계의 이력이 버전과 일치해야 합니다.
+        raise ValueError('database schema version/history mismatch')  # 부분 적용을 자동 복구하지 않습니다.
+    if ('official_model_name' in columns) != (version == SCHEMA_VERSION):  # 생성도 동일한 migration 한 경로만 사용합니다.
+        raise ValueError('database schema column/history mismatch')  # 컬럼만 있는 DB를 임의로 인수하지 않습니다.
+    if version >= BASE_SCHEMA_VERSION:  # 기존 v1 인덱스도 계속 검증합니다.
+        for name, sql in INDEXES.items():  # 등록된 네 인덱스만 고정 비교합니다.
+            row = connection.execute("SELECT sql FROM sqlite_master WHERE type='index' AND name=?", (name,)).fetchone()  # 이름을 바인딩합니다.
+            if not row or sql_tokens(row[0]) != sql_tokens(sql):  # 이름만 맞는 잘못된 인덱스는 거부합니다.
+                raise ValueError('database contract index mismatch')  # 무조건 IF NOT EXISTS로 숨기지 않습니다.
+    if version == SCHEMA_VERSION:  # v2의 제약과 입력 데이터도 확인합니다.
+        assert_official_model_schema(connection)  # NULL인 기존 행은 그대로 보존합니다.
+    return version  # 호출자가 정확한 변경 단계를 선택합니다.
+
+
+def migrate_contract(database_path, backup_root):
+    """[역할] 0/1→2의 인덱스·공식명 컬럼·이력·버전을 원자적으로 적용합니다.
+    [의존성 관계] init_db의 기본 스키마 생성 뒤 private_snapshot과 공통 입력 계약.
+    [변경 시 영향도] 모든 기존 행/ID를 보존하고 실패 시 버전까지 rollback합니다.
+    """
+    connection = connect_database(database_path, timeout=30)  # FK를 활성화한 연결만 사용합니다.
+    try:  # 시작부터 종료까지 하나의 트랜잭션으로 보호합니다.
+        connection.execute('BEGIN IMMEDIATE')  # 동시 migration 및 노드 쓰기를 직렬화합니다.
+        version = assert_contract_version(connection)  # 부분 반영·미래 버전을 먼저 거부합니다.
+        assert_integrity(connection)  # 기존 파일·FK·계층의 정상 상태를 확인합니다.
+        if version == SCHEMA_VERSION:  # 재실행에서는 파일이나 이력을 변경하지 않습니다.
             connection.rollback()  # 검증만 한 writer 잠금을 해제합니다.
-            return {'applied': False, 'version': version}  # 반복 적용을 명확히 보고합니다.
-        backup = private_snapshot(connection, database_path, backup_root, 'contract-before')  # 변경 전에 복구 사본을 확정합니다.
-        for sql in INDEXES.values():  # 기존 업무 행은 변경하지 않습니다.
-            connection.execute(sql)  # 이름 충돌도 정상적으로 실패 처리합니다.
-        connection.execute('INSERT INTO sys_migrations(MigrationName,AppliedAt) VALUES(?,?)', (MIGRATION, datetime.now(timezone.utc).isoformat()))  # 성공할 트랜잭션 안에서만 이력을 남깁니다.
-        connection.execute(f'PRAGMA user_version={SCHEMA_VERSION}')  # 정수 버전을 이력과 함께 적용합니다.
-        assert_integrity(connection)  # 적용 후 검증 실패 시 commit하지 않습니다.
-        connection.commit()  # 인덱스·버전·이력을 동시에 확정합니다.
-        return {'applied': True, 'version': SCHEMA_VERSION, 'backup_path': backup}  # 복구 정보를 반환합니다.
-    except Exception:  # 모든 실패 경로에서 변경을 취소합니다.
-        connection.rollback()  # 원본 행과 버전을 보존합니다.
-        raise  # 서비스 시작 또는 배포 검증을 중단합니다.
-    finally:  # 호출 결과와 무관하게 잠금을 반환합니다.
-        connection.close()  # 연결을 해제합니다.
+            return {'applied': False, 'version': version}  # no-op을 명시합니다.
+        backup = private_snapshot(connection, database_path, backup_root, 'contract-before')  # 업무 변경 전에 일관된 0600 사본을 확정합니다.
+        if version == 0:  # 기존 v1 인덱스가 없는 DB에만 첫 단계를 적용합니다.
+            for sql in INDEXES.values():  # 기존 업무 행은 수정하지 않습니다.
+                connection.execute(sql)  # 이름 충돌은 rollback으로 처리합니다.
+            connection.execute('INSERT INTO sys_migrations(MigrationName,AppliedAt) VALUES(?,?)', (MIGRATION, datetime.now(timezone.utc).isoformat()))  # 같은 트랜잭션에 v1 이력을 보관합니다.
+        connection.execute('ALTER TABLE lineup_nodes ADD COLUMN ' + OFFICIAL_MODEL_COLUMN)  # 기존 노드의 새 필드는 NULL이며 어떤 이름도 추측하지 않습니다.
+        connection.execute('INSERT INTO sys_migrations(MigrationName,AppliedAt) VALUES(?,?)', (OFFICIAL_MODEL_MIGRATION, datetime.now(timezone.utc).isoformat()))  # v2 명명 이력을 기록합니다.
+        connection.execute(f'PRAGMA user_version={SCHEMA_VERSION}')  # 버전 변경도 같은 트랜잭션입니다.
+        assert_contract_version(connection)  # 컬럼 제약·두 이력·인덱스·새 값 계약을 재확인합니다.
+        assert_integrity(connection)  # 모든 기존 관계를 보존했는지 확인합니다.
+        connection.commit()  # 검증된 변경만 함께 확정합니다.
+        return {'applied': True, 'version': SCHEMA_VERSION, 'backup_path': backup}  # 복구 사본 위치를 노출합니다.
+    except Exception:  # 모든 실패에서 부분 스키마·이력을 취소합니다.
+        connection.rollback()  # ALTER와 PRAGMA도 원래 버전으로 되돌립니다.
+        raise  # 상위 기동/배포를 실패로 처리합니다.
+    finally:  # 성공과 실패 모두 파일 핸들을 반환합니다.
+        connection.close()  # writer 잠금을 남기지 않습니다.
+
+
+def rollback_official_models(database_path, backup_root):
+    """[역할] 공식명 값이 없는 v2만 백업 후 v1으로 되돌립니다.
+    [의존성 관계] SQLite DROP COLUMN 지원, 서비스 중지·명시 승인 후 실행.
+    [변경 시 영향도] 하나라도 값이 있으면 거부하여 공식명 데이터 손실을 막습니다.
+    """
+    connection = connect_database(database_path, timeout=30)  # FK를 끄지 않습니다.
+    try:  # down도 writer 한 개의 트랜잭션으로 처리합니다.
+        connection.execute('BEGIN IMMEDIATE')  # 값 확인 뒤 새 이름이 저장되는 경합을 막습니다.
+        if assert_contract_version(connection) != SCHEMA_VERSION:  # 정확히 v2만 대상으로 합니다.
+            raise ValueError('official model rollback requires schema version 2')  # 다른 버전은 수정하지 않습니다.
+        if connection.execute('SELECT 1 FROM lineup_nodes WHERE official_model_name IS NOT NULL LIMIT 1').fetchone():  # 빈 문자열 등 비정상 값도 자동 삭제하지 않습니다.
+            raise ValueError('official model values exist; rollback would lose data')  # 값이 있으면 별도 보존·복구 계획이 필요합니다.
+        if sqlite3.sqlite_version_info < (3, 35, 0):  # 지원되지 않는 DROP COLUMN을 강행하지 않습니다.
+            raise ValueError('official model rollback requires SQLite 3.35 or newer')  # Linux 런타임 조건을 안내합니다.
+        backup = private_snapshot(connection, database_path, backup_root, 'official-model-down-before')  # down 이전 사본을 보존합니다.
+        connection.execute('ALTER TABLE lineup_nodes DROP COLUMN official_model_name')  # NULL만 있는 추가 컬럼 하나만 제거합니다.
+        connection.execute('DELETE FROM sys_migrations WHERE MigrationName=?', (OFFICIAL_MODEL_MIGRATION,))  # v1 및 이전 역사 이력을 유지합니다.
+        connection.execute(f'PRAGMA user_version={BASE_SCHEMA_VERSION}')  # v1 코드가 인식하는 버전으로 복귀합니다.
+        assert_contract_version(connection)  # 기존 인덱스·이력과 컬럼 부재를 검증합니다.
+        assert_integrity(connection)  # 기존 업무 행·FK를 확인합니다.
+        connection.commit()  # 검증 완료 후에만 down을 확정합니다.
+        return {'version': BASE_SCHEMA_VERSION, 'backup_path': backup}  # 별도의 v1→0 rollback과 구분합니다.
+    except Exception:  # trigger/view 등 의존성으로 DROP이 거부되는 경우도 보존합니다.
+        connection.rollback()  # 새 값과 버전을 포함한 원래 상태를 유지합니다.
+        raise  # 무리한 테이블 재생성을 하지 않습니다.
+    finally:  # 파일 핸들을 항상 반환합니다.
+        connection.close()  # 쓰기 잠금을 정리합니다.
 
 
 def rollback_contract(database_path, backup_root):
@@ -199,7 +266,7 @@ def rollback_contract(database_path, backup_root):
     connection = connect_database(database_path, timeout=30)  # FK를 끄지 않습니다.
     try:  # down 변경도 원자적으로 묶습니다.
         connection.execute('BEGIN IMMEDIATE')  # 새로운 쓰기를 직렬화합니다.
-        if connection.execute('PRAGMA user_version').fetchone()[0] != SCHEMA_VERSION:  # 대상 버전을 확인합니다.
+        if assert_contract_version(connection) != BASE_SCHEMA_VERSION:  # v2는 별도 공식명 down을 먼저 수행해야 합니다.
             raise ValueError('rollback requires schema version 1')  # 다른 버전을 수정하지 않습니다.
         backup = private_snapshot(connection, database_path, backup_root, 'contract-down-before')  # down 직전 사본을 남깁니다.
         for name in INDEXES:  # 이 migration의 인덱스만 제거합니다.
@@ -214,4 +281,3 @@ def rollback_contract(database_path, backup_root):
         raise  # 운영자에게 실패를 전달합니다.
     finally:  # 연결을 반드시 닫습니다.
         connection.close()  # 파일 잠금을 해제합니다.
-
