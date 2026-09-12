@@ -99,6 +99,7 @@ def start_service(database, backups, expected_head):
     if actual_head != expected_head:  # 기대 commit이 다르면 실행하지 않습니다.
         raise ValueError('deployment commit mismatch')  # 부분 배포를 차단합니다.
     with socket.socket() as probe:  # 운영 포트의 현재 사용 여부를 확인합니다.
+        probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # 종료 직후 TIME_WAIT를 실행 중인 listener로 오인하지 않습니다.
         probe.bind(('0.0.0.0', 5000))  # 이미 실행 중이면 예외로 중단하고 기존 프로세스는 유지합니다.
     source = connect_database(database.as_uri() + '?mode=ro', uri=True)  # 변경 전 읽기 연결입니다.
     try:  # 실제 적용 전 사본을 보존합니다.
