@@ -50,7 +50,9 @@ related_artifacts:
 - 최초 실패의 여섯 Staging/문서 경로와 implement·migration·plan 및 ui intent를 함께 재검사했다. 운영 경로를 허위 추가하지 않고 schema-change·frontend-change·staging-work와 필요한 DB/UI/Validation 노드를 모두 포함한 8개 작은 pack이 통과했다. 이는 라우팅 검증이며 모델명 기능 구현이 아니다. 해당 과거 문서 경로는 재현 입력으로만 사용했으며 현재 문서 순번을 예약하거나 새 파일을 만들지 않았다.
 - 이번 Staging 검증 사본만 `scratch/governance-context-20260912-recovery`로 이동했다. 삭제하지 않았으며 복구 가능하다. 이동 전 원본·목적지의 절대 경계와 reparse point 부재를 확인했다. 다른 Staging/기존 scratch는 변경하지 않았다. 이 사본은 영구 기록이 아니므로 장기 복구 기준은 Git 커밋이다.
 - 앱 소스, 실제 DB, SSH 설정, Linux 서비스·주 서버·백업 서버는 변경하지 않았다. 이번 운영 반영 대상은 이 저장소의 활성 거버넌스다.
-- commit·push 및 원격 일치 결과는 후속 기록한다.
+- 구현 커밋: `2e5334888b8d1f4cef88f5a724903b9d49d1cec5` (`fix(governance): clarify context routing and safe retry contract`). 28개 거버넌스·이력 파일이 포함됐다.
+- `git push origin main` 성공: `116a4bf..2e53348`. 직후 `git ls-remote --exit-code origin refs/heads/main`이 위 전체 SHA와 일치하고 작업 트리가 깨끗함을 확인했다. 이 확인 이후 완료 기록만 별도 문서 커밋으로 보존한다.
+- 영구 문서 검사: `artifact-manager validate --workspace .` 오류 0. Git diff 공백 검사 통과. recorder ensure 재조정 오류 없음.
 
 ## 잔여 범위와 재개 시 유의점
 

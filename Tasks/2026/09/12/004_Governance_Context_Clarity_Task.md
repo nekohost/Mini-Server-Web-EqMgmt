@@ -16,4 +16,6 @@ related_artifacts:
 - [x] Staging 정상·부정 회귀와 정책 정합성 검증
 - [x] 승인된 변경만 운영 거버넌스 병합·동일성 재검증
 - [x] Staging 정리 및 보고서·색인 갱신
-- [ ] git commit·push 및 원격 일치 확인
+- [x] git commit·push 및 원격 일치 확인
+
+구현 커밋 `2e5334888b8d1f4cef88f5a724903b9d49d1cec5`의 origin/main push 및 원격 SHA 일치를 확인했다. 이후 완료 기록만 별도 문서 커밋으로 보존한다.

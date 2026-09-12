@@ -26,3 +26,7 @@ related_artifacts:
 Staging에 전체 거버넌스 검증용 사본을 만들고 변경한다. Rule 변경 후 sync-status의 전체 섹션·hash로 sync-plan을 수행한 다음 실제 정책 본문·digest·map·manifest·기준선을 갱신한다. 정상/부정 CLI 회귀, 기존 기록기/교차 scope 회귀, YAML·해시·문서 검사를 수행한다. 검증된 변경만 루트로 병합하고 동일성·재검증 후 commit·push한다.
 
 보존: 기존 진단 기록과 원본 대화는 유지한다. 롤백은 이번 거버넌스 변경 묶음의 Git revert로 하며 문서·노드·도구·해시를 일부만 되돌리지 않는다. Staging 검증 사본은 검증된 변경 및 diff 증거 보존 후 승인된 범위에서 정리한다.
+
+## 완료 상태
+
+1.6.0 Staging·운영 검증과 구현 커밋 `2e53348`의 origin/main push·원격 일치 확인을 완료했다. 상세 시험과 복구 위치는 [보고서](../../../../Reports/2026/09/12/005_Governance_Context_Clarity_Report.md)에 보존한다. 공식 모델명 기능은 별도 후속 작업이다.
