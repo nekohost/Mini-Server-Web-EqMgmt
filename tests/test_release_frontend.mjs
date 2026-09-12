@@ -96,6 +96,31 @@ test('official name form and list contracts preserve escaping and optional clear
     assert.ok(admin.includes('payload.official_model_name = officialModelName || null')); // 해제 입력이 유지됩니다.
     assert.ok(admin.includes('node.official_model_name ||')); // 기존 값 로딩을 확인합니다.
     assert.ok(admin.includes('max-h-[90dvh]')); assert.ok(admin.includes('overflow-y-auto')); // 작은 화면에서 저장 버튼까지 접근합니다.
-    assert.ok(read('templates/index.html').includes('escapeHtml(item.OfficialModelName)')); // 공식명도 escape합니다.
-    assert.ok(read('templates/dashboard.html').includes("escapeDashboardText(eq.OfficialModelName || eq.FullModelName || eq.ModelName || '-')")); // 대시보드도 동일합니다.
+    assert.ok(read('templates/index.html').includes('escapeHtml(buildManufacturerModelDisplay(item, mfgDisplayName))')); // 결합한 제조사/공식명도 escape합니다.
+    assert.ok(read('templates/dashboard.html').includes('escapeDashboardText(buildManufacturerModelDisplay(eq, manufacturerName))')); // 대시보드도 결합 후 escape합니다.
+});
+
+/**
+ * [역할] 운영 템플릿에 포함된 순수 제조사/모델 표시 함수 구간을 회귀 테스트용으로 추출합니다.
+ * [의존성 관계] 각 템플릿의 manufacturer-model-display 시작·종료 표식을 사용합니다.
+ * [변경 시 영향도] 표시 함수의 이름이나 표식이 바뀌면 회귀 테스트가 즉시 실패합니다.
+ */
+function readManufacturerDisplaySnippet(path) {
+    const source = read(path); // 실제 운영 템플릿 원문을 읽습니다.
+    const match = source.match(/\/\/ \[manufacturer-model-display:start\]([\s\S]*?)\/\/ \[manufacturer-model-display:end\]/u); // 표시 함수 구간만 선택합니다.
+    assert.ok(match, `${path} 제조사/모델 표시 함수 구간이 필요합니다.`); // 함수 누락이나 표식 손상을 명시적으로 거부합니다.
+    return match[1]; // 브라우저 전역 의존성이 없는 순수 함수 선언을 반환합니다.
+}
+
+test('equipment screens show a missing manufacturer and avoid existing aliases', () => {
+    for (const path of ['templates/index.html', 'templates/dashboard.html']) { // 두 운영 화면에 같은 표시 계약을 적용합니다.
+        const context = {}; // 각 템플릿 함수를 격리된 JavaScript 전역에서 실행합니다.
+        vm.runInNewContext(`${readManufacturerDisplaySnippet(path)}; result = [
+            buildManufacturerModelDisplay({ ManufacturerName: '삼성', OfficialModelName: '갤럭시 S21 울트라' }),
+            buildManufacturerModelDisplay({ ManufacturerNameKo: '삼성', ManufacturerNameEn: 'Samsung', OfficialModelName: 'Samsung Galaxy S21' }),
+            buildManufacturerModelDisplay({ ManufacturerName: 'AS', OfficialModelName: 'ASUS Zenbook' }),
+            buildManufacturerModelDisplay({ FullModelName: '미니 PC / SER8' }, 'Beelink')
+        ];`, context); // 실제 템플릿 함수를 운영 DB 형태와 경계 사례에 대입합니다.
+        assert.deepEqual(Array.from(context.result), ['삼성 / 갤럭시 S21 울트라', 'Samsung Galaxy S21', 'AS / ASUS Zenbook', 'Beelink / 미니 PC / SER8']); // 누락 복원·중복 방지·오판 방지·fallback을 함께 확인합니다.
+    }
 });

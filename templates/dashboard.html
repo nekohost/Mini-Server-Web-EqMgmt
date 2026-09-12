@@ -171,7 +171,9 @@
 
     async function fetchCombinedStats() {
         const catId = document.getElementById('filterCategory').value;
-        const manId = document.getElementById('filterManufacturer').value;
+        const manufacturerSelect = document.getElementById('filterManufacturer'); // 현재 제조사 선택 요소를 한 번만 조회합니다.
+        const manId = manufacturerSelect.value; // API 조회에 사용할 제조사 ID를 유지합니다.
+        const manufacturerName = manufacturerSelect.options[manufacturerSelect.selectedIndex]?.textContent?.trim() || ''; // 응답에 없는 제조사 표시명을 선택 옵션에서 안전하게 얻습니다.
         
         if (!catId || !manId) {
             alert('카테고리와 제조사를 모두 선택해주세요.');
@@ -183,7 +185,7 @@
             const res = await fetch(`/api/dashboard/stats?category_id=${catId}&manufacturer_id=${manId}`);
             const json = await res.json();
             if (json.success && json.data.combined_stats) {
-                renderCombinedStats(json.data.combined_stats);
+                renderCombinedStats(json.data.combined_stats, manufacturerName);
             }
         } catch (err) {
             console.error(err);
@@ -199,7 +201,40 @@
         return text.innerHTML;
     }
 
-    function renderCombinedStats(stats) {
+    // [manufacturer-model-display:start]
+    /**
+     * [역할] 제조사·모델명 비교에 사용할 공백·대소문자·유니코드 정규화 값을 만듭니다.
+     * [의존성 관계] buildManufacturerModelDisplay의 별칭 중복 판정에서 사용합니다.
+     * [변경 시 영향도] 대시보드에서 제조사명이 공식 모델명에 이미 포함됐는지 판단하는 경계에 영향을 줍니다.
+     */
+    function normalizeManufacturerModelToken(value) {
+        const source = String(value || ''); // null과 undefined를 빈 문자열로 바꿉니다.
+        return source.normalize('NFKC').trim().replace(/\s+/g, ' ').toLocaleLowerCase(); // 화면 원문은 바꾸지 않고 비교값만 정규화합니다.
+    }
+
+    /**
+     * [역할] 대시보드에 표시할 제조사와 공식·분류 모델명을 중복 없이 결합합니다.
+     * [의존성 관계] 복합 조건 응답과 선택된 제조사 표시명, normalizeManufacturerModelToken을 사용합니다.
+     * [변경 시 영향도] 대시보드 복합 조건 결과의 제조사/모델 표시 문자열에 영향을 줍니다.
+     */
+    function buildManufacturerModelDisplay(item = {}, fallbackManufacturer = '') {
+        const aliases = [item.ManufacturerNameKo, item.ManufacturerNameEn, item.ManufacturerName, fallbackManufacturer].filter(value => String(value || '').trim()); // API 필드와 선택 옵션의 제조사 표기를 모읍니다.
+        const manufacturer = String(aliases[0] || '').trim(); // 화면에 표시할 첫 번째 유효 제조사명을 선택합니다.
+        const model = String(item.OfficialModelName || item.FullModelName || item.ModelName || '').trim(); // 공식명 우선의 기존 모델 fallback을 유지합니다.
+        if (!manufacturer) return model || '-'; // 제조사 선택값이 없으면 기존 모델 표시를 유지합니다.
+        if (!model) return manufacturer; // 모델 데이터가 없으면 선택된 제조사만 표시합니다.
+        const normalizedModel = normalizeManufacturerModelToken(model); // 모델명을 비교 전용 형태로 변환합니다.
+        const alreadyIncluded = aliases.some(alias => { // 응답 및 선택 옵션의 제조사 표기를 모두 검사합니다.
+            const normalizedAlias = normalizeManufacturerModelToken(alias); // 현재 별칭을 비교 전용 형태로 변환합니다.
+            if (!normalizedAlias || !normalizedModel.startsWith(normalizedAlias)) return false; // 빈 별칭과 접두어가 아닌 경우를 제외합니다.
+            if (normalizedModel.length === normalizedAlias.length) return true; // 모델명이 제조사명과 정확히 같으면 이미 포함된 것으로 봅니다.
+            return /[\s/|·:()[\]_-]/u.test(normalizedModel.charAt(normalizedAlias.length)); // 구분 경계가 있을 때만 제조사 토큰으로 인정합니다.
+        });
+        return alreadyIncluded ? model : `${manufacturer} / ${model}`; // 공식명에 제조사가 없을 때만 선택된 제조사명을 앞에 붙입니다.
+    }
+    // [manufacturer-model-display:end]
+
+    function renderCombinedStats(stats, manufacturerName = '') {
         document.getElementById('combinedResultArea').classList.remove('hidden');
         document.getElementById('combinedCount').innerText = stats.equipment_list.length;
         
@@ -216,7 +251,7 @@
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${escapeDashboardText(eq.Name || '-')}</td>
                     <td class="px-4 py-3 whitespace-normal break-words text-sm text-slate-600 dark:text-slate-400">
-                        ${escapeDashboardText(eq.OfficialModelName || eq.FullModelName || eq.ModelName || '-')}
+                        ${escapeDashboardText(buildManufacturerModelDisplay(eq, manufacturerName))}
                         ${eq.OfficialModelName ? `<div class="mt-1 text-xs text-slate-400">분류: ${escapeDashboardText(eq.FullModelName || eq.ModelName || '-')}</div>` : ''}
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">
