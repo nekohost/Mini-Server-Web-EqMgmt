@@ -8,6 +8,7 @@
 """
 
 import sqlite3
+from utils.database_contract import connect_database  # 정방향·역방향 보조 연결도 FK 정책을 공유합니다.
 import os
 import json
 from datetime import datetime
@@ -29,7 +30,7 @@ def run_down_migration():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] 🚨 3-Tier -> 1-Tier 다운그레이드 롤백 시작: {DB_PATH}")
     print("[경고] 3-Tier의 N차 계층 구조 및 세부 JSON 옵션은 1-Tier Memo 컬럼으로 압축되어 정보의 구조적 손실이 발생합니다.")
 
-    conn = sqlite3.connect(DB_PATH, timeout=30.0)
+    conn = connect_database(DB_PATH, timeout=30.0)  # 기존 행 보존과 FK 강제를 함께 적용합니다.
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 

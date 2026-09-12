@@ -8,6 +8,7 @@
 """
 
 import sqlite3
+from utils.database_contract import connect_database  # 정방향·역방향 보조 연결도 FK 정책을 공유합니다.
 import os
 import json
 from datetime import datetime
@@ -30,7 +31,11 @@ def run_migration():
     print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] DB 마이그레이션 시작: {DB_PATH}")
     
     # DB Lock 방어: 타임아웃 30초 설정
-    conn = sqlite3.connect(DB_PATH, timeout=30.0)
+    conn = connect_database(DB_PATH, timeout=30.0)  # 기존 행 보존과 FK 강제를 함께 적용합니다.
+    if conn.execute('PRAGMA user_version').fetchone()[0] >= 1:  # 전환 완료 DB에 역사 변환을 중복 실행하지 않습니다.
+        conn.close()  # 기존 3-Tier와 레거시 사본을 보존합니다.
+        print('[완료] 현재 스키마 버전에서는 레거시 재변환을 수행하지 않습니다.')
+        return True  # 버전 migration은 앱의 공통 계약이 담당합니다.
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 

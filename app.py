@@ -25,6 +25,8 @@ import secrets
 from utils.mailer import send_email
 from utils.lineup_node_service import add_full_model_names, save_option, delete_option, LineupNodeError
 from utils.equipment_audit_migration import migrate_equipment_audit_log, private_directory
+from utils.database_contract import configure_connection, connect_database, schema_contract, migrate_contract, REQUIRED_TABLES, FINGERPRINT_VERSION, MIGRATION as CONTRACT_MIGRATION  # DB 연결·버전 계약을 공유합니다.
+from utils.master_data_service import reference_counts, delete_masters, merge_masters, MasterDataError  # 마스터 관계를 원자적으로 보존합니다.
 import warnings
 
 # [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
@@ -76,7 +78,7 @@ DATABASE_DOWNLOAD_BACKUP_RETENTION_SECONDS = 60 * 60
 # DB 교체 작업이 실패하기 전 필요한 여유 공간을 보수적으로 확보합니다.
 DATABASE_OPERATION_RESERVE_BYTES = 64 * 1024 * 1024
 DATABASE_RESTORE_CONFIRMATION = '데이터베이스 복원'
-DATABASE_REQUIRED_TABLES = frozenset({'users', 'equipment', 'audit_logs', 'sys_migrations'})
+DATABASE_REQUIRED_TABLES = REQUIRED_TABLES  # 현재 3-Tier 필수 집합이며 레거시 equipment는 전환용입니다.
 DATABASE_GATE = threading.Condition(threading.RLock())
 DATABASE_RESTORE_LOCK = threading.Lock()
 DATABASE_RESTORE_ACTIVE = False
@@ -121,11 +123,13 @@ def open_application_database(timeout=5.0):
         if DATABASE_RESTORE_ACTIVE:
             raise sqlite3.OperationalError('데이터베이스 복원 중에는 새 연결을 만들 수 없습니다.')
         ACTIVE_DATABASE_CONNECTIONS += 1
+    conn = None  # 초기화 실패 시 추적 계수를 정확히 한 번 반환합니다.
     try:
         # 기존 코드가 기대하는 sqlite3.Connection 인터페이스를 유지하는 하위 클래스를 생성합니다.
         conn = sqlite3.connect(DATABASE_PATH, timeout=timeout, factory=TrackedDatabaseConnection)
         # 행 이름 접근을 기존 전체 코드와 동일하게 제공합니다.
         conn.row_factory = sqlite3.Row
+        configure_connection(conn, timeout)  # 트랜잭션 시작 전 FK 강제를 확인합니다.
         # 요청 범위에서 열린 연결은 예외·조기 반환에도 teardown에서 반드시 종료합니다.
         if has_request_context():
             # 한 요청에서 만든 연결 목록을 Flask 요청 저장소에 보관합니다.
@@ -137,9 +141,12 @@ def open_application_database(timeout=5.0):
         # 추적 가능한 연결을 호출자에게 반환합니다.
         return conn
     except Exception:
-        with DATABASE_GATE:
-            ACTIVE_DATABASE_CONNECTIONS = max(0, ACTIVE_DATABASE_CONNECTIONS - 1)
-            DATABASE_GATE.notify_all()
+        if conn is not None:  # 추적 연결이 있으면 close에서 계수를 반환합니다.
+            conn.close()  # 초기화 실패의 열린 핸들도 남기지 않습니다.
+        else:  # sqlite3.connect 자체가 실패했을 때만 직접 감소시킵니다.
+            with DATABASE_GATE:
+                ACTIVE_DATABASE_CONNECTIONS = max(0, ACTIVE_DATABASE_CONNECTIONS - 1)
+                DATABASE_GATE.notify_all()
         raise
 
 
@@ -1455,6 +1462,8 @@ def cleanup_migration_artifacts():
         print(f"[Cleanup Error] {e}")
 
 run_migration_if_needed('cleanup_migration_artifacts', cleanup_migration_artifacts)
+# 기존 migration이 완료된 상태에 정수 버전·인덱스 계약을 적용하며 실패하면 기동을 중단합니다.
+migrate_contract(DATABASE_PATH, os.path.join(DATABASE_OPERATION_ROOT, 'migration-backups'))
 
 
 def evaluate_user_lifecycle(user):
@@ -1720,46 +1729,7 @@ def build_database_schema_contract(connection):
     [의존성 관계]: sqlite_master, PRAGMA table_info/foreign_key_list/index_list/index_xinfo
     [변경 시 영향도]: 업로드 후보와 복원 DB의 실행 가능 스키마 판정에 영향을 줍니다.
     """
-    # SQLite 내부 객체를 제외한 앱 객체의 정의를 읽습니다.
-    objects = connection.execute(
-        "SELECT type, name, tbl_name, COALESCE(sql, '') AS sql "
-        "FROM sqlite_master WHERE type IN ('table', 'index', 'trigger', 'view') "
-        "AND name NOT LIKE 'sqlite_%' ORDER BY type, name"
-    ).fetchall()
-    # 이름으로 계약을 비교할 수 있도록 사전을 준비합니다.
-    contract = {}
-    # 각 객체의 구조와 관련 PRAGMA 결과를 함께 저장합니다.
-    for object_type, name, table_name, sql in objects:
-        # SQL 서식 차이는 제거하되 정의의 의미는 그대로 유지합니다.
-        normalized_sql = ' '.join((sql or '').split())
-        # 테이블은 컬럼·외래키·인덱스 계약을 추가로 기록합니다.
-        if object_type == 'table':
-            # 컬럼 순서와 타입·NULL·기본값·PK 정보를 보존합니다.
-            columns = tuple(tuple(row) for row in connection.execute(
-                f'PRAGMA table_info({quote_sql_identifier(name)})'
-            ).fetchall())
-            # 외래키의 대상과 갱신·삭제 정책을 보존합니다.
-            foreign_keys = tuple(tuple(row) for row in connection.execute(
-                f'PRAGMA foreign_key_list({quote_sql_identifier(name)})'
-            ).fetchall())
-            # 테이블마다 선언된 인덱스의 유일성·부분 인덱스 정보를 보존합니다.
-            indexes = []
-            for index_row in connection.execute(f'PRAGMA index_list({quote_sql_identifier(name)})').fetchall():
-                # index_list 결과의 이름은 두 번째 값이고 인덱스 SQL은 sqlite_master에 별도 존재합니다.
-                index_name = index_row[1]
-                # 인덱스 구성 컬럼과 정렬·키 여부를 함께 기록합니다.
-                index_columns = tuple(tuple(row) for row in connection.execute(
-                    f'PRAGMA index_xinfo({quote_sql_identifier(index_name)})'
-                ).fetchall())
-                # 행 전체와 구성 컬럼을 하나의 불변 계약으로 추가합니다.
-                indexes.append((tuple(index_row), index_columns))
-            # 비교 순서를 고정해 DB 내부 반환 순서에 좌우되지 않게 합니다.
-            contract[(object_type, name)] = (table_name, normalized_sql, columns, foreign_keys, tuple(indexes))
-        else:
-            # 인덱스·트리거·뷰는 sqlite_master의 이름·대상·정규화 SQL로 비교합니다.
-            contract[(object_type, name)] = (table_name, normalized_sql)
-    # 호출자가 포함 관계와 지문을 모두 사용할 수 있도록 계약을 반환합니다.
-    return contract
+    return schema_contract(connection)  # 물리 컬럼 순서만 제외하고 모든 의미 제약을 비교합니다.
 
 
 def calculate_database_file_sha256(path):
@@ -1869,7 +1839,7 @@ def inspect_database_file(database_path, admin_login_id=None, admin_password=Non
         if database_file.read(16) != b'SQLite format 3\x00':
             raise ValueError('SQLite 데이터베이스 파일만 사용할 수 있습니다.')
     uri = path.as_uri() + '?mode=ro'
-    conn = sqlite3.connect(uri, uri=True, timeout=5.0)
+    conn = connect_database(uri, uri=True, timeout=5.0)
     conn.row_factory = sqlite3.Row
     try:
         integrity = conn.execute('PRAGMA integrity_check').fetchone()[0]
@@ -1912,6 +1882,8 @@ def inspect_database_file(database_path, admin_login_id=None, admin_password=Non
             'modified_at': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
             'schema_fingerprint': hashlib.sha256(json.dumps(schema_contract_payload, ensure_ascii=False, default=list, sort_keys=True).encode('utf-8')).hexdigest(),
             'migration_count': migration_count,
+            'schema_version': conn.execute('PRAGMA user_version').fetchone()[0],  # 명시적 구조 버전입니다.
+            'fingerprint_version': FINGERPRINT_VERSION,  # 지문 형식을 구별합니다.
             'tables': counts,
             'integrity': 'ok'
         }
@@ -1926,7 +1898,7 @@ def validate_database_compatibility(candidate_path, baseline_path):
     [변경 시 영향도]: 구버전 또는 일부 스키마가 빠진 후보 DB의 운영 적용 차단에 영향을 줍니다.
     """
     def open_read_only(path):
-        return sqlite3.connect(Path(path).resolve().as_uri() + '?mode=ro', uri=True, timeout=5.0)
+        return connect_database(Path(path).resolve().as_uri() + '?mode=ro', uri=True, timeout=5.0)
 
     baseline = open_read_only(baseline_path)
     candidate = open_read_only(candidate_path)
@@ -1935,6 +1907,14 @@ def validate_database_compatibility(candidate_path, baseline_path):
         baseline_contract = build_database_schema_contract(baseline)
         # 후보 DB의 전체 스키마 계약을 같은 형식으로 만듭니다.
         candidate_contract = build_database_schema_contract(candidate)
+        # 빈 레거시 테이블만 양쪽 비교에서 제외하고 데이터가 있으면 기존 계약을 유지합니다.
+        legacy_key = ('table', 'equipment')  # 현재 앱 CRUD에서 사용하지 않는 전환용 테이블입니다.
+        legacy_empty = all(legacy_key not in contract or conn.execute('SELECT COUNT(*) FROM equipment').fetchone()[0] == 0 for conn, contract in ((baseline, baseline_contract), (candidate, candidate_contract)))  # 어느 한쪽에라도 데이터가 있으면 엄격 비교합니다.
+        if legacy_empty:  # 레거시가 비어 있을 때만 선택적으로 취급합니다.
+            for contract in (baseline_contract, candidate_contract):  # 양쪽의 동일한 전환 규칙입니다.
+                contract.pop(legacy_key, None)  # 실제 테이블을 변경하지 않습니다.
+        if baseline.execute('PRAGMA user_version').fetchone()[0] != candidate.execute('PRAGMA user_version').fetchone()[0]:  # 구버전 또는 미래 버전 자동 복원을 막습니다.
+            raise ValueError('후보 DB의 스키마 버전이 현재 서비스와 다릅니다.')
         # 운영에 존재하는 모든 객체가 후보에도 존재해야 합니다.
         missing_objects = sorted(set(baseline_contract) - set(candidate_contract))
         if missing_objects:
@@ -1949,8 +1929,11 @@ def validate_database_compatibility(candidate_path, baseline_path):
         baseline_migrations = {row[0] for row in baseline.execute('SELECT MigrationName FROM sys_migrations')}
         candidate_migrations = {row[0] for row in candidate.execute('SELECT MigrationName FROM sys_migrations')}
         missing_migrations = sorted(baseline_migrations - candidate_migrations)
-        if missing_migrations:
+        version = baseline.execute('PRAGMA user_version').fetchone()[0]  # v1 이후 구조 버전과 전체 계약이 우선입니다.
+        if version == 0 and missing_migrations:  # 역사적 무버전 DB에서는 기존 이력 계약을 유지합니다.
             raise ValueError('후보 DB에 적용되지 않은 마이그레이션이 있습니다: ' + ', '.join(missing_migrations))
+        if version > 0 and (CONTRACT_MIGRATION not in baseline_migrations or CONTRACT_MIGRATION not in candidate_migrations):  # 정수 버전의 근거 이력은 필수입니다.
+            raise ValueError('후보 DB의 스키마 버전 이력이 일치하지 않습니다.')
     finally:
         candidate.close()
         baseline.close()
@@ -1968,7 +1951,7 @@ def create_online_backup(destination_path):
     source = get_db_connection()
     destination = None
     try:
-        destination = sqlite3.connect(destination_path)
+        destination = connect_database(destination_path)
         source.backup(destination, pages=256, sleep=0.01)
         destination.commit()
     finally:
@@ -2124,7 +2107,7 @@ def write_database_operation_audit(action, actor_login_id, details):
     conn = None
     try:
         # 복원 동결 중에는 추적 계수와 무관한 전용 연결로 감사 로그를 기록합니다.
-        conn = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+        conn = connect_database(DATABASE_PATH, timeout=10.0)
         # 민감한 세부정보가 제거된 감사 행을 추가합니다.
         conn.execute('''
             INSERT INTO audit_logs
@@ -2199,8 +2182,8 @@ def run_database_restore_job(job_id):
             # 진행 기록은 보조 기능이므로 파일 I/O 실패가 스냅샷을 막지 않습니다.
             record_database_job_progress(job_id, state='snapshotting', message='복원 직전 자동 백업을 만드는 중입니다.')
             # 운영 DB와 자동 백업 대상 연결을 별도로 엽니다.
-            live_source = sqlite3.connect(DATABASE_PATH, timeout=10.0)
-            snapshot = sqlite3.connect(before_restore_path)
+            live_source = connect_database(DATABASE_PATH, timeout=10.0)
+            snapshot = connect_database(before_restore_path)
             try:
                 # SQLite 온라인 백업 API로 일관된 원복 지점을 만듭니다.
                 live_source.backup(snapshot, pages=256, sleep=0.01)
@@ -2217,9 +2200,9 @@ def run_database_restore_job(job_id):
             # 후보 파일을 운영 DB로 쓰기 직전에 진행 상태를 갱신합니다.
             record_database_job_progress(job_id, state='restoring', message='검증된 후보 DB를 적용하는 중입니다.')
             # 후보는 읽기 전용 URI로 열어 워커가 후보를 수정하지 못하게 합니다.
-            candidate = sqlite3.connect(Path(job['candidate_path']).resolve().as_uri() + '?mode=ro', uri=True, timeout=10.0)
+            candidate = connect_database(Path(job['candidate_path']).resolve().as_uri() + '?mode=ro', uri=True, timeout=10.0)
             # 운영 DB는 백업 API의 대상 연결로 엽니다.
-            live_target = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+            live_target = connect_database(DATABASE_PATH, timeout=10.0)
             try:
                 # 검증된 후보의 전체 스냅샷을 운영 DB로 적용합니다.
                 candidate.backup(live_target, pages=256, sleep=0.01)
@@ -2235,7 +2218,7 @@ def run_database_restore_job(job_id):
             record_database_job_progress(job_id, state='validating', message='복원된 DB의 무결성과 관리자 계정을 확인하는 중입니다.')
             result = inspect_database_file(DATABASE_PATH, job['candidate_admin_login_id'], job['candidate_admin_password'])
             # 성공한 DB의 모든 세션 토큰을 바꿔 과거 로그인 세션을 무효화합니다.
-            live = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+            live = connect_database(DATABASE_PATH, timeout=10.0)
             try:
                 live.execute("UPDATE users SET SessionToken = hex(randomblob(16))")
                 live.commit()
@@ -2262,9 +2245,9 @@ def run_database_restore_job(job_id):
                     # 저널 갱신 실패와 무관하게 실제 원복을 우선 수행합니다.
                     record_database_job_progress(job_id, state='rolling_back', message='복원 실패로 직전 자동 백업을 되돌리는 중입니다.')
                     # 검증된 자동 백업을 읽기 전용으로 엽니다.
-                    rollback_source = sqlite3.connect(Path(before_restore_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=10.0)
+                    rollback_source = connect_database(Path(before_restore_path).resolve().as_uri() + '?mode=ro', uri=True, timeout=10.0)
                     # 원복 대상인 운영 DB 연결을 엽니다.
-                    live_target = sqlite3.connect(DATABASE_PATH, timeout=10.0)
+                    live_target = connect_database(DATABASE_PATH, timeout=10.0)
                     try:
                         # 복원 직전 백업을 운영 DB로 되돌립니다.
                         rollback_source.backup(live_target, pages=256, sleep=0.01)
@@ -5224,9 +5207,11 @@ def get_or_create_master_management_item(target_type):
                 conn.close()
                 return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
 
-            rows = cursor.fetchall()
+            rows = [dict(row) for row in cursor.fetchall()]  # Row를 API 객체로 변환합니다.
+            for row in rows:  # 사용자 화면과 삭제 판정에 같은 참조 집계를 제공합니다.
+                row['ReferenceCounts'] = reference_counts(conn, target_type, row['id'])
             conn.close()
-            return jsonify({"success": True, "data": [dict(r) for r in rows]})
+            return jsonify({"success": True, "data": rows})
         except Exception as e:
             conn.close()
             return jsonify({"success": False, "message": f"마스터 데이터 조회 중 오류가 발생했습니다: {str(e)}"}), 500
@@ -5265,6 +5250,31 @@ def get_or_create_master_management_item(target_type):
         return jsonify({"success": True, "message": "성공적으로 추가되었습니다.", "id": new_id})
 
 
+
+def perform_master_mutation(target_type, item_ids, target_id=None):
+    """[역할] 관리자 삭제·병합의 transaction과 안전한 응답을 통합합니다.
+    [의존성 관계] 인증·CSRF가 적용된 세 API, master_data_service, audit_lineup_change.
+    [변경 시 영향도] 실패 시 부분 변경과 내부 SQL 노출을 방지합니다.
+    """
+    connection = get_db_connection()  # 공통 FK 강제가 적용된 연결입니다.
+    try:  # 서비스 helper가 감사까지 원자적으로 처리합니다.
+        if target_id is None:  # 직접 삭제는 참조 0건만 허용합니다.
+            count = delete_masters(connection, target_type, item_ids, audit_lineup_change)
+            message = f"{count}개 항목이 삭제되었습니다."  # 검증한 실제 대상 수입니다.
+        else:  # 병합은 원본·대상 상태와 노드 충돌을 확인합니다.
+            count = merge_masters(connection, target_type, target_id, item_ids, audit_lineup_change)
+            message = f"{count}개 항목이 통폐합되었습니다."  # 기존 클라이언트 메시지 필드를 유지합니다.
+        return jsonify({"success": True, "message": message})  # 성공을 명확히 반환합니다.
+    except MasterDataError as error:  # 예상된 입력·참조·충돌입니다.
+        return jsonify({"success": False, "message": str(error), "references": error.references}), error.status
+    except sqlite3.Error:  # 내부 DB 상세를 브라우저에 공개하지 않습니다.
+        connection.rollback()  # helper 밖의 실패에서도 변경을 취소합니다.
+        app.logger.error('Master mutation database failure')  # 민감 SQL/값 없이 서버 원인을 구분합니다.
+        return jsonify({"success": False, "message": "DB 작업을 완료하지 못했습니다. 다시 조회한 후 시도해 주세요."}), 500
+    finally:  # 응답 분기와 관계없이 종료합니다.
+        connection.close()  # writer 잠금과 연결 계수를 반환합니다.
+
+
 @app.route('/api/master/manage/<target_type>/delete_selected', methods=['POST'])
 @login_required
 @csrf_required
@@ -5272,40 +5282,16 @@ def delete_selected_master_items(target_type):
     """
     [역할] 관리자 전용 마스터 데이터 (카테고리/제조사) 선택 항목 일괄 삭제
     [의존성 관계] categories, manufacturers, equipment 테이블
-    [변경 시 영향도] 선택된 마스터 데이터 삭제 및 연결된 장비 분류 정보(NULL) 초기화
+    [변경 시 영향도] 참조 0건인 항목만 원자적으로 삭제하며 분류 정보를 보존합니다.
     """
     user = session['user']
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
 
-    table_name = 'categories' if target_type == 'categories' else ('manufacturers' if target_type == 'manufacturers' else None)
-    id_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
-    fk_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
-    legacy_col = 'Category' if target_type == 'categories' else 'Manufacturer'
-
-    if not table_name:
-        return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
-
-    data = request.json or {}
-    item_ids = data.get('item_ids', [])
-    if not item_ids or not isinstance(item_ids, list):
-        return jsonify({"success": False, "message": "삭제할 항목이 선택되지 않았습니다."}), 400
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    placeholders = ','.join(['?'] * len(item_ids))
-    lineup_fk = 'category_id' if target_type == 'categories' else 'manufacturer_id'
-    # 3-Tier lineup_nodes 및 equipment 관련 외래키 NULL 처리
-    cursor.execute(f"UPDATE lineup_nodes SET {lineup_fk} = NULL WHERE {lineup_fk} IN ({placeholders})", item_ids)
-    cursor.execute(f"UPDATE equipment SET {fk_col} = NULL, {legacy_col} = NULL WHERE {fk_col} IN ({placeholders})", item_ids)
-    cursor.execute(f"DELETE FROM {table_name} WHERE {id_col} IN ({placeholders})", item_ids)
-
-    log_audit(user['UserId'], user['LoginId'], 'DELETE_MASTER_SELECTED', table_name, None, {"deleted_ids": item_ids}, None)
-    conn.commit()
-    conn.close()
-
-    return jsonify({"success": True, "message": f"{len(item_ids)}개 항목이 성공적으로 일괄 삭제되었습니다."})
+    data = request.get_json(silent=True)  # 잘못된 JSON은 입력 오류로 처리합니다.
+    if not isinstance(data, dict):  # 배열·문자열 요청을 거부합니다.
+        return jsonify({"success": False, "message": "JSON 객체가 필요합니다."}), 400
+    return perform_master_mutation(target_type, data.get('item_ids', []))  # 단건과 동일한 삭제 계약입니다.
 
 
 @app.route('/api/master/manage/<target_type>/<int:item_id>', methods=['PUT', 'DELETE'])
@@ -5359,21 +5345,8 @@ def update_or_delete_master_item(target_type, item_id):
         return jsonify({"success": True, "message": "성공적으로 수정되었습니다."})
 
     elif request.method == 'DELETE':
-        cursor.execute(f"SELECT * FROM {table_name} WHERE {id_col} = ?", (item_id,))
-        old_item = cursor.fetchone()
-        if not old_item:
-            conn.close()
-            return jsonify({"success": False, "message": "해당 마스터 항목을 찾을 수 없습니다."}), 404
-
-        # lineup_nodes 및 equipment의 관련 컬럼을 NULL 처리
-        cursor.execute(f"UPDATE lineup_nodes SET {lineup_fk} = NULL WHERE {lineup_fk} = ?", (item_id,))
-        cursor.execute(f"UPDATE equipment SET {fk_col} = NULL, {legacy_col} = NULL WHERE {fk_col} = ?", (item_id,))
-        cursor.execute(f"DELETE FROM {table_name} WHERE {id_col} = ?", (item_id,))
-
-        log_audit(user['UserId'], user['LoginId'], 'DELETE_MASTER', table_name, item_id, dict(old_item), None)
-        conn.commit()
-        conn.close()
-        return jsonify({"success": True, "message": "성공적으로 삭제되었습니다."})
+        conn.close()  # 공통 mutation helper가 잠금·연결 수명을 관리합니다.
+        return perform_master_mutation(target_type, [item_id])  # 참조가 있으면 409와 건수를 반환합니다.
 
 
 @app.route('/api/master/manage/<target_type>/<int:target_id>/merge_from', methods=['POST'])
@@ -5389,45 +5362,10 @@ def merge_master_items(target_type, target_id):
     if user['Role'] != 'admin':
         return jsonify({"success": False, "message": "권한이 없습니다."}), 403
 
-    data = request.json
-    source_ids = data.get('source_ids', [])
-    if not source_ids or not isinstance(source_ids, list):
-        return jsonify({"success": False, "message": "통합할 대상 항목을 1개 이상 선택해야 합니다."}), 400
-
-    table_name = 'categories' if target_type == 'categories' else ('manufacturers' if target_type == 'manufacturers' else None)
-    id_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
-    fk_col = 'CategoryId' if target_type == 'categories' else 'ManufacturerId'
-    legacy_col = 'Category' if target_type == 'categories' else 'Manufacturer'
-    lineup_fk = 'category_id' if target_type == 'categories' else 'manufacturer_id'
-
-    if not table_name:
-        return jsonify({"success": False, "message": "유효하지 않은 타입입니다."}), 400
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute(f"SELECT * FROM {table_name} WHERE {id_col} = ?", (target_id,))
-    target_item = cursor.fetchone()
-    if not target_item:
-        conn.close()
-        return jsonify({"success": False, "message": "기준 마스터 항목을 찾을 수 없습니다."}), 404
-
-    placeholders = ','.join(['?'] * len(source_ids))
-
-    # 1. lineup_nodes 및 equipment 테이블의 ID 및 레거시 컬럼 일괄 UPDATE
-    cursor.execute(f"UPDATE lineup_nodes SET {lineup_fk} = ? WHERE {lineup_fk} IN ({placeholders})", (target_id, *source_ids))
-    cursor.execute(f"UPDATE equipment SET {fk_col} = ?, {legacy_col} = ? WHERE {fk_col} IN ({placeholders})",
-                   (target_id, str(target_id), *source_ids))
-
-    # 2. 통합 대상 마스터 항목 삭제
-    cursor.execute(f"DELETE FROM {table_name} WHERE {id_col} IN ({placeholders})", tuple(source_ids))
-
-    log_audit(user['UserId'], user['LoginId'], 'MERGE_MASTER', table_name, target_id,
-              {"SourceIds": source_ids}, {"TargetId": target_id})
-
-    conn.commit()
-    conn.close()
-    return jsonify({"success": True, "message": f"총 {len(source_ids)}개의 항목이 성공적으로 통폐합되었습니다."})
+    data = request.get_json(silent=True)  # 안전하게 JSON 객체를 검사합니다.
+    if not isinstance(data, dict):  # 잘못된 형식이 500으로 번지지 않게 합니다.
+        return jsonify({"success": False, "message": "JSON 객체가 필요합니다."}), 400
+    return perform_master_mutation(target_type, data.get('source_ids', []), target_id)  # 기존 화면의 요청 계약을 유지합니다.
 
 
 @app.route('/api/auth/send_pin', methods=['POST'])

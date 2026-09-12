@@ -229,16 +229,17 @@
                         #${itemId}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-slate-900 dark:text-slate-100">
-                        ${item.Name}
+                        ${escapeMasterText(item.Name)}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
-                        ${item.NameKo || '-'}
+                        ${escapeMasterText(item.NameKo || '-')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">
-                        ${item.NameEn || '-'}
+                        ${escapeMasterText(item.NameEn || '-')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-blue-600 dark:text-blue-400">
                         ${item.UsageCount || 0} 개
+                        <span class="block text-xs font-normal text-slate-500">노드 ${item.ReferenceCounts?.nodes || 0} · 옵션 ${item.ReferenceCounts?.options || 0} · 대기 승인 ${item.ReferenceCounts?.pending_approvals || 0}</span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         ${approvedBadge}
@@ -332,6 +333,14 @@
         }
     }
 
+    // [역할] 마스터 명칭을 HTML 본문에 안전하게 표시합니다.
+    // [의존성 관계] 목록·병합 선택 UI. [변경 시 영향도] 사용자 입력 명칭의 렌더링.
+    function escapeMasterText(value) { // innerHTML에 넣는 문자열만 이스케이프합니다.
+        const element = document.createElement('span'); // 브라우저 텍스트 변환을 사용합니다.
+        element.textContent = String(value ?? ''); // 명칭을 코드로 해석하지 않습니다.
+        return element.innerHTML; // 안전한 HTML 텍스트를 반환합니다.
+    }
+
     function toggleAllCheckboxes() {
         const selectAll = document.getElementById('selectAllCheckbox');
         const checkboxes = document.querySelectorAll('.item-checkbox');
@@ -354,7 +363,7 @@
             return;
         }
 
-        if (!confirm(`선택한 ${itemIds.length}개의 항목을 일괄 삭제하시겠습니까?\n연결된 장비의 해당 분류는 초기화됩니다.`)) return;
+        if (!confirm(`선택한 ${itemIds.length}개의 항목을 일괄 삭제하시겠습니까?\n참조 중인 노드·장비·대기 승인 요청이 있으면 전체 삭제가 차단됩니다.`)) return;
 
         try {
             showGlobalLoading();
@@ -382,7 +391,7 @@
     }
 
     async function deleteMasterItem(id) {
-        if (!confirm('정말로 이 항목을 삭제하시겠습니까? 연결된 장비의 해당 분류는 초기화됩니다.')) return;
+        if (!confirm('정말로 이 항목을 삭제하시겠습니까? 참조 중인 노드·장비·대기 승인 요청이 있으면 삭제할 수 없습니다.')) return;
 
         try {
             showGlobalLoading();
@@ -430,7 +439,7 @@
                     <label class="flex items-center justify-between p-2 hover:bg-purple-50 dark:hover:bg-slate-600/50 rounded-lg cursor-pointer transition">
                         <div class="flex items-center gap-3">
                             <input type="checkbox" name="mergeSourceCheck" value="${itemId}" class="w-4 h-4 text-purple-600 rounded focus:ring-purple-500">
-                            <span class="text-sm font-bold text-slate-800 dark:text-slate-200">${displayName}</span>
+                            <span class="text-sm font-bold text-slate-800 dark:text-slate-200">${escapeMasterText(displayName)}</span>
                         </div>
                         <span class="text-xs text-slate-400 font-semibold">장비 ${item.UsageCount || 0}개</span>
                     </label>
