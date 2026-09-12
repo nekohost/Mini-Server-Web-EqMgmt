@@ -16,6 +16,24 @@ sys.path.insert(0, str(ROOT))  # 공통 DB 계약 모듈을 사용합니다.
 from utils.database_contract import connect_database, assert_integrity, private_snapshot, quote_identifier, migrate_contract, rollback_contract, SCHEMA_VERSION  # 공유된 migration만 실행합니다.
 
 
+def query_measurements(connection):
+    """[역할] 실제 조회 조건의 전후 계획·평균 시간을 측정합니다. [의존성 관계] 운영 사본. [변경 시 영향도] 인덱스 채택 근거."""
+    queries = {  # 실제 API의 핵심 조건과 정렬을 유지합니다.
+        'owner': ('SELECT id FROM equipments WHERE user_id=? AND (is_draft=0 OR is_draft IS NULL) ORDER BY id DESC', (1,)),
+        'public': ('SELECT id FROM equipments WHERE is_public=1 AND user_id!=? AND (is_draft=0 OR is_draft IS NULL) ORDER BY id DESC', (1,)),
+        'password': ('SELECT ExpiresAt FROM password_resets WHERE UserId=? ORDER BY ExpiresAt DESC LIMIT 1', (1,)),
+        'approval': ("SELECT RequestId FROM approval_requests WHERE RequestType='ADD_CATEGORY' AND Status='PENDING' AND json_extract(RequestDataJSON,'$.name')=?", ('fixture',)),
+    }
+    result = {}  # 민감한 조회 결과는 기록하지 않습니다.
+    for name, (query, params) in queries.items():  # 각 조회를 동일 횟수 실행합니다.
+        plan = [row[3] for row in connection.execute('EXPLAIN QUERY PLAN ' + query, params)]  # optimizer의 선택입니다.
+        start = time.perf_counter()  # 짧은 쿼리의 고해상도 시간을 측정합니다.
+        for _ in range(100):  # 작은 DB의 단발성 흔들림을 완화합니다.
+            connection.execute(query, params).fetchall()  # 결과값은 즉시 폐기합니다.
+        result[name] = {'plan': plan, 'mean_ms': (time.perf_counter() - start) * 10}  # 100회 평균 밀리초입니다.
+    return result  # 전후 차이를 보고서에 사용합니다.
+
+
 def row_fingerprints(connection):
     """[역할] 업무 행의 원문을 출력하지 않고 보존 여부를 확인합니다. [의존성 관계] SQLite. [변경 시 영향도] 배포 게이트."""
     result = {}  # 모든 기존 테이블의 typed-row 지문을 기록합니다.
@@ -38,6 +56,7 @@ def check_copy(database, backups):
     try:  # 사본 생성 전 기준선을 계산합니다.
         assert_integrity(source)  # 현재의 선언·논리 참조를 확인합니다.
         before = row_fingerprints(source)  # 코드 기동 전 기존 행을 지문화합니다.
+        query_before = query_measurements(source)  # 인덱스 적용 전 실제 DB를 읽기만 합니다.
         path = Path(private_snapshot(source, database, backups, 'release-check'))  # 전체 DB를 일관되게 복제합니다.
     finally:  # 운영 reader를 기동 전에 반환합니다.
         source.close()  # 운영 앱과 추가 경합을 남기지 않습니다.
@@ -53,6 +72,7 @@ def check_copy(database, backups):
         try:  # 검사 연결의 수명을 제한합니다.
             assert_integrity(copy)  # FK와 계층 무결성을 재확인합니다.
             after = row_fingerprints(copy)  # 테이블 데이터가 그대로인지 대조합니다.
+            query_after = query_measurements(copy)  # 동일 조건으로 적용 후 계획을 측정합니다.
             if before != after:  # 자동 초기화에 의한 예상 밖 변화도 차단합니다.
                 raise ValueError('production copy row preservation failed')  # 운영 적용을 진행하지 않습니다.
             if copy.execute('PRAGMA user_version').fetchone()[0] != SCHEMA_VERSION:  # 목표 버전입니다.
@@ -64,7 +84,7 @@ def check_copy(database, backups):
         repeat = migrate_contract(path, backups / 'copy-rollback')  # 두 번째 실행은 변경이 없어야 합니다.
         if repeat['applied']:  # 반복 쓰기를 허용하지 않습니다.
             raise ValueError('migration not idempotent')  # 검증 실패로 처리합니다.
-        return {'copy_check': 'pass', 'rows_preserved': before, 'schema_version': SCHEMA_VERSION, 'rollback': 'pass', 'copy': str(path)}  # 검증 증거만 반환합니다.
+        return {'copy_check': 'pass', 'rows_preserved': before, 'schema_version': SCHEMA_VERSION, 'rollback': 'pass', 'copy': str(path), 'queries_before': query_before, 'queries_after': query_after}  # 검증 증거만 반환합니다.
     finally:  # import 후 실패에서도 독립 worker를 정리합니다.
         if hasattr(module, 'shutdown_event'):  # 부분 import를 고려합니다.
             module.shutdown_event.set()  # 해당 모듈 worker에만 종료 신호를 줍니다.
@@ -123,4 +143,3 @@ def main():
 
 if __name__ == '__main__':  # import에는 부작용이 없습니다.
     main()  # 명시적 CLI 호출만 실행합니다.
-

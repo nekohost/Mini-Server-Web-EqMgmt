@@ -63,6 +63,40 @@ class DatabaseContractTests(unittest.TestCase):
             session['csrf_token'] = 'test-csrf'
         self.headers = {'X-CSRFToken': 'test-csrf'}
 
+    def test_user_deletion_clears_reset_tokens_and_preserves_equipment(self):
+        """[역할] 사용자 삭제 뒤 논리 참조를 검증합니다. [의존성 관계] 사용자 API. [변경 시 영향도] FK 활성화 회귀."""
+        self.connection.execute("INSERT INTO users(UserId,LoginId,Password,Role) VALUES(90002,'delete-user','fixture-hash','user')")
+        self.connection.execute("INSERT INTO password_resets(TokenHash,UserId,ExpiresAt) VALUES('fixture-token',90002,'2099-01-01')")
+        self.connection.execute('UPDATE equipments SET user_id=90002 WHERE id=90001')
+        self.connection.commit()
+        response = self.client.post('/api/users/delete_selected', json={'user_ids': [90002]}, headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.connection.execute('SELECT COUNT(*) FROM password_resets WHERE UserId=90002').fetchone()[0], 0)
+        self.assertIsNone(self.connection.execute('SELECT user_id FROM equipments WHERE id=90001').fetchone()[0])
+        self.assertEqual(self.connection.execute('PRAGMA foreign_key_check').fetchall(), [])
+
+    def test_reject_referenced_node_rolls_back_request_status(self):
+        """[역할] 반려 중 참조 충돌을 검증합니다. [의존성 관계] 승인 API. [변경 시 영향도] 대기 상태 보존."""
+        self.connection.execute("UPDATE lineup_nodes SET status='PENDING' WHERE id=90001")
+        cursor = self.connection.execute("INSERT INTO approval_requests(RequesterId,RequestType,RequestDataJSON,Status) VALUES(90001,'Lineup_Node','{\"node_id\":90001}','PENDING')")
+        request_id = cursor.lastrowid
+        self.connection.commit()
+        response = self.client.post(f'/api/approvals/{request_id}/process', json={'action': 'reject', 'reject_reason': 'fixture'}, headers=self.headers)
+        self.assertEqual(response.status_code, 409)
+        self.assertEqual(self.connection.execute('SELECT Status FROM approval_requests WHERE RequestId=?', (request_id,)).fetchone()[0], 'PENDING')
+        self.assertIsNotNone(self.connection.execute('SELECT 1 FROM lineup_nodes WHERE id=90001').fetchone())
+
+    def test_approval_succeeds_with_same_transaction_audit(self):
+        """[역할] 승인 성공 경로도 보존합니다. [의존성 관계] 승인 API. [변경 시 영향도] writer 교착 회귀."""
+        self.connection.execute("UPDATE lineup_nodes SET status='PENDING' WHERE id=90001")
+        cursor = self.connection.execute("INSERT INTO approval_requests(RequesterId,RequestType,RequestDataJSON,Status) VALUES(90001,'Lineup_Node','{\"node_id\":90001}','PENDING')")
+        request_id = cursor.lastrowid
+        self.connection.commit()
+        response = self.client.post(f'/api/approvals/{request_id}/process', json={'action': 'approve'}, headers=self.headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.connection.execute('SELECT Status FROM approval_requests WHERE RequestId=?', (request_id,)).fetchone()[0], 'APPROVED')
+        self.assertIsNotNone(self.connection.execute("SELECT 1 FROM audit_logs WHERE TargetId=? AND Action='APPROVE_REQUEST'", (request_id,)).fetchone())
+
     def test_normal_connection_enforces_foreign_keys(self):
         """[역할] 선언 FK 실제 강제를 확인합니다. [의존성 관계] 앱 연결. [변경 시 영향도] 연결 정책."""
         connection = self.module.get_db_connection()
@@ -207,4 +241,3 @@ class DatabaseContractTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

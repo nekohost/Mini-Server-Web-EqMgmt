@@ -1492,6 +1492,7 @@ def evaluate_user_lifecycle(user):
                 conn = get_db_connection()
                 cursor = conn.cursor()
                 cursor.execute("DELETE FROM user_settings WHERE UserId = ?", (user_id,))
+                cursor.execute("DELETE FROM password_resets WHERE UserId = ?", (user_id,))  # 삭제한 사용자에게 유효한 재설정 토큰을 남기지 않습니다.
                 cursor.execute("UPDATE equipments SET user_id = NULL, is_public = 1 WHERE user_id = ?", (user_id,))
                 cursor.execute("DELETE FROM users WHERE UserId = ?", (user_id,))
                 conn.commit()
@@ -1533,6 +1534,7 @@ def evaluate_user_lifecycle(user):
                     conn = get_db_connection()
                     cursor = conn.cursor()
                     cursor.execute("DELETE FROM user_settings WHERE UserId = ?", (user_id,))
+                    cursor.execute("DELETE FROM password_resets WHERE UserId = ?", (user_id,))  # 삭제한 사용자에게 유효한 재설정 토큰을 남기지 않습니다.
                     cursor.execute("UPDATE equipments SET user_id = NULL, is_public = 1 WHERE user_id = ?", (user_id,))
                     cursor.execute("DELETE FROM users WHERE UserId = ?", (user_id,))
                     conn.commit()
@@ -4303,6 +4305,7 @@ def api_delete_selected_users():
 
     # 1. user_settings 레코드 삭제
     cursor.execute(f"DELETE FROM user_settings WHERE UserId IN ({del_placeholders})", del_tuple)
+    cursor.execute(f"DELETE FROM password_resets WHERE UserId IN ({del_placeholders})", del_tuple)  # 논리 사용자 참조를 정리합니다.
 
     # 2. 관련 장비 소유권 해제 (데이터 보존을 위해 공개 장비로 전환)
     cursor.execute(f"UPDATE equipments SET user_id = NULL, is_public = 1 WHERE user_id IN ({del_placeholders})", del_tuple)
@@ -4311,8 +4314,7 @@ def api_delete_selected_users():
     cursor.execute(f"DELETE FROM users WHERE UserId IN ({del_placeholders})", del_tuple)
 
     # 4. 보안 감사 로그 기록
-    log_audit(user['UserId'], user['LoginId'], 'DELETE_USER', 'users', None,
-              {"DeletedUserIds": deleted_ids, "DeletedLogins": deleted_logins}, None)
+    audit_lineup_change(conn, 'DELETE_USER', None, {"DeletedUserIds": deleted_ids, "DeletedLogins": deleted_logins}, None, table='users')  # 사용자 변경과 같은 트랜잭션에서 감사를 남깁니다.
 
     conn.commit()
     conn.close()
@@ -4505,110 +4507,118 @@ def process_approval(req_id):
     target_name = req_data.get('name')
     req_type = req_dict['RequestType']
 
-    if action == 'approve':
-        cursor.execute("UPDATE approval_requests SET Status = 'APPROVED', ApproverId = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], now, req_id))
-        if req_type == 'ADD_CATEGORY':
-            cursor.execute("UPDATE categories SET IsApproved = 1 WHERE Name = ?", (target_name,))
-            cursor.execute("""
-                UPDATE lineup_nodes SET status = 'APPROVED'
-                WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipment_options SET status = 'APPROVED'
-                WHERE lineup_node_id IN (
-                    SELECT id FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
-                ) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipments SET is_draft = 0
-                WHERE option_id IN (
-                    SELECT opt.id FROM equipment_options opt
-                    JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                    JOIN categories cat ON node.category_id = cat.CategoryId
-                    WHERE cat.Name = ?
-                ) AND is_draft = 1
-            """, (target_name,))
-        elif req_type == 'ADD_MANUFACTURER':
-            cursor.execute("UPDATE manufacturers SET IsApproved = 1 WHERE Name = ?", (target_name,))
-            cursor.execute("""
-                UPDATE lineup_nodes SET status = 'APPROVED'
-                WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipment_options SET status = 'APPROVED'
-                WHERE lineup_node_id IN (
-                    SELECT id FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
-                ) AND status = 'PENDING'
-            """, (target_name,))
-            cursor.execute("""
-                UPDATE equipments SET is_draft = 0
-                WHERE option_id IN (
-                    SELECT opt.id FROM equipment_options opt
-                    JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                    JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
-                    WHERE mfg.Name = ?
-                ) AND is_draft = 1
-            """, (target_name,))
-        elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
-            node_id = req_data.get('node_id')
-            if node_id:
-                cursor.execute("UPDATE lineup_nodes SET status = 'APPROVED' WHERE id = ?", (node_id,))
-            else:
-                cursor.execute("UPDATE lineup_nodes SET status = 'APPROVED' WHERE name = ? AND status = 'PENDING'", (target_name,))
-        elif req_type in ('Equipment_Option', 'ADD_EQUIPMENT_OPTION'):
-            opt_id = req_data.get('option_id')
-            if opt_id:
-                cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE id = ?", (opt_id,))
-            else:
-                cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE option_name = ? AND status = 'PENDING'", (target_name,))
-        log_audit(user['UserId'], user['LoginId'], 'APPROVE_REQUEST', 'approval_requests', req_id, req_dict, {"Status": "APPROVED"})
+    try:  # 반려로 참조 무결성이 깨지는 경우 전체 변경을 취소합니다.
+        conn.execute('BEGIN IMMEDIATE')  # 승인 상태 변경과 관련 카탈로그 변경을 직렬화합니다.
+        if action == 'approve':
+            cursor.execute("UPDATE approval_requests SET Status = 'APPROVED', ApproverId = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], now, req_id))
+            if req_type == 'ADD_CATEGORY':
+                cursor.execute("UPDATE categories SET IsApproved = 1 WHERE Name = ?", (target_name,))
+                cursor.execute("""
+                    UPDATE lineup_nodes SET status = 'APPROVED'
+                    WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'
+                """, (target_name,))
+                cursor.execute("""
+                    UPDATE equipment_options SET status = 'APPROVED'
+                    WHERE lineup_node_id IN (
+                        SELECT id FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
+                    ) AND status = 'PENDING'
+                """, (target_name,))
+                cursor.execute("""
+                    UPDATE equipments SET is_draft = 0
+                    WHERE option_id IN (
+                        SELECT opt.id FROM equipment_options opt
+                        JOIN lineup_nodes node ON opt.lineup_node_id = node.id
+                        JOIN categories cat ON node.category_id = cat.CategoryId
+                        WHERE cat.Name = ?
+                    ) AND is_draft = 1
+                """, (target_name,))
+            elif req_type == 'ADD_MANUFACTURER':
+                cursor.execute("UPDATE manufacturers SET IsApproved = 1 WHERE Name = ?", (target_name,))
+                cursor.execute("""
+                    UPDATE lineup_nodes SET status = 'APPROVED'
+                    WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'
+                """, (target_name,))
+                cursor.execute("""
+                    UPDATE equipment_options SET status = 'APPROVED'
+                    WHERE lineup_node_id IN (
+                        SELECT id FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
+                    ) AND status = 'PENDING'
+                """, (target_name,))
+                cursor.execute("""
+                    UPDATE equipments SET is_draft = 0
+                    WHERE option_id IN (
+                        SELECT opt.id FROM equipment_options opt
+                        JOIN lineup_nodes node ON opt.lineup_node_id = node.id
+                        JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
+                        WHERE mfg.Name = ?
+                    ) AND is_draft = 1
+                """, (target_name,))
+            elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
+                node_id = req_data.get('node_id')
+                if node_id:
+                    cursor.execute("UPDATE lineup_nodes SET status = 'APPROVED' WHERE id = ?", (node_id,))
+                else:
+                    cursor.execute("UPDATE lineup_nodes SET status = 'APPROVED' WHERE name = ? AND status = 'PENDING'", (target_name,))
+            elif req_type in ('Equipment_Option', 'ADD_EQUIPMENT_OPTION'):
+                opt_id = req_data.get('option_id')
+                if opt_id:
+                    cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE id = ?", (opt_id,))
+                else:
+                    cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE option_name = ? AND status = 'PENDING'", (target_name,))
+            audit_lineup_change(conn, 'APPROVE_REQUEST', req_id, req_dict, {"Status": "APPROVED"}, table='approval_requests')  # 승인 쓰기와 감사의 writer를 통일합니다.
+    
+        elif action == 'reject':
+            cursor.execute("UPDATE approval_requests SET Status = 'REJECTED', ApproverId = ?, RejectReason = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], reject_reason, now, req_id))
+    
+            # 대체 이름이 지정된 경우 장비 및 노드 분류 일괄 업데이트 및 미승인 항목 삭제
+            if req_type == 'ADD_CATEGORY':
+                if replacement_name:
+                    cursor.execute("SELECT CategoryId FROM categories WHERE Name = ?", (replacement_name,))
+                    rep_row = cursor.fetchone()
+                    if rep_row:
+                        cursor.execute("""
+                            UPDATE lineup_nodes SET category_id = ?
+                            WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
+                        """, (rep_row['CategoryId'], target_name))
+                    cursor.execute("UPDATE equipment SET Category = ? WHERE Category = ?", (replacement_name, target_name))
+                cursor.execute("DELETE FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'", (target_name,))
+                cursor.execute("DELETE FROM categories WHERE Name = ? AND IsApproved = 0", (target_name,))
+            elif req_type == 'ADD_MANUFACTURER':
+                if replacement_name:
+                    cursor.execute("SELECT ManufacturerId FROM manufacturers WHERE Name = ?", (replacement_name,))
+                    rep_row = cursor.fetchone()
+                    if rep_row:
+                        cursor.execute("""
+                            UPDATE lineup_nodes SET manufacturer_id = ?
+                            WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
+                        """, (rep_row['ManufacturerId'], target_name))
+                    cursor.execute("UPDATE equipment SET Manufacturer = ? WHERE Manufacturer = ?", (replacement_name, target_name))
+                cursor.execute("DELETE FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'", (target_name,))
+                cursor.execute("DELETE FROM manufacturers WHERE Name = ? AND IsApproved = 0", (target_name,))
+            elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
+                node_id = req_data.get('node_id')
+                if node_id:
+                    cursor.execute("DELETE FROM lineup_nodes WHERE id = ? AND status = 'PENDING'", (node_id,))
+                else:
+                    cursor.execute("DELETE FROM lineup_nodes WHERE name = ? AND status = 'PENDING'", (target_name,))
+            elif req_type in ('Equipment_Option', 'ADD_EQUIPMENT_OPTION'):
+                opt_id = req_data.get('option_id')
+                if opt_id:
+                    cursor.execute("DELETE FROM equipment_options WHERE id = ? AND status = 'PENDING'", (opt_id,))
+                else:
+                    cursor.execute("DELETE FROM equipment_options WHERE option_name = ? AND status = 'PENDING'", (target_name,))
+    
+            audit_lineup_change(conn, 'REJECT_REQUEST', req_id, req_dict, {"Status": "REJECTED", "Reason": reject_reason, "Replacement": replacement_name}, table='approval_requests')  # 반려 실패 시 감사도 rollback합니다.
+    
+        conn.commit()
+        conn.close()
+        return jsonify({"success": True, "message": "결재 처리가 완료되었습니다."})
+    except sqlite3.IntegrityError:  # 사용 중인 옵션·노드 삭제는 정상적인 충돌입니다.
+        conn.rollback()  # 이미 쓴 승인 상태도 대기로 되돌립니다.
+        return jsonify({"success": False, "message": "연결된 장비·옵션·하위 노드가 있어 반려 삭제할 수 없습니다. 참조를 정리하거나 유효한 대체 항목을 지정한 후 다시 시도해 주세요."}), 409
+    finally:  # 실패 응답에도 잠금과 연결을 반환합니다.
+        conn.close()
 
-    elif action == 'reject':
-        cursor.execute("UPDATE approval_requests SET Status = 'REJECTED', ApproverId = ?, RejectReason = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], reject_reason, now, req_id))
-
-        # 대체 이름이 지정된 경우 장비 및 노드 분류 일괄 업데이트 및 미승인 항목 삭제
-        if req_type == 'ADD_CATEGORY':
-            if replacement_name:
-                cursor.execute("SELECT CategoryId FROM categories WHERE Name = ?", (replacement_name,))
-                rep_row = cursor.fetchone()
-                if rep_row:
-                    cursor.execute("""
-                        UPDATE lineup_nodes SET category_id = ?
-                        WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
-                    """, (rep_row['CategoryId'], target_name))
-                cursor.execute("UPDATE equipment SET Category = ? WHERE Category = ?", (replacement_name, target_name))
-            cursor.execute("DELETE FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'", (target_name,))
-            cursor.execute("DELETE FROM categories WHERE Name = ? AND IsApproved = 0", (target_name,))
-        elif req_type == 'ADD_MANUFACTURER':
-            if replacement_name:
-                cursor.execute("SELECT ManufacturerId FROM manufacturers WHERE Name = ?", (replacement_name,))
-                rep_row = cursor.fetchone()
-                if rep_row:
-                    cursor.execute("""
-                        UPDATE lineup_nodes SET manufacturer_id = ?
-                        WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
-                    """, (rep_row['ManufacturerId'], target_name))
-                cursor.execute("UPDATE equipment SET Manufacturer = ? WHERE Manufacturer = ?", (replacement_name, target_name))
-            cursor.execute("DELETE FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'", (target_name,))
-            cursor.execute("DELETE FROM manufacturers WHERE Name = ? AND IsApproved = 0", (target_name,))
-        elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
-            node_id = req_data.get('node_id')
-            if node_id:
-                cursor.execute("DELETE FROM lineup_nodes WHERE id = ? AND status = 'PENDING'", (node_id,))
-            else:
-                cursor.execute("DELETE FROM lineup_nodes WHERE name = ? AND status = 'PENDING'", (target_name,))
-        elif req_type in ('Equipment_Option', 'ADD_EQUIPMENT_OPTION'):
-            opt_id = req_data.get('option_id')
-            if opt_id:
-                cursor.execute("DELETE FROM equipment_options WHERE id = ? AND status = 'PENDING'", (opt_id,))
-            else:
-                cursor.execute("DELETE FROM equipment_options WHERE option_name = ? AND status = 'PENDING'", (target_name,))
-
-        log_audit(user['UserId'], user['LoginId'], 'REJECT_REQUEST', 'approval_requests', req_id, req_dict, {"Status": "REJECTED", "Reason": reject_reason, "Replacement": replacement_name})
-
-    conn.commit()
-    conn.close()
-    return jsonify({"success": True, "message": "결재 처리가 완료되었습니다."})
 
 
 # 장비 조회 (나의 장비, 공개된 장비, 임시저장함 분기 처리 및 3-Tier 다단 카탈로그 LEFT JOIN)
