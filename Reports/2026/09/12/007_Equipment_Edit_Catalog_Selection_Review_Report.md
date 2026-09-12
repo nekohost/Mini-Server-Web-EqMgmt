@@ -59,3 +59,16 @@ related_artifacts:
 - 초기 context에서 Git 메타데이터를 일반 파일 대상 `.git/**`로 선언해 `INVALID_PATH`가 발생했다. catalog 근거에 따라 일반 대상에서만 제거한 뒤 validate와 전체 context를 다시 통과했고, 규칙 노드를 수동 축소하지 않았다.
 
 Validation 1~8의 기존 결론은 운영 병합 후에도 유지된다. Linux 서비스 pull·Python 통합 회귀·인증 브라우저 확인은 이 Git 원격 반영 이후의 별도 실행 검증이며, 현재 릴리스는 Windows 운영 소스와 원격 저장소 반영까지를 완료 범위로 한다.
+
+## 백업 Linux 서버 적용 결과
+
+2026-09-12T23:34:43.759+09:00에 사용자가 지정한 백업 서버에 배포했다.
+
+- 배포 전 tracked 작업 트리는 깨끗했다. 기존 untracked `.venv.incomplete-20260907/`와 `equipment.db.before-session-token-20260907.bak`은 이번 커밋 경로와 충돌하지 않아 그대로 보존했다.
+- `git pull --ff-only origin main`은 `63a1961`에서 `260921f9358e81c7b32badf0c9aae71ced852cd7`로 fast-forward 성공했다.
+- 서버에는 Node 실행 파일이 없어 원격 governance/JavaScript 재검증은 수행하지 못했다. 같은 커밋은 Windows 운영 소스에서 governance 오류·경고 0 및 JavaScript 31/31 통과 상태이며, 서버에서는 `.venv` Python 격리 회귀 69/69가 통과했다.
+- 기존 PID `51642`를 SIGTERM으로 정상 종료한 뒤 동일한 작업 디렉터리·`.venv/bin/python -u app.py`·기존 로그 경로로 재시작했다. 새 PID는 `54444`, 포트 `5000` 리스닝을 확인했다.
+- 로컬 루트와 `https://nekohost.org/`는 모두 로그인 화면으로의 정상 `302`를 반환했다. 비인증 `/api/check_session`은 예상된 `401`을 반환했다.
+- 배포 커밋 일치, tracked 작업 트리 clean, 운영 템플릿의 `restoreSelection` 계약, 시작 로그의 정상 기동을 확인했다.
+
+배포 판정은 **적합**이다. 브라우저 인증 세션이 필요한 실제 장비 수정 모달의 기존 카탈로그 선택값 확인은 자동화 권한 밖이므로 사용자 확인 항목으로 남긴다.

@@ -18,6 +18,7 @@ related_artifacts:
 - [x] JavaScript 상태 전이 회귀 및 정적 구문·계약 검증
 - [x] 사용자 승인 후 Windows 운영 소스 병합 및 전체 JavaScript 회귀
 - [x] Staging 임시 파일 정리 및 Git commit·origin push
-- [ ] Linux 서비스 pull 후 Python 통합 회귀·인증 브라우저 확인
+- [x] 백업 Linux 서버 pull·Python 통합 회귀·서비스 재시작·HTTP 확인
+- [ ] 인증 브라우저에서 기존 장비 수정 선택값 확인
 
-현재 범위인 운영 소스와 Git 원격 반영까지 완료했다. DB 스키마와 Linux 서비스는 변경하지 않았으며 실제 서비스 적용 검증은 별도 단계로 남긴다.
+백업 Linux 서버가 운영 커밋을 적용했고 격리 회귀와 비인증 HTTP 확인을 통과했다. DB 스키마와 장비 데이터는 변경하지 않았다. 브라우저 권한이 필요한 실제 수정 선택값 확인만 사용자 검증으로 남긴다.
