@@ -18,3 +18,16 @@ instance/
 *.db
 *.sqlite
 *.sqlite3
+
+# SQLite sidecar에도 실제 DB 페이지가 들어가므로 원본과 함께 제외한다.
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+*.sqlite3-wal
+*.sqlite3-shm
+*.sqlite3-journal
+*.db.before-*.bak
+*.db.notification.lock

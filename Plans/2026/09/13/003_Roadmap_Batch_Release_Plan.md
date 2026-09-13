@@ -17,3 +17,5 @@ DB 변경은 utils/roadmap_schema.py의 명시 DDL로 equipments revision/기한
 알림은 기존 Graph 설정의 존재 여부만 검사하고 비밀은 출력하지 않는다. 검증 주소·명시 수신 동의 및 dry-run을 확인한다. 예약 가동은 기존 기능 범위에서 검증된 CLI/운영 방식으로만 구성하며 systemd 전환은 하지 않는다. 실제 UI 실사용과 자동 테스트를 구분하여 기록한다.
 
 연결 문서: Tasks/2026/09/13/003_Roadmap_Batch_Release_Task.md, Reports/2026/09/13/003_Roadmap_Batch_Release_Report.md.
+
+최종 배포 점검에서 실제 생성된 SQLite WAL/SHM 및 알림 lock의 Git 제외 누락을 발견했다. 배포 안전성 보완으로 .gitignore에 DB sidecar/DB 명명 백업/알림 lock 패턴만 추가한다. 실제 파일은 삭제하지 않고 일반 소스가 제외되지 않는지 check-ignore로 검사한다.

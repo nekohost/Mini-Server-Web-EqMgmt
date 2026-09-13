@@ -67,3 +67,7 @@ PROPOSALS 원본9개와 ROADMAP8묶음의 상태를 승인 범위 개발·Linux�
 복구 기본은 현재 DB/첨부 보존→점검/알림 중지→v3 호환 코드 수정 전진이다. 배포 전 snapshot으로의 단순 덮어쓰기는 이후 자료를 잃을 수 있어 수행하지 않는다. 예약만 중단할 때는 crontab의 eqmgmt-deadline-notifications 항목만 제거하며 원장을 보존한다. 이번 Staging 임시 후보는 정리했고 계약/manifest는 Reports로 이관하여 복구 가능하다.
 
 최종 문서 커밋은 소스 변경이 아니므로 서버 pull 후 실행 코드가 bee319e와 동일한지 비교하고 불필요한 재기동은 하지 않는다.
+
+## 최종 Git 데이터 보호 보완
+
+ab3500d 문서 push/pull/HEAD 일치와 실행 코드 동일성을 확인했다. 로컬 clean, 원격에는 배포 후 SQLite WAL/SHM 및 notification.lock이 untracked로 보였다. .gitignore를 실제 대상에 추가하여 context 성공을 확인했고 선택된 전체 노드는 이미 읽은 같은34개였다. Validation 3→8: DB sidecar 패턴만 추가(3), 앱/DB 실행 변화 없음(4), 향후 git add로 운영 페이지·백업이 유출될 위험 제거(5), ignore만 되돌릴 수 있고 원본 파일 보존(6), 소스 파일이 제외되지 않는지 검사(7), 기존 미완성 가상환경은 사용자 자료로 남김(8). Staging 검토 후 운영 병합하며 데이터 파일은 삭제하지 않는다.
