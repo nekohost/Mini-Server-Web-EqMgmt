@@ -44,3 +44,26 @@ a08f52b551b358d5c5f5457f94e4617e3fa7b9b4 commit/push 및 백업 서버 fast-forw
 메일 환경 4개 키가 구성되었음을 값 노출 없이 확인했고, 서버 시간대 +09:00 및 cron active/기존 사용자 crontab 없음 확인. 매일09:00 기한 알림의 고정 템플릿을 tools/에 추가한다. 이 기능의 예약 가동이며 제외한 systemd 서비스화는 하지 않는다. 실행 전 dry-run, 수신 동의/인증 주소 조건, 설치 직전 기존 crontab 재확인과 백업을 적용한다. 알림 CLI의 lock/점검 검사로 복원 중에는 발송하지 않는다.
 
 변경 영향 Validation 3→8 재검토: 예약 명령은 검증된 정확한 Python/DB/점검 경로만 호출(3); 기존 실행/시간대 유지(4); umask077/비밀 미기재/명시 동의만 발송(5); 기존 crontab private 사본 및 식별자 줄만 제거 가능한 복구(6); 자동 재시도 중복 없음(7); 예약 가동과 실제 발송 건수를 별도 보고(8).
+
+## 실제 서비스 적용 및 최종 점검
+
+2026-09-13 12:17 KST, 기존 PID55646의 cwd/명령과 pidfd를 대조하여 교체했다. 최초 SIGINT는 기존 nohup 계열 실행의 무시 신호 설정으로 종료되지 않았고 DB v2 유지/정상 응답을 확인한 후 같은 PID에 SIGTERM을 보냈다. SIGKILL·광역 pkill은 사용하지 않았다. 이후 기존 도구의 private snapshot→정확한 commit/빈 포트 검사→새 프로세스 기동을 수행했다.
+
+- 실행 코드: bee319e080476cf573b293fb7d3ecbf62f396b06 (기능 변경 a08f52b + 예약 템플릿). 새 PID62784, 기존 .venv와 수동 app.py 실행 방식 유지.
+- 실제 DB: v3, integrity ok, FK 위반0. 기존16개 업무/설정 테이블의 원래 컬럼·행 지문 일치. 접근로그는 기존 모든 행 지문을 보존하며 이후 실제 요청의 신규 로그만 추가됐다. 사용자2/장비1/옵션1/노드12/장비감사5 유지.
+- 정확한 배포 전 백업: `/home/nekohost/.local/share/mini-server-eqmgmt/releases/roadmap-20260913/production-before-20260913T031730Z-f672675444764513be786b55eb6597f3.db` (0600/private0700). 같은 디렉터리에 before-stop/before-terminate 사본, deployment-evidence.json, 서비스 시작 로그 보존. 실제 업무 원문/비밀은 Git에 넣지 않았다.
+- HTTPS 도메인 `/login`200, 새 JS2개/CSS1개200 및 서버 소스와 SHA 일치. 인증 없는 목록·상태 상세·CSV export는401, 점검 상태 NORMAL. 서비스 시작 로그 Traceback/ERROR/Fatal 없음.
+- 알림 dry-run 정상: eligible0/sent0/unknown0. 기존 crontab 부재를 설치 직전 재확인하여 private JSON으로 보존한 뒤 버전관리된 템플릿을 설치했다. 매일09:00 KST 1개 항목, 읽기 재검증 일치, 실제 검증 메일 발송0. 명시 수신 동의/주소 인증 없는 계정에는 보내지 않는다.
+- 추가 Linux 격리 렌더/API9건200: 내/공개 장비, 마이페이지, 대시보드, 설정 API, 마스터 API, 사용자 관리, DB 백업 화면, 노드 관리. 장비 화면의 새 필터/JS 연결 확인. 실제 사용자 계정·장비는 테스트 수정하지 않았다.
+
+운영 nginx 프로세스/도메인 경유는 확인했으나 사이트 설정은 권한0600으로 읽을 수 없었다. 기본 신뢰는 loopback만 유지했고 제한 완화나 sudo로 설정 변경을 하지 않았다. 공개 경유 인증 제한의 실제 부하/개인 IP별 운용은 향후 관찰 대상이며 격리 시험에서 신뢰/비신뢰 전달 헤더 경계를 검증했다.
+
+브라우저·모바일·키보드의 실제 조작 및 이메일 실수신 확인은 수행하지 않았다. 서버/API/템플릿 자동 검증과 사용자 실사용 확인을 구별한다. 주 서버와 제외한 별도 계획은 변경하지 않았다.
+
+## 완료 이력·복구
+
+PROPOSALS 원본9개와 ROADMAP8묶음의 상태를 승인 범위 개발·Linux·백업 적용 완료로 갱신하고 FEATURES 제12절에 현재 계약/원안 차이/한도를 명시했다. UNIMPLEMENTED_PROPOSALS의 중복 포함15개 블록과 UNIMPLEMENTED_ROADMAP8개 블록만 제거했다. 원안은 삭제하지 않고 두 원본 문서 및 Git에 남는다. PROPOSALS의 혼합 줄바꿈은 구조화 편집 시 LF로 정규화되었으며 공백 무시 diff로 무관한 본문 보존을 대조했다.
+
+복구 기본은 현재 DB/첨부 보존→점검/알림 중지→v3 호환 코드 수정 전진이다. 배포 전 snapshot으로의 단순 덮어쓰기는 이후 자료를 잃을 수 있어 수행하지 않는다. 예약만 중단할 때는 crontab의 eqmgmt-deadline-notifications 항목만 제거하며 원장을 보존한다. 이번 Staging 임시 후보는 정리했고 계약/manifest는 Reports로 이관하여 복구 가능하다.
+
+최종 문서 커밋은 소스 변경이 아니므로 서버 pull 후 실행 코드가 bee319e와 동일한지 비교하고 불필요한 재기동은 하지 않는다.
