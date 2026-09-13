@@ -34,3 +34,13 @@ recorder ensure 성공. validate 43노드, 오류0/경고0. 첫 context는 `UNMA
 기준선 SHA 35개 항목 대조 후 후보29개를 구조화 병합했다(원래28 + v3 배포도구1). Staging JS/VM 31/31, SSH stdin AST17/Jinja8 구문 통과(app import 없음), 운영 루트 JS/VM31/31, diff --check 통과. CRLF/LF 정규화 후 운영29개와 후보가 완전히 동일함을 대조했다. 입력 직렬화/도구 출력 크기 문제로 구문 검사·소스 읽기를 재시도한 일이 있으나 미확인 내용을 병합하지 않았다.
 
 README/manifest는 이 Reports 폴더의 003_Roadmap_Batch_Release_Contract.md 및 003_Roadmap_Batch_Release_Manifest.json으로 영구 보존했다. 이번 Staging 후보37개만 apply_patch로 정리했다. 무관한 기존 Staging은 유지하며 구현은 운영 소스와 Git 이력으로 복구 가능하다. Linux 실행 결과는 아직 대기 중이다.
+
+## Linux 검증
+
+a08f52b551b358d5c5f5457f94e4617e3fa7b9b4 commit/push 및 백업 서버 fast-forward pull/HEAD 일치 완료. 격리 unittest 86/86 PASS(13.557초). 출력의 의도된 감사 실패·복원 실패 주입은 성공 시험에 포함되며 운영 장애가 아니다. 임시 파일 ResourceWarning 1건은 시험 정리 경고로 남았고 테스트 실패는 없다.
+
+실제 DB 온라인 사본 `release-check-20260913T031253Z-957ab0e01b2642058f407ec263a6519f.db`에서 v3 앱 초기화, 기존16개 테이블 모든 원래 컬럼/행 지문 일치, integrity/FK, v3 down 거부, migration 반복 no-op PASS. 사본은 private releases/roadmap-20260913 아래 보존한다. 운영 DB는 아직 v2이며 기존 프로세스를 유지했다.
+
+메일 환경 4개 키가 구성되었음을 값 노출 없이 확인했고, 서버 시간대 +09:00 및 cron active/기존 사용자 crontab 없음 확인. 매일09:00 기한 알림의 고정 템플릿을 tools/에 추가한다. 이 기능의 예약 가동이며 제외한 systemd 서비스화는 하지 않는다. 실행 전 dry-run, 수신 동의/인증 주소 조건, 설치 직전 기존 crontab 재확인과 백업을 적용한다. 알림 CLI의 lock/점검 검사로 복원 중에는 발송하지 않는다.
+
+변경 영향 Validation 3→8 재검토: 예약 명령은 검증된 정확한 Python/DB/점검 경로만 호출(3); 기존 실행/시간대 유지(4); umask077/비밀 미기재/명시 동의만 발송(5); 기존 crontab private 사본 및 식별자 줄만 제거 가능한 복구(6); 자동 재시도 중복 없음(7); 예약 가동과 실제 발송 건수를 별도 보고(8).

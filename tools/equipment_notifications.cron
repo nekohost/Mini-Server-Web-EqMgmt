@@ -1,0 +1,6 @@
+# eqmgmt-deadline-notifications: backup host local timezone Asia/Seoul, daily 09:00.
+# [역할] 동의한 사용자의 기한 알림을 한 번 실행합니다.
+# [의존성 관계] tools/equipment_notifications.py, Linux cron, 기존 .env/DB/점검 상태.
+# [변경 시 영향도] 중단은 이 식별자의 한 줄만 제거하며 기한/발송 원장은 보존합니다.
+# 중복 실행은 CLI flock과 일별 원장이 차단하고 UNKNOWN은 자동 재발송하지 않습니다.
+0 9 * * * umask 077; cd /home/nekohost/services/Mini-Server-Web-EqMgmt && .venv/bin/python tools/equipment_notifications.py --database /home/nekohost/services/Mini-Server-Web-EqMgmt/equipment.db --maintenance-state /home/nekohost/services/Mini-Server-Web-EqMgmt/instance/maintenance-state.json --send >> /home/nekohost/services/Mini-Server-Web-EqMgmt/instance/equipment-notifications.log 2>&1
