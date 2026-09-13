@@ -9,6 +9,7 @@ import unittest
 from unittest.mock import patch
 from utils.database_contract import connect_database, configure_connection, schema_contract, migrate_contract, rollback_contract, INDEXES
 from utils.database_contract import SCHEMA_VERSION, rollback_official_models  # 현재 버전과 이전 v1 계약을 구별합니다.
+from roadmap_fixture_history import make_v2_fixture  # 역사적 down 검사는 자료 없는 임시 사본에서만 구성합니다.
 
 
 @unittest.skipIf(os.name == 'nt', 'Linux execution only')
@@ -218,6 +219,7 @@ class DatabaseContractTests(unittest.TestCase):
         self.connection.backup(candidate)
         before = tuple(candidate.execute('SELECT * FROM equipments').fetchone())
         candidate.close()
+        make_v2_fixture(path, self.root)  # 실제 v3 down은 금지되며 여기서는 synthetic 이전 버전을 만듭니다.
         self.assertEqual(rollback_official_models(path, self.root / 'rollback-backups')['version'], 1)  # NULL 컬럼만 안전하게 down합니다.
         self.assertEqual(rollback_contract(path, self.root / 'rollback-backups')['version'], 0)
         self.assertTrue(migrate_contract(path, self.root / 'rollback-backups')['applied'])

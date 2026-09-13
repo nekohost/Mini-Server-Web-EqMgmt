@@ -217,6 +217,7 @@
 
     // 설정 기반으로 UI 반영 (다크 모드, 인덱스 화면 체크박스 등)
     function applySettings(settings) {
+        window.applyRoadmapSettings?.(settings);  // 테마와 독립적인 스킨/수신 동의 설정도 복원합니다.
         // 1. 테마 UI 및 설정 동기화
         const theme = settings.theme || 'system';
         applyThemeUI(theme);
@@ -229,6 +230,7 @@
                 cb.checked = settings.show_my_equip_first;
                 // 체크박스 상태가 바뀌면 리스트 다시 불러오기
                 if (typeof window.fetchEquipment === 'function') {
+                    window.Roadmap?.resetPage();  // 공개 범위 변경 시 페이지를 초기화합니다.
                     window.fetchEquipment();
                 }
             }

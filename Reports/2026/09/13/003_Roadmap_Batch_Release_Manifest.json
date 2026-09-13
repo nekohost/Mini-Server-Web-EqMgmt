@@ -1,0 +1,222 @@
+{
+  "work_id": "WORK-20260913-ROADMAP-BATCH-STAGING",
+  "baseline_commit": "62a933f9e0e1c81dc25b050d823604a6c6db6956",
+  "scope": "approved-release-candidate",
+  "staging_documents_not_for_root_merge": [
+    "README.md",
+    "manifest.json"
+  ],
+  "files": [
+    {
+      "path": "app.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "0013d38f8becc5f6814e4df827ab97b1b877a699af568b7bf4b520d6b299da2b",
+      "candidate_sha256": "58d99fd0b4055f05525312bd8fe00c4d8944ce533cfff00cfc4c56f4bdbfd15a"
+    },
+    {
+      "path": "requirements.txt",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "74458350fd50e0cc6305da2ee3043035280a88358f39b3afee92a29e39a46e1b",
+      "candidate_sha256": "310153d130c364f16d8fb304e56b72130fdf833a4704bce920e98271c2a4c846"
+    },
+    {
+      "path": "Resources/metadata/.well-known/webmcp.json",
+      "kind": "reference-only",
+      "baseline_sha256": "a082ca35bd0a432a3004529b0f9d60e1c2780071ebffb77d6cd008fa4bc87b49",
+      "candidate_sha256": "0078a825e0f91e1cef05bd1120a54d9c0784d96afe7e7e521d58f28eef5d0308"
+    },
+    {
+      "path": "tools/equipment_notifications.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "1d3dc018fa85543acc6fded2c951ae9fdc687f05d412d8970b71150dfee6e440"
+    },
+    {
+      "path": "tools/prepare_equipment_full_restore.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "3921a25c178036813fa037f43f360e2a78340fba0b8e65bcf892ada5d3ffe511"
+    },
+    {
+      "path": "static/css/roadmap.css",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "d6a9beb4a5f9ec55b20e0ec6e15648c9504745b374c701ff075acc50ec90a627"
+    },
+    {
+      "path": "static/js/roadmap_equipment.js",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "90724caadfb917ea279a44f57c2cb191ae14628ba67b74ecbd1167b1e1172f67"
+    },
+    {
+      "path": "static/js/roadmap_preferences.js",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "d314c392694173865a9bb979a4d77ddc58264ad785340bee9ae11616c31a319b"
+    },
+    {
+      "path": "static/js/session_timer.js",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "ab74b7bd3b3d036ee5fcd090f595b5603fac9011b8cf07881fa7f291252acbf3",
+      "candidate_sha256": "ceb9f4f06b3fdc9b81ed272a6099eb10d260c9cd3f7a69ffcd814eb52123d273"
+    },
+    {
+      "path": "static/js/webmcp.js",
+      "kind": "reference-only",
+      "baseline_sha256": "21b0192def81778ed2f8417d9360ddb7eeb31ece69ee98ccc78446e5efd3694c",
+      "candidate_sha256": "d7aa69f5c343884a09665d65766c282784e0a10d43812f18c95926209ae14643"
+    },
+    {
+      "path": "templates/backup_restore.html",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "7e4e483eb40fe30641103dbf5975ac1d992c0c428818fee8edce33efebcbd34c",
+      "candidate_sha256": "8de7bfddd40ffb0eeaaeec9acd5fbd276da51a75dd5d3c2eab5b99706d3de94a"
+    },
+    {
+      "path": "templates/dashboard.html",
+      "kind": "reference-only",
+      "baseline_sha256": "5da9bd6b753273d7e0ff91cb214542b71943384650b0317c6e9b4b655568072a",
+      "candidate_sha256": "bf0d6e079afa2092ee34b2508ec64c085c8e158a8ae271afb1f7dd4a79b86d40"
+    },
+    {
+      "path": "templates/index.html",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "0e846aea2ffd2a5c639510d890bdd555e273aec37d5343b14215347889ed5ab0",
+      "candidate_sha256": "d05bbde5511fcf59894a33f8299f78dda637520d14e84194538aaa9d88dd657e"
+    },
+    {
+      "path": "templates/lineup_management.html",
+      "kind": "reference-only",
+      "baseline_sha256": "7807d2eb8a9a0b4217ec589aec265c2841b85219f562ef8577dd4aca35842c70",
+      "candidate_sha256": "21f498671bc12152f44bb90403cd8647a7a85fb95372a132072d46c7fe4a25ff"
+    },
+    {
+      "path": "templates/mypage.html",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "b223903e9886531aedc3cad2548438f9515a66f6238a6f92173e68336a9ca162",
+      "candidate_sha256": "a885f68476168f5cc28513f921e4326f1d174146252084cc46ea2d97520a912f"
+    },
+    {
+      "path": "templates/roadmap_equipment.html",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "99d5d15f25aea60387c54ee7e82a587dad0e2c7fae83f8774d8e918bdc011cab"
+    },
+    {
+      "path": "templates/root_frame.html",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "fffaeb47a4ff031de8bd25e88610da001f91e09b82633f13fa386303df450d23",
+      "candidate_sha256": "717074d7690725fe202da7a9282ada6e5efb66ca949c59eda2cb5e266ae016db"
+    },
+    {
+      "path": "templates/users_management.html",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "20ac31cfcdb672c42beff0e865c5556678c710c4a5637be9db5f23b7560be03b",
+      "candidate_sha256": "a9b9d22d283feddb427ff322ce8a2dafde8cbf7301c7f3852c9f241dc871a594"
+    },
+    {
+      "path": "tests/roadmap_fixture_history.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "140364d274dfb494ea6c96aa112b8e4151aa6505b37872f6972904c5e241fd43"
+    },
+    {
+      "path": "tests/test_database_contract.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "f01a18fe03b1dbcd72dace7e82d0693ef0e7f74c97320c1a0961aced32dad0ad",
+      "candidate_sha256": "aa446cbd132876163655f6fa4a4a2e6bd065760f63b0a0a347a45fda4bfd05d3"
+    },
+    {
+      "path": "tests/test_official_model_migration.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "73f6256f2785996dc85982b0840410a997bb743dfafe68955938d9e7746e6480",
+      "candidate_sha256": "2d7a5fa08ccb4e769017f226c0fd12e6b649f4565f65a574f01d0d5019fdb6af"
+    },
+    {
+      "path": "tests/test_proposal047_registration.mjs",
+      "kind": "reference-only",
+      "baseline_sha256": "a97e5b64b5f82868387ddf49819dbce0f6cb53ec1faf9317f52e410b3001fe7b",
+      "candidate_sha256": "2af5df0a5421541225c0023a04bc66c3a7281b11c880b82d0c6b63b8e610dcb2"
+    },
+    {
+      "path": "tests/test_release_frontend.mjs",
+      "kind": "reference-only",
+      "baseline_sha256": "b2184dbc9696adc0b3f6f4e06ab3f133c3fcc4cf2e59ddfc8ba60f587f1cf831",
+      "candidate_sha256": "2b6de3b7b4d96d2757b742c118cccca9985361a5768e77900db68bdae9706d47"
+    },
+    {
+      "path": "tests/test_roadmap_batch.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "b5b3ed3a35fc8cdc0e69d7c9eef61b5224e00d2ff074d752d8ed2527f1403afa"
+    },
+    {
+      "path": "tests/test_roadmap_static.mjs",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "4ead5ab2b7a9a2ab1e505f08ac00626b1ef2a0da56e8a20b9b6703cb01c22a76"
+    },
+    {
+      "path": "utils/database_contract.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "a92178ad5e46c24dd7ee059197cf5916974e4a66ac6eeb75e8e6175fde8a88af",
+      "candidate_sha256": "498ed58790d21f09ea3426ae7647a8d595b2653c3ef720cfc2dd2b7b84a757a9"
+    },
+    {
+      "path": "utils/roadmap_auth.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "e5a1dd44bbaad0a89fe45c99ac7909d529a14fa63970e4c5b8e9c7e9c73e96b2"
+    },
+    {
+      "path": "utils/roadmap_equipment.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "859d4713c9b79fbb5c4d4ec0ca12e3809884457842669d2d97ea6279d6e5237f"
+    },
+    {
+      "path": "utils/roadmap_files.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "8007a9e3f35bdcbebd3c525d93f5dcb22187957d69702327305c8da7b45b6d58"
+    },
+    {
+      "path": "utils/roadmap_job_lock.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "fcc5373c2c03b8af54aec5112674b809382517a668f2e213d46dbb816042c9a0"
+    },
+    {
+      "path": "utils/roadmap_notifications.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "91c49bc9b97c398c505d2cb0dcbf2116b382b1cb2abc0edb47792de6e6a6cd19"
+    },
+    {
+      "path": "utils/roadmap_routes.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "a9bc44cd536f24bfd3c8a2796bbc47d981bbb4f8542a92780c21cb100f47541c"
+    },
+    {
+      "path": "utils/roadmap_schema.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "b1719979a9ba2d061fdd4d33c4981d736df485ee6a5b16d4b48097a5fae81092"
+    },
+    {
+      "path": "utils/roadmap_validation.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": null,
+      "candidate_sha256": "ec919b9478096ffffd51716bac0efa29c00dd8dc65bae1db196c60ceedc21b75"
+    },
+    {
+      "path": "tools/database_release.py",
+      "kind": "promotion-candidate",
+      "baseline_sha256": "17c679d14d7207dc92cdc7a4fcd3c69cda19e8cd769521358ca68c42363cd36f",
+      "candidate_sha256": "4b843319513a9297fd8093a23469812bdf27e18a1fb087dc7cfeb914e3f59b18"
+    }
+  ],
+  "release_work_id": "WORK-20260913-ROADMAP-BATCH-RELEASE"
+}

@@ -14,7 +14,7 @@
         </h1>
         {% if mode == 'public' %}
         <div class="mt-2 flex items-center gap-2">
-            <input type="checkbox" id="includeMineCheckbox" class="w-4 h-4 text-blue-600 rounded" onchange="window.saveUserSettings({show_my_equip_first: this.checked}); fetchEquipment()">
+            <input type="checkbox" id="includeMineCheckbox" class="w-4 h-4 text-blue-600 rounded" onchange="window.Roadmap.resetPage(); window.saveUserSettings({show_my_equip_first: this.checked}); fetchEquipment()">
             <label for="includeMineCheckbox" class="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">내 장비도 목록에 포함하여 최상단에 보기</label>
         </div>
         {% endif %}
@@ -34,6 +34,7 @@
     </button>
     {% endif %}
 </header>
+{% include 'roadmap_equipment.html' %}
 
 <!-- [UI 모듈 1] 장비 목록 테이블 -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
@@ -137,6 +138,11 @@
                     <input type="date" id="PurchaseDate" name="PurchaseDate" toolparamdescription="구입일" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
                 <div class="md:col-span-2">
+                    <label for="WarrantyEndDate" class="block text-sm font-medium mb-1">보증 종료일 (선택)</label>
+                    <input type="date" id="WarrantyEndDate" name="WarrantyEndDate" class="w-full border rounded-lg p-2 dark:bg-slate-700">
+                    <label for="ReplacementDueDate" class="block text-sm font-medium mt-2 mb-1">교체 예정일 (선택)</label>
+                    <input type="date" id="ReplacementDueDate" name="ReplacementDueDate" class="w-full border rounded-lg p-2 dark:bg-slate-700">
+                    <p class="text-xs text-slate-500 my-2">기한은 서울 날짜 기준입니다. 이메일 알림은 마이페이지에서 별도로 동의할 수 있습니다.</p>
                     <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">메모/비고</label>
                     <textarea id="Memo" name="Memo" toolparamdescription="메모" rows="2" class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
                 </div>
@@ -187,6 +193,7 @@
 
 {% block extra_scripts %}
 <script src="{{ url_for('static', filename='js/lineup_registration.js') }}"></script>
+<script src="{{ url_for('static', filename='js/roadmap_equipment.js') }}"></script>
 <script>
     let currentEquipmentData = [];
     let currentUser = null;
@@ -711,6 +718,7 @@
     })();
 
     function toggleDraftMode() {
+        window.Roadmap.resetPage();  // 다른 목록 범위는 첫 페이지에서 시작합니다.
         isDraftMode = !isDraftMode;
         const mainHeader = document.getElementById('pageMainHeader');
         const btnAdd = document.getElementById('btnOpenAddModal');
@@ -735,20 +743,22 @@
         return scope;
     };
 
+    let equipmentFetchGeneration = 0;  // 늦은 응답이 새 필터 결과를 덮지 않도록 식별합니다.
     async function fetchEquipment() {
+        const generation = ++equipmentFetchGeneration;
         if (!currentUser) await fetchUserInfo();
-
-        const mode = '{{ mode }}';
-        let url = '/api/equipment?type=' + mode;
-        if (mode === 'public') {
-            const includeMine = document.getElementById('includeMineCheckbox')?.checked || false;
-            url += '&include_mine=' + includeMine;
-        } else if (isDraftMode) {
-            url += '&is_draft=1';
+        let data;
+        try {
+            const res = await fetch('/api/equipment?' + window.Roadmap.parameters());
+            const payload = await res.json();
+            if (generation !== equipmentFetchGeneration) return;
+            if (!res.ok) throw new Error(payload.error || payload.message || '목록 조회에 실패했습니다.');
+            window.Roadmap.received(payload);
+            data = payload.items;
+        } catch (error) {
+            if (generation === equipmentFetchGeneration) document.getElementById('roadmap-message').textContent = error.message;
+            return;
         }
-
-        const res = await fetch(url);
-        const data = await res.json();
         currentEquipmentData = data;
         
         const tbody = document.getElementById('equipmentTableBody');
@@ -787,6 +797,7 @@
                             ${escapeHtml(item.Name)}
                             ${badge}
                         </div>
+                        <div>${window.Roadmap.badges(item)}</div>
                         ${item.Memo ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs mt-1">${escapeHtml(item.Memo)}</div>` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
@@ -813,6 +824,7 @@
                         ${escapeHtml(item.UpdatedAt || item.CreatedAt || '-')}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button type="button" onclick="window.Roadmap.openDetails(${item.EquipmentId})" class="mr-3 text-blue-600 dark:text-blue-300">상태/첨부</button>
                         ${(isAdmin || item.UserId === currentUser.UserId) ? `
                             <button onclick="openModal(${item.EquipmentId})" class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-900 dark:hover:text-indigo-300 mr-3 transition">수정</button>
                             <button onclick="deleteEquipment(${item.EquipmentId})" class="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 transition">삭제</button>
@@ -834,6 +846,7 @@
         const btnFormalSubmit = document.getElementById('btnFormalSubmit');
 
         form.reset();
+        form.dataset.originalRevision = '';  // 수정창을 연 시점의 revision만 저장 요청에 사용합니다.
         form.removeAttribute('toolname');
         form.removeAttribute('tooldescription');
         const modalBody = document.getElementById('equipmentModalBody');
@@ -854,9 +867,12 @@
             const item = currentEquipmentData.find(e => e.EquipmentId === id);
             if (item) {
                 document.getElementById('EquipmentId').value = item.EquipmentId;
+                form.dataset.originalRevision = String(item.Revision);
                 document.getElementById('Name').value = item.Name;
                 document.getElementById('SerialNumber').value = item.SerialNumber || '';
                 document.getElementById('PurchaseDate').value = item.PurchaseDate || '';
+                document.getElementById('WarrantyEndDate').value = item.WarrantyEndDate || '';
+                document.getElementById('ReplacementDueDate').value = item.ReplacementDueDate || '';
                 document.getElementById('Memo').value = item.Memo || '';
                 document.getElementById('IsPublic').checked = (item.IsPublic === 1);
 
@@ -967,6 +983,9 @@
             OptionData: optData,
             SerialNumber: serialNumber,
             PurchaseDate: document.getElementById('PurchaseDate')?.value || '',
+            WarrantyEndDate: document.getElementById('WarrantyEndDate')?.value || '',
+            ReplacementDueDate: document.getElementById('ReplacementDueDate')?.value || '',
+            ...(id ? {Revision: Number(document.getElementById('equipmentForm').dataset.originalRevision)} : {}),
             Memo: document.getElementById('Memo')?.value.trim() || '',
             UserId: document.getElementById('UserId')?.value || null,
             IsPublic: document.getElementById('IsPublic')?.checked || false,
@@ -1081,7 +1100,7 @@
         closeUserSearchModal();
     }
 
-    fetchEquipment();
+    window.Roadmap.init().then(fetchEquipment);  // URL/마스터 필터 복원 후 첫 목록을 조회합니다.
     document.getElementById('equipmentForm').addEventListener('submit', event => {
         event.preventDefault();
         const result = submitEquipment(false).then(value => value || { success: false, message: 'Review the form and complete the required catalog selections.' });

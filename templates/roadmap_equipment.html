@@ -1,0 +1,47 @@
+<!-- [역할] 제안 023/026 필터와 제안 022/010 상세. [의존성 관계] roadmap_equipment.js. [변경 시 영향도] 기존 등록 모달은 유지합니다. -->
+<section class="roadmap-box" aria-label="장비 검색과 일괄 처리">
+    <form id="roadmap-filter" class="roadmap-grid">
+        <label>검색어<input name="keyword" maxlength="200" placeholder="장비·시리얼·공식 모델명·노드 경로"></label>
+        <label>카테고리<select name="category_id"><option value="">전체</option></select></label>
+        <label>제조사<select name="manufacturer_id"><option value="">전체</option></select></label>
+        <label>장비 상태<select name="status"><option value="">전체</option><option value="ACTIVE">정상</option><option value="LOANED">대여</option><option value="REPAIR">수리</option><option value="DISPOSED">폐기</option></select></label>
+        <label>구입 시작일<input name="purchase_from" type="date"></label>
+        <label>구입 종료일<input name="purchase_to" type="date"></label>
+        <label>보증/교체 기한<select name="due"><option value="">전체</option><option value="soon">30일 이내</option><option value="expired">기한 경과</option></select></label>
+        <label>정렬<select name="sort"><option value="newest">최근 등록</option><option value="oldest">오래된 등록</option><option value="name">장비명</option><option value="purchase_desc">최근 구입일</option><option value="purchase_asc">오래된 구입일</option><option value="updated">최근 수정</option></select></label>
+        <label>페이지 크기<select name="per_page"><option>25</option><option>50</option><option>100</option></select></label>
+        <div class="roadmap-actions"><button type="submit">검색 적용</button><button type="reset">초기화</button></div>
+    </form>
+    <div class="roadmap-actions">
+        <button type="button" id="roadmap-export">검색 결과 CSV</button>
+        <a href="/api/equipment/csv/export?template=1">CSV 양식</a>
+        <button type="button" id="roadmap-import">CSV 가져오기</button>
+    </div>
+    <p id="roadmap-message" role="status" aria-live="polite"></p>
+    <nav class="roadmap-actions" aria-label="장비 목록 페이지"><button id="roadmap-prev" type="button">이전</button><span id="roadmap-page" aria-live="polite"></span><button id="roadmap-next" type="button">다음</button></nav>
+</section>
+
+<dialog id="roadmap-detail" class="roadmap-dialog" aria-labelledby="roadmap-detail-title">
+    <div class="roadmap-actions"><h2 id="roadmap-detail-title">상태·기한·첨부</h2><button type="button" data-roadmap-close>닫기</button></div>
+    <p id="roadmap-detail-message" role="status" aria-live="polite"></p>
+    <div id="roadmap-detail-summary"></div>
+    <form id="roadmap-status-form" class="roadmap-box">
+        <label>변경할 상태<select name="status" required></select></label>
+        <label>변경 사유<textarea name="reason" required maxlength="1000" rows="2"></textarea></label>
+        <button type="submit">상태 변경</button>
+    </form>
+    <section class="roadmap-box"><h3>상태 이력 (소유자/관리자 전용)</h3><ol id="roadmap-history"></ol><button id="roadmap-more-history" type="button" hidden>이전 이력 더 보기</button></section>
+    <section class="roadmap-box"><h3>첨부파일</h3><p>PNG/JPEG/PDF · 파일당 10MiB · 장비당 50개. 공개 장비의 첨부는 다른 사용자도 내려받을 수 있습니다. 삭제된 원본은 복구용으로 보관됩니다.</p>
+        <ul id="roadmap-files"></ul>
+        <form id="roadmap-upload-form"><label>첨부 선택<input type="file" name="file" accept=".png,.jpg,.jpeg,.pdf" required></label><button type="submit">첨부 올리기</button></form>
+    </section>
+</dialog>
+
+<dialog id="roadmap-csv-dialog" class="roadmap-dialog" aria-labelledby="roadmap-csv-title">
+    <div class="roadmap-actions"><h2 id="roadmap-csv-title">CSV 일괄 등록</h2><button type="button" data-roadmap-close>닫기</button></div>
+    <p>UTF-8 CSV · 1MiB/500행 이하 · 승인된 OptionId 필요. 기존 장비는 수정하지 않으며 본인 소유로 등록합니다. 모델 표시명으로 임의 연결하지 않습니다.</p>
+    <form id="roadmap-csv-form"><label>CSV 파일<input type="file" name="file" accept=".csv" required></label><button type="submit">미리보기 검증</button></form>
+    <p id="roadmap-csv-message" role="status" aria-live="polite"></p>
+    <div id="roadmap-csv-preview" class="roadmap-scroll"></div>
+    <button type="button" id="roadmap-csv-confirm" disabled>검증된 장비 일괄 등록 확정</button>
+</dialog>

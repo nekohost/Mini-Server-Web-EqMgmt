@@ -5,7 +5,13 @@ import sqlite3  # 독립 사본에서만 SQL을 실행합니다.
 import unittest  # 동일한 프로젝트 테스트 실행기를 사용합니다.
 from unittest.mock import patch  # 실패 지점을 명시적으로 주입합니다.
 import test_database_contract as fixtures  # 운영 파일을 열지 않는 앱 fixture를 재사용합니다.
-from utils.database_contract import connect_database, migrate_contract, rollback_contract, rollback_official_models, assert_contract_version, OFFICIAL_MODEL_MIGRATION, schema_contract  # 실제 후보 migration을 검증합니다.
+from utils.database_contract import connect_database, migrate_contract as migrate_latest, rollback_contract, rollback_official_models, assert_contract_version, OFFICIAL_MODEL_MIGRATION, schema_contract
+from roadmap_fixture_history import make_v2_fixture
+
+
+def migrate_contract(*args, **kwargs):
+    """[역할] 역사적 v2 경로 검증. [의존성 관계] 실제 migration의 target_version. [변경 시 영향도] v3 회귀는 별도 test_roadmap_batch."""
+    return migrate_latest(*args, target_version=2, **kwargs)
 
 
 @unittest.skipIf(os.name == "nt", "Linux execution only")  # 로컬 앱 실행을 차단합니다.
@@ -13,7 +19,10 @@ class OfficialModelMigrationTests(unittest.TestCase):
     """[역할] 버전 전이/복구를 검증합니다. [의존성 관계] 격리 앱 DB. [변경 시 영향도] 백업·기동."""
     setUpClass = classmethod(fixtures.DatabaseContractTests.setUpClass.__func__)  # 이 클래스 전용 임시 앱을 만듭니다.
     tearDownClass = classmethod(fixtures.DatabaseContractTests.tearDownClass.__func__)  # 전용 자원을 반환합니다.
-    setUp = fixtures.DatabaseContractTests.setUp  # 업무 행의 기준 fixture를 재사용합니다.
+    def setUp(self):
+        """[역할] v2 이전 경로의 synthetic 기준선. [의존성 관계] 임시 DB. [변경 시 영향도] 운영 down과 구분."""
+        make_v2_fixture(self.module.DATABASE_PATH, self.root)
+        fixtures.DatabaseContractTests.setUp(self)
 
     def copy_at(self, version):
         """[역할] 원하는 이전 버전의 독립 사본을 준비합니다. [의존성 관계] 안전 down. [변경 시 영향도] 원본 fixture 보존."""

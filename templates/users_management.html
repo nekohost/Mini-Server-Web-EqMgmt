@@ -63,7 +63,7 @@
         <input type="hidden" id="resetUserId">
         <div class="mb-4">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">임시 비밀번호</label>
-            <input type="text" id="tempPassword" value="1234" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white outline-none">
+            <input type="password" id="tempPassword" minlength="8" maxlength="256" autocomplete="new-password" placeholder="8자 이상 영문·숫자·특수문자" class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-700 text-slate-900 dark:text-white outline-none">
         </div>
         <div class="flex justify-end gap-2 mt-6">
             <button type="button" onclick="closeResetModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-200 dark:hover:bg-slate-600 font-semibold transition">취소</button>

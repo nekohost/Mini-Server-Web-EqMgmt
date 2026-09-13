@@ -1,0 +1,26 @@
+/* [역할] 공통 기능 UI 및 Standard/Edge 레이아웃. [의존성 관계] root_frame/settings. [변경 시 영향도] 기능/색상 테마와 독립. */
+.roadmap-box{padding:1rem;margin:0 0 1rem;border:1px solid #cbd5e1;border-radius:.8rem;background:#fff;color:#1e293b}
+.roadmap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));gap:.75rem}
+.roadmap-box label,.roadmap-dialog label{display:flex;flex-direction:column;gap:.35rem;font-size:.875rem;margin-bottom:.5rem}
+.roadmap-box input,.roadmap-box select,.roadmap-dialog input,.roadmap-dialog select,.roadmap-dialog textarea{background:#fff;color:#0f172a;border:1px solid #94a3b8;border-radius:.4rem;padding:.5rem;min-width:0;width:100%}
+.roadmap-actions{display:flex;gap:.65rem;align-items:center;flex-wrap:wrap;margin:.7rem 0}
+.roadmap-box button,.roadmap-dialog button{border:1px solid #64748b;border-radius:.4rem;padding:.45rem .7rem;font-size:.875rem;min-height:38px}
+.roadmap-box button:disabled,.roadmap-dialog button:disabled{opacity:.45;cursor:not-allowed}
+.roadmap-box button:hover:not(:disabled),.roadmap-dialog button:hover:not(:disabled){background:#e2e8f0}
+.roadmap-dialog{width:min(94vw,850px);max-height:90dvh;overflow:auto;padding:1.25rem;border:1px solid #64748b;border-radius:1rem;background:#f8fafc;color:#0f172a}
+.roadmap-dialog::backdrop{background:rgb(15 23 42 / .65)}
+.roadmap-dialog h2{font-size:1.2rem;font-weight:700;margin-right:auto}.roadmap-dialog h3{font-weight:600}
+.roadmap-scroll{overflow:auto;max-height:45dvh}.roadmap-scroll table{width:100%;font-size:.8rem}.roadmap-scroll td,.roadmap-scroll th{padding:.4rem;text-align:left;border-bottom:1px solid #94a3b8;overflow-wrap:anywhere}
+.roadmap-badge{display:inline-block;font-size:.75rem;padding:.1rem .4rem;margin:.15rem .2rem .15rem 0;border:1px solid #94a3b8;border-radius:.3rem;white-space:normal}
+.roadmap-badge[data-state="expired"]{color:#b91c1c;border-color:#ef4444}.roadmap-badge[data-state="soon"]{color:#92400e;border-color:#d97706}
+.roadmap-dialog li{overflow-wrap:anywhere;margin:.5rem 0}.roadmap-dialog a{color:#2563eb;text-decoration:underline}
+:is(.roadmap-box,.roadmap-dialog) :focus-visible{outline:3px solid #2563eb;outline-offset:2px}
+.dark .roadmap-box,.dark .roadmap-dialog{background:#1e293b;color:#e2e8f0;border-color:#475569}
+.dark :is(.roadmap-box,.roadmap-dialog) :is(input,select,textarea){background:#0f172a;color:#e2e8f0}
+.dark .roadmap-badge[data-state="expired"]{color:#fca5a5}.dark .roadmap-badge[data-state="soon"]{color:#fcd34d}
+.dark :is(.roadmap-box,.roadmap-dialog) button:hover:not(:disabled){background:#334155}
+html[data-layout-skin="edge"] main{max-width:none;padding-left:1.5rem;padding-right:1.5rem}
+html[data-layout-skin="edge"] main>header{border-left:4px solid #0284c7;padding-left:1rem}
+html[data-layout-skin="edge"] main .rounded-xl,html[data-layout-skin="edge"] .roadmap-box{border-radius:.2rem}
+html[data-layout-skin="edge"] #equipmentTableBody td{padding-top:.65rem;padding-bottom:.65rem}
+@media(max-width:640px){html[data-layout-skin="edge"] main{padding-left:.75rem;padding-right:.75rem}.roadmap-dialog{padding:.75rem}.roadmap-actions button{flex:1 1 auto}.roadmap-dialog input[type="file"]{max-width:100%}}

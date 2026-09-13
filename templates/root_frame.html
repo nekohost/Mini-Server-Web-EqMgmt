@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" class="h-full">
+<html lang="ko" class="h-full" data-layout-skin="standard">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -33,6 +33,7 @@
     <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-200">
     {% block body %}{% endblock %}
@@ -50,6 +51,7 @@
 
     <!-- 공통 유틸리티 스크립트 선로드 -->
     <script src="/static/js/common.js"></script>
+    <script src="/static/js/roadmap_preferences.js"></script>
     {% block extra_scripts_base %}{% endblock %}
 </body>
 </html>

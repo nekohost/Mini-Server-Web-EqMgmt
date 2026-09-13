@@ -7,6 +7,7 @@ import json  # 비민감한 배포 증거를 기록합니다.
 import os  # 환경·파일 권한을 통제합니다.
 from pathlib import Path  # 프로젝트 경로를 고정합니다.
 import socket  # 서비스 포트의 기존 사용 여부를 확인합니다.
+import shutil  # 사본 검증의 첨부도 운영 저장소와 분리합니다.
 import subprocess  # 승인된 앱 프로세스를 시작합니다.
 import sys  # 동일 가상환경 Python을 재사용합니다.
 import time  # 기동 확인의 제한된 재시도를 수행합니다.
@@ -14,6 +15,8 @@ import urllib.request  # 실제 HTTP 응답을 확인합니다.
 ROOT = Path(__file__).resolve().parents[1]  # 이 스크립트의 저장소를 owner로 고정합니다.
 sys.path.insert(0, str(ROOT))  # 공통 DB 계약 모듈을 사용합니다.
 from utils.database_contract import connect_database, assert_integrity, private_snapshot, quote_identifier, migrate_contract, rollback_contract, rollback_official_models, SCHEMA_VERSION  # 공유된 migration만 실행합니다.
+from utils.roadmap_files import storage_directory, stored_path, assert_files  # DB 사본의 참조 첨부를 같은 격리 영역에 복제합니다.
+from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # additive 테이블만 지문 비교의 새 항목으로 허용합니다.
 
 
 def query_measurements(connection):
@@ -38,6 +41,10 @@ def row_fingerprints(connection, baseline=None):
     """[역할] 업무 행의 원문을 출력하지 않고 보존 여부를 확인합니다. [의존성 관계] SQLite. [변경 시 영향도] 배포 게이트."""
     result = {}  # 모든 기존 테이블의 typed-row 지문을 기록합니다.
     for (name,) in connection.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name!='sys_migrations' ORDER BY name").fetchall():  # migration 이력만 변화가 허용됩니다.
+        if baseline is not None and name not in baseline and name in ROADMAP_TABLES:  # 추가 테이블은 원래 컬럼 보존 비교와 구별합니다.
+            if connection.execute(f'SELECT COUNT(*) FROM {quote_identifier(name)}').fetchone()[0]:  # 사본 import만으로 업무 자료를 만들면 안 됩니다.
+                raise ValueError('new roadmap table unexpectedly populated')  # 자동 데이터 생성을 배포 전에 차단합니다.
+            continue  # 기존 테이블은 아래에서 모두 엄격 비교합니다.
         columns = baseline[name]['columns'] if baseline is not None and name in baseline else [row[1] for row in connection.execute(f'PRAGMA table_info({quote_identifier(name)})')]  # 원래 컬럼을 고정하여 새 NULL 컬럼을 데이터 변경으로 오판하지 않습니다.
         projection = ','.join(quote_identifier(column) for column in columns)  # 기준선의 모든 기존 컬럼을 비교합니다.
         digest, count = hashlib.sha256(), 0  # 한 테이블씩 처리합니다.
@@ -62,7 +69,20 @@ def check_copy(database, backups):
         path = Path(private_snapshot(source, database, backups, 'release-check'))  # 전체 DB를 일관되게 복제합니다.
     finally:  # 운영 reader를 기동 전에 반환합니다.
         source.close()  # 운영 앱과 추가 경합을 남기지 않습니다.
-    os.environ.update(DATABASE_PATH=str(path), DATABASE_OPERATION_ROOT=str(backups / 'copy-operations'), MAINTENANCE_STATE_PATH=str(backups / 'copy-maintenance.json'), SECRET_KEY='isolated-release-copy')  # 모든 파일 쓰기를 사본 영역으로 고정합니다.
+    attachment_source = Path(os.getenv('EQUIPMENT_ATTACHMENT_ROOT', ROOT / 'instance' / 'equipment-files')).resolve()  # 실제 참조 원본을 읽기만 합니다.
+    attachment_copy = storage_directory(backups / ('copy-attachments-' + path.stem))  # 실행마다 별도 사본 저장소를 생성합니다.
+    copied = connect_database(path)  # snapshot 메타데이터를 기준으로 참조 파일만 복제합니다.
+    try:  # fixture 이외 원본 파일은 수정하지 않습니다.
+        if copied.execute('PRAGMA user_version').fetchone()[0] >= 3:  # v2에는 첨부가 없으므로 불필요한 조회를 피합니다.
+            assert_files(copied, attachment_source)  # 먼저 원본 파일 전체 해시를 검증합니다.
+            for (key,) in copied.execute('SELECT storage_key FROM equipment_files'):  # 삭제 보관본도 전체 복구 대상입니다.
+                destination = stored_path(attachment_copy, key)  # opaque 경로 계약을 재사용합니다.
+                shutil.copy2(stored_path(attachment_source, key), destination)  # 새 private 디렉터리 안의 파일만 만듭니다.
+                os.chmod(destination, 0o600)  # 복제 파일도 소유자만 접근합니다.
+            assert_files(copied, attachment_copy)  # 복제 결과까지 대조합니다.
+    finally:  # 앱 초기화 전에 reader를 반환합니다.
+        copied.close()  # 사본 DB의 잠금을 남기지 않습니다.
+    os.environ.update(DATABASE_PATH=str(path), DATABASE_OPERATION_ROOT=str(backups / 'copy-operations'), MAINTENANCE_STATE_PATH=str(backups / 'copy-maintenance.json'), EQUIPMENT_ATTACHMENT_ROOT=str(attachment_copy), SECRET_KEY='isolated-release-copy')  # 모든 앱 쓰기를 사본 영역으로 고정합니다.
     spec = importlib.util.spec_from_file_location('release_copy_app', ROOT / 'app.py')  # 현재 commit 앱을 대상으로 합니다.
     module = importlib.util.module_from_spec(spec)  # 독립 모듈을 준비합니다.
     try:  # 앱 migration 실행을 실제 Linux에서 시험합니다.
@@ -84,7 +104,16 @@ def check_copy(database, backups):
                 raise ValueError('copy schema version mismatch')  # 부분 migration을 거부합니다.
         finally:  # down/up 전에 잠금을 해제합니다.
             copy.close()  # 열린 reader가 남지 않습니다.
-        if has_official_names:  # 새 값이 있는 DB는 down 거부가 정상 안전 동작입니다.
+        if SCHEMA_VERSION >= 3:  # 새 기한·첨부·원장이 있는 버전의 자동 down은 지원하지 않습니다.
+            try:  # 거부가 실제로 기존 자료를 보존하는지 다음 지문 검사까지 연결합니다.
+                rollback_official_models(path, backups / 'copy-rollback')  # v3를 v2/v1로 바꾸지 않아야 합니다.
+            except ValueError as error:  # 다른 오류를 예상 거부로 덮지 않습니다.
+                if str(error) != 'official model rollback requires schema version 2':  # 정확한 버전 게이트만 허용합니다.
+                    raise  # 예상하지 않은 복구 오류입니다.
+            else:  # 자동 down이 수행되었다면 배포를 차단합니다.
+                raise ValueError('roadmap schema rollback was not blocked')  # 신규 자료 유실 가능성을 보고합니다.
+            rollback_result = 'blocked-preserves-v3-data'  # 전진 복구만 허용한 결과입니다.
+        elif has_official_names:  # 새 값이 있는 DB는 down 거부가 정상 안전 동작입니다.
             try:  # 실제 함수가 거부하는지 확인합니다.
                 rollback_official_models(path, backups / 'copy-rollback')  # 사본에서도 데이터를 삭제하지 않습니다.
             except ValueError as error:  # 값 보존 게이트만 정상 거부로 인정합니다.
