@@ -42,3 +42,12 @@ scope:
   foreign_governed_write: nested-handoff-required
   full_switch: explicit-user-intent-required
 instruction_entrypoint: AGENTS.md
+execution_profile_selection:
+  command: "node .agent-governance/tooling/governance-tool.mjs profile"
+  adapter: tooling/execution-profile.mjs
+  evidence: current-session-active-turn-context
+  observed_model_id: gpt-6-astra
+  verification: current-task-cwd-turn-and-model-observed-2026-09-14
+  refresh: every-turn-and-model-task-policy-change
+  instruction_cache_flush: not-supported-by-project-tool
+  grants_platform_permissions: false

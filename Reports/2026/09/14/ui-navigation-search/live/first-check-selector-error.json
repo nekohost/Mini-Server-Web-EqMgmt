@@ -1,0 +1,1117 @@
+{
+  "origin": "https://nekohost.org",
+  "account": "guide_test_user",
+  "screens": [
+    {
+      "route": "/mypage-standard",
+      "width": 1920,
+      "skin": "standard",
+      "overflow": 0,
+      "main": {
+        "x": 624,
+        "y": 65,
+        "width": 672
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 656,
+          "y": 97,
+          "width": 608
+        },
+        {
+          "x": 656,
+          "y": 374,
+          "width": 608
+        },
+        {
+          "x": 656,
+          "y": 1076,
+          "width": 608
+        },
+        {
+          "x": 656,
+          "y": 1541,
+          "width": 608
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 656,
+          "y": 97,
+          "width": 608
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 336,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 972,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 336,
+          "y": 374,
+          "width": 612
+        },
+        {
+          "x": 336,
+          "y": 839,
+          "width": 612
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 336,
+          "y": 97,
+          "width": 1248
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-dark-edge",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 96,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 732,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 96,
+          "y": 374,
+          "width": 612
+        },
+        {
+          "x": 96,
+          "y": 839,
+          "width": 612
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 96,
+          "y": 97,
+          "width": 1248
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 12,
+          "y": 97,
+          "width": 296
+        },
+        {
+          "x": 12,
+          "y": 526,
+          "width": 296
+        },
+        {
+          "x": 12,
+          "y": 1348,
+          "width": 296
+        },
+        {
+          "x": 12,
+          "y": 1797,
+          "width": 296
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 97,
+          "width": 296
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 12,
+          "y": 97,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 502,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1244,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1693,
+          "width": 366
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 97,
+          "width": 366
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 80,
+          "y": 97,
+          "width": 608
+        },
+        {
+          "x": 80,
+          "y": 374,
+          "width": 608
+        },
+        {
+          "x": 80,
+          "y": 1076,
+          "width": 608
+        },
+        {
+          "x": 80,
+          "y": 1541,
+          "width": 608
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 80,
+          "y": 97,
+          "width": 608
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1199,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1199
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 295.5,
+          "y": 97,
+          "width": 608
+        },
+        {
+          "x": 295.5,
+          "y": 374,
+          "width": 608
+        },
+        {
+          "x": 295.5,
+          "y": 1076,
+          "width": 608
+        },
+        {
+          "x": 295.5,
+          "y": 1541,
+          "width": 608
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 295.5,
+          "y": 97,
+          "width": 608
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1200,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1200
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 97,
+          "width": 564
+        },
+        {
+          "x": 612,
+          "y": 97,
+          "width": 564
+        },
+        {
+          "x": 24,
+          "y": 398,
+          "width": 564
+        },
+        {
+          "x": 24,
+          "y": 863,
+          "width": 564
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 24,
+          "y": 97,
+          "width": 1152
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 336,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 972,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 336,
+          "y": 374,
+          "width": 612
+        },
+        {
+          "x": 336,
+          "y": 839,
+          "width": 612
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 336,
+          "y": 97,
+          "width": 1248
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 2560,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 2560
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 656,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 1292,
+          "y": 97,
+          "width": 612
+        },
+        {
+          "x": 656,
+          "y": 374,
+          "width": 612
+        },
+        {
+          "x": 656,
+          "y": 839,
+          "width": 612
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 656,
+          "y": 97,
+          "width": 1248
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/mypage-light-edge",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 12,
+          "y": 97,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 502,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1244,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1693,
+          "width": 366
+        }
+      ],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 97,
+          "width": 366
+        }
+      ],
+      "metricGroups": [],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 390
+      },
+      "cards": [
+        {
+          "x": 12,
+          "y": 325,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 531,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 737,
+          "width": 366
+        }
+      ],
+      "tracks": 1,
+      "panels": [],
+      "centeredRegions": [],
+      "metricGroups": [
+        [
+          {
+            "x": 12,
+            "y": 97,
+            "width": 366
+          },
+          {
+            "x": 12,
+            "y": 203,
+            "width": 366
+          }
+        ]
+      ],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1440
+      },
+      "cards": [
+        {
+          "x": 240,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 568,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 896,
+          "y": 219,
+          "width": 304
+        }
+      ],
+      "tracks": 4,
+      "panels": [],
+      "centeredRegions": [],
+      "metricGroups": [
+        [
+          {
+            "x": 488,
+            "y": 97,
+            "width": 224
+          },
+          {
+            "x": 728,
+            "y": 97,
+            "width": 224
+          }
+        ]
+      ],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [
+        {
+          "x": 480,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 808,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 1136,
+          "y": 219,
+          "width": 304
+        }
+      ],
+      "tracks": 5,
+      "panels": [],
+      "centeredRegions": [],
+      "metricGroups": [
+        [
+          {
+            "x": 728,
+            "y": 97,
+            "width": 224
+          },
+          {
+            "x": 968,
+            "y": 97,
+            "width": 224
+          }
+        ]
+      ],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 2560,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 2560
+      },
+      "cards": [
+        {
+          "x": 800,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 1128,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 1456,
+          "y": 219,
+          "width": 304
+        }
+      ],
+      "tracks": 7,
+      "panels": [],
+      "centeredRegions": [],
+      "metricGroups": [
+        [
+          {
+            "x": 1048,
+            "y": 97,
+            "width": 224
+          },
+          {
+            "x": 1288,
+            "y": 97,
+            "width": 224
+          }
+        ]
+      ],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [
+        {
+          "x": 480,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 808,
+          "y": 219,
+          "width": 304
+        },
+        {
+          "x": 1136,
+          "y": 219,
+          "width": 304
+        }
+      ],
+      "tracks": 5,
+      "panels": [],
+      "centeredRegions": [],
+      "metricGroups": [
+        [
+          {
+            "x": 728,
+            "y": 97,
+            "width": 224
+          },
+          {
+            "x": 968,
+            "y": 97,
+            "width": 224
+          }
+        ]
+      ],
+      "tables": []
+    },
+    {
+      "route": "/my_equipment",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 416,
+          "y": 161,
+          "width": 1088
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 395.75,
+          "width": 1870
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 233,
+          "width": 296
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 564.53125,
+          "width": 294
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 209,
+          "width": 366
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 443.75,
+          "width": 364
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 24,
+          "y": 161,
+          "width": 720
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 395.75,
+          "width": 718
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 176,
+          "y": 161,
+          "width": 1088
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 395.75,
+          "width": 1390
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 416,
+          "y": 185,
+          "width": 1088
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 384.5625,
+          "width": 1870
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 257,
+          "width": 296
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 553.34375,
+          "width": 294
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 237,
+          "width": 366
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 436.5625,
+          "width": 364
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 24,
+          "y": 185,
+          "width": 720
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 384.5625,
+          "width": 718
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 176,
+          "y": 185,
+          "width": 1088
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 384.5625,
+          "width": 1390
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment-ux-nav",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 233,
+          "width": 296
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 564.53125,
+          "width": 294
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment-ux-nav",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 12,
+          "y": 209,
+          "width": 366
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 443.75,
+          "width": 364
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment-ux-nav",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 65,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "centeredRegions": [
+        {
+          "x": 416,
+          "y": 161,
+          "width": 1088
+        }
+      ],
+      "metricGroups": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 395.75,
+          "width": 1870
+        }
+      ]
+    }
+  ],
+  "httpErrors": [],
+  "pageErrors": [],
+  "forbiddenRequests": [],
+  "steps": [
+    "real login succeeded",
+    "domain static asset hashes match deployment",
+    "layout UI save and reload persistence; notification consent unchanged",
+    "profile modal loads test account; no profile submit",
+    "live history back, parent-to-portal, root disabled and native full-description title"
+  ],
+  "originalAppearance": {
+    "theme": "light",
+    "skin": "standard",
+    "deadlineOptIn": false
+  },
+  "menuCount": 3,
+  "status": "failed",
+  "error": "locator.selectOption: Error: strict mode violation: locator('[name=\"status\"]') resolved to 2 elements:\n    1) <select name=\"status\">…</select> aka getByLabel('장비 상태전체정상대여수리폐기')\n    2) <select required=\"\" name=\"status\"></select> aka getByLabel('변경할 상태')\n\nCall log:\n\u001b[2m  - waiting for locator('[name=\"status\"]')\u001b[22m\n",
+  "preferencesRestored": true,
+  "loggedOut": true
+}

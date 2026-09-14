@@ -1,0 +1,38 @@
+{
+  "baseline_head": "5ab042a7cb1a4acd25af64732c6a1f64b644db94",
+  "old_pid": 90538,
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/ui-menu-workflows-auth-labels-20260914T083122Z",
+  "db_before": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "files": {
+    "templates/register.html": {
+      "before": "5dfe292a0e07c5cc5813cfbc4083b1948a96e1aa8f87b501d6671b9e1ead269a",
+      "after": "f8f27d1821b0cee985df7feb607b29eb31d4d195a698124129c9d722ae298ba1"
+    },
+    "templates/reset_password.html": {
+      "before": "d0175f13a749f934b0240722c6016d6c30370eb41468933e4aafd0a8075c6568",
+      "after": "6b524ddace5b0336b66a2fe89b3f2032923286fab09dc26408efb8b8263bd2b2"
+    }
+  },
+  "status": "deployed",
+  "new_pid": 91637,
+  "db_after": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "health": 200
+}

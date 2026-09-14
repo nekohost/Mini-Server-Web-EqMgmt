@@ -1,0 +1,38 @@
+{
+  "baseline_head": "5ab042a7cb1a4acd25af64732c6a1f64b644db94",
+  "old_pid": 81107,
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/ui-compact-navigation-20260914T054902Z",
+  "db_before": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "files": {
+    "static/css/layout.css": {
+      "before": "a558986a246885601b8f732ca989036b041c35563b0d28cb178ad33492119841",
+      "after": "88329efa5a00deb3702664453710a908592127ec029abe1d80ffb55004d84450"
+    },
+    "templates/miniserver_frame.html": {
+      "before": "e8781d832e88349daaf59934c278175e107f259fa62cc725aaa32a8790b5f525",
+      "after": "115477f5c93d24bf9916322bb77d25a11e36127b26b54eb3e6b26d02ea6bd29a"
+    }
+  },
+  "status": "deployed",
+  "new_pid": 82278,
+  "db_after": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "health": 200
+}

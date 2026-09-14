@@ -71,7 +71,7 @@
 
         if (remaining <= 0) {
             badge.innerHTML = '만료됨';
-            badge.className = 'cursor-pointer px-2 py-1 bg-red-600 text-white text-xs rounded shadow-sm flex items-center gap-1';
+            badge.dataset.sessionState = 'expired';
             // 실제 만료 시 페이지 새로고침을 통해 백엔드의 강제 로그아웃/리다이렉트를 타게 함
             window.location.reload(); 
             return;
@@ -82,14 +82,16 @@
 
         // 평상시: 분 단위 표출 (5분 이상 남았을 때)
         if (minutes >= 5) {
-            badge.innerHTML = `⏱ ${minutes}분 남음`;
-            badge.className = 'cursor-pointer px-2 py-1 bg-gray-100 hover:bg-emerald-100 hover:text-emerald-700 text-gray-600 text-xs rounded transition-colors flex items-center gap-1';
+            badge.innerHTML = `<span class="app-session-full">${minutes}분 남음</span><span class="app-session-short" aria-hidden="true">${minutes}분</span>`;
+            badge.setAttribute('aria-label', `세션 ${minutes}분 남음. 눌러서 세션 연장`);
+            badge.dataset.sessionState = 'normal';
             badge.title = '클릭하여 세션 연장';
         } else {
             // 임박 시(5분 미만): 초 단위 표출 및 붉은색 경고
             const secStr = seconds < 10 ? '0' + seconds : seconds;
-            badge.innerHTML = `⏱ <strong>${minutes}:${secStr}</strong> 남음 (연장)`;
-            badge.className = 'cursor-pointer px-2 py-1 bg-red-100 hover:bg-red-200 text-red-600 text-xs rounded transition-colors flex items-center gap-1 animate-pulse';
+            badge.innerHTML = `<span class="app-session-full"><strong>${minutes}:${secStr}</strong> 남음 · 연장</span><span class="app-session-short" aria-hidden="true">${minutes}:${secStr}</span>`;
+            badge.setAttribute('aria-label', `세션 ${minutes}분 ${seconds}초 남음. 만료 전 눌러서 세션 연장`);
+            badge.dataset.sessionState = 'warning';
             badge.title = '세션 만료가 임박했습니다. 클릭하여 연장하세요!';
         }
     }
@@ -144,28 +146,6 @@
         return result;
     };
 
-    // 스마트 동적 뒤로가기 네비게이션 초기화
-    function initSmartBackNavigation() {
-        const backBtn = document.getElementById('smart-back-btn');
-        const backText = document.getElementById('smart-back-text');
-        if (backBtn) {
-            const referrer = document.referrer;
-            const origin = window.location.origin;
-            
-            // 1) 동일 도메인이면서 2) 직전 페이지가 포털이 아니고 3) 로그인 페이지가 아닌 경우에만 '이전으로' 활성화
-            if (referrer && referrer.startsWith(origin) && 
-                !referrer.endsWith('/portal') && 
-                !referrer.includes('/login')) {
-                
-                if (backText) backText.innerText = '이전으로';
-                backBtn.href = 'javascript:void(0)';
-                backBtn.onclick = function(e) {
-                    e.preventDefault();
-                    window.history.back();
-                };
-            }
-        }
-    }
 
     // DOM 로드 시 초기화
     document.addEventListener('DOMContentLoaded', async () => {
@@ -173,7 +153,6 @@
         applyThemeUI(localStorage.theme || 'system');
 
         initTimer();
-        initSmartBackNavigation();
         pollInterval = setInterval(pollSession, 5000);
         
         // 서버 설정 동기화
@@ -266,22 +245,16 @@
         }
     }
 
-    // 상단 테마 토글 버튼 아이콘 및 타이틀 동적 업데이트
+    // 현재 선택한 모드를 텍스트로 표시하며 다음 동작은 접근성 이름에 안내합니다.
     function updateThemeToggleIcon(theme) {
         const btn = document.getElementById('theme-toggle-btn');
-        const icon = document.getElementById('theme-toggle-icon');
-        if (!icon) return;
-
-        if (theme === 'light') {
-            icon.className = 'fa-solid fa-sun text-lg text-amber-500';
-            if (btn) btn.title = '테마: 라이트 모드 (클릭 시 다크 모드로 변경)';
-        } else if (theme === 'dark') {
-            icon.className = 'fa-solid fa-moon text-lg text-indigo-400';
-            if (btn) btn.title = '테마: 다크 모드 (클릭 시 시스템 설정으로 변경)';
-        } else { // system
-            icon.className = 'fa-solid fa-desktop text-lg text-slate-500 dark:text-slate-400';
-            if (btn) btn.title = '테마: 시스템 설정 따름 (클릭 시 라이트 모드로 변경)';
-        }
+        const label = document.getElementById('theme-toggle-label');
+        if (!btn || !label) return;
+        const modes = {light: ['라이트', '다크'], dark: ['다크', '시스템'], system: ['시스템', '라이트']};
+        const [current, next] = modes[theme] || modes.system;
+        label.textContent = current;
+        btn.title = `현재 테마: ${current}. 누르면 ${next}으로 변경`;
+        btn.setAttribute('aria-label', btn.title);
     }
 
     // OS 시스템 테마 변경 실시간 감지

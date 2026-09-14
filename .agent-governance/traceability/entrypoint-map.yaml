@@ -2,6 +2,7 @@ version: 1
 source: ../legacy-sources/GEMINI.pre-node.md
 source_sha256: AF879CD2D1CE46E30B7E0391CF1416294207338BE1913BB3A85B6B5C94DD6085
 entrypoints:
+  - { id: ENTRY-CODEX.PROFILE, node: profiles.gpt-6-astra, summary: 매 턴 실제 런타임 확인 후 독립 또는 legacy 경로 선택 }
   - { id: ENTRY-CODEX.RECORDER, node: records.conversation-automation, summary: Codex 일반 작업 전 ensure와 재조정 }
   - { id: ENTRY-GEMINI.RECORDER, node: records.conversation-automation, summary: Antigravity 일반 작업 전 ensure와 재조정 }
   - { id: ENTRY-CLAUDE.RECORDER, node: records.conversation-automation, summary: Claude 미지원 상태와 후속 활성화 조건 }

@@ -1,4 +1,6 @@
 {% extends 'miniserver_frame.html' %}
+{% block parent_menu_url %}/access_logs{% endblock %}
+{% block parent_menu_name %}웹 접근 로그{% endblock %}
 
 {% block title %}에러 유발 IP 심층 분석 - 미니서버 통합 관리 시스템{% endblock %}
 
@@ -8,25 +10,19 @@
 
 {% block content %}
 <!-- 헤더 섹션 -->
-<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div>
-        <div class="flex items-center gap-2 mb-1">
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">에러 유발 IP 분석</h1>
+    <p class="app-content-description">4xx(클라이언트 오류) 및 5xx(서버 오류) HTTP 에러를 발생시킨 고유 IP 주소들을 중복 없이 집계하여 비정상 공격 트래픽 및 봇 스캐너를 식별합니다.</p>
+</header>
+<div class="app-breadcrumb app-page-controls">
             <a href="/access_logs" class="inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-1">
                 <i class="fa-solid fa-arrow-left"></i> 웹 접근 로그로 돌아가기
             </a>
             <span class="text-slate-300 dark:text-slate-600">/</span>
             <span class="text-xs text-slate-500 dark:text-slate-400">보안 심층 분석</span>
         </div>
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-shield-halved text-rose-500"></i> 에러 유발 IP 심층 분석 (Error IP Analysis)
-        </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            4xx(클라이언트 오류) 및 5xx(서버 오류) HTTP 에러를 발생시킨 고유 IP 주소들을 중복 없이 집계하여 비정상 공격 트래픽 및 봇 스캐너를 식별합니다.
-        </p>
-    </div>
-
     <!-- 우측 상단 액션 버튼 -->
-    <div class="flex items-center gap-3">
+    <div class="app-page-controls app-header-actions">
         <button type="button" onclick="fetchErrorIps()" class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium text-xs px-3.5 py-2.5 rounded-lg shadow-sm transition-colors flex items-center gap-2">
             <i class="fa-solid fa-arrows-rotate text-brand-500" id="refreshIcon"></i> 새로고침
         </button>
@@ -34,10 +30,9 @@
             <i class="fa-solid fa-list-ul"></i> 전체 접근 로그 보기
         </a>
     </div>
-</div>
 
 <!-- 📊 상단 요약 위젯 & TOP 5 에러 IP 차트 -->
-<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+<div class="edge-overview-region grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
     <!-- 좌측 요약 지표 카드 (4열) -->
     <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
         <!-- 고유 에러 IP 수 -->
@@ -97,7 +92,7 @@
 </div>
 
 <!-- 🔍 IP 검색 및 필터 패널 -->
-<div class="bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
+<div class="edge-filter-region bg-white dark:bg-slate-800 rounded-xl p-4 shadow-sm border border-slate-200 dark:border-slate-700 mb-6">
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="w-full sm:w-80 relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>

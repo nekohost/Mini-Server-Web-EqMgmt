@@ -1,0 +1,86 @@
+{
+  "baseline_head": "5ab042a7cb1a4acd25af64732c6a1f64b644db94",
+  "old_pid": 80368,
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/ui-header-csv-20260914T051257Z",
+  "db_before": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "files": {
+    "static/css/layout.css": {
+      "before": "eb19a1117dea9084f021c1487cdec0852fd673dfca34df4ecc3efa1ba31f69ed",
+      "after": "a558986a246885601b8f732ca989036b041c35563b0d28cb178ad33492119841"
+    },
+    "static/js/roadmap_equipment.js": {
+      "before": "50711b82401951c4856f7036d37cac1102662f23b10c53e29e107fb5986fe553",
+      "after": "2a6befb23c384c7355b021e3ecb06fe5e4ff7e81ee336c03db033cfd315c3134"
+    },
+    "templates/access_logs.html": {
+      "before": "a4b30d8a16f8b9d301492ed0e747ba58b9dc7591058cc9eda9f8b69c9f6c1514",
+      "after": "cd72db3e6a0d8b847144c86dd2616d50187ef7b340c0de845d34759be39f0bd5"
+    },
+    "templates/access_logs_error_ips.html": {
+      "before": "4e8ad14293769e02c0e058214e2367350935d68adb24595affd6938c4438d38c",
+      "after": "9139ef31416fea0e4c8436f6fd47c52050842d1cd1a52653cc5de14e87dbd9e7"
+    },
+    "templates/admin_center.html": {
+      "before": "af8f5128698e8924233bffb576651c7d5ba68853166f2896b19a632f259c5ce5",
+      "after": "c2ec4f61fa62533d9a448d1d947fc376155c0b9e12983e72fcca5f3c7b8a8af5"
+    },
+    "templates/approvals.html": {
+      "before": "8a25b49d6b3a8449cab57b4dc5357c6d73d67dd4c8ac23daf839d5c40db4798b",
+      "after": "a38debb5cfc4c1940f3a884c96ec2c4f3dee312ba2c6b634ccde07b814e3923e"
+    },
+    "templates/audit_logs.html": {
+      "before": "8bb2fae294498d9058e55a3eee456458ce6b368642563cf8c52db2ca537cf98d",
+      "after": "c936f0b6088a78ef32526a934dc27beb9d14e14e54534facf4343ff91fae598b"
+    },
+    "templates/index.html": {
+      "before": "91f0c7b24fbbff9d4a5c612cb4ab365eee40d77bc3cd2f365a309fec9ac7d0f1",
+      "after": "f44ab9c597908debd5650fc6d7c53cfb189f87d731dc5b55270d3a3f68e87cf1"
+    },
+    "templates/lineup_management.html": {
+      "before": "0b610f9c53e8421da471985d7bd342a4c670b74cf77aad898762a96d45eca43f",
+      "after": "6ac7002d33a1b49bd527e3e9def65fb27b5243d0d9269f54cb2441944b9b3edc"
+    },
+    "templates/master_management.html": {
+      "before": "4372c8283886ea971d53688d22fcf2ed0639e2c3c844a8979be51fd8cd0f4890",
+      "after": "0bdb0c83caaa12c0ffe394560022f0380c73677ceeefa3ed7be423b3fcb083ec"
+    },
+    "templates/miniserver_frame.html": {
+      "before": "75d6fc73ed7392a273d044db2593b4fd4fb70707acf3843a46e9036cda8ad1d5",
+      "after": "e8781d832e88349daaf59934c278175e107f259fa62cc725aaa32a8790b5f525"
+    },
+    "templates/permissions.html": {
+      "before": "ba0559cbeb49b4291fe90a3ca179e7cfee1d1a86c6e6a6e9cbc3caafebde3fec",
+      "after": "977b301bef47197961f549bc4b784c9c6a2517cb4fcefcac018d97e253438b8c"
+    },
+    "templates/roadmap_equipment.html": {
+      "before": "afb6454987fd85e1dbfc0f383c0a2d9751604fe9cbbb34385c752afa59ddfc76",
+      "after": "7a23f067a7e885802f75717895e1ffe3c32214fe0e76867c217b5b263915801b"
+    },
+    "templates/users_management.html": {
+      "before": "b301caf8e4942daa441a62eed5ab76c217ac30790a8f0892bca3646cf9fcfe1b",
+      "after": "5d23e855ed8a7e9ee84ae60d0ea5771562a5b964588ae3ef650c341c5cb4d6ab"
+    }
+  },
+  "status": "deployed",
+  "new_pid": 81107,
+  "db_after": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "health": 200
+}

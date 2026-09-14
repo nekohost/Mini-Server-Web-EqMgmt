@@ -1,5 +1,21 @@
 # Governance Tooling
 
+## 1.7.0: 독립 실행 경로
+
+AGENTS는 기록기 preflight 다음 `node .agent-governance/tooling/governance-tool.mjs profile`을 실행한다. 명령은 옵션을 받지 않으며 현재 Codex 작업의 진행 중 turn_context에서 정확한 모델·cwd·턴을 확인한다. 사용자 `--model`, CODEX_MODEL, 기본 설정, 완료된 과거 턴은 신원 근거가 아니다. 현재 작업 ID와 일치하는 JSONL 하나만 읽고 출력에는 필요한 메타데이터만 포함한다. 다른 작업 본문이나 계정 비밀은 수집하지 않는다.
+
+`kind: dedicated`이면 반환된 독립 노드와 capability만 읽고 legacy 절차는 실행하지 않는다. `kind: legacy`이면 AGENTS의 기존 bootstrap/context를 수행한다. 미확인·미등록·비활성은 이유를 표시하며 구성 오류는 비정상 종료한다. 매 턴 및 모델·작업·정책 변경 후 다시 실행한다. 프로젝트 도구는 앱의 지침 캐시를 강제로 지우거나 플랫폼 권한을 부여하지 않는다.
+
+등록부 `execution-profiles.yaml`은 최초 Codex/gpt-6-astra 한 항목만 포함한다. 기존 kernel·always_load·router에 전용 노드를 주입하지 않는다. 새 모델은 검토·채택 후 정확한 ID·parent:null 노드·capability·버전·채택 근거로 추가한다. 동일 플랫폼은 모델별 조건문이 필요 없으며 새 플랫폼은 런타임 어댑터/진입점 연결이 별도 필요하다. 미래 후보의 예약 항목은 만들지 않는다.
+
+일상 profile은 manifest/등록부, 선택 노드와 capability, 선택기·진입점·추적성의 바이트 해시만 확인한다. legacy 전수 load/validate 전에 반환하며 기술 문서 참조가 기존 절차를 재활성화하지 않는다. 기존 `context` 명령은 입력/출력과 전체 검증 계약을 유지한다. 정책 유지보수 `validate`는 기존 모든 검사에 새 등록부/노드 검사를 더한다.
+
+정책 변경 시 순서는 Rule의 `sync-status` → 전체 변경 섹션 `sync-plan --expected-rule-sha` → 의미 검토 및 노드/map/digest/기준선 갱신 → 등록부의 node/capability/package_files 해시 → manifest의 등록부 해시 → 같은 Rule SHA의 전체 validate다. 등록부와 manifest를 갱신하기 전에 대상 파일을 모두 확정한다. 실행 시 해시는 UTF-8 파일의 실제 바이트 기준이다. 도구는 파일을 자동 수정하지 않는다. `package_files`는 독립 경로의 진입·선택·추적성 부분 교체 감지용이며 legacy 전체 본문의 일상 검증을 의미하지 않는다.
+
+복구는 이번 변경의 관련 파일만 이전의 일관된 패키지로 함께 되돌린 뒤 validate/profile로 확인한다. 전체 저장소 reset이나 DB 복구는 하지 않는다. 명시적으로 비활성화할 때는 enabled를 false로 변경하고 등록부→manifest 해시를 맞춘다. 다중 파일 편집의 중간 상태는 오류로 감지하며 원자적 교체라고 주장하지 않는다.
+
+`npm run test:profiles`는 임시 fixture에서 독립 선택·legacy fallback·중복·경로 탈출·누락/손상·턴 변경·합성 확장·부분 교체/복구를 시험한다. `npm test`에는 기존 거버넌스·기록기·Git 보호 회귀와 이 시험이 함께 포함된다. 아래 Context 1.6.0 문법은 legacy 호출의 계약이다.
+
 대화 자동 기록기는 프로젝트 루트에서 다음 명령으로 사용한다.
 
 ```text

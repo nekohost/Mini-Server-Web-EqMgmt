@@ -1,0 +1,74 @@
+{
+  "baseline_head": "5ab042a7cb1a4acd25af64732c6a1f64b644db94",
+  "old_pid": 84781,
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/ui-heading-rollback-20260914T065749Z",
+  "db_before": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "files": {
+    "static/css/layout.css": {
+      "before": "fd82f907431055221cc27fff9b4e24b0bd4a1509978578c9d4ed6b9739696e1f",
+      "after": "265297f87e7f581e1ceee88aa0f9d2c16c080dd8192c6312941ad2eb7a84c8e1"
+    },
+    "templates/access_logs.html": {
+      "before": "c45dee01b0ef58451369738b9baf33e774a1ad1e2b1cb84839501ce5f85e6a84",
+      "after": "2dc1d0fc4703e37109e3e41fe3e43438ef524e97f5cfd34060d8daef94264b7f"
+    },
+    "templates/access_logs_error_ips.html": {
+      "before": "785b10b7d483e9bdea9f9acd21f2d4e2478543a904e373fd31d6a6a113e21f5c",
+      "after": "f12cbdee5129ff4096c48e05db19f28c182688b19b42b8c738c6dd82acbb322a"
+    },
+    "templates/index.html": {
+      "before": "073af660c25ea0fcdc5009a2a82450cd4afd2fe36a409506a186fab96d0a0e4a",
+      "after": "f44ab9c597908debd5650fc6d7c53cfb189f87d731dc5b55270d3a3f68e87cf1"
+    },
+    "templates/lineup_management.html": {
+      "before": "6025dce2ffddc031fe99b5f3bf2cc8375d93214bf10157e49fde7ce2ac2a8401",
+      "after": "6ac7002d33a1b49bd527e3e9def65fb27b5243d0d9269f54cb2441944b9b3edc"
+    },
+    "templates/master_management.html": {
+      "before": "83dda6d2c7031345b4644f6549e020e0ce0f1ec4e527be5c920f5dfc0c90a7c7",
+      "after": "aefc33584946213e816932fc4d3a1646d28f073ad8a7e128947ecfcf3b888cc4"
+    },
+    "templates/mypage.html": {
+      "before": "32fcd96bd3e201fbec3138c4169ee86f616aa4e3637c3982fad172b0a1c1c732",
+      "after": "15837d0ff7c186162abb23bdf1a38a595a4454bc75044b9e0c807f1da546d104"
+    },
+    "templates/permissions.html": {
+      "before": "ed56d420f275157031220130de89495d6e7cafbcfff8b4f6787575abb2b88035",
+      "after": "ecd266b05a3e5b33ed2d7979659505054323dc1ab49a89c8288032eac0cb8aa9"
+    },
+    "templates/users_management.html": {
+      "before": "24d73141bdd1a184b42c953f9511b8d9dd7b779869b91ad436a168e4c7c59dae",
+      "after": "c73cd01afa9ba093ed43a40ec570f33bcd63a6e4aa84a8822c0fe5b8678462e5"
+    }
+  },
+  "status": "deployed",
+  "new_pid": 86641,
+  "db_after": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "health": 200,
+  "preserved_files": {
+    "static/js/menu_cards.js": true,
+    "static/js/navigation.js": true,
+    "static/js/session_timer.js": true,
+    "templates/admin_center.html": true,
+    "templates/miniserver_frame.html": true
+  },
+  "rollback_scope_verified": true
+}

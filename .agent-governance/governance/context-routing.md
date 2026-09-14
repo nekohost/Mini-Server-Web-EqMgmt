@@ -1,18 +1,20 @@
 ---
 id: governance.context-routing
-version: 1
+version: 2
 parent: core.task-modes
 source_rules: []
 source_validations: []
 source_entrypoints: []
 source_human: []
 human_rule_sections: ["9-1", "9-3"]
-source_section_digest: A0B5971556C4B8EF5F00E17284C704A1F370256EA53713F19E556902FCB08F4D
+source_section_digest: 15DB4359EA4CF1D512022F3C5A072BDB8A755169D471AD83B51F9075CB09D96F
 always_load: false
 may_relax_parent: false
 ---
 
 # Context 입력·실패 진단 계약
+
+이 계약은 기존 context 명령에 적용한다. AGENTS의 독립 profile 선택은 이 context·부모·pack을 실행하기 전에 분기하며 기존 모델의 context 계약을 변경하지 않는다.
 
 1. catalog로 작업 종류와 경로를 확인한다. 관련 intent를 하나로 축소하지 않는다.
 2. --path는 실제 작업 대상, --reference-path는 읽기 전용 참고·영향 대상이다. 참고 선언과 context 성공은 수정 권한을 부여하지 않는다.

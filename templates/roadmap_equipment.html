@@ -1,24 +1,51 @@
-<!-- [역할] 제안 023/026 필터와 제안 022/010 상세. [의존성 관계] roadmap_equipment.js. [변경 시 영향도] 기존 등록 모달은 유지합니다. -->
-<section class="roadmap-box" aria-label="장비 검색과 일괄 처리">
-    <form id="roadmap-filter" class="roadmap-grid">
-        <label>검색어<input name="keyword" maxlength="200" placeholder="장비·시리얼·공식 모델명·노드 경로"></label>
-        <label>카테고리<select name="category_id"><option value="">전체</option></select></label>
-        <label>제조사<select name="manufacturer_id"><option value="">전체</option></select></label>
-        <label>장비 상태<select name="status"><option value="">전체</option><option value="ACTIVE">정상</option><option value="LOANED">대여</option><option value="REPAIR">수리</option><option value="DISPOSED">폐기</option></select></label>
-        <label>구입 시작일<input name="purchase_from" type="date"></label>
-        <label>구입 종료일<input name="purchase_to" type="date"></label>
-        <label>보증/교체 기한<select name="due"><option value="">전체</option><option value="soon">30일 이내</option><option value="expired">기한 경과</option></select></label>
-        <label>정렬<select name="sort"><option value="newest">최근 등록</option><option value="oldest">오래된 등록</option><option value="name">장비명</option><option value="purchase_desc">최근 구입일</option><option value="purchase_asc">오래된 구입일</option><option value="updated">최근 수정</option></select></label>
-        <label>페이지 크기<select name="per_page"><option>25</option><option>50</option><option>100</option></select></label>
-        <div class="roadmap-actions"><button type="submit">검색 적용</button><button type="reset">초기화</button></div>
+<!-- One search form and one action group serve both my/public lists. DOM order is search first for narrow screens. -->
+<section class="equipment-workspace app-page-controls" aria-label="장비 검색과 작업">
+    <div class="equipment-search-region roadmap-box">
+    <form id="roadmap-filter" role="search" aria-label="장비 검색">
+        <div class="roadmap-search-basic">
+            <label class="roadmap-keyword-label" for="roadmap-keyword"><span class="sr-only">검색어</span><input id="roadmap-keyword" type="search" name="keyword" maxlength="200" placeholder="장비·시리얼·공식 모델명·노드 경로"></label>
+            <button type="submit">검색</button>
+            <button type="button" id="roadmap-search-toggle" aria-expanded="false" aria-controls="roadmap-advanced">조건검색</button>
+        </div>
+        <fieldset id="roadmap-advanced" class="roadmap-grid roadmap-search-advanced" hidden disabled>
+            <legend class="sr-only">상세 검색 조건</legend>
+            <label>카테고리<select name="category_id"><option value="">전체</option></select></label>
+            <label>제조사<select name="manufacturer_id"><option value="">전체</option></select></label>
+            <label>장비 상태<select name="status"><option value="">전체</option><option value="ACTIVE">정상</option><option value="LOANED">대여</option><option value="REPAIR">수리</option><option value="DISPOSED">폐기</option></select></label>
+            <label>구입 시작일<input name="purchase_from" type="date"></label>
+            <label>구입 종료일<input name="purchase_to" type="date"></label>
+            <label>보증/교체 기한<select name="due"><option value="">전체</option><option value="soon">30일 이내</option><option value="expired">기한 경과</option></select></label>
+            <label>정렬<select name="sort"><option value="newest">최근 등록</option><option value="oldest">오래된 등록</option><option value="name">장비명</option><option value="purchase_desc">최근 구입일</option><option value="purchase_asc">오래된 구입일</option><option value="updated">최근 수정</option></select></label>
+            <label>페이지 크기<select name="per_page"><option>25</option><option>50</option><option>100</option></select></label>
+            <div class="roadmap-actions"><button type="reset">초기화</button></div>
+            <p class="roadmap-search-help text-xs text-slate-500 dark:text-slate-400">일반검색에서는 검색어만 적용합니다. 조건검색을 다시 열면 입력했던 조건을 복원합니다.</p>
+        </fieldset>
     </form>
-    <div class="roadmap-actions">
+    </div>
+    <div class="equipment-action-region">
+        <div class="equipment-page-actions">
+            <button {% if mode == 'my' %}id="btnOpenAddModal"{% endif %} type="button" onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition">+ 신규 장비 등록</button>
+            {% if mode == 'my' %}
+            <button id="btnToggleDrafts" type="button" onclick="toggleDraftMode()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-lg shadow-sm transition">📁 임시저장함</button>
+            {% endif %}
+            <button type="button" id="roadmap-csv-toggle" aria-expanded="false" aria-controls="roadmap-csv-actions" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-600 py-2 px-4 rounded-lg shadow-sm">CSV 기능</button>
+        </div>
+        {% if mode == 'public' %}
+        <div class="equipment-include-mine">
+            <input type="checkbox" id="includeMineCheckbox" class="w-4 h-4 text-blue-600 rounded" onchange="window.Roadmap.resetPage(); window.saveUserSettings({show_my_equip_first: this.checked}); fetchEquipment()">
+            <label for="includeMineCheckbox" class="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">내 장비도 목록에 포함하여 최상단에 보기</label>
+        </div>
+        {% endif %}
+    </div>
+    <div id="roadmap-csv-actions" class="roadmap-box roadmap-actions equipment-csv-panel" role="group" aria-label="CSV 작업" hidden>
         <button type="button" id="roadmap-export">검색 결과 CSV</button>
         <a href="/api/equipment/csv/export?template=1">CSV 양식</a>
         <button type="button" id="roadmap-import">CSV 가져오기</button>
     </div>
+    <div class="equipment-list-status roadmap-box">
     <p id="roadmap-message" role="status" aria-live="polite"></p>
     <nav class="roadmap-actions" aria-label="장비 목록 페이지"><button id="roadmap-prev" type="button">이전</button><span id="roadmap-page" aria-live="polite"></span><button id="roadmap-next" type="button">다음</button></nav>
+    </div>
 </section>
 
 <dialog id="roadmap-detail" class="roadmap-dialog" aria-labelledby="roadmap-detail-title">

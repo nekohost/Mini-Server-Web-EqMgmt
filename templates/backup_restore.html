@@ -1,8 +1,14 @@
 {% extends 'miniserver_frame.html' %}
+{% block parent_menu_url %}/admin_center{% endblock %}
+{% block parent_menu_name %}관리자 센터{% endblock %}
 {% block title %}DB 백업 및 복원 - EqMgmt{% endblock %}
 {% block page_title %}DB 백업 및 복원{% endblock %}
 
 {% block content %}
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">DB 백업 및 복원</h1>
+    <p class="app-content-description">점검 모드에서 데이터를 백업하고 검증된 후보 파일로 복원합니다.</p>
+</header>
 <div class="mx-auto max-w-4xl space-y-6">
     <section class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <h2 class="text-xl font-bold">데이터베이스 안전 작업</h2>

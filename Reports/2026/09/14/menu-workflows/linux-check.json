@@ -1,0 +1,40 @@
+{
+  "candidate": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/menu-workflows-fixture-ua1nlf4h",
+  "files": {
+    "app.py": "fbc6ba421b61ad8827ae9e4d7f237f8afe5c8b76e19dfed3fafa0588807dfdb1",
+    "static/css/layout.css": "aa8dab6e10aa1272047de089e680dad24f33ad815c7a5f17791ff8d555d8860c",
+    "static/js/menu_cards.js": "8da32071d13c91ff9e501740d8316bb9a4e6d424c8100489afb0191c697be6ca",
+    "static/js/session_timer.js": "1eacede1b68319d8b47959e2da5a139f4cefa3b2d81bf868b65f6b3f8c722923",
+    "static/js/permissions.js": "8a0472794cf06bb89e694b8f5ef83d7c6b4f2265408effd42972f02ea9abdf1e",
+    "static/js/my_approvals.js": "3c68edaf5504bf2d66c09341c508ae4986c5ceac8c6fe5ac79840c691522ddb4",
+    "templates/miniserver_frame.html": "636a4796a0d185dfbf0e3b84088716185c58d62c487f524d7c281e63e7a5faf1",
+    "templates/index.html": "22bd361f0bc5e9be0ea3fe01c4841e898cadc27d74b960d500f4e8f37107d645",
+    "templates/master_management.html": "ecfba78414372e2c8233d334c79b611beb6f5f76cd1f5b61272b4b9e0e832f1f",
+    "templates/permissions.html": "1e2b30cff05f9e1036b3c53b2349476bfc5fdf04d0bd2c4ade45cb2f8da883da",
+    "templates/admin_center.html": "a230f18e0fb24c20837a0dbae6f13f4846a659cadd69731e59017a74bd86f7a6",
+    "templates/audit_logs.html": "d4f7f2587f4642bef343588d2ebfa76cd42094ae058ed3a9799e40f23245dad3",
+    "templates/access_logs.html": "253db00ce344121d7be399073eba8309be28cb8fec9b149fbfec140729446ac9",
+    "templates/access_logs_error_ips.html": "43047401fb132d5bae70e715826ec9dfef278509b964b01e889112013cf6f2e8",
+    "templates/lineup_management.html": "3a85689d99581820b8718425975e230eac05006f35b2e398f40bc717ab466b64",
+    "templates/approvals.html": "a8855a7e8b6a73c15cfe4584d97d6c9e7904d56cb1cebe0b70435b9d38e0c3f2",
+    "templates/mypage.html": "2463e8c7d83d8c72ba42f3c25b9719190c1509547bd55886a2a92920369ceccd",
+    "templates/my_approvals.html": "5e02a6450262233b5a0ac17baada02fc8eba2bd71e5cd04f87501fe2d91d093e",
+    "tests/roadmap_fixture_history.py": "140364d274dfb494ea6c96aa112b8e4151aa6505b37872f6972904c5e241fd43",
+    "tests/test_database_contract.py": "aa446cbd132876163655f6fa4a4a2e6bd065760f63b0a0a347a45fda4bfd05d3",
+    "tests/test_menu_workflows.py": "cdaca8a38a47e8f8ab4ec6d0ab6a8c7485072cd407d2cbac43804bde92893e9a",
+    "tests/test_official_model_migration.py": "2d7a5fa08ccb4e769017f226c0fd12e6b649f4565f65a574f01d0d5019fdb6af",
+    "tests/test_official_model_names.py": "0c5fd132b7bce82585bb9fb37ed045aaa2ada7455c7d494be78d27ff13b2e6b5",
+    "tests/test_proposal013_backup_restore.py": "016030f1535240ce34a084aca60c799d9f19c75f74d2b4d684a229913ec67234",
+    "tests/test_proposal047_nodes.py": "cbf279444b5320c598ae4f2be0a623b034c40cc948de4be60a404e37dbdaf3ab",
+    "tests/test_release_api.py": "d6f592bac2a1cf33bfe51af30ea28a5517d2aa2391d4fc8d27ac5cd3edb40fa8",
+    "tests/test_release_services.py": "ae49a6da4bbf24dd3578690605a919e210905d0544df57d80a7402a1505d03db",
+    "tests/test_roadmap_batch.py": "b5b3ed3a35fc8cdc0e69d7c9eef61b5224e00d2ff074d752d8ed2527f1403afa"
+  },
+  "test_exit_code": 0,
+  "test_count": 94,
+  "duration_seconds": 15.585,
+  "notes": [
+    "Injected failure logs are expected test cases.",
+    "Existing ResourceWarning in roadmap_routes.py fixture remains."
+  ]
+}

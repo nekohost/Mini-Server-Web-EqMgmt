@@ -1,4 +1,6 @@
 {% extends 'miniserver_frame.html' %}
+{% block parent_menu_url %}/admin_center{% endblock %}
+{% block parent_menu_name %}관리자 센터{% endblock %}
 
 {% block title %}보안 감사 로그 - 미니서버 통합 관리 시스템{% endblock %}
 
@@ -8,19 +10,13 @@
 
 {% block content %}
 <!-- 헤더 섹션 -->
-<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div>
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-            <i class="fa-solid fa-list-check text-brand-500"></i> 보안 감사 로그
-        </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            시스템 내 모든 사용자 행위(로그인, 자산 변경, 권한 수정 등)의 상세 이력을 검색하고 추적합니다.
-        </p>
-    </div>
-</div>
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">보안 감사 로그</h1>
+    <p class="app-content-description">시스템 내 모든 사용자 행위(로그인, 자산 변경, 권한 수정 등)의 상세 이력을 검색하고 추적합니다.</p>
+</header>
 
 <!-- 🔍 검색 및 필터 패널 -->
-<div class="bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
+<div class="edge-filter-region bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
     <form id="searchForm" class="space-y-4" onsubmit="handleSearch(event)">
         <!-- 1행: 기본 키워드 검색 -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">

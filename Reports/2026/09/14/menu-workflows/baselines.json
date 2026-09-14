@@ -1,0 +1,244 @@
+{
+  "pid": 88513,
+  "baselines": {
+    "app.py": "58d99fd0b4055f05525312bd8fe00c4d8944ce533cfff00cfc4c56f4bdbfd15a",
+    "static/css/layout.css": "68a6177fd715b1f1c092fbe34e15830ddff0ccdf1f6dff0e04bc732575ab435e",
+    "static/js/menu_cards.js": "e0d4315be32538fc29e540ba30560ee7790181b774190f9ec1a6369d6c8dca69",
+    "static/js/session_timer.js": "6aec06a278602311ed94d36a7ae3ddb473ddd9a65b4cac3a8ad15b4a79f13344",
+    "static/js/permissions.js": null,
+    "static/js/my_approvals.js": null,
+    "templates/miniserver_frame.html": "b338343eea004cb2d7b1ea88f30c066be2232c157207263e92e9d6399581502c",
+    "templates/index.html": "86c6027aee57323e6a9076712efb6cfc1d2cae54fab9d10727c0dd362e760f7b",
+    "templates/master_management.html": "45470c08666eca2e65a63481e0f2266737926ae4c4334ea64cd6e568cf7e9639",
+    "templates/permissions.html": "aa1525d458d97214bbef8509e6e7bd0b3362b07e29bce2ae5ed9e957b342b34f",
+    "templates/admin_center.html": "43bbaaf2e4a6c23f965863fc4823e056fcf716a79b63a2c9e5e5ffd120c45d4b",
+    "templates/audit_logs.html": "2b3d40ef2970019d08b46c55e861e6ce79c4bbd462d2210e2421dbf026bfcf2b",
+    "templates/access_logs.html": "8121debb4c80d13c1d6cf703799c455cea9e45e04f7821e29f8ba2e782d6d771",
+    "templates/access_logs_error_ips.html": "a0c12489587959c5a9ec2972567b2470acf671bd15e7f23c4d2ae33d07462298",
+    "templates/lineup_management.html": "825a4c10f0e3804f6706c080f62b7094b8034e9224073b85bad4c7a9c4eaf5e7",
+    "templates/approvals.html": "6aad6d00ea15dc7c6f9440459343876a79f8a861ee7ee33fe1792a282b6cd247",
+    "templates/mypage.html": "54d41198ad9fd2f2e76bf5c4e9a5ad803c93dc1637593a47632ba4414cd358fe",
+    "templates/my_approvals.html": null
+  },
+  "menus": [
+    [
+      "my_equipment",
+      "나의 장비",
+      "/my_equipment",
+      null,
+      1
+    ],
+    [
+      "public_equipment",
+      "공개 장비",
+      "/public_equipment",
+      null,
+      2
+    ],
+    [
+      "dashboard",
+      "통계 대시보드",
+      "/dashboard",
+      null,
+      3
+    ],
+    [
+      "admin_center",
+      "관리자 센터",
+      "/admin_center",
+      null,
+      4
+    ],
+    [
+      "permissions",
+      "메뉴 권한 관리",
+      "/permissions",
+      "admin_center",
+      1
+    ],
+    [
+      "audit_logs",
+      "보안 감사 로그",
+      "/audit_logs",
+      "admin_center",
+      2
+    ],
+    [
+      "users_management",
+      "사용자 관리",
+      "/users_management",
+      "admin_center",
+      3
+    ],
+    [
+      "approvals",
+      "전자결재함",
+      "/approvals",
+      "admin_center",
+      4
+    ],
+    [
+      "master_management",
+      "마스터 데이터 관리",
+      "/master_management",
+      "admin_center",
+      5
+    ],
+    [
+      "access_logs",
+      "웹 접근 로그",
+      "/access_logs",
+      "admin_center",
+      6
+    ],
+    [
+      "maintenance_admin",
+      "서버 점검 관리",
+      "/maintenance_admin",
+      "admin_center",
+      7
+    ],
+    [
+      "backup_restore",
+      "DB 백업 및 복원",
+      "/backup_restore",
+      "admin_center",
+      8
+    ],
+    [
+      "lineup_management",
+      "라인업 노드 관리",
+      "/lineup_management",
+      "admin_center",
+      9
+    ]
+  ],
+  "permissions": [
+    [
+      "admin",
+      "access_logs",
+      1
+    ],
+    [
+      "admin",
+      "admin_center",
+      1
+    ],
+    [
+      "admin",
+      "approvals",
+      1
+    ],
+    [
+      "admin",
+      "audit_logs",
+      1
+    ],
+    [
+      "admin",
+      "backup_restore",
+      1
+    ],
+    [
+      "admin",
+      "dashboard",
+      1
+    ],
+    [
+      "admin",
+      "lineup_management",
+      1
+    ],
+    [
+      "admin",
+      "maintenance_admin",
+      1
+    ],
+    [
+      "admin",
+      "master_management",
+      1
+    ],
+    [
+      "admin",
+      "my_equipment",
+      1
+    ],
+    [
+      "admin",
+      "permissions",
+      1
+    ],
+    [
+      "admin",
+      "public_equipment",
+      1
+    ],
+    [
+      "admin",
+      "users_management",
+      1
+    ],
+    [
+      "user",
+      "access_logs",
+      0
+    ],
+    [
+      "user",
+      "approvals",
+      1
+    ],
+    [
+      "user",
+      "audit_logs",
+      0
+    ],
+    [
+      "user",
+      "backup_restore",
+      0
+    ],
+    [
+      "user",
+      "dashboard",
+      1
+    ],
+    [
+      "user",
+      "lineup_management",
+      0
+    ],
+    [
+      "user",
+      "maintenance_admin",
+      0
+    ],
+    [
+      "user",
+      "master_management",
+      0
+    ],
+    [
+      "user",
+      "my_equipment",
+      1
+    ],
+    [
+      "user",
+      "permissions",
+      0
+    ],
+    [
+      "user",
+      "public_equipment",
+      1
+    ],
+    [
+      "user",
+      "users_management",
+      0
+    ]
+  ],
+  "approval_counts": []
+}

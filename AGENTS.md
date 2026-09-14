@@ -6,6 +6,22 @@
 
 대화 자동 기록 preflight `[ENTRY-CODEX.RECORDER]`: 다른 검사보다 먼저 프로젝트 루트에서 `node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json`을 실행한다. 재조정이 실패하면 원래 요청의 일반 작업을 시작하지 않고 `status --json`의 마지막 성공 상태와 오류를 보고한다. 다만 실패 원인이 recorder/Chat 저장·잠금·원자적 교체 또는 관련 Rule·노드 자체에 있고 사용자가 복구를 명시 승인했거나 현재 capability에 검증된 recovery 경로가 있으면 진단·증거 보존·백업·복구·관련 Rule/노드 검토와 그 기록에 필요한 최소 작업만 허용하며, `ensure`와 `governance-tool validate`가 다시 성공하기 전에는 원래 일반 작업으로 복귀하지 않는다.
 
+## 실행 경로 선택 [ENTRY-CODEX.PROFILE]
+
+기록기 preflight 다음, legacy manifest/context 전수 로딩 전에 매 턴 프로젝트 루트에서 다음 명령을 실행한다.
+
+```text
+node .agent-governance/tooling/governance-tool.mjs profile
+```
+
+- `kind: dedicated`: 반환된 `profile.absolutePath`의 독립 노드와 `capability`를 읽고 그 경로만 적용한다. 아래 Legacy bootstrap과 Context 진단 계약은 실행하지 않는다. 독립 노드는 legacy kernel·always_load·Task·Staging·Validation을 상속하지 않는다.
+- `kind: legacy`: 아래 기존 절차를 그대로 수행한다. 현재 모델을 확인하지 못하거나 미등록·비활성인 경우도 이에 해당하며 `reason`을 숨기지 않는다.
+- 명령 실패·손상·중복·불완전 패키지는 일반 작업을 중지하고 원인을 보고한다. 임의로 독립 또는 legacy를 선택해 실패를 숨기지 않는다. 승인된 정책 복구 진단은 가능하다.
+
+모델명 CLI 인수·자가 선언·설정 기본값은 근거가 아니다. 매 턴과 모델/작업/정책 변경 후 재선택하며, 이전에 읽은 규칙은 현재 선택 범위 밖이면 적용하지 않는다. 하위 작업자도 자신의 런타임을 확인한다. 기술 자료 참조만으로 다른 경로를 다시 활성화하지 않는다. 앱의 지침 캐시를 강제 제거하는 기능은 아니므로 자동 재로딩을 가정하지 않는다.
+
+## Legacy bootstrap — 위 결과가 legacy일 때만
+
 Scope ownership `[ENTRY-CODEX.SCOPE]`: VS Code workspace에서 시작된 Codex 작업은 Mini-Server를 기본 owner로 본다. 프로젝트 목적의 외부 reference나 비독립 PC/IDE/Git execution은 owner를 바꾸지 않는다. foreign governed workspace write는 nested handoff하며, 사용자가 새 독립 작업 또는 owner 전환을 명시한 경우에만 full scope switch한다.
 
 1. 작업 디렉터리는 프로젝트 루트로 고정한다. 각 작업 시작 시 `.agent-governance/manifest.yaml`을 확인하고 `node .agent-governance/tooling/governance-tool.mjs validate`가 통과하는지 확인한다.

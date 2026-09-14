@@ -7,32 +7,9 @@
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-    <div>
-        <h1 id="pageMainHeader" class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
-            {% if mode == 'public' %} 공개 장비 {% else %} 나의 장비 {% endif %}
-        </h1>
-        {% if mode == 'public' %}
-        <div class="mt-2 flex items-center gap-2">
-            <input type="checkbox" id="includeMineCheckbox" class="w-4 h-4 text-blue-600 rounded" onchange="window.Roadmap.resetPage(); window.saveUserSettings({show_my_equip_first: this.checked}); fetchEquipment()">
-            <label for="includeMineCheckbox" class="text-sm text-slate-600 dark:text-slate-400 cursor-pointer">내 장비도 목록에 포함하여 최상단에 보기</label>
-        </div>
-        {% endif %}
-    </div>
-    {% if mode == 'my' %}
-    <div class="flex items-center gap-2">
-        <button id="btnOpenAddModal" onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200">
-            + 신규 장비 등록
-        </button>
-        <button id="btnToggleDrafts" onclick="toggleDraftMode()" class="bg-slate-700 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200 flex items-center gap-1">
-            📁 임시저장함
-        </button>
-    </div>
-    {% else %}
-    <button onclick="openModal()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow-lg transition duration-200">
-        + 신규 장비 등록
-    </button>
-    {% endif %}
+<header class="app-page-heading app-content-header">
+    <h1 id="pageMainHeader" class="app-content-title">{% if mode == 'public' %}공개 장비{% else %}나의 장비{% endif %}</h1>
+    <p class="app-content-description">{% if mode == 'public' %}공개된 장비를 검색하고 상세 정보를 확인합니다.{% else %}내 장비를 등록하고 모델, 상태 및 관리 정보를 확인합니다.{% endif %}</p>
 </header>
 {% include 'roadmap_equipment.html' %}
 
@@ -725,7 +702,7 @@
         const btnToggle = document.getElementById('btnToggleDrafts');
 
         if (isDraftMode) {
-            mainHeader.innerText = '📁 나의 임시저장 목록';
+            mainHeader.innerText = '나의 임시저장 목록';
             if (btnAdd) btnAdd.classList.add('hidden');
             if (btnToggle) btnToggle.innerHTML = '🔙 나의 장비 목록으로 돌아가기';
         } else {

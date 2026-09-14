@@ -1,23 +1,19 @@
 {% extends 'miniserver_frame.html' %}
+{% block parent_menu_url %}/admin_center{% endblock %}
+{% block parent_menu_name %}관리자 센터{% endblock %}
 
 {% block title %}마스터 데이터 관리 - 미니서버{% endblock %}
 {% block page_title %}마스터 데이터 관리{% endblock %}
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-    <div>
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">
-            🏷️ 마스터 데이터 관리
-        </h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            카테고리 및 제조사 마스터 표준화, 다국어 명칭 등록 및 통폐합 관리
-        </p>
-    </div>
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">마스터 데이터 관리</h1>
+    <p class="app-content-description">카테고리 및 제조사 마스터 표준화, 다국어 명칭 등록 및 통폐합 관리</p>
 </header>
 
 <!-- 탭 컨트롤 및 액션 버튼 -->
-<div class="mb-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+<div class="app-page-controls mb-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div class="flex gap-4">
         <button id="tabCategories" onclick="switchTab('categories')"
             class="py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors">
@@ -108,7 +104,7 @@
                     class="w-full bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm">
             </div>
 
-            <div class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+            <div id="master-edit-actions" class="pt-4 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
                 <button type="button" id="btnMerge" onclick="openMergeModal()"
                     class="bg-purple-600 hover:bg-purple-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-md flex items-center gap-1">
                     🔀 타 항목 통폐합(Merge)...

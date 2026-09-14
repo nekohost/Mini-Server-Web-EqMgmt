@@ -1,0 +1,8 @@
+{
+  "status": "deployed",
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/edge-center-20260914T042850Z",
+  "before_sha256": "afc2f89aaf6648b335a0c7597ebc5f5b1cb2c6947a985546419068ffb1a0e06e",
+  "after_sha256": "a0b4f2af46cafbe0bea1f8ebe2826baaac072349e6eeeea957c8bd0c7b56c99b",
+  "restart": false,
+  "db_write": false
+}

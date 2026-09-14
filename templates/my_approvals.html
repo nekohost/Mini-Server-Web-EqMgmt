@@ -1,0 +1,46 @@
+{% extends 'miniserver_frame.html' %}
+{% block title %}나의 결재함 - 미니서버{% endblock %}
+{% block page_title %}나의 결재함{% endblock %}
+{% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
+{% block content %}
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">나의 결재함</h1>
+    <p class="app-content-description">내가 상신한 요청의 진행 상태와 승인·반려 이력을 확인합니다.</p>
+</header>
+<form id="my-approvals-filter" class="app-page-controls flex flex-wrap items-end gap-3">
+    <label class="text-sm">처리 상태
+        <select id="my-approvals-status" class="block mt-1 rounded border p-2 dark:bg-slate-700">
+            <option value="">전체 이력</option><option value="PENDING">처리 중</option><option value="APPROVED">승인 완료</option><option value="REJECTED">반려</option>
+        </select>
+    </label>
+    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white">조회</button>
+</form>
+<p id="my-approvals-message" role="status" aria-live="polite" class="my-3 text-sm"></p>
+<div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
+            <thead><tr>
+                <th class="p-3 text-left text-sm">문서 번호 · 요청일시</th><th class="p-3 text-left text-sm">구분</th>
+                <th class="p-3 text-left text-sm">신청 항목명</th><th class="p-3 text-left text-sm">상태</th>
+                <th class="p-3 text-left text-sm">처리일시 · 반려 사유</th><th class="p-3 text-left text-sm">상세</th>
+            </tr></thead>
+            <tbody id="my-approvals-body" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+        </table>
+    </div>
+</div>
+<nav class="mt-4 flex flex-wrap items-center justify-end gap-3" aria-label="나의 결재함 페이지">
+    <button id="my-approvals-prev" type="button" disabled class="rounded border px-3 py-2 text-sm disabled:opacity-40">이전</button>
+    <span id="my-approvals-page" class="text-sm"></span>
+    <button id="my-approvals-next" type="button" disabled class="rounded border px-3 py-2 text-sm disabled:opacity-40">다음</button>
+</nav>
+<dialog id="my-approval-detail" class="account-dialog" aria-labelledby="my-approval-detail-title">
+    <div class="p-5 space-y-4">
+        <h2 id="my-approval-detail-title" class="text-xl font-bold">상신 상세</h2>
+        <p id="my-approval-detail-summary" class="text-sm whitespace-pre-wrap break-words"></p>
+        <h3 class="font-semibold">요청 내용</h3>
+        <pre id="my-approval-detail-data" class="whitespace-pre-wrap break-all rounded border p-3 text-xs"></pre>
+        <form method="dialog" class="flex justify-end"><button class="rounded border px-4 py-2 text-sm">닫기</button></form>
+    </div>
+</dialog>
+{% endblock %}
+{% block extra_scripts %}<script src="/static/js/my_approvals.js"></script>{% endblock %}

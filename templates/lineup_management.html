@@ -1,4 +1,6 @@
 {% extends 'miniserver_frame.html' %}
+{% block parent_menu_url %}/admin_center{% endblock %}
+{% block parent_menu_name %}관리자 센터{% endblock %}
 {% block title %}라인업 노드 관리 - EqMgmt{% endblock %}
 {% block page_title %}라인업 노드 관리{% endblock %}
 
@@ -8,20 +10,20 @@
   [의존성 관계] /api/admin/lineup_nodes, /api/lineup_node CRUD, miniserver_frame.html을 사용합니다.
   [변경 시 영향도] 관리자 센터의 카탈로그 계층 관리 UX에 영향을 줍니다.
 -->
-<section class="mx-auto max-w-7xl space-y-5" aria-labelledby="lineup-page-title">
-    <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <h2 id="lineup-page-title" class="text-2xl font-bold text-slate-900 dark:text-white">라인업 노드 관리</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">모델 트리와 옵션을 관리합니다. 장비를 삭제해도 옵션은 남으며, 미사용 옵션만 별도로 삭제할 수 있습니다.</p>
-        </div>
+<section class="edge-wide-region mx-auto max-w-7xl space-y-5" aria-labelledby="lineup-page-title">
+<header class="app-page-heading app-content-header">
+    <h1 id="lineup-page-title" class="app-content-title">라인업 노드 관리</h1>
+    <p class="app-content-description">모델 트리와 옵션을 관리합니다. 장비를 삭제해도 옵션은 남으며, 미사용 옵션만 별도로 삭제할 수 있습니다.</p>
+</header>
+    <div class="app-page-controls app-header-actions">
         <button id="addRootButton" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
             + 최상위 노드 추가
         </button>
-    </header>
+    </div>
 
     <div id="pageMessage" class="hidden rounded-lg border px-4 py-3 text-sm" role="status" aria-live="polite"></div>
 
-    <div class="grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2">
+    <div class="edge-filter-region grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2">
         <label class="text-sm font-semibold text-slate-700 dark:text-slate-200">
             카테고리
             <select id="categoryFilter" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
@@ -32,7 +34,7 @@
         </label>
     </div>
 
-    <div class="grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="노드 상태 요약">
+    <div class="edge-metric-grid grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="노드 상태 요약">
         <div class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"><p class="text-xs text-slate-500">전체</p><p id="totalCount" class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">0</p></div>
         <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 dark:border-emerald-900 dark:bg-emerald-950/30"><p class="text-xs text-emerald-700 dark:text-emerald-300">승인</p><p id="approvedCount" class="mt-1 text-2xl font-bold text-emerald-700 dark:text-emerald-300">0</p></div>
         <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/30"><p class="text-xs text-amber-700 dark:text-amber-300">승인 대기</p><p id="pendingCount" class="mt-1 text-2xl font-bold text-amber-700 dark:text-amber-300">0</p></div>
@@ -41,8 +43,8 @@
 
     <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800">
         <div class="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-            <h3 class="font-bold text-slate-800 dark:text-slate-100">선택 조합의 노드 트리</h3>
-            <p class="mt-1 text-xs text-slate-500">이동은 같은 카테고리·제조사 조합 안에서만 가능합니다. 임시저장 장비도 옵션 사용량에 포함됩니다.</p>
+            <h3 class="font-bold text-slate-800 dark:text-slate-100">선택 조합의 노드 탐색</h3>
+            <p class="mt-1 text-xs text-slate-500">노드를 선택하면 직속 하위 노드와 해당 노드의 옵션을 표시합니다. 경로를 눌러 상위로 이동할 수 있습니다. 이동·사용량 집계 기준은 기존과 같습니다.</p>
             <label class="mt-2 block text-sm"><input id="unusedOptionsOnly" type="checkbox"> 미사용 옵션만 표시</label>
             <a href="/approvals" class="text-sm text-blue-600 underline">미승인 항목은 전자결재함에서 처리</a>
         </div>
@@ -106,7 +108,7 @@
 (function initializeLineupManagement() {
     'use strict';
 
-    const state = { snapshot: { categories: [], manufacturers: [], nodes: [] }, mode: 'create', activeNodeId: null, busy: false, rendered: new Set() };
+    const state = { snapshot: { categories: [], manufacturers: [], nodes: [] }, mode: 'create', activeNodeId: null, busy: false, path: [], openOptions: new Set() };
     const elements = {
         category: document.getElementById('categoryFilter'), manufacturer: document.getElementById('manufacturerFilter'),
         tree: document.getElementById('treeContainer'), pageMessage: document.getElementById('pageMessage'),
@@ -206,13 +208,10 @@
         elements.equipment.textContent = String(nodes.reduce((sum, node) => sum + Number(node.equipment_count || 0), 0));
     }
 
-    function renderNode(node, childrenByParent, level) {
-        /* [역할] 한 노드와 자손을 들여쓰기된 반응형 트리 카드로 렌더링합니다. */
-        if (state.rendered.has(Number(node.id))) return makeElement('p', 'text-red-600', '순환 연결을 확인해 주세요.');
-        state.rendered.add(Number(node.id));
-        const wrapper = makeElement('div', 'space-y-2');
+    function renderNode(node) {
+        /* 선택한 노드 한 개의 관리 기능만 표시하며 CRUD 계약은 유지합니다. */
         const card = makeElement('article', 'rounded-lg border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/40');
-        card.style.marginLeft = `${Math.min(level, 8) * 12}px`;
+        card.dataset.selectedNode = String(node.id);
         const row = makeElement('div', 'flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between');
         const info = makeElement('div', 'min-w-0');
         const titleRow = makeElement('div', 'flex flex-wrap items-center gap-2');
@@ -236,17 +235,15 @@
         remove.disabled = remove.disabled || node.status !== 'APPROVED';
         if (node.status !== 'APPROVED') { add.title = edit.title = remove.title = '전자결재함에서 승인 요청을 처리해 주세요.'; }
         actions.append(add, edit, remove);
-        row.append(info, actions); card.append(row, renderOptions(node)); wrapper.append(card);
-        (childrenByParent.get(Number(node.id)) || []).forEach(child => wrapper.append(renderNode(child, childrenByParent, level + 1)));
-        return wrapper;
+        row.append(info, actions); card.append(row, renderOptions(node));
+        return card;
     }
 
     function renderTree() {
-        /* [역할] 필터 조합의 루트·자손과 연결이 끊긴 노드를 모두 가시화합니다. */
+        /* 직속 노드만 탐색하고 선택 경로를 보존합니다. 잘못된 연결도 숨기지 않습니다. */
         const nodes = filteredNodes();
         updateSummary(nodes);
         elements.tree.replaceChildren();
-        state.rendered.clear();
         const ids = selectedIds();
         const selectedCategory = state.snapshot.categories.find(item => item.id === ids.categoryId);
         const selectedManufacturer = state.snapshot.manufacturers.find(item => item.id === ids.manufacturerId);
@@ -260,19 +257,68 @@
             return;
         }
 
-        const byParent = new Map();
+        const byParent = new Map(), byId = new Map(nodes.map(node => [Number(node.id), node]));
         nodes.forEach(node => {
             const key = node.parent_id === null ? null : Number(node.parent_id);
             if (!byParent.has(key)) byParent.set(key, []);
             byParent.get(key).push(node);
         });
-        (byParent.get(null) || []).forEach(root => elements.tree.append(renderNode(root, byParent, 0)));
-        const visibleIds = new Set(nodes.map(node => Number(node.id)));
-        const orphans = nodes.filter(node => !state.rendered.has(Number(node.id)));
-        if (orphans.length) {
-            elements.tree.append(makeElement('p', 'mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700', '상위 연결이 끊겼거나 다른 조합에 연결된 노드가 있습니다. 운영 병합 전 데이터 정합성 점검이 필요합니다.'));
-            orphans.forEach(node => { if (!state.rendered.has(Number(node.id))) elements.tree.append(renderNode(node, byParent, 0)); });
+        const path = [], visited = new Set();
+        for (const id of state.path) {
+            const node = byId.get(id);
+            if (!node || visited.has(id) || (path.length && Number(node.parent_id) !== path[path.length - 1])) break;
+            path.push(id); visited.add(id);
         }
+        state.path = path;
+        const selected = byId.get(path[path.length - 1]);
+        const breadcrumb = makeElement('nav', 'node-breadcrumb');
+        breadcrumb.setAttribute('aria-label', '노드 경로');
+        const navigate = next => { state.path = next; renderTree(); elements.tree.querySelector('.node-list-title')?.focus({preventScroll: true}); };
+        const rootButton = makeElement('button', 'rounded border px-3 py-2 text-sm', '최상위 노드');
+        rootButton.type = 'button'; rootButton.addEventListener('click', () => navigate([])); breadcrumb.append(rootButton);
+        path.forEach((id, index) => {
+            const button = makeElement('button', 'rounded border px-3 py-2 text-sm break-words', byId.get(id).name);
+            button.type = 'button'; button.dataset.pathNode = String(id);
+            if (index === path.length - 1) button.setAttribute('aria-current', 'location');
+            button.addEventListener('click', () => navigate(path.slice(0, index + 1))); breadcrumb.append(button);
+        });
+        const grid = makeElement('div', 'node-browser-grid'), list = makeElement('section', 'node-child-panel');
+        const title = makeElement('h4', 'node-list-title mb-3 font-bold', selected ? `${selected.name} · 직속 하위 노드` : '직속 최상위 노드');
+        title.tabIndex = -1; list.append(title);
+        const children = byParent.get(selected ? Number(selected.id) : null) || [];
+        const choices = makeElement('div', 'node-choices');
+        const addChoice = node => {
+            const button = makeElement('button', 'node-choice'); button.type = 'button'; button.dataset.nodeId = String(node.id);
+            button.append(makeElement('strong', 'block break-words', node.name), statusBadge(node.status),
+                makeElement('span', 'block mt-1 text-xs', `직속 하위 ${node.child_count || 0} · 옵션 ${node.option_count || 0}`));
+            if (visited.has(Number(node.id))) { button.disabled = true; button.title = '순환 연결이 감지되었습니다.'; }
+            button.addEventListener('click', () => navigate([...path, Number(node.id)])); choices.append(button);
+        };
+        children.forEach(addChoice);
+        if (!children.length) choices.append(makeElement('p', 'text-sm text-slate-500', '직속 하위 노드가 없습니다.'));
+        list.append(choices);
+        if (!selected) {
+            const reachable = new Set(), queue = [...(byParent.get(null) || [])];
+            for (let index = 0; index < queue.length; index++) {
+                const node = queue[index], id = Number(node.id);
+                if (reachable.has(id)) continue;
+                reachable.add(id); queue.push(...(byParent.get(id) || []));
+            }
+            const orphans = nodes.filter(node => !reachable.has(Number(node.id)));
+            if (orphans.length) {
+                list.append(makeElement('p', 'my-3 text-sm text-red-600', '상위 연결 또는 순환 구조를 확인할 노드가 있습니다. 아래에서 개별 선택할 수 있습니다.'));
+                const recovery = makeElement('div', 'node-choices');
+                orphans.forEach(node => {
+                    const button = makeElement('button', 'node-choice', node.name); button.type = 'button';
+                    button.dataset.orphanNode = String(node.id); button.addEventListener('click', () => navigate([Number(node.id)])); recovery.append(button);
+                });
+                list.append(recovery);
+            }
+        }
+        const detail = makeElement('section', 'node-detail-panel');
+        if (selected) detail.append(renderNode(selected));
+        else detail.append(makeElement('p', 'text-sm text-slate-500', '노드를 선택하면 해당 노드의 수정·이동·삭제와 옵션 관리가 표시됩니다.'));
+        grid.append(list, detail); elements.tree.append(breadcrumb, grid);
     }
 
     function fillParentOptions(selectedParentId, excludedIds = new Set()) {
@@ -395,13 +441,18 @@
     function renderOptions(node) {
         /* [역할] 승인 상태와 활성/임시저장 사용량을 구분하여 옵션 CRUD를 제공합니다. */
         const section = makeElement('details', 'mt-3 border-t pt-2');
+        section.open = state.openOptions.has(Number(node.id));
+        section.addEventListener('toggle', () => {
+            if (section.open) state.openOptions.add(Number(node.id)); else state.openOptions.delete(Number(node.id));
+        });
         section.append(makeElement('summary', 'cursor-pointer text-sm font-semibold', `옵션 관리 (${node.option_count || 0})`));
         const add = makeElement('button', 'my-2 rounded border px-3 py-1 text-sm disabled:opacity-40', '+ 옵션 추가');
         add.type = 'button'; add.disabled = node.status !== 'APPROVED';
         add.addEventListener('click', () => openOption(node)); section.append(add);
         const unusedOnly = document.getElementById('unusedOptionsOnly').checked;
         const options = (state.snapshot.options || []).filter(opt => Number(opt.lineup_node_id) === Number(node.id));
-        options.filter(opt => !unusedOnly || !(opt.active_equipment_count + opt.draft_equipment_count)).forEach(opt => {
+        const visibleOptions = options.filter(opt => !unusedOnly || !(opt.active_equipment_count + opt.draft_equipment_count));
+        visibleOptions.forEach(opt => {
             const used = opt.active_equipment_count + opt.draft_equipment_count;
             const card = makeElement('div', 'my-2 rounded border p-3 text-sm');
             card.append(makeElement('strong', 'break-all', opt.option_name), statusBadge(opt.status));
@@ -426,7 +477,7 @@
             });
             card.append(edit, remove, makeElement('p', 'mt-1 text-xs text-slate-500', reason)); section.append(card);
         });
-        if (!options.length) section.append(makeElement('p', 'text-xs text-slate-500', '등록된 옵션이 없습니다.'));
+        if (!visibleOptions.length) section.append(makeElement('p', 'text-xs text-slate-500', unusedOnly ? '미사용 옵션이 없습니다.' : '등록된 옵션이 없습니다.'));
         return section;
     }
 
@@ -453,8 +504,8 @@
     document.getElementById('cancelOptionButton').addEventListener('click', () => { if (!state.busy) optionDialog.close(); });
     optionDialog.addEventListener('cancel', event => { if (state.busy) event.preventDefault(); });
     document.getElementById('unusedOptionsOnly').addEventListener('change', renderTree);
-    elements.category.addEventListener('change', renderTree);
-    elements.manufacturer.addEventListener('change', renderTree);
+    elements.category.addEventListener('change', () => { state.path = []; renderTree(); });
+    elements.manufacturer.addEventListener('change', () => { state.path = []; renderTree(); });
     elements.addRoot.addEventListener('click', () => openCreateModal(null));
     elements.form.addEventListener('submit', saveNode);
     document.getElementById('closeModalButton').addEventListener('click', closeModal);

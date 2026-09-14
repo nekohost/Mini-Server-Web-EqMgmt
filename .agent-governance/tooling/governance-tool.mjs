@@ -14,6 +14,8 @@ import { fileURLToPath } from 'node:url';
 import { parseDocument } from 'yaml';
 // [역할] 입력 역할·오류 분류를 공유한다. [의존성 관계] context-input. [변경 시 영향도] CLI diagnostics.
 import { ContextInputError, CONTEXT_RECOVERY, diagnostic, classifyPaths } from './context-input.mjs';
+// 독립 프로필 선택은 legacy load보다 먼저, 전체 패키지 검사는 유지보수 validate에서 수행한다.
+import { selectRuntimeProfile, validateProfilePackage } from './execution-profile.mjs';
 
 // 현재 도구 파일의 절대 경로를 확보한다.
 const TOOL_FILE = fileURLToPath(import.meta.url);
@@ -586,7 +588,7 @@ function createSyncPlan(governance, options) {
       'manifest human_reference.sha256와 governance_version 갱신',
       '새 노드일 때만 manifest nodes 등록',
       '새 작업 유형 또는 경로일 때만 router 갱신',
-      'Staging/에서 node .agent-governance/tooling/governance-tool.mjs validate --expected-rule-sha <baseRuleHash> 오류 0건 확인',
+      '적용 경로의 작업 위치(legacy는 Staging)에서 node .agent-governance/tooling/governance-tool.mjs validate --expected-rule-sha <baseRuleHash> 오류 0건 확인',
     ],
     validationCommand: `node .agent-governance/tooling/governance-tool.mjs validate --expected-rule-sha ${syncStatus.currentRuleHash}`,
   };
@@ -649,6 +651,10 @@ function validateGovernance(governance, options = {}) {
   const errors = [];
   // 비차단 주의사항을 누적한다.
   const warnings = [];
+  // 전체 유지보수 검사에는 비활성 등록까지 포함하며 기존 검사를 생략하지 않는다.
+  let executionProfiles = null;
+  try { executionProfiles = validateProfilePackage(GOVERNANCE_ROOT); }
+  catch (error) { errors.push(`execution profiles: ${error.message}`); }
   // package.json을 JSON 표준 파서로 읽는다.
   const toolPackage = JSON.parse(readUtf8(TOOL_PACKAGE_FILE));
   // package-lock.json을 JSON 표준 파서로 읽는다.
@@ -756,6 +762,12 @@ function validateGovernance(governance, options = {}) {
   const routerNodeIds = new Set(arrayValue(governance.router.default_load));
   // 각 route load를 수집한다.
   for (const rule of arrayValue(governance.router.rules)) for (const nodeId of arrayValue(rule.load)) routerNodeIds.add(nodeId);
+  // 독립 노드는 유지보수 section의 참고 대상으로만 조회하며 일반 router에서 자동 주입하지 않는다.
+  const profileIds = new Set(executionProfiles?.profiles.map(profile => profile.id) ?? []);
+  for (const node of governance.nodes.values()) {
+    if (node.frontMatter.execution_profile === true && !profileIds.has(node.id)) errors.push(`실행 등록부에 없는 독립 노드: ${node.id}`);
+  }
+  for (const nodeId of profileIds) if (routerNodeIds.has(nodeId)) errors.push(`독립 노드가 legacy router에 주입됨: ${nodeId}`);
   // 미등록 router 노드는 fail-closed 오류다.
   for (const nodeId of routerNodeIds) if (!governance.nodes.has(nodeId)) errors.push(`router의 미등록 노드: ${nodeId}`);
   // manifest always_load와 router default_load가 달라지면 진입 경로에 따라 필수 안전 노드가 누락될 수 있다.
@@ -927,6 +939,7 @@ function validateGovernance(governance, options = {}) {
     schemaVersion: 1,
     governanceVersion: governance.manifest.governance_version,
     platformBootstrap: { files: bootstrapFiles, nodeVersion: process.versions.node, nodeSupported: Number.isInteger(nodeMajorVersion) && nodeMajorVersion >= 18 },
+    executionProfiles,
     parser: { package: 'yaml', configuredVersion: configuredYamlVersion, lockedVersion: lockedYamlVersion, installedVersion: installedYamlVersion, filesParsed: parsedYamlFiles.length, files: parsedYamlFiles },
     counts: { manifestNodes: manifestEntries.length, humanMapNodes: mappings.length, errors: errors.length, warnings: warnings.length },
     errors,
@@ -940,6 +953,7 @@ function helpText() {
   // 세 하위 명령과 반복 옵션 예시를 제공한다.
   return [
     'Usage:',
+    '  node .agent-governance/tooling/governance-tool.mjs profile',
     '  node .agent-governance/tooling/governance-tool.mjs validate [--expected-rule-sha <sha256>]',
     '  node .agent-governance/tooling/governance-tool.mjs catalog',
     '  node .agent-governance/tooling/governance-tool.mjs context --intent <id> [--intent <id>] --path <path> [--path <path>] [--reference-path <path>] [--section <n>] [--small-model]',
@@ -958,7 +972,7 @@ function printJson(value) {
 }
 
 // 명령행 진입점을 실행하고 모든 오류를 JSON과 비정상 종료 코드로 변환한다.
-function main() {
+async function main() {
   // 현재 프로세스 인수를 파싱한다.
   const { command, options } = parseArguments(process.argv.slice(2));
   // help 요청은 파일을 읽지 않고 사용법만 출력한다.
@@ -968,7 +982,13 @@ function main() {
     // 정상 종료한다.
     return;
   }
-  // 모든 실행 명령에 필요한 거버넌스 파일을 정규 파싱한다.
+  // AGENTS의 선행 선택 명령. 사용자 입력 모델을 받지 않으며 legacy 전체 load/validate 전에 종료한다.
+  if (command === 'profile') {
+    if (process.argv.length !== 3) throw new Error('profile은 옵션을 받지 않습니다. 현재 런타임을 직접 확인합니다.');
+    printJson(await selectRuntimeProfile(GOVERNANCE_ROOT, PROJECT_ROOT));
+    return;
+  }
+  // 기존 명령의 입력/출력과 전체 로딩 계약을 유지한다.
   const governance = loadGovernance();
   // validate 명령은 전체 불변식 검사를 수행한다.
   if (command === 'validate') {
@@ -1028,7 +1048,7 @@ function main() {
 // 직접 실행일 때만 CLI 진입점을 호출해 테스트에서 함수만 import할 수 있게 한다.
 if (process.argv[1] && path.resolve(process.argv[1]) === TOOL_FILE) try {
   // 실제 명령을 실행한다.
-  main();
+  await main();
 } catch (error) {
   // Error 객체와 기타 throw 값을 모두 문자열 메시지로 정규화한다.
   const message = error instanceof Error ? error.message : String(error);

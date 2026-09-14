@@ -1,10 +1,13 @@
 schema_version: 1
-governance_version: 1.6.0
+governance_version: 1.7.0
+execution_profiles:
+  registry: execution-profiles.yaml
+  sha256: DF2C818F29A9FDD05D4BD68C6B499D1B87BD184B88A1C115CD3ACD8DC850FE4E
 status: active
 replaces_root_sources: true
 human_reference:
   path: ../Rule.md
-  sha256: 37257C4FB401B88093CBA604A68C5C5E67616B4EF98A2EF97C29E547CE53901D
+  sha256: F2E6E0E7ED8AFDFE2A95BC5E935FA20D1A9812A248287427AAF4504298C10E11
   section_baseline: traceability/rule-section-baseline.yaml
   status: active
   auto_load: false
@@ -23,6 +26,7 @@ always_load:
   - context.scope-boundary
   - records.conversation-automation
 nodes:
+  profiles.gpt-6-astra: profiles/gpt-6-astra.md
   core.kernel: core/kernel.md
   core.precedence: core/precedence.md
   core.task-modes: core/task-modes.md

@@ -2,6 +2,7 @@
 (function (global) {
     'use strict';
     const fields = ['keyword', 'category_id', 'manufacturer_id', 'status', 'purchase_from', 'purchase_to', 'due', 'sort', 'per_page'];
+    let advancedSearch = false;
     let page = 1, current = null, detailGeneration = 0, previewToken = null, previewGeneration = 0, nextHistory = null;
     const byId = id => document.getElementById(id);
     // [역할] 모든 동적 HTML escape. [의존성 관계] 배지/미리보기. [변경 시 영향도] 사용자 이름/사유 XSS 방지.
@@ -26,7 +27,7 @@
     function parameters() {
         const result = global.getEquipmentListScope();
         const form = byId('roadmap-filter');
-        for (const name of fields) if (form.elements[name].value) result.set(name, form.elements[name].value);
+        for (const name of (advancedSearch ? fields : ['keyword'])) if (form.elements[name].value) result.set(name, form.elements[name].value);
         result.set('page', String(page)); result.set('paginated', '1');
         return result;
     }
@@ -36,7 +37,26 @@
         for (const name of [...fields, 'page']) url.searchParams.delete(name);
         const values = parameters();
         for (const name of [...fields, 'page']) if (values.has(name)) url.searchParams.set(name, values.get(name));
+        if (advancedSearch) url.searchParams.set('search_mode', 'advanced');
+        else url.searchParams.delete('search_mode');
         history.replaceState(null, '', url);
+    }
+    // Collapsing is a real keyword-only mode, not an invisible active-filter state.
+    function setSearchMode(advanced, refresh = false) {
+        advancedSearch = advanced;
+        const details = byId('roadmap-advanced'), toggle = byId('roadmap-search-toggle');
+        details.hidden = !advanced; details.disabled = !advanced;
+        toggle.setAttribute('aria-expanded', String(advanced));
+        toggle.textContent = advanced ? '일반검색' : '조건검색';
+        if (refresh) { page = 1; persist(); global.fetchEquipment(); }
+    }
+    function restoreSearchMode(saved) {
+        if (saved.get('search_mode') === 'simple') return false;
+        if (saved.get('search_mode') === 'advanced') return true;
+        return fields.filter(name => name !== 'keyword').some(name => {
+            const value = saved.get(name);
+            return !!value && !(name === 'sort' && value === 'newest') && !(name === 'per_page' && value === '25');
+        });
     }
     // [역할] 페이지 상태·빈 결과. [의존성 관계] 서버 count. [변경 시 영향도] 전체 행 수 표시.
     function received(data) {
@@ -118,6 +138,15 @@
         const form = byId('roadmap-filter'), saved = new URLSearchParams(location.search);
         page = Math.max(1, Number.parseInt(saved.get('page') || '1', 10) || 1);
         for (const name of fields) if (saved.has(name) && !['category_id', 'manufacturer_id'].includes(name)) form.elements[name].value = saved.get(name);
+        setSearchMode(restoreSearchMode(saved));
+        byId('roadmap-search-toggle').addEventListener('click', () => setSearchMode(!advancedSearch, true));
+        // Disclosure only: opening CSV must not search, download or reset an import preview.
+        byId('roadmap-csv-toggle').addEventListener('click', event => {
+            const panel = byId('roadmap-csv-actions');
+            panel.hidden = !panel.hidden;
+            event.currentTarget.setAttribute('aria-expanded', String(!panel.hidden));
+            event.currentTarget.textContent = panel.hidden ? 'CSV 기능' : 'CSV 닫기';
+        });
         form.addEventListener('submit', event => { event.preventDefault(); page = 1; global.fetchEquipment(); });
         form.addEventListener('reset', () => { page = 1; setTimeout(() => global.fetchEquipment(), 0); });
         byId('roadmap-prev').addEventListener('click', () => { page = Math.max(1, page - 1); global.fetchEquipment(); });

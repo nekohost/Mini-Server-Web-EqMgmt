@@ -1,29 +1,27 @@
 {% extends 'miniserver_frame.html' %}
 
-{% block title %}내 정보 (마이페이지) - 장비 관리 시스템{% endblock %}
+{% block title %}내 정보 - 장비 관리 시스템{% endblock %}
 
-{% block page_title %}내 정보 (마이페이지){% endblock %}
+{% block page_title %}내 정보{% endblock %}
 
 {% block container_class %}max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<section class="roadmap-box" aria-label="레이아웃과 장비 기한 알림 설정">
-    <h2 class="font-bold mb-3">화면 및 기한 알림</h2>
-    <label>레이아웃<select id="roadmap-skin"><option value="standard">Standard · 기본 여백</option><option value="edge">Edge · 넓고 간결한 목록</option></select></label>
-    <label><span><input type="checkbox" id="roadmap-opt-in" style="width:auto"> 장비 보증/교체 기한 이메일 알림 수신 동의</span></label>
-    <p class="text-sm my-2">인증된 본인 이메일로 기한 30일·7일·1일 전과 당일 안내합니다. 기본값은 미동의이며 언제든 해제할 수 있습니다. 기존 이메일의 인증이 필요하면 아래 이메일 변경에서 같은 주소를 다시 인증해 주세요.</p>
-    <button id="roadmap-preferences-save" type="button">설정 저장</button>
-    <p id="roadmap-preferences-message" role="status" aria-live="polite"></p>
-</section>
-<div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 md:p-8 border border-slate-200 dark:border-slate-700 transition-colors">
-    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">
-        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100">사용자 프로필</h2>
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">내 정보</h1>
+    <p class="app-content-description">사용자 정보와 보안 설정, 화면 및 알림 환경을 관리합니다.</p>
+</header>
+<!-- Independent panels preserve account/security actions; settings share one coherent area. -->
+<div class="account-layout">
+<section id="account-profile" class="account-panel bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 md:p-8 border border-slate-200 dark:border-slate-700 transition-colors" aria-labelledby="account-profile-title">
+    <div class="account-profile-heading flex flex-wrap gap-3 items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">
+        <h2 id="account-profile-title" class="text-xl font-bold text-slate-800 dark:text-slate-100">사용자 프로필</h2>
         <button type="button" onclick="openProfileModal()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-blue-400 font-bold px-3 py-1.5 rounded-lg border border-blue-200 dark:border-slate-600 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-user-pen"></i> 프로필 수정
+            프로필 수정
         </button>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
             <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">아이디</label>
             <div id="displayLoginId" class="text-base font-semibold text-slate-800 dark:text-slate-200">{{ user.LoginId }}</div>
@@ -38,42 +36,55 @@
         </div>
         <div>
             <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">이메일 주소</label>
-            <div class="flex items-center gap-2 text-base font-semibold text-slate-800 dark:text-slate-200">
+            <div class="flex flex-wrap items-center gap-2 text-base font-semibold text-slate-800 dark:text-slate-200">
                 <span id="currentEmailText">{{ user.Email if user.Email else '등록된 이메일 없음' }}</span>
                 <button type="button" onclick="document.getElementById('emailModal').classList.remove('hidden')" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 px-2 py-1 rounded">수정</button>
             </div>
         </div>
     </div>
+    <div class="account-security-actions mt-6 border-t border-slate-200 dark:border-slate-700 pt-5 flex flex-wrap gap-3">
+        <button id="openPasswordModal" type="button" onclick="openAccountDialog('passwordModal')" class="rounded-lg border border-blue-200 dark:border-blue-800 px-4 py-2 text-sm font-semibold text-blue-700 dark:text-blue-300">비밀번호 변경</button>
+        <button id="openWithdrawModal" type="button" onclick="openAccountDialog('withdrawModal')" class="rounded-lg border border-rose-200 dark:border-rose-800 px-4 py-2 text-sm font-semibold text-rose-700 dark:text-rose-300">회원 탈퇴</button>
+    </div>
+</section>
+<section id="account-preferences" class="account-panel bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 md:p-8 border border-slate-200 dark:border-slate-700 transition-colors" aria-labelledby="account-preferences-title">
 
-    <!-- UI/UX 맞춤 설정 섹션 -->
-    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">환경 설정 (UI/UX)</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-slate-50 dark:bg-slate-700/30 p-5 rounded-xl border border-slate-200 dark:border-slate-700">
-        
-        <!-- 테마 설정 -->
-        <div>
-            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-                <i class="fa-solid fa-palette text-brand-500"></i> 테마 설정
-            </label>
-            <div class="flex flex-col space-y-2">
-                <label class="flex items-center space-x-3 cursor-pointer">
-                    <input type="radio" name="theme_setting" value="light" onchange="applyThemeSetting(this.value)" class="form-radio text-brand-500 focus:ring-brand-500 h-4 w-4">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">🌞 라이트 모드</span>
-                </label>
-                <label class="flex items-center space-x-3 cursor-pointer">
-                    <input type="radio" name="theme_setting" value="dark" onchange="applyThemeSetting(this.value)" class="form-radio text-brand-500 focus:ring-brand-500 h-4 w-4">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">🌙 다크 모드</span>
-                </label>
-                <label class="flex items-center space-x-3 cursor-pointer">
-                    <input type="radio" name="theme_setting" value="system" onchange="applyThemeSetting(this.value)" class="form-radio text-brand-500 focus:ring-brand-500 h-4 w-4">
-                    <span class="text-sm font-medium text-slate-600 dark:text-slate-300">💻 시스템 설정 따름</span>
-                </label>
-            </div>
+    <h2 id="account-preferences-title" class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">환경 설정</h2>
+    <fieldset class="account-preference-group">
+        <legend class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">테마</legend>
+        <div class="flex flex-col space-y-2">
+            <label class="flex items-center gap-3 cursor-pointer"><input type="radio" name="theme_setting" value="light" onchange="applyThemeSetting(this.value)" class="text-brand-500 h-4 w-4"><span class="text-sm">라이트</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="radio" name="theme_setting" value="dark" onchange="applyThemeSetting(this.value)" class="text-brand-500 h-4 w-4"><span class="text-sm">다크</span></label>
+            <label class="flex items-center gap-3 cursor-pointer"><input type="radio" name="theme_setting" value="system" onchange="applyThemeSetting(this.value)" class="text-brand-500 h-4 w-4"><span class="text-sm">시스템 설정 따름</span></label>
         </div>
-
-
+        <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">테마는 선택하면 바로 저장됩니다. 레이아웃과 기한 알림은 아래 버튼으로 저장해 주세요.</p>
+    </fieldset>
+    <div class="account-preference-group">
+        <label for="roadmap-skin" class="block text-sm font-semibold mb-2">화면 레이아웃</label>
+        <select id="roadmap-skin" aria-describedby="roadmap-skin-help" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+            <option value="standard">Standard · 기본 너비와 배치</option>
+            <option value="edge">Edge · 가변 카드 배치와 넓은 표</option>
+        </select>
+        <p id="roadmap-skin-help" class="mt-2 text-sm text-slate-500 dark:text-slate-400">Edge는 카드·입력란의 읽기 좋은 크기를 유지하고, 화면 너비에 맞춰 카드 수와 배치를 조절합니다. 장비·로그 등의 표는 화면을 넓게 사용합니다.</p>
+    </div>
+    <div class="account-preference-group">
+        <h3 class="text-sm font-semibold mb-3">장비 기한 알림</h3>
+        <label for="roadmap-opt-in" class="flex items-start gap-3 cursor-pointer">
+            <input type="checkbox" id="roadmap-opt-in" aria-describedby="roadmap-opt-in-help" class="mt-1 h-4 w-4 shrink-0">
+            <span class="text-sm">장비 보증/교체 기한 이메일 알림 수신 동의</span>
+        </label>
+        <p id="roadmap-opt-in-help" class="mt-3 text-sm text-slate-500 dark:text-slate-400">인증된 본인 이메일로 기한 30일·7일·1일 전과 당일 안내합니다. 기본값은 미동의이며 언제든 해제할 수 있습니다. 기존 이메일의 인증이 필요하면 이메일 변경에서 같은 주소를 다시 인증해 주세요.</p>
+    </div>
+    <div class="mt-6 flex flex-wrap items-center gap-3">
+        <button id="roadmap-preferences-save" type="button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg transition">레이아웃·알림 저장</button>
+        <p id="roadmap-preferences-message" class="text-sm" role="status" aria-live="polite"></p>
     </div>
 
-    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">비밀번호 변경</h2>
+</section>
+</div>
+<dialog id="passwordModal" class="account-dialog" aria-labelledby="account-security-title">
+<section id="account-security" class="p-5 sm:p-6">
+    <h2 id="account-security-title" class="text-xl font-bold text-slate-800 dark:text-slate-100 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">비밀번호 변경</h2>
     
     <form id="passwordForm" class="space-y-5">
         <div>
@@ -93,18 +104,22 @@
         </div>
         <div id="pwMessage" class="hidden text-sm font-medium p-3 rounded-lg"></div>
         
-        <div class="flex justify-end pt-2">
+        <div class="flex flex-wrap justify-end gap-3 pt-2">
+            <button type="button" onclick="closeAccountDialog('passwordModal')" class="rounded-lg border px-4 py-2 text-sm">취소</button>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg shadow transition duration-200">
                 비밀번호 변경
             </button>
         </div>
     </form>
-
+</section>
+</dialog>
+<dialog id="withdrawModal" class="account-dialog" aria-labelledby="account-danger-title">
+<section id="account-danger" class="p-5 sm:p-6">
     <!-- 회원 탈퇴 (Soft Delete) 섹션 -->
-    <h2 class="text-xl font-bold text-rose-600 dark:text-rose-400 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6 mt-10">회원 탈퇴 (비활성화 신청)</h2>
+    <h2 id="account-danger-title" class="text-xl font-bold text-rose-600 dark:text-rose-400 border-b border-slate-200 dark:border-slate-700 pb-3 mb-6">회원 탈퇴</h2>
     <div class="bg-rose-50 dark:bg-rose-950/30 p-5 rounded-xl border border-rose-200 dark:border-rose-900/50">
         <div class="text-sm text-rose-700 dark:text-rose-300 space-y-1 mb-4 leading-relaxed">
-            <p class="font-bold">⚠️ 탈퇴 유예기간(30일) 및 파기 정책 안내:</p>
+            <p class="font-bold">탈퇴 유예기간(30일) 및 파기 정책 안내:</p>
             <p>• 회원 탈퇴 신청 시 즉시 계정이 비활성화되며 30일간의 유예기간이 부여됩니다.</p>
             <p>• 30일 이내에 다시 로그인하시면 비활성화를 철회하고 계정을 정상 복구할 수 있습니다.</p>
             <p>• 탈퇴 신청일로부터 1년 1일이 지나면 DB에서 완전 삭제되며, 소유 장비는 공개 장비로 안전하게 전환됩니다.</p>
@@ -118,20 +133,22 @@
             </div>
             <div id="withdrawMessage" class="hidden text-sm font-medium p-3 rounded-lg"></div>
 
-            <div class="flex justify-end pt-2">
+            <div class="flex flex-wrap justify-end gap-3 pt-2">
+                <button type="button" onclick="closeAccountDialog('withdrawModal')" class="rounded-lg border px-4 py-2 text-sm">취소</button>
                 <button type="submit" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-2.5 px-6 rounded-lg shadow transition duration-200 flex items-center gap-2">
-                    <i class="fa-solid fa-user-minus"></i> 회원 탈퇴 신청
+                    회원 탈퇴 신청
                 </button>
             </div>
         </form>
     </div>
-</div>
+</section>
+</dialog>
 
 <!-- 이메일 변경 모달 -->
 <div id="emailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
     <div class="bg-white dark:bg-slate-800 w-full max-w-sm rounded-xl shadow-2xl p-6 relative">
         <button type="button" onclick="document.getElementById('emailModal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            <i class="fas fa-times text-xl"></i>
+            닫기
         </button>
         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-4">이메일 주소 수정</h3>
         
@@ -160,7 +177,7 @@
 <div id="profileModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 transition-opacity">
     <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-xl shadow-2xl p-6 relative border border-slate-200 dark:border-slate-700">
         <button type="button" onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-            <i class="fas fa-times text-xl"></i>
+            닫기
         </button>
         <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">프로필 정보 수정</h3>
         <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">안전한 정보 변경을 위해 현재 비밀번호를 입력해 주세요.</p>
@@ -182,7 +199,7 @@
                        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
             </div>
             <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
-                <label class="block text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">🔒 현재 비밀번호 (본인 인증 필수)</label>
+                <label class="block text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">현재 비밀번호 (본인 인증 필수)</label>
                 <input type="password" id="currentPasswordProfile" required placeholder="현재 비밀번호를 입력하세요"
                        class="w-full px-3 py-2 border border-rose-300 dark:border-rose-700 rounded-lg focus:ring-2 focus:ring-rose-500 outline-none bg-rose-50/30 dark:bg-rose-950/20 text-slate-900 dark:text-white text-sm">
             </div>
@@ -200,6 +217,35 @@
 
 {% block extra_scripts %}
 <script>
+    let accountActionBusy = false;
+    const accountDialogs = {
+        passwordModal: {form: 'passwordForm', message: 'pwMessage', input: 'current_pw'},
+        withdrawModal: {form: 'withdrawForm', message: 'withdrawMessage', input: 'withdraw_pw'}
+    };
+    function openAccountDialog(id) {
+        if (accountActionBusy || !Object.hasOwn(accountDialogs, id)) return;
+        const {form, message, input} = accountDialogs[id];
+        document.getElementById(form).reset();
+        document.getElementById(message).classList.add('hidden');
+        const dialog = document.getElementById(id);
+        if (!dialog.open) dialog.showModal();
+        document.getElementById(input).focus();
+    }
+    function closeAccountDialog(id) {
+        if (!accountActionBusy && Object.hasOwn(accountDialogs, id)) document.getElementById(id).close();
+    }
+    function accountPending(formId, active) {
+        accountActionBusy = active;
+        document.getElementById(formId).querySelectorAll('button').forEach(button => button.disabled = active);
+    }
+    for (const [id, {form, message}] of Object.entries(accountDialogs)) {
+        const dialog = document.getElementById(id);
+        dialog.addEventListener('cancel', event => { if (accountActionBusy) event.preventDefault(); });
+        dialog.addEventListener('close', () => {
+            document.getElementById(form).reset();
+            document.getElementById(message).classList.add('hidden');
+        });
+    }
     function openProfileModal() {
         document.getElementById('editLoginId').value = "{{ user.LoginId }}";
         document.getElementById('editName').value = "{{ user.Name }}";
@@ -354,6 +400,7 @@
 
     document.getElementById('passwordForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (accountActionBusy) return;
         const current = document.getElementById('current_pw').value;
         const newPw = document.getElementById('new_pw').value;
         const newConfirm = document.getElementById('new_pw_confirm').value;
@@ -369,6 +416,9 @@
         }
 
         try {
+            accountPending('passwordForm', true);
+            msgDiv.textContent = '비밀번호를 변경하는 중입니다.';
+            msgDiv.classList.remove('hidden');
             showGlobalLoading();
             const res = await fetch('/api/change_password', {
                 method: 'POST',
@@ -396,12 +446,14 @@
             msgDiv.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
             msgDiv.classList.remove('hidden');
         } finally {
+            accountPending('passwordForm', false);
             hideGlobalLoading();
         }
     });
 
     document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        if (accountActionBusy) return;
         const password = document.getElementById('withdraw_pw').value;
         const msgDiv = document.getElementById('withdrawMessage');
 
@@ -410,6 +462,9 @@
         msgDiv.className = 'hidden text-sm font-medium p-3 rounded-lg';
 
         try {
+            accountPending('withdrawForm', true);
+            msgDiv.textContent = '탈퇴 신청을 처리하는 중입니다.';
+            msgDiv.classList.remove('hidden');
             showGlobalLoading();
             const res = await fetch('/api/users/withdraw', {
                 method: 'POST',
@@ -435,6 +490,7 @@
             msgDiv.classList.add('bg-red-50', 'text-red-600', 'border', 'border-red-200');
             msgDiv.classList.remove('hidden');
         } finally {
+            accountPending('withdrawForm', false);
             hideGlobalLoading();
         }
     });

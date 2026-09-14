@@ -1,17 +1,19 @@
 ---
 id: core.precedence
-version: 2
+version: 3
 parent: core.kernel
 source_rules: []
 source_validations: []
 source_entrypoints: [ENTRY-GEMINI.1, ENTRY-GEMINI.2, ENTRY-GEMINI.3]
 human_rule_sections: ["9-1", "9-2", "9-3"]
-source_section_digest: 24B9713A69BF921E899210C5DF3F21580989A6F2A4BCAF10E419AEA0A3416FC1
+source_section_digest: F517778201BCA4EC84208DB15D519E54BE3A362BF1A27F7B27F21D70DBFF1359
 always_load: true
 may_relax_parent: false
 ---
 
 # 규칙 우선순위와 충돌 처리
+
+이 노드는 legacy 전용이다. Codex는 먼저 AGENTS의 profile을 선택하며 독립 경로에 이 체계를 상속하지 않는다.
 
 적용 순서는 플랫폼 시스템·개발자 지시, 안전 커널, 프로젝트 공통 노드, 작업 유형 노드, 기술·경로 노드, 승인된 작업 계획, 현재 요청의 세부 조건이다.
 

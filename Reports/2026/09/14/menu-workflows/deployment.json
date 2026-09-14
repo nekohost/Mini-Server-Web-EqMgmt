@@ -1,0 +1,114 @@
+{
+  "baseline_head": "5ab042a7cb1a4acd25af64732c6a1f64b644db94",
+  "old_pid": 88513,
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/ui-menu-workflows-20260914T082819Z",
+  "db_before": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "tested_candidate": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/menu-workflows-fixture-_91qq70t",
+  "files": {
+    "app.py": {
+      "before": "58d99fd0b4055f05525312bd8fe00c4d8944ce533cfff00cfc4c56f4bdbfd15a",
+      "after": "d36e0453cc866919706e1805b3b485792e49ad58145858668239aeef6aa26367"
+    },
+    "static/css/layout.css": {
+      "before": "68a6177fd715b1f1c092fbe34e15830ddff0ccdf1f6dff0e04bc732575ab435e",
+      "after": "aa8dab6e10aa1272047de089e680dad24f33ad815c7a5f17791ff8d555d8860c"
+    },
+    "static/js/menu_cards.js": {
+      "before": "e0d4315be32538fc29e540ba30560ee7790181b774190f9ec1a6369d6c8dca69",
+      "after": "8da32071d13c91ff9e501740d8316bb9a4e6d424c8100489afb0191c697be6ca"
+    },
+    "static/js/my_approvals.js": {
+      "before": null,
+      "after": "3c68edaf5504bf2d66c09341c508ae4986c5ceac8c6fe5ac79840c691522ddb4"
+    },
+    "static/js/permissions.js": {
+      "before": null,
+      "after": "8a0472794cf06bb89e694b8f5ef83d7c6b4f2265408effd42972f02ea9abdf1e"
+    },
+    "static/js/session_timer.js": {
+      "before": "6aec06a278602311ed94d36a7ae3ddb473ddd9a65b4cac3a8ad15b4a79f13344",
+      "after": "1eacede1b68319d8b47959e2da5a139f4cefa3b2d81bf868b65f6b3f8c722923"
+    },
+    "templates/access_logs.html": {
+      "before": "843f5bf6980a9710f0ca887f9267beeb89bfac37c26c7c37bf71f527d210d481",
+      "after": "253db00ce344121d7be399073eba8309be28cb8fec9b149fbfec140729446ac9"
+    },
+    "templates/access_logs_error_ips.html": {
+      "before": "20ab96479854aa7bef9c349fbf7301aef134a5c2083f19b4ca9f0739576a8ce6",
+      "after": "43047401fb132d5bae70e715826ec9dfef278509b964b01e889112013cf6f2e8"
+    },
+    "templates/admin_center.html": {
+      "before": "4d65ec304f346ec4a6e80150fbf62ccecafe18e5212362561ccfa80d84668366",
+      "after": "a230f18e0fb24c20837a0dbae6f13f4846a659cadd69731e59017a74bd86f7a6"
+    },
+    "templates/approvals.html": {
+      "before": "82380467a44c53e436fa7f6e686f21473d57b4f4ad24a646be594ede2c441b0d",
+      "after": "a8855a7e8b6a73c15cfe4584d97d6c9e7904d56cb1cebe0b70435b9d38e0c3f2"
+    },
+    "templates/audit_logs.html": {
+      "before": "a0c562fd3a96fb340268450a67e38f2eac246251b0ec44a767a46c0a9c04051f",
+      "after": "d4f7f2587f4642bef343588d2ebfa76cd42094ae058ed3a9799e40f23245dad3"
+    },
+    "templates/index.html": {
+      "before": "86c6027aee57323e6a9076712efb6cfc1d2cae54fab9d10727c0dd362e760f7b",
+      "after": "22bd361f0bc5e9be0ea3fe01c4841e898cadc27d74b960d500f4e8f37107d645"
+    },
+    "templates/lineup_management.html": {
+      "before": "825a4c10f0e3804f6706c080f62b7094b8034e9224073b85bad4c7a9c4eaf5e7",
+      "after": "d244f1a3d96a142dfe3044a1755bd5de35d0c815a2fcddf19b2d514093728637"
+    },
+    "templates/master_management.html": {
+      "before": "45470c08666eca2e65a63481e0f2266737926ae4c4334ea64cd6e568cf7e9639",
+      "after": "ecfba78414372e2c8233d334c79b611beb6f5f76cd1f5b61272b4b9e0e832f1f"
+    },
+    "templates/miniserver_frame.html": {
+      "before": "a18d03e443a2a4029f112bfebf7f8e8fc905dc26d0be3c5a64666925694b42f8",
+      "after": "636a4796a0d185dfbf0e3b84088716185c58d62c487f524d7c281e63e7a5faf1"
+    },
+    "templates/my_approvals.html": {
+      "before": null,
+      "after": "5e02a6450262233b5a0ac17baada02fc8eba2bd71e5cd04f87501fe2d91d093e"
+    },
+    "templates/mypage.html": {
+      "before": "54d41198ad9fd2f2e76bf5c4e9a5ad803c93dc1637593a47632ba4414cd358fe",
+      "after": "10837f82b732fe65afa47655878481b9df9902138313b947639fc161a8fe3d12"
+    },
+    "templates/permissions.html": {
+      "before": "11e7856a104d72bf5b043fb8a902dd6988fdb14b7ce56a86edc42f34c50b2275",
+      "after": "1e2b30cff05f9e1036b3c53b2349476bfc5fdf04d0bd2c4ade45cb2f8da883da"
+    }
+  },
+  "status": "deployed",
+  "new_pid": 90538,
+  "db_after": {
+    "integrity": "ok",
+    "foreign_key_violations": 0,
+    "rows": {
+      "users": 3,
+      "equipments": 1,
+      "equipment_options": 1,
+      "lineup_nodes": 12
+    }
+  },
+  "health": 200,
+  "migration": {
+    "new_menu": "my_approvals",
+    "personal_roles": [
+      "admin",
+      "user"
+    ],
+    "legacy_grants_moved": [
+      "user"
+    ],
+    "other_metadata_unchanged": true
+  }
+}

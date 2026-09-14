@@ -1,7 +1,7 @@
 # Mini-Server-Web-EqMgmt 통합 거버넌스 규칙
 
 > [!IMPORTANT]
-> 이 문서는 **사용자가 전체 정책을 한 번에 읽기 위한 통합 핸드북**입니다. 일반 AI 작업의 자동 로딩 대상이 아닙니다. Codex, Gemini/Antigravity, Claude 등 AI는 각 제품 진입점과 `.agent-governance/manifest.yaml`, `.agent-governance/router.yaml`이 지정한 노드를 읽습니다. AI가 이 문서를 읽는 경우는 사용자가 Rule 자체의 검토·개정·동기화를 요청했을 때로 제한합니다.
+> 이 문서는 **사용자가 전체 정책을 한 번에 읽기 위한 통합 핸드북**입니다. 일반 AI 작업의 자동 로딩 대상이 아닙니다. Codex, Gemini/Antigravity, Claude 등 AI는 각 제품 진입점에서 실행 경로를 선택합니다. 기존 경로는 manifest/router의 노드를, 확인된 Codex/GPT-6 Astra는 12장의 독립 노드를 읽습니다. AI가 이 문서를 읽는 경우는 사용자가 Rule 자체의 검토·개정·동기화를 요청했을 때로 제한합니다.
 
 이 프로젝트는 개인 보유 장비(노트북, 보조배터리, 모니터, 이어폰 등)를 등록하고 관리하기 위해 Windows PC에서 개발하여 GitHub를 거쳐 Linux Lite 미니서버에 배포되는 웹 애플리케이션입니다.
 
@@ -734,7 +734,9 @@ Chat 기록 외의 소스 코드, 문서, 리소스 쓰기는 IDE 또는 에이�
 
 ### 9-1. 작업 시작 전 규칙 확인
 
-AI는 매 행위 전 안전 커널을 확인하고, 각 작업을 시작하기 전에 manifest와 router를 통해 적용 규칙 노드를 읽습니다.
+이 절을 포함한 기존 1~11장의 강제 절차는 legacy 경로의 실행 계약입니다. Codex는 AGENTS에서 먼저 12장의 런타임 선택을 수행하며 확인된 전용 대상에는 기존 절차를 상속시키지 않습니다. 나머지 플랫폼·모델은 기존 경로를 그대로 유지합니다.
+
+legacy 경로의 AI는 매 행위 전 안전 커널을 확인하고, 각 작업을 시작하기 전에 manifest와 router를 통해 적용 규칙 노드를 읽습니다.
 
 먼저 `catalog`로 지원 작업 종류와 경로를 확인합니다. `--path`에는 실제 작업 대상을, `--reference-path`에는 읽기 전용 참고·영향 대상을 별도로 선언합니다. 둘 다 적용 규칙 선택에 사용하지만 참고 경로가 수정 권한을 부여하지 않습니다. DB migration·컬럼 변경과 UI 작업의 필수 안전 노드는 intent로 선택하고, 경로 유효성은 정규화 후 독립 검증합니다. 일반 intent로 미등록 경로를 자동 허용하지 않습니다. Staging은 실제 후보 경로 그대로 선언하며 통과 목적으로 무관한 운영 경로를 추가하거나 원본 경로를 자동 추측하지 않습니다. 모든 관련 intent와 두 종류의 경로, 필요한 section을 전달하고 반환된 pack의 노드를 빠짐없이 읽습니다.
 
@@ -1106,7 +1108,7 @@ AI는 일반 작업에서 통합 `Rule.md`를 자동으로 읽지 않습니다. 
 
 ### 11-3. 정책 변경의 동시 반영
 
-정책 변경은 통합 Rule, 대상 노드, 노드의 `human_rule_sections`, 관련 traceability map, manifest의 Rule 해시·거버넌스 버전을 같은 변경 단위에서 갱신해야 합니다. 새 노드를 만들면 manifest의 `nodes` 등록과 필요한 router route도 함께 갱신합니다.
+정책 변경은 통합 Rule, 대상 노드, 노드의 `human_rule_sections`, 관련 traceability map, manifest의 Rule 해시·거버넌스 버전을 같은 변경 단위에서 갱신해야 합니다. 새 노드를 만들면 manifest의 `nodes` 등록과 필요한 router route도 함께 갱신합니다. 독립 실행 노드는 일반 router의 always_load에 넣지 않고 실행 등록부로 연결합니다. 전용 경로의 정책 유지보수도 의미·추적성·해시 정합성은 검증하되 작업 방식은 12장을 따릅니다.
 
 > `[통합 정책 ID: HUMAN-11.3 | 주 노드: governance.rule-sync | 보조 노드: governance.human-reference | 경로: .agent-governance/governance/rule-sync.md]`
 
@@ -1124,7 +1126,7 @@ Rule과 노드가 불일치하면 어느 한쪽을 묵시적으로 우선하지 
 
 ### 11-6. Staging과 사용자 승인
 
-루트 Rule 변경 전에 `Staging/Rule.md`를 작성하고 의미 동등성, 포인터, 가독성, 롤백을 검증한 뒤 사용자 승인을 받습니다. 사용자가 Staging 통합 Rule에 직접 추가했거나 명시적으로 승인한 정책은 운영 병합 과정에서 누락하거나 이전 초안으로 덮어쓰지 않으며, 가리키는 실행 노드·추적성 원장·manifest 해시와 버전에도 같은 의미와 변경 상태를 유지합니다.
+legacy 경로는 루트 Rule 변경 전에 `Staging/Rule.md`를 작성하고 의미 동등성, 포인터, 가독성, 롤백을 검증한 뒤 사용자 승인을 받습니다. 사용자가 Staging 통합 Rule에 직접 추가했거나 명시적으로 승인한 정책은 운영 병합 과정에서 누락하거나 이전 초안으로 덮어쓰지 않으며, 가리키는 실행 노드·추적성 원장·manifest 해시와 버전에도 같은 의미와 변경 상태를 유지합니다. 독립 경로의 고정 Staging·8단계 비적용은 12장을 따르며 최초 도입 전에는 아직 활성화되지 않은 전용 노드로 자신의 전환 검증을 생략하지 않습니다.
 
 > `[통합 정책 ID: HUMAN-11.6 | 주 노드: governance.human-reference | 보조 노드: operations.staging, workflow.staging-merge | 경로: .agent-governance/governance/human-reference.md]`
 
@@ -1136,9 +1138,45 @@ Rule과 노드가 불일치하면 어느 한쪽을 묵시적으로 우선하지 
 
 ### 11-8. 변경 탐지·반영 확인·동시성 차단
 
-Rule을 수정하려는 AI는 먼저 Staging 작업 디렉터리에서 `sync-status`를 실행하여 추가·변경·삭제된 모든 섹션을 확인합니다. 반환된 `currentRuleHash`를 동기화 계획과 최종 검증의 `--expected-rule-sha`에 그대로 지정하여, 계획 수립 뒤 Rule이 다시 바뀐 경우 적용을 차단합니다. 변경이 있으면 그 전체 섹션 집합으로 `sync-plan`을 실행하고, 출력된 대상 노드의 정책 본문·추적성 map·섹션 기준선·각 노드의 `source_section_digest`를 함께 갱신합니다. 도구는 의미 문장을 자동 작성하지 않으며, 추가된 섹션에 매핑이 없거나 삭제로 인해 참조 섹션이 사라지면 AI가 소유 노드를 판단·수정할 때까지 fail-closed로 중지합니다.
+Rule을 수정하려는 AI는 먼저 적용 경로의 작업 위치(legacy는 Staging)에서 `sync-status`를 실행하여 추가·변경·삭제된 모든 섹션을 확인합니다. 반환된 `currentRuleHash`를 동기화 계획과 최종 검증의 `--expected-rule-sha`에 그대로 지정하여, 계획 수립 뒤 Rule이 다시 바뀐 경우 적용을 차단합니다. 변경이 있으면 그 전체 섹션 집합으로 `sync-plan`을 실행하고, 출력된 대상 노드의 정책 본문·추적성 map·섹션 기준선·각 노드의 `source_section_digest`를 함께 갱신합니다. 도구는 의미 문장을 자동 작성하지 않으며, 추가된 섹션에 매핑이 없거나 삭제로 인해 참조 섹션이 사라지면 AI가 소유 노드를 판단·수정할 때까지 fail-closed로 중지합니다.
 
 > `[통합 정책 ID: HUMAN-11.8 | 주 노드: governance.rule-sync | 보조 노드: governance.human-reference, workflow.staging-merge | 경로: .agent-governance/governance/rule-sync.md]`
+
+---
+
+## 12. 모델별 독립 실행 경로
+
+기존 거버넌스는 모델의 한계를 보완하는 강제 도구입니다. 전용 경로는 공통 강제 체계의 예외가 아니라 이를 상속하지 않는 별도 실행 계약입니다. 현재 최초 대상은 확인된 Codex/GPT-6 Astra 하나이며, 다른 플랫폼·모델의 기존 절차는 바뀌지 않습니다.
+
+### 12-1. 진입·실제 모델 확인·등록
+
+AGENTS 진입점과 대화 기록기의 검증된 preflight를 유지합니다. legacy 전수 load/validate 전에 `governance-tool.mjs profile`로 현재 작업 ID·진행 중 턴·cwd에 연결된 런타임 모델을 확인합니다. 정확한 platform/model 조합을 선언형 등록부의 활성 항목과 대조합니다. 자가 선언·CLI 모델명·기본 설정·과거 완료 턴·부모 작업의 모델로 선택하지 않습니다. 출력은 관측 모델, 턴/작업, 정책 버전, 선택 이유, 실제 노드이며 대화 본문·비밀은 출력하지 않습니다.
+
+> `[통합 정책 ID: HUMAN-12.1 | 노드: profiles.gpt-6-astra | 경로: .agent-governance/profiles/gpt-6-astra.md]`
+
+### 12-2. 독립 노드의 작업 책임
+
+선택된 노드는 parent 없이 기존 kernel·always_load·Task 모드·Staging·Validation 체인을 상속하지 않습니다. 고정 Staging 복사/병합/정리, 고정 8단계, 매 작업 Plan/Task/Report 분리와 매 행 설명 주석을 요구하지 않습니다. 승인 범위의 목표까지 자율적으로 수행하되 질문·검토·계획을 승인 없는 구현으로 확대하지 않고 이미 승인된 범위를 반복 확인하지 않습니다. 플랫폼 지시와 도구 권한은 별도로 지킵니다.
+
+사용자 데이터·기존 변경·기록·비밀을 보존하며 Diff와 복구가 가능한 구조화 편집을 사용합니다. 파괴적 조치의 정확한 대상과 승인, 적절한 검증·복구 수단, 사실에 근거한 결과·제한 보고 책임은 직접 유지합니다. 설명이 필요한 설계와 의존성을 남기고 사용자 지정 절차는 존중합니다. Windows 편집/정적 검사/거버넌스 격리 시험과 지정 Linux 서버의 실제 Flask 실행 역할, 작업 owner 경계, 자동 기록과 Git 읽기 보호 도구를 유지합니다. 기술 자료나 capability 참조가 legacy 절차 전체의 재활성화를 뜻하지 않습니다.
+
+> `[통합 정책 ID: HUMAN-12.2 | 노드: profiles.gpt-6-astra | 경로: .agent-governance/profiles/gpt-6-astra.md]`
+
+### 12-3. 오류·턴 전환·확장
+
+미확인·미등록·명시적 비활성은 이유를 표시하고 legacy 경로를 선택합니다. 확인된 대상의 노드 누락·손상, 등록부 손상·중복 매핑·경로 탈출·상속은 구성 오류로 중지하며 성공이나 무음 fallback으로 숨기지 않습니다. 매 턴 및 모델·작업·정책 변경 후 재선택하고 하위 작업자는 자신의 경로를 사용합니다. 앱의 지침 캐시를 강제 제거한다고 주장하지 않으며, 이전 지침의 기억과 현재 적용 범위를 구분합니다.
+
+향후 실제 적합성·접근성·도구 지원과 사용자 채택이 확인된 모델은 정확한 식별자·독립 노드·등록 항목으로 추가합니다. 지원 플랫폼의 모델 추가에 로더 조건문 변경을 요구하지 않되 새 플랫폼 어댑터는 별도 구현할 수 있습니다. 버전 번호나 출시만으로 자동 승격하지 않습니다. Claude Fable 5.1과 가칭 Gemini 4 Pro는 향후 검토 예시일 뿐 이번 등록·비활성 예약·전용 파일·어댑터 대상이 아닙니다.
+
+> `[통합 정책 ID: HUMAN-12.3 | 노드: profiles.gpt-6-astra | 경로: .agent-governance/profiles/gpt-6-astra.md]`
+
+### 12-4. 유지보수 검증·활성화·복구
+
+일상 전용 선택은 등록부·선택 노드·패키지 경계의 최소 계약을 확인하며 기존 노드 전수 로딩·검증을 요구하지 않습니다. 전체 유지보수 validate는 기존 검사와 새 등록 연결을 모두 검증합니다. Rule 검토·개정 때만 통합 Rule과 human-rule-map을 함께 읽고, 변경 섹션 전체의 sync-status/sync-plan 및 같은 expected-rule-sha, 의미 대조, 관련 노드·map·baseline·manifest·등록부의 버전/해시를 일치시킵니다. 해시 정합성만으로 의미 동등성을 주장하지 않습니다.
+
+활성화·복구는 관련 파일을 한 정책 패키지로 다루고 시작/종료의 버전·해시 불일치로 부분 반영을 탐지합니다. 다중 파일 교체가 원자적이라고 주장하지 않으며 저장소 전체 reset이나 무관한 변경·DB 복원은 하지 않습니다. 일상 검증과 정책 유지보수 검증의 분리는 고정 Staging·8단계를 전용 경로에 다시 부과하는 수단이 아닙니다. 서비스·DB를 바꾸지 않는 정책 변경만으로 Linux 서비스를 재시작하지 않습니다.
+
+> `[통합 정책 ID: HUMAN-12.4 | 노드: profiles.gpt-6-astra | 경로: .agent-governance/profiles/gpt-6-astra.md]`
 
 ---
 

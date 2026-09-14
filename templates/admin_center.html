@@ -3,13 +3,13 @@
 {% block page_title %}관리자 센터{% endblock %}
 
 {% block content %}
-<div class="mb-6">
-    <h2 class="text-2xl font-bold text-slate-800">👑 관리자 센터</h2>
-    <p class="text-slate-500 text-sm mt-1">시스템 관리자 전용 메뉴 허브입니다.</p>
-</div>
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">관리자 센터</h1>
+    <p class="app-content-description">시스템 관리자 전용 메뉴 허브입니다.</p>
+</header>
 
 <!-- 서브 메뉴들이 렌더링 될 그리드 -->
-<div id="admin-menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+<div id="admin-menus-grid" class="edge-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     <!-- 자바스크립트로 렌더링 -->
 </div>
 
@@ -26,17 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            menus.forEach(menu => {
-                grid.innerHTML += `
-                    <a href="${menu.Url}" class="group block bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-md hover:border-blue-400 dark:hover:border-blue-500 transition-all duration-200 transform hover:-translate-y-1">
-                        <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">${menu.MenuName}</h2>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">${menu.Description}</p>
-                        <div class="mt-4 flex justify-end">
-                            <span class="text-blue-600 dark:text-blue-400 font-medium text-sm group-hover:underline">입장하기 &rarr;</span>
-                        </div>
-                    </a>
-                `;
-            });
+            window.MenuCards.render(grid, window.MenuCards.orderAdmin(menus));
         })
         .catch(err => {
             console.error('관리자 메뉴 조회 실패:', err);

@@ -1,4 +1,6 @@
 {% extends 'miniserver_frame.html' %}
+{% block parent_menu_url %}/admin_center{% endblock %}
+{% block parent_menu_name %}관리자 센터{% endblock %}
 
 {% block title %}사용자 관리 - 장비 관리 시스템{% endblock %}
 
@@ -7,19 +9,21 @@
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<div class="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100">사용자 관리</h2>
-    <div class="flex flex-wrap items-center gap-2">
-        <button onclick="forceLogoutSelected()" id="btnForceSelected" class="hidden px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+<header class="app-page-heading app-content-header">
+    <h1 class="app-content-title">사용자 관리</h1>
+    <p class="app-content-description">사용자 계정과 역할을 확인하고 선택한 사용자의 세션 및 계정 상태를 관리합니다.</p>
+</header>
+<div class="app-page-controls app-header-actions">
+        <button onclick="forceLogoutSelected()" id="btnForceSelected" data-selection-action disabled title="사용자를 먼저 선택하세요." class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             ✓ 선택 세션 파기
         </button>
-        <button onclick="deactivateSelectedUsers(true)" id="btnDeactivateSelected" class="hidden px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+        <button onclick="deactivateSelectedUsers(true)" id="btnDeactivateSelected" data-selection-action disabled title="사용자를 먼저 선택하세요." class="px-3.5 py-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             🚫 선택 비활성화
         </button>
-        <button onclick="deactivateSelectedUsers(false)" id="btnReactivateSelected" class="hidden px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+        <button onclick="deactivateSelectedUsers(false)" id="btnReactivateSelected" data-selection-action disabled title="사용자를 먼저 선택하세요." class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             ✅ 선택 활성화
         </button>
-        <button onclick="deleteSelectedUsers()" id="btnDeleteSelected" class="hidden px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+        <button onclick="deleteSelectedUsers()" id="btnDeleteSelected" data-selection-action disabled title="사용자를 먼저 선택하세요." class="px-3.5 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             🗑️ 선택 영구 삭제
         </button>
         <button onclick="forceLogoutAll(false)" class="px-3.5 py-2 bg-slate-600 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
@@ -29,7 +33,6 @@
             🚨 전체 파기 (본인 포함)
         </button>
     </div>
-</div>
 
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
     <div class="overflow-x-auto">
@@ -140,6 +143,7 @@
                 </tr>
             `;
         });
+        updateSelectedButton();
     }
 
     async function changeRole(userId, newRole) {
@@ -229,24 +233,19 @@
         const btnDelete = document.getElementById('btnDeleteSelected');
         const count = checkedBoxes.length;
 
-        if (count > 0) {
-            btnForce.classList.remove('hidden');
-            btnForce.innerText = `✓ ${count}명 세션 파기`;
-
-            btnDeactivate.classList.remove('hidden');
-            btnDeactivate.innerText = `🚫 ${count}명 비활성화`;
-
-            btnReactivate.classList.remove('hidden');
-            btnReactivate.innerText = `✅ ${count}명 활성화`;
-
-            btnDelete.classList.remove('hidden');
-            btnDelete.innerText = `🗑️ ${count}명 영구 삭제`;
-        } else {
-            btnForce.classList.add('hidden');
-            btnDeactivate.classList.add('hidden');
-            btnReactivate.classList.add('hidden');
-            btnDelete.classList.add('hidden');
+        for (const button of [btnForce, btnDeactivate, btnReactivate, btnDelete]) {
+            button.disabled = count === 0;
+            button.title = count ? `선택한 ${count}명에게 적용` : '사용자를 먼저 선택하세요.';
         }
+        const target = count ? `${count}명` : '선택';
+        btnForce.textContent = `✓ ${target} 세션 파기`;
+        btnDeactivate.textContent = `🚫 ${target} 비활성화`;
+        btnReactivate.textContent = `✅ ${target} 활성화`;
+        btnDelete.textContent = `🗑️ ${target} 영구 삭제`;
+        const allCount = document.querySelectorAll('.user-checkbox').length;
+        const all = document.getElementById('selectAllCheckbox');
+        all.checked = allCount > 0 && count === allCount;
+        all.indeterminate = count > 0 && count < allCount;
     }
 
     async function toggleSingleDeactivation(userId, loginId, isCurrentlyDeactivated) {

@@ -1,0 +1,17 @@
+{
+  "pid": 84781,
+  "cwd_matches": true,
+  "files_match": true,
+  "integrity": "ok",
+  "foreign_key_violations": 0,
+  "business_rows_identical": {
+    "equipments": true,
+    "equipment_options": true,
+    "lineup_nodes": true,
+    "menus": true,
+    "role_menu_permissions": true
+  },
+  "user_identity_role_password_unchanged": true,
+  "all_users_effective_preferences_restored": true,
+  "startup_error_markers": 0
+}

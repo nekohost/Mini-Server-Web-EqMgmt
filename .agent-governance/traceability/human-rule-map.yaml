@@ -5,6 +5,13 @@ human_reference: ../../Rule.md
 purpose: "사용자용 통합 Rule 조항과 AI 실행 노드 및 세 원본 추적 ID의 양방향 연결"
 activation_policy: fail-closed-on-mismatch
 mappings:
+  - node_id: profiles.gpt-6-astra
+    node_path: profiles/gpt-6-astra.md
+    human_rule_sections: ["12", "12-1", "12-2", "12-3", "12-4"]
+    source_rules: []
+    source_validations: []
+    source_entrypoints: [ENTRY-CODEX.PROFILE]
+    source_human: [HUMAN-12.1, HUMAN-12.2, HUMAN-12.3, HUMAN-12.4]
   - node_id: core.kernel
     node_path: core/kernel.md
     human_rule_sections: ["4", "4-4-1", "6-4-3", "9-6", "9-6-1", "9-7", "10-1-2", "10-1-3", "10-1-4"]

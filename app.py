@@ -741,7 +741,7 @@ def init_db():
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'audit_logs', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'users_management', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'dashboard', 1, now))
-    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'approvals', 1, now))
+    cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'approvals', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'master_management', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'access_logs', 0, now))
     cursor.execute("INSERT OR IGNORE INTO role_menu_permissions (Role, MenuCode, IsAllowed, UpdatedAt) VALUES (?, ?, ?, ?)", ('user', 'maintenance_admin', 0, now))
@@ -931,6 +931,40 @@ def migrate_lineup_management_menu():
 
 
 run_migration_if_needed('proposal_047_lineup_management_menu', migrate_lineup_management_menu)  # 최초 한 번 적용합니다.
+
+def migrate_personal_approvals_menu():
+    """Add the own-request portal entry, without granting the admin-center parent.
+
+    Menu/permissions and the one-time marker commit together. Existing independent
+    grants are retained; an unreachable legacy approvals grant moves to the own inbox.
+    """
+    connection = get_db_connection()
+    try:
+        with connection:
+            migration = 'personal_approvals_portal_20260914'
+            if connection.execute('SELECT 1 FROM sys_migrations WHERE MigrationName=?', (migration,)).fetchone():
+                return
+            existing = connection.execute("SELECT Url,ParentMenuCode FROM menus WHERE MenuCode='my_approvals'").fetchone()
+            if existing and (existing['Url'] != '/my_approvals' or existing['ParentMenuCode'] is not None):
+                raise RuntimeError('my_approvals menu conflicts with the dedicated personal inbox')
+            now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            connection.execute("""INSERT OR IGNORE INTO menus
+                (MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt)
+                VALUES ('my_approvals','나의 결재함','/my_approvals',
+                        '내가 상신한 요청의 진행 상태와 승인·반려 이력',NULL,5,?,?)""", (now, now))
+            roles = connection.execute("SELECT Role FROM users UNION SELECT Role FROM role_menu_permissions UNION SELECT 'admin' UNION SELECT 'user'").fetchall()
+            for row in roles:
+                connection.execute("INSERT OR IGNORE INTO role_menu_permissions (Role,MenuCode,IsAllowed,UpdatedAt) VALUES (?,'my_approvals',1,?)", (row['Role'], now))
+            connection.execute("""UPDATE role_menu_permissions SET IsAllowed=0,UpdatedAt=?
+                WHERE MenuCode='approvals' AND Role!='admin' AND IsAllowed=1
+                AND NOT EXISTS (SELECT 1 FROM role_menu_permissions parent
+                    WHERE parent.Role=role_menu_permissions.Role AND parent.MenuCode='admin_center' AND parent.IsAllowed=1)""", (now,))
+            connection.execute('INSERT INTO sys_migrations (MigrationName,AppliedAt) VALUES (?,?)', (migration, now))
+    finally:
+        connection.close()
+
+
+migrate_personal_approvals_menu()
 
 def migrate_equipment_is_public():
     """
@@ -3110,9 +3144,19 @@ def approvals_page():
     [의존성 관계]: approvals.html
     [변경 시 영향도]: 승인 처리 UI 접근에 영향을 줍니다.
     """
+    if session['user']['Role'] != 'admin':
+        return redirect(url_for('my_approvals_page'))
     if not check_menu_permission('approvals'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
     return render_template('approvals.html', user=session['user'])
+
+@app.route('/my_approvals')
+@login_required
+def my_approvals_page():
+    """Personal read-only inbox; independent of administrator processing permissions."""
+    if not check_menu_permission('my_approvals'):
+        return '접근 권한이 없습니다.', 403
+    return render_template('my_approvals.html', user=session['user'])
 
 @app.route('/master_management')
 @login_required
@@ -4428,6 +4472,41 @@ def get_master_data():
 # ------------------------------------------
 # [제안-027] 전자결재 API
 # ------------------------------------------
+@app.route('/api/my_approvals', methods=['GET'])
+@login_required
+def get_my_approvals():
+    """Bind history to the authenticated requester, including administrator callers.
+
+    Client-supplied IDs/scope never select an owner. No mutation or processing action.
+    """
+    if not check_menu_permission('my_approvals'):
+        return jsonify(success=False, message='접근 권한이 없습니다.'), 403
+    status = request.args.get('status', '').strip()
+    try:
+        page = int(request.args.get('page', '1'))
+        per_page = int(request.args.get('per_page', '25'))
+        if page < 1 or not 1 <= per_page <= 100 or status not in ('', 'PENDING', 'APPROVED', 'REJECTED'):
+            raise ValueError()
+    except (ValueError, TypeError):
+        return jsonify(success=False, message='목록 조회 조건이 올바르지 않습니다.'), 400
+    where, values = 'RequesterId=?', [session['user']['UserId']]
+    if status:
+        where += ' AND Status=?'
+        values.append(status)
+    connection = get_db_connection()
+    try:
+        total = connection.execute('SELECT COUNT(*) FROM approval_requests WHERE ' + where, values).fetchone()[0]
+        pages = max(1, (total + per_page - 1) // per_page)
+        page = min(page, pages)
+        rows = connection.execute('''SELECT RequestId,RequestType,RequestDataJSON,Status,
+            RejectReason,CreatedAt,UpdatedAt FROM approval_requests WHERE ''' + where +
+            ' ORDER BY RequestId DESC LIMIT ? OFFSET ?', [*values, per_page, (page - 1) * per_page]).fetchall()
+        return jsonify(success=True, data=[dict(row) for row in rows], total=total,
+                       page=page, pages=pages, per_page=per_page)
+    finally:
+        connection.close()
+
+
 @app.route('/api/approvals', methods=['GET'])
 @login_required
 def get_approvals():
@@ -4437,6 +4516,8 @@ def get_approvals():
     [변경 시 영향도] 전자결재함 대시보드의 테이블 출력 데이터 형식이 변경됩니다.
     """
     user = session['user']
+    if user['Role'] != 'admin' and not check_menu_permission('my_approvals'):
+        return jsonify(success=False, message='접근 권한이 없습니다.'), 403
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -5110,7 +5191,7 @@ def get_permissions():
             m.ParentMenuCode,
             m.SortOrder,
             COALESCE(p.IsAllowed, 0) as IsAllowed
-        FROM (SELECT DISTINCT Role FROM users UNION SELECT 'admin' UNION SELECT 'user') r
+        FROM (SELECT DISTINCT Role FROM users UNION SELECT Role FROM role_menu_permissions UNION SELECT 'admin' UNION SELECT 'user') r
         CROSS JOIN menus m
         LEFT JOIN role_menu_permissions p ON p.Role = r.Role AND p.MenuCode = m.MenuCode
         ORDER BY r.Role ASC, m.SortOrder ASC, m.MenuId ASC

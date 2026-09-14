@@ -1,0 +1,916 @@
+{
+  "origin": "https://nekohost.org",
+  "account": "guide_test_user",
+  "screens": [
+    {
+      "route": "/mypage-standard",
+      "width": 1920,
+      "skin": "standard",
+      "overflow": 0,
+      "main": {
+        "x": 624,
+        "y": 65,
+        "width": 672
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 656,
+          "y": 97,
+          "width": 608
+        },
+        {
+          "x": 656,
+          "y": 374,
+          "width": 608
+        },
+        {
+          "x": 656,
+          "y": 1076,
+          "width": 608
+        },
+        {
+          "x": 656,
+          "y": 1541,
+          "width": 608
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 660,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 378,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 843,
+          "width": 612
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-dark-edge",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 660,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 378,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 843,
+          "width": 612
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 139,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 12,
+          "y": 171,
+          "width": 296
+        },
+        {
+          "x": 12,
+          "y": 600,
+          "width": 296
+        },
+        {
+          "x": 12,
+          "y": 1422,
+          "width": 296
+        },
+        {
+          "x": 12,
+          "y": 1871,
+          "width": 296
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 129,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 12,
+          "y": 161,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 566,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1308,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1757,
+          "width": 366
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 109,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 141,
+          "width": 608
+        },
+        {
+          "x": 24,
+          "y": 418,
+          "width": 608
+        },
+        {
+          "x": 24,
+          "y": 1120,
+          "width": 608
+        },
+        {
+          "x": 24,
+          "y": 1585,
+          "width": 608
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1199,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1199
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 101,
+          "width": 608
+        },
+        {
+          "x": 24,
+          "y": 378,
+          "width": 608
+        },
+        {
+          "x": 24,
+          "y": 1080,
+          "width": 608
+        },
+        {
+          "x": 24,
+          "y": 1545,
+          "width": 608
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1200,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1200
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 101,
+          "width": 564
+        },
+        {
+          "x": 612,
+          "y": 101,
+          "width": 564
+        },
+        {
+          "x": 24,
+          "y": 402,
+          "width": 564
+        },
+        {
+          "x": 24,
+          "y": 867,
+          "width": 564
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 660,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 378,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 843,
+          "width": 612
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-edge",
+      "width": 2560,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 2560
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 24,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 660,
+          "y": 101,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 378,
+          "width": 612
+        },
+        {
+          "x": 24,
+          "y": 843,
+          "width": 612
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/mypage-light-edge",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 129,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [
+        {
+          "x": 12,
+          "y": 161,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 566,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1308,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 1757,
+          "width": 366
+        }
+      ],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 129,
+        "width": 390
+      },
+      "cards": [
+        {
+          "x": 12,
+          "y": 389,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 555,
+          "width": 366
+        },
+        {
+          "x": 12,
+          "y": 721,
+          "width": 366
+        }
+      ],
+      "tracks": 1,
+      "panels": [],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1440
+      },
+      "cards": [
+        {
+          "x": 24,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 352,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 680,
+          "y": 223,
+          "width": 304
+        }
+      ],
+      "tracks": 4,
+      "panels": [],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [
+        {
+          "x": 24,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 352,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 680,
+          "y": 223,
+          "width": 304
+        }
+      ],
+      "tracks": 5,
+      "panels": [],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 2560,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 2560
+      },
+      "cards": [
+        {
+          "x": 24,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 352,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 680,
+          "y": 223,
+          "width": 304
+        }
+      ],
+      "tracks": 7,
+      "panels": [],
+      "tables": []
+    },
+    {
+      "route": "/portal",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [
+        {
+          "x": 24,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 352,
+          "y": 223,
+          "width": 304
+        },
+        {
+          "x": 680,
+          "y": 223,
+          "width": 304
+        }
+      ],
+      "tracks": 5,
+      "panels": [],
+      "tables": []
+    },
+    {
+      "route": "/my_equipment",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 523.9375,
+          "width": 1870
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 139,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 1379.859375,
+          "width": 294
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 129,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 1297.46875,
+          "width": 364
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 678.90625,
+          "width": 718
+        }
+      ]
+    },
+    {
+      "route": "/my_equipment",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 523.9375,
+          "width": 1390
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 512.75,
+          "width": 1870
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 139,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 1368.671875,
+          "width": 294
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 129,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 13,
+          "y": 1290.28125,
+          "width": 364
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 667.71875,
+          "width": 718
+        }
+      ]
+    },
+    {
+      "route": "/public_equipment",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 25,
+          "y": 512.75,
+          "width": 1390
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "width": 1920,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1920
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 502,
+          "y": 473.5,
+          "width": 421
+        },
+        {
+          "x": 1450,
+          "y": 473.5,
+          "width": 421
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "width": 320,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 139,
+        "width": 320
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 37,
+          "y": 1098,
+          "width": 246
+        },
+        {
+          "x": 37,
+          "y": 1733,
+          "width": 246
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "width": 390,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 129,
+        "width": 390
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 37,
+          "y": 1088,
+          "width": 316
+        },
+        {
+          "x": 37,
+          "y": 1723,
+          "width": 316
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "width": 768,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 768
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 400,
+          "y": 615.5,
+          "width": 319
+        },
+        {
+          "x": 400,
+          "y": 1125.5,
+          "width": 319
+        }
+      ]
+    },
+    {
+      "route": "/dashboard",
+      "width": 1440,
+      "skin": "edge",
+      "overflow": 0,
+      "main": {
+        "x": 0,
+        "y": 69,
+        "width": 1440
+      },
+      "cards": [],
+      "tracks": 0,
+      "panels": [],
+      "tables": [
+        {
+          "x": 584,
+          "y": 473.5,
+          "width": 503
+        },
+        {
+          "x": 584,
+          "y": 983.5,
+          "width": 503
+        }
+      ]
+    }
+  ],
+  "httpErrors": [],
+  "pageErrors": [],
+  "forbiddenRequests": [],
+  "steps": [
+    "real login succeeded",
+    "domain CSS hashes match deployment",
+    "layout UI save and reload persistence; notification consent unchanged",
+    "profile modal loads test account; no profile submit",
+    "live portal, my/public lists, filters, rendered Chart.js and unprivileged API boundary"
+  ],
+  "originalAppearance": {
+    "theme": "light",
+    "skin": "standard",
+    "deadlineOptIn": false
+  },
+  "menuCount": 3,
+  "status": "pass",
+  "preferencesRestored": true,
+  "loggedOut": true
+}

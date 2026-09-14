@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "governance_version": "1.7.0",
+  "fallback": "legacy",
+  "profiles": [
+    {
+      "id": "profiles.gpt-6-astra",
+      "version": 1,
+      "parent": null,
+      "platform": "codex",
+      "models": [
+        "gpt-6-astra"
+      ],
+      "enabled": true,
+      "node": "profiles/gpt-6-astra.md",
+      "node_sha256": "2973E39E289CE4BFFF606C33154EBB72E538F26557B8D6A7E62D671D2F993429",
+      "capability": "capabilities/codex.yaml",
+      "capability_sha256": "085015AA18376E339F9C4CE87E7FE94C0C917AB5AFE5C8FE3CDC60069C107BBB",
+      "adoption_basis": "2026-09-14 사용자 승인: 기존 강제 체계를 상속하지 않는 Codex/GPT-6 Astra 독립 노드. 현재 진행 중 작업의 turn_context 모델 ID 확인."
+    }
+  ],
+  "package_files": {
+    ".agent-governance/traceability/entrypoint-map.yaml": "F7FF16882B2991C369CA60755C14A98908B3A483690A1C3A9CB1E532AFCA4813",
+    ".agent-governance/tooling/governance-tool.mjs": "05ADD34F4277026EDCB32011F7E004D251F92EE7961A52BB9C0C7B2FC1C88728",
+    "AGENTS.md": "54C84FE322CB530BCEDB4118F95A3D96F6EA3CF5C4F21655303ACA36794DCE80",
+    ".agent-governance/tooling/execution-profile.mjs": "9D74D39E4A0FCB409F781AFCEB44E314414C9AD18970D0A6223F13291599677B",
+    ".agent-governance/traceability/rule-section-baseline.yaml": "0D998D27A28EF421C852CA97C6591EE235EE86116926E3B1B0B15C2B88C23D8E",
+    ".agent-governance/traceability/human-rule-map.yaml": "07FE1FFA5351F703255CE262D8B5D85C2B176156E779CC37AD5A150BFAB4722A"
+  }
+}
