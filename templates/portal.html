@@ -7,7 +7,8 @@
 {# Root has no parent: omit the link entirely, even before scripts run. #}
 {% block parent_menu_link %}{% endblock %}
 
-{% block container_class %}max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
+{# 관리자 센터와 같은 80rem 컨테이너를 사용합니다. #}
+{% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
 <header class="app-page-heading app-content-header">
@@ -20,7 +21,7 @@
 </div>
 
 <!-- 메뉴 카드 레이아웃 -->
-<div id="menuContainer" class="edge-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div id="menuContainer" class="menu-grid edge-card-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     <!-- JS에 의해 접속 허용된 메뉴 동적 렌더링 -->
 </div>
 {% endblock %}

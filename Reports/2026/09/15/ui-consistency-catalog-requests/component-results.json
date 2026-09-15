@@ -1,0 +1,814 @@
+{
+  "ok": true,
+  "cases": 49,
+  "scope": "local synthetic components; not live API or full Jinja pages",
+  "results": [
+    {
+      "case": "card-parity",
+      "viewportWidth": 320,
+      "skin": "standard",
+      "dark": false,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 320,
+      "skin": "standard",
+      "dark": true,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 320,
+      "skin": "edge",
+      "dark": false,
+      "width": 296,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "296px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 320,
+      "skin": "edge",
+      "dark": true,
+      "width": 296,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "296px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 390,
+      "skin": "standard",
+      "dark": false,
+      "width": 358,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "358px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 390,
+      "skin": "standard",
+      "dark": true,
+      "width": 358,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "358px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 390,
+      "skin": "edge",
+      "dark": false,
+      "width": 366,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "366px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 390,
+      "skin": "edge",
+      "dark": true,
+      "width": 366,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "366px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 768,
+      "skin": "standard",
+      "dark": false,
+      "width": 348,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "348px 348px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 768,
+      "skin": "standard",
+      "dark": true,
+      "width": 348,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "348px 348px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 768,
+      "skin": "edge",
+      "dark": false,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px 288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 768,
+      "skin": "edge",
+      "dark": true,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px 288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1440,
+      "skin": "standard",
+      "dark": false,
+      "width": 286,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "286px 286px 286px 286px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1440,
+      "skin": "standard",
+      "dark": true,
+      "width": 286,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "286px 286px 286px 286px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1440,
+      "skin": "edge",
+      "dark": false,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px 288px 288px 288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1440,
+      "skin": "edge",
+      "dark": true,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px 288px 288px 288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1920,
+      "skin": "standard",
+      "dark": false,
+      "width": 286,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "286px 286px 286px 286px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1920,
+      "skin": "standard",
+      "dark": true,
+      "width": 286,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "286px 286px 286px 286px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1920,
+      "skin": "edge",
+      "dark": false,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px 288px 288px 288px 288px 288px"
+    },
+    {
+      "case": "card-parity",
+      "viewportWidth": 1920,
+      "skin": "edge",
+      "dark": true,
+      "width": 288,
+      "height": 182,
+      "gap": "24px",
+      "padding": "24px",
+      "radius": "12px",
+      "columns": "288px 288px 288px 288px 288px 288px"
+    },
+    {
+      "case": "badge-row",
+      "mode": "my",
+      "width": 320,
+      "rows": [
+        {
+          "nameBottom": 47,
+          "badgesTop": 53,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 151,
+          "badgesTop": 157,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "비공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 255,
+          "badgesTop": 261,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "임시저장"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "badge-row",
+      "mode": "my",
+      "width": 1440,
+      "rows": [
+        {
+          "nameBottom": 36,
+          "badgesTop": 42,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 118,
+          "badgesTop": 124,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "비공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 200,
+          "badgesTop": 206,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "임시저장"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "badge-row",
+      "mode": "public",
+      "width": 320,
+      "rows": [
+        {
+          "nameBottom": 47,
+          "badgesTop": 53,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 151,
+          "badgesTop": 157,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "비공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 255,
+          "badgesTop": 261,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "임시저장"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "badge-row",
+      "mode": "public",
+      "width": 1440,
+      "rows": [
+        {
+          "nameBottom": 36,
+          "badgesTop": 42,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 118,
+          "badgesTop": 124,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "비공개"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        },
+        {
+          "nameBottom": 200,
+          "badgesTop": 206,
+          "badges": [
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "임시저장"
+            },
+            {
+              "height": 24,
+              "font": "12px",
+              "line": "16px",
+              "radius": "8px",
+              "text": "정상"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "cancel-preserves-equipment"
+    },
+    {
+      "case": "error-preserves-input-and-escapes-html"
+    },
+    {
+      "case": "duplicate-submit-close-lock-and-history-refresh"
+    },
+    {
+      "case": "independent-manufacturer-form"
+    },
+    {
+      "case": "node-dependent-parent-reset-and-submission"
+    },
+    {
+      "case": "stale-catalog-response-ignored"
+    },
+    {
+      "case": "successful-request-not-retried-on-refresh-failure"
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 320,
+      "dark": false,
+      "kind": "category",
+      "left": 12,
+      "right": 308,
+      "width": 296,
+      "scroll": 294,
+      "client": 294,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 320,
+      "dark": false,
+      "kind": "manufacturer",
+      "left": 12,
+      "right": 308,
+      "width": 296,
+      "scroll": 294,
+      "client": 294,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 320,
+      "dark": false,
+      "kind": "node",
+      "left": 12,
+      "right": 308,
+      "width": 296,
+      "scroll": 294,
+      "client": 294,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 320,
+      "dark": true,
+      "kind": "category",
+      "left": 12,
+      "right": 308,
+      "width": 296,
+      "scroll": 294,
+      "client": 294,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 320,
+      "dark": true,
+      "kind": "manufacturer",
+      "left": 12,
+      "right": 308,
+      "width": 296,
+      "scroll": 294,
+      "client": 294,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 320,
+      "dark": true,
+      "kind": "node",
+      "left": 12,
+      "right": 308,
+      "width": 296,
+      "scroll": 294,
+      "client": 294,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 390,
+      "dark": false,
+      "kind": "category",
+      "left": 12,
+      "right": 378,
+      "width": 366,
+      "scroll": 364,
+      "client": 364,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 390,
+      "dark": false,
+      "kind": "manufacturer",
+      "left": 12,
+      "right": 378,
+      "width": 366,
+      "scroll": 364,
+      "client": 364,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 390,
+      "dark": false,
+      "kind": "node",
+      "left": 12,
+      "right": 378,
+      "width": 366,
+      "scroll": 364,
+      "client": 364,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 390,
+      "dark": true,
+      "kind": "category",
+      "left": 12,
+      "right": 378,
+      "width": 366,
+      "scroll": 364,
+      "client": 364,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 390,
+      "dark": true,
+      "kind": "manufacturer",
+      "left": 12,
+      "right": 378,
+      "width": 366,
+      "scroll": 364,
+      "client": 364,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 390,
+      "dark": true,
+      "kind": "node",
+      "left": 12,
+      "right": 378,
+      "width": 366,
+      "scroll": 364,
+      "client": 364,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 1440,
+      "dark": false,
+      "kind": "category",
+      "left": 416,
+      "right": 1024,
+      "width": 608,
+      "scroll": 606,
+      "client": 606,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 1440,
+      "dark": false,
+      "kind": "manufacturer",
+      "left": 416,
+      "right": 1024,
+      "width": 608,
+      "scroll": 606,
+      "client": 606,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 1440,
+      "dark": false,
+      "kind": "node",
+      "left": 416,
+      "right": 1024,
+      "width": 608,
+      "scroll": 606,
+      "client": 606,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 1440,
+      "dark": true,
+      "kind": "category",
+      "left": 416,
+      "right": 1024,
+      "width": 608,
+      "scroll": 606,
+      "client": 606,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 1440,
+      "dark": true,
+      "kind": "manufacturer",
+      "left": 416,
+      "right": 1024,
+      "width": 608,
+      "scroll": 606,
+      "client": 606,
+      "buttons": [
+        40,
+        40
+      ]
+    },
+    {
+      "case": "dialog-geometry",
+      "viewportWidth": 1440,
+      "dark": true,
+      "kind": "node",
+      "left": 416,
+      "right": 1024,
+      "width": 608,
+      "scroll": 606,
+      "client": 606,
+      "buttons": [
+        40,
+        40
+      ]
+    }
+  ],
+  "startedAt": "2026-09-15T08:39:30.100Z",
+  "completedAt": "2026-09-15T08:39:36.157Z",
+  "inputSha256": {
+    "overlay.json": "2de23bc7ca848eb9b8acf3a78c29ca25f65488ae7d7ab211f59a2895a5a2b194",
+    "catalog_requests.js": "37206f040da75e3ad1d274f83f39e51205830463d188410b7453f463c381525e",
+    "components.css": "df0fa37e7c9f429d0429624b0dbf83d46b3bfb094e1485cab2630175fdc7eb7c",
+    "verify_components.mjs": "801657e3a1c57fcea3e16196f8a94b85cd29c3b937a042793990738f25e3ba4c"
+  }
+}

@@ -1,0 +1,42 @@
+/* [역할] 기능별 UI 규격. [의존성 관계] 명시적 컴포넌트 클래스. [변경 시 영향도] 장비 배지·신청·메뉴 카드. */
+:root { --ui-gap: .5rem; --ui-control-height: 2.5rem; --ui-badge-height: 1.5rem; --ui-control-radius: .5rem; --ui-card-radius: .75rem; } /* 목적별 크기를 분리합니다. */
+.app-button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--ui-control-height); padding: .5rem 1rem; border: 1px solid #cbd5e1; border-radius: var(--ui-control-radius); font-size: .875rem; line-height: 1.25rem; font-weight: 600; background: #fff; color: #334155; gap: var(--ui-gap); } /* 클릭 요소의 공통 규격입니다. */
+.app-button-primary { background: #2563eb; border-color: #2563eb; color: #fff; } /* 주요 동작만 강조합니다. */
+.app-button:disabled { opacity: .5; cursor: not-allowed; } /* 처리 중 중복 입력을 표시합니다. */
+.app-button:focus-visible { outline: 2px solid #0284c7; outline-offset: 2px; } /* 키보드 포커스를 유지합니다. */
+.dark .app-button { background: #1e293b; color: #e2e8f0; border-color: #475569; } /* 다크 화면 대비를 유지합니다. */
+.dark .app-button-primary { background: #2563eb; color: #fff; border-color: #3b82f6; } /* 주요 버튼의 의미를 유지합니다. */
+.equipment-name-cell { white-space: normal; min-width: 12rem; max-width: 24rem; } /* 긴 장비명이 배지를 옆으로 밀지 않게 합니다. */
+.equipment-name { overflow-wrap: anywhere; } /* 지나치게 긴 이름도 표를 과도하게 늘리지 않습니다. */
+.equipment-badges { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; margin-top: .375rem; } /* 이름 아래에 고정 순서로 배치합니다. */
+.app-badge, .equipment-badges .roadmap-badge { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; min-height: var(--ui-badge-height); padding: .125rem .5rem; margin: 0; border: 1px solid #94a3b8; border-radius: var(--ui-control-radius); font-size: .75rem; line-height: 1rem; font-weight: 600; white-space: normal; overflow-wrap: anywhere; } /* 정보 배지는 동일 치수입니다. */
+.app-badge[data-tone="public"] { color: #15803d; background: #dcfce7; border-color: #86efac; } /* 공개 의미를 보존합니다. */
+.app-badge[data-tone="private"] { color: #475569; background: #f1f5f9; border-color: #cbd5e1; } /* 비공개도 텍스트로 식별합니다. */
+.app-badge[data-tone="draft"] { color: #92400e; background: #fef3c7; border-color: #fcd34d; } /* 임시저장은 별도 상태입니다. */
+.dark .app-badge[data-tone="public"] { color: #86efac; background: #14532d; border-color: #166534; } /* 다크 공개입니다. */
+.dark .app-badge[data-tone="private"] { color: #cbd5e1; background: #334155; border-color: #64748b; } /* 다크 비공개입니다. */
+.dark .app-badge[data-tone="draft"] { color: #fcd34d; background: #78350f; border-color: #b45309; } /* 다크 임시저장입니다. */
+.menu-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; } /* 포털/관리자 공통 배열입니다. */
+@media (min-width: 640px) { .menu-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } } /* 펼친 폴더블 두 열입니다. */
+@media (min-width: 1024px) { .menu-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } } /* PC 세 열입니다. */
+@media (min-width: 1280px) { .menu-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } } /* 큰 PC 네 열입니다. */
+html[data-layout-skin="edge"] .menu-grid { --edge-card-width: 18rem; } /* 관리자 센터의 기존 Edge 폭을 양쪽에 적용합니다. */
+@media (min-width: 640px) { html[data-layout-skin="edge"] .menu-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 18rem)); justify-content: center; } } /* 빈 열 없이 가운데 정렬합니다. */
+.menu-grid .menu-card { border-radius: var(--ui-card-radius); } /* 카드 본체 renderer는 그대로 재사용합니다. */
+.catalog-request-toolbar { display: flex; flex-wrap: wrap; gap: var(--ui-gap); margin-block: .75rem 1rem; } /* 두 화면에서 같은 진입 버튼을 사용합니다. */
+.catalog-request-dialog { width: calc(100% - 1.5rem); max-width: 38rem; max-height: 90dvh; overflow: auto; margin: auto; padding: 1.25rem; border: 1px solid #cbd5e1; border-radius: var(--ui-card-radius); color: #0f172a; background: #fff; } /* 작은 화면에서도 스크롤 가능한 신청서입니다. */
+.catalog-request-dialog::backdrop { background: rgb(15 23 42 / .65); } /* 부모 장비 입력은 유지합니다. */
+.catalog-request-dialog h2 { font-size: 1.25rem; line-height: 1.5; font-weight: 700; } /* 신청 종류를 제목으로 표시합니다. */
+.catalog-request-dialog p { font-size: .875rem; line-height: 1.6; margin-block: .75rem; overflow-wrap: anywhere; } /* 안내/오류를 줄바꿈합니다. */
+.catalog-request-fields { display: grid; gap: .875rem; margin-block: 1rem; } /* 세 폼이 동일한 간격을 사용합니다. */
+.catalog-request-fields label { display: grid; gap: .375rem; font-size: .875rem; font-weight: 600; min-width: 0; } /* label과 입력을 연결합니다. */
+.catalog-request-fields :is(input, select) { width: 100%; min-width: 0; min-height: var(--ui-control-height); padding: .5rem .625rem; border: 1px solid #94a3b8; border-radius: var(--ui-control-radius); background: #fff; color: #0f172a; font-weight: 400; } /* 공통 입력 규격입니다. */
+.catalog-request-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--ui-gap); } /* 모바일에서도 버튼을 압축하지 않습니다. */
+.catalog-request-dialog [data-state="error"] { color: #b91c1c; } /* 오류는 색과 설명을 함께 표시합니다. */
+.catalog-request-dialog [data-state="success"] { color: #15803d; } /* 접수 결과를 확인할 때까지 남깁니다. */
+.dark .catalog-request-dialog { background: #1e293b; color: #f1f5f9; border-color: #475569; } /* 다크 모달입니다. */
+.dark .catalog-request-fields :is(input, select) { background: #0f172a; color: #f1f5f9; border-color: #64748b; } /* 다크 입력입니다. */
+.dark .catalog-request-dialog [data-state="error"] { color: #fca5a5; } /* 오류 대비를 보존합니다. */
+.dark .catalog-request-dialog [data-state="success"] { color: #86efac; } /* 접수 대비를 보존합니다. */
+/* [역할] 기존 조작 버튼의 규격 통합. [의존성 관계] 실제 장비/결재함 ID. [변경 시 영향도] 색상·동작은 유지하고 클릭 치수만 공유합니다. */
+:is(#equipmentForm, #equipmentTableBody, #my-approvals-filter) button { box-sizing: border-box; min-height: var(--ui-control-height); padding: .5rem 1rem; border-radius: var(--ui-control-radius); font-size: .875rem; line-height: 1.25rem; font-weight: 600; } /* 배지보다 큰 터치 영역을 일관되게 유지합니다. */

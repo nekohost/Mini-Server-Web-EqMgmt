@@ -35,6 +35,8 @@
     {% block extra_head %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <!-- 공통 컴포넌트 규격은 기존 레이아웃 다음에 적용합니다. -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full transition-colors duration-200">
     {% block body %}{% endblock %}
@@ -53,6 +55,8 @@
     <!-- 공통 유틸리티 스크립트 선로드 -->
     <script src="/static/js/common.js"></script>
     <script src="/static/js/roadmap_preferences.js"></script>
+    <!-- 결재함/장비 등록이 같은 신청서 모듈을 재사용합니다. -->
+    <script src="/static/js/catalog_requests.js"></script>
     {% block extra_scripts_base %}{% endblock %}
 </body>
 </html>

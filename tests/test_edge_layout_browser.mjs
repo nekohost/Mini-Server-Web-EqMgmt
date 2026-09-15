@@ -99,7 +99,7 @@ test('Edge/Standard real-template responsive browser matrix (opt-in)', {
         await page.setContent(rendered[name].replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
             .replace(/<link\b[^>]*>/gi, ''));
         await page.evaluate(skin => document.documentElement.dataset.layoutSkin = skin, skin);
-        await page.addStyleTag({content: read('static/css/roadmap.css') + '\n' + read('static/css/layout.css')});
+        await page.addStyleTag({content: read('static/css/roadmap.css') + '\n' + read('static/css/layout.css') + '\n' + read('static/css/components.css')});
         // Deterministic snapshots must not capture a light/dark transition halfway.
         await page.addStyleTag({content: '*, *::before, *::after { transition: none !important; animation: none !important; }'});
         await page.addScriptTag({content: read('static/js/tailwindcss.js')});

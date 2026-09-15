@@ -3298,6 +3298,11 @@ app.register_blueprint(build_lineup_node_blueprint(  # 로그인·관리자·CSR
 ))
 
 
+from utils.catalog_request_routes import build_catalog_request_blueprint  # 독립 신청의 인증·결재 계약을 연결합니다.
+app.register_blueprint(build_catalog_request_blueprint(  # 기존 앱의 보안과 동일 writer 감사를 재사용합니다.
+    get_db_connection, login_required, csrf_required, check_menu_permission, audit_lineup_change, app.logger
+))  # 개인 조회/관리자 승인 API는 변경하지 않습니다.
+
 @app.route('/lineup_management')  # 관리자 센터에서 연결하는 노드 관리 화면입니다.
 @login_required  # 활성 로그인 세션을 확인합니다.
 @admin_required  # 메뉴 노출 여부와 별도로 관리자 권한을 강제합니다.

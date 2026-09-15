@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "scope": "local mocked API; real LineupApp and CSRF source; no server/DB access",
+  "cases": 7,
+  "results": [
+    "toolbar-idempotent",
+    "approved-master-refresh-preserves-selection-and-real-csrf",
+    "approved-node-refresh-preserves-option-and-avoids-extra-fetch",
+    "refresh-failure-preserves-input-without-resubmission",
+    "post-timeout-unlocks-with-uncertain-outcome-warning",
+    "catalog-timeout-allows-cancel-without-invalid-submission",
+    "real-equipment-values-preserved-through-all-cases"
+  ]
+}

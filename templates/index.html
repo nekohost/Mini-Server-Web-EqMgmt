@@ -66,6 +66,8 @@
                 </div>
                 <div class="md:col-span-2 bg-slate-50 dark:bg-slate-700/50 p-4 rounded-lg border border-slate-200 dark:border-slate-600 mb-2">
                     <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-600 pb-2">카탈로그 모델 선택</h3>
+                    <!-- 별도 신청서의 취소/제출이 장비 입력값을 초기화하지 않습니다. -->
+                    <div data-catalog-request-toolbar></div>
                     <div id="catalogBindingStatus" class="hidden mb-3 rounded-lg border px-3 py-2 text-xs" role="status" aria-live="polite"></div>
                     <!-- 1차 마스터 -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -242,10 +244,10 @@
             tree: {}
         };
         
-        async function init(forceRefresh = false) {
+        async function init(forceRefresh = false, suppliedSnapshot = null) { // 제한시간 안에 확인한 승인 목록을 선택적으로 주입받습니다.
             try {
-                let data = null;
-                if (!forceRefresh) {
+                let data = suppliedSnapshot; // 생략한 기존 호출은 종전 캐시/조회 동작을 유지합니다.
+                if (!forceRefresh && !data) { // 명시적인 새 목록을 과거 캐시로 덮지 않습니다.
                     try {
                         const cached = sessionStorage.getItem(CACHE_KEY);
                         if (cached) data = JSON.parse(cached);
@@ -757,11 +759,11 @@
         data.forEach(item => {
             let badge = '';
             if (item.IsDraft === 1) {
-                badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 border border-amber-200 dark:border-amber-800">임시저장</span>';
+                badge = '<span class="app-badge" data-tone="draft">임시저장</span>';
             } else if (item.IsPublic === 1) {
-                badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 border border-green-200 dark:border-green-800">공개</span>';
+                badge = '<span class="app-badge" data-tone="public">공개</span>';
             } else {
-                badge = '<span class="px-2 py-0.5 inline-flex text-[10px] leading-4 font-bold rounded bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-600">비공개</span>';
+                badge = '<span class="app-badge" data-tone="private">비공개</span>';
             }
 
             const catDisplayName = item.CategoryNameKo || item.CategoryNameEn || item.CategoryName || '기타';
@@ -769,16 +771,14 @@
 
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                            ${escapeHtml(item.Name)}
-                            ${badge}
-                        </div>
-                        <div>${window.Roadmap.badges(item)}</div>
+                    <td class="equipment-name-cell px-6 py-4">
+                        <!-- 장비명 다음 줄에 공개 범위/상태/기한 배지를 일정하게 배치합니다. -->
+                        <div class="equipment-name text-sm font-bold text-slate-900 dark:text-slate-100">${escapeHtml(item.Name)}</div>
+                        <div class="equipment-badges">${badge}${window.Roadmap.badges(item)}</div>
                         ${item.Memo ? `<div class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs mt-1">${escapeHtml(item.Memo)}</div>` : ''}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
+                        <span class="app-badge bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300">
                             ${escapeHtml(catDisplayName)}
                         </span>
                     </td>

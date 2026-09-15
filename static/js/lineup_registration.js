@@ -74,6 +74,13 @@
              * [변경 시 영향도] 노드가 없는 조합과 각 계층의 추가 진입점 표시에 영향을 줍니다.
              */
             container.replaceChildren();
+            if (global.CatalogRequests) { // 결재함과 동일한 상세 신청서를 재사용합니다.
+                const panel = createElement('div', 'catalog-request-toolbar'); // 장비 폼 안에 중첩 form을 만들지 않습니다.
+                const button = createElement('button', 'app-button', context.parentId ? '이 노드 아래에 등록 신청' : '최상위 노드 등록 신청'); // 현재 경로를 안내합니다.
+                button.type = 'button'; // 장비 저장으로 잘못 제출되지 않습니다.
+                button.addEventListener('click', () => global.CatalogRequests.open('node', {categoryId: context.categoryId, manufacturerId: context.manufacturerId, parentId: context.parentId, onApproved: config.onApproved, onBusy: config.onBusy})); // 승인 후 선택 복원은 기존 callback을 사용합니다.
+                panel.append(button); container.append(panel); return panel; // 기존 선택 상태는 보존합니다.
+            } // 공통 모듈이 없는 구버전의 기존 입력 동작은 아래에 유지합니다.
             const panel = createElement(
                 'div',
                 'rounded-lg border border-dashed border-blue-300 bg-blue-50/70 p-3 dark:border-blue-700 dark:bg-blue-950/30'
