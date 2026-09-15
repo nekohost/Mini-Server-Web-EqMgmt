@@ -20,10 +20,10 @@ related_artifacts:
 - [x] 영구 회귀 테스트 및 FEATURES 기능 계약 추가
 - [x] Staging 임시 파일 정리
 - [x] Git stage 및 staged diff 검토
-- [ ] Git commit/push 및 원격 SHA 확인
+- [x] 기능 commit `6862c78c76e86db54559063ee8263cc1e5a2f13b` push 및 원격 SHA 확인
 - [ ] 백업 Linux 서버 pull 및 exact commit 확인
 - [ ] Linux 격리 API/서비스 회귀
 - [ ] 백업·서비스 재시작 및 실제 HTTP/UI 검증
 - [ ] 최종 Report/index/FEATURES 상태 조율
 
-백업서버 SSH는 현재 `Permission denied (publickey,password)`로 차단되어 있다. 포트22는 reachable이며 Windows 운영 반영·Git push는 승인 범위에서 계속 진행한다.
+백업서버는 포트22가 reachable이나 현재 등록된 SSH 키로 `Permission denied (publickey,password)`가 발생한다. 서버 인증 복구 전 Linux 단계는 완료로 표시하지 않는다.

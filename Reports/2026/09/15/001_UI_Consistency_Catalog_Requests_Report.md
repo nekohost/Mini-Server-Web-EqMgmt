@@ -98,3 +98,9 @@ Plan/Task를 먼저 작성하고 27개 context 노드를 읽었다. 신규 의�
 - Windows/Git 복구는 이번 기능 commit을 `git revert`하여 수행한다. 강제 reset/clean으로 다른 AI의 동시 작업을 폐기하지 않는다.
 - 백업서버 반영 후 장애가 발생하면 서버에서 즉석 수정하지 않고 직전 검증 commit으로 되돌린 뒤 Windows Staging 경로에서 수정·검증·새 commit·pull 순서를 다시 따른다.
 - 이번 변경은 DB 스키마 migration이 없으므로 코드 revert가 업무 DB를 과거 snapshot으로 덮어쓰지 않는다. 이미 생성된 정상 결재/마스터 업무 데이터는 별도 데이터 롤백 대상으로 취급한다.
+
+## Git 반영 결과
+- 기능 commit `6862c78c76e86db54559063ee8263cc1e5a2f13b` (`feat: unify equipment UI and catalog requests`)을 생성해 `origin/main`에 fast-forward push했다.
+- push 후 `HEAD`, `origin/main`, `git ls-remote origin main`이 모두 동일 SHA임을 확인했고 worktree는 clean이었다.
+- 전체 실제 템플릿 브라우저 하네스의 유일한 실패는 read-only Jinja renderer의 SSH 인증 단계였다. Git for Windows OpenSSH 10.3으로 재진단해 백업서버가 `Permission denied (publickey,password)`를 반환함을 확인했다.
+- 서버 포트22는 reachable하고 로컬 SSH 설정/키 파일도 존재한다. 키 내용이나 다른 자격 증명을 탐색하지 않았으며, 서버 authorized key 또는 인증 정책이 복구되기 전까지 Linux 배포를 중단한다.
