@@ -1,0 +1,72 @@
+{
+  "pid": 119262,
+  "alive": true,
+  "tests": [],
+  "test_tail": "igration Manager] 'migrate_users_soft_delete' successfully applied.\n[Migration Manager] 'cleanup_migration_artifacts' successfully applied.\n",
+  "catalog_probe": {
+    "status": "pass",
+    "cases": 19,
+    "checks": [
+      "anonymous-401",
+      "missing-csrf-403",
+      "invalid-json-400",
+      "category-pending",
+      "own-history",
+      "duplicate-409",
+      "manufacturer-pending",
+      "node-pending",
+      "pending-master-blocked",
+      "actor-forgery-blocked",
+      "user-processing-blocked",
+      "admin-immediate",
+      "audit-failure-500",
+      "atomic-rollback-and-fk",
+      "render/portal",
+      "render/admin_center",
+      "render/my_equipment",
+      "render/public_equipment",
+      "render/my_approvals"
+    ],
+    "database_scope": "fresh temporary fixture only"
+  },
+  "startup_errors": [],
+  "http": {
+    "http://127.0.0.1:5000/login": {
+      "code": 200,
+      "bytes": 11128
+    },
+    "http://127.0.0.1:5000/static/css/components.css": {
+      "code": 200,
+      "bytes": 6922
+    },
+    "http://127.0.0.1:5000/static/js/catalog_requests.js": {
+      "code": 200,
+      "bytes": 21186
+    },
+    "http://127.0.0.1:5000/api/catalog_requests": {
+      "code": 401
+    },
+    "http://127.0.0.1:5000/api/my_approvals": {
+      "code": 401
+    },
+    "https://nekohost.org/login": {
+      "code": 200,
+      "bytes": 11128
+    },
+    "https://nekohost.org/static/css/components.css": {
+      "code": 200,
+      "bytes": 6922
+    },
+    "https://nekohost.org/static/js/catalog_requests.js": {
+      "code": 200,
+      "bytes": 21186
+    },
+    "https://nekohost.org/api/catalog_requests": {
+      "code": 401
+    },
+    "https://nekohost.org/api/my_approvals": {
+      "code": 401
+    }
+  },
+  "git_head": "5b60d5b63b7f46a20b0817fa44ecfae7e6231c75"
+}

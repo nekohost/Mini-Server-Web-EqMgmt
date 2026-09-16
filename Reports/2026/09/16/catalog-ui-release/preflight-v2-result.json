@@ -1,0 +1,7 @@
+{
+  "completedAt": "2026-09-16T00:19:32.834Z",
+  "ssh_exit": 0,
+  "stdout": "{\"status\": \"ready\", \"head\": \"5ab042a7cb1a4acd25af64732c6a1f64b644db94\", \"target\": \"5b60d5b63b7f46a20b0817fa44ecfae7e6231c75\", \"pid\": 91637, \"runtime_files\": 65, \"previous_matches\": 61, \"stash_paths\": [\"app.py\", \"static/css/layout.css\", \"static/css/roadmap.css\", \"static/js/menu_cards.js\", \"static/js/my_approvals.js\", \"static/js/navigation.js\", \"static/js/permissions.js\", \"static/js/roadmap_equipment.js\", \"static/js/session_timer.js\", \"templates/access_logs.html\", \"templates/access_logs_error_ips.html\", \"templates/admin_center.html\", \"templates/approvals.html\", \"templates/audit_logs.html\", \"templates/backup_restore.html\", \"templates/dashboard.html\", \"templates/index.html\", \"templates/lineup_management.html\", \"templates/maintenance_admin.html\", \"templates/master_management.html\", \"templates/miniserver_frame.html\", \"templates/my_approvals.html\", \"templates/mypage.html\", \"templates/permissions.html\", \"templates/portal.html\", \"templates/register.html\", \"templates/reset_password.html\", \"templates/roadmap_equipment.html\", \"templates/root_frame.html\", \"templates/users_management.html\"]}\n",
+  "stderr": "",
+  "error": null
+}
