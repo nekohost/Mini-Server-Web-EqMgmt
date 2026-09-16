@@ -53,3 +53,10 @@ related_artifacts:
 - `sync-status`: `inSync=true`, Rule SHA `9DC100A665B2EE74D1D2CE1FC2E016BD5F617ED858DBF1786B06B90112180420`.
 
 종합 판정: 이중언어 주석 동기화 기반과 한국어 Git 기록 정책의 도입은 완료되었다. 최초 파일럿 baseline만 역할 분리 원칙에 따라 Gemini 감사 후속 단계로 남긴다.
+
+## Git 반영
+- 구현 commit: `51a482613f4cb305508e5840a3ce00719bb479ef`
+- 제목: `feat: 이중언어 주석 동기화 거버넌스 도입`
+- `HEAD`, `origin/main`, 원격 `main`이 모두 동일한 SHA로 확인됐다.
+- 다른 작업자의 `Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md` 미커밋 변경은 stage/commit하지 않고 그대로 보존했다.
+- 본 변경은 거버넌스·도구·주석 메타데이터 도입이며 Flask 실행 동작이나 DB 스키마를 변경하지 않으므로 서버 서비스 재시작·배포는 수행하지 않았다.

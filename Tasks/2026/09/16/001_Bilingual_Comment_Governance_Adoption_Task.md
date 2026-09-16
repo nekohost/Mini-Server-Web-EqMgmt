@@ -20,6 +20,6 @@ related_artifacts:
 - [x] 핵심 백엔드 1개 파일 파일럿 EN rev.1 / 기존 KO rev.0 인계 적용
 - [ ] Gemini 파일럿 감사 후 KO rev.1 동기화 및 최초 baseline 생성
 - [x] governance validate + comment-sync + Git guard 회귀 검증
-- [ ] Report/색인/커밋 정책 적용 및 Git 반영
+- [x] Report/색인/커밋 정책 적용 및 Git 반영 (`51a482613f4cb305508e5840a3ce00719bb479ef`)
 
 다른 작업자의 미커밋 파일은 이 작업의 대상이 아니며 덮어쓰거나 stage하지 않는다.
