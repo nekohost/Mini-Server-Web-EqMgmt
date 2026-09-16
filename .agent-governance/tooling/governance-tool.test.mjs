@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 // YAML 파서가 실제 오류를 탐지하는지 독립 검사하기 위해 parseDocument를 사용한다.
 import { parseDocument } from 'yaml';
 // CLI와 같은 섹션 비교 및 node digest 구현을 단위 회귀로 확인한다.
-import { compareRuleSections, mappingSourceSectionDigest, parseRuleSections } from './governance-tool.mjs';
+import { compareRuleSections, mappingSourceSectionDigest, parseRuleSections, resolveSectionMappings } from './governance-tool.mjs';
 
 // 정상 종료하는 거버넌스 명령을 실행하고 JSON을 반환한다.
 function runSuccess(args) {
@@ -33,6 +33,25 @@ function runFailure(args) {
 
 // 실행한 테스트 이름을 결과에 누적한다.
 const passed = [];
+
+// 설계 모델의 복제 구현이 아니라 실제 sync-plan이 호출하는 함수를 검증한다.
+const mappingFixture = { manifest: { nodes: { 'test.one': 'one.md', 'test.two': 'two.md' } }, humanMap: { mappings: [
+  { node_id: 'test.one', human_rule_sections: ['1'] }, { node_id: 'test.two', human_rule_sections: ['2'] },
+] } };
+const originalMapping = JSON.stringify(mappingFixture);
+const resolved = resolveSectionMappings(mappingFixture, { sections: ['1', '3'], sectionMappings: ['3=test.two'] });
+assert.deepEqual(resolved.proposedSectionMappings, [{ section: '3', nodeId: 'test.two' }]);
+assert.deepEqual(resolved.targetMappings.map(m => m.node_id), ['test.one', 'test.two']);
+assert.deepEqual(resolved.targetMappings[1].human_rule_sections, ['2', '3']);
+assert.equal(JSON.stringify(mappingFixture), originalMapping);
+passed.push('actual sync-plan resolver adds an explicit new section without mutating the human map');
+for (const [sectionMappings, expected] of [
+  [[], /--map-section/], [['bad'], /형식/], [['3=test.missing'], /기존 manifest/],
+  [['3=test.one', '3=test.two'], /충돌/], [['4=test.one'], /대상이 아닙니다/],
+]) {
+  assert.throws(() => resolveSectionMappings(mappingFixture, { sections: ['3'], sectionMappings }), expected);
+}
+passed.push('actual sync-plan resolver rejects missing malformed unknown conflicting and out-of-scope mappings');
 
 // 전체 YAML·front matter·양방향 추적성 검증을 실행한다.
 const validation = runSuccess(['validate']);

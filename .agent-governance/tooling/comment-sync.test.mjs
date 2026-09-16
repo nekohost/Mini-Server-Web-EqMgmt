@@ -87,7 +87,7 @@ write('b.js', jsBlockBase.replace('TEST.JS.BLOCK', 'TEST.JS.LINE')); // 다른 �
 result = invoke(commentSync, ['check', ...common]); // ID 안정성을 검사합니다.
 expect(result.status === 1 && result.stdout.includes('DUPLICATE-ID'), 'duplicate comment id blocked'); // 중복 ID를 허용하지 않습니다.
 write('b.js', jsBlockBase); // JavaScript fixture를 정상 복원합니다.
-fs.unlinkSync(path.join(temp, 'a.html')); // baseline에 존재하던 블록을 삭제합니다.
+write('a.html', '<section>fixture</section>\n'); // 파일은 보존하고 baseline에 존재하던 블록만 삭제합니다.
 result = invoke(commentSync, ['check', ...common]); // 조용한 주석 삭제를 검사합니다.
 expect(result.status === 1 && result.stdout.includes('MISSING-COMMENT'), 'missing comment detected'); // 삭제 ID를 보고해야 합니다.
 write('a.html', htmlBase); // HTML fixture를 복원합니다.

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "accepted_at": "2026-09-16T08:10:09.664Z",
+  "note": "Accepted after source/EN audit and KO synchronization.",
+  "comments": {
+    "LINEUP.NODE.REQUIRED_INT": {
+      "file": "utils/lineup_node_service.py",
+      "line": 35,
+      "language": ".py",
+      "en_rev": 2,
+      "ko_rev": 2,
+      "en_hash": "d6669596df3e1f144c8f4fcba3b268b4c9bd7def397190d0a5a6051eec6f1a82",
+      "ko_hash": "69defbab36247efece128f866cf84b36744cfbfa6a842900e9f58833efc86de0",
+      "source_hash": "cc4206e4bd0263de1b6e65ce688dc4f0728ca792f76dc46e5cdb74bd905fea55"
+    }
+  },
+  "audit": {
+    "auditor": "Codex / GPT-6 Astra (authorized dedicated review)",
+    "report": "Reports/2026/09/16/004_Bilingual_Comment_Governance_Final_Review_Report.md"
+  }
+}

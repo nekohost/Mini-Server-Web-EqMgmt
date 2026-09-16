@@ -25,6 +25,9 @@ comment_sync:
   inspect: "node .agent-governance/tooling/comment-sync.mjs check"
   postflight: "node .agent-governance/tooling/gemini-diff-guard.mjs check --snapshot=.agent-governance/comment-sync/audit-snapshot.json"
   baseline: "node .agent-governance/tooling/comment-sync.mjs baseline --accept-audited"
+  snapshot_policy: unique-audit-snapshot-filename-per-audit-no-overwrite-local-only
+  inspected_surfaces: [worktree, git-index]
+  extra_allow_path_scope: explicit-Reports-markdown-audit-report-only
 windows_search:
   known_broken: grep_search-with-drive-letter-absolute-output
   preferred: run-command-rg-from-workspace-root-with-relative-paths

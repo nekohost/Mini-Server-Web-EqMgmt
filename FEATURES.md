@@ -337,3 +337,12 @@
 14절의 UI 공통 규격과 3종 독립 신청서를 백업서버에 적용했다. Git 기준이 뒤처져 있던 운영본은 코드/DB private 사본과 지정 경로 stash로 보존한 후 fast-forward pull했다. 기존 Python 웹앱을 동일 명령/환경으로 재시작했으며 systemd 전환은 하지 않았다.
 
 Linux 회귀99건, 추가 격리 HTTP19건, 실제 템플릿 브라우저26건 통과. 실제 HTTPS 로그인 화면/신규 정적 자산200 및 비로그인 API401, 운영 DB integrity ok/FK0와 확인 대상10개 업무·메타 테이블 행 보존을 확인했다. 실사용자 신청/승인 쓰기와 실기기 검증은 수행하지 않았다. [배포·보존·검증 보고서](Reports/2026/09/16/001_Catalog_UI_Backup_Release_Report.md).
+
+## 15. 이중언어 주석 동기화·Git 감사 보조 도구 (2026-09-16)
+
+- 거버넌스 1.8.1. 안정 Comment ID, EN/KO revision 및 source hash를 추적하고, 기존 역할·의존성·영향 메타 필드를 보존한다.
+- revision 누락·회귀, 번역 대기, 중복/삭제 ID, 감사되지 않은 baseline 변경을 구분한다. 원장 갱신으로 위반을 지우지 않는다.
+- Git guard는 감사 직전의 작업트리와 index를 각각 보존·비교한다. 한국어 파일명과 선행 dirty 수정 보존, 실제 KO-only 변경 및 최초 번역 추가를 검증한다.
+- Python/JS/HTML의 지원되는 독립 주석을 공유 판독기로 처리하며 실행 문자열을 번역 범위에서 제외한다. commit 검사기는 Conventional Commit type과 한국어 제목/본문을 확인한다.
+- 파일럿 `LINEUP.NODE.REQUIRED_INT`는 소스 감사 후 EN/KO rev.2로 동기화하고 최초 baseline에 실제 감사자를 기록했다. 전 저장소 주석 전환이나 의미의 자동 인증 기능은 아니다.
+- [규격](docs/COMMENT_BILINGUAL_GOVERNANCE.md), [최종 검토·한계·증거](Reports/2026/09/16/004_Bilingual_Comment_Governance_Final_Review_Report.md). DB와 Flask 실행 코드는 변경하지 않았다.

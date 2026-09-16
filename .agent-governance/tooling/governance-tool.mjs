@@ -539,18 +539,8 @@ function createContext(governance, options) {
   };
 }
 
-// Rule 섹션에서 대상 노드와 필수 동기화 파일을 산출한다.
-function createSyncPlan(governance, options) {
-  // Rule 동기화에는 적어도 한 개 섹션이 필요하다.
-  if (options.sections.length === 0) throw new Error('sync-plan에는 --section이 하나 이상 필요합니다.');
-  // 계획이 오래된 Rule 상태에 적용되는 것을 막기 위해 관측 hash를 필수로 요구한다.
-  if (!options.expectedRuleSha) throw new Error('sync-plan에는 sync-status의 currentRuleHash를 --expected-rule-sha로 지정해야 합니다.');
-  // 현재 Rule과 승인된 섹션 기준선의 차이를 먼저 계산한다.
-  const syncStatus = createSyncStatus(governance);
-  // 계획 생성 시점에도 Rule이 바뀌었으면 새 상태를 다시 확인하도록 중단한다.
-  if (options.expectedRuleSha !== syncStatus.currentRuleHash) throw new Error(`Rule SHA-256이 변경되었습니다. expected=${options.expectedRuleSha} actual=${syncStatus.currentRuleHash}`);
-  // 기준선 불일치가 있으면 상태가 보고한 모든 변경 섹션을 빠짐없이 계획 대상으로 받아야 한다.
-  if (!syncStatus.inSync && !sameStringSet(options.sections, syncStatus.affectedSections)) throw new Error(`sync-plan 섹션은 sync-status의 전체 변경 목록과 일치해야 합니다. expected=${syncStatus.affectedSections.join(', ')}`);
+// 실제 sync-plan과 회귀 검증이 신규 섹션 매핑 구현을 공유한다.
+function resolveSectionMappings(governance, options) {
   // 신규 섹션도 기존 human-map 노드에만 명시적으로 연결할 수 있도록 mapping 복사본을 만든다.
   const mappingByNode = new Map(arrayValue(governance.humanMap.mappings).map((mapping) => [mapping.node_id, { ...mapping, human_rule_sections: [...arrayValue(mapping.human_rule_sections).map(String)] }]));
   // `--map-section <section>=<node-id>` 입력을 섹션별 명시 매핑으로 검증한다.
@@ -588,6 +578,22 @@ function createSyncPlan(governance, options) {
   }
   // 변경 섹션을 실제 또는 제안 mapping으로 참조하는 노드만 동기화 대상으로 고른다.
   const targetMappings = [...mappingByNode.values()].filter((mapping) => options.sections.some((section) => mapping.human_rule_sections.includes(section)));
+  return { targetMappings, proposedSectionMappings };
+}
+
+// Rule 섹션에서 대상 노드와 필수 동기화 파일을 산출한다.
+function createSyncPlan(governance, options) {
+  // Rule 동기화에는 적어도 한 개 섹션이 필요하다.
+  if (options.sections.length === 0) throw new Error('sync-plan에는 --section이 하나 이상 필요합니다.');
+  // 계획이 오래된 Rule 상태에 적용되는 것을 막기 위해 관측 hash를 필수로 요구한다.
+  if (!options.expectedRuleSha) throw new Error('sync-plan에는 sync-status의 currentRuleHash를 --expected-rule-sha로 지정해야 합니다.');
+  // 현재 Rule과 승인된 섹션 기준선의 차이를 먼저 계산한다.
+  const syncStatus = createSyncStatus(governance);
+  // 계획 생성 시점에도 Rule이 바뀌었으면 새 상태를 다시 확인하도록 중단한다.
+  if (options.expectedRuleSha !== syncStatus.currentRuleHash) throw new Error(`Rule SHA-256이 변경되었습니다. expected=${options.expectedRuleSha} actual=${syncStatus.currentRuleHash}`);
+  // 기준선 불일치가 있으면 상태가 보고한 모든 변경 섹션을 빠짐없이 계획 대상으로 받아야 한다.
+  if (!syncStatus.inSync && !sameStringSet(options.sections, syncStatus.affectedSections)) throw new Error(`sync-plan 섹션은 sync-status의 전체 변경 목록과 일치해야 합니다. expected=${syncStatus.affectedSections.join(', ')}`);
+  const { targetMappings, proposedSectionMappings } = resolveSectionMappings(governance, options);
   // manifest 순서로 대상 노드 ID를 정렬한다.
   const targetNodeIds = manifestOrder(targetMappings.map((mapping) => mapping.node_id), governance.manifest);
   // 대상 노드의 실제 상대 경로를 구성한다.
@@ -1100,4 +1106,4 @@ if (process.argv[1] && path.resolve(process.argv[1]) === TOOL_FILE) try {
 }
 
 // 회귀 테스트는 동일한 섹션 비교·digest 구현을 직접 검증한다.
-export { compareRuleSections, mappingSourceSectionDigest, parseRuleSections };
+export { compareRuleSections, mappingSourceSectionDigest, parseRuleSections, resolveSectionMappings };

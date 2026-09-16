@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "governance_version": "1.8.0",
+  "governance_version": "1.8.1",
   "fallback": "legacy",
   "profiles": [
     {
@@ -21,7 +21,7 @@
   ],
   "package_files": {
     ".agent-governance/traceability/entrypoint-map.yaml": "F7FF16882B2991C369CA60755C14A98908B3A483690A1C3A9CB1E532AFCA4813",
-    ".agent-governance/tooling/governance-tool.mjs": "FFC4AA88800B03E898D88D432F81298AAD741E9F7994330E9EDE587E16054503",
+    ".agent-governance/tooling/governance-tool.mjs": "3EA2CA3F0A62EEA14F500C9182C566267D3BF9BF1E282313FC80E72E86773E0C",
     "AGENTS.md": "FBEFEB6655113CDA41588E687E40B146206D04EAFAFFF00FC18408875AE544EF",
     ".agent-governance/tooling/execution-profile.mjs": "9D74D39E4A0FCB409F781AFCEB44E314414C9AD18970D0A6223F13291599677B",
     ".agent-governance/traceability/rule-section-baseline.yaml": "16B64BD4F71521E6112FA9E257D6FDF1DC31F7CE9AB77261AF36F12E958B7505",

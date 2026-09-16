@@ -31,3 +31,6 @@ instance/
 *.sqlite3-journal
 *.db.before-*.bak
 *.db.notification.lock
+
+# 감사 snapshot은 선행 dirty 파일의 원문을 포함하므로 로컬에만 보존한다.
+.agent-governance/comment-sync/audit-snapshot*.json

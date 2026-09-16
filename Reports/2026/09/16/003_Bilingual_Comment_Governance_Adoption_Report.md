@@ -9,6 +9,8 @@ related_artifacts:
 ---
 # 이중언어 주석·한국어 Git 정책 도입 보고서
 
+> 현재 상태: 아래는 최초 도입 당시 기록이다. 뒤이어 수행한 [최종 교차검토·보완](004_Bilingual_Comment_Governance_Final_Review_Report.md)에서 검사 누락을 수정했고, 사용자 승인·독립 실행 경로의 Codex가 파일럿 EN/KO rev.2 및 최초 baseline을 완료했다. 아래의 Gemini 감사 대기는 더 이상 현재 대기 항목이 아니다. legacy 역할 정책은 유지한다.
+
 ## 코드 작성 전 Validation 1~8
 1. **거버넌스**: 현재 Rule hash와 manifest가 일치하고 validate가 통과했다. Staging 우선, 기존 다른 작업자의 미커밋 파일은 비대상으로 보존한다.
 2. **사용자 의도**: ChatGPT/Codex의 기술 구현 강점과 Gemini의 한국어·감사 강점을 분리한다. HTCE 전체 coordination 체계는 복제하지 않는다.

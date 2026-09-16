@@ -17,7 +17,9 @@ related_artifacts:
   - 사용자 제공 비교·판단문서 (ChatGPT/Codex 작성 추정 비교 분석)
   - 외부 참조 저장소: `D:\Project\HTCE` (읽기 전용 참조 검증)
   - Mini-Server 거버넌스: `Rule.md`, `.agent-governance/engineering/code-comments.md`, `.agent-governance/manifest.yaml`
-- 판정: **검증 결과 [일치 및 타당 (Fully Verified & Highly Feasible)] — 외부 실사 팩트 100% 일치, 비교 판단 및 Mini-Server 혼합형 도입 전략의 타당성 확인**
+- 판정: 확인한 외부 실사 항목은 제안과 일치하며 혼합형 도입 방향은 타당하다. 구현의 완전성·보안 보장은 별도 회귀와 소스 감사가 필요하다.
+
+> 2026-09-16 후속 정정: 최초 보고서의 “100%”, “완벽하게 차단” 표현은 검증 범위를 넘어 수정했다. 아래 HTCE 497건 등은 최초 작성자가 기록한 당시 실사 결과이며 이번 후속 검토가 다시 측정한 수치가 아니다. Mini-Server 구현에서 발견한 누락과 보완 결과는 [최종 검토 보고서](004_Bilingual_Comment_Governance_Final_Review_Report.md)를 따른다.
 
 ---
 
@@ -33,7 +35,7 @@ related_artifacts:
 
 ## 2. HTCE 실사(Ground Truth) 팩트체크 결과
 
-제시된 문서의 각 주장을 실제 파일시스템 및 실행 스크립트로 검증한 결과, **모든 기술적 사실이 100% 일치**함을 확인했다.
+최초 실사에서 확인한 항목과 관측 결과를 아래에 기록한다. 이 목록은 조사하지 않은 사실이나 후속 구현의 정확성까지 증명하지 않는다.
 
 | 검증 항목 | 제시된 주장 | 실제 HTCE 실사 결과 | 일치 여부 |
 | :--- | :--- | :--- | :---: |
@@ -53,16 +55,16 @@ related_artifacts:
 
 ### 3.1. HTCE 방식의 핵심 강점: `source_hash` 기반 무결성 추적 (탁월함)
 - **분석**: 일반적인 번역 관리 시스템은 번역 대상 텍스트(EN)의 변경만 감지한다. 하지만 HTCE는 주석 블록 바로 아래의 실제 실행 코드 영역을 잘라내어 `source_hash`를 생성하고 `state.json`에 기록한다.
-- **효과**: 코드가 수정되었는데도 구현자가 EN 주석이나 revision을 올리지 않은 경우, `REVISION-SUSPECT` 경고가 발생하여 누락을 즉시 적발한다. 이는 다중 AI 협업 시 **"코드는 바뀌었는데 주석만 옛날 상태로 남아 있는 현상"**을 기계적으로 방지하는 최고의 안전장치다.
+- **효과**: hash가 포함하는 소스 구간이 바뀌었는데 EN revision이 그대로이면 `REVISION-SUSPECT`를 보고할 수 있다. 주석 누락을 찾는 보조 수단이며, 구간 밖 의존성 변화나 코드와 설명의 의미 불일치는 별도로 감사해야 한다.
 
 ### 3.2. 역할 분리와 `CONTRACT-DIVERGENCE` 상태 (매우 우수)
-- **분석**: Gemini가 영문을 맹목적으로 번역하는 것이 아니라 실제 코드(`source`)와 영문 주석(`EN`)을 대조하여, 영문이 코드와 다르면 번역하지 않고 `CONTRACT-DIVERGENCE`로 보고하는 설계는 기술적 진실성을 보장한다.
-- 또한 Gemini에게 실행 코드나 영문 주석 수정을 엄격히 금지함으로써 AI 간의 역할 충돌과 코드 오염을 차단한다.
+- **분석**: 실제 코드(`source`)와 영문 주석(`EN`)을 대조하여 다르면 `CONTRACT-DIVERGENCE`로 보고하는 설계는 번역 전에 기술적 정확성을 검토하게 한다. 실제 감사 품질은 별도로 확인해야 한다.
+- 실행 코드·EN 수정 제한은 역할 충돌을 줄이는 절차이며, 기술적으로 변경 자체를 불가능하게 하는 접근 제어는 아니다.
 
 ### 3.3. HTCE 조정 거버넌스의 전체 복제 반대 판단 (전적으로 타당)
 - **분석**: HTCE의 `CURRENT / ROADMAP / DECISIONS / sessions`는 Git이 없는 환경에서 다중 작업자의 작업 상태를 조율하기 위해 수작업/세션 마크다운으로 구축된 체계다.
 - **평가**: Mini-Server에는 이미 이보다 훨씬 정교한 `.agent-governance`(manifest 44개 노드, 정규 YAML 파서, Rule SHA-256 검증), `Plans/Tasks/Reports` 영구 문서 체계, `conversation-recorder`(대화 원자적 자동 기록기)가 확립되어 있다. 여기에 HTCE의 조정 문서를 또 얹으면 진실의 단일 원천(SSOT)이 무너지고 이중 관리 부하가 발생한다.
-- **결론**: **HTCE의 전체 협업 시스템이 아니라, "이중언어 주석 동기화 엔진(comment-sync layer)"만을 취사선택하여 Mini-Server에 이식하자는 제안은 100% 타당하고 정밀한 판단이다.**
+- **결론**: 기존 기록 체계의 중복을 피하면서 comment-sync 계층을 선택적으로 도입하는 방향이 이 프로젝트에 적합하다. 언어별 판독·Git 변경 검사·원장 갱신의 실제 구현 검증이 전제다.
 
 ### 3.4. Mini-Server 고유의 Git diff guard 추가 제안 (매우 강력한 보완책)
 - **분석**: HTCE는 Git이 없어서 파일 시스템 상의 상태 검사만 가능했다. 하지만 Mini-Server는 강력한 Git 환경이 갖추어져 있다.
@@ -72,7 +74,7 @@ related_artifacts:
     - 허용: [KO rev.N], 한국어 주석 본문, 용어사전, comment-sync 상태/보고서
     - 금지: 실행 코드, [EN rev.N], 영문 주석, DB 스키마, 설정 파일
   ```
-  를 스크립트나 훅으로 강제하면, LLM 에이전트가 의도치 않게 코드를 건드리는 사고를 완벽하게 차단할 수 있다.
+  를 검사기로 확인하면 허용 범위를 벗어난 변경을 탐지하는 데 도움이 된다. 작업트리뿐 아니라 index와 경로·문법 경계를 검증해야 하며, 검사기 자체의 실행이나 무결성을 강제하는 보안 장벽은 아니다.
 
 ### 3.5. Conventional Commit + 한국어 제목 정책 (실용적 권장)
 - **분석**: 현재 Mini-Server의 Git 로그는 영문 위주(`feat: unify equipment UI...`, `docs: record verified...`)로 작성되어 있다.
@@ -100,7 +102,7 @@ related_artifacts:
   # [의존성 관계] NodeRepository, /api/lineup_tree_all, index.html.
   # [변경 시 영향도] 카탈로그 계층 드롭다운 렌더링 및 관리자 트리에 영향을 준다.
   ```
-- 이 구조는 기존 거버넌스의 3대 필수 요소를 완벽히 보존하면서 영문 기준과 한국어 감사를 동시에 달성할 수 있다.
+- 이 구조는 기존 3대 메타 필드를 유지할 수 있다. 필드가 존재하는지만이 아니라 실제 설명의 의미도 검토해야 한다.
 
 ### 4.2. 다중 언어 파서 확장 (Python / JavaScript / HTML)
 - HTCE는 Rust(`///`, `//!`) 전용 정규식 파서(`check-comment-sync.mjs`)를 사용한다.
@@ -133,7 +135,7 @@ related_artifacts:
 
 ## 6. 결론 및 향후 권장 로드맵
 
-제시된 판단문서의 결론인 **"HTCE의 전체 거버넌스를 복제하지 않고, HTCE의 이중언어 주석 동기화 엔진(Comment ID + rev + source_hash)을 Mini-Server의 기존 거버넌스와 Git diff guard 위에 이식하는 혼합형 모델"**은 매우 정교하고 타당한 최적의 아키텍처 방향으로 검증되었습니다.
+HTCE 전체 거버넌스 대신 Comment ID + revision + source hash 계층을 기존 체계에 결합하는 방향을 채택한다. 타당성 검토와 구현의 완전성 검증을 구분하며 실제 도입·보완 결과는 후속 보고서에 기록한다.
 
 ### 권장 추진 단계 (사용자 승인 시)
 1. **1단계 (도구 및 사양 개발)**: Python/JS 주석 파서를 지원하는 `.agent-governance/tooling/comment-sync.mjs` 및 `docs/COMMENT_BILINGUAL_GOVERNANCE.md` 작성.

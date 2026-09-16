@@ -5,6 +5,7 @@
 import fs from 'node:fs'; // 파일과 baseline을 읽고 씁니다.
 import path from 'node:path'; // OS 독립 경로를 정규화합니다.
 import crypto from 'node:crypto'; // 주석/소스 SHA-256을 계산합니다.
+import { rawBlocks, cleanBody, trackedParts } from './comment-format.mjs';
 import { fileURLToPath } from 'node:url'; // 기본 프로젝트 루트를 계산합니다.
 
 const here = path.dirname(fileURLToPath(import.meta.url)); // 현재 후보 도구 위치입니다.
@@ -29,7 +30,9 @@ function loadJson(file, fallback = null) { // JSON 파일을 명시적으로 읽
   return JSON.parse(fs.readFileSync(file, 'utf8')); // 파싱 실패는 fail-closed 예외가 됩니다.
 }
 function walk(entry, extensions) { // 설정된 파일/디렉터리만 재귀 탐색합니다.
-  if (!fs.existsSync(entry)) return []; // 아직 없는 선택 경로는 빈 결과로 둡니다.
+  if (!fs.existsSync(entry)) throw new Error(`CONFIG-ERROR: missing root ${rel(entry)}`);
+  const relative = path.relative(fs.realpathSync(root), fs.realpathSync(entry));
+  if (relative.startsWith('..') || path.isAbsolute(relative)) throw new Error('CONFIG-ERROR: root escapes workspace');
   const stat = fs.statSync(entry); // 파일 종류를 확인합니다.
   if (stat.isFile()) return extensions.includes(path.extname(entry).toLowerCase()) ? [entry] : []; // 허용 확장자만 반환합니다.
   return fs.readdirSync(entry, { withFileTypes: true }).flatMap((item) => { // 하위 항목을 순회합니다.
@@ -38,68 +41,26 @@ function walk(entry, extensions) { // 설정된 파일/디렉터리만 재귀 �
     return item.isFile() && extensions.includes(path.extname(item.name).toLowerCase()) ? [full] : []; // 소스 파일만 포함합니다.
   });
 }
-function rawBlocks(text, extension) { // 언어별 주석 블록의 원문 위치를 추출합니다.
-  const patterns = { // 외부 parser 의존성 없이 보수적인 주석 패턴을 사용합니다.
-    '.py': /(?:^[ \t]*#.*(?:\r?\n|$))+|(?:'''[\s\S]*?'''|"""[\s\S]*?""")/gm,
-    '.js': /(?:^[ \t]*\/\/.*(?:\r?\n|$))+|\/\*[\s\S]*?\*\//gm,
-    '.mjs': /(?:^[ \t]*\/\/.*(?:\r?\n|$))+|\/\*[\s\S]*?\*\//gm,
-    '.html': /<!--[\s\S]*?-->/g,
-  }; // 초기 도입 언어만 명시적으로 허용합니다.
-  const pattern = patterns[extension]; // 현재 확장자 parser를 선택합니다.
-  if (!pattern) return []; // 미지원 형식은 추적하지 않습니다.
-  return [...text.matchAll(pattern)].map((match) => ({ raw: match[0], start: match.index, end: match.index + match[0].length })); // 위치를 보존합니다.
-}
-function cleanBody(raw, extension) { // 주석 문법을 제거하고 메타데이터 본문만 남깁니다.
-  let body = raw.replace(/\r\n/g, '\n'); // 줄바꿈을 LF로 통일합니다.
-  if (extension === '.py' && (body.trimStart().startsWith('"""') || body.trimStart().startsWith("'''"))) { // Python docstring 후보입니다.
-    body = body.replace(/^\s*(?:"""|''')/, '').replace(/(?:"""|''')\s*$/, ''); // 바깥 triple quote를 제거합니다.
-    return body.split('\n').map((line) => line.trim()).join('\n').trim(); // 들여쓰기를 정규화합니다.
-  }
-  if (extension === '.py') return body.split('\n').map((line) => line.replace(/^\s*# ?/, '')).join('\n').trim(); // Python # 접두사를 제거합니다.
-  if (extension === '.js' || extension === '.mjs') { // JavaScript 두 주석 문법을 처리합니다.
-    if (body.trimStart().startsWith('/*')) { // block comment를 처리합니다.
-      body = body.replace(/^\s*\/\*+/, '').replace(/\*\/\s*$/, ''); // 시작/종료 토큰을 제거합니다.
-      return body.split('\n').map((line) => line.replace(/^\s*\* ?/, '').trimEnd()).join('\n').trim(); // JSDoc 별표를 제거합니다.
-    }
-    return body.split('\n').map((line) => line.replace(/^\s*\/\/ ?/, '')).join('\n').trim(); // // 접두사를 제거합니다.
-  }
-  if (extension === '.html') return body.replace(/^\s*<!--/, '').replace(/-->\s*$/, '').trim(); // HTML 주석 래퍼를 제거합니다.
-  return body.trim(); // 예상 밖 형식은 원문을 보수적으로 반환합니다.
-}
-function section(body, marker, stops) { // EN/KO marker 아래 텍스트 범위를 읽습니다.
-  const lines = body.split('\n'); // 줄 단위로 검사합니다.
-  const start = lines.findIndex((line) => marker.test(line.trim())); // 시작 marker를 찾습니다.
-  if (start < 0) return ''; // marker가 없으면 빈 본문입니다.
-  const out = []; // 실제 섹션 줄을 누적합니다.
-  for (let index = start + 1; index < lines.length; index += 1) { // 다음 줄부터 읽습니다.
-    if (stops.some((stop) => stop.test(lines[index].trim()))) break; // 다음 섹션 marker에서 중단합니다.
-    out.push(lines[index]); // 본문을 보존합니다.
-  }
-  return out.join('\n').trim(); // hash용 정규화 텍스트를 반환합니다.
-}
 function parseFile(file) { // 한 파일의 추적 블록과 source 범위를 계산합니다.
   const text = fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n'); // 텍스트와 줄바꿈을 정규화합니다.
   const extension = path.extname(file).toLowerCase(); // 언어 판정에 사용합니다.
-  const candidates = rawBlocks(text, extension).map((block) => ({ ...block, body: cleanBody(block.raw, extension) })); // 모든 주석을 파싱합니다.
-  const tracked = candidates.filter((block) => /^\[MINI-COMMENT:\s*[A-Z0-9_.-]+\]$/m.test(block.body)); // 명시적 marker만 추적합니다.
-  return tracked.map((block, index) => { // 각 블록의 메타데이터를 계산합니다.
-    const idMatch = block.body.match(/^\[MINI-COMMENT:\s*([A-Z0-9_.-]+)\]$/m); // 안정적인 Comment ID입니다.
-    const enMatch = block.body.match(/^\[EN rev\.(\d+)\]$/m); // 기준 영문 revision입니다.
-    const koMatch = block.body.match(/^\[KO rev\.(\d+)\]$/m); // 한국어 revision입니다.
-    const enText = section(block.body, /^\[EN rev\.\d+\]$/, [/^\[KO rev\.\d+\]$/]); // EN 본문을 분리합니다.
-    const koText = section(block.body, /^\[KO rev\.\d+\]$/, []); // KO 본문을 분리합니다.
+  const tracked = rawBlocks(text, extension).map(block => ({ ...block, part: trackedParts(block.raw, extension) })).filter(block => block.part);
+  return tracked.map((block, index) => {
+    const { id, enRev, koRev, enText, koText } = block.part;
     const nextStart = tracked[index + 1]?.start ?? text.length; // 다음 추적 블록 전까지를 source 범위로 잡습니다.
     const sourceText = text.slice(block.end, nextStart).trim(); // 실제 실행/템플릿 영역을 보수적으로 포함합니다.
     const line = text.slice(0, block.start).split('\n').length; // 1-based 시작 행을 계산합니다.
     return { // baseline과 보고에 필요한 값만 노출합니다.
-      id: idMatch[1], file: rel(file), line, language: extension, // 위치와 언어입니다.
-      enRev: enMatch ? Number(enMatch[1]) : null, koRev: koMatch ? Number(koMatch[1]) : null, // revision입니다.
+      id, file: rel(file), line, language: extension, // 위치와 언어입니다.
+      enRev, koRev, // revision입니다.
       enText, koText, enHash: sha(enText), koHash: sha(koText), sourceHash: sha(sourceText), // 무결성 hash입니다.
     };
   });
 }
 function inventoryFiles(config) { // 설정된 root들에서 지원 소스를 수집합니다.
-  const extensions = config.extensions ?? ['.py', '.js', '.mjs', '.html']; // 기본 지원 확장자입니다.
+  if (config.schema_version !== 1 || !Array.isArray(config.roots) || !config.roots.every(p => typeof p === 'string' && p.trim())) throw new Error('CONFIG-ERROR: invalid schema/roots');
+  const extensions = config.extensions ?? ['.py', '.js', '.mjs', '.html'];
+  if (!Array.isArray(extensions) || !extensions.length || extensions.some(ext => !['.py', '.js', '.mjs', '.html'].includes(ext))) throw new Error('CONFIG-ERROR: unsupported extensions'); // 기본 지원 확장자입니다.
   return [...new Set((config.roots ?? []).flatMap((entry) => walk(path.resolve(root, entry), extensions)))].sort(); // 중복 없이 정렬합니다.
 }
 function collect(config) { // 전체 추적 블록을 하나의 배열로 모읍니다.
@@ -114,17 +75,28 @@ function duplicateIds(comments) { // 동일 ID의 중복 사용을 탐지합니�
   }
   return duplicates; // 호출자가 상세 메시지를 구성합니다.
 }
+function hasLabel(text, label) {
+  const lines = text.split('\n').filter(line => line.startsWith(label));
+  return lines.length === 1 && lines[0].slice(label.length).trim().length > 0;
+}
 function hasEnMeta(comment) { // 영문 canonical 3대 메타 필드를 확인합니다.
-  return ['[Role]', '[Dependencies]', '[Impact]'].every((label) => comment.enText.includes(label)); // 신규 EN-only 인계도 검증할 수 있습니다.
+  return ['[Role]', '[Dependencies]', '[Impact]'].every((label) => hasLabel(comment.enText, label)); // 신규 EN-only 인계도 검증할 수 있습니다.
 }
 function hasKoMeta(comment) { // 한국어 감사본 3대 메타 필드를 확인합니다.
-  return ['[역할]', '[의존성 관계]', '[변경 시 영향도]'].every((label) => comment.koText.includes(label)); // KO 블록이 있을 때만 호출합니다.
+  return ['[역할]', '[의존성 관계]', '[변경 시 영향도]'].every((label) => hasLabel(comment.koText, label)); // KO 블록이 있을 때만 호출합니다.
 }
 function hasRequiredMeta(comment) { // baseline 승인에는 EN/KO 양쪽 메타가 모두 필요합니다.
   return hasEnMeta(comment) && hasKoMeta(comment); // 감사 완료 상태의 엄격한 조건입니다.
 }
 function loadState() { // 승인된 baseline을 읽습니다.
-  return loadJson(statePath, { schema_version: 1, accepted_at: null, comments: {} }); // 최초 도입 시 빈 상태를 허용합니다.
+  const state = loadJson(statePath, { schema_version: 1, accepted_at: null, comments: {} });
+  if (state.schema_version !== 1 || !state.comments || typeof state.comments !== 'object' || Array.isArray(state.comments)) throw new Error('STATE-ERROR: invalid schema');
+  for (const [id, entry] of Object.entries(state.comments)) {
+    if (!/^[A-Z0-9][A-Z0-9_.-]*$/.test(id) || !entry || typeof entry.file !== 'string'
+      || !Number.isSafeInteger(entry.en_rev) || entry.en_rev < 1 || entry.en_rev !== entry.ko_rev
+      || !['en_hash', 'ko_hash', 'source_hash'].every(key => /^[a-f0-9]{64}$/.test(entry[key] ?? ''))) throw new Error(`STATE-ERROR: invalid entry ${id}`);
+  }
+  return state; // 최초 도입 시 빈 상태를 허용합니다.
 }
 function issue(type, comment, detail = '') { // 사람이 읽을 수 있는 일관된 진단 문자열을 만듭니다.
   const where = comment ? `${comment.file}:${comment.line} ${comment.id}` : ''; // 위치가 있으면 함께 표시합니다.
@@ -156,6 +128,8 @@ function compare(comments, state) { // 현재 상태와 baseline의 차이를 �
       problems.push(issue('NEW-UNBASELINED', comment)); // 자동 수용하지 않습니다.
       continue; // 비교할 이전 값이 없습니다.
     }
+    if (comment.enRev < old.en_rev || comment.koRev < old.ko_rev) problems.push(issue('REVISION-REGRESSION', comment));
+    if (comment.enRev !== old.en_rev || comment.koRev !== old.ko_rev || comment.sourceHash !== old.source_hash || comment.enHash !== old.en_hash || comment.koHash !== old.ko_hash) problems.push(issue('AUDIT-REQUIRED', comment));
     if (comment.enHash !== old.en_hash && comment.enRev === old.en_rev) problems.push(issue('EN-REVISION-SUSPECT', comment)); // EN 변경 후 rev 누락입니다.
     if (comment.koHash !== old.ko_hash && comment.koRev === old.ko_rev) problems.push(issue('KO-REVISION-SUSPECT', comment)); // KO 변경 후 rev 누락입니다.
     if (comment.sourceHash !== old.source_hash && comment.enRev === old.en_rev) problems.push(issue('REVISION-SUSPECT', comment, 'source changed while EN rev stayed the same')); // 소스 변경 누락입니다.
@@ -168,9 +142,22 @@ function compare(comments, state) { // 현재 상태와 baseline의 차이를 �
 }
 function writeBaseline(comments) { // 감사 완료 상태를 새 baseline으로 저장합니다.
   const state = { schema_version: 1, accepted_at: new Date().toISOString(), note: 'Accepted after source/EN audit and KO synchronization.', comments: {} }; // 원장 헤더입니다.
+  const report = args.find(value => value.startsWith('--audit-report='))?.slice(15);
+  const auditor = args.find(value => value.startsWith('--auditor='))?.slice(10);
+  if (Boolean(report) !== Boolean(auditor)) throw new Error('AUDIT-ERROR: --audit-report and --auditor must be supplied together');
+  if (report) {
+    const absolute = path.resolve(root, report);
+    const relative = path.relative(root, absolute).replaceAll('\\', '/');
+    if (!/^Reports\/.*\.md$/.test(relative) || !fs.existsSync(absolute)) throw new Error('AUDIT-ERROR: existing Reports/*.md evidence required');
+    state.audit = { auditor, report: relative };
+  }
   for (const comment of comments) state.comments[comment.id] = { file: comment.file, line: comment.line, language: comment.language, en_rev: comment.enRev, ko_rev: comment.koRev, en_hash: comment.enHash, ko_hash: comment.koHash, source_hash: comment.sourceHash }; // 블록별 불변식을 기록합니다.
   fs.mkdirSync(path.dirname(statePath), { recursive: true }); // 상태 디렉터리를 준비합니다.
-  fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, 'utf8'); // 원장을 UTF-8 JSON으로 저장합니다.
+  const tempPath = `${statePath}.${crypto.randomUUID()}.tmp`;
+  try {
+    fs.writeFileSync(tempPath, `${JSON.stringify(state, null, 2)}\n`, { encoding: 'utf8', flag: 'wx' });
+    fs.renameSync(tempPath, statePath);
+  } finally { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } // 원장을 UTF-8 JSON으로 저장합니다.
 }
 function checkCommand(config) { // 현재 baseline 대비 상태를 검사합니다.
   const comments = collect(config); // 설정 범위의 추적 블록을 읽습니다.
@@ -205,10 +192,12 @@ function inventoryCommand(config) { // 아직 추적되지 않은 중요 메타 
 }
 function baselineCommand(config) { // 감사된 현재 상태를 baseline으로 승인합니다.
   if (!args.includes('--accept-audited')) { // 실수로 baseline을 덮지 못하게 합니다.
-    console.error('baseline requires --accept-audited after human/Gemini source audit'); // 명시적 감사 전제입니다.
+    console.error('baseline requires --accept-audited after an authorized source/EN audit'); // 명시적 감사 전제입니다.
     return 2; // 승인 누락을 일반 불일치와 구분합니다.
   }
   const comments = collect(config); // 현재 추적 블록을 수집합니다.
+  const problems = compare(comments, loadState()).filter(problem => !/^(NEW-UNBASELINED|AUDIT-REQUIRED|LOCATION-CHANGED)\s/.test(problem));
+  if (problems.length) { console.error('Baseline refused:\n' + problems.join('\n')); return 1; }
   const duplicates = duplicateIds(comments); // ID 중복을 먼저 확인합니다.
   const invalid = comments.filter((comment) => comment.enRev === null || comment.koRev === null || comment.enRev !== comment.koRev || !hasRequiredMeta(comment)); // baseline 불가 블록입니다.
   if (comments.length === 0 || duplicates.length > 0 || invalid.length > 0) { // 불완전 상태는 원장에 기록하지 않습니다.
@@ -225,7 +214,7 @@ function help() { // 사용 가능한 계약을 간단히 출력합니다.
   console.log('  comment-sync.mjs check'); // baseline 검사입니다.
   console.log('  comment-sync.mjs inventory'); // 전환 후보 조사입니다.
   console.log('  comment-sync.mjs baseline --accept-audited'); // 감사 후 baseline 승인입니다.
-  console.log('Options: --root=PATH --config=PATH --state=PATH'); // fixture/검증용 재정의입니다.
+  console.log('Options: --root=PATH --config=PATH --state=PATH [--audit-report=Reports/...md --auditor=NAME]'); // 검증 범위와 실제 감사자 근거입니다.
   return 0; // help는 성공입니다.
 }
 const config = loadJson(configPath); // 설정은 필수 입력입니다.

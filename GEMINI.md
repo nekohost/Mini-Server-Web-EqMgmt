@@ -29,6 +29,8 @@ Gemini의 기본 역할은 기술 주석 감사자와 한국어 동기화 담당
 
 감사 작업은 다음 순서를 따른다.
 
+아래 snapshot 파일명은 예시다. 이미 존재하면 덮어쓰지 말고 `audit-snapshot-작업ID.json`처럼 이번 감사만의 고유 이름을 정하여 snapshot/check 양쪽에 같은 경로를 사용한다. snapshot에는 선행 dirty 원문이 있으므로 로컬에만 보관하고 stage하지 않는다. guard는 작업트리뿐 아니라 Git index도 검사한다.
+
 1. `node .agent-governance/tooling/gemini-diff-guard.mjs snapshot --snapshot=.agent-governance/comment-sync/audit-snapshot.json`으로 현재 HEAD와 선행 dirty 상태를 기록한다.
 2. `node .agent-governance/tooling/comment-sync.mjs inventory`와 `check`로 대상 블록과 상태를 확인한다.
 3. 실제 코드·직접 의존성·EN의 의미를 감사한 뒤 `[KO rev.N]` 본문과 KO revision만 수정한다. 실행 코드·EN 본문/EN revision·API·DB 스키마·설정·테스트 동작은 별도 구현 지시 없이 수정하지 않는다.
@@ -36,6 +38,7 @@ Gemini의 기본 역할은 기술 주석 감사자와 한국어 동기화 담당
 5. 모든 추적 블록이 실제 소스·EN과 일치하고 EN/KO revision이 같을 때만 `node .agent-governance/tooling/comment-sync.mjs baseline --accept-audited`를 실행한다. state 파일만 수정해 경고를 숨기지 않는다.
 
 일반 Git commit을 직접 작성하는 경우 `node .agent-governance/tooling/commit-message-check.mjs "<commit subject>"`를 먼저 통과하고 Conventional Commit type + 한국어 제목을 사용한다.
+본문이 있으면 전체 메시지나 `--file <메시지 파일>`을 전달하여 한국어 본문도 함께 검사한다. 감사 보고서는 `--allow-path=Reports/...md`로 명시하며 실행 코드를 허용 경로에 넣지 않는다.
 
 ## Context 진단 계약 (Rule 9-1·9-3)
 

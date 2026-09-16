@@ -33,15 +33,15 @@ class LineupNodeError(ValueError):
 
 def _required_int(value: Any, label: str) -> int:
     """[MINI-COMMENT: LINEUP.NODE.REQUIRED_INT]
-    [EN rev.1]
-    [Role] Normalizes a request value into a positive integer identifier while rejecting booleans.
-    [Dependencies] Used by category/manufacturer/node identifier validation and LineupNodeError.
+    [EN rev.2]
+    [Role] Converts int or str input with Python int() into a positive identifier; rejects bool, other types, invalid integer strings, and nonpositive results.
+    [Dependencies] Used for category/manufacturer/node/user/option IDs and by _optional_int; raises LineupNodeError for invalid input.
     [Impact] Changes affect which JSON identifier values lineup-node requests accept or reject.
 
-    [KO rev.0]
-    [역할] bool을 제외한 양의 정수 식별자로 요청 값을 정규화합니다.
-    [의존성 관계] category/manufacturer/node 식별자 입력 검증에 사용합니다.
-    [변경 시 영향도] 잘못된 JSON 형식의 허용·거부 범위가 달라집니다.
+    [KO rev.2]
+    [역할] int 또는 str 입력을 Python int()로 변환하여 양의 식별자를 반환합니다. bool·다른 타입·정수 변환 불가 문자열·0 이하 결과는 거부합니다.
+    [의존성 관계] 카테고리·제조사·노드·사용자·옵션 식별자 검증과 _optional_int가 사용하며, 잘못된 입력에는 LineupNodeError를 발생시킵니다.
+    [변경 시 영향도] 라인업 노드 관련 요청에서 허용하거나 거부하는 JSON 식별자 값의 범위에 영향을 줍니다.
     """
 
     if isinstance(value, bool) or not isinstance(value, (int, str)):

@@ -1,8 +1,8 @@
 schema_version: 1
-governance_version: 1.8.0
+governance_version: 1.8.1
 execution_profiles:
   registry: execution-profiles.yaml
-  sha256: 78BEF1E69532D8152799036D489FEDAB994B2BFF25304FA3CCD15B75E4FDC986
+  sha256: BAF7531B6797D5D305F1561420859302BDADACE721FA6F90E961ADE2E2E33153
 status: active
 replaces_root_sources: true
 human_reference:
