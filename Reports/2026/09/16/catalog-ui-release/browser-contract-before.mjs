@@ -169,7 +169,7 @@ test('Edge/Standard real-template responsive browser matrix (opt-in)', {
         return {...result, shell: await page.evaluate(responsiveShellSnapshot)};
     }
     try {
-        await runCase('portal cards follow admin sizing; Standard uses four columns', async () => {
+        await runCase('portal cards add columns without stretching; Standard retains three', async () => {
             await load('portal');
             assert.equal(await page.locator('#dashboardWidget').evaluate(el => getComputedStyle(el).display), 'none');
             const columns = {};
@@ -182,8 +182,8 @@ test('Edge/Standard real-template responsive browser matrix (opt-in)', {
             }
             assert.equal(columns[390], 1);
             assert.equal(columns[1440], 4);
-            assert.equal(columns[1920], 6);
-            assert.equal(columns[2560], 8);
+            assert.equal(columns[1920], 5);
+            assert.equal(columns[2560], 7);
             await page.setViewportSize({width: 1920, height: 1080});
             const cardStyle = await page.locator('#menuContainer > a').first().evaluate(el => {
                 const css = getComputedStyle(el);
@@ -199,8 +199,8 @@ test('Edge/Standard real-template responsive browser matrix (opt-in)', {
             for (const group of (await measure()).metricGroups) assertCentered(group, 1920, 'only two widget cards');
             assert.ok(await page.locator('#dashboardWidget > div').first().evaluate(el => el.getBoundingClientRect().width <= 225));
             await load('portal', 'standard');
-            assert.equal((await measure()).columns, 4);
-            assert.equal((await measure()).main.width, 1280);
+            assert.equal((await measure()).columns, 3);
+            assert.equal((await measure()).main.width, 1024);
             assert.deepEqual(await page.locator('#menuContainer > a').first().evaluate(el => {
                 const css = getComputedStyle(el);
                 return [css.padding, css.borderRadius, getComputedStyle(el.querySelector('h2')).fontSize];
