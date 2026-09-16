@@ -1,0 +1,7 @@
+{
+  "completedAt": "2026-09-16T00:17:49.065Z",
+  "ssh_exit": 1,
+  "stdout": "",
+  "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 73, in <module>\nAssertionError: unexplained runtime change: Resources/EqMgmt.ico\n",
+  "error": null
+}

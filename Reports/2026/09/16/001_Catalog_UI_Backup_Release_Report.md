@@ -22,3 +22,9 @@
 - 실운영 카탈로그 신청/승인 등 업무 데이터 쓰기를 성공 확인용으로 수행하지 않는다.
 
 현재 상태: 배포 도구 및 테스트 정정 준비 완료. commit/push 및 서버 적용 결과는 아래 후속 절에 실제 수행 후 기록한다.
+
+## 사전 적용 점검 보완
+- edac767443e415d2c0b01ac440bef757a53d3cdd commit/push 완료 후 서버 사전 검사에서만 중단됐다. 서버 Git fetch 이외의 파일/stash/프로세스/DB 변경은 없었다.
+- Resources/EqMgmt.ico의 실제 원시 SHA256은 Windows Git 원본과 서버 모두 22f8657d930bac615948356fdf2d9bcd95e5d7b09291970408e91549c34e02eb로 같았다.
+- 배포 controller가 바이너리를 UTF8 문자열로 디코딩해 비교한 오류였다. v2는 byte 보존 변환으로 Python의 byte-level 비교와 일치시켰다. 애플리케이션 코드 및 icon은 변경하지 않았다.
+- 최초 오류 결과는 catalog-ui-release/preflight-result.json에 보존한다. v2는 별도 결과 파일로 남긴다.
