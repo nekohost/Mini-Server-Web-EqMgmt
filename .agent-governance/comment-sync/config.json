@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "roots": [
+    "app.py",
+    "utils",
+    "static/js",
+    "templates"
+  ],
+  "extensions": [".py", ".js", ".mjs", ".html"],
+  "comment_id_prefix": "MINI-COMMENT",
+  "source_hash_mode": "until-next-tracked-comment-or-eof",
+  "bootstrap_policy": "incremental-only"
+}

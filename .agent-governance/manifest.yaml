@@ -1,13 +1,13 @@
 schema_version: 1
-governance_version: 1.7.0
+governance_version: 1.8.0
 execution_profiles:
   registry: execution-profiles.yaml
-  sha256: DF2C818F29A9FDD05D4BD68C6B499D1B87BD184B88A1C115CD3ACD8DC850FE4E
+  sha256: 78BEF1E69532D8152799036D489FEDAB994B2BFF25304FA3CCD15B75E4FDC986
 status: active
 replaces_root_sources: true
 human_reference:
   path: ../Rule.md
-  sha256: F2E6E0E7ED8AFDFE2A95BC5E935FA20D1A9812A248287427AAF4504298C10E11
+  sha256: 9DC100A665B2EE74D1D2CE1FC2E016BD5F617ED858DBF1786B06B90112180420
   section_baseline: traceability/rule-section-baseline.yaml
   status: active
   auto_load: false

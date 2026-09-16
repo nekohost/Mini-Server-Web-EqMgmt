@@ -17,9 +17,11 @@ Scope ownership `[ENTRY-CHATGPT.SCOPE]`: Remote Desktop Commander 사용이나 �
 7. Rule 변경은 `sync-status` → `sync-plan --expected-rule-sha` → node/map/baseline/manifest 동기화 → validate 순서를 따른다.
 8. routed ChatGPT event는 General dispatcher가 확정한 revision과 owner를 그대로 따르며 현재 디렉터리나 도구 위치로 destination을 재판정하지 않는다.
 9. scope 또는 governance 충돌을 추측으로 해소하지 않고 사용자 결정을 받는다.
+10. `[MINI-COMMENT: ...]` 추적 코드의 계약 또는 `[EN rev.N]` 기준 주석을 변경하면 EN revision을 증가시키고 KO 본문·KO revision은 대신 동기화하지 않는다. 상세 계약은 `docs/COMMENT_BILINGUAL_GOVERNANCE.md`와 `engineering.code-comments`를 따른다.
+11. 일반 Git commit을 작성할 때는 Conventional Commit type을 유지하고 제목·본문 설명은 한국어를 기본으로 하며, commit 전에 `node .agent-governance/tooling/commit-message-check.mjs "<commit subject>"`를 통과시킨다.
 
 플랫폼 capability는 `.agent-governance/capabilities/chatgpt-remote.yaml`을 따른다.
-10. 같은 ChatGPT conversation에서는 최초 명시적 owner 선택 때 만든 conversation-local opaque `session_key`를 계속 재사용한다. 실제 routed delivery receipt가 없는 이벤트를 저장된 것으로 간주하지 않으며, exact timestamp/session binding을 확인할 수 없는 과거 구간은 현재 시각으로 꾸며 backfill하지 않는다.
+12. 같은 ChatGPT conversation에서는 최초 명시적 owner 선택 때 만든 conversation-local opaque `session_key`를 계속 재사용한다. 실제 routed delivery receipt가 없는 이벤트를 저장된 것으로 간주하지 않으며, exact timestamp/session binding을 확인할 수 없는 과거 구간은 현재 시각으로 꾸며 backfill하지 않는다.
 
 ## Context 진단 계약 (Rule 9-1·9-3)
 

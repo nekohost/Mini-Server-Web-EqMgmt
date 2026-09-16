@@ -32,8 +32,14 @@ class LineupNodeError(ValueError):
 
 
 def _required_int(value: Any, label: str) -> int:
-    """[역할] bool을 제외한 양의 정수 식별자로 요청 값을 정규화합니다.
+    """[MINI-COMMENT: LINEUP.NODE.REQUIRED_INT]
+    [EN rev.1]
+    [Role] Normalizes a request value into a positive integer identifier while rejecting booleans.
+    [Dependencies] Used by category/manufacturer/node identifier validation and LineupNodeError.
+    [Impact] Changes affect which JSON identifier values lineup-node requests accept or reject.
 
+    [KO rev.0]
+    [역할] bool을 제외한 양의 정수 식별자로 요청 값을 정규화합니다.
     [의존성 관계] category/manufacturer/node 식별자 입력 검증에 사용합니다.
     [변경 시 영향도] 잘못된 JSON 형식의 허용·거부 범위가 달라집니다.
     """

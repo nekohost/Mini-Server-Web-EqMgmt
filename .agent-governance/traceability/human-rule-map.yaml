@@ -77,8 +77,8 @@ mappings:
     source_human: []
   - node_id: engineering.code-comments
     node_path: engineering/code-comments.md
-    human_rule_sections: ["1-3", "4-3-1", "4-3-2", "4-3-3", "4-3-4"]
-    source_rules: [RULE-1.3, RULE-4.3.1, RULE-4.3.2, RULE-4.3.3, RULE-4.3.4]
+    human_rule_sections: ["1-3", "4-3-1", "4-3-2", "4-3-3", "4-3-4", "4-3-5", "4-3-6"]
+    source_rules: [RULE-1.3, RULE-4.3.1, RULE-4.3.2, RULE-4.3.3, RULE-4.3.4, RULE-4.3.5, RULE-4.3.6]
     source_validations: []
     source_entrypoints: []
     source_human: []
@@ -190,15 +190,15 @@ mappings:
     source_human: [HUMAN-11.6, HUMAN-11.7, HUMAN-11.8]
   - node_id: workflow.completion-history
     node_path: workflow/completion-history.md
-    human_rule_sections: ["7-4-1", "7-4-2", "7-4-3"]
-    source_rules: [RULE-7.4.1, RULE-7.4.2, RULE-7.4.3]
+    human_rule_sections: ["7-4-1", "7-4-2", "7-4-3", "7-4-4"]
+    source_rules: [RULE-7.4.1, RULE-7.4.2, RULE-7.4.3, RULE-7.4.4]
     source_validations: []
     source_entrypoints: []
     source_human: []
   - node_id: workflow.multi-agent-handoff
     node_path: workflow/multi-agent-handoff.md
-    human_rule_sections: ["6-1-3", "7-5-1", "7-5-2", "7-5-3", "7-5-4", "10-9-2", "10-9-3"]
-    source_rules: [RULE-6.1.3, RULE-7.5.1, RULE-7.5.2, RULE-7.5.3, RULE-7.5.4]
+    human_rule_sections: ["6-1-3", "7-5-1", "7-5-2", "7-5-3", "7-5-4", "7-5-5", "10-9-2", "10-9-3"]
+    source_rules: [RULE-6.1.3, RULE-7.5.1, RULE-7.5.2, RULE-7.5.3, RULE-7.5.4, RULE-7.5.5]
     source_validations: [VAL-PHASE.8.2, VAL-PHASE.8.3]
     source_entrypoints: []
     source_human: []

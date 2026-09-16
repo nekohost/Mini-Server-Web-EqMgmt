@@ -36,6 +36,8 @@ Scope ownership `[ENTRY-CODEX.SCOPE]`: VS Code workspace에서 시작된 Codex �
 10. 통합 Rule·노드·추적성 원장이 불일치하면 활성화를 중지하고 사용자에게 보고한다.
 11. context 도구가 실패하면 일반 구현을 fail-closed로 중단하고 아래 Context 진단 계약을 따른다. 수동으로 규칙 노드를 줄여 진행하지 않는다.
 12. Rule 변경에서는 먼저 `sync-status`의 전체 변경 섹션과 `currentRuleHash`를 확인하고, 그 hash를 `sync-plan`·`validate`의 `--expected-rule-sha`로 사용한다. 대상 노드 digest·섹션 기준선·map·manifest를 함께 갱신하기 전에는 병합하지 않는다.
+13. `[MINI-COMMENT: ...]` 추적 코드의 계약 또는 `[EN rev.N]` 기준 주석을 변경하면 EN revision을 증가시키고 KO 본문·KO revision은 대신 동기화하지 않는다. 상세 계약은 `docs/COMMENT_BILINGUAL_GOVERNANCE.md`와 `engineering.code-comments`를 따른다.
+14. 일반 Git commit을 작성할 때는 Conventional Commit type을 유지하고 제목·본문 설명은 한국어를 기본으로 하며, commit 전에 `node .agent-governance/tooling/commit-message-check.mjs "<commit subject>"`를 통과시킨다.
 
 플랫폼 도구 대응은 `.agent-governance/capabilities/codex.yaml`을 따른다.
 

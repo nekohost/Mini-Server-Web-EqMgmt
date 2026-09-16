@@ -25,7 +25,7 @@ Windows PC에서 소스코드 작성과 Git Push를 수행하고, GitHub를 거�
 
 ### 1-3. 사용자 특성
 
-모든 코드에는 상세한 설명 주석이 반드시 포함되어야 하며, 변경 발생 시 의존성 여파를 반드시 명확하게 안내해야 합니다.
+사용자는 한국어로 프로젝트 이력과 설계 의도를 다시 읽는 유지보수자입니다. 모든 코드에는 상세한 설명 주석과 변경 시 의존성 여파 안내가 반드시 포함되어야 합니다. 핵심 함수·API·비자명한 계약 주석은 4-3의 이중언어 추적 블록을 사용하되, 영문은 기술 기준 주석으로 유지하고 한국어는 실제 코드와 영문을 감사한 동기화본으로 관리합니다. 자명한 행 단위 설명까지 모두 이중언어화하지는 않으며 기존 상세 주석 요구는 유지합니다.
 
 > `[규칙 ID: RULE-1.3 | 주 노드: engineering.code-comments | 보조 노드: context.project | 경로: .agent-governance/engineering/code-comments.md]`
 
@@ -243,9 +243,21 @@ JavaScript `payload` 객체에 새 필드를 추가합니다.
 
 #### 4-3-4. 코드 행별 상세 설명
 
-모든 코드에는 각 코드 줄이 무엇을 수행하는지 설명하는 상세 주석이 포함되어야 합니다. 기존 주석을 제거하거나 의미를 축소하지 않습니다.
+모든 코드에는 각 코드 줄이 무엇을 수행하는지 설명하는 상세 주석이 포함되어야 합니다. 기존 주석을 제거하거나 의미를 축소하지 않습니다. 자명한 행 설명은 이중언어 추적 대상으로 강제하지 않습니다.
 
 > `[규칙 ID: RULE-4.3.4 | 노드: engineering.code-comments | 경로: .agent-governance/engineering/code-comments.md]`
+
+#### 4-3-5. 이중언어 추적 주석
+
+핵심 함수·API·비자명한 내부 계약은 안정적인 `[MINI-COMMENT: <ID>]`를 사용하고, `[EN rev.N]` 안에 `[Role]`, `[Dependencies]`, `[Impact]`, `[KO rev.N]` 안에 `[역할]`, `[의존성 관계]`, `[변경 시 영향도]`를 유지합니다. 영문은 기술 기준 주석이며 한국어는 같은 revision의 실제 소스와 영문을 확인한 감사본입니다. 파일이나 함수 이름만 바뀌었다는 이유로 Comment ID를 재사용·교체하지 않습니다.
+
+> `[규칙 ID: RULE-4.3.5 | 노드: engineering.code-comments | 경로: .agent-governance/engineering/code-comments.md]`
+
+#### 4-3-6. Revision·소스 해시와 단계적 기준선
+
+ChatGPT/Codex가 추적 코드의 계약 또는 EN 본문을 변경하면 EN revision을 증가시킵니다. Gemini는 실제 소스와 EN의 의미가 일치하는지 감사한 뒤 KO 본문과 KO revision만 같은 값으로 동기화합니다. EN>KO는 번역 대기, KO>EN은 잘못된 상태이며, source/EN/KO hash 변경과 revision 불일치는 별도 suspect 상태로 보고합니다. baseline은 감사 완료 후에만 갱신하고 state 파일만 수정해 경고를 숨기지 않습니다. 초기 도입은 핵심 파일부터 점진적으로 수행합니다.
+
+> `[규칙 ID: RULE-4.3.6 | 노드: engineering.code-comments | 경로: .agent-governance/engineering/code-comments.md]`
 
 ### 4-4. 데이터 보존과 마이그레이션
 
@@ -660,6 +672,12 @@ Task는 Plan 본문에 합치지 않고 `Tasks/YYYY/MM/DD/NNN_<작업명>_Task.m
 
 > `[규칙 ID: RULE-7.4.3 | 노드: workflow.completion-history | 경로: .agent-governance/workflow/completion-history.md]`
 
+#### 7-4-4. Git commit 기록 언어
+
+AI 작업자가 작성하는 일반 Git commit은 `feat:`, `fix:`, `docs:`, `test:`, `refactor:` 등 Conventional Commit의 영문 type을 유지하되 제목과 본문 설명은 한국어를 기본으로 합니다. API명·파일명·심벌·표준 고유명사는 원문을 유지할 수 있으며 Git이 자동 생성한 merge/revert 메시지는 별도 예외로 둡니다. commit 전에 프로젝트 제공 메시지 검사기가 있으면 이를 통과해야 합니다.
+
+> `[규칙 ID: RULE-7.4.4 | 노드: workflow.completion-history | 경로: .agent-governance/workflow/completion-history.md]`
+
 ### 7-5. 다중 AI 컨텍스트와 자아 식별
 
 #### 7-5-1. AI 교차 투입
@@ -685,6 +703,12 @@ AI는 자신이 기획·검토를 수행하는지 코딩·실행을 수행하는
 대화 기록 시 이전 AI의 이름을 복사하지 않고 현재 작업 중인 실제 모델명을 헤더에 사용합니다. 이 항목은 6-1-3과 6-3-1을 함께 참조합니다.
 
 > `[규칙 ID: RULE-7.5.4 | 노드: workflow.multi-agent-handoff | 경로: .agent-governance/workflow/multi-agent-handoff.md]`
+
+#### 7-5-5. 이중언어 주석 역할 분리와 Gemini 변경 경계
+
+ChatGPT/Codex는 구현과 `[EN rev.N]` 기술 기준 주석을 담당하고, 추적 코드 계약 또는 EN을 변경하면 EN revision을 증가시킵니다. Gemini의 기본 역할은 실제 소스와 EN의 일치 여부를 감사한 뒤 `[KO rev.N]` 한국어 본문과 KO revision을 동기화하는 것입니다. 소스와 EN이 다르면 `CONTRACT-DIVERGENCE`로 보고하고 KO 갱신을 보류하며, 별도 구현 지시 없이 실행 코드·EN·API·스키마·설정을 수정하지 않습니다. 감사 전 Git snapshot과 감사 후 diff guard를 사용하고, 감사 중 HEAD가 바뀌면 stale snapshot으로 간주하여 재검사합니다.
+
+> `[규칙 ID: RULE-7.5.5 | 노드: workflow.multi-agent-handoff | 경로: .agent-governance/workflow/multi-agent-handoff.md]`
 
 ---
 

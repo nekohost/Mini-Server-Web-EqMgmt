@@ -92,12 +92,29 @@ assert.ok(syncPlan.targetNodes.some((node) => node.nodeId === 'engineering.data-
 assert.ok(syncPlan.targetNodes.some((node) => node.nodeId === 'governance.rule-sync'));
 // manifest와 human map이 필수 갱신 파일인지 확인한다.
 assert.ok(syncPlan.requiredFiles.includes('manifest.yaml'));
+// 신규 source_rule의 추적성을 위해 rule-map도 필수 갱신 파일인지 확인한다.
+assert.ok(syncPlan.requiredFiles.includes('traceability/rule-map.yaml'));
 // 섹션 기준선도 필수 갱신 파일인지 확인한다.
 assert.ok(syncPlan.requiredFiles.includes('traceability/rule-section-baseline.yaml'));
 // 계획이 관측한 Rule hash를 기준 hash로 보관하는지 확인한다.
 assert.equal(syncPlan.baseRuleHash, syncStatus.currentRuleHash);
 // 통과 목록에 동기화 계획 시나리오를 추가한다.
 passed.push('sync-plan resolves Rule sections to nodes/map/manifest');
+
+// 이미 human-rule-map에 존재하는 섹션을 --map-section으로 재지정하면 fail-closed 해야 한다.
+const existingSectionRemap = runFailure(['sync-plan', '--expected-rule-sha', syncStatus.currentRuleHash, '--section', '3-1-1', '--map-section', '3-1-1=engineering.data-model']);
+assert.match(existingSectionRemap.error, /이미 human-rule-map에 있는 Rule 섹션/);
+passed.push('sync-plan rejects remapping an existing section');
+
+// manifest/human map에 없는 노드는 신규 섹션 매핑 대상으로 사용할 수 없어야 한다.
+const unknownMapNode = runFailure(['sync-plan', '--expected-rule-sha', syncStatus.currentRuleHash, '--section', '3-1-1', '--map-section', '3-1-1=unknown.node']);
+assert.match(unknownMapNode.error, /기존 manifest\/human-rule-map 노드/);
+passed.push('sync-plan rejects unknown explicit mapping node');
+
+// 현재 계획 대상이 아닌 섹션의 명시 매핑은 범위 확대이므로 거부해야 한다.
+const outOfPlanMapping = runFailure(['sync-plan', '--expected-rule-sha', syncStatus.currentRuleHash, '--section', '3-1-1', '--map-section', '7-4-4=workflow.completion-history']);
+assert.match(outOfPlanMapping.error, /sync-plan 대상이 아닙니다/);
+passed.push('sync-plan rejects explicit mapping outside requested sections');
 
 // 이전 계획의 hash를 사용한 동기화 계획은 fail-closed 해야 한다.
 const stalePlan = runFailure(['sync-plan', '--expected-rule-sha', '0'.repeat(64), '--section', '3-1-1']);

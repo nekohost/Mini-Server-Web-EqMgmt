@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "governance_version": "1.7.0",
+  "governance_version": "1.8.0",
   "fallback": "legacy",
   "profiles": [
     {
@@ -21,10 +21,10 @@
   ],
   "package_files": {
     ".agent-governance/traceability/entrypoint-map.yaml": "F7FF16882B2991C369CA60755C14A98908B3A483690A1C3A9CB1E532AFCA4813",
-    ".agent-governance/tooling/governance-tool.mjs": "05ADD34F4277026EDCB32011F7E004D251F92EE7961A52BB9C0C7B2FC1C88728",
-    "AGENTS.md": "54C84FE322CB530BCEDB4118F95A3D96F6EA3CF5C4F21655303ACA36794DCE80",
+    ".agent-governance/tooling/governance-tool.mjs": "FFC4AA88800B03E898D88D432F81298AAD741E9F7994330E9EDE587E16054503",
+    "AGENTS.md": "FBEFEB6655113CDA41588E687E40B146206D04EAFAFFF00FC18408875AE544EF",
     ".agent-governance/tooling/execution-profile.mjs": "9D74D39E4A0FCB409F781AFCEB44E314414C9AD18970D0A6223F13291599677B",
-    ".agent-governance/traceability/rule-section-baseline.yaml": "0D998D27A28EF421C852CA97C6591EE235EE86116926E3B1B0B15C2B88C23D8E",
-    ".agent-governance/traceability/human-rule-map.yaml": "07FE1FFA5351F703255CE262D8B5D85C2B176156E779CC37AD5A150BFAB4722A"
+    ".agent-governance/traceability/rule-section-baseline.yaml": "16B64BD4F71521E6112FA9E257D6FDF1DC31F7CE9AB77261AF36F12E958B7505",
+    ".agent-governance/traceability/human-rule-map.yaml": "3AEB9B0F5B4F26BA841042120F68DEB2AC7A4475D5E66C06992BAC13E8500C8F"
   }
 }

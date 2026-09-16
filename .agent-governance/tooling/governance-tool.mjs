@@ -285,7 +285,7 @@ function parseArguments(argv) {
   // 첫 번째 인수를 하위 명령으로 사용하고 없으면 help로 처리한다.
   const command = argv[0] ?? 'help';
   // 모든 반복 옵션과 플래그의 기본값을 선언한다.
-  const options = { intents: [], paths: [], referencePaths: [], sections: [], expectedRuleSha: null, smallModel: false, json: true };
+  const options = { intents: [], paths: [], referencePaths: [], sections: [], sectionMappings: [], expectedRuleSha: null, smallModel: false, json: true };
   // 하위 명령 다음 인수부터 한 개씩 검사한다.
   for (let index = 1; index < argv.length; index += 1) {
     // 현재 옵션 이름을 읽는다.
@@ -325,6 +325,17 @@ function parseArguments(argv) {
       if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--section 값이 필요합니다.')]);
       // Rule 섹션 번호를 문자열로 저장한다.
       options.sections.push(argv[index + 1]);
+      // 소비한 값 인덱스를 건너뛴다.
+      index += 1;
+      // 다음 옵션으로 이동한다.
+      continue;
+    }
+    // --map-section은 신규 Rule 섹션을 이미 등록된 human-map 노드에 명시적으로 연결한다.
+    if (token === '--map-section') {
+      // 자동 추론을 피하기 위해 `section=node_id` 전체 값을 필수로 요구한다.
+      if (argv[index + 1] === undefined || argv[index + 1].startsWith('--')) throw new ContextInputError([diagnostic('MISSING_OPTION_VALUE', '--map-section 값이 필요합니다. 형식: <section>=<node-id>')]);
+      // 검증은 sync-plan에서 현재 Rule 섹션·manifest·human map과 함께 수행한다.
+      options.sectionMappings.push(argv[index + 1]);
       // 소비한 값 인덱스를 건너뛴다.
       index += 1;
       // 다음 옵션으로 이동한다.
@@ -540,17 +551,43 @@ function createSyncPlan(governance, options) {
   if (options.expectedRuleSha !== syncStatus.currentRuleHash) throw new Error(`Rule SHA-256이 변경되었습니다. expected=${options.expectedRuleSha} actual=${syncStatus.currentRuleHash}`);
   // 기준선 불일치가 있으면 상태가 보고한 모든 변경 섹션을 빠짐없이 계획 대상으로 받아야 한다.
   if (!syncStatus.inSync && !sameStringSet(options.sections, syncStatus.affectedSections)) throw new Error(`sync-plan 섹션은 sync-status의 전체 변경 목록과 일치해야 합니다. expected=${syncStatus.affectedSections.join(', ')}`);
-  // 섹션별 mapping을 누적한다.
-  const targetMappings = [];
-  // 각 입력 섹션을 human map과 대조한다.
-  for (const section of options.sections) {
-    // 현재 섹션을 참조하는 모든 mapping을 찾는다.
-    const mappings = arrayValue(governance.humanMap.mappings).filter((mapping) => arrayValue(mapping.human_rule_sections).map(String).includes(section));
-    // 미등록 섹션은 의미 추론 없이 실패한다.
-    if (mappings.length === 0) throw new Error(`human-rule-map에 없는 Rule 섹션입니다: ${section}`);
-    // 중복 mapping을 제거하면서 대상에 추가한다.
-    for (const mapping of mappings) if (!targetMappings.some((item) => item.node_id === mapping.node_id)) targetMappings.push(mapping);
+  // 신규 섹션도 기존 human-map 노드에만 명시적으로 연결할 수 있도록 mapping 복사본을 만든다.
+  const mappingByNode = new Map(arrayValue(governance.humanMap.mappings).map((mapping) => [mapping.node_id, { ...mapping, human_rule_sections: [...arrayValue(mapping.human_rule_sections).map(String)] }]));
+  // `--map-section <section>=<node-id>` 입력을 섹션별 명시 매핑으로 검증한다.
+  const explicitMappings = new Map();
+  for (const pair of arrayValue(options.sectionMappings)) {
+    // 첫 등호를 기준으로 섹션과 기존 노드 ID를 나눈다.
+    const separator = String(pair).indexOf('=');
+    if (separator <= 0 || separator === String(pair).length - 1) throw new Error(`--map-section 형식이 올바르지 않습니다: ${pair}`);
+    const section = String(pair).slice(0, separator);
+    const nodeId = String(pair).slice(separator + 1);
+    // 현재 sync-plan 전체 변경 목록 밖의 섹션을 추가하지 않는다.
+    if (!options.sections.includes(section)) throw new Error(`--map-section 섹션이 sync-plan 대상이 아닙니다: ${section}`);
+    // 자동 추론이나 신규 node 생성을 막고 manifest와 human map에 이미 존재하는 노드만 허용한다.
+    if (!governance.manifest.nodes?.[nodeId] || !mappingByNode.has(nodeId)) throw new Error(`--map-section 대상은 기존 manifest/human-rule-map 노드여야 합니다: ${nodeId}`);
+    // 같은 신규 섹션을 서로 다른 노드에 연결하려는 입력은 fail-closed 한다.
+    if (explicitMappings.has(section) && explicitMappings.get(section) !== nodeId) throw new Error(`--map-section 충돌: ${section}`);
+    explicitMappings.set(section, nodeId);
   }
+  // human-rule-map에 실제로 추가해야 하는 신규 섹션 매핑을 계획 근거로 보존한다.
+  const proposedSectionMappings = [];
+  // 각 입력 섹션을 기존 mapping 또는 명시 신규 mapping과 대조한다.
+  for (const section of options.sections) {
+    const existing = [...mappingByNode.values()].filter((mapping) => mapping.human_rule_sections.includes(section));
+    // 이미 mapping된 섹션은 --map-section으로 재지정할 수 없다.
+    if (existing.length > 0) {
+      if (explicitMappings.has(section)) throw new Error(`이미 human-rule-map에 있는 Rule 섹션은 --map-section으로 재지정할 수 없습니다: ${section}`);
+      continue;
+    }
+    // 신규 섹션은 사용자가 승인한 대상 노드를 반드시 명시해야 한다.
+    const nodeId = explicitMappings.get(section);
+    if (!nodeId) throw new Error(`human-rule-map에 없는 Rule 섹션은 --map-section <section>=<existing-node-id>가 필요합니다: ${section}`);
+    const mapping = mappingByNode.get(nodeId);
+    mapping.human_rule_sections.push(section);
+    proposedSectionMappings.push({ section, nodeId });
+  }
+  // 변경 섹션을 실제 또는 제안 mapping으로 참조하는 노드만 동기화 대상으로 고른다.
+  const targetMappings = [...mappingByNode.values()].filter((mapping) => options.sections.some((section) => mapping.human_rule_sections.includes(section)));
   // manifest 순서로 대상 노드 ID를 정렬한다.
   const targetNodeIds = manifestOrder(targetMappings.map((mapping) => mapping.node_id), governance.manifest);
   // 대상 노드의 실제 상대 경로를 구성한다.
@@ -560,6 +597,7 @@ function createSyncPlan(governance, options) {
     '../Rule.md',
     ...targetNodes.map((node) => node.path),
     'traceability/human-rule-map.yaml',
+    'traceability/rule-map.yaml',
     'traceability/rule-section-baseline.yaml',
     'manifest.yaml',
   ];
@@ -569,6 +607,7 @@ function createSyncPlan(governance, options) {
     governanceVersion: governance.manifest.governance_version,
     baseRuleHash: syncStatus.currentRuleHash,
     sections: options.sections,
+    proposedSectionMappings,
     syncStatus: {
       added: syncStatus.added,
       changed: syncStatus.changed,
@@ -582,7 +621,9 @@ function createSyncPlan(governance, options) {
     mandatoryActions: [
       '사용자 Rule 변경 의미를 대상 노드 본문에 투영',
       '대상 노드 human_rule_sections와 source_human 갱신',
+      'proposedSectionMappings가 있으면 그 section↔existing node 연결을 human-rule-map에 그대로 반영',
       'human-rule-map node↔section↔HUMAN ID 갱신',
+      '신규 source_rule이 있으면 traceability/rule-map.yaml의 rule↔node 연결 갱신',
       'target node source_section_digest를 nodeSourceDigestUpdates 값으로 갱신',
       'traceability/rule-section-baseline.yaml의 섹션 hash와 source_rule_sha256 갱신',
       'manifest human_reference.sha256와 governance_version 갱신',
@@ -958,7 +999,7 @@ function helpText() {
     '  node .agent-governance/tooling/governance-tool.mjs catalog',
     '  node .agent-governance/tooling/governance-tool.mjs context --intent <id> [--intent <id>] --path <path> [--path <path>] [--reference-path <path>] [--section <n>] [--small-model]',
     '  node .agent-governance/tooling/governance-tool.mjs sync-status',
-    '  node .agent-governance/tooling/governance-tool.mjs sync-plan --expected-rule-sha <sha256> --section <n> [--section <n>]',
+    '  node .agent-governance/tooling/governance-tool.mjs sync-plan --expected-rule-sha <sha256> --section <n> [--section <n>] [--map-section <new-section>=<existing-node-id>]',
     '  node .agent-governance/tooling/governance-tool.mjs snapshot',
     '',
     'The tool is read-only and writes JSON to stdout.',

@@ -36,7 +36,9 @@ rules:
   - { id: RULE-4.3.1, node: engineering.code-comments, summary: 역할 메타 주석 }
   - { id: RULE-4.3.2, node: engineering.code-comments, summary: 의존성 관계 메타 주석 }
   - { id: RULE-4.3.3, node: engineering.code-comments, summary: 변경 영향도 메타 주석 }
-  - { id: RULE-4.3.4, node: engineering.code-comments, summary: 원문의 무번호 후단인 코드 행별 상세 주석 }
+  - { id: RULE-4.3.4, node: engineering.code-comments, summary: 코드 행별 상세 주석과 자명한 행 이중언어 예외 }
+  - { id: RULE-4.3.5, node: engineering.code-comments, summary: Comment ID와 EN/KO revision 기반 이중언어 추적 주석 }
+  - { id: RULE-4.3.6, node: engineering.code-comments, summary: source·EN·KO hash와 단계적 baseline 동기화 }
   - { id: RULE-4.4.1, node: engineering.data-integrity, summary: DROP과 전체 초기화 금지 }
   - { id: RULE-4.4.2, node: engineering.data-integrity, summary: ALTER 또는 안전한 이전 절차 사전 안내 }
   - { id: RULE-4.5.1, node: engineering.security, summary: 비밀 하드코딩 금지와 환경변수 분리 }
@@ -95,10 +97,12 @@ rules:
   - { id: RULE-7.4.1, node: workflow.completion-history, summary: 완료 후 제안과 로드맵 원본 보존 }
   - { id: RULE-7.4.2, node: workflow.completion-history, summary: 완료 상태 갱신과 미구현 목록 제거 }
   - { id: RULE-7.4.3, node: workflow.completion-history, summary: FEATURES에 최종 명세 기록 }
+  - { id: RULE-7.4.4, node: workflow.completion-history, summary: Conventional Commit type과 한국어 제목·본문 기록 }
   - { id: RULE-7.5.1, node: workflow.multi-agent-handoff, summary: 다양한 AI 교차 투입 }
   - { id: RULE-7.5.2, node: workflow.multi-agent-handoff, summary: 현재 역할 인지와 필요 시 문의 }
   - { id: RULE-7.5.3, node: workflow.multi-agent-handoff, summary: 승인 계획과 문서 방향성 승계 }
   - { id: RULE-7.5.4, node: workflow.multi-agent-handoff, summary: 실제 AI 이름으로 대화 헤더 작성 }
+  - { id: RULE-7.5.5, node: workflow.multi-agent-handoff, summary: ChatGPT·Codex EN 기준과 Gemini KO 감사·diff guard 역할 분리 }
   - { id: RULE-8-PREAMBLE, node: tools.read-execute, summary: AI 도구 운용과 사용자 통제 }
   - { id: RULE-8.0, node: tools.conversation-exception, summary: Chat 기록에 제6조 우선 }
   - { id: RULE-8.1.1, node: tools.read-execute, summary: 터미널 읽기와 실행 용도 }

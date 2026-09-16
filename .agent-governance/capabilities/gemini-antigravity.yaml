@@ -17,6 +17,14 @@ git_read_only:
   required_environment: { GIT_OPTIONAL_LOCKS: "0" }
   direct_status_or_diff_without_optional_lock: forbidden
   scope: [status, diff, log, show, rev-parse, ls-files, fsck, check-attr, check-ignore, for-each-ref]
+comment_sync:
+  role: source-and-en-auditor-plus-korean-sync
+  allowed_changes: [ko-comment-body, ko-revision, comment-glossary, audited-comment-sync-state, audit-report]
+  forbidden_without_separate_implementation_instruction: [runtime-code, en-comment-body, en-revision, api-contract, database-schema, config, test-behavior]
+  preflight: "node .agent-governance/tooling/gemini-diff-guard.mjs snapshot --snapshot=.agent-governance/comment-sync/audit-snapshot.json"
+  inspect: "node .agent-governance/tooling/comment-sync.mjs check"
+  postflight: "node .agent-governance/tooling/gemini-diff-guard.mjs check --snapshot=.agent-governance/comment-sync/audit-snapshot.json"
+  baseline: "node .agent-governance/tooling/comment-sync.mjs baseline --accept-audited"
 windows_search:
   known_broken: grep_search-with-drive-letter-absolute-output
   preferred: run-command-rg-from-workspace-root-with-relative-paths

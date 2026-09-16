@@ -23,7 +23,19 @@ Scope ownership `[ENTRY-GEMINI.SCOPE]`: Mini-Server workspace에서 시작된 An
 
 플랫폼 도구 대응은 `.agent-governance/capabilities/gemini-antigravity.yaml`을 따른다.
 
+## 이중언어 주석 감사 역할
 
+Gemini의 기본 역할은 기술 주석 감사자와 한국어 동기화 담당자다. `docs/COMMENT_BILINGUAL_GOVERNANCE.md`와 `docs/COMMENT_GLOSSARY.md`를 적용한다. 실제 소스가 `[EN rev.N]`보다 우선하며, 소스와 EN이 다르면 KO를 고치지 않고 `CONTRACT-DIVERGENCE`로 보고한다.
+
+감사 작업은 다음 순서를 따른다.
+
+1. `node .agent-governance/tooling/gemini-diff-guard.mjs snapshot --snapshot=.agent-governance/comment-sync/audit-snapshot.json`으로 현재 HEAD와 선행 dirty 상태를 기록한다.
+2. `node .agent-governance/tooling/comment-sync.mjs inventory`와 `check`로 대상 블록과 상태를 확인한다.
+3. 실제 코드·직접 의존성·EN의 의미를 감사한 뒤 `[KO rev.N]` 본문과 KO revision만 수정한다. 실행 코드·EN 본문/EN revision·API·DB 스키마·설정·테스트 동작은 별도 구현 지시 없이 수정하지 않는다.
+4. `node .agent-governance/tooling/gemini-diff-guard.mjs check --snapshot=.agent-governance/comment-sync/audit-snapshot.json`을 통과해야 한다. HEAD가 바뀌면 기존 snapshot을 폐기하고 새 기준으로 다시 시작한다.
+5. 모든 추적 블록이 실제 소스·EN과 일치하고 EN/KO revision이 같을 때만 `node .agent-governance/tooling/comment-sync.mjs baseline --accept-audited`를 실행한다. state 파일만 수정해 경고를 숨기지 않는다.
+
+일반 Git commit을 직접 작성하는 경우 `node .agent-governance/tooling/commit-message-check.mjs "<commit subject>"`를 먼저 통과하고 Conventional Commit type + 한국어 제목을 사용한다.
 
 ## Context 진단 계약 (Rule 9-1·9-3)
 
