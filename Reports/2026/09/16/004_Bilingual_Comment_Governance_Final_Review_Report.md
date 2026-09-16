@@ -11,7 +11,7 @@ related_artifacts:
 
 ## 판단과 승인 범위
 
-도입 방향은 적합하지만 기존 27건 테스트만으로 완료 판정하기에는 검사 누락이 있었다. 추가 재현 시나리오 16건 중 15건이 기존 구현에서 실패했다. 기존 자료의 “100%”, “완벽하게 차단” 표현은 검증 범위를 넘어선다. 정상 사례와 거부 사례를 함께 보강한 뒤 완료한다.
+도입 방향은 적합하지만 기존 27건 테스트만으로 완료 판정하기에는 검사 누락이 있었다. 추가 재현 시나리오 16건 중 15건이 기존 구현에서 실패했다. 기존 자료의 “100%”, “완벽하게 차단” 표현은 검증 범위를 넘어선다. 정상 사례와 거부 사례를 함께 보강하고 파일럿 감사·최초 baseline·Git push까지 완료했다.
 
 사용자의 이번 요청은 상세 검토, 필요한 개선의 자동 반영, 잔여 작업 완료까지 명시 승인했다. 진입점 preflight와 runtime profile 결과는 `dedicated / verified-runtime-exact-match / codex / gpt-6-astra`다. 이 경로는 legacy 역할·고정 Staging·8단계를 상속하지 않는다. 기존 보고서는 과거 수행 기록으로 보존한다.
 
@@ -80,7 +80,15 @@ Linux 백업서버 SSH 연결을 확인하고, **로컬 후보 소스만 메모�
 
 실제 guard snapshot은 EN 정정과 도구 변경이 끝난 시점에서 만들었다. 그 이후의 KO 동기화·state 생성만 검사했으며 snapshot에 이미 있던 선행 수정은 기준으로 보존했다. 이후의 문서 정리는 별도 승인된 도입 마무리 작업이지 KO-only 작업으로 주장하지 않는다. snapshot 원문은 로컬 ignored 파일에만 보관한다.
 
-Rule SHA-256은 `9DC100A665B2EE74D1D2CE1FC2E016BD5F617ED858DBF1786B06B90112180420`로 유지한다. Rule/human map/section baseline/실행 노드 자체는 바꾸지 않았으며 도구 구현 변경에 해당하는 package hash와 버전 1.8.1을 동기화했다. Git 최종 반영 결과는 완료 후 아래 기록에 추가한다.
+Rule SHA-256은 `9DC100A665B2EE74D1D2CE1FC2E016BD5F617ED858DBF1786B06B90112180420`로 유지한다. Rule/human map/section baseline/실행 노드 자체는 바꾸지 않았으며 도구 구현 변경에 해당하는 package hash와 버전 1.8.1을 동기화했다.
+
+### Git 완료 근거
+
+- 보완 구현 commit: `aef4731b4e8b21c8e69d07517d9ab511c6b6f24c` — `fix: 이중언어 주석 감사 누락 보완 및 파일럿 완료`.
+- 관련 25개 파일만 stage/commit했다. snapshot 원문과 다른 작업자의 미커밋 보고서는 제외했다.
+- `git push origin main` 성공. 직후 `git ls-remote --heads origin main`과 로컬 HEAD가 위 SHA로 일치했다.
+- 직후 작업트리에는 시작부터 있던 `Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md`만 남았다. SHA-256도 시작 값과 동일함을 확인했다.
+- 본 완료 증거와 Task의 Git 완료 표시는 후속 문서 commit으로 보존한다. 거버넌스 코드·파일럿 검증 결과를 추가로 변경하지 않는다.
 
 ## 한계와 보존 경계
 

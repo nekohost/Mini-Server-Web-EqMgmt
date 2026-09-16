@@ -31,5 +31,6 @@ related_artifacts:
 - [x] 파일럿 KO-only guard, 최초 baseline 및 Linux 격리 계약 21건·실행 AST 불변 확인
 - [x] Rule·traceability 동기화 및 dedicated/legacy 선택 계약 유지 확인
 - [x] 최종 검토 보고서·규격·기능 문서·보고서 색인 동기화
+- [x] 보완 구현 `aef4731b4e8b21c8e69d07517d9ab511c6b6f24c` commit/push 및 원격 main 일치 확인, 타 작업자 변경 보존
 
 상세 증거 및 Git 최종 결과: [후속 검토 보고서](../../../../Reports/2026/09/16/004_Bilingual_Comment_Governance_Final_Review_Report.md).
