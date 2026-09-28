@@ -826,8 +826,6 @@
         form.dataset.originalRevision = '';  // 수정창을 연 시점의 revision만 저장 요청에 사용합니다.
         form.removeAttribute('toolname');
         form.removeAttribute('tooldescription');
-        const modalBody = document.getElementById('equipmentModalBody');
-        if (modalBody) modalBody.scrollTop = 0;
         document.getElementById('EquipmentId').value = '';
         document.getElementById('UserId').value = ''; 
         document.getElementById('CategoryCustomBox').classList.add('hidden');
@@ -879,6 +877,8 @@
         }
         window.LineupApp.updateSubmitLockState();
         modal.classList.remove('hidden');
+        const modalBody = document.getElementById('equipmentModalBody');
+        if (modalBody) modalBody.scrollTop = 0; // 표시 후 초기화해야 Chrome이 숨겨진 본문의 이전 스크롤 위치를 복원하지 않습니다.
         if (!id && window.isSecureContext && document.modelContext) {
             form.setAttribute('toolname', 'add_equipment');
             form.setAttribute('tooldescription', 'Prepare new equipment. Select the category, manufacturer, model nodes and option in order; review every field and manually click Save. No automatic submission.');

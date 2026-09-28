@@ -87,11 +87,42 @@ test('empty catalog label explains that no model exists', async () => {
     assert.equal(rootSelect.children[0].text, '-- 등록된 모델 없음 (➕ 노드 추가 선택) --');
 });
 
-test('openModal resets the independent modal body scroll position', () => {
+// display:none인 본문은 스크롤 쓰기를 무시하고 표시될 때 이전 위치를 복원하는 Chrome 동작을 재현합니다.
+async function modalFixture(id = null) {
     const source = readFileSync(new URL('../templates/index.html', import.meta.url), 'utf8');
-    assert.match(source, /const modalBody = document\.getElementById\('equipmentModalBody'\);/);
-    assert.match(source, /if \(modalBody\) modalBody\.scrollTop = 0;/);
-});
+    const elements = new Map();
+    const get = key => { if (!elements.has(key)) elements.set(key, new Element()); return elements.get(key); };
+    const modal = get('equipmentModal');
+    modal.classList.add('hidden');
+    get('equipmentForm').reset = () => {};
+    let retainedScrollTop = 393;
+    Object.defineProperty(get('equipmentModalBody'), 'scrollTop', {
+        get: () => modal.classList.contains('hidden') ? 0 : retainedScrollTop,
+        set: value => { if (!modal.classList.contains('hidden')) retainedScrollTop = value; }
+    });
+    const context = {
+        document: { getElementById: get },
+        currentUser: { NickName: 'fixture' },
+        currentEquipmentData: id === null ? [] : [{ EquipmentId: id, Revision: 1, Name: 'fixture', IsDraft: 0 }],
+        alert(message) { throw new Error(message); },
+        window: { LineupApp: { async init() {}, resetSelectionState() {}, restoreSelection() {}, updateSubmitLockState() {} } }
+    };
+    vm.runInNewContext(source.slice(source.indexOf('    async function openModal('), source.indexOf('    function closeModal(')), context);
+    return { get, modal, open: () => context.openModal(id) };
+}
+
+for (const [mode, id] of [['new', null], ['edit', 7]]) {
+    test(`openModal resets ${mode} body scroll after the hidden panel becomes visible`, async () => {
+        const f = await modalFixture(id);
+        await f.open();
+        assert.equal(f.modal.classList.contains('hidden'), false);
+        assert.equal(f.get('equipmentModalBody').scrollTop, 0);
+        f.get('equipmentModalBody').scrollTop = 500;
+        f.modal.classList.add('hidden');
+        await f.open();
+        assert.equal(f.get('equipmentModalBody').scrollTop, 0);
+    });
+}
 
 test('root add sentinel mounts root creation panel explicitly', async () => {
     const f = await fixture([]);
