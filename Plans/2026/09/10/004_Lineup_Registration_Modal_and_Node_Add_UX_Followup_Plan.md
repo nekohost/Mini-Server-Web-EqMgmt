@@ -7,13 +7,17 @@ related_artifacts:
   - ../../../../Reports/2026/09/10/014_Lineup_Registration_UX_Followup_Validation_Report.md
   - ../../../../Reports/2026/09/10/015_Lineup_Registration_UX_Followup_Staging_Report.md
   - ../../../../Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md
+  - ../../../../Tasks/2026/09/10/008_Lineup_Registration_UX_Followup_Production_Merge_Task.md
+  - ../../../../Reports/2026/09/28/001_Lineup_Registration_UX_Followup_Closure_Report.md
 ---
 # [계획서] 장비등록 모달 및 노드 추가 UX 후속 보완
 
 - 작성일: 2026-09-10
 - `work_id`: `WORK-20260910-LINEUP-REGISTRATION-UX-FOLLOWUP`
 - 선행 제안: **[제안-047]** 장비등록 라인업 노드 추가 및 관리자 노드 관리
-- 상태: **완료 — Review 016 보완 반영 및 Windows 운영 소스 병합 완료 / Git·Linux 적용 별도**
+- 상태: **완료 — Review 016 보완·Git push·백업 서버 적용·Chrome 실브라우저 검증 완료 (2026-09-28)**
+
+> 아래 범위와 승인 경계는 최초 Staging 계획 당시의 기록이다. 후속 운영 승인은 Task 008에서 관리하며, 2026-09-28 잔여 작업과 실브라우저에서 발견한 스크롤 초기화 순서 결함까지 마무리했다. [최종 검증 보고서](../../../../Reports/2026/09/28/001_Lineup_Registration_UX_Followup_Closure_Report.md)를 현재 완료 근거로 사용한다.
 
 ## 1. 배경
 

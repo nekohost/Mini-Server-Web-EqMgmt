@@ -1,0 +1,16 @@
+{
+  "status": "deployed",
+  "previous_head": "953782929122622eac67186a5d7cc7c6cb31b559",
+  "target": "3ced6e8a064c3dca691df838d9863be3c1e699e8",
+  "old_pid": 119262,
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/lineup-modal-scroll-20260928T073149772470Z",
+  "template_parse": "pass",
+  "head": "3ced6e8a064c3dca691df838d9863be3c1e699e8",
+  "new_pid": 261921,
+  "health": 200,
+  "db_integrity": "ok",
+  "foreign_key_violations": 0,
+  "business_tables_unchanged": true,
+  "template_sha256": "98bfa63b313c9fcd04e4bce0f2a6ebaca2942f9ca8849eacf620d34ae8d8fff2",
+  "git_status_after": "## main...origin/main\n?? .venv.incomplete-20260907/"
+}
