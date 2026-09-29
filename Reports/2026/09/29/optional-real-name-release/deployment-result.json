@@ -1,0 +1,23 @@
+{
+  "status": "deployed",
+  "previous_head": "3f275f2b7ea0c6bef2ecf14f8ccc2fab2100447f",
+  "target": "706c537052b7453a790fea886395d30023b3f44e",
+  "old_pid": 261921,
+  "runtime_files": 5,
+  "syntax": "pass",
+  "release": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/optional-real-name-20260929T043205268927Z",
+  "head": "706c537052b7453a790fea886395d30023b3f44e",
+  "new_pid": 272316,
+  "health": 200,
+  "db_integrity": "ok",
+  "foreign_key_violations": 0,
+  "business_tables_unchanged": true,
+  "register_optional": true,
+  "runtime_sha256": {
+    "app.py": "91a81cbcf9b416da3c01e8f6c4d7102215695af9edc8f83d48e0e27ad0c941b8",
+    "utils/roadmap_auth.py": "383a396bd560c8f84e9821427d1e6bde1d663526b30a8612e6efeebdef016c28",
+    "utils/roadmap_routes.py": "0b1ac9380045997ef84b3163f4a46d011cf9394245a307ee8a9d8d4061b528bd",
+    "templates/register.html": "08dd54dda75b4ebe6fc28216c8882ce999f96902a288a8a24843d960fe60d4f3",
+    "templates/mypage.html": "19e32ecdbba4eb2220cdf3da8d7d1407e6db6bfe532c44fec66c5a64aa7700b2"
+  }
+}

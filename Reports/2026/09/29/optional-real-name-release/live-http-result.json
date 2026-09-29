@@ -1,0 +1,24 @@
+{
+  "started_at": "2026-09-29T04:43:28.048991+00:00",
+  "commit": "706c537052b7453a790fea886395d30023b3f44e",
+  "base_url": "https://nekohost.org",
+  "fixture_login": "qa_optional_c54b8decd0d747ea",
+  "mail_delivery_tested": false,
+  "checks": {
+    "register_html_optional": true,
+    "other_session_proof_rejected": 400,
+    "missing_csrf_rejected": 403,
+    "register_without_name": 200,
+    "new_account_blank_user_role": true,
+    "recover_without_name": 200,
+    "recovery_identity_role_and_token": true
+  },
+  "status": "passed",
+  "fixture_removed": true,
+  "business_tables_unchanged": true,
+  "db_integrity": "ok",
+  "foreign_key_violations": 0,
+  "audit_events_retained": 2,
+  "completed_at": "2026-09-29T04:43:30.552124+00:00",
+  "evidence_path": "/home/nekohost/.local/share/mini-server-eqmgmt/releases/optional-real-name-20260929T043205268927Z/smoke-c54b8decd0d747ea"
+}

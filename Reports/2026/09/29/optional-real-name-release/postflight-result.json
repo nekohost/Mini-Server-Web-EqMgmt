@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-09-29T04:47:52.159996+00:00",
+  "head": "706c537052b7453a790fea886395d30023b3f44e",
+  "pid": 272316,
+  "runtime_hashes_match": true,
+  "db_integrity": "ok",
+  "foreign_key_violations": 0,
+  "all_user_business_fields_preserved": true,
+  "other_business_tables_preserved": true,
+  "test_profile_restored": true,
+  "synthetic_user_remaining": 0,
+  "synthetic_challenge_remaining": 0,
+  "https_login": 200,
+  "startup_tracebacks": 0,
+  "status": "passed"
+}
