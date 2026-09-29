@@ -33,8 +33,8 @@ def validate_payload(endpoint, value):
         data['Password'] = password(data.get('Password'))
     if endpoint == 'register_page':
         data['LoginId'] = login_id(data.get('LoginId'))
-        for key in ('Name', 'NickName'):
-            data[key] = text_value(data.get(key), key, 100, True)
+        data['Name'] = text_value(data.get('Name'), '이름', 100)
+        data['NickName'] = text_value(data.get('NickName'), '닉네임', 100, True)
         data['Password'] = password(data.get('Password'), new=True)
         data['Email'] = email_address(data.get('Email'))
     for key in ('current_password', 'password', 'CurrentPassword'):
@@ -48,7 +48,8 @@ def validate_payload(endpoint, value):
     if endpoint == 'api_update_profile':
         candidate = text_value(data.get('login_id'), '아이디', 256, True)
         data['login_id'] = candidate if candidate == session.get('user', {}).get('LoginId') else login_id(candidate)
-        data['name'] = text_value(data.get('name'), '이름', 100, True)
+        if 'name' in data:
+            data['name'] = text_value(data['name'], '이름', 100)
         data['nickname'] = text_value(data.get('nickname'), '닉네임', 100, True)
     for key in ('email', 'Email', 'new_email'):
         if key in data:

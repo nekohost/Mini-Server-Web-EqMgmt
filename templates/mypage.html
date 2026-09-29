@@ -28,7 +28,7 @@
         </div>
         <div>
             <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">이름 / 닉네임</label>
-            <div id="displayNameNick" class="text-base font-semibold text-slate-800 dark:text-slate-200">{{ user.Name }} / {{ user.NickName }}</div>
+            <div id="displayNameNick" class="text-base font-semibold text-slate-800 dark:text-slate-200">{{ user.Name or '미등록' }} / {{ user.NickName }}</div>
         </div>
         <div>
             <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">역할 (권한)</label>
@@ -189,8 +189,8 @@
                        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">이름 (실명)</label>
-                <input type="text" id="editName" required 
+                <label for="editName" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">이름 (실명, 선택)</label>
+                <input type="text" id="editName" maxlength="100" autocomplete="name" placeholder="입력하지 않아도 됩니다"
                        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-white text-sm">
             </div>
             <div>
@@ -246,10 +246,15 @@
             document.getElementById(message).classList.add('hidden');
         });
     }
+    const profileValues = {
+        login_id: {{ user.LoginId | tojson }},
+        name: {{ (user.Name or '') | tojson }},
+        nickname: {{ user.NickName | tojson }}
+    };
     function openProfileModal() {
-        document.getElementById('editLoginId').value = "{{ user.LoginId }}";
-        document.getElementById('editName').value = "{{ user.Name }}";
-        document.getElementById('editNickName').value = "{{ user.NickName }}";
+        document.getElementById('editLoginId').value = profileValues.login_id;
+        document.getElementById('editName').value = profileValues.name;
+        document.getElementById('editNickName').value = profileValues.nickname;
         document.getElementById('currentPasswordProfile').value = "";
         document.getElementById('profileMessage').classList.add('hidden');
         document.getElementById('profileModal').classList.remove('hidden');
@@ -264,7 +269,7 @@
         const login_id = document.getElementById('editLoginId').value.trim();
         const name = document.getElementById('editName').value.trim();
         const nickname = document.getElementById('editNickName').value.trim();
-        const current_password = document.getElementById('currentPasswordProfile').value.trim();
+        const current_password = document.getElementById('currentPasswordProfile').value;
         const msgDiv = document.getElementById('profileMessage');
 
         msgDiv.classList.add('hidden');
@@ -289,7 +294,8 @@
                 msgDiv.classList.remove('hidden');
 
                 document.getElementById('displayLoginId').innerText = login_id;
-                document.getElementById('displayNameNick').innerText = `${name} / ${nickname}`;
+                document.getElementById('displayNameNick').innerText = `${name || '미등록'} / ${nickname}`;
+                Object.assign(profileValues, {login_id, name, nickname});
 
                 setTimeout(() => {
                     closeProfileModal();

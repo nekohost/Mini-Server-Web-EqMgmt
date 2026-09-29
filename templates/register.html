@@ -31,6 +31,7 @@
                     </button>
                 </div>
                 <p id="emailHelp" class="text-xs text-slate-500 mt-1">인증 PIN 번호가 이메일로 발송됩니다.</p>
+                <button type="button" id="btnResetEmail" onclick="resetEmailVerification()" class="hidden mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline">이메일 다시 인증</button>
             </div>
 
             <!-- PIN 입력 및 타이머 영역 (초기 hidden) -->
@@ -52,10 +53,11 @@
             </div>
 
             <div>
-                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">실명 (이름)</label>
-                <input type="text" id="Name" required 
+                <label for="Name" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">실명 (이름, 선택)</label>
+                <input type="text" id="Name" maxlength="100" autocomplete="name" aria-describedby="nameHelp"
                        class="w-full px-4 py-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition"
-                       placeholder="본명을 입력하세요">
+                       placeholder="입력하지 않아도 가입할 수 있습니다">
+                <p id="nameHelp" class="text-xs text-slate-500 mt-1">실명은 선택사항입니다. 화면에는 닉네임이 표시됩니다.</p>
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">닉네임</label>
@@ -97,6 +99,20 @@
     let pinTimer = null;
     let secondsLeft = 180;
     let isEmailVerified = false;
+
+    function resetEmailVerification() {
+        clearInterval(pinTimer);
+        isEmailVerified = false;
+        document.getElementById('Email').readOnly = false;
+        document.getElementById('PinCode').value = '';
+        document.getElementById('btnSendPin').disabled = false;
+        document.getElementById('btnResetEmail').classList.add('hidden');
+        document.getElementById('pinSection').classList.add('hidden');
+        const submit = document.getElementById('btnSubmitRegister');
+        submit.disabled = true;
+        submit.className = 'w-full bg-slate-400 text-white font-bold py-3 rounded-lg shadow-md transition duration-200 cursor-not-allowed';
+        submit.innerText = '가입하기 (이메일 인증 필요)';
+    }
 
     function startPinTimer() {
         clearInterval(pinTimer);
@@ -190,6 +206,8 @@
                 document.getElementById('PinCode').disabled = true;
                 document.getElementById('btnVerifyPin').disabled = true;
                 document.getElementById('btnSendPin').disabled = true;
+                document.getElementById('btnResetEmail').classList.remove('hidden');
+                msg.innerText = '인증이 완료되었습니다. 10분 이내에 가입해 주세요. 만료되면 이메일을 다시 인증할 수 있습니다.';
                 isEmailVerified = true;
 
                 const btnSubmit = document.getElementById('btnSubmitRegister');

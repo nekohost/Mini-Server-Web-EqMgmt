@@ -36,6 +36,7 @@ from utils.roadmap_equipment import STATES as EQUIPMENT_STATES, approved_option 
 from utils.roadmap_files import assert_files as assert_attachment_files  # DB-only 복원에 필요한 첨부를 검사합니다.
 from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 복원을 동시에 실행하지 않습니다.
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
+from utils.roadmap_auth import email_verification_proof, matches_email_verification
 
 # [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
 warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
@@ -2832,12 +2833,13 @@ def register_page():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. 이메일 인증 여부 검증
-    cursor.execute("SELECT IsVerified FROM email_verifications WHERE Email = ?", (email,))
+    # 인증 여부는 현재 세션·이메일·최신 PIN 발급 건에 결합합니다.
+    cursor.execute("SELECT IsVerified, PinCodeHash FROM email_verifications WHERE Email = ?", (email,))
     verif = cursor.fetchone()
-    if not verif or verif['IsVerified'] != 1:
+    if not verif or verif['IsVerified'] != 1 or not matches_email_verification(
+            session.get('registration_email_proof'), email, verif['PinCodeHash'], app.secret_key):
         conn.close()
-        return jsonify({"success": False, "message": "이메일 인증이 완료되지 않았습니다."}), 400
+        return jsonify({"success": False, "message": "현재 브라우저에서 이메일 인증을 완료해 주세요. 인증 후 10분이 지났다면 PIN을 다시 인증해 주세요."}), 400
 
     # 중복 체크 및 탈퇴 복구 분기
     cursor.execute("SELECT * FROM users WHERE LoginId = ?", (login_id,))
@@ -2848,14 +2850,28 @@ def register_page():
         status = eval_res['status']
 
         if status == 'DELETED':  # Phase 2 soft-deleted
-            if name and existing_user['Name'] and name.strip() == existing_user['Name'].strip():
+            if existing_user['Email'] and email == existing_user['Email']:
                 try:
+                    conn.execute('BEGIN IMMEDIATE')
+                    cursor.execute("DELETE FROM email_verifications WHERE Email=? AND PinCodeHash=? AND IsVerified=1", (email, verif['PinCodeHash']))
+                    if cursor.rowcount != 1:
+                        conn.rollback()
+                        conn.close()
+                        return jsonify({"success": False, "message": "이메일 인증 상태가 변경되었습니다. 다시 인증해 주세요."}), 400
                     cursor.execute('''
                         UPDATE users
-                        SET Password = ?, Name = ?, NickName = ?, Email = ?, IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL, UpdatedAt = ?
-                        WHERE UserId = ?
-                    ''', (hashed_password, name, nickname, email, now, existing_user['UserId']))
+                        SET Password = ?, Name = ?, NickName = ?, notification_verified_email = ?, SessionToken = NULL,
+                            IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL, UpdatedAt = ?
+                        WHERE UserId = ? AND Email = ? AND IsDeleted = 'Y'
+                          AND (COALESCE(IsDeactivated, 'N') != 'Y' OR DeactivatedAt IS NOT NULL)
+                    ''', (hashed_password, name, nickname, email, now, existing_user['UserId'], email))
+                    if cursor.rowcount != 1:
+                        conn.rollback()
+                        conn.close()
+                        return jsonify({"success": False, "message": "계정 상태가 변경되었습니다. 다시 확인해 주세요."}), 409
+                    cursor.execute("DELETE FROM password_resets WHERE UserId=?", (existing_user['UserId'],))
                     conn.commit()
+                    session.pop('registration_email_proof', None)
                     log_audit(existing_user['UserId'], login_id, 'RECOVER_ACCOUNT', 'users', existing_user['UserId'], None, {"LoginId": login_id})
                     conn.close()
                     return jsonify({"success": True, "message": "탈퇴된 계정의 소유권이 확인되어 성공적으로 복구되었습니다! 로그인해 주세요."})
@@ -2867,7 +2883,7 @@ def register_page():
                 return jsonify({
                     "success": False,
                     "is_recovery_target": True,
-                    "message": "💡 해당 아이디는 탈퇴 수순을 밟고 있는 계정입니다. 계정 복구를 원하시면 본인 소유권 확인을 위해 기존 가입 시 등록하셨던 '실명(이름)'을 입력란에 정확히 입력해 주세요."
+                    "message": "탈퇴 계정 복구에는 기존 계정에 등록된 이메일 인증이 필요합니다. 해당 이메일을 사용할 수 없다면 관리자에게 문의해 주세요. 실명은 복구 인증에 사용하지 않습니다."
                 }), 400
         elif status == 'DEACTIVATED':
             conn.close()
@@ -2879,19 +2895,23 @@ def register_page():
             conn.close()
             return jsonify({"success": False, "message": "이미 존재하는 아이디입니다."}), 400
 
-    # 신규 가입 진행
-    cursor.execute("SELECT COUNT(*) FROM users")
-    count = cursor.fetchone()[0]
-    role = 'admin' if count == 0 else 'user'
-
     try:
+        conn.execute('BEGIN IMMEDIATE')
+        cursor.execute("DELETE FROM email_verifications WHERE Email=? AND PinCodeHash=? AND IsVerified=1", (email, verif['PinCodeHash']))
+        if cursor.rowcount != 1:
+            conn.rollback()
+            conn.close()
+            return jsonify({"success": False, "message": "이메일 인증 상태가 변경되었습니다. 다시 인증해 주세요."}), 400
+        cursor.execute("SELECT COUNT(*) FROM users")
+        role = 'admin' if cursor.fetchone()[0] == 0 else 'user'
         cursor.execute('''
-            INSERT INTO users (LoginId, Name, NickName, Password, Email, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'N', 'N')
-        ''', (login_id, name, nickname, hashed_password, email, role, now, now))
+            INSERT INTO users (LoginId, Name, NickName, Password, Email, notification_verified_email, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', 'N')
+        ''', (login_id, name, nickname, hashed_password, email, email, role, now, now))
         new_id = cursor.lastrowid
         conn.commit()
         conn.close()
+        session.pop('registration_email_proof', None)
 
         log_audit(new_id, login_id, 'REGISTER', 'users', new_id, None, {"LoginId": login_id, "Role": role})
         return jsonify({"success": True, "message": "회원가입이 성공적으로 완료되었습니다. 로그인해 주세요."})
@@ -3997,12 +4017,12 @@ def api_update_profile():
 
     data = request.json or {}
     new_login_id = data.get('login_id', '').strip()
-    new_name = data.get('name', '').strip()
+    new_name = data.get('name', '')
     new_nickname = data.get('nickname', '').strip()
     current_password = data.get('current_password', '')  # 인증 비밀번호 공백을 임의 제거하지 않습니다.
 
-    if not new_login_id or not new_name or not new_nickname or not current_password:
-        return jsonify({"success": False, "message": "모든 필드를 입력해 주세요."}), 400
+    if not new_login_id or not new_nickname or not current_password:
+        return jsonify({"success": False, "message": "아이디, 닉네임, 현재 비밀번호를 입력해 주세요. 실명은 선택사항입니다."}), 400
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -4013,6 +4033,9 @@ def api_update_profile():
     if not db_user:
         conn.close()
         return jsonify({"success": False, "message": "사용자 정보를 찾을 수 없습니다."}), 404
+
+    if 'name' not in data:
+        new_name = db_user['Name']  # 누락은 보존, 명시적 빈 문자열/null은 삭제합니다.
 
     # 현재 비밀번호 대조 검증
     if not check_password_hash(db_user['Password'], current_password):
@@ -5508,6 +5531,7 @@ def api_send_pin_logic():
         return jsonify({"success": False, "message": "이미 사용 중인 이메일 주소입니다."}), 400
 
     pin_code = ''.join(random.choices(string.digits, k=6))
+    session.pop('registration_email_proof', None)
     pin_hash = generate_password_hash(pin_code)
     expires_at = (datetime.now() + timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
 
@@ -5558,6 +5582,7 @@ def api_verify_pin_logic():
         cursor.execute('UPDATE users SET notification_verified_email=? WHERE UserId=? AND Email=?', (email, session['user']['UserId'], email))  # 기존 본인 이메일 재인증도 알림에 사용할 수 있습니다.
     conn.commit()
     conn.close()
+    session['registration_email_proof'] = email_verification_proof(email, record['PinCodeHash'], app.secret_key)
     return jsonify({"success": True, "message": "인증이 완료되었습니다!"})
 
 

@@ -12,6 +12,28 @@ POLICIES = {  # (계정+IP 한도, IP 한도, 초); 모든 시도를 소비하�
     'api_change_my_password': (5, 30, 900), 'api_update_profile': (10, 60, 900),
 }
 
+EMAIL_PROOF_TTL = 600
+
+
+def email_verification_proof(email, challenge_hash, secret, now=None):
+    """현재 세션에 저장할 10분짜리 인증 증거. PIN 해시 자체는 쿠키에 노출하지 않습니다."""
+    now = time.time() if now is None else now
+    challenge = hmac.new(str(secret).encode(), ('email-proof\0' + email + '\0' + challenge_hash).encode(), hashlib.sha256).hexdigest()
+    return {'email': email, 'challenge': challenge, 'expires_at': now + EMAIL_PROOF_TTL}
+
+
+def matches_email_verification(proof, email, challenge_hash, secret, now=None):
+    """이메일·최신 PIN 발급 건·만료를 함께 확인하며 DB의 전역 IsVerified만 신뢰하지 않습니다."""
+    now = time.time() if now is None else now
+    if not isinstance(proof, dict) or proof.get('email') != email:
+        return False
+    expires = proof.get('expires_at')
+    challenge = proof.get('challenge')
+    if type(expires) not in (int, float) or not now < expires <= now + EMAIL_PROOF_TTL:
+        return False
+    expected = email_verification_proof(email, challenge_hash, secret, now)['challenge']
+    return isinstance(challenge, str) and challenge.isascii() and hmac.compare_digest(challenge, expected)
+
 
 def peer_address(request, trusted_networks):
     """[역할] 실제 peer가 신뢰될 때만 ProxyFix IP 사용. [의존성 관계] 환경 allowlist. [변경 시 영향도] 전달 헤더 위조 제한."""
