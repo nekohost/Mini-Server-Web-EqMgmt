@@ -16,5 +16,7 @@ mode: implementation-staging
 - [x] 정적 검증, 기존 운영 소스 보존 확인과 결과 기록.
 - [x] SSH 해결 후 작업 재개 및 운영 소스 병합·Git 반영·서버 pull에 대한 사용자 지시 확인.
 - [x] 검증 결과 승인 후 운영 소스 병합 및 운영 정적 검사 통과.
-- [ ] 이번 범위만 commit·push 후 백업서버 pull과 commit 일치 확인.
+- [x] 이번 범위만 GitHub 반영 후 백업서버 pull과 commit·tree 일치 확인.
+- [x] Linux 격리 Python 23건·JavaScript 6건 통과, 실제 260 API 인증 확인.
+- [ ] 배포 도구를 같은 Git 경로로 반영하고 Nginx·환경 설정·기존 앱 재시작 수행.
 - [ ] 신뢰된 Linux 연결에서 실행 검증·운영 적용 및 브라우저 확인.

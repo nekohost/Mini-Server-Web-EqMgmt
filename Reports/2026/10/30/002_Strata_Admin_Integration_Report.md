@@ -2,7 +2,7 @@
 work_id: IMPL-20261030-STRATA-ADMIN
 created_at: 2026-10-30
 owner: Codex
-status: source-merged-static-verified-preparing-git-push
+status: source-pulled-linux-tests-passed-preparing-service-apply
 ---
 
 # 관리자용 Strata 구현 및 검증 결과
@@ -67,3 +67,15 @@ status: source-merged-static-verified-preparing-git-push
 기존 app.py에는 세 통합 지점만 수정했고 신규 파일은 정적 검사 도구를 포함해 21개다. 운영 파일과 최종 후보의 원시 바이트는 21/21 일치한다. 운영 소스의 정적 검사 결과 Python 5개·JavaScript 4개·Jinja 2개 통과, 앱 실행·DB 열기·동작 테스트 없음이다. 최초 후보 manifest·patch·검사기·결과는 이 보고서 옆 `strata-integration-candidate/`에 보존한다. 기존 다른 작업의 dirty 변경은 이번 commit에서 제외한다.
 
 백업서버의 실제 앱은 단독 Python app.py 프로세스이며 확인한 systemd 유닛은 비활성/미등록 상태다. Nginx auth_request 모듈은 존재하지만 운영 설정은 root만 읽을 수 있고 sudo 비밀번호가 필요하다. Git pull과 Linux 검증을 먼저 수행하고, Nginx·환경 설정·기존 프로세스의 안전한 재시작은 준비·복구 경로를 갖춘 적용 단계에서 처리한다.
+
+## Git 반영·Linux 검증
+
+로컬 commit `9ee19d8` 작성 후 현재 PC의 Git CLI 인증 부재로 push가 거절됐다. 연결된 GitHub 계정으로 동일한 트리 `781f7a0bfaf7556d4de5528ef7d4e8174544894b`를 등록하고 main에 fast-forward 반영했다. 게시 commit은 `74e6848829118cefb4a0fe5b9054058138ab1e6c`다. 트리 해시가 원래 로컬 commit과 완전히 같음을 확인한 뒤 로컬 main을 정렬했으며 원래 commit도 로컬 archive ref에 보존했다. 기존 dirty 변경은 유지했다.
+
+백업서버는 Git에서 `pull --ff-only`로 게시 commit을 받았다. 운영 소스를 직접 복사하지 않았다. 서버 HEAD·트리 일치 및 추적 파일 clean을 확인했고 아직 앱은 재시작하지 않았다.
+
+Linux Python 격리 테스트 23건과 JavaScript 브리지 테스트 6건 모두 통과했다. Node가 없어 공식 Node.js v24.22.1 Linux 바이너리를 다운로드하여 공식 SHA-256 목록과 대조한 뒤 사용자 전용 cache에서만 실행했다. 시스템 패키지·앱 런타임은 변경하지 않았다.
+
+260의 기존 API 키는 일회용 RSA-OAEP-SHA256으로 암호화해 서버로 전달했다. 개인 복호화 키와 입력 파일은 서버의 사용자 전용 private release 디렉터리에 있으며 실제 값을 대화·소스·Git에 출력하지 않았다. 해당 키로 서버에서 `/v1/models` 인증 200 및 모델 한 개를 확인했다.
+
+서비스 적용 도구는 Staging에서 AST 검사 후 `tools/deploy_strata.py`로 병합했다. 정확한 Git commit·PID·명령·DB 경로를 확인하고 root private 설정/DB 사본을 남긴다. 기존 HTTPS server 블록에 단일 include만 추가하고 기존 설정 전체를 보존한다. `nginx -t` 후 기존 Python 앱을 같은 사용자·명령으로 재시작하고 Nginx reload 및 접근 경계를 검사한다. 업무 테이블 지문 불일치나 적용 실패 시 설정·실행 환경·Git 이전 버전으로 복구한다.

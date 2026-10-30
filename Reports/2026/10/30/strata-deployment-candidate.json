@@ -1,0 +1,14 @@
++{
+  "work_id": "IMPL-20261030-STRATA-ADMIN",
+  "source": "tools/deploy_strata.py",
+  "sha256": "0db7ed4f1137fce7c2cea72ba8368395d549ff849871ae1d4761e42d8d49df3a",
+  "validation": "Python AST passed; Linux parser and deployment checks after pull",
+  "configurationTargets": [
+    "/etc/nginx/sites-available/mini-server-backup",
+    "/etc/nginx/snippets/eqmgmt-strata.conf",
+    "/etc/nginx/private/strata-upstream-key.conf",
+    ".env"
+  ],
+  "recovery": "private root configuration/DB backups; Git previous commit and previous environment",
+  "applicationOperation": "restart the exact existing nekohost Python app.py command"
+}
