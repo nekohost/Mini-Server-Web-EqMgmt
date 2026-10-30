@@ -1,0 +1,22 @@
+{% extends 'miniserver_frame.html' %}
+{% block title %}Strata AI{% endblock %}
+{% block page_title %}Strata AI{% endblock %}
+{% block container_class %}strata-workspace{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/strata.css') }}">
+<section class="strata-toolbar" aria-label="AI 연결 상태">
+    <p id="strata-status" role="status" aria-live="polite">Strata 연결을 확인하고 있습니다.</p>
+    <button id="strata-retry" type="button" class="strata-button">연결 다시 확인</button>
+</section>
+<div id="strata-notice" class="strata-notice" hidden>
+    <p id="strata-error"></p>
+    <a href="/portal">메인 포털로 돌아가기</a>
+</div>
+<iframe id="strata-console" title="관리자용 Strata AI 채팅 및 상태 화면"
+    data-src="{{ url_for('strata_admin.console') }}" src="about:blank" hidden
+    referrerpolicy="same-origin" allow="clipboard-write"></iframe>
+<noscript>Strata 화면을 사용하려면 JavaScript를 활성화해 주세요.</noscript>
+{% endblock %}
+{% block extra_scripts %}
+<script src="{{ url_for('static', filename='js/strata_page.js') }}" defer></script>
+{% endblock %}

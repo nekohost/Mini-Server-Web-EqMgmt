@@ -37,6 +37,7 @@ from utils.roadmap_files import assert_files as assert_attachment_files  # DB-on
 from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 복원을 동시에 실행하지 않습니다.
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
 from utils.roadmap_auth import email_verification_proof, matches_email_verification
+from utils.strata_integration import install_strata, visible_portal_menus  # 관리자용 Strata 화면과 중계 접근 계약.
 
 # [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
 warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
@@ -4414,7 +4415,7 @@ def get_portal_menus():
     rows = cursor.fetchall()
     conn.close()
 
-    return jsonify([dict(row) for row in rows])
+    return jsonify(visible_portal_menus(rows, role, app.config))
 
 @app.route('/api/menus/children/<parent_code>')
 @login_required
@@ -6044,6 +6045,7 @@ def api_access_logs_error_ips():
 
 
 install_roadmap(app, globals())  # 모든 기존 route/데코레이터/백업 함수가 준비된 후 연결합니다.
+install_strata(app, get_db_connection, login_required, check_menu_permission)  # AI 스트림은 Nginx가 처리합니다.
 
 if __name__ == '__main__':
     try:

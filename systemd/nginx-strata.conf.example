@@ -1,0 +1,65 @@
+# Include inside the existing HTTPS server {} after reviewing its actual config.
+# Requires ngx_http_auth_request_module. Keep Flask bound to 127.0.0.1:5000.
+# /etc/nginx/private/strata-upstream-key.conf is root-owned mode 0600 and contains
+# only: proxy_set_header Authorization "Bearer <actual-key>";
+# Preserve the server's existing security headers; this snippet does not replace them.
+
+location = /strata { return 302 /ai; }
+location = /strata/ { return 302 /ai; }
+
+location = /_eqmgmt_strata_auth {
+    internal;
+    proxy_pass http://127.0.0.1:5000/api/strata/access;
+    proxy_method GET;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    proxy_set_header Host $http_host;
+    proxy_set_header Cookie $http_cookie;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-Prefix "";
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Strata-Original-Method $strata_original_method;
+    proxy_set_header X-Strata-Original-URI $strata_original_uri;
+    proxy_set_header X-Strata-Original-Origin $http_origin;
+    proxy_set_header X-CSRFToken $http_x_csrftoken;
+    proxy_cache off;
+}
+
+# Authorization is also checked in Flask. This endpoint never returns a key.
+location = /api/strata/access { return 404; }
+
+location ^~ /strata/ {
+    set $strata_original_method $request_method;
+    set $strata_original_uri $request_uri;
+    auth_request /_eqmgmt_strata_auth;
+    client_max_body_size 20m;
+    proxy_pass http://192.168.0.14:8080/;
+    proxy_http_version 1.1;
+    proxy_set_header Host 192.168.0.14:8080;
+    proxy_set_header Origin http://192.168.0.14:8080;
+    proxy_set_header Cookie "";
+    proxy_set_header Connection "";
+    proxy_set_header X-CSRFToken "";
+    proxy_set_header X-Forwarded-Host "";
+    proxy_set_header X-Forwarded-Prefix "";
+    proxy_set_header X-Forwarded-For "";
+    proxy_set_header X-Strata-Original-Method "";
+    proxy_set_header X-Strata-Original-URI "";
+    proxy_set_header X-Strata-Original-Origin "";
+    include /etc/nginx/private/strata-upstream-key.conf;
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_request_buffering on;
+    proxy_next_upstream off;
+    proxy_ignore_client_abort off;
+    proxy_connect_timeout 3s;
+    proxy_read_timeout 600s;
+    proxy_send_timeout 60s;
+    proxy_hide_header Access-Control-Allow-Origin;
+    proxy_hide_header Access-Control-Allow-Credentials;
+    proxy_hide_header Set-Cookie;
+    proxy_hide_header Cache-Control;
+    expires -1;
+}

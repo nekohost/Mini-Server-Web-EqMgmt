@@ -1,0 +1,31 @@
+{
+  "status": "pass",
+  "mode": "static-only",
+  "baseAppSha256": "91a81cbcf9b416da3c01e8f6c4d7102215695af9edc8f83d48e0e27ad0c941b8",
+  "appIntegrationEdits": 3,
+  "overlayTargetsNew": true,
+  "checks": {
+    "python": [
+      "tests\\test_strata_integration.py",
+      "tools\\write_strata_nginx_key.py",
+      "utils\\strata_integration.py"
+    ],
+    "javascript": [
+      "static\\js\\strata_bridge.js",
+      "static\\js\\strata_page.js",
+      "static\\vendor\\strata\\app.js",
+      "tests\\test_strata_bridge.mjs"
+    ],
+    "templates": [
+      "strata.html",
+      "strata_console.html"
+    ]
+  },
+  "linuxTestsPrepared": 23,
+  "bridgeTestsPrepared": 6,
+  "applicationStarted": false,
+  "databaseOpened": false,
+  "runtimeTestsRun": false,
+  "productionSourceModified": false,
+  "overlayFiles": 20
+}

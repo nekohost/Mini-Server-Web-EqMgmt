@@ -346,3 +346,11 @@ Linux 회귀99건, 추가 격리 HTTP19건, 실제 템플릿 브라우저26건 �
 - Python/JS/HTML의 지원되는 독립 주석을 공유 판독기로 처리하며 실행 문자열을 번역 범위에서 제외한다. commit 검사기는 Conventional Commit type과 한국어 제목/본문을 확인한다.
 - 파일럿 `LINEUP.NODE.REQUIRED_INT`는 소스 감사 후 EN/KO rev.2로 동기화하고 최초 baseline에 실제 감사자를 기록했다. 전 저장소 주석 전환이나 의미의 자동 인증 기능은 아니다.
 - [규격](docs/COMMENT_BILINGUAL_GOVERNANCE.md), [최종 검토·한계·증거](Reports/2026/09/16/004_Bilingual_Comment_Governance_Final_Review_Report.md). DB와 Flask 실행 코드는 변경하지 않았다.
+
+## 16. 관리자용 Strata AI 메뉴 (2026-10-30)
+
+- `/ai` 메뉴에서 260의 Strata 화면을 공통 장비관리 내비게이션 안에 표시한다. 모델과 추론은 260에서 실행한다.
+- 현재 로그인·관리자 역할·메뉴 권한과 요청별 CSRF·Origin·경로 허용 목록을 확인한다. 기능 기본값은 비활성이며 일반 사용자에게는 메뉴가 표시되지 않는다.
+- 긴 응답은 Nginx가 스트리밍하고 공동 API 키는 보호된 서버 설정에만 보관한다. 브라우저에 키를 전달하거나 저장하지 않는다.
+- 고정된 Strata UI·라이선스, 세션별 대화 저장소, 연결·모델 대기·재시도 화면과 취소 전달을 제공한다.
+- [설정·검증·롤백 안내](docs/strata-integration.md), [구현 및 운영 적용 결과](Reports/2026/10/30/002_Strata_Admin_Integration_Report.md). Linux 검증·운영 적용 결과는 보고서에 구분하여 기록한다.

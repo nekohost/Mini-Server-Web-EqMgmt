@@ -1,0 +1,18 @@
+{
+  "work_id": "IMPL-20261030-STRATA-ADMIN",
+  "base_app_sha256": "91a81cbcf9b416da3c01e8f6c4d7102215695af9edc8f83d48e0e27ad0c941b8",
+  "app_edits": [
+    {
+      "find": "from utils.roadmap_auth import email_verification_proof, matches_email_verification\n",
+      "replace": "from utils.roadmap_auth import email_verification_proof, matches_email_verification\nfrom utils.strata_integration import install_strata, visible_portal_menus  # 관리자용 Strata 화면과 중계 접근 계약.\n"
+    },
+    {
+      "find": "    return jsonify([dict(row) for row in rows])\n\n@app.route('/api/menus/children/<parent_code>')",
+      "replace": "    return jsonify(visible_portal_menus(rows, role, app.config))\n\n@app.route('/api/menus/children/<parent_code>')"
+    },
+    {
+      "find": "install_roadmap(app, globals())  # 모든 기존 route/데코레이터/백업 함수가 준비된 후 연결합니다.\n",
+      "replace": "install_roadmap(app, globals())  # 모든 기존 route/데코레이터/백업 함수가 준비된 후 연결합니다.\ninstall_strata(app, get_db_connection, login_required, check_menu_permission)  # AI 스트림은 Nginx가 처리합니다.\n"
+    }
+  ]
+}
