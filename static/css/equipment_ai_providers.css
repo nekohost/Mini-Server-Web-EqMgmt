@@ -1,0 +1,31 @@
+/* [MINI-COMMENT: ASSISTANT.PROVIDERS.STYLE]
+ * [EN rev.2]
+ * [Role] Scopes basic provider management to its own responsive workspace.
+ * [Dependencies] Existing frame theme variables and native accessible form controls.
+ * [Impact] Does not affect other equipment/admin screens.
+ */
+#ai-providers-admin{max-width:1300px;margin:auto;color:var(--text-primary,#253044);font-size:14px}
+#ai-providers-admin p{line-height:1.65;overflow-wrap:anywhere;margin:10px 0;color:var(--text-secondary,#596579)}
+#ai-providers-admin h2{font-size:19px;margin:12px 0}#ai-providers-admin h3{font-size:16px}
+#ai-providers-admin button{border:1px solid var(--border-color,#ccd4e0);border-radius:7px;padding:9px 13px;margin:4px;background:var(--card-bg,#fff);color:inherit;cursor:pointer}
+#ai-providers-admin button:disabled{opacity:.55;cursor:default}
+#ai-providers-admin .provider-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:15px 0}
+#ai-providers-admin .provider-workspace{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px}
+#ai-providers-admin nav{display:flex;flex-direction:column;align-items:stretch}
+#ai-providers-admin nav button{text-align:left;overflow-wrap:anywhere}#ai-providers-admin nav button[aria-current=true]{border-color:#3674bd;background:#3674bd18}
+#ai-providers-admin .provider-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#ai-providers-admin label{display:flex;flex-direction:column;gap:6px;min-width:0}
+#ai-providers-admin input:not([type=checkbox]),#ai-providers-admin select{width:100%;box-sizing:border-box;border:1px solid var(--border-color,#ccd4e0);border-radius:6px;padding:9px;background:var(--card-bg,#fff);color:inherit}
+#ai-providers-admin .provider-check{flex-direction:row;align-items:center}
+#ai-providers-admin .provider-model-card,#ai-providers-admin #provider-form,#ai-providers-admin #provider-manual{border:1px solid var(--border-color,#ccd4e0);border-radius:10px;padding:20px;margin-bottom:18px}
+#provider-notice{padding:12px;background:#3674bd12;border-radius:7px;min-height:20px;overflow-wrap:anywhere}
+/* Keep every existing theme/control background. Only text gets a dark-theme contrast correction. */
+.dark #ai-providers-admin{color:#e2e8f0}
+.dark #ai-providers-admin p{color:#b8c5d6}
+.dark #ai-providers-admin button,.dark #ai-providers-admin input:not([type=checkbox]),.dark #ai-providers-admin select{color:#253044}
+.dark #ai-providers-admin nav button[aria-current=true]{color:#e2e8f0}
+#ai-providers-admin .provider-reasoning{margin:14px 0;border:1px solid var(--border-color,#ccd4e0);border-radius:7px;padding:12px;min-width:0}
+#ai-providers-admin .provider-reasoning-options{display:flex;flex-wrap:wrap;gap:12px 18px}
+#ai-providers-admin .provider-reasoning-options label{flex-direction:row;align-items:center}
+#ai-providers-admin .provider-reasoning-options label:has(input:disabled){opacity:.65}
+@media(max-width:760px){#ai-providers-admin .provider-workspace{grid-template-columns:1fr}#ai-providers-admin nav{flex-direction:row;overflow:auto}#ai-providers-admin .provider-fields{grid-template-columns:1fr}#ai-providers-admin .provider-model-card,#ai-providers-admin #provider-form{padding:14px}}

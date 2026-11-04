@@ -1,0 +1,177 @@
+{
+  "status": "verified",
+  "archive": "reviewed-staging-sources.zip",
+  "archive_sha256": "b60afef7743c537fa2c0d5a6cf6cf4a16644124b8f2af0bc7c96d0b39ec25585",
+  "files": [
+    {
+      "path": "Staging/20261104-ai-release/overlay/tests/run_assistant_fixture.py",
+      "bytes": 6871,
+      "sha256": "2d0830e128b7ba3a7b26983b18e88f730c54843fcb3af9fb89168ac6249036b7"
+    },
+    {
+      "path": "Staging/20261104-ai-release/overlay/tools/deploy_user_ai.py",
+      "bytes": 14718,
+      "sha256": "11259ca765de87b01d5a6684f39cf8a4cf1b95359ffd4b568308d3fc71d92af8"
+    },
+    {
+      "path": "Staging/20261104-ai-ui-refinements/capture.py",
+      "bytes": 11622,
+      "sha256": "55e09b4e720c5d3cd6da5be9b57fbe9b86ce95543f5ffbb8c9a4e604e074392f"
+    },
+    {
+      "path": "Staging/20261104-ai-ui-refinements/inspect_sample.js",
+      "bytes": 5110,
+      "sha256": "7ea2887cbb279f4f94bd20cc325d9538b5a337dbca12fb09df3071bc1a43fa2d"
+    },
+    {
+      "path": "Staging/20261104-ai-ui-refinements/sample_bootstrap.js",
+      "bytes": 9040,
+      "sha256": "4b5bef7ad5adc5fb9a5f36d5728c2469430f3152cb8def2983750cd3f7cd1b0d"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/MULTI-PROVIDER-SETUP.md",
+      "bytes": 13600,
+      "sha256": "452b44ad3c489e717acc8f7863157d8072fa008aefdbacfe3fed9eec78755f47"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/app.py",
+      "bytes": 305155,
+      "sha256": "6379ca65624174453520e2f85ff429d6bd9c35765e8db52bb9862103e2d91334"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/requirements.txt",
+      "bytes": 60,
+      "sha256": "7ab567fc044cc5b74d26abc6cac39b546e79b1265eaf0d7d571dabc2eaf9cad4"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai.css",
+      "bytes": 12823,
+      "sha256": "40f21a5512be3335379ebfc29d9485dc3d813dd4fd843f63e8d0005f1fead322"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai_providers.css",
+      "bytes": 3201,
+      "sha256": "885757033707396ca6855f5b39d8539949869af3fedb3502c47274eeff80d669"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai.js",
+      "bytes": 43541,
+      "sha256": "ceae833d8914bae4cd911d7155ffaf206525e380b708b5bc392402c16b6fff36"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai_providers.js",
+      "bytes": 15635,
+      "sha256": "d1fbdda82be68e999d5b3689e23239029f55bbf85c2eb94c36780b4614356e58"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/session_timer.js",
+      "bytes": 12464,
+      "sha256": "2c27c0874fcb2fac567903553365db2efaac9549e5c1167e38e484138dc6c105"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/systemd/equipment-ai-worker.service",
+      "bytes": 905,
+      "sha256": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai.html",
+      "bytes": 6905,
+      "sha256": "c7808e61eb0c5fa919713e31e7f0f7c1b5ef5aba478cf8db4a5321e664488a65"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai_providers.html",
+      "bytes": 4376,
+      "sha256": "87f74d1b0ba8727e6b0f65d213b6b696027383a40f4a71e943de6c5788d35215"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/assistant_browser_fixture.py",
+      "bytes": 26222,
+      "sha256": "e7a4a7474bcb69cfa76404aad3c5e7f9b0d044f020212fbbabd01e5a93454484"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py",
+      "bytes": 6655,
+      "sha256": "fa08fbfb741a21273eb2d966fe3965fa8f0775acae7a4d21e5f1c33cd6a2ab0c"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_equipment_ai.py",
+      "bytes": 67618,
+      "sha256": "64b12a46626bc170d7da95d01e47126b1be30f118951342d76e78792ecb68995"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_multi_provider_ai.py",
+      "bytes": 66599,
+      "sha256": "2231d0b50d4f79ba4d3351d96e696dd56f93e78cea52597d56374a75f55629ec"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+      "bytes": 63120,
+      "sha256": "6385084ea57c566ea621876175d6169a852c8c99b8bc0165a961b2794efc386a"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/audit.py",
+      "bytes": 7046,
+      "sha256": "5ddc8e649e47e253d8bf6530718f27bd35b676488a48ae3386801c303783ebec"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/context.py",
+      "bytes": 8286,
+      "sha256": "28b429f87e80c23beaf9f87018afc902b4b5311e05521d853791a7ec2a8368a4"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/domain.py",
+      "bytes": 25578,
+      "sha256": "84614c7e73a0e08947126103b74a59f0aa310da87d5abb1a818dfa32053fdb39"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/policy.py",
+      "bytes": 13823,
+      "sha256": "86275eac23290089e5a97c2d1f7fc0682f03993e117d22f9fd4ce0753451ab8b"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/providers.py",
+      "bytes": 32254,
+      "sha256": "cdea9388c5a16cba0425df8b9d58c900539532e594fe74cde8aacaceadfff42a"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/reasoning.py",
+      "bytes": 4781,
+      "sha256": "967db32b7c54a57d22eb5a270a46816435db4d7d9c4eb22d133df89d55c687c0"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/store.py",
+      "bytes": 46531,
+      "sha256": "eb6a30c4c1bde457db798119a2f476c7924e7f866041043907e0773045f83f95"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/transport.py",
+      "bytes": 10860,
+      "sha256": "d71fc36db6d3970dc7d8a4e890a7811b950d89b897a824e96368639f3a4e5cfe"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/worker.py",
+      "bytes": 17473,
+      "sha256": "618b9f98589443e5bd1e747fb05a10244788c69d544e5d565cef344d9bf3562c"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/README.md",
+      "bytes": 15831,
+      "sha256": "6d31ff5f311541779bed67c7d8161ce4b6d851fa5a2f46cfbe39461b9990967c"
+    },
+    {
+      "path": "Staging/20261104-user-ai-screens/capture.py",
+      "bytes": 11486,
+      "sha256": "aa385727bf4834aa4cd1c82d0c002d379803195b7842910e8a209f01fa2b88cf"
+    },
+    {
+      "path": "Staging/20261104-user-ai-screens/inspect_sample.js",
+      "bytes": 4476,
+      "sha256": "ef4a7cd83e8c2ec2b44d96da437175e0f689b8ece600d38acebe3598730f7b48"
+    },
+    {
+      "path": "Staging/20261104-user-ai-screens/sample_bootstrap.js",
+      "bytes": 8116,
+      "sha256": "5d621e04779b764530fefdce292f89f08f31415a9f65b139b8551691d846b2ec"
+    }
+  ]
+}

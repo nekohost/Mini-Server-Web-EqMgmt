@@ -1,0 +1,502 @@
+{
+  "schema_version": 1,
+  "work_id": "FIX-20261104-USER-AI-ASSISTANT",
+  "verified_at_utc": "2026-11-04 07:29:30 UTC",
+  "status": "validated-staging-awaiting-merge-approval",
+  "project": "C:/Project/Mini-Server-Web-EqMgmt",
+  "git_head": "cd93b1a61e130b6a7c1201414cf4a5aac15035c5",
+  "scope": {
+    "overlay": "Staging/20261104-user-ai-assistant/overlay",
+    "root_source_merged": false,
+    "git_committed": false,
+    "remote_source_changed": false,
+    "services_activated": false,
+    "production_database_opened": false,
+    "real_strata_inference_requested": false
+  },
+  "user_decisions": [
+    {
+      "id": 1,
+      "status": "implemented",
+      "result": "AI audit content retained; only reusable credential originals fingerprinted",
+      "source": "https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html#data-to-exclude"
+    },
+    {
+      "id": 2,
+      "status": "fixed",
+      "result": "Known response failures finalize and cancel pending cards; safe reason persists; unknown upstream completion is stopped with own-request recovery lock"
+    },
+    {
+      "id": 3,
+      "status": "fixed",
+      "result": "Per-step snapshots, offset-idempotent events, monotonic cumulative reasoning and turn-wide collapse state"
+    },
+    {
+      "id": 4,
+      "status": "fixed",
+      "result": "50-conversation and 60-message owner-scoped pagination with older-history UI"
+    },
+    {
+      "id": 5,
+      "status": "fixed",
+      "result": "32M baseline plus 32M default extension, completion reservation and logical message ledger; existing results retained"
+    },
+    {
+      "id": 6,
+      "status": "fixed",
+      "result": "Shared normalization return frozen into proposals and used for actual equipment validation/storage"
+    },
+    {
+      "id": 7,
+      "status": "deferred-by-user",
+      "backlog_id": "AI-TECHDEBT-001",
+      "paths": [
+        "ROADMAP.md",
+        "UNIMPLEMENTED_ROADMAP.md"
+      ],
+      "result": "Existing comment metadata debt preserved for a separate user instruction; no bulk fix or KO audit claimed"
+    }
+  ],
+  "storage": {
+    "schema_version": 2,
+    "base_chars": 32000000,
+    "default_extension_chars": 32000000,
+    "default_total_chars": 64000000,
+    "extension_config": "USER_AI_COMPLETION_RESERVE_CHARS",
+    "extension_range": [
+      0,
+      1024000000
+    ],
+    "output_reservation_per_turn": 426144,
+    "reservation_parts": {
+      "reasoning": 100000,
+      "answer": 64000,
+      "receipts_count": 8,
+      "each_receipt": 32768
+    },
+    "counts": "Unicode lengths of user input, cumulative reasoning, current answer and server-confirmed result messages",
+    "excludes_from_logical_count": [
+      "internal step snapshots",
+      "model context",
+      "access/business audit copies",
+      "indexes",
+      "SQLite WAL",
+      "backups"
+    ],
+    "automatic_history_deletion": false,
+    "physical_utf8_body_worst_case_bytes": 256000000,
+    "physical_disk_and_backup_review": "required-before-public-release"
+  },
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 68,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 71.087,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "command": "python Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py --browser"
+  },
+  "browser_final": {
+    "command": "python Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py --browser-only",
+    "backend_tests_in_this_run": 0,
+    "checks": 45,
+    "results": [
+      {
+        "status": "pass",
+        "checks": [
+          "three-levels",
+          "older-conversations-reachable",
+          "base-and-extra-budget-visible",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "multistep-reasoning-preserved",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "no-repeated-auto-collapse",
+          "no-auto-collapse-on-next-generation",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "older-messages-prepended",
+          "history-loading-preserves-live-details",
+          "csv-preview-user-language",
+          "live-failed-job-stopped-with-reason",
+          "failed-reason-persists-on-reopen"
+        ],
+        "width": 1440,
+        "exit_code": 0
+      },
+      {
+        "status": "pass",
+        "checks": [
+          "three-levels",
+          "older-conversations-reachable",
+          "base-and-extra-budget-visible",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "multistep-reasoning-preserved",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "mobile-conversations",
+          "no-repeated-auto-collapse",
+          "no-auto-collapse-on-next-generation",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "older-messages-prepended",
+          "history-loading-preserves-live-details",
+          "csv-preview-user-language",
+          "live-failed-job-stopped-with-reason",
+          "failed-reason-persists-on-reopen"
+        ],
+        "width": 430,
+        "exit_code": 0
+      }
+    ]
+  },
+  "execution_notes": [
+    "Initial run: 64 tests, 0 failures, 1 error, 71.641 seconds. The old prohibited-tool test expected continuation; changed to assert failed/stopped state and no unauthorized effect, following user instruction.",
+    "Expanded backend run: all 68 tests passed in 71.087 seconds; desktop/mobile 21+22 checks also passed.",
+    "Final JS review fixed successful job-status responses carrying persisted error reasons being mistaken for transport errors. Only relevant Chromium tests reran afterward: 22+23 passed. Backend tests were not rerun or recounted in browser-only run.",
+    "Linux fixture imports candidate modules in memory and extracts source CREATE/login/global audit functions, without importing production app.py. All databases and browser profiles are synthetic temporary fixtures.",
+    "Feature and write flags remain disabled by default; private own-request completion acknowledgement is required when upstream termination is unknown."
+  ],
+  "static_checks": {
+    "python_ast_files": 10,
+    "javascript_syntax_files": 2,
+    "status": "pass",
+    "governance": {
+      "version": "1.8.1",
+      "manifest_nodes": 44,
+      "errors": 0,
+      "warnings": 0,
+      "status": "pass",
+      "execution_profile": "legacy",
+      "profile_reason": "runtime-session-mismatch"
+    }
+  },
+  "preservation": {
+    "all_preserved": true,
+    "baseline": [
+      {
+        "path": "app.py",
+        "sha256": "6244893711252f6c78bf36c53cc010bbb485e22c773ebff038d8f7d3eee8a581",
+        "bytes": 302618,
+        "normalized_sha256": "6244893711252f6c78bf36c53cc010bbb485e22c773ebff038d8f7d3eee8a581",
+        "normalized_chars": 257228
+      },
+      {
+        "path": "utils/strata_integration.py",
+        "sha256": "f91268ee7efe3eb99b3d15818057847c12eec97081776abf9ce232f29efd2982",
+        "bytes": 12256,
+        "normalized_sha256": "f91268ee7efe3eb99b3d15818057847c12eec97081776abf9ce232f29efd2982",
+        "normalized_chars": 11331
+      },
+      {
+        "path": "static/js/strata_page.js",
+        "sha256": "a69a421092894d3e49de64cb23e12749056575f8206985da57f6a6902c517d02",
+        "bytes": 3144,
+        "normalized_sha256": "a69a421092894d3e49de64cb23e12749056575f8206985da57f6a6902c517d02",
+        "normalized_chars": 2923
+      },
+      {
+        "path": "static/js/strata_bridge.js",
+        "sha256": "cfc063828e59a879e92e60d816be6bcc429ef26f34634511936a895d5d25c849",
+        "bytes": 4358,
+        "normalized_sha256": "cfc063828e59a879e92e60d816be6bcc429ef26f34634511936a895d5d25c849",
+        "normalized_chars": 4358
+      },
+      {
+        "path": ".agent-governance/capabilities/chatgpt-remote.yaml",
+        "sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+        "bytes": 1543,
+        "normalized_sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+        "normalized_chars": 1543
+      },
+      {
+        "path": "FEATURES.md",
+        "sha256": "c55fdd187b8271f00159ffe566f9714b72d5d348a865b5d74850d6c0861ab838",
+        "bytes": 57227,
+        "normalized_sha256": "c55fdd187b8271f00159ffe566f9714b72d5d348a865b5d74850d6c0861ab838",
+        "normalized_chars": 30162
+      },
+      {
+        "path": "PROPOSALS.md",
+        "sha256": "9a48360273a40c1f1e8d0079a3de2ba0b3f004be11e25f81f5e8a3062582d30d",
+        "bytes": 117364,
+        "normalized_sha256": "9a48360273a40c1f1e8d0079a3de2ba0b3f004be11e25f81f5e8a3062582d30d",
+        "normalized_chars": 65552
+      },
+      {
+        "path": "ROADMAP.md",
+        "sha256": "d8469ae28eefb156ee8e6af3b5ee4cbb34707f5998d18419f5798ebf52af0fca",
+        "bytes": 46757,
+        "normalized_sha256": "d8469ae28eefb156ee8e6af3b5ee4cbb34707f5998d18419f5798ebf52af0fca",
+        "normalized_chars": 25078
+      },
+      {
+        "path": "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+        "sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+        "bytes": 8202,
+        "normalized_sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+        "normalized_chars": 5059
+      },
+      {
+        "path": "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+        "sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+        "bytes": 11603,
+        "normalized_sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+        "normalized_chars": 6125
+      },
+      {
+        "path": "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+        "sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+        "bytes": 1376,
+        "normalized_sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+        "normalized_chars": 796
+      },
+      {
+        "path": "UNIMPLEMENTED_PROPOSALS.md",
+        "sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509",
+        "bytes": 8681,
+        "normalized_sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509",
+        "normalized_chars": 4767
+      },
+      {
+        "path": "UNIMPLEMENTED_ROADMAP.md",
+        "sha256": "138b0081f0e49ea44c495fe86c06b7bd1f9437651edfe0ddfcafe09fdd5e5816",
+        "bytes": 3128,
+        "normalized_sha256": "138b0081f0e49ea44c495fe86c06b7bd1f9437651edfe0ddfcafe09fdd5e5816",
+        "normalized_chars": 1732
+      },
+      {
+        "path": "Reports/2026/11/04/user-ai-assistant-validation.json",
+        "sha256": "10030dbebdf996230da95cf164444920ce5155335d9822e3c604a8515b16f15d",
+        "bytes": 12724,
+        "normalized_sha256": "10030dbebdf996230da95cf164444920ce5155335d9822e3c604a8515b16f15d",
+        "normalized_chars": 12724
+      },
+      {
+        "path": "Reports/2026/11/04/003_User_AI_Assistant_Static_Inspection_Report.md",
+        "sha256": "ae3ca96997ba315b89f2aced5a3ca1df15be44ccda1c018cf3e92bfcc5ffd973",
+        "bytes": 28632,
+        "normalized_sha256": "ae3ca96997ba315b89f2aced5a3ca1df15be44ccda1c018cf3e92bfcc5ffd973",
+        "normalized_chars": 18065
+      }
+    ],
+    "results": [
+      {
+        "path": "app.py",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "6244893711252f6c78bf36c53cc010bbb485e22c773ebff038d8f7d3eee8a581"
+      },
+      {
+        "path": "utils/strata_integration.py",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "f91268ee7efe3eb99b3d15818057847c12eec97081776abf9ce232f29efd2982"
+      },
+      {
+        "path": "static/js/strata_page.js",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "a69a421092894d3e49de64cb23e12749056575f8206985da57f6a6902c517d02"
+      },
+      {
+        "path": "static/js/strata_bridge.js",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "cfc063828e59a879e92e60d816be6bcc429ef26f34634511936a895d5d25c849"
+      },
+      {
+        "path": ".agent-governance/capabilities/chatgpt-remote.yaml",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4"
+      },
+      {
+        "path": "FEATURES.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "c55fdd187b8271f00159ffe566f9714b72d5d348a865b5d74850d6c0861ab838"
+      },
+      {
+        "path": "PROPOSALS.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "9a48360273a40c1f1e8d0079a3de2ba0b3f004be11e25f81f5e8a3062582d30d"
+      },
+      {
+        "path": "ROADMAP.md",
+        "preserved": true,
+        "mode": "prefix",
+        "sha256": "f85d2604ee505e91f85a950019b7037959fcf55198cbcf227930978c1f145359"
+      },
+      {
+        "path": "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3"
+      },
+      {
+        "path": "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0"
+      },
+      {
+        "path": "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea"
+      },
+      {
+        "path": "UNIMPLEMENTED_PROPOSALS.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509"
+      },
+      {
+        "path": "UNIMPLEMENTED_ROADMAP.md",
+        "preserved": true,
+        "mode": "prefix",
+        "sha256": "29e85ca043e15216667833aa3f7f636f22a6705f1e326fc0cde801c2f247a82b"
+      },
+      {
+        "path": "Reports/2026/11/04/user-ai-assistant-validation.json",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "10030dbebdf996230da95cf164444920ce5155335d9822e3c604a8515b16f15d"
+      },
+      {
+        "path": "Reports/2026/11/04/003_User_AI_Assistant_Static_Inspection_Report.md",
+        "preserved": true,
+        "mode": "byte-exact",
+        "sha256": "ae3ca96997ba315b89f2aced5a3ca1df15be44ccda1c018cf3e92bfcc5ffd973"
+      }
+    ]
+  },
+  "candidate_manifest": [
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/app.py",
+      "sha256": "1bbee56f2296ee57a28fb4c4ccf5972a400b4bb50db357adfb8d8188534a0384",
+      "bytes": 304083
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai.css",
+      "sha256": "be31e4b63ca5e69e1fd5bcecc68e843daeccf83c4189bc2910480937ff9d6740",
+      "bytes": 12252
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai.js",
+      "sha256": "ef4b1cad10be798faa0c30b6cbe2f0760354ebb36cbc88059b7528b3c439156d",
+      "bytes": 34434
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/session_timer.js",
+      "sha256": "2c27c0874fcb2fac567903553365db2efaac9549e5c1167e38e484138dc6c105",
+      "bytes": 12464
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/systemd/equipment-ai-worker.service",
+      "sha256": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+      "bytes": 905
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai.html",
+      "sha256": "c925cafc564efed54ddd1150bb69b41e32ccb76fd43a6551caf0d5553b695320",
+      "bytes": 6373
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/assistant_browser_fixture.py",
+      "sha256": "0e33f9e119dfadbaa35cdb5e0ce39fb680fe2040357bb580d7d64917bf56fe44",
+      "bytes": 15719
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py",
+      "sha256": "f4e93d46fcd82f4d174770b88ef2ee5008eadfe5230b52d502dc68f50e995f96",
+      "bytes": 5017
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_equipment_ai.py",
+      "sha256": "6827a44106530e27874492eeb1bb59b001070843bc33021852342a0a0bd549a8",
+      "bytes": 66047
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+      "sha256": "8558c8ca3953ee3fcf20011c86a37182f9f70ddfd1d59d2b4ceb4874ccad5907",
+      "bytes": 39797
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/audit.py",
+      "sha256": "17431d883a019a667b1e5cf357a2b03f9101c8e7743d35a055929b163f3ca48d",
+      "bytes": 3293
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/domain.py",
+      "sha256": "1ed45d4f9e1d54360c4f37b2409f360de9b30d56fdb3d808b62489e940b728d0",
+      "bytes": 25487
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/policy.py",
+      "sha256": "8303a12d31cae3e358b8d0b546e45aa0b2efbda79848ac7912bfeb1862fa1da4",
+      "bytes": 13450
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/store.py",
+      "sha256": "01886b81ea6e48cdeaec6802924983d655fbf2f39a661983f5a1ea895a94a19b",
+      "bytes": 35945
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/worker.py",
+      "sha256": "fa9d6339969fa78de7547ca1126997e10dffe4073bd0218d56a2ed1a8b9f32da",
+      "bytes": 14743
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/README.md",
+      "sha256": "1bd277fc133a12355f18b4ada3d98c8012d732a1e88d54017538d4ec4b004bac",
+      "bytes": 14110
+    }
+  ],
+  "record_manifest": [
+    {
+      "path": "Plans/2026/11/04/004_User_AI_Assistant_Corrections_Plan.md",
+      "sha256": "ae95fdcf9bb8d68f6dc775d810a2c123c1bc60c134ff41ec9f6dda04e7e23f69",
+      "bytes": 5068
+    },
+    {
+      "path": "Tasks/2026/11/04/004_User_AI_Assistant_Corrections_Task.md",
+      "sha256": "ef0b2b4e0b2d21c730b9057f8abf00af91746eb41a3c4b9981de1253b9375ace",
+      "bytes": 2291
+    },
+    {
+      "path": "Reports/2026/11/04/004_User_AI_Assistant_Corrections_Report.md",
+      "sha256": "beb39b5c39282c97442af203e8c75f75aad2c92e32ad495c813cf977c6a6d738",
+      "bytes": 15616
+    }
+  ],
+  "remaining_validation": [
+    "Production whole-app integration and actual authentication/account CreatedAt contract",
+    "Real Strata response/tool accuracy and interruption/recovery behavior",
+    "Production load and physical audit/history/backups budget",
+    "Consistent equipment/AI/audit backup and restore",
+    "Gemini KO comment audit and user-deferred AI-TECHDEBT-001"
+  ],
+  "merge_rule": {
+    "path": ".agent-governance/workflow/staging-merge.md",
+    "line": 19,
+    "requirement": "운영 코드를 수정하기 전에 Staging 모의 결과물을 작성하고 검증한다. 사용자가 검증 결과를 승인한 뒤에만 운영에 병합한다."
+  }
+}

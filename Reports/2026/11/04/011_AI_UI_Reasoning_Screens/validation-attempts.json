@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "work_id": "FIX-20261104-AI-UI-REASONING-SETTINGS",
+  "attempts": [
+    {
+      "kind": "provider-only intermediate",
+      "backend": {
+        "tests": 43,
+        "failures": 3,
+        "errors": 1,
+        "elapsed_seconds": 37.994
+      },
+      "findings": [
+        "Ordinary six-step limit prematurely ended an expanded custom effort probe.",
+        "Existing no-effort test expectations still used the historical low alias."
+      ],
+      "resolution": "Capability-only fixed plan bounded at eight; ordinary six-step limit retained. No-effort expectations explicitly changed to model-default and known-Qwen low stays real low."
+    },
+    {
+      "kind": "full intermediate",
+      "backend": {
+        "tests": 111,
+        "failures": 0,
+        "errors": 0,
+        "elapsed_seconds": 256.671
+      },
+      "browser": {
+        "failed_views": 2,
+        "reason": "Two old no-effort restore/help expectations still required low instead of explicit model-default."
+      },
+      "resolution": "Updated restore/help expectations to default and additionally required all six standard choices disabled."
+    },
+    {
+      "kind": "final full",
+      "backend": {
+        "platform": "linux",
+        "python": "3.12.3",
+        "tests": 112,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "elapsed_seconds": 237.248,
+        "production_app_imported": false,
+        "production_database_opened": false
+      },
+      "browser": {
+        "views": 4,
+        "checks": 93,
+        "failed_views": 0
+      }
+    }
+  ]
+}

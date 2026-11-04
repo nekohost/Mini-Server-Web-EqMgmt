@@ -1,0 +1,341 @@
+{
+  "work_id": "IMPL-20261104-USER-AI-ASSISTANT",
+  "reviewed_at_utc": "2026-11-04T04:34:48Z",
+  "state": "staging-verified-awaiting-approval",
+  "baseline_git_head": "cd93b1a61e130b6a7c1201414cf4a5aac15035c5",
+  "candidate_root": "Staging/20261104-user-ai-assistant",
+  "execution": {
+    "host": "eqmgmt-backup",
+    "platform": "linux",
+    "python": "3.12.3",
+    "runtime": "/home/nekohost/services/Mini-Server-Web-EqMgmt/.venv/bin/python",
+    "transport": "SSH stdin in-memory candidate source",
+    "local_windows_app_or_tests_executed": false,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "remote_source_or_configuration_modified": false,
+    "synthetic_database_and_browser_profiles": "temporary; cleaned by fixture"
+  },
+  "backend": {
+    "platform": "linux",
+    "tests": 49,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "duration_seconds": 41.165,
+    "test_names": [
+      "test_admin_uses_only_own_equipment_and_pending_requests",
+      "test_anonymous_and_tampered_cookie",
+      "test_browser_cannot_acknowledge_or_confirm_with_worker_only",
+      "test_cancelled_proposal_cannot_be_confirmed",
+      "test_changed_database_token_cancels_queued_job",
+      "test_client_cannot_supply_roles_or_owner",
+      "test_confirmation_wait_does_not_hold_model_request",
+      "test_cross_user_confirmation_is_404",
+      "test_cross_user_conversation_job_proposal",
+      "test_csrf_and_origin_required",
+      "test_csv_token_is_owner_bound_and_idempotent",
+      "test_delete_and_privilege_arguments_never_create_proposal",
+      "test_expiry_does_not_replay",
+      "test_file_owner_and_signature_checks",
+      "test_frozen_proposal_tampering",
+      "test_invalid_levels_and_message_size",
+      "test_login_name_change_keeps_account_chat",
+      "test_logout_revokes_queued_job",
+      "test_lost_ai_state_recovers_equipment_receipt",
+      "test_maintenance_revision_invalidates_old_delegation",
+      "test_menu_revocation_disables_existing_proposal",
+      "test_node_request_has_pending_receipt_number",
+      "test_option_request_has_pending_receipt_number",
+      "test_passive_reads_do_not_refresh_cookie",
+      "test_preferences_preserve_existing_keys_and_actual_result_in_history",
+      "test_preview_does_not_write_and_confirm_is_idempotent",
+      "test_private_account_context_changes_without_exposing_token",
+      "test_queue_claim_race_only_one_application_request",
+      "test_reasoning_spacing_and_no_tool_execution",
+      "test_receipt_failure_rolls_back_business_write",
+      "test_replay_key_content_bound",
+      "test_reused_user_number_cannot_rebind_previous_chat_or_proposal",
+      "test_reviewed_option_change_blocks_confirmation",
+      "test_revision_conflict",
+      "test_saved_reasoning_not_in_later_model_context",
+      "test_search_only_own_matches_and_reports_total",
+      "test_simultaneous_confirmations_create_only_once",
+      "test_status_change_uses_revision_and_audit",
+      "test_step_continuation_goes_behind_other_user",
+      "test_storage_quota_preserves_existing_input",
+      "test_three_supported_ui_levels",
+      "test_turn_rate_limit_does_not_charge_idempotent_retries",
+      "test_unknown_request_blocks_replay_and_cancellation_drains",
+      "test_user_queue_admission_limit",
+      "test_worker_secret_and_local_peer_required",
+      "test_writes_flag_checked_again_at_confirmation",
+      "test_sse_whitespace_unicode_and_done",
+      "test_sse_without_done_is_failure",
+      "test_worker_uses_separate_reasoning_and_no_shared_control"
+    ],
+    "expected_fault": "test_receipt_failure_rolls_back_business_write injects OperationalError and verifies rollback; this logged exception is expected"
+  },
+  "browser": {
+    "engine": "/usr/bin/chromium",
+    "transport": "deterministic fake API; actual candidate DOM/CSS/JS",
+    "total_checks": 29,
+    "viewports": [
+      {
+        "status": "pass",
+        "checks": [
+          "three-levels",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "no-repeated-auto-collapse",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "csv-preview-user-language"
+        ],
+        "width": 1440,
+        "exit_code": 0
+      },
+      {
+        "status": "pass",
+        "checks": [
+          "three-levels",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "mobile-conversations",
+          "no-repeated-auto-collapse",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "csv-preview-user-language"
+        ],
+        "width": 430,
+        "exit_code": 0
+      }
+    ],
+    "mobile_fixture_note": "430px inner iframe viewport in the test harness only; production chat has no iframe",
+    "last_execution": {
+      "mode": "--browser-only",
+      "completed_at_kst": "2026-11-04T13:32:16+09:00",
+      "backend_tests_run": 0,
+      "exit_code": 0,
+      "reason": "Only UI presentation/browser fixture changed after the 49-test Python verification; backend source hashes are unchanged."
+    }
+  },
+  "static": {
+    "python_ast_files": 9,
+    "missing_function_docstrings": [],
+    "javascript_syntax_files": 2,
+    "javascript_syntax_status": "pass",
+    "new_routes": [
+      "/assistant",
+      "/api/ai/capabilities",
+      "/api/ai/conversations",
+      "/api/ai/conversations/<cid>/messages",
+      "/api/ai/conversations/<cid>/turns",
+      "/api/ai/jobs/<jid>",
+      "/api/ai/jobs/<jid>/cancel",
+      "/api/ai/proposals/<pid>/confirm",
+      "/internal/ai/claim",
+      "/internal/ai/jobs/<jid>/event",
+      "/internal/ai/jobs/<jid>/finish",
+      "/internal/ai/jobs/<jid>/acknowledge-finished",
+      "/api/ai/equipment/<int:eid>/files",
+      "/api/ai/equipment/<int:eid>/files/<int:fid>/download",
+      "/api/ai/csv/preview",
+      "/api/ai/csv/export",
+      "/api/ai/csv/commit"
+    ],
+    "collisions_with_root_app_routes": [],
+    "governance": {
+      "version": "1.8.1",
+      "manifest_nodes": 44,
+      "errors": 0,
+      "warnings": 0,
+      "status": "pass",
+      "profile": "legacy",
+      "profile_reason": "runtime-session-mismatch",
+      "context_packs_read": 3
+    }
+  },
+  "preserved_existing_files": {
+    "files": [
+      {
+        "Path": "app.py",
+        "SHA256": "6244893711252F6C78BF36C53CC010BBB485E22C773EBFF038D8F7D3EEE8A581"
+      },
+      {
+        "Path": "utils/strata_integration.py",
+        "SHA256": "F91268EE7EFE3EB99B3D15818057847C12EEC97081776ABF9CE232F29EFD2982"
+      },
+      {
+        "Path": "static/js/strata_page.js",
+        "SHA256": "A69A421092894D3E49DE64CB23E12749056575F8206985DA57F6A6902C517D02"
+      },
+      {
+        "Path": "static/js/strata_bridge.js",
+        "SHA256": "CFC063828E59A879E92E60D816BE6BCC429EF26F34634511936A895D5D25C849"
+      },
+      {
+        "Path": ".agent-governance/capabilities/chatgpt-remote.yaml",
+        "SHA256": "B65A789CE0591AE2027C7351FB77AD5BAC2D5AA6DC21163926ABD3BF39674CB4"
+      },
+      {
+        "Path": "FEATURES.md",
+        "SHA256": "C55FDD187B8271F00159FFE566F9714B72D5D348A865B5D74850D6C0861AB838"
+      },
+      {
+        "Path": "PROPOSALS.md",
+        "SHA256": "9A48360273A40C1F1E8D0079A3DE2BA0B3F004BE11E25F81F5E8A3062582D30D"
+      },
+      {
+        "Path": "ROADMAP.md",
+        "SHA256": "D8469AE28EEFB156EE8E6AF3B5EE4CBB34707F5998D18419F5798EBF52AF0FCA"
+      },
+      {
+        "Path": "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+        "SHA256": "3BCF109AB1FFB4F1D568D60E360AE5FC6C2317D384E41A317221B61A887072E3"
+      },
+      {
+        "Path": "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+        "SHA256": "9F9CDB9D291DCDBCDFF97835E3C54A5F653665F5AB354D610A2D0B1A307F81B0"
+      },
+      {
+        "Path": "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+        "SHA256": "C1F609212E9FC077268D41BE6F94CCE11D14C2E3C77FE9C7D99E6B419E416FEA"
+      },
+      {
+        "Path": "UNIMPLEMENTED_PROPOSALS.md",
+        "SHA256": "CD0B02F7AAA6FFA68658164FB8760F99AB7AE15698205D4EAD77CA7D63416509"
+      },
+      {
+        "Path": "UNIMPLEMENTED_ROADMAP.md",
+        "SHA256": "138B0081F0E49EA44C495FE86C06B7BD1F9437651EDFE0DDFCAFE09FDD5E5816"
+      }
+    ],
+    "differences": []
+  },
+  "observed_strata": {
+    "method": "read-only health/public UI plus official source; no model generation",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "max_context": 196608,
+    "loaded": true,
+    "api_key_required": true,
+    "public_ui_reasoning_content": true,
+    "ui_levels": {
+      "low": "none",
+      "medium": "medium",
+      "high": "xhigh"
+    },
+    "primary_reference": "https://github.com/Niko1221/Strata/blob/main/serve/frontend.py"
+  },
+  "not_performed": [
+    "root source merge",
+    "git commit or push",
+    "service activation/restart",
+    "production database reads or schema changes",
+    "whole production app startup test",
+    "live Strata generation/tool-accuracy/cancel-recovery tests",
+    "production workload/receipt scan cost measurement",
+    "Gemini Korean comment audit"
+  ],
+  "remaining_conditions": [
+    "review approval required by workflow.staging-merge",
+    "verify live account CreatedAt and existing audit DB contract without automatic repair",
+    "configure stable secret/app-worker credentials and protected server-to-Strata network",
+    "verify live generation/tool execution and own-request recovery; preserve other Strata consumers",
+    "coordinated equipment/assistant DB backup and retention",
+    "phase rollout flags: enabled before writes"
+  ],
+  "candidate_manifest": [
+    {
+      "path": "overlay/app.py",
+      "sha256": "5b712cb7d5a97fc8a1f18d36749f0f3ae1907d873a20f142f26e60f9a6fef16b",
+      "bytes": 302918
+    },
+    {
+      "path": "overlay/static/css/equipment_ai.css",
+      "sha256": "657c457594ae03c2bf5d74d28ffe5cff3a19abc3e77826e751d66e7448f0874e",
+      "bytes": 12058
+    },
+    {
+      "path": "overlay/static/js/equipment_ai.js",
+      "sha256": "a1310d2310dd0f530ef15c7014626586f6999d7ebe320cc6fb23cef48ba54e33",
+      "bytes": 29791
+    },
+    {
+      "path": "overlay/static/js/session_timer.js",
+      "sha256": "2c27c0874fcb2fac567903553365db2efaac9549e5c1167e38e484138dc6c105",
+      "bytes": 12464
+    },
+    {
+      "path": "overlay/systemd/equipment-ai-worker.service",
+      "sha256": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+      "bytes": 905
+    },
+    {
+      "path": "overlay/templates/equipment_ai.html",
+      "sha256": "9c9aee91ff76f82f1a90a12877f282c2f9ed07432de183e3beea52acde3deba0",
+      "bytes": 6027
+    },
+    {
+      "path": "overlay/tests/assistant_browser_fixture.py",
+      "sha256": "a35bf04af39facfffbccb71f29979e42fe1526d37cb6975c60ae7431e33040af",
+      "bytes": 12361
+    },
+    {
+      "path": "overlay/tests/run_assistant_fixture.py",
+      "sha256": "fb529116ccf56eede551efe204a915646eeef802c31b3db6a98e319bdb2be3a9",
+      "bytes": 4872
+    },
+    {
+      "path": "overlay/tests/test_equipment_ai.py",
+      "sha256": "5ad305e268f4cf439444b88e40e49ffa1eacec5b55f9b8c27c065c611850dbe0",
+      "bytes": 43163
+    },
+    {
+      "path": "overlay/utils/ai_assistant/__init__.py",
+      "sha256": "a60830eb85708c61c1f3c33b6f8b23577434c8b25ea21ff2f0ae14f40e1c47ef",
+      "bytes": 36140
+    },
+    {
+      "path": "overlay/utils/ai_assistant/domain.py",
+      "sha256": "fd3db3dcd8f427daedf0ffd9c1ee6cbac019507cf9d4ed442da622dc5bba912b",
+      "bytes": 25241
+    },
+    {
+      "path": "overlay/utils/ai_assistant/policy.py",
+      "sha256": "7f4e5d6f9878ceb6c1132306045263da78d8b3e839fc96cdbffbde67a20d984e",
+      "bytes": 11669
+    },
+    {
+      "path": "overlay/utils/ai_assistant/store.py",
+      "sha256": "2f6bb477142b097c0416e2eb48cf45796cce880c1d07d3de4998f34a8074059a",
+      "bytes": 22026
+    },
+    {
+      "path": "overlay/utils/ai_assistant/worker.py",
+      "sha256": "ac0201b7b0e6cdbde755ebe585ce9579ca769e8dec26cae044471658a30bbb4f",
+      "bytes": 13105
+    },
+    {
+      "path": "README.md",
+      "sha256": "db5aa050e072e54bcab3ec6378dba0615610888d44c1cc96531000cbbd56d3cb",
+      "bytes": 10812
+    }
+  ]
+}

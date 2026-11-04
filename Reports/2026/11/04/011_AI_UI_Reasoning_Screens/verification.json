@@ -1,0 +1,181 @@
+{
+  "schema_version": 1,
+  "work_id": "FIX-20261104-AI-UI-REASONING-SETTINGS",
+  "verified_at": "2026-11-04T21:35:30.313060+09:00",
+  "status": "pass",
+  "errors": [],
+  "pngs": 18,
+  "gallery_image_references": 20,
+  "new_gallery_unique_pngs": 18,
+  "source_files": 26,
+  "capture_asset_sources": 18,
+  "capture_scripts": 3,
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 112,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 237.248,
+    "production_app_imported": false,
+    "production_database_opened": false
+  },
+  "browser_checks": 93,
+  "python_ast_files": 15,
+  "preserved_common_sources": 11,
+  "preserved_earlier_records": 6,
+  "preserved_010_pngs": 18,
+  "preserved_010_scripts": 3,
+  "matching_body_scenes": 16,
+  "matching_existing_element_backgrounds": 24,
+  "backgrounds": [
+    {
+      "file": "06-admin-new-desktop.png",
+      "selector": "#ai-providers-admin",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "06-admin-new-desktop.png",
+      "selector": "#provider-form label",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "06-admin-new-mobile.png",
+      "selector": "#ai-providers-admin",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "06-admin-new-mobile.png",
+      "selector": "#provider-form label",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-desktop.png",
+      "selector": "#ai-providers-admin",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-desktop.png",
+      "selector": "#provider-form label",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-desktop.png",
+      "selector": ".provider-model-card h3",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-desktop.png",
+      "selector": ".provider-model-card p",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-desktop.png",
+      "selector": ".provider-model-card button",
+      "background": "rgb(255, 255, 255)"
+    },
+    {
+      "file": "07-admin-provider-mobile.png",
+      "selector": "#ai-providers-admin",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-mobile.png",
+      "selector": "#provider-form label",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-mobile.png",
+      "selector": ".provider-model-card h3",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-mobile.png",
+      "selector": ".provider-model-card p",
+      "background": "rgb(241, 245, 249)"
+    },
+    {
+      "file": "07-admin-provider-mobile.png",
+      "selector": ".provider-model-card button",
+      "background": "rgb(255, 255, 255)"
+    },
+    {
+      "file": "08-admin-models-dark-desktop.png",
+      "selector": "#ai-providers-admin",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-desktop.png",
+      "selector": "#provider-form label",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-desktop.png",
+      "selector": ".provider-model-card h3",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-desktop.png",
+      "selector": ".provider-model-card p",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-desktop.png",
+      "selector": ".provider-model-card button",
+      "background": "rgb(255, 255, 255)"
+    },
+    {
+      "file": "08-admin-models-dark-mobile.png",
+      "selector": "#ai-providers-admin",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-mobile.png",
+      "selector": "#provider-form label",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-mobile.png",
+      "selector": ".provider-model-card h3",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-mobile.png",
+      "selector": ".provider-model-card p",
+      "background": "rgb(15, 23, 42)"
+    },
+    {
+      "file": "08-admin-models-dark-mobile.png",
+      "selector": ".provider-model-card button",
+      "background": "rgb(255, 255, 255)"
+    }
+  ],
+  "contrasts": [
+    {
+      "selector": ".provider-model-card h3",
+      "color": "rgb(226, 232, 240)",
+      "background": "rgb(15, 23, 42)",
+      "contrast": 14.482
+    },
+    {
+      "selector": ".provider-model-card p",
+      "color": "rgb(184, 197, 214)",
+      "background": "rgb(15, 23, 42)",
+      "contrast": 10.198
+    },
+    {
+      "selector": ".provider-model-card label",
+      "color": "rgb(226, 232, 240)",
+      "background": "rgb(15, 23, 42)",
+      "contrast": 14.482
+    },
+    {
+      "selector": "#provider-form input[name=name]",
+      "color": "rgb(37, 48, 68)",
+      "background": "rgb(255, 255, 255)",
+      "contrast": 13.25
+    }
+  ],
+  "root_app_sha256": "6244893711252f6c78bf36c53cc010bbb485e22c773ebff038d8f7d3eee8a581"
+}

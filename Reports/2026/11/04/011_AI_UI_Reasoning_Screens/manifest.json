@@ -1,0 +1,5681 @@
+{
+  "schema_version": 1,
+  "work_id": "FIX-20261104-AI-UI-REASONING-SETTINGS",
+  "completed_at": "2026-11-04T21:29:59.6455082+09:00",
+  "status": "completed-staging",
+  "scope": {
+    "candidate": "Staging/20261104-user-ai-assistant/overlay",
+    "production_deployed": false,
+    "production_database_opened": false,
+    "production_app_imported": false,
+    "real_model_called": false,
+    "other_service_modified": false,
+    "git_commit_or_push": false
+  },
+  "execution_profile": {
+    "kind": "legacy",
+    "reason": "runtime-session-mismatch"
+  },
+  "requested_changes": {
+    "background": "Existing body/panels/controls retain their theme backgrounds; text contrast corrected only.",
+    "reasoning_standard": [
+      "off",
+      "low",
+      "medium",
+      "high",
+      "xhigh",
+      "max"
+    ],
+    "qwen_strata_preset": {
+      "model_family": "Qwen3.8 Flash Next",
+      "enabled": [
+        "off",
+        "low",
+        "medium",
+        "xhigh"
+      ],
+      "disabled": [
+        "high",
+        "max"
+      ],
+      "default": "medium",
+      "wire_off": "none",
+      "source": "https://huggingface.co/Qwen/Qwen3.8-Flash-Next",
+      "setting_basis": "known model preset and inherited approved Strata contract, not a new live model test"
+    },
+    "admin": "Per-model enabled levels and default, known ceiling enforcement, profile revision and re-verification on contract change.",
+    "mobile_note_font_px": 12
+  },
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 112,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 237.248,
+    "production_app_imported": false,
+    "production_database_opened": false
+  },
+  "browser": {
+    "checks": 93,
+    "views": [
+      {
+        "status": "pass",
+        "checks": [
+          "six-standard-levels",
+          "known-unsupported-levels-visible-disabled",
+          "readable-footnote-size",
+          "provider-model-picker",
+          "conversation-reasoning-restored",
+          "older-conversations-reachable",
+          "base-and-extra-budget-visible",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "multistep-reasoning-preserved",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "no-repeated-auto-collapse",
+          "no-auto-collapse-on-next-generation",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "older-messages-prepended",
+          "history-loading-preserves-live-details",
+          "csv-preview-user-language",
+          "live-failed-job-stopped-with-reason",
+          "failed-reason-persists-on-reopen",
+          "chat-only-supported-controls",
+          "model-label-xss-safe",
+          "model-choice-restored-on-reopen",
+          "accepted-answer-provenance-survives-model-change",
+          "unsupported-reasoning-help-correct",
+          "legacy-chat-does-not-inherit-other-session-model"
+        ],
+        "width": 1440,
+        "exit_code": 0,
+        "view": "assistant"
+      },
+      {
+        "status": "pass",
+        "checks": [
+          "six-standard-levels",
+          "known-unsupported-levels-visible-disabled",
+          "readable-footnote-size",
+          "provider-model-picker",
+          "conversation-reasoning-restored",
+          "older-conversations-reachable",
+          "base-and-extra-budget-visible",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "multistep-reasoning-preserved",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "mobile-conversations",
+          "no-repeated-auto-collapse",
+          "no-auto-collapse-on-next-generation",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "older-messages-prepended",
+          "history-loading-preserves-live-details",
+          "csv-preview-user-language",
+          "live-failed-job-stopped-with-reason",
+          "failed-reason-persists-on-reopen",
+          "chat-only-supported-controls",
+          "model-label-xss-safe",
+          "model-choice-restored-on-reopen",
+          "accepted-answer-provenance-survives-model-change",
+          "unsupported-reasoning-help-correct",
+          "legacy-chat-does-not-inherit-other-session-model"
+        ],
+        "width": 430,
+        "exit_code": 0,
+        "view": "assistant"
+      },
+      {
+        "status": "pass",
+        "view": "admin",
+        "checks": [
+          "admin-six-efforts",
+          "admin-known-ceiling-disabled",
+          "key-write-only",
+          "provider-label-xss-safe",
+          "automatic-inventory-default",
+          "shared-group-control",
+          "key-cleared-and-optional-manual-enabled",
+          "admin-mutation-csrf-revision",
+          "model-alias-edit",
+          "admin-effort-default-and-revision-saved",
+          "capability-test-queue-and-poll",
+          "advanced-customization-deferred",
+          "soft-retire-visible",
+          "admin-responsive-no-overflow"
+        ],
+        "width": 1440,
+        "exit_code": 0
+      },
+      {
+        "status": "pass",
+        "view": "admin",
+        "checks": [
+          "admin-six-efforts",
+          "admin-known-ceiling-disabled",
+          "key-write-only",
+          "provider-label-xss-safe",
+          "automatic-inventory-default",
+          "shared-group-control",
+          "key-cleared-and-optional-manual-enabled",
+          "admin-mutation-csrf-revision",
+          "model-alias-edit",
+          "admin-effort-default-and-revision-saved",
+          "capability-test-queue-and-poll",
+          "advanced-customization-deferred",
+          "soft-retire-visible",
+          "admin-responsive-no-overflow"
+        ],
+        "width": 430,
+        "exit_code": 0
+      }
+    ],
+    "host": "eqmgmt-backup",
+    "real_providers": false
+  },
+  "static_checks": {
+    "overlay_python_ast": 15,
+    "capture_python_and_remote_ast": "pass",
+    "javascript_syntax": [
+      "overlay/static/js/equipment_ai.js",
+      "overlay/static/js/equipment_ai_providers.js",
+      "Staging/20261104-ai-ui-refinements/sample_bootstrap.js",
+      "Staging/20261104-ai-ui-refinements/inspect_sample.js"
+    ],
+    "governance": {
+      "version": "1.8.1",
+      "nodes": 44,
+      "errors": 0,
+      "warnings": 0,
+      "status": "pass"
+    }
+  },
+  "visual_review": {
+    "pngs": 18,
+    "all_visually_reviewed": true,
+    "render_ready": 18,
+    "collected_js_exceptions": 0,
+    "horizontal_overflow": 0,
+    "desktop_viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "mobile_viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "mobile_png": {
+      "width": 500,
+      "height": 844,
+      "outer_gutter_each_px": 55
+    },
+    "background_comparisons": [
+      {
+        "id": "01-user-welcome",
+        "device": "desktop",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "01-user-welcome",
+        "device": "mobile",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "02-user-thinking",
+        "device": "desktop",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "02-user-thinking",
+        "device": "mobile",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "03-user-review",
+        "device": "desktop",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "03-user-review",
+        "device": "mobile",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "04-user-model-switch",
+        "device": "desktop",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "04-user-model-switch",
+        "device": "mobile",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "05-user-recovery",
+        "device": "desktop",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "05-user-recovery",
+        "device": "mobile",
+        "body_same": true,
+        "elements": []
+      },
+      {
+        "id": "06-admin-new",
+        "device": "desktop",
+        "body_same": true,
+        "elements": [
+          {
+            "selector": "#ai-providers-admin",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": "#provider-form label",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          }
+        ]
+      },
+      {
+        "id": "06-admin-new",
+        "device": "mobile",
+        "body_same": true,
+        "elements": [
+          {
+            "selector": "#ai-providers-admin",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": "#provider-form label",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          }
+        ]
+      },
+      {
+        "id": "07-admin-provider",
+        "device": "desktop",
+        "body_same": true,
+        "elements": [
+          {
+            "selector": "#ai-providers-admin",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": "#provider-form label",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": ".provider-model-card h3",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": ".provider-model-card p",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(89, 101, 121)",
+            "color_after": "rgb(89, 101, 121)"
+          },
+          {
+            "selector": ".provider-model-card button",
+            "background_before": "rgb(255, 255, 255)",
+            "background_after": "rgb(255, 255, 255)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          }
+        ]
+      },
+      {
+        "id": "07-admin-provider",
+        "device": "mobile",
+        "body_same": true,
+        "elements": [
+          {
+            "selector": "#ai-providers-admin",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": "#provider-form label",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": ".provider-model-card h3",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          },
+          {
+            "selector": ".provider-model-card p",
+            "background_before": "rgb(241, 245, 249)",
+            "background_after": "rgb(241, 245, 249)",
+            "background_same": true,
+            "color_before": "rgb(89, 101, 121)",
+            "color_after": "rgb(89, 101, 121)"
+          },
+          {
+            "selector": ".provider-model-card button",
+            "background_before": "rgb(255, 255, 255)",
+            "background_after": "rgb(255, 255, 255)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          }
+        ]
+      },
+      {
+        "id": "08-admin-models-dark",
+        "device": "desktop",
+        "body_same": true,
+        "elements": [
+          {
+            "selector": "#ai-providers-admin",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(226, 232, 240)"
+          },
+          {
+            "selector": "#provider-form label",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(226, 232, 240)"
+          },
+          {
+            "selector": ".provider-model-card h3",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(226, 232, 240)"
+          },
+          {
+            "selector": ".provider-model-card p",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(89, 101, 121)",
+            "color_after": "rgb(184, 197, 214)"
+          },
+          {
+            "selector": ".provider-model-card button",
+            "background_before": "rgb(255, 255, 255)",
+            "background_after": "rgb(255, 255, 255)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          }
+        ]
+      },
+      {
+        "id": "08-admin-models-dark",
+        "device": "mobile",
+        "body_same": true,
+        "elements": [
+          {
+            "selector": "#ai-providers-admin",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(226, 232, 240)"
+          },
+          {
+            "selector": "#provider-form label",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(226, 232, 240)"
+          },
+          {
+            "selector": ".provider-model-card h3",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(226, 232, 240)"
+          },
+          {
+            "selector": ".provider-model-card p",
+            "background_before": "rgb(15, 23, 42)",
+            "background_after": "rgb(15, 23, 42)",
+            "background_same": true,
+            "color_before": "rgb(89, 101, 121)",
+            "color_after": "rgb(184, 197, 214)"
+          },
+          {
+            "selector": ".provider-model-card button",
+            "background_before": "rgb(255, 255, 255)",
+            "background_after": "rgb(255, 255, 255)",
+            "background_same": true,
+            "color_before": "rgb(37, 48, 68)",
+            "color_after": "rgb(37, 48, 68)"
+          }
+        ]
+      }
+    ],
+    "contrasts": [
+      {
+        "selector": ".provider-model-card h3",
+        "color": "rgb(226, 232, 240)",
+        "background": "rgb(15, 23, 42)",
+        "contrast": 14.482
+      },
+      {
+        "selector": ".provider-model-card p",
+        "color": "rgb(184, 197, 214)",
+        "background": "rgb(15, 23, 42)",
+        "contrast": 10.198
+      },
+      {
+        "selector": ".provider-model-card label",
+        "color": "rgb(226, 232, 240)",
+        "background": "rgb(15, 23, 42)",
+        "contrast": 14.482
+      },
+      {
+        "selector": "#provider-form input[name=name]",
+        "color": "rgb(37, 48, 68)",
+        "background": "rgb(255, 255, 255)",
+        "contrast": 13.25
+      }
+    ],
+    "previous_primary_contrast": 1.347
+  },
+  "preservation": {
+    "changed_candidates": [
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai_providers.css",
+        "before": "12D7894872EEAD5182428AE1715C71108AF86141432A91C94DA9E1D14FA449C6",
+        "after": "885757033707396ca6855f5b39d8539949869af3fedb3502c47274eeff80d669"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai.css",
+        "before": "E4383DC14FB435F5062DE43D685B773749BF22B4AC3DB684EE0827257EE6A0CE",
+        "after": "40f21a5512be3335379ebfc29d9485dc3d813dd4fd843f63e8d0005f1fead322"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai_providers.js",
+        "before": "8DDB164CE35E48EECF64CF70F1B7F419907C976E9814CD8D9B1DAEB3C83A5469",
+        "after": "d1fbdda82be68e999d5b3689e23239029f55bbf85c2eb94c36780b4614356e58"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai.js",
+        "before": "736AF966FF2BFB920DBD97741C4B49BD28AD6DFC6F4F289B91C2AD7E29DEE3F1",
+        "after": "ceae833d8914bae4cd911d7155ffaf206525e380b708b5bc392402c16b6fff36"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai_providers.html",
+        "before": "B3E79CC0B7D0BB1F427463DBBC34C73AEE8518809AF0FC1E46B486D7BF497F07",
+        "after": "87f74d1b0ba8727e6b0f65d213b6b696027383a40f4a71e943de6c5788d35215"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai.html",
+        "before": "BCA593AC02D6D312D2875AFC2A21B9B09A7FD33BED5D2D18E1C5CB4D1E8ACBDD",
+        "after": "c7808e61eb0c5fa919713e31e7f0f7c1b5ef5aba478cf8db4a5321e664488a65"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/tests/assistant_browser_fixture.py",
+        "before": "4A740E19526BC6F71A23B542A023CC06E8720EC7F0B94ACD6CE45F55E661E4FD",
+        "after": "e7a4a7474bcb69cfa76404aad3c5e7f9b0d044f020212fbbabd01e5a93454484"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_equipment_ai.py",
+        "before": "6575D4E39F4F790B6A0645ADB65FB649476F7DAF3B653095313DD75FEA70EC56",
+        "after": "64b12a46626bc170d7da95d01e47126b1be30f118951342d76e78792ecb68995"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_multi_provider_ai.py",
+        "before": "D1B85A339215C24DB1D89A6EA3DE2E47073D50EBB860C7AFB26F4F5495792266",
+        "after": "2231d0b50d4f79ba4d3351d96e696dd56f93e78cea52597d56374a75f55629ec"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+        "before": "D265E2C10EF4FF6C49505A036DC2D3845897D9D3A533AC11CA8AB59FA9F09A89",
+        "after": "6385084ea57c566ea621876175d6169a852c8c99b8bc0165a961b2794efc386a"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/policy.py",
+        "before": "2DB15DF59AA783BD91D9889DE6227357BE1F4252ECE7FA78C9D571D432292CEE",
+        "after": "86275eac23290089e5a97c2d1f7fc0682f03993e117d22f9fd4ce0753451ab8b"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/providers.py",
+        "before": "F97C0A71D0F1502DD07664C0C785C07431DC54028409C1F9080AF53F2EDE3271",
+        "after": "cdea9388c5a16cba0425df8b9d58c900539532e594fe74cde8aacaceadfff42a"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/store.py",
+        "before": "8B0058C887A3EE34C8AF836097B0FC70A82F2B89EBED761390927D2348ECF453",
+        "after": "eb6a30c4c1bde457db798119a2f476c7924e7f866041043907e0773045f83f95"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/README.md",
+        "before": "8D12069A31B73EBF80D7805E73CE3C4D1AB86918186C63711DADDC8872E4D62F",
+        "after": "6d31ff5f311541779bed67c7d8161ce4b6d851fa5a2f46cfbe39461b9990967c"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/MULTI-PROVIDER-SETUP.md",
+        "before": "FD0649BFE680ABECC7A5CB9705D0C022C32D0EDC0796BC6EA8A2762D57305AE8",
+        "after": "452b44ad3c489e717acc8f7863157d8072fa008aefdbacfe3fed9eec78755f47"
+      }
+    ],
+    "preserved": {
+      "fixture_base_files": {
+        "count": 11,
+        "changed": []
+      },
+      "preserved_files": {
+        "count": 6,
+        "changed": []
+      },
+      "010_pngs": {
+        "count": 18,
+        "changed": []
+      },
+      "010_harness": {
+        "count": 3,
+        "changed": []
+      }
+    },
+    "root_app_sha256": "6244893711252f6c78bf36c53cc010bbb485e22c773ebff038d8f7d3eee8a581"
+  },
+  "source_files": [
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/app.py",
+      "sha256": "6379ca65624174453520e2f85ff429d6bd9c35765e8db52bb9862103e2d91334"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/requirements.txt",
+      "sha256": "7ab567fc044cc5b74d26abc6cac39b546e79b1265eaf0d7d571dabc2eaf9cad4"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai_providers.css",
+      "sha256": "885757033707396ca6855f5b39d8539949869af3fedb3502c47274eeff80d669"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai.css",
+      "sha256": "40f21a5512be3335379ebfc29d9485dc3d813dd4fd843f63e8d0005f1fead322"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai_providers.js",
+      "sha256": "d1fbdda82be68e999d5b3689e23239029f55bbf85c2eb94c36780b4614356e58"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai.js",
+      "sha256": "ceae833d8914bae4cd911d7155ffaf206525e380b708b5bc392402c16b6fff36"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/session_timer.js",
+      "sha256": "2c27c0874fcb2fac567903553365db2efaac9549e5c1167e38e484138dc6c105"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/systemd/equipment-ai-worker.service",
+      "sha256": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai_providers.html",
+      "sha256": "87f74d1b0ba8727e6b0f65d213b6b696027383a40f4a71e943de6c5788d35215"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai.html",
+      "sha256": "c7808e61eb0c5fa919713e31e7f0f7c1b5ef5aba478cf8db4a5321e664488a65"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/assistant_browser_fixture.py",
+      "sha256": "e7a4a7474bcb69cfa76404aad3c5e7f9b0d044f020212fbbabd01e5a93454484"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py",
+      "sha256": "fa08fbfb741a21273eb2d966fe3965fa8f0775acae7a4d21e5f1c33cd6a2ab0c"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_equipment_ai.py",
+      "sha256": "64b12a46626bc170d7da95d01e47126b1be30f118951342d76e78792ecb68995"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_multi_provider_ai.py",
+      "sha256": "2231d0b50d4f79ba4d3351d96e696dd56f93e78cea52597d56374a75f55629ec"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+      "sha256": "6385084ea57c566ea621876175d6169a852c8c99b8bc0165a961b2794efc386a"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/audit.py",
+      "sha256": "5ddc8e649e47e253d8bf6530718f27bd35b676488a48ae3386801c303783ebec"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/context.py",
+      "sha256": "28b429f87e80c23beaf9f87018afc902b4b5311e05521d853791a7ec2a8368a4"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/domain.py",
+      "sha256": "84614c7e73a0e08947126103b74a59f0aa310da87d5abb1a818dfa32053fdb39"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/policy.py",
+      "sha256": "86275eac23290089e5a97c2d1f7fc0682f03993e117d22f9fd4ce0753451ab8b"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/providers.py",
+      "sha256": "cdea9388c5a16cba0425df8b9d58c900539532e594fe74cde8aacaceadfff42a"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/store.py",
+      "sha256": "eb6a30c4c1bde457db798119a2f476c7924e7f866041043907e0773045f83f95"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/transport.py",
+      "sha256": "d71fc36db6d3970dc7d8a4e890a7811b950d89b897a824e96368639f3a4e5cfe"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/worker.py",
+      "sha256": "618b9f98589443e5bd1e747fb05a10244788c69d544e5d565cef344d9bf3562c"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/README.md",
+      "sha256": "6d31ff5f311541779bed67c7d8161ce4b6d851fa5a2f46cfbe39461b9990967c"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/MULTI-PROVIDER-SETUP.md",
+      "sha256": "452b44ad3c489e717acc8f7863157d8072fa008aefdbacfe3fed9eec78755f47"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/reasoning.py",
+      "sha256": "967db32b7c54a57d22eb5a270a46816435db4d7d9c4eb22d133df89d55c687c0"
+    }
+  ],
+  "baseline_manifest": {
+    "path": "Reports/2026/11/04/multi-provider-ai-validation.json",
+    "sha256": "45c425393f5e867dc4579c9be8af22aed45c54cf05138f577180384f32eff819"
+  },
+  "capture": {
+    "captures": [
+      {
+        "id": "01-user-welcome",
+        "title": "사용자 · 새 대화",
+        "view": "user",
+        "theme": "light",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "01-user-welcome-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full",
+          "document_width": 1425,
+          "document_height": 1011,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    \n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      새로운 대화Strata PC A / Qwen3.8 Flash Next\n      내 장비, 더 간편하게\n    \n",
+              "x": 22,
+              "y": 103,
+              "width": 1381,
+              "height": 884,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 882,
+              "client_height": 882,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 342.359375,
+              "y": 195.484375,
+              "width": 420,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능",
+              "x": 291,
+              "y": 239.390625,
+              "width": 1087,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 449.90625,
+              "y": 876.3125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 592.90625,
+              "y": 882.0625,
+              "width": 109.59375,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 1210.5,
+              "y": 873.3125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 299,
+              "y": 928.3125,
+              "width": 1071,
+              "height": 19.1875,
+              "font_size": "12px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 19,
+              "client_height": 19,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 409.5,
+              "y": 957.5,
+              "width": 850,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 267,
+              "y": 268.53125,
+              "width": 1135,
+              "height": 531.78125,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 532,
+              "client_height": 532,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "3c15ebb1f0df53d830359e5e6da334a379249644fb53b36a706283296cd71101",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/01-user-welcome-desktop.png"
+      },
+      {
+        "id": "01-user-welcome",
+        "title": "사용자 · 새 대화",
+        "view": "user",
+        "theme": "light",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "01-user-welcome-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full",
+          "document_width": 375,
+          "document_height": 877,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    \n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      새로운 대화Strata PC A / Qwen3.8 Flash Next\n      내 장비, 더 간편하게\n    \n",
+              "x": 8,
+              "y": 125,
+              "width": 359,
+              "height": 744,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 742,
+              "client_height": 742,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 84.359375,
+              "y": 207.890625,
+              "width": 154.03125,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능",
+              "x": 33,
+              "y": 251.796875,
+              "width": 309,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 61.40625,
+              "y": 742.125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 305,
+              "y": 739.125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 21,
+              "y": 794.125,
+              "width": 333,
+              "height": 38.375,
+              "font_size": "12px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 38,
+              "client_height": 38,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 21,
+              "y": 842.5,
+              "width": 333,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 9,
+              "y": 280.9375,
+              "width": 357,
+              "height": 385.1875,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 512,
+              "client_height": 385,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "5302fe81612d814641edcc43d160ecdd2fb2b4e94294a86a358a4d8e6f664b30",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/01-user-welcome-mobile.png"
+      },
+      {
+        "id": "02-user-thinking",
+        "title": "사용자 · 추론 진행",
+        "view": "user",
+        "theme": "dark",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "02-user-thinking-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full dark",
+          "document_width": 1425,
+          "document_height": 1011,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    업무용 노트북 등록보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      업무용 노트북 등록Strata PC A / Qwen",
+              "x": 22,
+              "y": 103,
+              "width": 1381,
+              "height": 884,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 882,
+              "client_height": 882,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 342.359375,
+              "y": 195.484375,
+              "width": 420,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능 · 변경은 다음 요청부터 적용됩니다. 접수된 요청은 기존 모델을 사용합니다.",
+              "x": 291,
+              "y": 239.390625,
+              "width": 1087,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 449.90625,
+              "y": 876.3125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 592.90625,
+              "y": 882.0625,
+              "width": 109.59375,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 1210.5,
+              "y": 873.3125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": true,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "응답을 기다리거나 생성하고 있습니다.",
+              "x": 424.5,
+              "y": 767.984375,
+              "width": 174.234375,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 1201.890625,
+              "y": 764.8125,
+              "width": 57.609375,
+              "height": 24.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 중 · 접기/펼치기먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 427,
+              "y": 441.703125,
+              "width": 800,
+              "height": 112.171875,
+              "font_size": "14px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 110,
+              "client_height": 110,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "업무용 노트북을 등록해 주세요. 시리얼은 SAMPLE-NB-001이고 구입일은 10월 15일입니다.",
+              "x": 693.09375,
+              "y": 322.671875,
+              "width": 533.90625,
+              "height": 51.34375,
+              "font_size": "13px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 49,
+              "client_height": 49,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 427,
+              "y": 568.875,
+              "width": 800,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 299,
+              "y": 928.3125,
+              "width": 1071,
+              "height": 19.1875,
+              "font_size": "12px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 19,
+              "client_height": 19,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 409.5,
+              "y": 957.5,
+              "width": 850,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 267,
+              "y": 268.53125,
+              "width": 1135,
+              "height": 496.28125,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 496,
+              "client_height": 496,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "0339f9ade92070442472e8b11f3beae4cc156350bb443b92e45045f8f52ec29d",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/02-user-thinking-desktop.png"
+      },
+      {
+        "id": "02-user-thinking",
+        "title": "사용자 · 추론 진행",
+        "view": "user",
+        "theme": "dark",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "02-user-thinking-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full dark",
+          "document_width": 375,
+          "document_height": 877,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    업무용 노트북 등록보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      업무용 노트북 등록Strata PC A / Qwen",
+              "x": 8,
+              "y": 125,
+              "width": 359,
+              "height": 744,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 742,
+              "client_height": 742,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 84.359375,
+              "y": 207.890625,
+              "width": 154.03125,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능 · 변경은 다음 요청부터 적용됩니다. 접수된 요청은 기존 모델을 사용합니다.",
+              "x": 33,
+              "y": 251.796875,
+              "width": 309,
+              "height": 36.28125,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 61.40625,
+              "y": 742.125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 305,
+              "y": 739.125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": true,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "응답을 기다리거나 생성하고 있습니다.",
+              "x": 36,
+              "y": 633.796875,
+              "width": 174.234375,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 296.390625,
+              "y": 630.625,
+              "width": 57.609375,
+              "height": 24.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 중 · 접기/펼치기먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 25,
+              "y": 396.9375,
+              "width": 310,
+              "height": 152.859375,
+              "font_size": "14px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 151,
+              "client_height": 151,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "업무용 노트북을 등록해 주세요. 시리얼은 SAMPLE-NB-001이고 구입일은 10월 15일입니다.",
+              "x": 68.40625,
+              "y": 227.21875,
+              "width": 266.59375,
+              "height": 102.03125,
+              "font_size": "13px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 100,
+              "client_height": 100,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 25,
+              "y": 564.796875,
+              "width": 310,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 21,
+              "y": 794.125,
+              "width": 333,
+              "height": 38.375,
+              "font_size": "12px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 38,
+              "client_height": 38,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 21,
+              "y": 842.5,
+              "width": 333,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 9,
+              "y": 299.078125,
+              "width": 357,
+              "height": 331.546875,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 450,
+              "client_height": 332,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "1291fb245bb4f61b5c7f1f6d195514753b59f210b143b40ade409ebcd9736b42",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/02-user-thinking-mobile.png"
+      },
+      {
+        "id": "03-user-review",
+        "title": "사용자 · 답변과 장비 등록 확인",
+        "view": "user",
+        "theme": "light",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "03-user-review-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full",
+          "document_width": 1425,
+          "document_height": 1011,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    업무용 노트북 등록보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      업무용 노트북 등록Strata PC A / Qwen",
+              "x": 22,
+              "y": 103,
+              "width": 1381,
+              "height": 884,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 882,
+              "client_height": 882,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 342.359375,
+              "y": 195.484375,
+              "width": 420,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능",
+              "x": 291,
+              "y": 239.390625,
+              "width": 1087,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 449.90625,
+              "y": 876.3125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 592.90625,
+              "y": 882.0625,
+              "width": 109.59375,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 1210.5,
+              "y": 873.3125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "변경할 내용을 확인해 주세요.",
+              "x": 409.5,
+              "y": 771.171875,
+              "width": 133.75,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 과정먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 427,
+              "y": 166.703125,
+              "width": 800,
+              "height": 38.140625,
+              "font_size": "14px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "업무용 노트북을 등록해 주세요. 시리얼은 SAMPLE-NB-001이고 구입일은 10월 15일입니다.",
+              "x": 693.09375,
+              "y": 47.671875,
+              "width": 533.90625,
+              "height": 51.34375,
+              "font_size": "13px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 49,
+              "client_height": 49,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 427,
+              "y": 320.875,
+              "width": 800,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-confirm",
+              "text": "이 내용으로 실행",
+              "x": 450,
+              "y": 675.21875,
+              "width": 103,
+              "height": 34.140625,
+              "font_size": "11px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 34,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 299,
+              "y": 928.3125,
+              "width": 1071,
+              "height": 19.1875,
+              "font_size": "12px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 19,
+              "client_height": 19,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 409.5,
+              "y": 957.5,
+              "width": 850,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 267,
+              "y": 268.53125,
+              "width": 1135,
+              "height": 502.640625,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 778,
+              "client_height": 503,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "44a801430f86154cb8bbf105f0b74739467b03adc378bf4b00302699553bc20e",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/03-user-review-desktop.png"
+      },
+      {
+        "id": "03-user-review",
+        "title": "사용자 · 답변과 장비 등록 확인",
+        "view": "user",
+        "theme": "light",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "03-user-review-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full",
+          "document_width": 375,
+          "document_height": 877,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    업무용 노트북 등록보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      업무용 노트북 등록Strata PC A / Qwen",
+              "x": 8,
+              "y": 125,
+              "width": 359,
+              "height": 744,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 742,
+              "client_height": 742,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 84.359375,
+              "y": 207.890625,
+              "width": 154.03125,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능",
+              "x": 33,
+              "y": 251.796875,
+              "width": 309,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 61.40625,
+              "y": 742.125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 305,
+              "y": 739.125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "변경할 내용을 확인해 주세요.",
+              "x": 21,
+              "y": 636.984375,
+              "width": 133.75,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 과정먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 25,
+              "y": -3.203125,
+              "width": 310,
+              "height": 38.140625,
+              "font_size": "14px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "업무용 노트북을 등록해 주세요. 시리얼은 SAMPLE-NB-001이고 구입일은 10월 15일입니다.",
+              "x": 68.40625,
+              "y": -172.921875,
+              "width": 266.59375,
+              "height": 102.03125,
+              "font_size": "13px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 100,
+              "client_height": 100,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 25,
+              "y": 176.3125,
+              "width": 310,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-confirm",
+              "text": "이 내용으로 실행",
+              "x": 48,
+              "y": 548.796875,
+              "width": 103,
+              "height": 34.140625,
+              "font_size": "11px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 34,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 21,
+              "y": 794.125,
+              "width": 333,
+              "height": 38.375,
+              "font_size": "12px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 38,
+              "client_height": 38,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 21,
+              "y": 842.5,
+              "width": 333,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 9,
+              "y": 280.9375,
+              "width": 357,
+              "height": 356.046875,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 856,
+              "client_height": 356,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "c60a7dd29bdbe9fe7a2db16fe5bc58bf00c60d40717c50eaf79b10e0dd9034fb",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/03-user-review-mobile.png"
+      },
+      {
+        "id": "04-user-model-switch",
+        "title": "사용자 · 대화 전용 모델로 변경",
+        "view": "user",
+        "theme": "dark",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "04-user-model-switch-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full dark",
+          "document_width": 1425,
+          "document_height": 1011,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "default",
+              "label": "모델 기본값",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "off",
+              "label": "off · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    같은 대화에서 모델 바꾸기보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      같은 대화에서 모델 바꾸기로컬 모델 PC /",
+              "x": 22,
+              "y": 103,
+              "width": 1381,
+              "height": 884,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 882,
+              "client_height": 882,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 342.359375,
+              "y": 195.484375,
+              "width": 420,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "대화 전용 · 장비 업무는 지원 모델 또는 수동 화면을 이용해 주세요.",
+              "x": 291,
+              "y": 239.390625,
+              "width": 1087,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "모델 기본값off · 사용 불가low · 사용 불가medium · 사용 불가high · 모델 미지원xhigh · 사용 불가max · 모델 미지원",
+              "x": 449.90625,
+              "y": 876.3125,
+              "width": 147,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": true,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "추론 수준을 지정하지 않고 모델 기본 동작을 사용합니다.",
+              "x": 603.90625,
+              "y": 882.0625,
+              "width": 234,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 1210.5,
+              "y": 873.3125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 과정먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 427,
+              "y": 441.703125,
+              "width": 800,
+              "height": 38.140625,
+              "font_size": "14px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "모델을 바꿔도 이 장비 등록 작업을 이어갈 수 있을까요?",
+              "x": 892.578125,
+              "y": 322.671875,
+              "width": 334.421875,
+              "height": 51.34375,
+              "font_size": "13px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 49,
+              "client_height": 49,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 427,
+              "y": 595.875,
+              "width": 800,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 299,
+              "y": 928.3125,
+              "width": 1071,
+              "height": 19.1875,
+              "font_size": "12px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 19,
+              "client_height": 19,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 409.5,
+              "y": 957.5,
+              "width": 850,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 267,
+              "y": 268.53125,
+              "width": 1135,
+              "height": 531.78125,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 532,
+              "client_height": 532,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "a4b19a29f225f4474d1b7448e09bbe6b28ae95037d416c57b13d4560bb7e7783",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/04-user-model-switch-desktop.png"
+      },
+      {
+        "id": "04-user-model-switch",
+        "title": "사용자 · 대화 전용 모델로 변경",
+        "view": "user",
+        "theme": "dark",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "04-user-model-switch-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full dark",
+          "document_width": 375,
+          "document_height": 877,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "default",
+              "label": "모델 기본값",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "off",
+              "label": "off · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh · 사용 불가",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    같은 대화에서 모델 바꾸기보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      같은 대화에서 모델 바꾸기로컬 모델 PC /",
+              "x": 8,
+              "y": 125,
+              "width": 359,
+              "height": 744,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 742,
+              "client_height": 742,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 84.359375,
+              "y": 207.890625,
+              "width": 154.03125,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "대화 전용 · 장비 업무는 지원 모델 또는 수동 화면을 이용해 주세요.",
+              "x": 33,
+              "y": 251.796875,
+              "width": 309,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "모델 기본값off · 사용 불가low · 사용 불가medium · 사용 불가high · 모델 미지원xhigh · 사용 불가max · 모델 미지원",
+              "x": 61.40625,
+              "y": 742.125,
+              "width": 147,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": true,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "추론 수준을 지정하지 않고 모델 기본 동작을 사용합니다.",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 305,
+              "y": 739.125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "11px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 과정먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 25,
+              "y": 394.453125,
+              "width": 310,
+              "height": 38.140625,
+              "font_size": "14px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "모델을 바꿔도 이 장비 등록 작업을 이어갈 수 있을까요?",
+              "x": 68.40625,
+              "y": 250.078125,
+              "width": 266.59375,
+              "height": 76.6875,
+              "font_size": "13px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(16, 23, 34)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 75,
+              "client_height": 75,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 25,
+              "y": 599.3125,
+              "width": 310,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 21,
+              "y": 794.125,
+              "width": 333,
+              "height": 38.375,
+              "font_size": "12px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 38,
+              "client_height": 38,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 21,
+              "y": 842.5,
+              "width": 333,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(151, 165, 182)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 9,
+              "y": 280.9375,
+              "width": 357,
+              "height": 385.1875,
+              "font_size": "14px",
+              "color": "rgb(230, 235, 242)",
+              "background": "rgb(20, 28, 40)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 462,
+              "client_height": 385,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "091b4fc9fb97f121c0ab127c47bcc91ae20d9d2c7fd35a648667dc5ffdb3cbc3",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/04-user-model-switch-mobile.png"
+      },
+      {
+        "id": "05-user-recovery",
+        "title": "사용자 · 연결 중단과 종료 확인 안내",
+        "view": "user",
+        "theme": "light",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "05-user-recovery-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full",
+          "document_width": 1425,
+          "document_height": 1011,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    업무용 노트북 등록보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      업무용 노트북 등록Strata PC A / Qwen",
+              "x": 22,
+              "y": 103,
+              "width": 1381,
+              "height": 884,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 882,
+              "client_height": 882,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 342.359375,
+              "y": 195.484375,
+              "width": 420,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능 · 변경은 다음 요청부터 적용됩니다. 접수된 요청은 기존 모델을 사용합니다.",
+              "x": 291,
+              "y": 239.390625,
+              "width": 1087,
+              "height": 18.140625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 18,
+              "client_height": 18,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 449.90625,
+              "y": 876.3125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 592.90625,
+              "y": 882.0625,
+              "width": 109.59375,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 1210.5,
+              "y": 873.3125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": true,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "작업 중단됨 · 이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요. AI 연결이 중단되어 이전 요청의 종료를 확인하지 못했습니다. 같은 장비를 중복 등록하지 않도록 이 대화의 새 요청을 보류합니다. 관리자에게 종료 확인을 요청해 주세요.",
+              "x": 409.5,
+              "y": 753.03125,
+              "width": 850,
+              "height": 36.28125,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 과정 · 다시 보기먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 427,
+              "y": 482.5,
+              "width": 800,
+              "height": 38.140625,
+              "font_size": "14px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "업무용 노트북을 등록해 주세요. 시리얼은 SAMPLE-NB-001이고 구입일은 10월 15일입니다.",
+              "x": 693.09375,
+              "y": 363.46875,
+              "width": 533.90625,
+              "height": 51.34375,
+              "font_size": "13px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 49,
+              "client_height": 49,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 427,
+              "y": 535.640625,
+              "width": 800,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 299,
+              "y": 928.3125,
+              "width": 1071,
+              "height": 19.1875,
+              "font_size": "12px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 19,
+              "client_height": 19,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 409.5,
+              "y": 957.5,
+              "width": 850,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 267,
+              "y": 309.328125,
+              "width": 1135,
+              "height": 443.703125,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 444,
+              "client_height": 444,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "706b06cc219a0138934b5178da0a648678eed1ff280ce54d946e1e2d479f53a4",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/05-user-recovery-desktop.png"
+      },
+      {
+        "id": "05-user-recovery",
+        "title": "사용자 · 연결 중단과 종료 확인 안내",
+        "view": "user",
+        "theme": "light",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "05-user-recovery-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full",
+          "document_width": 375,
+          "document_height": 877,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [
+            {
+              "value": "off",
+              "label": "off",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "low",
+              "label": "low",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "medium",
+              "label": "medium",
+              "disabled": false,
+              "selected": true
+            },
+            {
+              "value": "high",
+              "label": "high · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            },
+            {
+              "value": "xhigh",
+              "label": "xhigh",
+              "disabled": false,
+              "selected": false
+            },
+            {
+              "value": "max",
+              "label": "max · 모델 미지원",
+              "disabled": true,
+              "selected": false
+            }
+          ],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#equipment-ai",
+              "text": "✦AI 도우미개인 대화\n    ＋ 새 대화\n    최근 대화\n    업무용 노트북 등록보증 기간이 다가오는 장비새 제조사 등록 신청\n    이전 대화 더 보기\n    장비관리 전용 작업 도구대화는 내 계정에 저장됩니다.\n  \n  \n    \n      대화 목록\n      업무용 노트북 등록Strata PC A / Qwen",
+              "x": 8,
+              "y": 125,
+              "width": 359,
+              "height": 744,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 742,
+              "client_height": 742,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model",
+              "text": "Strata PC A / Qwen3.8 Flash Next · 장비 업무 가능Strata PC B / Qwen3.8 Flash Next · 장비 업무 가능로컬 모델 PC / Qwen3.5 4B · 대화 전용",
+              "x": 84.359375,
+              "y": 207.890625,
+              "width": 154.03125,
+              "height": 34,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 32,
+              "client_height": 32,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-model-status",
+              "text": "장비 업무 가능 · 변경은 다음 요청부터 적용됩니다. 접수된 요청은 기존 모델을 사용합니다.",
+              "x": 33,
+              "y": 251.796875,
+              "width": 309,
+              "height": 36.28125,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level",
+              "text": "offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원",
+              "x": 61.40625,
+              "y": 742.125,
+              "width": 136,
+              "height": 28,
+              "font_size": "11px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 28,
+              "client_height": 28,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-level-help",
+              "text": "중간 수준으로 검토합니다.",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#ai-send",
+              "text": "↑",
+              "x": 305,
+              "y": 739.125,
+              "width": 34,
+              "height": 34,
+              "font_size": "21px",
+              "color": "rgb(255, 255, 255)",
+              "background": "rgb(8, 126, 120)",
+              "disabled": true,
+              "hidden": false,
+              "scroll_height": 35,
+              "client_height": 34,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-progress-text",
+              "text": "작업 중단됨 · 이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요. AI 연결이 중단되어 이전 요청의 종료를 확인하지 못했습니다. 같은 장비를 중복 등록하지 않도록 이 대화의 새 요청을 보류합니다. 관리자에게 종료 확인을 요청해 주세요.",
+              "x": 21,
+              "y": 582.5625,
+              "width": 333,
+              "height": 72.5625,
+              "font_size": "11px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 73,
+              "client_height": 73,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-cancel",
+              "text": "요청 취소",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": true,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": ".ai-thought",
+              "text": "추론 과정 · 다시 보기먼저 요청한 장비가 본인 소유인지 확인합니다.\n승인된 모델과 옵션을 조회한 다음, 이름·시리얼·구입일을 대조합니다.\n실제 등록은 확인 카드의 실행 버튼을 누르기 전까지 진행하지 않습니다.",
+              "x": 25,
+              "y": 462.125,
+              "width": 310,
+              "height": 38.140625,
+              "font_size": "14px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 36,
+              "client_height": 36,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-answer",
+              "text": "업무용 노트북을 등록해 주세요. 시리얼은 SAMPLE-NB-001이고 구입일은 10월 15일입니다.",
+              "x": 68.40625,
+              "y": 292.40625,
+              "width": 266.59375,
+              "height": 102.03125,
+              "font_size": "13px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(247, 248, 250)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 100,
+              "client_height": 100,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-source",
+              "text": "Strata PC A / Qwen3.8 Flash Next · medium",
+              "x": 25,
+              "y": 515.265625,
+              "width": 310,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-footnote",
+              "text": "등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 삭제와 관리자 업무는 처리하지 않습니다.",
+              "x": 21,
+              "y": 794.125,
+              "width": 333,
+              "height": 38.375,
+              "font_size": "12px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 38,
+              "client_height": 38,
+              "in_viewport": true
+            },
+            {
+              "selector": ".ai-file-tools",
+              "text": "파일 첨부·CSV 가져오기\n        내 장비에 파일 첨부장비 번호 PNG·JPEG·PDF, 최대 10MiB 선택한 파일 첨부\n        내 장비 CSV 가져오기CSV, 최대 1MiB·500행 등록 전 미리보기검증된 CSV 장비 등록",
+              "x": 21,
+              "y": 842.5,
+              "width": 333,
+              "height": 16.5,
+              "font_size": "10px",
+              "color": "rgb(113, 123, 137)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 17,
+              "client_height": 17,
+              "in_viewport": true
+            },
+            {
+              "selector": "#ai-scroll",
+              "text": "✦장비관리 AI 도우미\n        어떤 일을 도와드릴까요?내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.궁금한 점을 편하게 물어보셔도 됩니다.\n        \n          내 장비 살펴보기보유 장비와 관리 기한 확인↗\n          장비 등록 도와주기정보를 모아 등록 내용 준비↗\n      ",
+              "x": 9,
+              "y": 399.265625,
+              "width": 357,
+              "height": 183.296875,
+              "font_size": "14px",
+              "color": "rgb(36, 45, 57)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 336,
+              "client_height": 183,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "6c1021931914170d7242e9f60078d4d2f7aa454c466c6600dcc81d2e81e4344e",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/05-user-recovery-mobile.png"
+      },
+      {
+        "id": "06-admin-new",
+        "title": "관리자 · 새 AI 연결",
+        "view": "admin",
+        "theme": "light",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "06-admin-new-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full",
+          "document_width": 1440,
+          "document_height": 1000,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        연결 추가\n   ",
+              "x": 112,
+              "y": 127,
+              "width": 1216,
+              "height": 709.78125,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 710,
+              "client_height": 710,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "연결 추가",
+              "x": 385,
+              "y": 296.09375,
+              "width": 922,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 385,
+              "y": 336.59375,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 389,
+              "y": 752.78125,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-status",
+              "text": "",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "14px",
+              "color": "rgb(89, 101, 121)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 385,
+              "y": 363.59375,
+              "width": 454.5,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "4d826c58dc24acb6f85ec1e7f093afcdde4460870a19744ff5ed85638a4dbf37",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/06-admin-new-desktop.png"
+      },
+      {
+        "id": "06-admin-new",
+        "title": "관리자 · 새 AI 연결",
+        "view": "admin",
+        "theme": "light",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "06-admin-new-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full",
+          "document_width": 375,
+          "document_height": 1364,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        연결 추가\n   ",
+              "x": 16,
+              "y": 159,
+              "width": 343,
+              "height": 1173.15625,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 1173,
+              "client_height": 1173,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "연결 추가",
+              "x": 31,
+              "y": 439.28125,
+              "width": 313,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 31,
+              "y": 479.78125,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 35,
+              "y": 1254.15625,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-status",
+              "text": "",
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "font_size": "14px",
+              "color": "rgb(89, 101, 121)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 0,
+              "client_height": 0,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 31,
+              "y": 506.78125,
+              "width": 313,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "98009eab899b95f49dd4023387d80249e7e85f01a45342792acb9a0d5674f98f",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/06-admin-new-mobile.png"
+      },
+      {
+        "id": "07-admin-provider",
+        "title": "관리자 · 기존 AI 연결",
+        "view": "admin",
+        "theme": "light",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "07-admin-provider-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full",
+          "document_width": 1425,
+          "document_height": 2272,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [
+            {
+              "value": "off",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "low",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "medium",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "high",
+              "disabled": true,
+              "checked": false
+            },
+            {
+              "value": "xhigh",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "max",
+              "disabled": true,
+              "checked": false
+            }
+          ],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        Strata PC",
+              "x": 104.5,
+              "y": 127,
+              "width": 1216,
+              "height": 2113.125,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 2113,
+              "client_height": 2113,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "Strata PC A · 설정 1",
+              "x": 377.5,
+              "y": 296.09375,
+              "width": 922,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 377.5,
+              "y": 336.59375,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 381.5,
+              "y": 752.78125,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-status",
+              "text": "마지막 목록 확인: 2026. 11. 4. 오후 1:00:00 · 목록은 60초 캐시",
+              "x": 356.5,
+              "y": 904.28125,
+              "width": 964,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(89, 101, 121)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card h3",
+              "text": "Qwen3.8 Flash Next",
+              "x": 377.5,
+              "y": 1014.5625,
+              "width": 922,
+              "height": 24,
+              "font_size": "16px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 24,
+              "client_height": 24,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card p",
+              "text": "시험 통과 · 장비 업무 가능 · 추론 단계 확인됨",
+              "x": 377.5,
+              "y": 1048.5625,
+              "width": 922,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(89, 101, 121)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card label",
+              "text": "표시 이름",
+              "x": 377.5,
+              "y": 1081.65625,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card button",
+              "text": "모델 설정 저장",
+              "x": 381.5,
+              "y": 1532.84375,
+              "width": 113.125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-reasoning",
+              "text": "사용자에게 허용할 추론 수준offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원새 선택의 기본 추론 수준offlowmediumxhighQwen3.8 Flash Next 지원 사전 설정: off / low / medium / xhigh. 허용 단계를 바꾸면 다시 시험해야 합니다. 모두 해제하면 추론 ",
+              "x": 377.5,
+              "y": 1312.65625,
+              "width": 922,
+              "height": 202.1875,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 180,
+              "client_height": 200,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-reasoning legend",
+              "text": "사용자에게 허용할 추론 수준",
+              "x": 390.5,
+              "y": 1312.65625,
+              "width": 166.328125,
+              "height": 21,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 21,
+              "client_height": 21,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 377.5,
+              "y": 363.59375,
+              "width": 454.5,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card select",
+              "text": "offlowmediumxhigh",
+              "x": 390.5,
+              "y": 1393.65625,
+              "width": 896,
+              "height": 42,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 40,
+              "client_height": 40,
+              "in_viewport": false
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "6fc6b8b6be4af568ec89d07033b4c94ef9a3312213ed3ff89ab22a3cc525a780",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/07-admin-provider-desktop.png"
+      },
+      {
+        "id": "07-admin-provider",
+        "title": "관리자 · 기존 AI 연결",
+        "view": "admin",
+        "theme": "light",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "07-admin-provider-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full",
+          "document_width": 375,
+          "document_height": 3371,
+          "body_background": "rgb(241, 245, 249)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [
+            {
+              "value": "off",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "low",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "medium",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "high",
+              "disabled": true,
+              "checked": false
+            },
+            {
+              "value": "xhigh",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "max",
+              "disabled": true,
+              "checked": false
+            }
+          ],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        Strata PC",
+              "x": 16,
+              "y": 159,
+              "width": 343,
+              "height": 3180.4375,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 3180,
+              "client_height": 3180,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "Strata PC A · 설정 1",
+              "x": 31,
+              "y": 439.28125,
+              "width": 313,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 31,
+              "y": 479.78125,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 35,
+              "y": 1254.15625,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-status",
+              "text": "마지막 목록 확인: 2026. 11. 4. 오후 1:00:00 · 목록은 60초 캐시",
+              "x": 16,
+              "y": 1399.65625,
+              "width": 343,
+              "height": 46.1875,
+              "font_size": "14px",
+              "color": "rgb(89, 101, 121)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 46,
+              "client_height": 46,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card h3",
+              "text": "Qwen3.8 Flash Next",
+              "x": 31,
+              "y": 1596.3125,
+              "width": 313,
+              "height": 24,
+              "font_size": "16px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 24,
+              "client_height": 24,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card p",
+              "text": "시험 통과 · 장비 업무 가능 · 추론 단계 확인됨",
+              "x": 31,
+              "y": 1630.3125,
+              "width": 313,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(89, 101, 121)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card label",
+              "text": "표시 이름",
+              "x": 31,
+              "y": 1663.40625,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card button",
+              "text": "모델 설정 저장",
+              "x": 35,
+              "y": 2398.875,
+              "width": 113.125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-reasoning",
+              "text": "사용자에게 허용할 추론 수준offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원새 선택의 기본 추론 수준offlowmediumxhighQwen3.8 Flash Next 지원 사전 설정: off / low / medium / xhigh. 허용 단계를 바꾸면 다시 시험해야 합니다. 모두 해제하면 추론 ",
+              "x": 31,
+              "y": 2043.40625,
+              "width": 313,
+              "height": 337.46875,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 315,
+              "client_height": 335,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-reasoning legend",
+              "text": "사용자에게 허용할 추론 수준",
+              "x": 44,
+              "y": 2043.40625,
+              "width": 166.328125,
+              "height": 21,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(241, 245, 249)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 21,
+              "client_height": 21,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 31,
+              "y": 506.78125,
+              "width": 313,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card select",
+              "text": "offlowmediumxhigh",
+              "x": 44,
+              "y": 2190.40625,
+              "width": 287,
+              "height": 42,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 40,
+              "client_height": 40,
+              "in_viewport": false
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "d2e59ee59251ffdd128e15b9da7368ad8d13e6acaf5e40a36eb022e95cb0e013",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/07-admin-provider-mobile.png"
+      },
+      {
+        "id": "08-admin-models-dark",
+        "title": "관리자 · 공개 모델과 기능 설정",
+        "view": "admin",
+        "theme": "dark",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "08-admin-models-dark-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full dark",
+          "document_width": 1425,
+          "document_height": 2272,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [
+            {
+              "value": "off",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "low",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "medium",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "high",
+              "disabled": true,
+              "checked": false
+            },
+            {
+              "value": "xhigh",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "max",
+              "disabled": true,
+              "checked": false
+            }
+          ],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        Strata PC",
+              "x": 104.5,
+              "y": -611,
+              "width": 1216,
+              "height": 2113.125,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 2113,
+              "client_height": 2113,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "Strata PC A · 설정 1",
+              "x": 377.5,
+              "y": -441.90625,
+              "width": 922,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 377.5,
+              "y": -401.40625,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 381.5,
+              "y": 14.78125,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-status",
+              "text": "마지막 목록 확인: 2026. 11. 4. 오후 1:00:00 · 목록은 60초 캐시",
+              "x": 356.5,
+              "y": 166.28125,
+              "width": 964,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card h3",
+              "text": "Qwen3.8 Flash Next",
+              "x": 377.5,
+              "y": 276.5625,
+              "width": 922,
+              "height": 24,
+              "font_size": "16px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 24,
+              "client_height": 24,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card p",
+              "text": "시험 통과 · 장비 업무 가능 · 추론 단계 확인됨",
+              "x": 377.5,
+              "y": 310.5625,
+              "width": 922,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card label",
+              "text": "표시 이름",
+              "x": 377.5,
+              "y": 343.65625,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card button",
+              "text": "모델 설정 저장",
+              "x": 381.5,
+              "y": 794.84375,
+              "width": 113.125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning",
+              "text": "사용자에게 허용할 추론 수준offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원새 선택의 기본 추론 수준offlowmediumxhighQwen3.8 Flash Next 지원 사전 설정: off / low / medium / xhigh. 허용 단계를 바꾸면 다시 시험해야 합니다. 모두 해제하면 추론 ",
+              "x": 377.5,
+              "y": 574.65625,
+              "width": 922,
+              "height": 202.1875,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 180,
+              "client_height": 200,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning legend",
+              "text": "사용자에게 허용할 추론 수준",
+              "x": 390.5,
+              "y": 574.65625,
+              "width": 166.328125,
+              "height": 21,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 21,
+              "client_height": 21,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 377.5,
+              "y": -374.40625,
+              "width": 454.5,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card select",
+              "text": "offlowmediumxhigh",
+              "x": 390.5,
+              "y": 655.65625,
+              "width": 896,
+              "height": 42,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 40,
+              "client_height": 40,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "14a2b3c85cb3819031ce1fcc2abec635441c1e42a9738b212965e8e8ec37f316",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/08-admin-models-dark-desktop.png"
+      },
+      {
+        "id": "08-admin-models-dark",
+        "title": "관리자 · 공개 모델과 기능 설정",
+        "view": "admin",
+        "theme": "dark",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "08-admin-models-dark-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full dark",
+          "document_width": 375,
+          "document_height": 3371,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [
+            {
+              "value": "off",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "low",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "medium",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "high",
+              "disabled": true,
+              "checked": false
+            },
+            {
+              "value": "xhigh",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "max",
+              "disabled": true,
+              "checked": false
+            }
+          ],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        Strata PC",
+              "x": 16,
+              "y": -1042,
+              "width": 343,
+              "height": 3180.4375,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 3180,
+              "client_height": 3180,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "Strata PC A · 설정 1",
+              "x": 31,
+              "y": -761.71875,
+              "width": 313,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 31,
+              "y": -721.21875,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 35,
+              "y": 53.15625,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-status",
+              "text": "마지막 목록 확인: 2026. 11. 4. 오후 1:00:00 · 목록은 60초 캐시",
+              "x": 16,
+              "y": 198.65625,
+              "width": 343,
+              "height": 46.1875,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 46,
+              "client_height": 46,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card h3",
+              "text": "Qwen3.8 Flash Next",
+              "x": 31,
+              "y": 395.3125,
+              "width": 313,
+              "height": 24,
+              "font_size": "16px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 24,
+              "client_height": 24,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card p",
+              "text": "시험 통과 · 장비 업무 가능 · 추론 단계 확인됨",
+              "x": 31,
+              "y": 429.3125,
+              "width": 313,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card label",
+              "text": "표시 이름",
+              "x": 31,
+              "y": 462.40625,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-model-card button",
+              "text": "모델 설정 저장",
+              "x": 35,
+              "y": 1197.875,
+              "width": 113.125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-reasoning",
+              "text": "사용자에게 허용할 추론 수준offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원새 선택의 기본 추론 수준offlowmediumxhighQwen3.8 Flash Next 지원 사전 설정: off / low / medium / xhigh. 허용 단계를 바꾸면 다시 시험해야 합니다. 모두 해제하면 추론 ",
+              "x": 31,
+              "y": 842.40625,
+              "width": 313,
+              "height": 337.46875,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 315,
+              "client_height": 335,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning legend",
+              "text": "사용자에게 허용할 추론 수준",
+              "x": 44,
+              "y": 842.40625,
+              "width": 166.328125,
+              "height": 21,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 21,
+              "client_height": 21,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 31,
+              "y": -694.21875,
+              "width": 313,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card select",
+              "text": "offlowmediumxhigh",
+              "x": 44,
+              "y": 989.40625,
+              "width": 287,
+              "height": 42,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 40,
+              "client_height": 40,
+              "in_viewport": false
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "4254c2aba8603acf4a3bd8c15be3b92f1b5cf1958a5c50355d74114b1e5a7e72",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/08-admin-models-dark-mobile.png"
+      },
+      {
+        "id": "09-admin-reasoning-dark",
+        "title": "관리자 · 추론 허용 단계와 기본값",
+        "view": "admin",
+        "theme": "dark",
+        "device": "desktop",
+        "viewport": {
+          "width": 1440,
+          "height": 1000
+        },
+        "file": "09-admin-reasoning-dark-desktop.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "theme": "h-full dark",
+          "document_width": 1425,
+          "document_height": 2272,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [
+            {
+              "value": "off",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "low",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "medium",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "high",
+              "disabled": true,
+              "checked": false
+            },
+            {
+              "value": "xhigh",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "max",
+              "disabled": true,
+              "checked": false
+            }
+          ],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        Strata PC",
+              "x": 104.5,
+              "y": -1087,
+              "width": 1216,
+              "height": 2113.125,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 2113,
+              "client_height": 2113,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "Strata PC A · 설정 1",
+              "x": 377.5,
+              "y": -917.90625,
+              "width": 922,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 377.5,
+              "y": -877.40625,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 381.5,
+              "y": -461.21875,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-status",
+              "text": "마지막 목록 확인: 2026. 11. 4. 오후 1:00:00 · 목록은 60초 캐시",
+              "x": 356.5,
+              "y": -309.71875,
+              "width": 964,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card h3",
+              "text": "Qwen3.8 Flash Next",
+              "x": 377.5,
+              "y": -199.4375,
+              "width": 922,
+              "height": 24,
+              "font_size": "16px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 24,
+              "client_height": 24,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card p",
+              "text": "시험 통과 · 장비 업무 가능 · 추론 단계 확인됨",
+              "x": 377.5,
+              "y": -165.4375,
+              "width": 922,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card label",
+              "text": "표시 이름",
+              "x": 377.5,
+              "y": -132.34375,
+              "width": 454.5,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card button",
+              "text": "모델 설정 저장",
+              "x": 381.5,
+              "y": 318.84375,
+              "width": 113.125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning",
+              "text": "사용자에게 허용할 추론 수준offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원새 선택의 기본 추론 수준offlowmediumxhighQwen3.8 Flash Next 지원 사전 설정: off / low / medium / xhigh. 허용 단계를 바꾸면 다시 시험해야 합니다. 모두 해제하면 추론 ",
+              "x": 377.5,
+              "y": 98.65625,
+              "width": 922,
+              "height": 202.1875,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 180,
+              "client_height": 200,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning legend",
+              "text": "사용자에게 허용할 추론 수준",
+              "x": 390.5,
+              "y": 98.65625,
+              "width": 166.328125,
+              "height": 21,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 21,
+              "client_height": 21,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 377.5,
+              "y": -850.40625,
+              "width": 454.5,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card select",
+              "text": "offlowmediumxhigh",
+              "x": 390.5,
+              "y": 179.65625,
+              "width": 896,
+              "height": 42,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 40,
+              "client_height": 40,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "eeee3e48f187041d77618088b29c33cb77b313921c5cb2a4003efcfdb43dafc8",
+        "image_size": {
+          "width": 1440,
+          "height": 1000
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/09-admin-reasoning-dark-desktop.png"
+      },
+      {
+        "id": "09-admin-reasoning-dark",
+        "title": "관리자 · 추론 허용 단계와 기본값",
+        "view": "admin",
+        "theme": "dark",
+        "device": "mobile",
+        "viewport": {
+          "width": 390,
+          "height": 844
+        },
+        "file": "09-admin-reasoning-dark-mobile.png",
+        "metrics": {
+          "ready": true,
+          "viewport": {
+            "width": 390,
+            "height": 844
+          },
+          "theme": "h-full dark",
+          "document_width": 375,
+          "document_height": 3371,
+          "body_background": "rgb(15, 23, 42)",
+          "errors": [],
+          "reasoning_options": [],
+          "admin_reasoning": [
+            {
+              "value": "off",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "low",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "medium",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "high",
+              "disabled": true,
+              "checked": false
+            },
+            {
+              "value": "xhigh",
+              "disabled": false,
+              "checked": true
+            },
+            {
+              "value": "max",
+              "disabled": true,
+              "checked": false
+            }
+          ],
+          "elements": [
+            {
+              "selector": "#ai-providers-admin",
+              "text": "사용자에게 공개할 AI 연결과 모델을 관리합니다. 같은 PC·GPU·백엔드를 공유하는 연결은 같은 자원 그룹을 선택하세요. 장비관리 요청만 그룹별 한 개씩 처리합니다.\n  \n  연결 추가새로고침독립 암호화 키 설정됨\n  \n    Strata PC AStrata PC B\n    \n      \n        Strata PC",
+              "x": 16,
+              "y": -1753,
+              "width": 343,
+              "height": 3180.4375,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 3180,
+              "client_height": 3180,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-heading",
+              "text": "Strata PC A · 설정 1",
+              "x": 31,
+              "y": -1472.71875,
+              "width": 313,
+              "height": 28.5,
+              "font_size": "19px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 29,
+              "client_height": 29,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-form label",
+              "text": "연결 이름",
+              "x": 31,
+              "y": -1432.21875,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-save",
+              "text": "연결 저장",
+              "x": 35,
+              "y": -657.84375,
+              "width": 83.453125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": "#provider-status",
+              "text": "마지막 목록 확인: 2026. 11. 4. 오후 1:00:00 · 목록은 60초 캐시",
+              "x": 16,
+              "y": -512.34375,
+              "width": 343,
+              "height": 46.1875,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 46,
+              "client_height": 46,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card h3",
+              "text": "Qwen3.8 Flash Next",
+              "x": 31,
+              "y": -315.6875,
+              "width": 313,
+              "height": 24,
+              "font_size": "16px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 24,
+              "client_height": 24,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card p",
+              "text": "시험 통과 · 장비 업무 가능 · 추론 단계 확인됨",
+              "x": 31,
+              "y": -281.6875,
+              "width": 313,
+              "height": 23.09375,
+              "font_size": "14px",
+              "color": "rgb(184, 197, 214)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 23,
+              "client_height": 23,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card label",
+              "text": "표시 이름",
+              "x": 31,
+              "y": -248.59375,
+              "width": 313,
+              "height": 68,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 68,
+              "client_height": 68,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card button",
+              "text": "모델 설정 저장",
+              "x": 35,
+              "y": 486.875,
+              "width": 113.125,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning",
+              "text": "사용자에게 허용할 추론 수준offlowmediumhigh · 모델 미지원xhighmax · 모델 미지원새 선택의 기본 추론 수준offlowmediumxhighQwen3.8 Flash Next 지원 사전 설정: off / low / medium / xhigh. 허용 단계를 바꾸면 다시 시험해야 합니다. 모두 해제하면 추론 ",
+              "x": 31,
+              "y": 131.40625,
+              "width": 313,
+              "height": 337.46875,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 315,
+              "client_height": 335,
+              "in_viewport": true
+            },
+            {
+              "selector": ".provider-reasoning legend",
+              "text": "사용자에게 허용할 추론 수준",
+              "x": 44,
+              "y": 131.40625,
+              "width": 166.328125,
+              "height": 21,
+              "font_size": "14px",
+              "color": "rgb(226, 232, 240)",
+              "background": "rgb(15, 23, 42)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 21,
+              "client_height": 21,
+              "in_viewport": true
+            },
+            {
+              "selector": "#provider-form input[name=name]",
+              "text": "",
+              "x": 31,
+              "y": -1405.21875,
+              "width": 313,
+              "height": 41,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 39,
+              "client_height": 39,
+              "in_viewport": false
+            },
+            {
+              "selector": ".provider-model-card select",
+              "text": "offlowmediumxhigh",
+              "x": 44,
+              "y": 278.40625,
+              "width": 287,
+              "height": 42,
+              "font_size": "14px",
+              "color": "rgb(37, 48, 68)",
+              "background": "rgb(255, 255, 255)",
+              "disabled": false,
+              "hidden": false,
+              "scroll_height": 40,
+              "client_height": 40,
+              "in_viewport": true
+            }
+          ]
+        },
+        "browser_exit": 0,
+        "sha256": "0b30a921a8097aef8b26eba32d492b66a7139437a239a6a51d49e59775f40910",
+        "image_size": {
+          "width": 500,
+          "height": 844
+        },
+        "path": "Reports/2026/11/04/011_AI_UI_Reasoning_Screens/samples/09-admin-reasoning-dark-mobile.png"
+      }
+    ],
+    "platform": "linux",
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "model_called": false,
+    "source_files": [
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai.css",
+        "sha256": "40f21a5512be3335379ebfc29d9485dc3d813dd4fd843f63e8d0005f1fead322"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai_providers.css",
+        "sha256": "885757033707396ca6855f5b39d8539949869af3fedb3502c47274eeff80d669"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai.js",
+        "sha256": "ceae833d8914bae4cd911d7155ffaf206525e380b708b5bc392402c16b6fff36"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai_providers.js",
+        "sha256": "d1fbdda82be68e999d5b3689e23239029f55bbf85c2eb94c36780b4614356e58"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/static/js/session_timer.js",
+        "sha256": "2c27c0874fcb2fac567903553365db2efaac9549e5c1167e38e484138dc6c105"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai.html",
+        "sha256": "c7808e61eb0c5fa919713e31e7f0f7c1b5ef5aba478cf8db4a5321e664488a65"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai_providers.html",
+        "sha256": "87f74d1b0ba8727e6b0f65d213b6b696027383a40f4a71e943de6c5788d35215"
+      },
+      {
+        "path": "static/css/components.css",
+        "sha256": "df0fa37e7c9f429d0429624b0dbf83d46b3bfb094e1485cab2630175fdc7eb7c"
+      },
+      {
+        "path": "static/css/layout.css",
+        "sha256": "aa8dab6e10aa1272047de089e680dad24f33ad815c7a5f17791ff8d555d8860c"
+      },
+      {
+        "path": "static/css/roadmap.css",
+        "sha256": "a88eeac20ea0cc03ca8c4574c111cfc7046124c62faad0a7372149980a82a071"
+      },
+      {
+        "path": "static/js/catalog_requests.js",
+        "sha256": "37206f040da75e3ad1d274f83f39e51205830463d188410b7453f463c381525e"
+      },
+      {
+        "path": "static/js/common.js",
+        "sha256": "984a2fd3a7202052fd34ce557a7dfa251da5adf23f0ddcbb582884726f18e562"
+      },
+      {
+        "path": "static/js/menu_cards.js",
+        "sha256": "8da32071d13c91ff9e501740d8316bb9a4e6d424c8100489afb0191c697be6ca"
+      },
+      {
+        "path": "static/js/navigation.js",
+        "sha256": "0739162e3b150560db8656753556b1dc09fad6195dc8dce04f59798a2ea6b991"
+      },
+      {
+        "path": "static/js/roadmap_preferences.js",
+        "sha256": "d314c392694173865a9bb979a4d77ddc58264ad785340bee9ae11616c31a319b"
+      },
+      {
+        "path": "static/js/tailwindcss.js",
+        "sha256": "f095de8d799a0281a19b0e349553ecb105c4b16dd4b94a2d568ad5fbd172cd79"
+      },
+      {
+        "path": "templates/miniserver_frame.html",
+        "sha256": "636a4796a0d185dfbf0e3b84088716185c58d62c487f524d7c281e63e7a5faf1"
+      },
+      {
+        "path": "templates/root_frame.html",
+        "sha256": "5a85bff8ce175b2aca5352dac17909e9b6c2ce883c3916390dade263a5407a7c"
+      }
+    ],
+    "capture_sources": [
+      {
+        "path": "Staging/20261104-ai-ui-refinements/capture.py",
+        "sha256": "55e09b4e720c5d3cd6da5be9b57fbe9b86ce95543f5ffbb8c9a4e604e074392f"
+      },
+      {
+        "path": "Staging/20261104-ai-ui-refinements/sample_bootstrap.js",
+        "sha256": "4b5bef7ad5adc5fb9a5f36d5728c2469430f3152cb8def2983750cd3f7cd1b0d"
+      },
+      {
+        "path": "Staging/20261104-ai-ui-refinements/inspect_sample.js",
+        "sha256": "7ea2887cbb279f4f94bd20cc325d9538b5a337dbca12fb09df3071bc1a43fa2d"
+      }
+    ],
+    "method": "Current source Jinja/JS/CSS; synthetic GET responses only; local Tailwind fallback; no product design override CSS; fixed child viewports desktop 1440x1000 and mobile 390x844 (mobile native PNG 500x844 including neutral outside gutters)."
+  },
+  "verification_boundaries": [
+    "No live Strata PC or real model generated a response during this change.",
+    "Known automatic effort preset is scoped to the existing Strata Qwen Flash Next family; other model/engine combinations require explicit admin settings and capability verification.",
+    "A short nonce probe establishes protocol/output compatibility; it cannot prove a provider actually distinguishes every effort intensity.",
+    "Native mobile keyboard, zoom, screen reader, cross-browser, real production app startup and release rollback were not exercised."
+  ],
+  "reproduce": {
+    "tests": "python Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py --browser",
+    "screens": "python Staging/20261104-ai-ui-refinements/capture.py --output Reports/2026/11/04/011_AI_UI_Reasoning_Screens/<new-output-directory>"
+  }
+}

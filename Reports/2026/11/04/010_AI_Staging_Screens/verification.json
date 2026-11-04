@@ -1,0 +1,222 @@
+{
+  "schema_version": 1,
+  "work_id": "REVIEW-20261104-AI-STAGING-SCREENS",
+  "verified_at": "2026-11-04T20:31:54.492060+09:00",
+  "status": "pass",
+  "errors": [],
+  "png_count": 18,
+  "gallery_references": 18,
+  "render_ready": 18,
+  "javascript_exceptions": 0,
+  "horizontal_overflow": 0,
+  "source_preservation": {
+    "source_files": {
+      "count": 25,
+      "changed": []
+    },
+    "fixture_base_files": {
+      "count": 11,
+      "changed": []
+    },
+    "preserved_files": {
+      "count": 6,
+      "changed": []
+    }
+  },
+  "root_app_sha256": "6244893711252f6c78bf36c53cc010bbb485e22c773ebff038d8f7d3eee8a581",
+  "baseline_manifest_sha256": "45c425393f5e867dc4579c9be8af22aed45c54cf05138f577180384f32eff819",
+  "python_ast": [
+    "capture.py",
+    "embedded REMOTE"
+  ],
+  "harness_evolution": [
+    {
+      "run": "main-16",
+      "changed_since_capture": [
+        {
+          "path": "Staging/20261104-user-ai-screens/sample_bootstrap.js",
+          "captured_sha256": "0cdc364c67a294af318cdf0653b80aa3c3f10fc7bbd44ec89d4e09a99bc06d4a",
+          "current_sha256": "5d621e04779b764530fefdce292f89f08f31415a9f65b139b8551691d846b2ec"
+        },
+        {
+          "path": "Staging/20261104-user-ai-screens/inspect_sample.js",
+          "captured_sha256": "3a6ae88b0bfffb165ad33221e3ef0bfb31a781f2674ea601b9961bbb09cea5be",
+          "current_sha256": "ef4a7cd83e8c2ec2b44d96da437175e0f689b8ece600d38acebe3598730f7b48"
+        }
+      ]
+    },
+    {
+      "run": "confirmation-detail-2",
+      "changed_since_capture": []
+    }
+  ],
+  "pngs": [
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/01-user-welcome-desktop.png",
+      "sha256": "996ad84406d812d81b74aa7fb2187a351928b66d531f9d4973beba01e33731b0",
+      "size_bytes": 86100,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/01-user-welcome-mobile.png",
+      "sha256": "dcd47e0ed31f9a3a94565eecb5ace11f8340c9b1801a38ecc367f2bdae92f295",
+      "size_bytes": 58885,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/02-user-thinking-desktop.png",
+      "sha256": "b03f7448a43918b977d9cdb040ddb74eed8281428266fce1cb78d07d8a3cadec",
+      "size_bytes": 101128,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/02-user-thinking-mobile.png",
+      "sha256": "86bdbded48802f50dc0b5431d9c49f5ae064b82e8e78bb6769ab7cb7c56b7757",
+      "size_bytes": 67545,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/03-user-review-desktop.png",
+      "sha256": "457a580216a30f633673ea316ba2e719e05abc24f9e8277fcef320d727973dd3",
+      "size_bytes": 105096,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/03-user-review-mobile.png",
+      "sha256": "ae0047f44cd768a0c51228b41fd48fd1b5a04861bfcfa9e50bf5b360b3e70883",
+      "size_bytes": 65028,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/04-user-model-switch-desktop.png",
+      "sha256": "8b09bff195f8c819fecb5cedbb2c7fdfe05dedb097e1a7c538f5984baa321821",
+      "size_bytes": 99149,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/04-user-model-switch-mobile.png",
+      "sha256": "46cded33d7a95b83a38c9406a1182f7dd187fec684219a54ae150be25de02ee8",
+      "size_bytes": 69837,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/05-user-recovery-desktop.png",
+      "sha256": "8a8c02ecf512049f0f2000c370ae31d8de74940f8be98da5240f603c1c9906bc",
+      "size_bytes": 113300,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/05-user-recovery-mobile.png",
+      "sha256": "0087b3845c2af473cadeb641ed4f79fe9b4c03c8943424c1c8e2445a24f4961c",
+      "size_bytes": 77643,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/06-admin-new-desktop.png",
+      "sha256": "4d826c58dc24acb6f85ec1e7f093afcdde4460870a19744ff5ed85638a4dbf37",
+      "size_bytes": 92141,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/06-admin-new-mobile.png",
+      "sha256": "98009eab899b95f49dd4023387d80249e7e85f01a45342792acb9a0d5674f98f",
+      "size_bytes": 52364,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/07-admin-provider-desktop.png",
+      "sha256": "ae98c4b7364f061b9642d575ab772b94d1262be1b73c36440d1f806359e39233",
+      "size_bytes": 115724,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/07-admin-provider-mobile.png",
+      "sha256": "5e724634e250014ceef5bfd75970809d15fc1cf7d53c5861a6ef42b0c50ed06a",
+      "size_bytes": 54725,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/08-admin-models-dark-desktop.png",
+      "sha256": "cd6651cb5543c848fcc9a519193997f0cae406d73b9b2938e288e3e0be676d3b",
+      "size_bytes": 87996,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/final/08-admin-models-dark-mobile.png",
+      "sha256": "64d1ca7959c244751716fa2309a9191ee32b458cf395e1e8cde82420cfd81316",
+      "size_bytes": 56081,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/confirmation-full/03-user-review-desktop.png",
+      "sha256": "97582cd80a174b7f9bd0a689eede5c5bdb562afd1e25b0d5708fb9ac0b44170d",
+      "size_bytes": 106088,
+      "image_size": {
+        "width": 1440,
+        "height": 1000
+      }
+    },
+    {
+      "path": "Reports/2026/11/04/010_AI_Staging_Screens/confirmation-full/03-user-review-mobile.png",
+      "sha256": "cf2db084bcdd46cf25eaa0a960059137898a2826351bf0cbdb496a0fd439834b",
+      "size_bytes": 64505,
+      "image_size": {
+        "width": 500,
+        "height": 844
+      }
+    }
+  ],
+  "excluded_pngs": {
+    "capture-diagnostic": 2,
+    "samples": 16,
+    "confirmation-details": 2
+  }
+}

@@ -1,0 +1,401 @@
+{
+  "schema_version": 1,
+  "work_id": "IMPLEMENT-20261104-MULTI-PROVIDER-AI",
+  "completed_at": "2026-11-04T19:22:49.1606326+09:00",
+  "status": "completed-staging",
+  "execution_profile": {
+    "kind": "legacy",
+    "reason": "runtime-session-mismatch"
+  },
+  "scope": {
+    "staging": "Staging/20261104-user-ai-assistant/overlay",
+    "production_deployed": false,
+    "git_commit_or_push": false,
+    "production_app_imported": false,
+    "production_database_opened": false
+  },
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 106,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 210.945,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "baseline_cases": 68,
+    "multi_provider_and_regression_cases": 38,
+    "host": "eqmgmt-backup",
+    "fixture": "synthetic temporary databases + loopback fake providers",
+    "dependency": {
+      "cryptography": "50.0.2",
+      "installation": "temporary directory only; production venv unchanged"
+    }
+  },
+  "browser": {
+    "total_checks": 83,
+    "views": [
+      {
+        "status": "pass",
+        "checks": [
+          "three-levels",
+          "provider-model-picker",
+          "conversation-reasoning-restored",
+          "older-conversations-reachable",
+          "base-and-extra-budget-visible",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "multistep-reasoning-preserved",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "no-repeated-auto-collapse",
+          "no-auto-collapse-on-next-generation",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "older-messages-prepended",
+          "history-loading-preserves-live-details",
+          "csv-preview-user-language",
+          "live-failed-job-stopped-with-reason",
+          "failed-reason-persists-on-reopen",
+          "chat-only-supported-controls",
+          "model-label-xss-safe",
+          "model-choice-restored-on-reopen",
+          "accepted-answer-provenance-survives-model-change",
+          "unsupported-reasoning-help-correct",
+          "legacy-chat-does-not-inherit-other-session-model"
+        ],
+        "width": 1440,
+        "exit_code": 0,
+        "view": "assistant"
+      },
+      {
+        "status": "pass",
+        "checks": [
+          "three-levels",
+          "provider-model-picker",
+          "conversation-reasoning-restored",
+          "older-conversations-reachable",
+          "base-and-extra-budget-visible",
+          "reasoning-opens-live",
+          "answer-auto-collapses-once",
+          "user-can-reopen",
+          "poll-keeps-user-expanded",
+          "multistep-reasoning-preserved",
+          "reasoning-separate-from-answer",
+          "model-html-stays-text",
+          "safe-markdown",
+          "no-horizontal-overflow",
+          "mobile-conversations",
+          "no-repeated-auto-collapse",
+          "no-auto-collapse-on-next-generation",
+          "safe-links",
+          "confirmed-result-user-language",
+          "receipt-history-user-language",
+          "older-messages-prepended",
+          "history-loading-preserves-live-details",
+          "csv-preview-user-language",
+          "live-failed-job-stopped-with-reason",
+          "failed-reason-persists-on-reopen",
+          "chat-only-supported-controls",
+          "model-label-xss-safe",
+          "model-choice-restored-on-reopen",
+          "accepted-answer-provenance-survives-model-change",
+          "unsupported-reasoning-help-correct",
+          "legacy-chat-does-not-inherit-other-session-model"
+        ],
+        "width": 430,
+        "exit_code": 0,
+        "view": "assistant"
+      },
+      {
+        "status": "pass",
+        "view": "admin",
+        "checks": [
+          "key-write-only",
+          "provider-label-xss-safe",
+          "automatic-inventory-default",
+          "shared-group-control",
+          "key-cleared-and-optional-manual-enabled",
+          "admin-mutation-csrf-revision",
+          "model-alias-edit",
+          "capability-test-queue-and-poll",
+          "advanced-customization-deferred",
+          "soft-retire-visible",
+          "admin-responsive-no-overflow"
+        ],
+        "width": 1440,
+        "exit_code": 0
+      },
+      {
+        "status": "pass",
+        "view": "admin",
+        "checks": [
+          "key-write-only",
+          "provider-label-xss-safe",
+          "automatic-inventory-default",
+          "shared-group-control",
+          "key-cleared-and-optional-manual-enabled",
+          "admin-mutation-csrf-revision",
+          "model-alias-edit",
+          "capability-test-queue-and-poll",
+          "advanced-customization-deferred",
+          "soft-retire-visible",
+          "admin-responsive-no-overflow"
+        ],
+        "width": 430,
+        "exit_code": 0
+      }
+    ],
+    "base": "current local root/miniserver frame and common static packed with candidate",
+    "real_providers": false
+  },
+  "static_checks": {
+    "python_ast_files": 14,
+    "javascript_syntax_files": 3,
+    "status": "pass"
+  },
+  "governance": {
+    "version": "1.8.1",
+    "nodes": 44,
+    "errors": 0,
+    "warnings": 0,
+    "status": "pass"
+  },
+  "storage": {
+    "history_chars": 32000000,
+    "default_completion_extension_chars": 32000000,
+    "turn_reservation_chars": 458912,
+    "draft_max_chars": 16384,
+    "handoff_summary_max_chars": 16384,
+    "csv_audit_original_budget_bytes": 2147483648
+  },
+  "source_files": [
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/app.py",
+      "sha256": "6379CA65624174453520E2F85FF429D6BD9C35765E8DB52BB9862103E2D91334"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/requirements.txt",
+      "sha256": "7AB567FC044CC5B74D26ABC6CAC39B546E79B1265EAF0D7D571DABC2EAF9CAD4"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai_providers.css",
+      "sha256": "12D7894872EEAD5182428AE1715C71108AF86141432A91C94DA9E1D14FA449C6"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/css/equipment_ai.css",
+      "sha256": "E4383DC14FB435F5062DE43D685B773749BF22B4AC3DB684EE0827257EE6A0CE"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai_providers.js",
+      "sha256": "8DDB164CE35E48EECF64CF70F1B7F419907C976E9814CD8D9B1DAEB3C83A5469"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/equipment_ai.js",
+      "sha256": "736AF966FF2BFB920DBD97741C4B49BD28AD6DFC6F4F289B91C2AD7E29DEE3F1"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/static/js/session_timer.js",
+      "sha256": "2C27C0874FCB2FAC567903553365DB2EFAAC9549E5C1167E38E484138DC6C105"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/systemd/equipment-ai-worker.service",
+      "sha256": "A31E6D9726F8CBE43CE8573253A76CB33C6F2A4CF41EB784B0B21C3B67FBEE71"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai_providers.html",
+      "sha256": "B3E79CC0B7D0BB1F427463DBBC34C73AEE8518809AF0FC1E46B486D7BF497F07"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/templates/equipment_ai.html",
+      "sha256": "BCA593AC02D6D312D2875AFC2A21B9B09A7FD33BED5D2D18E1C5CB4D1E8ACBDD"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/assistant_browser_fixture.py",
+      "sha256": "4A740E19526BC6F71A23B542A023CC06E8720EC7F0B94ACD6CE45F55E661E4FD"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py",
+      "sha256": "FA08FBFB741A21273EB2D966FE3965FA8F0775ACAE7A4D21E5F1C33CD6A2AB0C"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_equipment_ai.py",
+      "sha256": "6575D4E39F4F790B6A0645ADB65FB649476F7DAF3B653095313DD75FEA70EC56"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/tests/test_multi_provider_ai.py",
+      "sha256": "D1B85A339215C24DB1D89A6EA3DE2E47073D50EBB860C7AFB26F4F5495792266"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+      "sha256": "D265E2C10EF4FF6C49505A036DC2D3845897D9D3A533AC11CA8AB59FA9F09A89"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/audit.py",
+      "sha256": "5DDC8E649E47E253D8BF6530718F27BD35B676488A48AE3386801C303783EBEC"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/context.py",
+      "sha256": "28B429F87E80C23BEAF9F87018AFC902B4B5311E05521D853791A7EC2A8368A4"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/domain.py",
+      "sha256": "84614C7E73A0E08947126103B74A59F0AA310DA87D5ABB1A818DFA32053FDB39"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/policy.py",
+      "sha256": "2DB15DF59AA783BD91D9889DE6227357BE1F4252ECE7FA78C9D571D432292CEE"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/providers.py",
+      "sha256": "F97C0A71D0F1502DD07664C0C785C07431DC54028409C1F9080AF53F2EDE3271"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/store.py",
+      "sha256": "8B0058C887A3EE34C8AF836097B0FC70A82F2B89EBED761390927D2348ECF453"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/transport.py",
+      "sha256": "D71FC36DB6D3970DC7D8A4E890A7811B950D89B897A824E96368639F3A4E5CFE"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/worker.py",
+      "sha256": "618B9F98589443E5BD1E747FB05A10244788C69D544E5D565CEF344D9BF3562C"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/README.md",
+      "sha256": "8D12069A31B73EBF80D7805E73CE3C4D1AB86918186C63711DADDC8872E4D62F"
+    },
+    {
+      "path": "Staging/20261104-user-ai-assistant/MULTI-PROVIDER-SETUP.md",
+      "sha256": "FD0649BFE680ABECC7A5CB9705D0C022C32D0EDC0796BC6EA8A2762D57305AE8"
+    }
+  ],
+  "fixture_base_files": [
+    {
+      "path": "templates/root_frame.html",
+      "sha256": "5A85BFF8CE175B2ACA5352DAC17909E9B6C2CE883C3916390DADE263A5407A7C"
+    },
+    {
+      "path": "templates/miniserver_frame.html",
+      "sha256": "636A4796A0D185DFBF0E3B84088716185C58D62C487F524D7C281E63E7A5FAF1"
+    },
+    {
+      "path": "static/css/layout.css",
+      "sha256": "AA8DAB6E10AA1272047DE089E680DAD24F33AD815C7A5F17791FF8D555D8860C"
+    },
+    {
+      "path": "static/css/components.css",
+      "sha256": "DF0FA37E7C9F429D0429624B0DBF83D46B3BFB094E1485CAB2630175FDC7EB7C"
+    },
+    {
+      "path": "static/css/roadmap.css",
+      "sha256": "A88EEAC20EA0CC03CA8C4574C111CFC7046124C62FAAD0A7372149980A82A071"
+    },
+    {
+      "path": "static/js/common.js",
+      "sha256": "984A2FD3A7202052FD34CE557A7DFA251DA5ADF23F0DDCBB582884726F18E562"
+    },
+    {
+      "path": "static/js/roadmap_preferences.js",
+      "sha256": "D314C392694173865A9BB979A4D77DDC58264AD785340BEE9AE11616C31A319B"
+    },
+    {
+      "path": "static/js/navigation.js",
+      "sha256": "0739162E3B150560DB8656753556B1DC09FAD6195DC8DCE04F59798A2EA6B991"
+    },
+    {
+      "path": "static/js/menu_cards.js",
+      "sha256": "8DA32071D13C91FF9E501740D8316BB9A4E6D424C8100489AFB0191C697BE6CA"
+    },
+    {
+      "path": "static/js/catalog_requests.js",
+      "sha256": "37206F040DA75E3AD1D274F83F39E51205830463D188410B7453F463C381525E"
+    },
+    {
+      "path": "static/js/tailwindcss.js",
+      "sha256": "F095DE8D799A0281A19B0E349553ECB105C4B16DD4B94A2D568AD5FBD172CD79"
+    }
+  ],
+  "preserved_files": [
+    {
+      "p": "Reports/2026/11/04/005_User_AI_Assistant_Post_Correction_Static_Inspection_Report.md",
+      "h": "92B2C930E47B9897D9860CC74D661EFC86502EACF870A2CAAD0414A12B875ED3"
+    },
+    {
+      "p": "Plans/2026/11/04/005_User_AI_Assistant_Post_Correction_Static_Inspection_Plan.md",
+      "h": "6A5E7D58D4845B6519EF8D08AE6CC837536262B6B8BED949351F7669DF3F4DFC"
+    },
+    {
+      "p": "Tasks/2026/11/04/005_User_AI_Assistant_Post_Correction_Static_Inspection_Task.md",
+      "h": "0D98B701CBBE8DB02147A12D704583A7A6920E835C1E66496379050AF197180A"
+    },
+    {
+      "p": "Reports/2026/11/04/007_Hermes_Style_AI_Plan_Comparison_Report.md",
+      "h": "35A918213BF5573A75A34FC395AB5409E8E2B45CA708812ADC0D72F39BA7A304"
+    },
+    {
+      "p": "app.py",
+      "h": "6244893711252F6C78BF36C53CC010BBB485E22C773EBFF038D8F7D3EEE8A581"
+    },
+    {
+      "p": "utils/lineup_node_service.py",
+      "h": "607A64ADD0C398B53F96ACB0EA38CBAC98B1FB53B5599BFC8FF61B8A81D83D2A"
+    }
+  ],
+  "new_annotation_only_changes": {
+    "scope": "new core functions only; existing D07/KO audit deferred",
+    "semantic_ast_unchanged": true,
+    "tested_semantic_hashes": [
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/transport.py",
+        "semantic_sha256": "ab73cb7b2d6c0049221fa857f945271e93de27e9e629daca42f0c996fd9e7d3c"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/providers.py",
+        "semantic_sha256": "76a45f5b4c472b7259532d21c7c18b792612506393c332c32b5bf00bbb797b5b"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/context.py",
+        "semantic_sha256": "bda41bfb669da6a1891998de489db8c8008382dad74bd0bf6d473db615e3bfa6"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+        "semantic_sha256": "2fe94c9240f973ebe46a0ab2962e10f306218bafb05c9248fdf72a52e211adf7"
+      }
+    ],
+    "final_semantic_hashes": [
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/transport.py",
+        "semantic_sha256": "ab73cb7b2d6c0049221fa857f945271e93de27e9e629daca42f0c996fd9e7d3c"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/providers.py",
+        "semantic_sha256": "76a45f5b4c472b7259532d21c7c18b792612506393c332c32b5bf00bbb797b5b"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/context.py",
+        "semantic_sha256": "bda41bfb669da6a1891998de489db8c8008382dad74bd0bf6d473db615e3bfa6"
+      },
+      {
+        "path": "Staging/20261104-user-ai-assistant/overlay/utils/ai_assistant/__init__.py",
+        "semantic_sha256": "2fe94c9240f973ebe46a0ab2962e10f306218bafb05c9248fdf72a52e211adf7"
+      }
+    ]
+  },
+  "reproduce": "python Staging/20261104-user-ai-assistant/overlay/tests/run_assistant_fixture.py --browser",
+  "not_exercised": [
+    "real LAN provider/model connectivity and quality",
+    "production full application startup or deployment",
+    "production restore drill or long-duration/load testing",
+    "native Ollama adapter",
+    "advanced endpoint customization UI",
+    "existing D07 bulk annotation/KO audit"
+  ]
+}

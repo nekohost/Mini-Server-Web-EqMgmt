@@ -1,0 +1,28 @@
+# [MINI-COMMENT: ASSISTANT.WORKER.UNIT]
+# [EN rev.1]
+# [Role] Optional per-user worker unit; not installed or enabled by this candidate.
+# [Dependencies] Private server environment and the verified project venv.
+# [Impact] Stops only this application worker, never the shared Strata model/service.
+[Unit]
+Description=Equipment management AI queue worker
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/services/Mini-Server-Web-EqMgmt
+EnvironmentFile=%h/.config/eqmgmt/assistant-worker.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=%h/services/Mini-Server-Web-EqMgmt/.venv/bin/python -m utils.ai_assistant.worker
+Restart=on-failure
+RestartSec=10
+KillSignal=SIGTERM
+TimeoutStopSec=1900
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=default.target

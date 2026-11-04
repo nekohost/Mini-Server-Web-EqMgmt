@@ -110,7 +110,8 @@
     // 서버에 세션 유효성(동시 로그인 여부 등)을 주기적으로 확인하는 폴링 함수
     async function pollSession() {
         try {
-            const response = await originalFetch('/api/check_session');
+            const options = document.getElementById('equipment-ai') ? {headers: {'X-Assistant-Poll': '1'}} : undefined;
+            const response = await originalFetch('/api/check_session', options);
             if (response.status === 401) {
                 const data = await response.json();
                 if (data.reason === 'concurrent_login') {
@@ -132,11 +133,19 @@
     window.fetch = async function(...args) {
         const url = typeof args[0] === 'string' ? args[0] : args[0].url;
         const result = await originalFetch.apply(this, args);
+        /* [MINI-COMMENT: ASSISTANT.SESSION.PASSIVE]
+         * [EN rev.1]
+         * [Role] Excludes automatic assistant polling from activity resets.
+         * [Dependencies] Server passive cookie policy.
+         * [Impact] Explicit activity and 401 handling are preserved.
+         */
+        const headers = new Headers(args[1]?.headers || (typeof Request !== 'undefined' && args[0] instanceof Request ? args[0].headers : undefined));
+        const passive = headers.get('X-Assistant-Poll') === '1';
         
         // extend_session 자체 호출은 위에서 명시적으로 처리하므로 제외
         if (url && !url.includes('/api/extend_session')) {
             // 다른 API 통신이 성공적이면 백엔드 세션도 연장된 것이므로 프론트엔드도 리셋
-            if (result.ok) {
+            if (result.ok && !passive) {
                 resetSessionTimer();
             } else if (result.status === 401) {
                 // 동시 로그인 등에 의해 401 Unauthorized 발생 시 즉각 새로고침하여 로그인창으로

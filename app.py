@@ -38,6 +38,8 @@ from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
 from utils.roadmap_auth import email_verification_proof, matches_email_verification
 from utils.strata_integration import install_strata, visible_portal_menus  # 관리자용 Strata 화면과 중계 접근 계약.
+from utils.ai_assistant import install_assistant, visible_assistant_menus  # 독립 사용자 AI·내부 큐·서버 권한 경계.
+from utils.ai_assistant.audit import audit_body  # 감사 사건·본문을 보존하고 인증값 원문만 보호합니다.
 
 # [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
 warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
@@ -1272,6 +1274,14 @@ def maintenance_request_gate():
     state_name = maintenance_state['state']
     if state_name == 'NORMAL':
         return None
+    # [MINI-COMMENT: ASSISTANT.MAINTENANCE.CLEANUP]
+    # [EN rev.1]
+    # [Role] Allows only authenticated current-lease cleanup against the independent AI DB.
+    # [Dependencies] Assistant's fixed-method/path verifier; never browser roles or equipment DB.
+    # [Impact] Maintenance blocks new claims/tools while existing own responses can drain and report completion.
+    cleanup = app.extensions.get('equipment_assistant', {}).get('maintenance_cleanup')
+    if cleanup and cleanup():
+        return None
     # 정적 자원과 공개 점검 상태는 안내 화면 렌더링에 필요하므로 항상 허용합니다.
     if request.path.startswith('/static/') or request.path in STATIC_METADATA_ROUTES_FROZEN or request.path == '/favicon.ico':
         return None
@@ -1342,18 +1352,39 @@ def after_request_func(response):
             or request.path.startswith('/api/equipment/csv/')
             or ('/files' in request.path and request.path.startswith('/api/equipment/')))  # 신규 바이너리/확정토큰은 메타데이터만 기록합니다. 기존 일반 로그 정책은 유지합니다.
         # [제안-040, 043] 일반 변경 요청만 Payload를 수집하고 민감 DB 작업은 메타데이터만 기록합니다.
+        is_ai = request.path in ('/assistant','/admin/ai/providers') or request.path.startswith(('/api/ai/','/internal/ai/','/api/admin/ai/'))
         request_payload = (request.get_data(as_text=True)
                            if request.method in ["POST", "PUT", "PATCH", "DELETE"]
-                           and not is_sensitive_database_operation else None)
+                           and not is_sensitive_database_operation and not is_ai else None)
 
         response_payload = None
         # [제안-043] /api/access_logs 계열 응답은 ResponsePayload에서 제외하여 재귀적 DB 비대화 및 락 교착 방어
         if (not is_static and not request.path.startswith('/api/access_logs')
-                and not is_sensitive_database_operation):
+                and not is_sensitive_database_operation and not is_ai):
             try:
                 response_payload = response.get_data(as_text=True)
             except Exception:
                 pass # 바이너리 데이터 등 텍스트 변환 실패 시 무시
+
+        # [MINI-COMMENT: ASSISTANT.AUDIT.GLOBAL]
+        # [EN rev.2]
+        # [Role] Retains AI request/response audit content while fingerprinting reusable credentials.
+        # [Dependencies] The pure audit formatter and server-owned current secret values.
+        # [Impact] AI events are still written to access_logs; the default formatter never returns raw secrets on failure.
+        if is_ai:
+            from utils.ai_assistant.audit import http_payloads
+            try:
+                request_payload, response_payload = http_payloads(request, response, g)
+            except Exception as error:
+                # Body capture failure must not suppress the access event itself or reread rejected wire data.
+                request_payload = json.dumps({'audit_body_unavailable': type(error).__name__}, ensure_ascii=False)
+                response_payload = None
+            protected_values = (app.secret_key, app.config.get('USER_AI_WORKER_TOKEN'),
+                session.get('csrf_token'), session.get('session_token'),
+                request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session')),
+                request.headers.get('Authorization'), request.headers.get('Authorization', '').removeprefix('Bearer '))
+            request_payload = audit_body(request_payload, app.secret_key, protected_values)
+            response_payload = audit_body(response_payload, app.secret_key, protected_values)
 
         # KST 일시 생성
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -4415,7 +4446,7 @@ def get_portal_menus():
     rows = cursor.fetchall()
     conn.close()
 
-    return jsonify(visible_portal_menus(rows, role, app.config))
+    return jsonify(visible_assistant_menus(visible_portal_menus(rows, role, app.config), role, app.config))
 
 @app.route('/api/menus/children/<parent_code>')
 @login_required
@@ -6046,6 +6077,7 @@ def api_access_logs_error_ips():
 
 install_roadmap(app, globals())  # 모든 기존 route/데코레이터/백업 함수가 준비된 후 연결합니다.
 install_strata(app, get_db_connection, login_required, check_menu_permission)  # AI 스트림은 Nginx가 처리합니다.
+install_assistant(app, globals())  # 신규 /assistant와 자체 worker API만 등록, 기존 Strata UI는 보존합니다.
 
 if __name__ == '__main__':
     try:

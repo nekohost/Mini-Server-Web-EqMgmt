@@ -1,0 +1,1010 @@
+"""[MINI-COMMENT: ASSISTANT.HTTP]
+[EN rev.4]
+[Role] Installs independent user chat routes and an authenticated worker boundary.
+[Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
+[Impact] Preserves audit content, completion reservations and history while retaining all owner/worker boundaries.
+"""
+from datetime import datetime
+import json
+import os
+import re
+from pathlib import Path
+import secrets
+import sqlite3
+import time
+from urllib.parse import urlsplit
+from zoneinfo import ZoneInfo
+
+from flask import Blueprint, Response, abort, g, jsonify, render_template, request, send_file, session
+from flask.sessions import SecureCookieSessionInterface
+
+from utils.roadmap_validation import InputError
+from utils.lineup_node_service import LineupNodeError
+from utils import roadmap_equipment as equipment, roadmap_files as files
+from .domain import Domain
+from .policy import (AssistantError, DEFAULT_LEVEL, ERROR_REASONS, LEGACY_LEVELS, LEVELS, LEVEL_LABELS, MAX_CONTENT, MAX_REASONING,
+                     SYSTEM, TERMINAL, TOOL_MAP, canonical, digest, identity, mac, object_only,
+                     opaque, stream_text, text, validate_schema)
+from .store import Store
+from .providers import Registry, PROTOCOL, public_source
+from .reasoning import VERSION as REASONING_VERSION, normalize_profile
+from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
+from .audit import preserve_export
+
+
+def enabled(value):
+    """[Role] Parses deployment flags explicitly; truthy string 'false' never enables writes.
+    [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+    [Impact] Preserves the module's owner/validation/transaction boundary described above.
+    """
+    return value is True or isinstance(value,str) and value.lower() in ('1','true','yes','on')
+
+
+def visible_assistant_menus(rows, role, config):
+    """[Role] Hides only the new menu when disabled, preserving the separate Strata menu policy.
+    [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+    [Impact] Preserves the module's owner/validation/transaction boundary described above.
+    """
+    return [dict(r) for r in rows if r['MenuCode'] not in ('equipment_ai','equipment_ai_settings') or enabled(config.get('USER_AI_ENABLED',False))]
+
+
+class PassiveSessionInterface(SecureCookieSessionInterface):
+    """[Role] Prevents assistant polling from silently extending permanent login cookies."""
+    def should_set_cookie(self, app, current):
+        """[Role] Preserves explicit cookie mutation/deletion and all other screens' refresh behavior.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        passive=request.method=='GET' and (request.path.startswith('/api/ai/') or
+            request.path=='/api/check_session' and request.headers.get('X-Assistant-Poll')=='1')
+        if passive and not current.modified:
+            return False
+        return super().should_set_cookie(app,current)
+
+
+def install_assistant(app, services):
+    """[MINI-COMMENT: ASSISTANT.INSTALL]
+    [EN rev.3]
+    [Role] Wires disabled-by-default assistant features with injected existing application contracts.
+    [Dependencies] A stable strong app secret, independent worker secret and explicit public origin.
+    [Impact] Enabling additively upgrades only the AI store and reserves extended result storage, not equipment DDL.
+    """
+    app.config.setdefault('USER_AI_ENABLED',enabled(os.getenv('USER_AI_ENABLED','')))
+    app.config.setdefault('USER_AI_WRITE_TOOLS',enabled(os.getenv('USER_AI_WRITE_TOOLS','')))
+    app.config.setdefault('USER_AI_WORKER_TOKEN',os.getenv('USER_AI_WORKER_TOKEN',''))
+    app.config.setdefault('USER_AI_PUBLIC_ORIGIN',os.getenv('USER_AI_PUBLIC_ORIGIN','https://nekohost.org'))
+    app.config.setdefault('USER_AI_DATABASE',os.getenv('USER_AI_DATABASE',str(Path(app.instance_path)/'ai'/'assistant.sqlite3')))
+    app.config.setdefault('USER_AI_COMPLETION_RESERVE_CHARS',os.getenv('USER_AI_COMPLETION_RESERVE_CHARS','32000000'))
+    for key, default in {'USER_AI_STRATA_URL':'http://192.168.0.14:8080', 'USER_AI_STRATA_KEY':'',
+            'USER_AI_MODEL':'qwen3.8-flash-next-iq3_xxs', 'USER_AI_PROVIDER_ENCRYPTION_KEY':'',
+            'USER_AI_PROVIDER_PREVIOUS_KEYS':'[]',
+            'USER_AI_ALLOWED_ENDPOINTS':None, 'USER_AI_MODEL_DISCOVERY':True,
+            'USER_AI_DATABASE_EPOCH':'initial-v3',
+            'USER_AI_AUDIT_MAX_BYTES':2147483648}.items():
+        app.config.setdefault(key, os.getenv(key,default))
+    app.config.setdefault('USER_AI_AUDIT_ROOT',str(Path(app.instance_path)/'ai'/'audit-originals'))
+    connect=services['get_db_connection']
+    login=services['login_required']
+    bp=Blueprint('equipment_assistant',__name__)
+    is_enabled=enabled(app.config['USER_AI_ENABLED'])
+    store=None
+    registry=None
+    domain=Domain(connect,app.secret_key,services['get_maintenance_state'])
+    if is_enabled:
+        if not app.secret_key or len(app.secret_key)<32 or app.secret_key=='default_secret_key_if_not_found' or len(app.config['USER_AI_WORKER_TOKEN'])<32:
+            raise ValueError('assistant requires independent strong server secrets')
+        origin=urlsplit(app.config['USER_AI_PUBLIC_ORIGIN'])
+        if origin.scheme not in ('http','https') or not origin.netloc or origin.path or origin.query or origin.fragment or origin.username:
+            raise ValueError('invalid assistant public origin')
+        if type(app.session_interface) is not SecureCookieSessionInterface:
+            raise ValueError('assistant passive session adapter requires an audited session interface')
+        if origin.scheme=='https':
+            app.config['SESSION_COOKIE_SECURE']=True
+        app.session_interface=PassiveSessionInterface()
+        store=Store(app.config['USER_AI_DATABASE'],int(app.config['USER_AI_COMPLETION_RESERVE_CHARS']),app.config['USER_AI_DATABASE_EPOCH'])
+        registry=Registry(store,app.config)
+        db=connect()
+        try:
+            now=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            row=db.execute("SELECT Url FROM menus WHERE MenuCode='equipment_ai'").fetchone()
+            if row and row[0]!='/assistant':
+                raise ValueError('assistant menu collision')
+            db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai','AI 도우미','/assistant','내 장비 조회·등록·수정과 신청',NULL,51,?,?)",(now,now))
+            for role in ('admin','user'):
+                db.execute("INSERT OR IGNORE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES(?,'equipment_ai',1,?)",(role,now))
+            db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai_settings','AI 연결 관리','/admin/ai/providers','장비관리 AI 연결·공개 모델 관리',NULL,52,?,?)",(now,now))
+            db.execute("INSERT OR IGNORE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES('admin','equipment_ai_settings',1,?)",(now,))
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+    app.extensions['equipment_assistant']={'store':store,'domain':domain,'registry':registry}
+
+    def active():
+        """[Role] Rechecks the feature flag on every boundary, including an in-flight write.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        if store is None or not enabled(app.config.get('USER_AI_ENABLED')):
+            raise AssistantError('AI 도우미를 사용할 수 없습니다.',404)
+
+    def body(maximum=32768):
+        """[Role] Requires bounded JSON; multipart/files remain in the existing authenticated UI APIs.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        if not request.is_json or request.content_length is None or request.content_length>maximum:
+            raise AssistantError('요청 크기와 JSON 형식을 확인해 주세요.',413)
+        return request.get_json(silent=True)
+
+    def browser(write=False):
+        """[MINI-COMMENT: ASSISTANT.BROWSER.AUTH]
+        [EN rev.1]
+        [Role] Revalidates signed-session identity, live DB token, menu grants and browser write intent.
+        [Dependencies] The original login decorator and explicit Origin/CSRF for every browser mutation.
+        [Impact] Editing cookie claims/IDs or possessing a worker token cannot impersonate another owner.
+        """
+        active()
+        user=session.get('user') or {}
+        uid=identity(user.get('UserId'))
+        token=session.get('session_token')
+        if not isinstance(token,str) or not token:
+            raise AssistantError('다시 로그인해 주세요.',401)
+        binding=domain.binding(uid,token)
+        db=connect()
+        try:
+            actor=domain.actor(db,uid,binding)
+        finally:
+            db.close()
+        if store.revoked(binding):
+            raise AssistantError('다시 로그인해 주세요.',401)
+        g.assistant_display_context=mac(app.secret_key,'display',uid,binding)[:32]
+        if write:
+            csrf=request.headers.get('X-CSRFToken','')
+            if request.headers.get('Origin','')!=app.config['USER_AI_PUBLIC_ORIGIN'] or not isinstance(session.get('csrf_token'),str) or not csrf or not secrets.compare_digest(csrf,session['csrf_token']):
+                raise AssistantError('요청을 확인할 수 없습니다. 화면을 새로고침해 주세요.',403)
+        return actor
+
+    def worker():
+        """[Role] Authenticates only local worker requests, independently from browser/account cookies.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        if store is None:
+            raise AssistantError('AI 도우미가 설정되지 않았습니다.',404)
+        expected=app.config.get('USER_AI_WORKER_TOKEN','')
+        given=request.headers.get('Authorization','')
+        if request.remote_addr not in ('127.0.0.1','::1') or not expected or not secrets.compare_digest(given,'Bearer '+expected):
+            raise AssistantError('처리 권한이 없습니다.',403)
+
+    def job_actor(job):
+        """[Role] Checks job expiry/revocation and current rights before each step/tool response.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        if services['get_maintenance_state']()['state']!='NORMAL':
+            raise AssistantError('시스템 점검으로 이 작업을 중단했습니다.',503)
+        if job['expires']<time.time() or store.revoked(job['binding']):
+            raise AssistantError('로그인 작업 권한이 만료되었습니다.',401)
+        db=connect()
+        try:
+            actor=domain.actor(db,job['owner'],job['binding'])
+            if actor['account_key']!=job['account_key']:
+                raise AssistantError('계정 식별정보가 변경되었습니다.',401)
+            return actor
+        finally:
+            db.close()
+
+    def maintenance_cleanup():
+        """[MINI-COMMENT: ASSISTANT.MAINTENANCE.LEASE]
+        [EN rev.1]
+        [Role] Authenticates only fixed cleanup callbacks without opening the equipment DB.
+        [Dependencies] Loopback worker secret and a current AI-only step lease.
+        [Impact] New claims/admin/browser operations cannot use this maintenance exception.
+        """
+        if not store or request.method!='POST' or not re.fullmatch(r'/internal/ai/jobs/[0-9a-f]{32}/(?:event|finish)',request.path):
+            return False
+        try:
+            worker()
+            data=body(2097152)
+            if not isinstance(data,dict):
+                return False
+            jid=request.path.split('/')[4]
+            with store.db() as db:
+                store.lease(db,jid,data.get('lease'))
+            return True
+        except Exception:
+            return False
+
+    app.extensions['equipment_assistant']['maintenance_cleanup']=maintenance_cleanup
+
+    def administrator(write=False):
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMINISTRATOR]
+        [EN rev.1]
+        [Role] Requires the actual current DB admin role plus the dedicated management menu and CSRF.
+        [Dependencies] Existing signed-session validation, never Role supplied by the browser or model.
+        [Impact] Ordinary user sessions and worker credentials cannot administer providers.
+        """
+        actor=browser(write)
+        db=connect()
+        try:
+            row=db.execute('SELECT Role FROM users WHERE UserId=?',(actor['UserId'],)).fetchone()
+            grant=db.execute("SELECT IsAllowed FROM role_menu_permissions WHERE Role='admin' AND MenuCode='equipment_ai_settings'").fetchone()
+            if not row or row['Role']!='admin' or not grant or not grant[0]:
+                raise AssistantError('관리자 AI 연결 관리 권한이 필요합니다.',403)
+        finally:
+            db.close()
+        return actor
+
+    def selected(actor,cid=None,explicit=None,level=None):
+        """[MINI-COMMENT: ASSISTANT.HTTP.SELECTED]
+        [EN rev.2]
+        [Role] Restores a conversation's choice before considering defaults for new/unselected chats.
+        [Dependencies] Current published/verified registry profile and owner-bound conversation.
+        [Impact] Removed/offline saved models raise a reselection reason instead of silent failover.
+        """
+        conv=None
+        if cid:
+            with store.db() as db:
+                conv=store.conversation(actor['UserId'],cid,db,actor['account_key'])
+        mid=explicit or (conv['selection_id'] if conv else None) or registry.choices()['default_model']
+        if not mid:
+            raise AssistantError('사용 가능한 모델이 없습니다. 관리자에게 연결/모델 시험을 요청해 주세요.',503)
+        route=registry.resolve(opaque(mid))
+        level=level if level is not None else (conv['next_level'] if conv else route['profile']['default_level'])
+        levels=route['profile'].get('levels',[])
+        if type(level) is not str or (level not in levels if levels else level != DEFAULT_LEVEL):
+            raise AssistantError('이 모델이 지원하는 추론 수준을 다시 선택해 주세요.',409)
+        route['reasoning_effort']=LEVELS[level] if levels else None
+        return route,level,conv
+
+    @bp.errorhandler(AssistantError)
+    @bp.errorhandler(InputError)
+    @bp.errorhandler(LineupNodeError)
+    def expected_error(error):
+        """[Role] Returns safe domain errors without disguising failure as a successful operation.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        return jsonify(success=False,message=str(error)),getattr(error,'status',getattr(error,'status_code',400))
+
+    @bp.errorhandler(Exception)
+    def unexpected_error(error):
+        """[Role] Logs only exception class; no model input, credentials or traceback is returned.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        app.logger.error('assistant failure type=%s',type(error).__name__)
+        return jsonify(success=False,message='요청을 완료하지 못했습니다. 저장된 처리 상태를 확인해 주세요.'),500
+
+    @bp.after_request
+    def private(response):
+        """[Role] Disables caching and framing of user-owned chat and worker responses.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        response.headers.update({'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','X-Frame-Options':'DENY'})
+        response.headers.setdefault('Content-Security-Policy',"frame-ancestors 'none'; object-src 'none'; base-uri 'self'")
+        if getattr(g,'assistant_display_context',None):
+            response.headers['X-Assistant-Account']=g.assistant_display_context
+        return response
+
+    @app.before_request
+    def capture_logout():
+        """[Role] Captures this signed login binding before the existing logout clears its cookie.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        if store and request.path=='/logout':
+            user=session.get('user') or {}
+            token=session.get('session_token')
+            if type(user.get('UserId')) is int and isinstance(token,str):
+                g.assistant_logout_binding=domain.binding(user['UserId'],token)
+
+    @app.after_request
+    def revoke_logout(response):
+        """[Role] Stops only assistant jobs delegated by the login being explicitly logged out.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        binding=getattr(g,'assistant_logout_binding',None)
+        if binding:
+            store.revoke(binding)
+        return response
+
+    @bp.get('/assistant')
+    @login
+    def page():
+        """[Role] Renders the independent assistant, never the existing Strata iframe/console.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser()
+        if not session.get('csrf_token'):
+            session['csrf_token']=secrets.token_hex(32)
+        return render_template('equipment_ai.html',user=session['user'],assistant_csrf=session['csrf_token'])
+
+    @bp.get('/api/ai/capabilities')
+    @login
+    def capabilities():
+        """[Role] Returns only server-approved levels and available user tools, without secrets.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser()
+        return jsonify(success=True,model='서버에서 공개한 모델 선택',reasoning_version=REASONING_VERSION,levels=[{'id':k,'label':v} for k,v in LEVEL_LABELS.items()],
+            tools=[t['function']['name'] for t in domain.tools(actor) if enabled(app.config['USER_AI_WRITE_TOOLS']) or not t['function']['name'].startswith('prepare_')],
+            scopes=(['my','draft'] if 'my_equipment' in actor['menus'] else [])+(['public'] if 'public_equipment' in actor['menus'] else []),
+            writes=enabled(app.config['USER_AI_WRITE_TOOLS']),file_tools='my_equipment' in actor['menus'] and enabled(app.config['USER_AI_WRITE_TOOLS']),
+            storage=store.storage_status(actor['UserId'],actor['account_key']))
+
+    @bp.get('/api/ai/models')
+    @login
+    def models():
+        """[MINI-COMMENT: ASSISTANT.HTTP.MODELS]
+        [EN rev.1]
+        [Role] Returns cached/discovered sanitized choices and automatic initial selection.
+        [Dependencies] Backend-only fixed model-list calls, throttled to one attempt per 60 seconds.
+        [Impact] The browser never calls LAN providers or receives endpoints/credentials/raw metadata.
+        """
+        browser()
+        if enabled(app.config['USER_AI_MODEL_DISCOVERY']):
+            with store.db() as db:
+                ids=[r[0] for r in db.execute('SELECT id FROM ai_providers WHERE enabled=1 AND retired=0 AND (last_checked IS NULL OR last_checked<?)',(time.time()-60,))]
+            for pid in ids:
+                try:
+                    registry.discover(pid)
+                except AssistantError:
+                    pass
+        return jsonify(success=True,**registry.choices())
+
+    @bp.post('/api/ai/conversations/<cid>/selection')
+    @login
+    def selection(cid):
+        """[MINI-COMMENT: ASSISTANT.HTTP.SELECTION]
+        [EN rev.2]
+        [Role] Changes only the next-turn choice and persists supported reasoning for this conversation.
+        [Dependencies] Live browser owner, model profile and optimistic selection revision.
+        [Impact] In-flight requests and signed confirmation cards retain their accepted contracts.
+        """
+        actor=browser(True)
+        data=object_only(body(),('selection_id','level','revision','reasoning_version'),('selection_id','level','revision'))
+        if type(data.get('reasoning_version')) is not int or data['reasoning_version'] != REASONING_VERSION:
+            raise AssistantError('추론 설정 형식이 변경되었습니다. 화면을 새로고침해 주세요.',409)
+        route,level,conv=selected(actor,opaque(cid),opaque(data['selection_id']),data['level'])
+        revision=store.select_model(actor['UserId'],cid,actor['account_key'],route['selection_id'],level,data['revision'])
+        return jsonify(success=True,revision=revision,selection_id=route['selection_id'],level=level)
+
+    @bp.get('/admin/ai/providers')
+    @login
+    def admin_page():
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_PAGE]
+        [EN rev.1]
+        [Role] Serves the independent basic provider-management screen to actual administrators only.
+        [Dependencies] Existing frame, live admin/menu check and per-session CSRF.
+        [Impact] Deferred advanced endpoint customization is not exposed.
+        """
+        administrator()
+        if not session.get('csrf_token'):
+            session['csrf_token']=secrets.token_hex(32)
+        return render_template('equipment_ai_providers.html',user=session['user'],assistant_csrf=session['csrf_token'])
+
+    @bp.route('/api/admin/ai/providers',methods=['GET','POST'])
+    @login
+    def admin_providers():
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_PROVIDERS]
+        [EN rev.1]
+        [Role] Lists safe basic connection settings or creates an encrypted immutable revision.
+        [Dependencies] Actual admin/menu, CSRF/Origin on mutation and registry validation.
+        [Impact] No original/encrypted credentials are returned by this API.
+        """
+        administrator(request.method=='POST')
+        if request.method=='POST':
+            return jsonify(success=True,id=registry.save(body())),201
+        return jsonify(success=True,**registry.admin_list())
+
+    @bp.post('/api/admin/ai/providers/<pid>')
+    @login
+    def admin_provider_save(pid):
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_PROVIDER_SAVE]
+        [EN rev.1]
+        [Role] Adds a revision or soft-retires a provider, preserving accepted job routes/history.
+        [Dependencies] Current administrator and optimistic revision.
+        [Impact] Retiring never deletes records or controls upstream processes.
+        """
+        administrator(True)
+        return jsonify(success=True,id=registry.save(body(),opaque(pid)))
+
+    @bp.post('/api/admin/ai/providers/<pid>/discover')
+    @login
+    def admin_discover(pid):
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_DISCOVER]
+        [EN rev.1]
+        [Role] Explicitly refreshes a provider's model inventory without assuming readiness/tool support.
+        [Dependencies] Administrator CSRF/Origin and fixed pinned models adapter.
+        [Impact] An error retains last-known records and an actionable connection status.
+        """
+        administrator(True)
+        object_only(body(),())
+        registry.discover(opaque(pid),True)
+        return jsonify(success=True,**registry.admin_list())
+
+    @bp.post('/api/admin/ai/providers/<pid>/models')
+    @login
+    def admin_model(pid):
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_MODEL]
+        [EN rev.2]
+        [Role] Manages model aliases/publication/context and explicitly optional manual registration.
+        [Dependencies] Live admin and revision-checked registry; capability tests remain separate.
+        [Impact] A name in the inventory alone never grants model tools or reasoning support.
+        """
+        administrator(True)
+        return jsonify(success=True,id=registry.update_model(opaque(pid),body()))
+
+    @bp.post('/api/admin/ai/models/<mid>/probe')
+    @login
+    def admin_probe(mid):
+        """[MINI-COMMENT: ASSISTANT.PROBE.QUEUE]
+        [EN rev.2]
+        [Role] Queues inert model capability checks through the same account quotas and physical group slot.
+        [Dependencies] Admin-only intent, current route, nonce and the ordinary private worker protocol.
+        [Impact] Probe tools never touch equipment; accepted parameters alone do not prove reasoning output.
+        """
+        actor=administrator(True)
+        data=object_only(body(),('tools','reasoning','client_key'),('tools','reasoning','client_key'))
+        if type(data['tools']) is not bool or type(data['reasoning']) is not bool:
+            raise AssistantError('시험할 기능을 확인해 주세요.')
+        route=registry.resolve(opaque(mid),True)
+        if data['reasoning'] and not route['profile']['enabled_levels']:
+            raise AssistantError('관리자 모델 설정에서 시험할 추론 수준을 먼저 허용해 주세요.')
+        if data['tools'] and route['context_tokens']<8192:
+            raise AssistantError('장비 도구용 컨텍스트는 8,192 token 이상으로 검증해 주세요.')
+        route['probe_nonce']=secrets.token_hex(16)
+        route['reasoning_effort']=None
+        plan=['chat']+(['tools'] if data['tools'] else [])+(route['profile']['enabled_levels'] if data['reasoning'] else [])
+        with store.db() as db:
+            previous=db.execute('SELECT j.* FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=? AND c.account_key=?',(actor['UserId'],opaque(data['client_key']),actor['account_key'])).fetchone()
+        if previous:
+            if previous['purpose']!='probe' or previous['selection_id']!=mid or json.loads(previous['probe_plan'])!=plan:
+                raise AssistantError('같은 접수 키로 다른 시험을 요청할 수 없습니다.',409)
+            return jsonify(success=True,job_id=previous['id'],conversation_id=previous['conversation']),202
+        cid=store.create_conversation(actor['UserId'],actor['account_key'])
+        jid=store.enqueue(actor['UserId'],cid,'관리자 모델 기능 시험','low',opaque(data['client_key']),actor['binding'],time.time()+1800,actor['account_key'],route,'probe',plan)
+        return jsonify(success=True,job_id=jid,conversation_id=cid),202
+
+    @bp.route('/api/ai/conversations',methods=['GET','POST'])
+    @login
+    def conversations():
+        """[Role] Lists/creates only the authenticated owner's durable conversations.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser(request.method=='POST')
+        if request.method=='POST':
+            object_only(body(),())
+            cid=store.create_conversation(actor['UserId'],actor['account_key'])
+            choice=registry.choices()['default_model']
+            if choice:
+                initial=registry.resolve(choice)['profile']['default_level']
+                store.select_model(actor['UserId'],cid,actor['account_key'],choice,initial,0)
+            return jsonify(success=True,id=cid,selection_revision=1 if choice else 0),201
+        return jsonify(success=True,**store.conversations(actor['UserId'],actor['account_key'],request.args.get('cursor')))
+
+    @bp.get('/api/ai/conversations/<cid>/messages')
+    @login
+    def messages(cid):
+        """[Role] Hydrates bounded owner-only history, including collapsible saved reasoning.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser()
+        try:
+            before=int(request.args['before']) if 'before' in request.args else None
+        except ValueError:
+            raise AssistantError('이전 대화 내용의 위치를 확인해 주세요.') from None
+        return jsonify(success=True,**store.snapshot(actor['UserId'],cid,actor['account_key'],before),storage=store.storage_status(actor['UserId'],actor['account_key']))
+
+    @bp.post('/api/ai/conversations/<cid>/turns')
+    @login
+    def submit(cid):
+        """[Role] Accepts plain user text and one allowed UI level; clients cannot submit model roles/tools.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser(True)
+        data=object_only(body(),('content','level','client_key','selection_id','reasoning_version'),('content','level','client_key'))
+        content=text(data['content'],8000)
+        if not isinstance(data['level'],str) or data['level'] not in (*LEVELS,DEFAULT_LEVEL):
+            raise AssistantError('추론 수준을 확인해 주세요.')
+        if type(data.get('reasoning_version')) is not int or data['reasoning_version'] != REASONING_VERSION:
+            raise AssistantError('추론 설정 형식이 변경되었습니다. 화면을 새로고침해 주세요.',409)
+        key=opaque(data['client_key'])
+        route,level,conv=selected(actor,opaque(cid),opaque(data['selection_id']) if 'selection_id' in data else None,data['level'])
+        jid=store.enqueue(actor['UserId'],opaque(cid),content,level,key,actor['binding'],time.time()+min(1800,app.permanent_session_lifetime.total_seconds()),actor['account_key'],route)
+        return jsonify(success=True,job_id=jid),202
+
+    @bp.get('/api/ai/jobs/<jid>')
+    @login
+    def job_view(jid):
+        """[Role] Sends bounded text deltas with server code-point cursors, not repeated full histories.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser()
+        try:
+            ro,co=int(request.args.get('r','0')),int(request.args.get('c','0'))
+            if not 0<=ro<=100000 or not 0<=co<=64000:
+                raise ValueError()
+        except ValueError:
+            raise AssistantError('응답 위치가 올바르지 않습니다.') from None
+        with store.db() as db:
+            job=store.job(jid,db,actor['UserId'],actor['account_key'])
+            msg=db.execute("SELECT id,reasoning,content FROM messages WHERE job=? AND role='assistant'",(jid,)).fetchone()
+            # Content may reset for a continuation. Steps lets the UI reset only the provisional answer.
+            generation=job['steps']+(1 if job['state'] in ('running','draining','recovery_required') else 0)
+            if request.args.get('v')!=str(generation):
+                co=0
+            co=min(co,len(msg['content']))
+            reasoning,content=msg['reasoning'][ro:ro+8192],msg['content'][co:co+8192]
+            cards=[dict(r) for r in db.execute('SELECT id,job,operation,payload,before_json,state,result,expires FROM proposals WHERE job=? AND owner=? ORDER BY created',(jid,actor['UserId']))]
+            answer_started=bool(db.execute("SELECT 1 FROM message_steps WHERE job=? AND content<>'' LIMIT 1",(jid,)).fetchone())
+            position=db.execute("SELECT COUNT(*)+1 FROM jobs WHERE state='queued' AND resource_group=? AND queue_order<?",(job['resource_group'],job['queue_order'])).fetchone()[0] if job['state']=='queued' else None
+        return jsonify(success=True,id=jid,state=job['state'],error=job['error'],error_code=job['error_code'],steps=job['steps'],generation=generation,position=position,
+            worker_stale=bool(job['heartbeat'] and job['state'] in ('running','draining') and time.time()-job['heartbeat']>45),
+            message_id=msg['id'],reasoning=reasoning,content=content,r=ro+len(reasoning),c=co+len(content),
+            content_length=len(msg['content']),reasoning_length=len(msg['reasoning']),proposals=cards,answer_started=answer_started,
+            storage=store.storage_status(actor['UserId'],actor['account_key']),source=public_source(job['route_snapshot']))
+
+    @bp.post('/api/ai/jobs/<jid>/cancel')
+    @login
+    def cancel(jid):
+        """[Role] Cancels an owner-local job; there is no model/server kill endpoint.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser(True)
+        object_only(body(),())
+        return jsonify(success=True,state=store.cancel(actor['UserId'],jid,actor['account_key']))
+
+    @bp.post('/api/ai/proposals/<pid>/confirm')
+    @login
+    def confirm(pid):
+        """[MINI-COMMENT: ASSISTANT.CONFIRM.HTTP]
+        [EN rev.2]
+        [Role] Requires a live owner's explicit CSRF-protected confirmation of frozen server content.
+        [Dependencies] Domain's atomic receipt transaction; worker authentication never substitutes for login.
+        [Impact] Retries recover real results and charge one reserved receipt; model text cannot authorize writes.
+        """
+        actor=browser(True)
+        if not enabled(app.config['USER_AI_WRITE_TOOLS']):
+            raise AssistantError('현재 AI 변경 기능은 비활성 상태입니다.',403)
+        object_only(body(),())
+        with store.db() as db:
+            row=db.execute('SELECT p.* FROM proposals p JOIN jobs j ON j.id=p.job JOIN conversations c ON c.id=j.conversation WHERE p.id=? AND p.owner=? AND c.account_key=?',(opaque(pid),actor['UserId'],actor['account_key'])).fetchone()
+            if row is None:
+                raise AssistantError('확인 항목을 찾을 수 없습니다.',404)
+            proposal=dict(row)
+            job=store.job(proposal['job'],db,actor['UserId'],actor['account_key'])
+        result=domain.execute(proposal,job)
+        # Equipment commit is authoritative. A retry reads its receipt if this separate update fails.
+        with store.db(True) as db:
+            db.execute("UPDATE proposals SET state='applied',result=? WHERE id=?",(canonical(result),pid))
+            display_result={k:v for k,v in result.items() if k!='replayed'}
+            record='장비관리 서버 확인 완료 ['+pid+']: '+canonical(display_result)
+            store.record_result(db,job,record)
+            store.expire(db)
+        return jsonify(success=True,result=result)
+
+    @bp.post('/internal/ai/claim')
+    def claim():
+        """[Role] Supplies one private worker with minimal model context for one internal queue step.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        worker()
+        data=object_only(body(),('worker','protocol'),('worker','protocol'))
+        if data['protocol']!=PROTOCOL:
+            raise AssistantError('AI 서버/worker 프로토콜 버전이 일치하지 않습니다.',409)
+        if not enabled(app.config.get('USER_AI_ENABLED')) or services['get_maintenance_state']()['state']!='NORMAL':
+            return jsonify(success=True,job=None)
+        job=store.claim(text(data['worker'],100))
+        if job is None:
+            return jsonify(success=True,job=None)
+        try:
+            actor=job_actor(job)
+            route=json.loads(job['route_snapshot'])
+            if not route or not job['selection_id']:
+                raise AssistantError('이전 요청의 연결 식별을 확인하지 못했습니다. 관리자 확인이 필요합니다.',409)
+            with store.db() as db:
+                current=db.execute('SELECT p.enabled,p.retired,m.present FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id WHERE m.id=?',(job['selection_id'],)).fetchone()
+            if not current or not current['enabled'] or current['retired'] or not current['present']:
+                raise AssistantError('접수한 모델/연결이 중지되어 요청을 실행하지 않았습니다. 모델을 다시 선택해 주세요.',409)
+            # Decrypt/pin/serialize before dispatch. Any preparation exception below is a known non-dispatch.
+            registry.policy.destination(route['base_url'])
+            route['api_key']=registry.secret(route['credential'])
+            route['legacy_worker_key']=route['credential']=='env:USER_AI_STRATA_KEY' and not route['api_key']
+            route.pop('credential',None)
+            tools=domain.tools(actor) if route['profile'].get('tools') else []
+            if tools:
+                tools=[*tools,DRAFT_TOOL,TASK_DRAFT_TOOL]
+            if not enabled(app.config['USER_AI_WRITE_TOOLS']):
+                tools=[t for t in tools if not t['function']['name'].startswith('prepare_')]
+            system=SYSTEM+'\n서울 기준 오늘 날짜: '+datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
+            if not route['profile'].get('tools'):
+                system+='\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
+            output_tokens=min(4096,max(512,route['context_tokens']//4))
+            if job['purpose']=='probe':
+                db=connect()
+                try:
+                    if db.execute('SELECT Role FROM users WHERE UserId=?',(actor['UserId'],)).fetchone()[0]!='admin':
+                        raise AssistantError('관리자 시험 권한이 변경되었습니다.',403)
+                finally:
+                    db.close()
+                stage=json.loads(job['probe_plan'])[job['steps']]
+                nonce=route['probe_nonce']
+                tools=[{'type':'function','function':{'name':'assistant_probe','description':'Inert capability test. Call exactly once with the nonce.',
+                    'parameters':{'type':'object','properties':{'nonce':{'type':'string'}},'required':['nonce'],'additionalProperties':False}}}] if stage=='tools' else []
+                context=[{'role':'user','content':('Call assistant_probe with nonce '+nonce if stage=='tools' else 'Reply with exactly '+nonce+'. This is an inert capability test.')}]
+                effort_map=LEVELS if route['profile'].get('reasoning_version') == REASONING_VERSION else LEGACY_LEVELS
+                route['reasoning_effort']=effort_map.get(stage)
+                system='You are running an inert model capability test. No real equipment operations exist in this test.'
+                output_tokens=512 if stage in ('chat','tools') else min(4096,max(512,route['context_tokens']//4))
+            elif not job['steps']:
+                overhead=len(canonical([{'role':'system','content':system},tools]).encode())+1024
+                with store.db(True) as db:
+                    context=build_context(db,job,route['context_tokens']-output_tokens-overhead)
+                    store.charge_handoff(db,job,context)
+                    db.execute('UPDATE jobs SET context=? WHERE id=?',(canonical(context),job['id']))
+            else:
+                context=json.loads(job['context'])
+            messages=[{'role':'system','content':system},*context]
+            if len(canonical([messages,tools]).encode())+output_tokens+512>route['context_tokens'] or len(canonical(context))>120000:
+                raise AssistantError('선택한 모델의 문맥 한도로 작업을 중단했습니다. 기록을 확인하고 질문을 줄이거나 더 큰 모델을 선택해 주세요.',413)
+            packet={'id':job['id'],'lease':job['lease'],'steps':job['steps'],'messages':messages,'tools':tools,
+                    'reasoning_effort':route.get('reasoning_effort'),'route':route,'max_tokens':output_tokens,'protocol':PROTOCOL}
+            canonical(packet)
+            return jsonify(success=True,job=packet)
+        except Exception as error:
+            reason=str(error) if isinstance(error,AssistantError) else ERROR_REASONS['PROCESSING_FAILED']
+            app.logger.warning('assistant pre-dispatch failure job=%s type=%s',job['id'],type(error).__name__)
+            auth_failure=isinstance(error,AssistantError) and error.status in (401,403)
+            store.finish(job['id'],job['lease'],'cancelled' if auth_failure else 'failed',reason,error_code='AUTH_EXPIRED' if auth_failure else 'PROCESSING_FAILED')
+            return jsonify(success=True,job=None)
+
+    @bp.post('/internal/ai/jobs/<jid>/event')
+    def event(jid):
+        """[Role] Stores offset-identified deltas and communicates a stopped job while draining its own response.
+        [Dependencies] Worker auth, current lease, per-step snapshots and current actor validation.
+        [Impact] A bad stream chunk records a reason without freeing a still-running upstream request.
+        """
+        worker()
+        data=object_only(body(262144),('lease','reasoning','content','reasoning_offset','content_offset'),('lease',))
+        with store.db() as db:
+            job=store.lease(db,jid,data['lease'])
+        try:
+            job_actor(job)
+        except Exception as error:
+            reason=str(error) if isinstance(error,AssistantError) else ERROR_REASONS['PROCESSING_FAILED']
+            store.cancel(job['owner'],jid,error=reason,error_code='AUTH_EXPIRED' if isinstance(error,AssistantError) and error.status in (401,403) else 'PROCESSING_FAILED')
+        if not enabled(app.config.get('USER_AI_ENABLED')):
+            store.cancel(job['owner'],jid,error='AI 기능이 중지되어 이 작업을 중단했습니다.',error_code='USER_CANCELLED')
+        accepted=False
+        try:
+            cancelled=store.append(jid,data['lease'],stream_text(data.get('reasoning','')),
+                stream_text(data.get('content','')),data.get('reasoning_offset'),data.get('content_offset'))
+            accepted=True
+        except AssistantError as error:
+            store.cancel(job['owner'],jid,error=ERROR_REASONS['INVALID_RESPONSE']+' '+str(error),error_code='INVALID_RESPONSE')
+            cancelled=True
+        with store.db() as db:
+            step=db.execute('SELECT length(reasoning) AS r,length(content) AS c FROM message_steps WHERE job=? AND step=?',(jid,job['steps'])).fetchone()
+        return jsonify(success=True,accepted=accepted,reasoning_offset=step['r'],content_offset=step['c'],cancel=cancelled or not enabled(app.config.get('USER_AI_ENABLED')))
+
+    @bp.post('/internal/ai/jobs/<jid>/finish')
+    def finish(jid):
+        """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
+        [EN rev.1]
+        [Role] Finalizes every authenticated known completion, including malformed model responses.
+        [Dependencies] Verified lease, full step reconciliation, closed tool schemas and current actor/menu checks.
+        [Impact] Known errors release the app queue and preserve their reason/output; uncertain upstream work stays locked.
+        """
+        worker()
+        data=body(2097152)
+        if not isinstance(data,dict) or 'lease' not in data:
+            raise AssistantError('작업 완료 권한을 확인해 주세요.')
+        with store.db() as db:
+            job=store.lease(db,jid,data['lease'])
+        outcome=data.get('outcome')
+        known=outcome in ('complete','failed','cancelled')
+        code='INVALID_RESPONSE'
+        try:
+            object_only(data,('lease','calls','content','reasoning','outcome','error_code'),('lease','outcome'))
+            if outcome not in ('complete','failed','recovery_required','cancelled'):
+                raise AssistantError('작업 완료 상태가 올바르지 않습니다.')
+            supplied=data.get('error_code')
+            if supplied is not None and (not isinstance(supplied,str) or supplied not in ERROR_REASONS):
+                raise AssistantError('작업 중단 사유 형식이 올바르지 않습니다.')
+            # Display output is evidence, even if the completed structured tool response is invalid.
+            store.reconcile(jid,data['lease'],
+                stream_text(data['reasoning'],MAX_REASONING) if 'reasoning' in data else None,
+                stream_text(data['content'],MAX_CONTENT) if 'content' in data else None)
+            if services['get_maintenance_state']()['state']!='NORMAL':
+                store.cancel(job['owner'],jid,error='시스템 점검으로 이 작업을 중단했습니다.',error_code='PROCESSING_FAILED')
+                return jsonify(success=True,state=store.finish(jid,data['lease'],'failed' if known else 'recovery_required',error_code='PROCESSING_FAILED'))
+            if not enabled(app.config.get('USER_AI_ENABLED')) and outcome!='recovery_required':
+                outcome='cancelled'
+            if outcome in ('failed','recovery_required','cancelled'):
+                final_code=supplied or ('STREAM_INCOMPLETE' if outcome=='recovery_required' else 'USER_CANCELLED' if outcome=='cancelled' else 'PROCESSING_FAILED')
+                return jsonify(success=True,state=store.finish(jid,data['lease'],outcome,
+                    ERROR_REASONS[final_code],error_code=final_code))
+            try:
+                job_actor(job)
+            except AssistantError as error:
+                return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
+            with store.db() as db:
+                current=store.lease(db,jid,data['lease'])
+            if current['cancel']:
+                return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled'))
+            route=json.loads(job['route_snapshot'])
+            if job['purpose']=='probe':
+                stage=json.loads(job['probe_plan'])[job['steps']]
+                calls=data.get('calls',[])
+                nonce=route['probe_nonce']
+                if stage=='tools':
+                    if not isinstance(calls,list) or len(calls)!=1 or calls[0].get('name')!='assistant_probe' or json.loads(calls[0].get('arguments','{}'))!={'nonce':nonce}:
+                        raise AssistantError('구조화 도구 시험에 실패했습니다.')
+                else:
+                    effort_map=LEVELS if route['profile'].get('reasoning_version') == REASONING_VERSION else LEGACY_LEVELS
+                    effort=effort_map.get(stage)
+                    invalid=calls or nonce not in data.get('content','') or (effort not in (None,'none') and not data.get('reasoning')) or (effort=='none' and data.get('reasoning'))
+                    if invalid:
+                        raise AssistantError('대화/추론 출력 시험에 실패했습니다.')
+                plan=json.loads(job['probe_plan'])
+                last=job['steps']==len(plan)-1
+                if last:
+                    profile={**route['profile'],'chat':True,'tools':'tools' in plan,'levels':[s for s in plan if s in LEVELS],
+                             'evidence':'내부 자원 그룹 큐에서 nonce 대화/구조화 도구/추론 출력 시험 통과. 컨텍스트 한도는 관리자 검증값.'}
+                    if profile.get('reasoning_version') == REASONING_VERSION:
+                        profile['verified_levels']=profile['levels']
+                    profile=normalize_profile(route['model'],route['adapter'],profile)
+                    with store.db(True) as db:
+                        version=db.execute('SELECT p.revision,m.profile_revision FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id WHERE m.id=?',(job['selection_id'],)).fetchone()
+                        if tuple(version)!=(route['revision'],route['profile_revision']):
+                            raise AssistantError('시험 중 연결 설정이 변경되었습니다. 현재 설정에서 다시 시험해 주세요.',409)
+                        db.execute('UPDATE ai_provider_models SET profile=?,verified_revision=?,profile_revision=profile_revision+1,checked=? WHERE id=?',(canonical(profile),route['revision'],time.time(),job['selection_id']))
+                return jsonify(success=True,state=store.finish(jid,data['lease'],'done' if last else 'queued'))
+            code='INVALID_TOOL_CALL'
+            calls=data.get('calls',[])
+            if not isinstance(calls,list) or len(calls)>4:
+                raise AssistantError('도구 호출 수를 확인해 주세요.')
+            prepared=[]
+            ids=set()
+            # Validate the entire response before allowing even its first tool to prepare a card.
+            for call in calls:
+                object_only(call,('id','name','arguments'),('id','name','arguments'))
+                cid=text(call['id'],100)
+                if cid in ids:
+                    raise AssistantError('도구 호출 식별자가 중복되었습니다.')
+                ids.add(cid)
+                name=text(call['name'],100)
+                allowed={**TOOL_MAP,'save_equipment_draft':DRAFT_TOOL['function'],'save_task_draft':TASK_DRAFT_TOOL['function']}
+                if not route['profile'].get('tools') or name not in allowed:
+                    raise AssistantError('제공되지 않은 작업 도구가 요청되었습니다.')
+                arguments=text(call['arguments'],16384)
+                args=json.loads(arguments)
+                validate_schema(args,allowed[name]['parameters'])
+                prepared.append((cid,name,arguments,args))
+            context=json.loads(job['context'])
+            content=stream_text(data.get('content',''),MAX_CONTENT)
+            code='PROCESSING_FAILED'
+            if prepared:
+                assistant={'role':'assistant','content':content,'tool_calls':[]}
+                results=[]
+                for cid,name,arguments,args in prepared:
+                    try:
+                        if name.startswith('prepare_') and not enabled(app.config['USER_AI_WRITE_TOOLS']):
+                            raise AssistantError('현재 변경 제안 기능은 비활성 상태입니다.',403)
+                        if name in ('save_equipment_draft','save_task_draft'):
+                            operation={'create':'equipment_create','update':'equipment_update'}.get(args['operation'],args['operation'])
+                            actor=job_actor(job)
+                            if 'prepare_'+operation not in {t['function']['name'] for t in domain.tools(actor)}:
+                                raise AssistantError('이 업무 초안을 저장할 권한이 없습니다.',403)
+                            draft_fields=args['fields'] if name=='save_equipment_draft' else json.loads(args['fields_json'])
+                            if not isinstance(draft_fields,dict):
+                                raise AssistantError('업무 초안 필드는 객체여야 합니다.')
+                            if draft_fields.get('equipment_id'):
+                                db=connect()
+                                try:
+                                    domain.own(db,actor,draft_fields['equipment_id'],True)
+                                finally:
+                                    db.close()
+                            result=store.save_draft(job,args)
+                        else:
+                            result=domain.read_or_prepare(name,args,job,store)
+                    except (AssistantError,InputError,LineupNodeError) as error:
+                        # A legitimate business validation (for example an unknown equipment ID) is data for the answer.
+                        result={'error':str(error)}
+                    assistant['tool_calls'].append({'id':cid,'type':'function','function':{'name':name,'arguments':arguments}})
+                    result_text=canonical(result)
+                    if len(result_text)>16000:
+                        result_text=canonical({'error':'조회 결과가 많습니다. 검색 조건을 좁혀 주세요.'})
+                    results.append({'role':'tool','tool_call_id':cid,'content':result_text})
+                context.extend([assistant,*results])
+            else:
+                context.append({'role':'assistant','content':content})
+            if len(canonical(context))>120000:
+                raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.')
+            return jsonify(success=True,state=store.finish(jid,data['lease'],'queued' if prepared else 'done',context=context))
+        except Exception as error:
+            # A trusted worker already reported completion: rejecting its syntax must still release its lease.
+            reason=ERROR_REASONS[code]
+            if isinstance(error,(AssistantError,InputError,LineupNodeError)):
+                reason+=' '+str(error)
+            app.logger.warning('assistant stopped job=%s code=%s type=%s',jid,code,type(error).__name__)
+            state=store.finish(jid,data['lease'],'failed' if known else 'recovery_required',reason,error_code=code)
+            return jsonify(success=True,state=state,error_code=code,message=reason)
+
+    @bp.post('/internal/ai/jobs/<jid>/acknowledge-finished')
+    def acknowledge(jid):
+        """[Role] Lets an operator acknowledge only a recovered own request, never stop another service.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        worker()
+        data=object_only(body(),('acknowledgement',),('acknowledgement',))
+        if data['acknowledgement']!='OWN_REQUEST_CONFIRMED_FINISHED':
+            raise AssistantError('자체 요청 종료 확인이 필요합니다.',409)
+        with store.db(True) as db:
+            job=store.job(jid,db)
+            if job['state'] not in ('running','draining','recovery_required'):
+                raise AssistantError('복구 대상 상태가 아닙니다.',409)
+            db.execute("UPDATE jobs SET state='failed',error=COALESCE(error,'이전 자체 요청 종료 확인 후 복구되었습니다.'),error_code=COALESCE(error_code,'PROCESSING_FAILED'),updated=? WHERE id=?",(time.time(),jid))
+            db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'",(jid,))
+            store.expire(db)
+        return jsonify(success=True)
+
+    @bp.route('/api/ai/equipment/<int:eid>/files',methods=['POST'])
+    @login
+    def upload(eid):
+        """[Role] Attaches one explicitly selected file after live user/menu/owner checks, using existing validators.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser(True)
+        domain.require_menu(actor,'my_equipment')
+        if not enabled(app.config['USER_AI_WRITE_TOOLS']):
+            raise AssistantError('변경 기능이 비활성 상태입니다.',403)
+        if request.content_length is None or request.content_length>10*1024*1024+65536:
+            raise AssistantError('파일 크기를 확인해 주세요.',413)
+        storage=files.storage_directory(services['ROADMAP_ATTACHMENT_ROOT'])
+        db=connect()
+        stored=None
+        committed=False
+        try:
+            db.execute('BEGIN IMMEDIATE')
+            actor=domain.actor(db,actor['UserId'],actor['binding'])
+            domain.own(db,actor,eid,True)
+            if len(request.files)!=1 or 'file' not in request.files:
+                raise AssistantError('파일 하나를 선택해 주세요.')
+            stored=files.add_attachment(db,storage,eid,actor['UserId'],request.files['file'])
+            path=files.stored_path(storage,stored['storage_key'])
+            import hashlib
+            g.assistant_audit_file={'id':stored['id'],'name':stored['name'],'equipment_id':eid,'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+            db.commit()
+            committed=True
+            return jsonify(success=True,id=stored['id'],name=stored['name'])
+        finally:
+            if not committed:
+                db.rollback()
+                if stored:
+                    files.stored_path(storage,stored['storage_key']).unlink(missing_ok=True)
+            db.close()
+
+    @bp.get('/api/ai/equipment/<int:eid>/files/<int:fid>/download')
+    @login
+    def download(eid,fid):
+        """[Role] Provides only a current owner's permitted attachment, without exposing a storage path.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser()
+        db=connect()
+        try:
+            domain.own(db,actor,eid,True)
+            row=db.execute('SELECT storage_key,original_name,mime_type FROM equipment_files WHERE id=? AND equipment_id=? AND deleted_at IS NULL',(fid,eid)).fetchone()
+            if row is None:
+                raise AssistantError('첨부를 찾을 수 없습니다.',404)
+            path=files.stored_path(services['ROADMAP_ATTACHMENT_ROOT'],row['storage_key'])
+            response=send_file(path,as_attachment=True,download_name=row['original_name'],mimetype=row['mime_type'],conditional=False)
+            import hashlib
+            g.assistant_audit_file={'id':fid,'equipment_id':eid,'name':row['original_name'],'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+            response.headers['Content-Security-Policy']="sandbox; default-src 'none'"
+            return response
+        finally:
+            db.close()
+
+    @bp.post('/api/ai/csv/preview')
+    @login
+    def csv_preview():
+        """[Role] Creates an owner-bound existing CSV preview token; raw file content never enters a prompt.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser(True)
+        domain.require_menu(actor,'my_equipment')
+        if not enabled(app.config['USER_AI_WRITE_TOOLS']):
+            raise AssistantError('변경 기능이 비활성 상태입니다.',403)
+        if request.content_length is None or request.content_length>1024*1024+65536 or len(request.files)!=1 or 'file' not in request.files:
+            raise AssistantError('1MiB 이하 CSV 파일 하나를 선택해 주세요.',413)
+        upload=request.files['file']
+        if not upload.filename.lower().endswith('.csv'):
+            raise AssistantError('CSV 파일을 선택해 주세요.')
+        db=connect()
+        try:
+            db.execute('BEGIN IMMEDIATE')
+            actor=domain.actor(db,actor['UserId'],actor['binding'])
+            domain.require_menu(actor,'my_equipment')
+            raw=upload.stream.read(equipment.CSV_LIMIT+1)
+            result=equipment.preview_import(db,raw,actor)
+            import hashlib
+            g.assistant_audit_file={'name':upload.filename[:200],'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'kind':'csv-preview','validated_rows':result.get('count')}
+            db.commit()
+            return jsonify(success=True,**result)
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
+    @bp.get('/api/ai/csv/export')
+    @login
+    def csv_export():
+        """[Role] Exports an explicitly user-scoped list; an admin login never expands the public CSV scope.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser()
+        scope=request.args.get('scope','my')
+        if scope not in ('my','public'):
+            raise AssistantError('내보내기 범위가 올바르지 않습니다.')
+        domain.require_menu(actor,'my_equipment' if scope=='my' else 'public_equipment')
+        db=connect()
+        try:
+            rows=equipment.list_equipment(db,{'type':scope},actor,paginated=False,export=True)
+            raw=equipment.export_csv(rows)
+            g.assistant_audit_export=preserve_export(store,app.config['USER_AI_AUDIT_ROOT'],raw,actor,scope,len(rows),int(app.config['USER_AI_AUDIT_MAX_BYTES']))
+            response=Response(raw,content_type='text/csv; charset=utf-8')
+            response.headers['Content-Disposition']='attachment; filename="equipment.csv"'
+            return response
+        finally:
+            db.close()
+
+    @bp.post('/api/ai/csv/commit')
+    @login
+    def csv_commit():
+        """[Role] Confirms the original CSV token once using current owner/menu checks and atomic audit.
+        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
+        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """
+        actor=browser(True)
+        domain.require_menu(actor,'my_equipment')
+        if not enabled(app.config['USER_AI_WRITE_TOOLS']):
+            raise AssistantError('변경 기능이 비활성 상태입니다.',403)
+        data=object_only(body(),('token',),('token',))
+        db=connect()
+        try:
+            db.execute('BEGIN IMMEDIATE')
+            actor=domain.actor(db,actor['UserId'],actor['binding'])
+            domain.require_menu(actor,'my_equipment')
+            result=equipment.commit_import(db,text(data['token'],128),actor)
+            db.commit()
+            return jsonify(success=True,**result)
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
+    app.register_blueprint(bp)
