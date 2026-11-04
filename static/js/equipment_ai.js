@@ -266,7 +266,12 @@
             return `등록할 장비 ${result.count}개\n` + rows.join('\n') + (result.count > 10 ? '\n미리보기는 처음 10행입니다. 선택한 원본 전체가 등록됩니다.' : '');
         }
 
-        /** [Role] Renders a server proposal and confirms only its opaque ID, with no editable action payload. */
+        /** [MINI-COMMENT: ASSISTANT.UI.PROPOSAL.CARD]
+         * [EN rev.1]
+         * [Role] Renders server proposals with operation-specific field labels; confirms only an opaque ID.
+         * [Dependencies] Frozen payload kind and the server-owned operation, never model HTML.
+         * [Impact] Catalog names cannot be mislabeled as equipment; confirmation authority remains unchanged.
+         */
         function proposalCard(proposal) {
             const previous = cards.get(proposal.id);
             const version = proposal.state + (proposal.result || '');
@@ -281,7 +286,10 @@
             try { payload = JSON.parse(proposal.payload); before = JSON.parse(proposal.before_json); } catch (_) { note.textContent = '확인 내용을 읽지 못했습니다.'; }
             for (const [key, value] of Object.entries(payload)) {
                 if (!(key in fields)) continue;
-                const term = document.createElement('dt'); term.textContent = fields[key];
+                const term = document.createElement('dt');
+                term.textContent = key === 'name' && proposal.operation === 'catalog_request'
+                    ? ({ category: '카테고리 이름', manufacturer: '제조사 이름', node: '라인업 이름' }[payload.kind] || '신청 이름')
+                    : fields[key];
                 const description = document.createElement('dd');
                 description.textContent = (Object.hasOwn(before, key) && display(before[key], key) !== display(value, key) ? display(before[key], key) + ' → ' : '') + display(value, key);
                 list.append(term, description);

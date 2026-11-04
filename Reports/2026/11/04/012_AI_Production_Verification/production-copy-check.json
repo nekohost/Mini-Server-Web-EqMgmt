@@ -1,0 +1,87 @@
+{
+  "status": "pass",
+  "isolated_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/user-ai-20261104T131639Z/copy-3f03dbaabe43/equipment.sqlite3",
+  "business_tables_preserved": {
+    "approval_requests": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "categories": {
+      "rows": 1,
+      "sha256": "d0127afe9275fba90cc1107b9b753c7a40ba95da36d49b0392fed651d3d06af7"
+    },
+    "email_verifications": {
+      "rows": 2,
+      "sha256": "2345912571935c29362032074c8e5f0b6744ad3a55b28526df032e0e506983f6"
+    },
+    "equipment": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "equipment_files": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "equipment_imports": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "equipment_notification_log": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "equipment_options": {
+      "rows": 2,
+      "sha256": "236c7ec4390c2b2cbfb449270f61ecb66797604ad08bb19b92dfe1731b209025"
+    },
+    "equipments": {
+      "rows": 2,
+      "sha256": "004d40be306e117e76043e97e2847df4e7c96de90d40ba29d43c7054c36b0c92"
+    },
+    "equipments_audit_log": {
+      "rows": 6,
+      "sha256": "6c7df5a58acb3680d371ef3fc6a1348ebef59b560be41060c38dc830b5b35813"
+    },
+    "lineup_nodes": {
+      "rows": 13,
+      "sha256": "c6ecc210d6e9acf8bb25c76fe452c3f01669e82344b72d20a29b8c65d4364abf"
+    },
+    "manufacturers": {
+      "rows": 1,
+      "sha256": "fbc540407a195667b3bb875662b46c9907b56d0dab63820d6be238d7175de299"
+    },
+    "menus": {
+      "rows": 15,
+      "sha256": "70811b487eda00305035efa7b4415cf56820cf338a44eda3818db24c8dcc5b7e"
+    },
+    "password_resets": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "role_menu_permissions": {
+      "rows": 29,
+      "sha256": "c93081d18e0cc5faa255c1c808e56a564554a4a31484b4e6e6e29ffc7e18c46c"
+    },
+    "sys_migrations": {
+      "rows": 17,
+      "sha256": "e72b94b7852c5ad4d0eb6883761689b36c24ffe059355a9af00ac1088d3d754d"
+    },
+    "user_settings": {
+      "rows": 2,
+      "sha256": "c91d80fe8b650c57a69fdb5ab07598dd2ae62f04085ae6c7e3e5eb1a0e5c04d9"
+    },
+    "users": {
+      "rows": 3,
+      "sha256": "e2f0dd4b423925f58de6702bf0a250884282aec802583ad3bc3ad62af9eb28ec"
+    }
+  },
+  "existing_accounts": 3,
+  "missing_identity_metadata": 0,
+  "anonymous_statuses": {
+    "/login": 200,
+    "/assistant": 302,
+    "/admin/ai/providers": 302,
+    "/api/ai/capabilities": 401,
+    "/internal/ai/claim": 403
+  }
+}

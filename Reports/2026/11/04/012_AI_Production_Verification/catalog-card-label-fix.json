@@ -1,0 +1,8 @@
+{
+  "source": "Staging/20261104-ai-release-card/overlay/static/js/equipment_ai.js",
+  "sha256": "9f1b80cfdef3a8c754386966e76aedd58ba2c2697109c40c66ee310a49a650e8",
+  "archive": "catalog-card-label-fix.zip",
+  "verified": true,
+  "browser_regression": "93/93 pass",
+  "actual_production_recheck": "pending"
+}

@@ -29,4 +29,12 @@ status: in-progress
 
 이번 후보·010/011 화면 재현 harness·배포 도구의 원본 34개는 `012_AI_Production_Verification/reviewed-staging-sources.zip`에 원래 경로 그대로 보존했다. `source-archive-manifest.json`의 파일별 SHA와 ZIP 내용을 모두 대조한 후 해당 Staging 파일만 구조화 삭제했다. 과거 화면 캡처·Plan/Task/Report와 무관한 Staging은 보존했다. 기존 tracked dirty 9개는 선택 commit에서 제외한다.
 
+GitHub main과 서버에 `b9455852d35e4c12d8decda52a93c8985cb85478`을 반영했다. 기존 Flask 3.1.3, requests 2.34.2, python-dotenv 1.2.3은 유지하고 cryptography 50.0.2를 서버 venv에 설치했다. 실제 DB를 새 private 사본으로 복제해 전체 app import·AI v3 초기화를 실행했다. 기존 18개 업무/메타 테이블과 새 AI 메뉴 이외의 기존 메뉴/권한 행이 보존됐고, 실제 계정 3개의 CreatedAt 결손은 0이었다. 익명 `/login` 200, `/assistant`·관리자 AI 설정 302, capabilities 401, worker claim 403을 확인했다. 기존 live 앱 PID 632016은 이 단계에서 계속 운영 중이다.
+
+사용자의 직접 sudo 인증으로 기존 root 전용 Strata 키를 같은 서비스의 0600 환경에 연결했다. 2026-11-04T13:34:46Z에 기존 앱을 정상 종료하고 PID 719360으로 재기동했으며 Flask key와 업무 행 보존을 확인했다. 사용자 unit worker PID 719375는 active/running, 재시작 0회다. Nginx와 공유 Strata 서비스는 재기동·설정 변경하지 않았다.
+
+실제 운영 UI에서 medium 산술 대화 7.575초, 본인 장비 조회 5.429초/2단계(`search_equipment`, 답변 2개), 제조사 신청 확인 카드 12.115초/2단계(`prepare_catalog_request`)를 확인했다. 실제 업무 확정 버튼은 누르지 않았다. 실제 모델 기능 시험은 chat/tools/off/low/medium/xhigh의 6단계로 19.170초에 통과했고, 네 추론 단계의 verified_levels가 기록됐다. 이 시간은 서버 job의 접수~상태 갱신 시간이며 순수 생성 속도/장문 성능 벤치마크가 아니다.
+
+운영 화면 검사에서 제조사 신청 카드의 `name` 항목이 공통 사전 때문에 '장비 이름'으로 표시되는 결함을 발견해 사용자에게 알렸다. 실행·저장 내용의 결함은 아니며, 신청 종류별 '카테고리 이름/제조사 이름/라인업 이름'을 사용하도록 별도 Staging에서 수정·syntax 검증 후 루트에 병합했다. 수정 후 Linux 합성 브라우저 4개 폭/화면의 93 검사는 재통과했다. 실제 운영 재확인은 후속 기록에 남긴다.
+
 운영 primary는 현재 백업서버(nkhst-pentium)이며 `/home/nekohost/services/Mini-Server-Web-EqMgmt`에서 실행 중이다. 소스 HEAD와 app SHA가 Windows 기준선과 일치하고 공유 Strata `/health`는 loaded=true, 모델 qwen3.8-flash-next-iq3_xxs, API key 필요 상태다. 기존 secret key 강도 조건은 충족하며 crypto는 아직 설치되지 않았다. root 전용 key 파일을 읽기 위한 권한을 풀거나 인증을 우회하지 않는다.

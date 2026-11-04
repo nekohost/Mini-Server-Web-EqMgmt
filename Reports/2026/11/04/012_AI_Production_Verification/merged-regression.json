@@ -1,0 +1,18 @@
+{
+  "status": "pass",
+  "source": "merged Windows project root; transferred in memory to approved Linux host",
+  "command": "tests/run_assistant_fixture.py --browser",
+  "host": "eqmgmt-backup",
+  "python": "3.12.3",
+  "backend": {"tests": 112, "failures": 0, "errors": 0, "skipped": 0, "elapsed_seconds": 235.455},
+  "browser": [
+    {"view": "assistant", "width": 1440, "checks": 32, "status": "pass"},
+    {"view": "assistant", "width": 430, "checks": 33, "status": "pass"},
+    {"view": "admin", "width": 1440, "checks": 14, "status": "pass"},
+    {"view": "admin", "width": 430, "checks": 14, "status": "pass"}
+  ],
+  "production_app_imported": false,
+  "production_database_opened": false,
+  "real_model_called": false,
+  "historical_test_evidence": "../011_AI_UI_Reasoning_Screens/manifest.json"
+}

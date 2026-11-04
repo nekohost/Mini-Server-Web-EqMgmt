@@ -13,8 +13,8 @@ status: in-progress
 - [x] recorder/profile/context 및 현재 운영 호스트/HEAD/PID 확인.
 - [x] 운영 관리자 브라우저 로그인 확인. 비밀번호는 사용자 직접 입력.
 - [x] 운영 DB·환경 설정·AI 자료 백업 및 로컬 수신, 배포 전 사전 Validation.
-- [ ] 승인된 파일만 운영 루트 병합·정적 대조·선택 commit/push. 병합·대조 완료, Linux 회귀 재실행 중.
-- [ ] Linux pull/commit 대조·의존성·실제 DB 사본 격리 기동/보존 검증.
+- [x] 승인된 파일만 운영 루트 병합·정적 대조·선택 commit/push. b945585.
+- [x] Linux pull/commit 대조·의존성·실제 DB 사본 격리 기동/보존 검증.
 - [ ] 보호 설정/키 연결, 현재 프로세스 정상 종료 후 앱/자체 worker 적용.
 - [ ] 실제 모델 응답·도구 조회·일반 사용자 경계·오류 및 운영 화면 screenshot 검증.
 - [ ] 실제 결과/백업/복구·원본 보존·후속 Validation·완료 이력 기록.
