@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "checks": {
+    "ordinary /assistant": 200,
+    "ordinary /api/ai/capabilities": 200,
+    "ordinary /admin/ai/providers": 403,
+    "ordinary /api/admin/ai/providers": 403,
+    "cookie cannot act as worker": 403,
+    "missing Origin/CSRF": 403,
+    "own conversation create": 201,
+    "own history": 200,
+    "forged admin claim": 403,
+    "other owner history": 404,
+    "tampered cookie": 401
+  },
+  "checks_count": 11,
+  "actual_production_source": true,
+  "database": "isolated fresh online production copy",
+  "production_users_modified": false,
+  "copy_session_tokens_assigned": true,
+  "real_model_called": false
+}

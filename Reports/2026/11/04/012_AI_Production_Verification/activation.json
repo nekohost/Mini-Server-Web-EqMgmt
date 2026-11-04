@@ -1,0 +1,11 @@
+{
+  "status": "active",
+  "old_pid": 632016,
+  "app_pid": 719360,
+  "worker": "active",
+  "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/user-ai-20261104T131639Z",
+  "business_rows_preserved": true,
+  "flask_key_preserved": true,
+  "commit": "b9455852d35e4c12d8decda52a93c8985cb85478",
+  "activated_at": "2026-11-04T13:34:46.122217+00:00"
+}

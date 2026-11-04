@@ -1,0 +1,10 @@
+{
+  "status": "pass",
+  "job": "4fe0d30c1fad4c078cbaddd2ef62b862",
+  "state": "cancelled",
+  "proposal_state": "cancelled",
+  "records_deleted": false,
+  "business_operation_executed": false,
+  "method": "scoped Store.cancel for the exact own deployment test job",
+  "reason_persisted": true
+}

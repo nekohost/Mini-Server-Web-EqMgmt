@@ -1,0 +1,190 @@
+{
+  "status": "pass",
+  "work_id": "RELEASE-20261104-USER-AI",
+  "reviewed_at_utc": "2026-11-04T14:03:17.186265+00:00",
+  "production_origin": "https://nekohost.org",
+  "product_commit": "1fd1a3d35af667eb3f3433f9740e68665b0717e6",
+  "screenshots": [
+    {
+      "file": "01-production-assistant-welcome.jpg",
+      "caption": "운영 AI 도우미 첫 화면",
+      "bytes": 48620,
+      "sha256": "8797cd81cde550484555b8df1609f70b08f9b4771025a339d895d061e20e79fb",
+      "image_width": 524,
+      "image_height": 904,
+      "captured_at_utc": "2026-11-04T13:35:12.250923+00:00"
+    },
+    {
+      "file": "02-production-answer-desktop.jpg",
+      "caption": "실제 모델 답변과 자동 추론 접힘",
+      "bytes": 47698,
+      "sha256": "cbe1660ffcf9a98e415162554b30dd4a5ccb6aa76e924aa38967bdc0aeba7a0f",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:36:24.401853+00:00"
+    },
+    {
+      "file": "03-production-reasoning-reopened-desktop.jpg",
+      "caption": "완료된 추론 다시 열기",
+      "bytes": 51013,
+      "sha256": "83f9704d718994b89fa3820a7beae26d21d95947620a2398799433adc284b53c",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:36:40.067928+00:00"
+    },
+    {
+      "file": "04-production-read-request-live-desktop.jpg",
+      "caption": "실제 장비 조회 중 추론 스트리밍",
+      "bytes": 57074,
+      "sha256": "41ae78502940da5db4bcf7d269e31469b657f92978648c80d3f63969cfa9586c",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:37:52.278268+00:00"
+    },
+    {
+      "file": "05-production-owned-equipment-count-desktop.jpg",
+      "caption": "본인 장비 도구 조회 결과",
+      "bytes": 54052,
+      "sha256": "26b15a5ca5eba47211a634a3a167cc9f890d4e091a1f7c80ba7b9b7ab52f504c",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:38:33.067993+00:00"
+    },
+    {
+      "file": "06-production-catalog-card-label-before.jpg",
+      "caption": "발견한 결함: 제조사 이름이 장비 이름으로 표시",
+      "bytes": 80712,
+      "sha256": "5d3d15f7247d8848f23954d2be1ba2e3f1d5b2a45ec566af4bc0685ba6f9061b",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:40:06.424235+00:00"
+    },
+    {
+      "file": "07-production-catalog-card-label-fixed-desktop.jpg",
+      "caption": "수정 후 제조사 이름 확인",
+      "bytes": 81191,
+      "sha256": "9104bac508d19e0e91a2065a2ef695c712e302045cd08af11149500a55b6f01a",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:43:48.374954+00:00"
+    },
+    {
+      "file": "08-production-provider-models-dark-desktop.jpg",
+      "caption": "관리자 연결·모델·추론 설정: 다크 데스크톱",
+      "bytes": 173069,
+      "sha256": "a0b1795e4a4900edcf06b05dd143517d05835fd5231167b998b9454b8e470803",
+      "image_width": 1265,
+      "image_height": 1666,
+      "captured_at_utc": "2026-11-04T13:43:48.546995+00:00"
+    },
+    {
+      "file": "09-production-card-dark-desktop.jpg",
+      "caption": "수정된 신청 카드: 다크 데스크톱",
+      "bytes": 81192,
+      "sha256": "e27ecefb11c11cac9dd9c2983e0a9c7ae9f23f2ad551b6feb27055f04f749329",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:44:31.303300+00:00"
+    },
+    {
+      "file": "10-production-provider-models-dark-mobile.jpg",
+      "caption": "관리자 설정: 다크 모바일",
+      "bytes": 150053,
+      "sha256": "01fb72f3e9c7e4b19b15ea041d6f69c2ec6630cd104b30dc8543db493f790e88",
+      "image_width": 415,
+      "image_height": 2524,
+      "captured_at_utc": "2026-11-04T13:45:11.359638+00:00"
+    },
+    {
+      "file": "11-production-provider-models-light-mobile.jpg",
+      "caption": "관리자 설정: 라이트 모바일",
+      "bytes": 132350,
+      "sha256": "08a9b07e66c9a2741e043a83f4e0933ac59543f73b9aa3c6c773ce51aef2c2c7",
+      "image_width": 415,
+      "image_height": 2524,
+      "captured_at_utc": "2026-11-04T13:46:54.154744+00:00"
+    },
+    {
+      "file": "12-production-provider-models-light-desktop.jpg",
+      "caption": "관리자 설정: 라이트 데스크톱",
+      "bytes": 154741,
+      "sha256": "7057a9ae6653438756294e8c3149f8e5dc8137e05ff4267bb6cbbb157eff6b9b",
+      "image_width": 1425,
+      "image_height": 1666,
+      "captured_at_utc": "2026-11-04T13:47:44.410400+00:00"
+    },
+    {
+      "file": "13-production-assistant-card-dark-mobile.jpg",
+      "caption": "사용자 신청 카드: 다크 모바일",
+      "bytes": 48225,
+      "sha256": "4c2dc1f386f65495b2af950233c74c6c53a474061a742eee485da8f35ee914a6",
+      "image_width": 415,
+      "image_height": 899,
+      "captured_at_utc": "2026-11-04T13:48:10.294780+00:00"
+    },
+    {
+      "file": "14-production-assistant-card-light-mobile.jpg",
+      "caption": "사용자 신청 카드: 라이트 모바일",
+      "bytes": 45800,
+      "sha256": "6e19d03a4321e93ea4844a7c884f64173de2e3f91a195f950b65bc0aaf7f009c",
+      "image_width": 415,
+      "image_height": 899,
+      "captured_at_utc": "2026-11-04T13:49:09.588542+00:00"
+    },
+    {
+      "file": "15-production-cancel-reason-mobile.jpg",
+      "caption": "재접속 후 시험 카드 취소 사유",
+      "bytes": 51682,
+      "sha256": "da58cf99593f9ed8ab5435c098a2d789ee0ecdd2c45af9e3777cbb3f81194d56",
+      "image_width": 415,
+      "image_height": 899,
+      "captured_at_utc": "2026-11-04T13:52:04.899843+00:00"
+    },
+    {
+      "file": "16-production-final-review.jpg",
+      "caption": "검증 종료 후 원래 설정 복구",
+      "bytes": 85541,
+      "sha256": "7ebf5da6aa1e97938570aa3ec16554691ac1a937781754aab63b71d1dbd4f1ae",
+      "image_width": 1425,
+      "image_height": 990,
+      "captured_at_utc": "2026-11-04T13:52:13.762518+00:00"
+    }
+  ],
+  "validation": {
+    "backend": 112,
+    "backend_elapsed_seconds": 235.455,
+    "browser": 93,
+    "browser_after_label_fix": 93,
+    "production_copy_authorization": 11,
+    "live_anonymous_https_checks": 7,
+    "real_model_cases": 4,
+    "real_model_contract_steps": 6
+  },
+  "visual_findings": [
+    {
+      "issue": "catalog name mislabeled as equipment name",
+      "status": "fixed and rechecked on production",
+      "before_screenshot": "06-production-catalog-card-label-before.jpg",
+      "after_screenshots": [
+        "07-production-catalog-card-label-fixed-desktop.jpg",
+        "13-production-assistant-card-dark-mobile.jpg",
+        "14-production-assistant-card-light-mobile.jpg"
+      ]
+    }
+  ],
+  "boundaries": {
+    "staging_mock_screenshots": false,
+    "production_equipment_writes": false,
+    "other_users_live_login": false,
+    "other_services_controlled": false,
+    "other_real_provider_or_model_switch": false,
+    "long_context_benchmark": false
+  },
+  "cleanup": {
+    "own_test_card_cancelled_with_reason": true,
+    "test_records_deleted": false,
+    "theme_restored": "system",
+    "next_effort_restored": "medium",
+    "viewport_reset_called": true
+  }
+}

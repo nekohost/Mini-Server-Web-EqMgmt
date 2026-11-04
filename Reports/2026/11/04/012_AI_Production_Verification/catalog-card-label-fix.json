@@ -4,5 +4,5 @@
   "archive": "catalog-card-label-fix.zip",
   "verified": true,
   "browser_regression": "93/93 pass",
-  "actual_production_recheck": "pending"
+  "actual_production_recheck": "pass: 제조사 이름; screenshots 07, 09, 13, 14"
 }

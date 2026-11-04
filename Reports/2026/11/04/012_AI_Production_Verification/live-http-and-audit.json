@@ -1,0 +1,25 @@
+{
+  "status": "pass",
+  "https_statuses": {
+    "/login": 200,
+    "/assistant": 302,
+    "/admin/ai/providers": 302,
+    "/api/ai/capabilities": 401,
+    "/api/admin/ai/providers": 401,
+    "/static/js/equipment_ai.js": 200,
+    "POST /internal/ai/claim": 403
+  },
+  "business_counts": {
+    "approval_requests": 0,
+    "manufacturers": 1,
+    "equipments": 2,
+    "ai_execute_receipts": 0
+  },
+  "audit": {
+    "ai_http_records": 940,
+    "test_question_retained": true,
+    "proposal_content_retained": true,
+    "reasoning_retained": true,
+    "reusable_secret_plaintext_absent": true
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "status": "pass",
+  "source_commit": "1fd1a3d35af667eb3f3433f9740e68665b0717e6",
+  "app_pid": 719360,
+  "worker_status": {
+    "MainPID": "719375",
+    "NRestarts": "0",
+    "ActiveState": "active",
+    "SubState": "running"
+  },
+  "worker_warning_lines": 0,
+  "business_tables_unchanged": 17,
+  "changed_tables": [
+    "user_settings"
+  ],
+  "preference_changes": "theme/effort tests restored to system/medium; preference metadata may change",
+  "ai_schema_version": 3,
+  "job_states": {
+    "cancelled": 1,
+    "done": 3
+  },
+  "pending_proposals": 0,
+  "supported_efforts_verified": [
+    "off",
+    "low",
+    "medium",
+    "xhigh"
+  ],
+  "configured_context_tokens": 65536,
+  "runtime_source_files": [
+    {
+      "path": "app.py",
+      "sha256": "1329384b51cefb04d412a33a91003fe005e75ea5092b31aa64d1a3b50bb3a3ba"
+    },
+    {
+      "path": "requirements.txt",
+      "sha256": "7ab567fc044cc5b74d26abc6cac39b546e79b1265eaf0d7d571dabc2eaf9cad4"
+    },
+    {
+      "path": "static/css/equipment_ai_providers.css",
+      "sha256": "885757033707396ca6855f5b39d8539949869af3fedb3502c47274eeff80d669"
+    },
+    {
+      "path": "static/css/equipment_ai.css",
+      "sha256": "40f21a5512be3335379ebfc29d9485dc3d813dd4fd843f63e8d0005f1fead322"
+    },
+    {
+      "path": "static/js/equipment_ai_providers.js",
+      "sha256": "d1fbdda82be68e999d5b3689e23239029f55bbf85c2eb94c36780b4614356e58"
+    },
+    {
+      "path": "static/js/equipment_ai.js",
+      "sha256": "9f1b80cfdef3a8c754386966e76aedd58ba2c2697109c40c66ee310a49a650e8"
+    },
+    {
+      "path": "static/js/session_timer.js",
+      "sha256": "2fe2663e72f8e5ebcf986436c81fa75f69b548cd4fe19734bbdefa5d914afe31"
+    },
+    {
+      "path": "systemd/equipment-ai-worker.service",
+      "sha256": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71"
+    },
+    {
+      "path": "templates/equipment_ai_providers.html",
+      "sha256": "87f74d1b0ba8727e6b0f65d213b6b696027383a40f4a71e943de6c5788d35215"
+    },
+    {
+      "path": "templates/equipment_ai.html",
+      "sha256": "c7808e61eb0c5fa919713e31e7f0f7c1b5ef5aba478cf8db4a5321e664488a65"
+    },
+    {
+      "path": "tests/assistant_browser_fixture.py",
+      "sha256": "e7a4a7474bcb69cfa76404aad3c5e7f9b0d044f020212fbbabd01e5a93454484"
+    },
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "sha256": "2d0830e128b7ba3a7b26983b18e88f730c54843fcb3af9fb89168ac6249036b7"
+    },
+    {
+      "path": "tests/test_equipment_ai.py",
+      "sha256": "64b12a46626bc170d7da95d01e47126b1be30f118951342d76e78792ecb68995"
+    },
+    {
+      "path": "tests/test_multi_provider_ai.py",
+      "sha256": "2231d0b50d4f79ba4d3351d96e696dd56f93e78cea52597d56374a75f55629ec"
+    },
+    {
+      "path": "utils/ai_assistant/__init__.py",
+      "sha256": "6385084ea57c566ea621876175d6169a852c8c99b8bc0165a961b2794efc386a"
+    },
+    {
+      "path": "utils/ai_assistant/audit.py",
+      "sha256": "5ddc8e649e47e253d8bf6530718f27bd35b676488a48ae3386801c303783ebec"
+    },
+    {
+      "path": "utils/ai_assistant/context.py",
+      "sha256": "28b429f87e80c23beaf9f87018afc902b4b5311e05521d853791a7ec2a8368a4"
+    },
+    {
+      "path": "utils/ai_assistant/domain.py",
+      "sha256": "84614c7e73a0e08947126103b74a59f0aa310da87d5abb1a818dfa32053fdb39"
+    },
+    {
+      "path": "utils/ai_assistant/policy.py",
+      "sha256": "86275eac23290089e5a97c2d1f7fc0682f03993e117d22f9fd4ce0753451ab8b"
+    },
+    {
+      "path": "utils/ai_assistant/providers.py",
+      "sha256": "cdea9388c5a16cba0425df8b9d58c900539532e594fe74cde8aacaceadfff42a"
+    },
+    {
+      "path": "utils/ai_assistant/store.py",
+      "sha256": "eb6a30c4c1bde457db798119a2f476c7924e7f866041043907e0773045f83f95"
+    },
+    {
+      "path": "utils/ai_assistant/transport.py",
+      "sha256": "d71fc36db6d3970dc7d8a4e890a7811b950d89b897a824e96368639f3a4e5cfe"
+    },
+    {
+      "path": "utils/ai_assistant/worker.py",
+      "sha256": "618b9f98589443e5bd1e747fb05a10244788c69d544e5d565cef344d9bf3562c"
+    },
+    {
+      "path": "utils/ai_assistant/reasoning.py",
+      "sha256": "967db32b7c54a57d22eb5a270a46816435db4d7d9c4eb22d133df89d55c687c0"
+    },
+    {
+      "path": "tools/deploy_user_ai.py",
+      "sha256": "11259ca765de87b01d5a6684f39cf8a4cf1b95359ffd4b568308d3fc71d92af8"
+    }
+  ],
+  "private_backup_directory": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/user-ai-20261104T131639Z/post-check",
+  "backup_manifest": [
+    {
+      "name": "equipment-after.sqlite3",
+      "bytes": 120815616,
+      "sha256": "07cd59ae70bc2a39532b3c639251808eef6d2b0c41b0860371a92421b85905bb"
+    },
+    {
+      "name": "assistant-after.sqlite3",
+      "bytes": 180224,
+      "sha256": "19780aab87214e665ffa072b3ec3f7572d3ff5ac4d688092bd362432a9b20bbd"
+    }
+  ],
+  "private_modes": {
+    "app_env": "0o600",
+    "worker_env": "0o600",
+    "ai_directory": "0o700",
+    "ai_database": "0o600"
+  }
+}

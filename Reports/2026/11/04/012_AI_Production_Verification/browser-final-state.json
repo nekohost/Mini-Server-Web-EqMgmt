@@ -1,0 +1,12 @@
+{
+  "cancelReasonVisible": true,
+  "effort": "medium",
+  "overflow": false,
+  "sendEnabled": true,
+  "themeButton": "현재 테마: 시스템. 누르면 라이트으로 변경",
+  "url": "https://nekohost.org/assistant",
+  "viewport": {
+    "height": 1000,
+    "width": 1440
+  }
+}

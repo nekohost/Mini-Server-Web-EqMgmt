@@ -1,0 +1,16 @@
+{
+  "status": "pass",
+  "provider": "기존 Strata",
+  "model": "qwen3.8-flash-next-iq3_xxs",
+  "measurements": [
+    {"job": "990ae376b1cf4802a2adb2c063130586", "case": "17 + 25", "observed_state": "done", "steps": 1, "effort": "medium", "elapsed_seconds": 7.575, "answer": "17 + 25의 값은 42입니다."},
+    {"job": "898a0425db2a4b0d9ee29f16f4642560", "case": "본인 장비 개수 조회", "observed_state": "done", "steps": 2, "tool": "search_equipment", "effort": "medium", "elapsed_seconds": 5.429, "answer": "현재 소유 장비는 2개입니다."},
+    {"job": "4fe0d30c1fad4c078cbaddd2ef62b862", "case": "제조사 신청 확인 카드", "observed_state": "waiting_confirmation", "steps": 2, "tool": "prepare_catalog_request", "effort": "medium", "elapsed_seconds": 12.115, "business_operation_executed": false, "post_test_state": "cancelled"},
+    {"job": "c7e9c85d1fab4fd8ba760b21dfb8b3dc", "case": "실제 기능 계약 시험", "observed_state": "done", "steps": 6, "plan": ["chat", "tools", "off", "low", "medium", "xhigh"], "elapsed_seconds": 19.170}
+  ],
+  "timing_definition": "Observed from live jobs.updated - jobs.created after each result and before later card cleanup; includes app queue/dispatch/tool work, not pure model generation latency.",
+  "configured_context_tokens": 65536,
+  "long_context_benchmark": false,
+  "other_live_providers_tested": false,
+  "live_multi_model_switch_tested": false
+}
