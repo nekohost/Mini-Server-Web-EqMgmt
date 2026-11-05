@@ -1,0 +1,21 @@
+# [MINI-COMMENT: ASSISTANT.RETENTION.UNIT]
+# [EN rev.1]
+# [Role] Runs one bounded expired-conversation cleanup with no model dependency.
+# [Dependencies] Verified v4 code/guards, private assistant environment and explicit user installation.
+# [Impact] This candidate never installs/enables the unit or changes shared Strata services.
+[Unit]
+Description=Equipment management AI conversation retention cleanup
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/services/Mini-Server-Web-EqMgmt
+EnvironmentFile=%h/.config/eqmgmt/assistant-worker.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=%h/services/Mini-Server-Web-EqMgmt/.venv/bin/python tools/ai_retention_cleanup.py --batch-size 25 --max-batches 4
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=%h/services/Mini-Server-Web-EqMgmt/instance/ai
+RestrictAddressFamilies=AF_UNIX

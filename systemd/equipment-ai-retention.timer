@@ -1,0 +1,18 @@
+# [MINI-COMMENT: ASSISTANT.RETENTION.TIMER]
+# [EN rev.1]
+# [Role] Schedules five-minute cleanup plus startup catch-up independently of browser activity.
+# [Dependencies] Explicit user installation after v4/guard integration checks.
+# [Impact] Expiration blocks reads/restores immediately; physical cleanup can lag one normal timer period.
+[Unit]
+Description=Equipment management AI retention timer
+
+[Timer]
+OnStartupSec=15s
+OnCalendar=*-*-* *:0/5:00
+Persistent=true
+AccuracySec=1s
+RandomizedDelaySec=0
+Unit=equipment-ai-retention.service
+
+[Install]
+WantedBy=timers.target

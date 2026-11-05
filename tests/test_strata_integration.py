@@ -1,233 +1,235 @@
-"""Linux-only isolated tests. Reuses the real login/permission functions without importing app.py."""
+"""[MINI-COMMENT: STRATA.RETIREMENT.TESTS]
+[EN rev.1]
+[Role] Exercises real login/menu boundaries and retired URLs on synthetic Linux-only fixtures.
+[Dependencies] In-memory candidate app/assets/modules, Flask test clients and temporary SQLite.
+[Impact] Never imports production app.py, opens a real database or calls a model endpoint.
+"""
 import ast
 from functools import wraps
-import importlib.util
-import json
 import os
 from pathlib import Path
 import sqlite3
 import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
-from flask import Flask, jsonify, redirect, request, session, url_for
-from jinja2 import ChoiceLoader, FileSystemLoader
+from flask import Flask, jsonify, redirect, render_template, request, session, url_for
+from jinja2 import DictLoader
+
+import assistant_fixture_tests as assistant_fixture
+import utils.ai_assistant as assistant
+import utils.strata_integration as retired
 
 
-@unittest.skipUnless(os.name == 'posix', 'Actual behavior checks run on the Linux server only')
-class StrataIntegrationTests(unittest.TestCase):
-    """[역할] 임시 DB와 실제 인증 함수를 사용하여 중계 권한 경계를 검증합니다.
-    [의존성 관계] Linux, Flask test client, 원본 app.py의 인증 AST.
-    [변경 시 영향도] 운영 앱을 import하거나 운영 DB·API 키를 읽지 않습니다.
-    """
+@unittest.skipUnless(os.name == 'posix', 'Behavior tests require an isolated Linux fixture')
+class StrataRetirementTests(unittest.TestCase):
+    """[Role] Reuses actual auth and menu functions while replacing only data/templates with inert fixtures."""
+
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix='eqmgmt-strata-')
+        """[Role] Builds source-derived handlers on a fresh temporary metadata database."""
+        self.temporary = tempfile.TemporaryDirectory(prefix='eq-retirement-')
         self.addCleanup(self.temporary.cleanup)
         self.database = Path(self.temporary.name) / 'fixture.db'
-        self.root = Path(__file__).resolve().parents[1]
-        self.project = self.root
-        if self.root.name == 'overlay':
-            self.project = self.root.parent.parent.parent
-        with self.connect() as connection:
-            connection.executescript('''
-                CREATE TABLE users(UserId INTEGER PRIMARY KEY,Role TEXT,SessionToken TEXT,IsDeleted TEXT,
-                    IsDeactivated TEXT,DeactivatedAt TEXT);
-                CREATE TABLE menus(MenuCode TEXT UNIQUE,MenuName TEXT,Url TEXT,Description TEXT,
-                    ParentMenuCode TEXT,SortOrder INTEGER,CreatedAt TEXT,UpdatedAt TEXT);
+        with self.connect() as db:
+            db.executescript("""
+                CREATE TABLE users(UserId INTEGER PRIMARY KEY, Role TEXT, SessionToken TEXT,
+                    IsDeleted TEXT, IsDeactivated TEXT, DeactivatedAt TEXT);
+                CREATE TABLE menus(MenuId INTEGER PRIMARY KEY, MenuCode TEXT UNIQUE, MenuName TEXT, Url TEXT,
+                    Description TEXT, ParentMenuCode TEXT, SortOrder INTEGER, CreatedAt TEXT, UpdatedAt TEXT);
                 CREATE TABLE role_menu_permissions(Role TEXT,MenuCode TEXT,IsAllowed INTEGER,
                     UpdatedAt TEXT,UNIQUE(Role,MenuCode));
                 INSERT INTO users VALUES(1,'admin','admin-token','N','N',NULL);
                 INSERT INTO users VALUES(2,'user','user-token','N','N',NULL);
-                INSERT INTO menus VALUES('existing','Existing','/portal','keep',NULL,1,'old','old');
-            ''')
-        self.app = Flask(__name__, static_folder=str(self.root / 'static'))
-        self.app.config.update(TESTING=True, SECRET_KEY='isolated-strata-fixture-only', STRATA_ENABLED=True,
-                               STRATA_PUBLIC_ORIGIN='https://fixture.example', STRATA_UPSTREAM_URL='http://127.0.0.1:8080')
-        self.app.jinja_loader = ChoiceLoader([FileSystemLoader(self.root / 'templates'),
-                                             FileSystemLoader(self.project / 'templates')])
+                INSERT INTO menus VALUES(1,'existing','Existing','/portal','keep',NULL,1,'old','old');
+                INSERT INTO menus VALUES(2,'strata','Old','/ai','legacy preserved',NULL,50,'old','old');
+                INSERT INTO menus VALUES(3,'admin_center','Admin','/admin_center','hub',NULL,4,'old','old');
+                INSERT INTO menus VALUES(4,'equipment_ai_settings','AI settings','/admin/ai/providers','keep','admin_center',52,'old','old');
+                INSERT INTO menus VALUES(5,'equipment_ai','AI','/assistant','keep',NULL,51,'old','old');
+                INSERT INTO role_menu_permissions VALUES('user','strata',1,'old');
+                INSERT INTO role_menu_permissions VALUES('user','equipment_ai_settings',1,'old');
+                INSERT INTO role_menu_permissions VALUES('user','equipment_ai',1,'old');
+                INSERT INTO role_menu_permissions VALUES('admin','equipment_ai_settings',1,'old');
+            """)
+        self.app = Flask('strata_retirement_fixture', static_folder=None)
+        self.app.config.update(TESTING=True, SECRET_KEY='synthetic-retirement-fixture-only',
+                               STRATA_ENABLED=True, USER_AI_ENABLED=True)
+        templates = {key.removeprefix('templates/'): value for key, value in CANDIDATE_ASSETS.items() if key.startswith('templates/')}
+        templates['miniserver_frame.html'] = '{% block content %}{% endblock %}'
+        templates['admin_center.html'] = '<p>Administrative hub</p>'
+        self.app.jinja_loader = DictLoader(templates)
         self.app.add_url_rule('/login', 'login_page', lambda: 'login')
         self.app.add_url_rule('/deactivated_notice', 'deactivated_notice_page', lambda: 'inactive')
-        source = ast.parse((self.project / 'app.py').read_text(encoding='utf-8-sig'))
-        functions = [node for node in source.body if isinstance(node, ast.FunctionDef) and
-                     node.name in ('login_required', 'check_menu_permission')]
-        self.assertEqual(len(functions), 2)
-        namespace = dict(wraps=wraps, session=session, request=request, jsonify=jsonify,
-                         redirect=redirect, url_for=url_for, get_db_connection=self.connect)
-        exec(compile(ast.Module(body=functions, type_ignores=[]), 'real-auth-fixture', 'exec'), namespace)
-        spec = importlib.util.spec_from_file_location('isolated_strata_module', self.root / 'utils/strata_integration.py')
-        self.module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(self.module)
-        self.module.install_strata(self.app, self.connect, namespace['login_required'], namespace['check_menu_permission'])
+        namespace = dict(app=self.app, wraps=wraps, session=session, request=request, jsonify=jsonify,
+                         redirect=redirect, url_for=url_for, render_template=render_template,
+                         get_db_connection=self.connect, visible_portal_menus=retired.visible_portal_menus,
+                         visible_assistant_menus=assistant.visible_assistant_menus)
+        source = ast.parse(SOURCE_APP)
+        functions = [node for node in source.body if isinstance(node, ast.FunctionDef) and node.name in
+                     ('login_required', 'check_menu_permission', 'get_portal_menus', 'get_children_menus', 'admin_center_page')]
+        self.assertEqual(len(functions), 5)
+        exec(compile(ast.Module(body=functions, type_ignores=[]), '<candidate-auth-menus>', 'exec'), namespace)
+        self.connect_calls = 0
+        retired.install_strata(self.app, self.connect, namespace['login_required'], namespace['check_menu_permission'])
+        self.assertEqual(self.connect_calls, 0, 'Retirement must not seed or read DB metadata')
         self.client = self.app.test_client()
 
     def connect(self):
-        connection = sqlite3.connect(self.database)
-        connection.row_factory = sqlite3.Row
-        self.addCleanup(connection.close)
-        return connection
+        """[Role] Opens only the current test's temporary SQLite file."""
+        self.connect_calls = getattr(self, 'connect_calls', 0) + 1
+        db = sqlite3.connect(self.database)
+        db.row_factory = sqlite3.Row
+        self.addCleanup(db.close)
+        return db
 
     def login(self, role='admin', token=None):
-        uid = 1 if role == 'admin' else 2
+        """[Role] Installs a synthetic cookie checked against the fixture's current users table."""
         with self.client.session_transaction() as current:
-            current['user'] = {'UserId': uid, 'Role': role, 'NickName': 'Fixture'}
+            current['user'] = {'UserId': 1 if role == 'admin' else 2, 'Role': role, 'NickName': 'Fixture'}
             current['session_token'] = token or role + '-token'
-            current['csrf_token'] = 'a' * 32
 
-    def authorize(self, method='GET', path='/strata/metrics', origin='https://fixture.example', csrf='a' * 32):
-        return self.client.get('/api/strata/access', headers={
-            'X-Strata-Original-Method': method, 'X-Strata-Original-URI': path,
-            'X-Strata-Original-Origin': origin, 'X-CSRFToken': csrf})
+    def test_notices_require_live_login_and_never_embed_old_ui(self):
+        self.assertEqual(self.client.get('/ai').status_code, 302)
+        self.login()
+        for path in ('/ai', '/ai/console'):
+            response = self.client.get(path)
+            body = response.get_data(as_text=True)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn('href="/assistant"', body)
+            for forbidden in ('<iframe', 'strata_page.js', 'strata_bridge.js', 'vendor/strata', 'admin-token'):
+                self.assertNotIn(forbidden, body)
+            self.assertIn('no-store', response.headers['Cache-Control'])
 
-    def test_anonymous_api_is_401(self):
-        self.assertEqual(self.authorize().status_code, 401)
+    def test_normal_user_gets_authenticated_replacement_notice(self):
+        self.login('user')
+        self.assertEqual(self.client.get('/ai/console').status_code, 200)
 
-    def test_page_requires_login(self):
+    def test_stale_deleted_and_deactivated_login_cannot_open_notice(self):
+        self.login(token='expired')
+        self.assertEqual(self.client.get('/ai').status_code, 302)
+        self.login()
+        with self.connect() as db:
+            db.execute("UPDATE users SET IsDeleted='Y' WHERE UserId=1")
+        self.assertEqual(self.client.get('/ai').status_code, 302)
+        with self.connect() as db:
+            db.execute("UPDATE users SET IsDeleted='N',IsDeactivated='Y' WHERE UserId=1")
+        self.login()
         self.assertEqual(self.client.get('/ai').status_code, 302)
 
-    def test_user_cannot_access_console_or_proxy(self):
-        self.login('user')
-        self.assertEqual(self.authorize().status_code, 403)
-        self.assertEqual(self.client.get('/ai/console').status_code, 403)
-
-    def test_admin_read_allowed_and_no_key_headers(self):
+    def test_every_old_proxy_api_auth_method_is_gone_even_with_enabled_flag(self):
         self.login()
-        response = self.authorize()
-        self.assertEqual(response.status_code, 204)
+        headers = {'X-Strata-Original-Method': 'POST', 'X-Strata-Original-URI': '/strata/v1/chat/completions',
+                   'Origin': 'https://fixture.example', 'X-CSRFToken': 'anything'}
+        for enabled in (True, False):
+            self.app.config['STRATA_ENABLED'] = enabled
+            for path in ('/strata', '/strata/', '/strata/health', '/strata/v1/models',
+                         '/strata/v1/chat/completions', '/strata/unload', '/strata/%2e%2e/config',
+                         '/api/strata/status', '/api/strata/access', '/api/strata/unknown', '/_eqmgmt_strata_auth'):
+                for method in ('GET', 'POST', 'OPTIONS', 'DELETE'):
+                    with self.subTest(path=path, method=method, enabled=enabled):
+                        self.assertIn(self.client.open(path, method=method, headers=headers).status_code, (404, 410))
+
+    def test_proxy_anonymous_is_terminal_and_has_no_secret_headers(self):
+        response = self.client.get('/api/strata/access')
+        self.assertEqual(response.status_code, 410)
         self.assertNotIn('Authorization', response.headers)
         self.assertNotIn('X-Strata-Authorization', response.headers)
+        self.assertFalse(retired.request_allowed('POST', '/strata/v1/chat/completions'))
 
-    def test_stale_session_rejected(self):
-        self.login(token='expired-token')
-        self.assertEqual(self.authorize().status_code, 401)
+    def test_static_tombstones_cover_bridge_page_css_and_vendor(self):
+        for path in ('/static/js/strata_page.js', '/static/js/strata_bridge.js', '/static/css/strata.css',
+                     '/static/vendor/strata/app.js', '/static/vendor/strata/fonts/outfit.woff2'):
+            self.assertEqual(self.client.get(path).status_code, 410)
+        self.assertEqual(self.client.get('/static/js/equipment_ai.js').status_code, 404)
 
-    def test_role_change_is_effective_without_new_cookie(self):
+    def test_no_network_client_or_legacy_flag_can_reenable_health(self):
+        with patch('socket.create_connection', side_effect=AssertionError('Network forbidden')):
+            self.assertEqual(self.client.get('/api/strata/status').status_code, 410)
+            with self.assertRaises(RuntimeError):
+                retired.upstream_health('http://127.0.0.1:8080')
+
+    def test_legacy_menu_grants_and_other_rows_are_preserved_but_never_listed(self):
+        retired.register_menu(lambda: self.fail('Retired seeder must never open the DB'))
         self.login()
-        with self.connect() as connection:
-            connection.execute("UPDATE users SET Role='user' WHERE UserId=1")
-        self.assertEqual(self.authorize().status_code, 403)
+        rows = self.client.get('/api/portal/menus').get_json()
+        self.assertNotIn('strata', [row['MenuCode'] for row in rows])
+        self.assertIn('equipment_ai', [row['MenuCode'] for row in rows])
+        self.assertNotIn('equipment_ai_settings', [row['MenuCode'] for row in rows])
+        with self.connect() as db:
+            self.assertEqual(db.execute("SELECT Description FROM menus WHERE MenuCode='strata'").fetchone()[0], 'legacy preserved')
+            self.assertEqual(db.execute("SELECT IsAllowed FROM role_menu_permissions WHERE Role='user' AND MenuCode='strata'").fetchone()[0], 1)
 
-    def test_deleted_admin_is_rejected(self):
-        self.login()
-        with self.connect() as connection:
-            connection.execute("UPDATE users SET IsDeleted='Y' WHERE UserId=1")
-        self.assertEqual(self.authorize().status_code, 401)
-
-    def test_deactivated_admin_is_rejected(self):
-        self.login()
-        with self.connect() as connection:
-            connection.execute("UPDATE users SET IsDeactivated='Y' WHERE UserId=1")
-        self.assertEqual(self.authorize().status_code, 403)
-
-    def test_disabled_feature_denies_admin(self):
-        self.login()
-        self.app.config['STRATA_ENABLED'] = False
-        self.assertEqual(self.authorize().status_code, 403)
-        self.assertEqual(self.client.get('/ai').status_code, 404)
-
-    def test_write_requires_origin_and_csrf(self):
-        self.login()
-        for origin, token in [('https://evil.example', 'a' * 32), ('', 'a' * 32),
-                              ('https://fixture.example', ''), ('https://fixture.example', 'wrong')]:
-            with self.subTest(origin=origin, token=token):
-                self.assertEqual(self.authorize('POST', '/strata/config', origin, token).status_code, 403)
-        self.assertEqual(self.authorize('POST', '/strata/config').status_code, 204)
-
-    def test_non_ascii_csrf_fails_without_500(self):
-        self.login()
-        self.assertEqual(self.authorize('POST', '/strata/config', csrf='é').status_code, 403)
-
-    def test_path_traversal_and_unknown_control_paths_rejected(self):
-        self.login()
-        for path in ['/strata/%2e%2e/config', '/strata/../config', '/strata//config',
-                     '/strata/unload', '/strata/slots/0', '/other/metrics', '/strata/http://evil.example']:
-            with self.subTest(path=path):
-                self.assertEqual(self.authorize('POST', path).status_code, 403)
-
-    def test_known_path_wrong_method_rejected(self):
-        self.login()
-        self.assertEqual(self.authorize('DELETE', '/strata/config').status_code, 403)
-        self.assertEqual(self.authorize('POST', '/strata/metrics').status_code, 403)
-
-    def test_query_and_expected_fonts_are_allowed(self):
-        self.login()
-        self.assertEqual(self.authorize(path='/strata/metrics?requests=all').status_code, 204)
-        self.assertEqual(self.authorize(path='/strata/fonts/outfit-latin-wght.woff2').status_code, 204)
-
-    def test_registration_is_idempotent_and_preserves_existing(self):
-        self.module.register_menu(self.connect)
-        with self.connect() as connection:
-            self.assertEqual(connection.execute("SELECT COUNT(*) FROM menus WHERE MenuCode='strata'").fetchone()[0], 1)
-            self.assertEqual(connection.execute("SELECT Description FROM menus WHERE MenuCode='existing'").fetchone()[0], 'keep')
-
-    def test_conflicting_menu_is_not_overwritten(self):
-        with self.connect() as connection:
-            connection.execute("UPDATE menus SET Url='/other' WHERE MenuCode='strata'")
-        with self.assertRaises(ValueError):
-            self.module.register_menu(self.connect)
-        with self.connect() as connection:
-            self.assertEqual(connection.execute("SELECT Url FROM menus WHERE MenuCode='strata'").fetchone()[0], '/other')
-
-    def test_general_grant_does_not_show_admin_menu(self):
-        rows = [{'MenuCode':'existing'}, {'MenuCode':'strata'}]
-        self.assertEqual(self.module.visible_portal_menus(rows, 'user', self.app.config), [{'MenuCode':'existing'}])
-        self.app.config['STRATA_ENABLED'] = False
-        self.assertEqual(self.module.visible_portal_menus(rows, 'admin', self.app.config), [{'MenuCode':'existing'}])
-
-    def test_console_has_csrf_namespace_no_raw_login_token(self):
-        self.login()
-        response = self.client.get('/ai/console')
-        text = response.get_data(as_text=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertIn('eqmgmt-strata-namespace', text)
-        self.assertNotIn('admin-token', text)
-        self.assertIn('no-store', response.headers['Cache-Control'])
-        self.assertEqual(response.headers['X-Frame-Options'], 'SAMEORIGIN')
-
-    def test_health_success_and_lazy_model_state(self):
-        self.login()
-        data = {'service':'strata','status':'ok','api_key':True,'loaded':False}
-        with patch.object(self.module.requests, 'Session') as constructor:
-            response = constructor.return_value.__enter__.return_value.get.return_value.__enter__.return_value
-            response.status_code = 200
-            response.iter_content.return_value = [json.dumps(data).encode()]
-            result = self.client.get('/api/strata/status')
-        self.assertEqual(result.status_code, 200)
-        self.assertTrue(result.json['connected'])
-        self.assertEqual(result.json['state'], 'idle')
-
-    def test_health_failure_is_bounded_and_does_not_leak_address(self):
-        self.login()
-        with patch.object(self.module.requests, 'Session', side_effect=self.module.requests.ConnectionError('private-address')):
-            response = self.client.get('/api/strata/status')
-        self.assertEqual(response.status_code, 503)
-        self.assertNotIn('private-address', response.get_data(as_text=True))
-
-    def test_no_health_request_for_general_user(self):
+    def test_direct_children_api_checks_parent_and_hides_admin_only_child(self):
         self.login('user')
-        with patch.object(self.module.requests, 'Session') as constructor:
-            self.assertEqual(self.client.get('/api/strata/status').status_code, 403)
-            constructor.assert_not_called()
+        self.assertEqual(self.client.get('/api/menus/children/admin_center').status_code, 403)
+        with self.connect() as db:
+            db.execute("INSERT INTO role_menu_permissions VALUES('user','admin_center',1,'fixture')")
+        response = self.client.get('/api/menus/children/admin_center')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), [])
 
-    def test_private_key_include_has_owner_only_permissions(self):
-        spec = importlib.util.spec_from_file_location('isolated_strata_key_tool', self.root / 'tools/write_strata_nginx_key.py')
-        helper = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(helper)
-        output = Path(self.temporary.name) / 'private' / 'upstream.conf'
-        helper.write_key_include(output, 'fixture-only-not-a-real-key')
-        self.assertEqual(output.stat().st_mode & 0o777, 0o600)
-        self.assertIn('Authorization "Bearer fixture-only-not-a-real-key"', output.read_text())
-        with self.assertRaises(FileExistsError):
-            helper.write_key_include(output, 'other-fixture-key')
-
-    def test_private_key_include_rejects_newline_and_relative_target(self):
-        spec = importlib.util.spec_from_file_location('isolated_strata_key_tool', self.root / 'tools/write_strata_nginx_key.py')
-        helper = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(helper)
-        with self.assertRaises(ValueError):
-            helper.write_key_include(Path(self.temporary.name) / 'bad.conf', 'bad\nkey')
-        with self.assertRaises(ValueError):
-            helper.write_key_include('relative.conf', 'fixture-only-key')
+    def test_admin_hub_lists_setting_and_disabled_assistant_hides_it(self):
+        self.login()
+        response = self.client.get('/api/menus/children/admin_center')
+        self.assertIn('equipment_ai_settings', [row['MenuCode'] for row in response.get_json()])
+        self.assertEqual(self.client.get('/admin_center').status_code, 200)
+        self.app.config['USER_AI_ENABLED'] = False
+        self.assertEqual(self.client.get('/api/menus/children/admin_center').get_json(), [])
 
 
-if __name__ == '__main__':
-    unittest.main()
+@unittest.skipUnless(os.name == 'posix', 'Behavior tests require an isolated Linux fixture')
+class AssistantAdminMenuMigrationTests(unittest.TestCase):
+    """[Role] Checks real assistant startup migration/grants without inheriting the full unrelated fixture suite."""
+
+    def setUp(self):
+        """[Role] Reuses a source-derived isolated assistant fixture as a contained dependency."""
+        self.fixture = assistant_fixture.AssistantTests(methodName='runTest')
+        self.fixture.setUp()
+        self.addCleanup(self.fixture.doCleanups)
+
+    def reinstall(self):
+        """[Role] Runs the real startup metadata transaction in a fresh Flask instance against only temporary DBs."""
+        app = Flask('assistant_menu_reinstall', static_folder=None)
+        app.config.update(self.fixture.app.config)
+        assistant.install_assistant(app, {'get_db_connection': self.fixture.connect,
+            'login_required': lambda handler: handler, 'get_maintenance_state': lambda: {'state': 'NORMAL'},
+            'ROADMAP_ATTACHMENT_ROOT': str(self.fixture.root / 'attachments')})
+        return app
+
+    def test_new_seed_and_existing_reparent_preserve_order_name_url_and_grants(self):
+        with self.fixture.connect() as db:
+            self.assertEqual(db.execute("SELECT ParentMenuCode FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone()[0], 'admin_center')
+            db.execute("UPDATE menus SET ParentMenuCode=NULL,MenuName='Custom name',SortOrder=777,UpdatedAt='old' WHERE MenuCode='equipment_ai_settings'")
+            db.execute("INSERT OR REPLACE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES('user','equipment_ai_settings',1,'keep-grant')")
+            db.commit()
+        self.reinstall()
+        with self.fixture.connect() as db:
+            first = tuple(db.execute("SELECT MenuName,Url,ParentMenuCode,SortOrder,UpdatedAt FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone())
+            grants = [tuple(row) for row in db.execute("SELECT * FROM role_menu_permissions WHERE MenuCode='equipment_ai_settings' ORDER BY Role")]
+        self.reinstall()
+        with self.fixture.connect() as db:
+            second = tuple(db.execute("SELECT MenuName,Url,ParentMenuCode,SortOrder,UpdatedAt FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone())
+            self.assertEqual([tuple(row) for row in db.execute("SELECT * FROM role_menu_permissions WHERE MenuCode='equipment_ai_settings' ORDER BY Role")], grants)
+        self.assertEqual(first, second)
+        self.assertEqual(first[:4], ('Custom name', '/admin/ai/providers', 'admin_center', 777))
+
+    def test_collision_stops_without_overwriting_existing_metadata(self):
+        for column, value in (('Url', '/other-admin'), ('ParentMenuCode', 'unrelated_parent')):
+            with self.subTest(column=column):
+                with self.fixture.connect() as db:
+                    db.execute("UPDATE menus SET Url='/admin/ai/providers',ParentMenuCode=NULL WHERE MenuCode='equipment_ai_settings'")
+                    db.execute('UPDATE menus SET ' + column + "=? WHERE MenuCode='equipment_ai_settings'", (value,))
+                    db.commit()
+                with self.assertRaises(ValueError):
+                    self.reinstall()
+                with self.fixture.connect() as db:
+                    self.assertEqual(db.execute('SELECT ' + column + " FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone()[0], value)
+
+    def test_direct_setting_page_and_api_ignore_wrong_general_grant(self):
+        with self.fixture.connect() as db:
+            db.execute("INSERT OR REPLACE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES('user','equipment_ai_settings',1,'fixture')")
+            db.commit()
+        self.fixture.login(2)
+        self.assertEqual(self.fixture.client.get('/admin/ai/providers').status_code, 403)
+        self.assertEqual(self.fixture.client.get('/api/admin/ai/providers').status_code, 403)
+        self.fixture.login(1)
+        self.assertEqual(self.fixture.client.get('/api/admin/ai/providers').status_code, 200)

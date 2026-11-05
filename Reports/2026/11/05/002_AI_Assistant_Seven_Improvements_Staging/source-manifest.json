@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "work_id": "STAGING-20261105-AI-UX-TRASH",
+  "source_head": "3d9dacc65b83b754f7162b5ba520b0f130551208",
+  "scope": "Staging overlay, reproducible fixtures and integration documents; handoff notes excluded",
+  "baseline_files_unchanged": 24,
+  "file_count": 43,
+  "files": {
+    "Staging/20261105-ai-ux-trash/baseline.json": {
+      "sha256": "70bad27793b0ea8bb467bb18fdfc6417bd6cf92037af23dc7daf03435a927d3d",
+      "bytes": 2623
+    },
+    "Staging/20261105-ai-ux-trash/INSTALL-AND-VALIDATION.md": {
+      "sha256": "c0ee6b97fbb72b9018c9dfe2041df423cba763da54d03752e0039f383788228c",
+      "bytes": 5325
+    },
+    "Staging/20261105-ai-ux-trash/overlay/app.py": {
+      "sha256": "36589f2696285b2808252569ae4b75b42ed24ca939a7cfb32ccc2d18fbbffd4b",
+      "bytes": 305749
+    },
+    "Staging/20261105-ai-ux-trash/overlay/docs/ai-assistant.md": {
+      "sha256": "c68757477bacac4d31b67f210470c0c22acb5a10a88ccedd95b4308c441af8bc",
+      "bytes": 9620
+    },
+    "Staging/20261105-ai-ux-trash/overlay/docs/strata-integration.md": {
+      "sha256": "496f0a891544e2973bbf3dfa1034a91ac46e033292f9c9f477a35dfc76935e86",
+      "bytes": 8569
+    },
+    "Staging/20261105-ai-ux-trash/overlay/docs/strata-retirement-manifest.json": {
+      "sha256": "3870d0cea05a53f9b7467294125aa5eed15f6d29860e1cfe9b1d10c8492a605e",
+      "bytes": 2756
+    },
+    "Staging/20261105-ai-ux-trash/overlay/static/css/equipment_ai.css": {
+      "sha256": "a89d04b0d41316b78a7c2ce119b5910b2792a9ffbd741a7a8a72cbd899c69b5b",
+      "bytes": 17183
+    },
+    "Staging/20261105-ai-ux-trash/overlay/static/css/equipment_ai_providers.css": {
+      "sha256": "4c2051ecadd008913e18d69e5e411d2d0b818bffee8ddb374f9a9d9a7bca1458",
+      "bytes": 5321
+    },
+    "Staging/20261105-ai-ux-trash/overlay/static/js/equipment_ai.js": {
+      "sha256": "f05dfedd95b6d8c689e943c5054b3185a29ff1093a1ca007f5fb62df858cddd1",
+      "bytes": 82161
+    },
+    "Staging/20261105-ai-ux-trash/overlay/static/js/equipment_ai_providers.js": {
+      "sha256": "22cfeac71165b50e2598a7753154b6bf5951dfe08f5771efee6d4dcc092c1e93",
+      "bytes": 41676
+    },
+    "Staging/20261105-ai-ux-trash/overlay/systemd/equipment-ai-retention.service": {
+      "sha256": "bcb13d2a0d50a98ff4521d641f3f52b6d00bef67c74125051b048a57fa5eba27",
+      "bytes": 886
+    },
+    "Staging/20261105-ai-ux-trash/overlay/systemd/equipment-ai-retention.timer": {
+      "sha256": "bd72116858a5398a00b9bb4cb7c4c9836522ea0a52d49dab7684ade2e63b30a4",
+      "bytes": 572
+    },
+    "Staging/20261105-ai-ux-trash/overlay/systemd/nginx-strata.conf.example": {
+      "sha256": "7e84ddfcb7f9fb611e5244095436858f00c650a992018c173fe55d225fb81c4e",
+      "bytes": 989
+    },
+    "Staging/20261105-ai-ux-trash/overlay/templates/equipment_ai.html": {
+      "sha256": "a9a09b32c80b8851d6c3fe8522eb89433e1b3521aae424abfec1bfbc3b0b478a",
+      "bytes": 8777
+    },
+    "Staging/20261105-ai-ux-trash/overlay/templates/equipment_ai_providers.html": {
+      "sha256": "ded87ed603d06191fc4d526373d2c6718c4b27dc847c05b146e88ab68729db3e",
+      "bytes": 6116
+    },
+    "Staging/20261105-ai-ux-trash/overlay/templates/strata_retired.html": {
+      "sha256": "78dc3adebfe61d9625de21f04ab397b8ce5858d939b1e86e715c9f2819260bd1",
+      "bytes": 1219
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/admin_providers_browser_fixture.py": {
+      "sha256": "5159dda61549496510256efcb1a90e9fecfe412c4e8cf5dd00c82a890e2f2546",
+      "bytes": 25731
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/assistant_browser_fixture.py": {
+      "sha256": "b67e8a697d52db828e9745f1ed3abe87f81a39505ee1fb410debfced580a9914",
+      "bytes": 26906
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/run_assistant_fixture.py": {
+      "sha256": "ce04149c3722d98aee27800b09d0a09ded06b7add2f2b8b7ba66b9cc0f987548",
+      "bytes": 13070
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_admin_release.py": {
+      "sha256": "20fa86cbb03cd2c7cebf42530c25f4f316069e0a66b308b64327945685b5695b",
+      "bytes": 8240
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_ai_conversation_lifecycle.py": {
+      "sha256": "3e6250c652f9323df1ca8a446428a7a6b106c1cd20d9137d1435ac76d31339c6",
+      "bytes": 39546
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_ai_ux_integration.py": {
+      "sha256": "72b304a0eeb44fd8798f3db78f8f54f5ee986cbf31c1212ac4f7de3f3458e2fc",
+      "bytes": 23507
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_equipment_ai.py": {
+      "sha256": "0d167bde885c903be4a1f02ac37f987c788879343054c2f19aea0f1b90e35cdc",
+      "bytes": 67842
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_multi_provider_ai.py": {
+      "sha256": "a85494a08a0a328fc8a36c16c1031dc917bfb13a52435ab7aec8f7e8cae48b67",
+      "bytes": 66809
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_strata_bridge.mjs": {
+      "sha256": "66199eae43e5935ddc89ec59953f9dcccc7ef11c72de31ee38e8f4548f2fb80b",
+      "bytes": 2034
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tests/test_strata_integration.py": {
+      "sha256": "0e060296badfcfcaaae4dab5f6d1891bb41c31f116e04dfcbf33585a1d549955",
+      "bytes": 15028
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tools/ai_retention_cleanup.py": {
+      "sha256": "b4fbb27220928c49c25ed1a05dca66f4142eab3aeee6384d65259587162b975e",
+      "bytes": 6266
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tools/check_strata_static.py": {
+      "sha256": "35e2e7b499d47ff28dd36ce2d6782b19813e378fa4818e4bdb5f14a154c6001d",
+      "bytes": 3041
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tools/deploy_strata.py": {
+      "sha256": "4b23474e8507d46952cb1422a90f5cd5867f180b0d93d405174449aca173db68",
+      "bytes": 1017
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tools/deploy_user_ai.py": {
+      "sha256": "ec39904b1c28b7bc8f2e114f81c889568a97ac7865c57a182d423b414bfbc36e",
+      "bytes": 17660
+    },
+    "Staging/20261105-ai-ux-trash/overlay/tools/write_strata_nginx_key.py": {
+      "sha256": "0d38e7efcb8eb16e48fdca7b1876029a8525db0600016c19056d9f38a4b39def",
+      "bytes": 947
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/__init__.py": {
+      "sha256": "570c19fae7d2393783398e3d4a27b876fea10ca794cafaa8b303e00f23f1fa90",
+      "bytes": 71967
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/context.py": {
+      "sha256": "c59eae6972eb8fda6adeab2a8e3f783de7f0fa0ffe82caa17fb8dbca9d8b10b1",
+      "bytes": 8681
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/domain.py": {
+      "sha256": "7cbaac22b5a1b7f7d69fbbcccd0dac473ed30fe15e2e82fba1ed81fa994bed0b",
+      "bytes": 25635
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/lifecycle.py": {
+      "sha256": "491413329fd5421a1488febe4b2d9fb6248ca512bc7486e7ddd9582c211560ff",
+      "bytes": 34423
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/policy.py": {
+      "sha256": "11a46f56e5d0c2296e616299651a826272f404944e83978cbce41458daa50bb3",
+      "bytes": 14842
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/providers.py": {
+      "sha256": "90a480155c09ed2ecc12a68f8c6fac1aafb48ba1e7b0676c52099b1b8c8724ea",
+      "bytes": 32775
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/store.py": {
+      "sha256": "bdc11e8d7782a4bf0a513d1cb3ad34c4c58f2e081d0c9be442b2960026ace48d",
+      "bytes": 52504
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/ai_assistant/worker.py": {
+      "sha256": "e624f6bc1bbeeff73f402551af7b71d45b4e3e29f4633f8c53be6400c0c33cb4",
+      "bytes": 18779
+    },
+    "Staging/20261105-ai-ux-trash/overlay/utils/strata_integration.py": {
+      "sha256": "4e06fcdfafacea48c58a0c32aa9c46b64bfba98a865e57d984fa3392b307fb9f",
+      "bytes": 6919
+    },
+    "Staging/20261105-ai-ux-trash/README.md": {
+      "sha256": "eb202a454c9674500526b7d6ce96b32f4430852533b76e1559c868fdc7da425b",
+      "bytes": 1195
+    },
+    "Staging/20261105-ai-ux-trash/tests/assistant_ui_browser_fixture.py": {
+      "sha256": "1af60fbcefbdbe6281136a21b404801c8f5fdbbf7345be5f44b6595b9b24e204",
+      "bytes": 6640
+    },
+    "Staging/20261105-ai-ux-trash/tests/test_equipment_ai_ui.js": {
+      "sha256": "15f852efc5ed5ec7bc4d331e8e703f270a197c461712aba161679f605fef0424",
+      "bytes": 38582
+    }
+  }
+}

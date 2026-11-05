@@ -37,7 +37,7 @@ from utils.roadmap_files import assert_files as assert_attachment_files  # DB-on
 from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 복원을 동시에 실행하지 않습니다.
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
 from utils.roadmap_auth import email_verification_proof, matches_email_verification
-from utils.strata_integration import install_strata, visible_portal_menus  # 관리자용 Strata 화면과 중계 접근 계약.
+from utils.strata_integration import install_strata, visible_portal_menus  # Retired UI tombstones and legacy-menu suppression only.
 from utils.ai_assistant import install_assistant, visible_assistant_menus  # 독립 사용자 AI·내부 큐·서버 권한 경계.
 from utils.ai_assistant.audit import audit_body  # 감사 사건·본문을 보존하고 인증값 원문만 보호합니다.
 
@@ -4451,6 +4451,11 @@ def get_portal_menus():
 @app.route('/api/menus/children/<parent_code>')
 @login_required
 def get_children_menus(parent_code):
+    # [MINI-COMMENT: PORTAL.CHILDREN.AUTHORIZATION]
+    # [EN rev.1]
+    # [Role] Rechecks the requested parent grant and applies feature/admin-only menu visibility.
+    # [Dependencies] Live login session, check_menu_permission and the shared assistant/retirement filters.
+    # [Impact] A direct children API call cannot expose a forbidden administrative child menu.
     """
     [역할]: 특정 부모 메뉴에 속한 자식 메뉴들 중 현재 사용자 권한이 허용된 목록만 반환
     [의존성 관계]: menus, role_menu_permissions 테이블
@@ -4458,6 +4463,9 @@ def get_children_menus(parent_code):
     """
     user = session['user']
     role = user['Role']
+
+    if not check_menu_permission(parent_code):
+        return jsonify(message='상위 메뉴 접근 권한이 필요합니다.'), 403
 
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -4474,7 +4482,7 @@ def get_children_menus(parent_code):
 
     menus = [dict(r) for r in cursor.fetchall()]
     conn.close()
-    return jsonify(menus)
+    return jsonify(visible_assistant_menus(visible_portal_menus(menus, role, app.config), role, app.config))
 
 
 # 사용자 검색 API (관리자용)
@@ -6076,8 +6084,8 @@ def api_access_logs_error_ips():
 
 
 install_roadmap(app, globals())  # 모든 기존 route/데코레이터/백업 함수가 준비된 후 연결합니다.
-install_strata(app, get_db_connection, login_required, check_menu_permission)  # AI 스트림은 Nginx가 처리합니다.
-install_assistant(app, globals())  # 신규 /assistant와 자체 worker API만 등록, 기존 Strata UI는 보존합니다.
+install_strata(app, get_db_connection, login_required, check_menu_permission)  # Retired routes cannot reach an upstream model service.
+install_assistant(app, globals())  # Independent assistant/worker API; the retired browser gateway remains closed.
 
 if __name__ == '__main__':
     try:

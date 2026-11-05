@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "candidate-only-no-removal-executed",
+  "work_id": "STAGING-20261105-AI-UX-TRASH",
+  "application_scope": "equipment-management-web-only",
+  "preconditions": [
+    "Independent assistant/API/worker/connection smoke tests pass",
+    "No legacy browser request remains active; do not cancel shared generation",
+    "Consistent DB/config/menu metadata backups exist",
+    "New assistant bootstrap no longer reads the legacy Nginx key include",
+    "Reviewed deny snippet passes nginx -t before reload"
+  ],
+  "retired_urls": [
+    "/ai (authenticated notice retained)",
+    "/ai/console (authenticated notice retained)",
+    "/strata",
+    "/strata/*",
+    "/api/strata/*",
+    "/_eqmgmt_strata_auth"
+  ],
+  "remove_public_files_after_denial": [
+    "templates/strata.html",
+    "templates/strata_console.html",
+    "static/js/strata_page.js",
+    "static/js/strata_bridge.js",
+    "static/css/strata.css",
+    "static/vendor/strata/app.js",
+    "static/vendor/strata/app.css",
+    "static/vendor/strata/tokens.css",
+    "static/vendor/strata/components.css",
+    "static/vendor/strata/favicon.svg",
+    "static/vendor/strata/sprite.svg"
+  ],
+  "preserve_attribution_in_repository": [
+    "static/vendor/strata/README.md",
+    "static/vendor/strata/LICENSE.txt",
+    "static/vendor/strata/OFL-Outfit.txt"
+  ],
+  "preserve_runtime_paths_or_names": [
+    "/assistant",
+    "/admin/ai/providers",
+    "utils/ai_assistant/**",
+    "instance/ai/**",
+    "USER_AI_*",
+    "systemd/equipment-ai-worker.service",
+    "LAN Strata service and every other service/site's Strata configuration",
+    "/etc/nginx/private/strata-upstream-key.conf (separate approved key lifecycle only)"
+  ],
+  "menu_metadata": {
+    "code": "strata",
+    "retirement_action": "Always hide from main and child lists; do not reseed or alter grants during startup",
+    "final_delete": "Separate reviewed exact-row operation only after backup, FK/reference review and rollback verification"
+  },
+  "nginx": {
+    "scope": "Only the existing equipment HTTPS server's eqmgmt-strata.conf include",
+    "candidate": "systemd/nginx-strata.conf.example",
+    "private_key_action": "Do not read, remove or rotate the existing include/key"
+  },
+  "legacy_environment": [
+    "STRATA_ENABLED",
+    "STRATA_PUBLIC_ORIGIN",
+    "STRATA_UPSTREAM_URL"
+  ],
+  "legacy_helpers": {
+    "disabled_in_place": [
+      "tools/deploy_strata.py",
+      "tools/write_strata_nginx_key.py"
+    ],
+    "retirement_checker": "tools/check_strata_static.py"
+  },
+  "browser_history": "Do not delete or merge eqmgmt.strata.* localStorage",
+  "rollback": "Restore reviewed per-file/config backups and original menu metadata only; never overwrite business/AI DBs or rotate shared keys"
+}

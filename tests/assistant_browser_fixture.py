@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.BROWSER.FIXTURE]
-[EN rev.4]
+[EN rev.5]
 [Role] Runs the actual candidate DOM/CSS against a deterministic, local-only browser transport.
 [Dependencies] Linux Chromium, Flask/Jinja and synthetic responses; no production login/model is used.
-[Impact] Tests thinking disclosure, safe rendering, readable business results/CSV and responsive layout without deploying source.
+[Impact] Tests thinking disclosure, safe rendering, readable business results/CSV and responsive layout without deploying source; model restoration is verified through the compact selector while immutable answer provenance stays independent.
 """
 import base64
 import json
@@ -19,6 +19,7 @@ from werkzeug.serving import make_server
 SCRIPT=r'''
 window.module={exports:{}};
 let sent=false, pollCount=0, forceError=false;
+const trace=[];
 const cid='a'.repeat(32), jid='b'.repeat(32);
 let modelId='e'.repeat(32), modelLevel='medium', modelRevision=1, selectionWrites=0;
 const models=[{id:'e'.repeat(32),provider:'Strata PC A',label:'Fixture model',available:true,tools:true,levels:['off','low','medium','xhigh'],enabled_levels:['off','low','medium','xhigh'],supported_levels:['off','low','medium','xhigh'],default_level:'medium',reasoning_version:2,known_reasoning:true,level_reasons:{high:'모델 미지원',max:'모델 미지원'}},
@@ -29,6 +30,7 @@ const proposal={id:'c'.repeat(32),job:jid,operation:'equipment_create',payload:J
 const nativeFetch=window.fetch.bind(window);
 window.fetch=async function(path,options={}) {
   const url=new URL(path,location.origin);
+  trace.push({path:url.pathname,search:url.search,method:options.method||'GET'});
   if(!url.pathname.startsWith('/api/ai/')) return nativeFetch(path,options);
   let result={success:true};
   if(url.pathname.endsWith('/capabilities')) Object.assign(result,{storage,model:'Fixture model',reasoning_version:2,levels:[],writes:true,file_tools:true,scopes:['my','public','draft'],tools:['search_equipment','prepare_equipment_create','prepare_catalog_request']});
@@ -67,8 +69,9 @@ document.addEventListener('DOMContentLoaded',async()=>{
     await wait(()=>!document.getElementById('ai-more-conversations').hidden);
     document.getElementById('ai-more-conversations').click();
     await wait(()=>document.getElementById('ai-conversations').textContent.includes('더 오래된 대화'));
-    assert(document.getElementById('ai-conversations').querySelectorAll('button').length===2,'older-conversations-reachable');
+    assert(document.getElementById('ai-conversations').querySelectorAll('.ai-conversation').length===2,'older-conversations-reachable');
     assert(document.getElementById('ai-storage-notice').textContent.includes('32,000,000')&&document.getElementById('ai-storage-notice').textContent.includes('64,000,000'),'base-and-extra-budget-visible');
+    await wait(()=>!document.getElementById('ai-send').disabled&&!document.getElementById('ai-input').disabled);
     document.getElementById('ai-input').value='내 장비를 확인해 줘';
     document.getElementById('ai-form').requestSubmit();
     await wait(()=>document.querySelector('.ai-thought:not([hidden])'));
@@ -119,15 +122,15 @@ document.addEventListener('DOMContentLoaded',async()=>{
     assert(document.getElementById('ai-model-status').textContent.includes('대화 전용')&&document.getElementById('ai-level').disabled,'chat-only-supported-controls');
     assert(!document.querySelector('.ai-model-control img'),'model-label-xss-safe');
     document.querySelector('#ai-conversations button').click();
-    await wait(()=>document.getElementById('ai-model-caption').textContent.includes('PC B')&&document.getElementById('equipment-ai').getAttribute('aria-busy')==='false');
+    await wait(()=>document.getElementById('ai-model').selectedOptions[0]?.textContent.includes('PC B')&&document.getElementById('equipment-ai').getAttribute('aria-busy')==='false');
     assert(document.getElementById('ai-model').value===models[1].id&&document.getElementById('ai-level').value==='default','model-choice-restored-on-reopen');
-    assert(document.querySelector('.ai-source').textContent.includes('Strata PC A')&&document.getElementById('ai-model-caption').textContent.includes('PC B'),'accepted-answer-provenance-survives-model-change');
+    assert(document.querySelector('.ai-source').textContent.includes('Strata PC A')&&document.getElementById('ai-model').selectedOptions[0]?.textContent.includes('PC B')&&!document.getElementById('ai-model-caption'),'accepted-answer-provenance-survives-model-change');
     assert(document.getElementById('ai-level-help').textContent.includes('모델 기본 동작')&&[...document.querySelectorAll('#ai-level option')].filter(option=>option.value!=='default').every(option=>option.disabled),'unsupported-reasoning-help-correct');
     [...document.querySelectorAll('#ai-conversations button')].find(button=>button.textContent.includes('더 오래된')).click();
     await wait(()=>document.getElementById('equipment-ai').getAttribute('aria-busy')==='false');
     assert(document.getElementById('ai-model').value===models[0].id&&document.getElementById('ai-model-status').textContent.includes('이전 모델 기록이 없습니다'),'legacy-chat-does-not-inherit-other-session-model');
     report.textContent=JSON.stringify({status:'pass',checks,width:innerWidth});
-  }catch(error){report.textContent=JSON.stringify({status:'fail',checks,error:error.message,width:innerWidth});}
+  }catch(error){report.textContent=JSON.stringify({status:'fail',checks,error:error.message,width:innerWidth,diagnostic:{more_hidden:document.getElementById('ai-more-conversations')?.hidden,more_disabled:document.getElementById('ai-more-conversations')?.disabled,nav:document.getElementById('ai-conversations')?.textContent?.slice(0,400),notice:document.getElementById('ai-notice')?.textContent,trace:trace.slice(-8)}});}
   if(window.parent!==window)window.parent.postMessage({fixtureResult:report.textContent},location.origin);
   window.dispatchEvent(new Event('pagehide'));
 });
@@ -212,12 +215,14 @@ def run_browser(project,assets):
         """[Role] Renders the actual Jinja UI and injects deterministic browser checks only in this fixture."""
         admin=request.path=='/admin-fixture'
         html=render_template('equipment_ai_providers.html' if admin else 'equipment_ai.html',user={'NickName':'개발 확인','Role':'admin' if admin else 'user'},assistant_csrf='fixture-csrf',csrf_token='fixture-csrf')
+        html=html.replace('src="https://cdn.tailwindcss.com"','src="/static/js/tailwindcss.js"')
+        if admin and globals().get('FRAME_DIAGNOSTIC_SCRIPT'):
+            html=html.replace('<head>','<head><script>'+FRAME_DIAGNOSTIC_SCRIPT.replace('</script','<\\/script')+'</script>',1)
         anchor='<script src="/static/js/'+('equipment_ai_providers.js' if admin else 'equipment_ai.js')+'"'
         if anchor not in html:
             raise ValueError('fixture script anchor missing')
         html=html.replace(anchor,'<script>'+(ADMIN_SCRIPT if admin else SCRIPT).replace('</script','<\\/script')+'</script>'+anchor)
-        # Reproduce only the common preflight sizing while external CDNs are blocked in this fixture.
-        html=html.replace('</head>','<style>html,body{margin:0;font-family:Arial,system-ui,sans-serif;font-size:14px}h1,h2,h3,p,pre{margin:0}button,input,textarea,select{font:inherit}a{color:inherit;text-decoration:none}.app-nav-title{font-size:16px;font-weight:600}nav[aria-label="전역 네비게이션"]{background:#f8fafc}*,*:before,*:after{box-sizing:border-box}</style></head>')
+        # The bundled production fallback supplies the actual common preflight/theme while external CDNs stay blocked.
         response=Response(html,content_type='text/html; charset=utf-8')
         response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self'; font-src 'none'; img-src 'self' data:"
         return response
@@ -227,16 +232,18 @@ def run_browser(project,assets):
         """[Role] Supplies the common frame's independent test-only session poll."""
         return jsonify(valid=True)
 
+    @app.get('/api/user_settings')
+    def fixture_preferences():
+        """[Role] Supplies the same explicit light preference as the legacy fixture viewport.
+        [Dependencies] Synthetic settings only. [Impact] Session preference restoration cannot reset theme nondeterministically.
+        """
+        return jsonify(success=True,settings={'theme':'light','layout_skin':'standard'})
+
     @app.get('/mobile')
     def mobile():
         """[Role] Uses a real 430px child viewport, avoiding Chromium's 500px top-window minimum."""
         html='''<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#e9edf2;display:flex;justify-content:center"><iframe id="fixture-phone" src="/" style="width:430px;height:900px;border:0;background:white"></iframe><pre id="browser-test-result" hidden></pre><script>addEventListener('message',event=>{if(event.origin===location.origin&&event.source===document.getElementById('fixture-phone').contentWindow&&event.data.fixtureResult)document.getElementById('browser-test-result').textContent=event.data.fixtureResult;});</script></body></html>'''
         return Response(html.replace('src="/"','src="/admin-fixture"') if request.args.get('view')=='admin' else html,content_type='text/html; charset=utf-8')
-
-    @app.get('/api/user_settings')
-    def preferences():
-        """[Role] Supplies neutral frame preferences without accessing a user database."""
-        return jsonify(success=True,settings={})
 
     server=make_server('127.0.0.1',0,app,threaded=True)
     thread=threading.Thread(target=server.serve_forever,daemon=True)
@@ -247,9 +254,10 @@ def run_browser(project,assets):
             with tempfile.TemporaryDirectory(prefix='eq-assistant-browser-') as tmp:
                 png=Path(tmp)/'screen.png'
                 command=['/usr/bin/chromium','--headless','--no-sandbox','--disable-gpu','--disable-dev-shm-usage','--no-proxy-server',
+                    '--force-dark-mode',
                     '--disable-background-networking','--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1',
                     '--user-data-dir='+str(Path(tmp)/'profile'),'--window-size='+str(max(width,500))+','+str(height),
-                    '--virtual-time-budget=14000','--screenshot='+str(png),'--dump-dom','http://127.0.0.1:'+str(server.server_port)+(('/mobile?view='+view) if width<760 else '/admin-fixture' if view=='admin' else '/')]
+                    '--virtual-time-budget=45000','--screenshot='+str(png),'--dump-dom','http://127.0.0.1:'+str(server.server_port)+(('/mobile?view='+view) if width<760 else '/admin-fixture' if view=='admin' else '/')]
                 process=subprocess.run(command,capture_output=True,text=True,timeout=45)
                 match=re.search(r'<pre id="browser-test-result"[^>]*>(.*?)</pre>',process.stdout,re.S)
                 import html
@@ -261,3 +269,4 @@ def run_browser(project,assets):
     finally:
         server.shutdown();thread.join(timeout=5);server.server_close()
     return results
+

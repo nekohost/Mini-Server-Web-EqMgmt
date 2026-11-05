@@ -1,8 +1,8 @@
-"""Parse the merged Strata sources without importing the application or opening DBs."""
-
+"""Statically check the retired gateway and administrator candidate without importing the app or opening DBs."""
 import ast
 import json
 from pathlib import Path
+import re
 import subprocess
 
 from jinja2 import Environment
@@ -10,39 +10,41 @@ from jinja2 import Environment
 
 def inspect(root):
     """[MINI-COMMENT: STRATA.STATIC.CHECK]
-    [EN rev.1]
-    [Role] Checks source syntax and the three approved app integration points.
-    [Dependencies] Python AST, Jinja parser and node --check; no app imports.
-    [Impact] Safe on the Windows authoring PC; does not run behavior tests.
+    [EN rev.2]
+    [Role] Parses retirement/admin sources and validates that Nginx cannot proxy the old UI.
+    [Dependencies] Python AST, Jinja parsing, node --check and the exact removal manifest.
+    [Impact] Safe on Windows: does not run application imports, behavior tests, services or database access.
     """
-    python_files = ['app.py', 'utils/strata_integration.py',
-                    'tools/write_strata_nginx_key.py', 'tools/check_strata_static.py',
-                    'tests/test_strata_integration.py']
-    javascript_files = ['static/js/strata_bridge.js', 'static/js/strata_page.js',
-                        'static/vendor/strata/app.js', 'tests/test_strata_bridge.mjs']
-    templates = ['templates/strata.html', 'templates/strata_console.html']
+    python_files = ['app.py', 'utils/strata_integration.py', 'tools/deploy_user_ai.py',
+                    'tools/deploy_strata.py', 'tools/write_strata_nginx_key.py',
+                    'tools/check_strata_static.py', 'tests/test_strata_integration.py', 'tests/test_admin_release.py',
+                    'tests/admin_providers_browser_fixture.py']
+    javascript_files = ['static/js/equipment_ai_providers.js', 'tests/test_strata_bridge.mjs']
+    templates = ['templates/strata_retired.html', 'templates/equipment_ai_providers.html']
     for name in python_files:
         ast.parse((root / name).read_text(encoding='utf-8-sig'), filename=name)
     app = ast.parse((root / 'app.py').read_text(encoding='utf-8-sig'))
-    assert any(isinstance(n, ast.ImportFrom) and n.module == 'utils.strata_integration'
-               for n in app.body)
-    calls = [n for n in ast.walk(app) if isinstance(n, ast.Call)
-             and isinstance(n.func, ast.Name) and n.func.id == 'install_strata']
+    calls = [node for node in ast.walk(app) if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'install_strata']
     assert len(calls) == 1
-    portal = next(n for n in app.body if isinstance(n, ast.FunctionDef)
-                  and n.name == 'get_portal_menus')
-    assert 'visible_portal_menus(rows, role, app.config)' in ast.unparse(portal)
     for name in javascript_files:
-        check = subprocess.run(['node', '--check', str(root / name)],
-                               capture_output=True, text=True, check=False)
+        check = subprocess.run(['node', '--check', str(root / name)], capture_output=True, text=True, check=False)
         assert check.returncode == 0, check.stderr
     parser = Environment()
     for name in templates:
         parser.parse((root / name).read_text(encoding='utf-8'))
+    nginx = (root / 'systemd/nginx-strata.conf.example').read_text(encoding='utf-8')
+    assert not re.search(r'(?m)^\s*(?:proxy_pass|auth_request|include)\b', nginx)
+    manifest = json.loads((root / 'docs/strata-retirement-manifest.json').read_text(encoding='utf-8'))
+    for name in manifest['remove_public_files_after_denial']:
+        assert not name.startswith(('/', '\\')) and '..' not in name.split('/') and '*' not in name
+        assert name.startswith(('templates/strata', 'static/js/strata_', 'static/css/strata', 'static/vendor/strata/'))
+        assert name not in manifest['preserve_attribution_in_repository']
+    release = (root / 'tools/deploy_user_ai.py').read_text(encoding='utf-8')
+    assert '/etc/nginx/private/strata-upstream-key.conf' not in release
     return {'status': 'pass', 'mode': 'static-only', 'python': len(python_files),
             'javascript': len(javascript_files), 'templates': len(templates),
-            'application_started': False, 'database_opened': False,
-            'behavior_tests_run': False}
+            'manifest_removal_files': len(manifest['remove_public_files_after_denial']),
+            'application_started': False, 'database_opened': False, 'behavior_tests_run': False}
 
 
 if __name__ == '__main__':

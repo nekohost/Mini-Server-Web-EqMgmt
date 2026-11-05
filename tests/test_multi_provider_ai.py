@@ -583,7 +583,7 @@ class ProviderTests(unittest.TestCase):
             db.execute("UPDATE jobs SET route_snapshot='{}',selection_id=NULL WHERE id=?",(jid,))
         upgraded=Store(self.store.path)
         with upgraded.db() as db:
-            self.assertEqual(db.execute('SELECT version FROM ai_meta').fetchone()[0],3)
+            self.assertEqual(db.execute('SELECT version FROM ai_meta').fetchone()[0],4)
             row=upgraded.job(jid,db)
             self.assertEqual((row['state'],row['resource_group']),('recovery_required',LEGACY_GROUP))
         self.assertIsNone(upgraded.claim('different-worker'))
@@ -696,6 +696,8 @@ class ProviderTests(unittest.TestCase):
             [Impact] Detects regressions without production data changes or real model calls.
             """
             events.append((path,data))
+            if path.endswith('/event') and not data.get('reasoning') and not data.get('content'):
+                return {'success':True,'accepted':True,'reasoning_offset':0,'content_offset':0,'cancel':False}
             return {'success':True,'accepted':False,'reasoning_offset':0,'content_offset':0,'cancel':True}
         worker.post=post
         with patch('requests.Session') as session:
@@ -1012,3 +1014,4 @@ class ProviderTests(unittest.TestCase):
         fresh=self.store.create_conversation(2,account)
         Registry(self.store,self.app.config)
         with self.store.db() as db:self.assertEqual(db.execute('SELECT next_level FROM conversations WHERE id=?',(fresh,)).fetchone()[0],'default')
+

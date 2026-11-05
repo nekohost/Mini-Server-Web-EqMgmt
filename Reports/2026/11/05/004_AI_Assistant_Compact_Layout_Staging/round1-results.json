@@ -1,0 +1,4661 @@
+{
+  "schema_version": 1,
+  "work_id": "STAGING-20261105-AI-COMPACT-LAYOUT",
+  "round": 1,
+  "result": "failed",
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 178,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 35.204,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "ba58375ad6de4f5e8a8b08976b14eb8ed1e07ba224454febfdfcb75f18f57717",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "failure_note": "All compact functional views stopped at the shared-control computed line-height comparison: native selects normal versus refresh button16.8px; actual height/font size matched. Legacy/admin passed. This is superseded only by a separately recorded successful rerun.",
+  "results": [
+    {
+      "status": "pass",
+      "checks": [
+        "six-standard-levels",
+        "known-unsupported-levels-visible-disabled",
+        "readable-footnote-size",
+        "provider-model-picker",
+        "conversation-reasoning-restored",
+        "older-conversations-reachable",
+        "base-and-extra-budget-visible",
+        "reasoning-opens-live",
+        "answer-auto-collapses-once",
+        "user-can-reopen",
+        "poll-keeps-user-expanded",
+        "multistep-reasoning-preserved",
+        "reasoning-separate-from-answer",
+        "model-html-stays-text",
+        "safe-markdown",
+        "no-horizontal-overflow",
+        "no-repeated-auto-collapse",
+        "no-auto-collapse-on-next-generation",
+        "safe-links",
+        "confirmed-result-user-language",
+        "receipt-history-user-language",
+        "older-messages-prepended",
+        "history-loading-preserves-live-details",
+        "csv-preview-user-language",
+        "live-failed-job-stopped-with-reason",
+        "failed-reason-persists-on-reopen",
+        "chat-only-supported-controls",
+        "model-label-xss-safe",
+        "model-choice-restored-on-reopen",
+        "accepted-answer-provenance-survives-model-change",
+        "unsupported-reasoning-help-correct",
+        "legacy-chat-does-not-inherit-other-session-model"
+      ],
+      "width": 1440,
+      "exit_code": 0,
+      "view": "assistant",
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "checks": [
+        "six-standard-levels",
+        "known-unsupported-levels-visible-disabled",
+        "readable-footnote-size",
+        "provider-model-picker",
+        "conversation-reasoning-restored",
+        "older-conversations-reachable",
+        "base-and-extra-budget-visible",
+        "reasoning-opens-live",
+        "answer-auto-collapses-once",
+        "user-can-reopen",
+        "poll-keeps-user-expanded",
+        "multistep-reasoning-preserved",
+        "reasoning-separate-from-answer",
+        "model-html-stays-text",
+        "safe-markdown",
+        "no-horizontal-overflow",
+        "mobile-conversations",
+        "no-repeated-auto-collapse",
+        "no-auto-collapse-on-next-generation",
+        "safe-links",
+        "confirmed-result-user-language",
+        "receipt-history-user-language",
+        "older-messages-prepended",
+        "history-loading-preserves-live-details",
+        "csv-preview-user-language",
+        "live-failed-job-stopped-with-reason",
+        "failed-reason-persists-on-reopen",
+        "chat-only-supported-controls",
+        "model-label-xss-safe",
+        "model-choice-restored-on-reopen",
+        "accepted-answer-provenance-survives-model-change",
+        "unsupported-reasoning-help-correct",
+        "legacy-chat-does-not-inherit-other-session-model"
+      ],
+      "width": 430,
+      "exit_code": 0,
+      "view": "assistant",
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "view": "admin",
+      "checks": [
+        "common-frame-tailwind-class-dark-mode",
+        "bundled-frame-theme-applied",
+        "frame-text-contrast-at-least-4.5",
+        "six-reasoning-controls",
+        "known-unsupported-values-stay-disabled",
+        "safe-text-and-write-only-key",
+        "duplicate-and-selection-locked",
+        "existing-global-loading-reused",
+        "native-dialog-visible-from-mobile-bottom",
+        "result-dialog-text-contrast-at-least-4.5",
+        "credential-not-in-result-and-cleared-on-ack",
+        "focus-restored-after-render",
+        "unsupported-values-preserved-after-lock",
+        "model-save-through-common-result",
+        "saved-reasoning-contract-and-revision",
+        "manual-model-registration-complete",
+        "read-failure-preserves-existing-list",
+        "409-preserves-user-input",
+        "stale-close-event-keeps-current-confirmation-open",
+        "ack-refresh-failure-not-retried",
+        "ack-result-read-only-recovery",
+        "lost-response-preserves-input-without-repost",
+        "unknown-result-get-only-adoption",
+        "probe-ack-ends-overlay-while-queue-stays-visible",
+        "running-is-not-final-success",
+        "status-network-error-keeps-job-and-resume",
+        "status-resume-does-not-submit-new-test",
+        "named-retirement-confirmation",
+        "retirement-cancel-does-not-write",
+        "retired-provider-cannot-reactivate",
+        "no-shared-model-cancel-or-reset",
+        "every-post-carries-csrf",
+        "responsive-no-document-overflow"
+      ],
+      "width": 1440,
+      "dark": false,
+      "theme": {
+        "requested_dark": false,
+        "applied_dark": false,
+        "body_background": "rgb(241, 245, 249)",
+        "body_text": "rgb(30, 41, 59)",
+        "system_dark": true,
+        "tailwind": {
+          "dark_mode": "class",
+          "config_keys": [
+            "darkMode",
+            "theme"
+          ],
+          "config_script_count": 1,
+          "matching_rules": [
+            {
+              "sheet": "inline-4",
+              "selector": ".bg-slate-100",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".bg-slate-900\\/60",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgba(15, 23, 42, 0.6)",
+              "color": ""
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".text-slate-800",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".dark\\:bg-slate-900:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".dark\\:text-slate-100:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "",
+              "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+            }
+          ],
+          "media_conditions": [],
+          "unreadable_sheets": [
+            {
+              "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+              "error": "SecurityError"
+            }
+          ]
+        },
+        "settled_body_transitions": [
+          {
+            "property": "background-color",
+            "current_time": 0,
+            "end_time": 200,
+            "before_background": "rgb(15, 23, 42)",
+            "finished": true,
+            "after_background": "rgb(241, 245, 249)"
+          },
+          {
+            "property": "color",
+            "current_time": 0,
+            "end_time": 200,
+            "before_background": "rgb(241, 245, 249)",
+            "finished": true,
+            "after_background": "rgb(241, 245, 249)"
+          }
+        ],
+        "dialog_contrast": 5.895006920356563
+      },
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "view": "admin",
+      "checks": [
+        "common-frame-tailwind-class-dark-mode",
+        "bundled-frame-theme-applied",
+        "frame-text-contrast-at-least-4.5",
+        "six-reasoning-controls",
+        "known-unsupported-values-stay-disabled",
+        "safe-text-and-write-only-key",
+        "duplicate-and-selection-locked",
+        "existing-global-loading-reused",
+        "native-dialog-visible-from-mobile-bottom",
+        "result-dialog-text-contrast-at-least-4.5",
+        "credential-not-in-result-and-cleared-on-ack",
+        "focus-restored-after-render",
+        "unsupported-values-preserved-after-lock",
+        "model-save-through-common-result",
+        "saved-reasoning-contract-and-revision",
+        "manual-model-registration-complete",
+        "read-failure-preserves-existing-list",
+        "409-preserves-user-input",
+        "stale-close-event-keeps-current-confirmation-open",
+        "ack-refresh-failure-not-retried",
+        "ack-result-read-only-recovery",
+        "lost-response-preserves-input-without-repost",
+        "unknown-result-get-only-adoption",
+        "probe-ack-ends-overlay-while-queue-stays-visible",
+        "running-is-not-final-success",
+        "status-network-error-keeps-job-and-resume",
+        "status-resume-does-not-submit-new-test",
+        "named-retirement-confirmation",
+        "retirement-cancel-does-not-write",
+        "retired-provider-cannot-reactivate",
+        "no-shared-model-cancel-or-reset",
+        "every-post-carries-csrf",
+        "responsive-no-document-overflow"
+      ],
+      "width": 430,
+      "dark": false,
+      "theme": {
+        "requested_dark": false,
+        "applied_dark": false,
+        "body_background": "rgb(241, 245, 249)",
+        "body_text": "rgb(30, 41, 59)",
+        "system_dark": true,
+        "tailwind": {
+          "dark_mode": "class",
+          "config_keys": [
+            "darkMode",
+            "theme"
+          ],
+          "config_script_count": 1,
+          "matching_rules": [
+            {
+              "sheet": "inline-4",
+              "selector": ".bg-slate-100",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".bg-slate-900\\/60",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgba(15, 23, 42, 0.6)",
+              "color": ""
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".text-slate-800",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".dark\\:bg-slate-900:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-4",
+              "selector": ".dark\\:text-slate-100:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "",
+              "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+            }
+          ],
+          "media_conditions": [],
+          "unreadable_sheets": [
+            {
+              "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+              "error": "SecurityError"
+            }
+          ]
+        },
+        "settled_body_transitions": [
+          {
+            "property": "background-color",
+            "current_time": 0,
+            "end_time": 200,
+            "before_background": "rgb(15, 23, 42)",
+            "finished": true,
+            "after_background": "rgb(241, 245, 249)"
+          },
+          {
+            "property": "color",
+            "current_time": 0,
+            "end_time": 200,
+            "before_background": "rgb(241, 245, 249)",
+            "finished": true,
+            "after_background": "rgb(241, 245, 249)"
+          }
+        ],
+        "dialog_contrast": 5.895006920356563
+      },
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-003.png"
+    },
+    {
+      "status": "pass",
+      "view": "admin",
+      "checks": [
+        "common-frame-tailwind-class-dark-mode",
+        "bundled-frame-theme-applied",
+        "frame-text-contrast-at-least-4.5",
+        "six-reasoning-controls",
+        "known-unsupported-values-stay-disabled",
+        "safe-text-and-write-only-key",
+        "duplicate-and-selection-locked",
+        "existing-global-loading-reused",
+        "native-dialog-visible-from-mobile-bottom",
+        "result-dialog-text-contrast-at-least-4.5",
+        "credential-not-in-result-and-cleared-on-ack",
+        "focus-restored-after-render",
+        "unsupported-values-preserved-after-lock",
+        "model-save-through-common-result",
+        "saved-reasoning-contract-and-revision",
+        "manual-model-registration-complete",
+        "read-failure-preserves-existing-list",
+        "409-preserves-user-input",
+        "stale-close-event-keeps-current-confirmation-open",
+        "ack-refresh-failure-not-retried",
+        "ack-result-read-only-recovery",
+        "lost-response-preserves-input-without-repost",
+        "unknown-result-get-only-adoption",
+        "probe-ack-ends-overlay-while-queue-stays-visible",
+        "running-is-not-final-success",
+        "status-network-error-keeps-job-and-resume",
+        "status-resume-does-not-submit-new-test",
+        "named-retirement-confirmation",
+        "retirement-cancel-does-not-write",
+        "retired-provider-cannot-reactivate",
+        "no-shared-model-cancel-or-reset",
+        "every-post-carries-csrf",
+        "responsive-no-document-overflow"
+      ],
+      "width": 390,
+      "dark": false,
+      "theme": {
+        "requested_dark": false,
+        "applied_dark": false,
+        "body_background": "rgb(241, 245, 249)",
+        "body_text": "rgb(30, 41, 59)",
+        "system_dark": true,
+        "tailwind": {
+          "dark_mode": "class",
+          "config_keys": [
+            "darkMode",
+            "theme"
+          ],
+          "config_script_count": 1,
+          "matching_rules": [
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-100",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-900\\/60",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgba(15, 23, 42, 0.6)",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".text-slate-800",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:bg-slate-900:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:text-slate-100:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "",
+              "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+            }
+          ],
+          "media_conditions": [],
+          "unreadable_sheets": [
+            {
+              "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+              "error": "SecurityError"
+            }
+          ]
+        },
+        "settled_body_transitions": [],
+        "dialog_contrast": 5.895006920356563
+      },
+      "exit_code": 0,
+      "requested_dark": false,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-004.png"
+    },
+    {
+      "status": "pass",
+      "view": "admin",
+      "checks": [
+        "common-frame-tailwind-class-dark-mode",
+        "bundled-frame-theme-applied",
+        "frame-text-contrast-at-least-4.5",
+        "six-reasoning-controls",
+        "known-unsupported-values-stay-disabled",
+        "safe-text-and-write-only-key",
+        "duplicate-and-selection-locked",
+        "existing-global-loading-reused",
+        "native-dialog-visible-from-mobile-bottom",
+        "result-dialog-text-contrast-at-least-4.5",
+        "credential-not-in-result-and-cleared-on-ack",
+        "focus-restored-after-render",
+        "unsupported-values-preserved-after-lock",
+        "model-save-through-common-result",
+        "saved-reasoning-contract-and-revision",
+        "manual-model-registration-complete",
+        "read-failure-preserves-existing-list",
+        "409-preserves-user-input",
+        "stale-close-event-keeps-current-confirmation-open",
+        "ack-refresh-failure-not-retried",
+        "ack-result-read-only-recovery",
+        "lost-response-preserves-input-without-repost",
+        "unknown-result-get-only-adoption",
+        "probe-ack-ends-overlay-while-queue-stays-visible",
+        "running-is-not-final-success",
+        "status-network-error-keeps-job-and-resume",
+        "status-resume-does-not-submit-new-test",
+        "named-retirement-confirmation",
+        "retirement-cancel-does-not-write",
+        "retired-provider-cannot-reactivate",
+        "no-shared-model-cancel-or-reset",
+        "every-post-carries-csrf",
+        "responsive-no-document-overflow"
+      ],
+      "width": 430,
+      "dark": true,
+      "theme": {
+        "requested_dark": true,
+        "applied_dark": true,
+        "body_background": "rgb(15, 23, 42)",
+        "body_text": "rgb(241, 245, 249)",
+        "system_dark": true,
+        "tailwind": {
+          "dark_mode": "class",
+          "config_keys": [
+            "darkMode",
+            "theme"
+          ],
+          "config_script_count": 1,
+          "matching_rules": [
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-100",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-900\\/60",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgba(15, 23, 42, 0.6)",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".text-slate-800",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:bg-slate-900:is(.dark *)",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:text-slate-100:is(.dark *)",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+            }
+          ],
+          "media_conditions": [],
+          "unreadable_sheets": [
+            {
+              "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+              "error": "SecurityError"
+            }
+          ]
+        },
+        "settled_body_transitions": [],
+        "dialog_contrast": 5.895006920356563
+      },
+      "exit_code": 0,
+      "requested_dark": true,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-005.png"
+    },
+    {
+      "status": "pass",
+      "view": "admin",
+      "checks": [
+        "common-frame-tailwind-class-dark-mode",
+        "bundled-frame-theme-applied",
+        "frame-text-contrast-at-least-4.5",
+        "six-reasoning-controls",
+        "known-unsupported-values-stay-disabled",
+        "safe-text-and-write-only-key",
+        "duplicate-and-selection-locked",
+        "existing-global-loading-reused",
+        "native-dialog-visible-from-mobile-bottom",
+        "result-dialog-text-contrast-at-least-4.5",
+        "credential-not-in-result-and-cleared-on-ack",
+        "focus-restored-after-render",
+        "unsupported-values-preserved-after-lock",
+        "model-save-through-common-result",
+        "saved-reasoning-contract-and-revision",
+        "manual-model-registration-complete",
+        "read-failure-preserves-existing-list",
+        "409-preserves-user-input",
+        "stale-close-event-keeps-current-confirmation-open",
+        "ack-refresh-failure-not-retried",
+        "ack-result-read-only-recovery",
+        "lost-response-preserves-input-without-repost",
+        "unknown-result-get-only-adoption",
+        "probe-ack-ends-overlay-while-queue-stays-visible",
+        "running-is-not-final-success",
+        "status-network-error-keeps-job-and-resume",
+        "status-resume-does-not-submit-new-test",
+        "named-retirement-confirmation",
+        "retirement-cancel-does-not-write",
+        "retired-provider-cannot-reactivate",
+        "no-shared-model-cancel-or-reset",
+        "every-post-carries-csrf",
+        "responsive-no-document-overflow"
+      ],
+      "width": 768,
+      "dark": false,
+      "theme": {
+        "requested_dark": false,
+        "applied_dark": false,
+        "body_background": "rgb(241, 245, 249)",
+        "body_text": "rgb(30, 41, 59)",
+        "system_dark": true,
+        "tailwind": {
+          "dark_mode": "class",
+          "config_keys": [
+            "darkMode",
+            "theme"
+          ],
+          "config_script_count": 1,
+          "matching_rules": [
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-100",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-900\\/60",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgba(15, 23, 42, 0.6)",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".text-slate-800",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:bg-slate-900:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:text-slate-100:is(.dark *)",
+              "conditions": [],
+              "matches_body": false,
+              "background": "",
+              "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+            }
+          ],
+          "media_conditions": [],
+          "unreadable_sheets": [
+            {
+              "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+              "error": "SecurityError"
+            }
+          ]
+        },
+        "settled_body_transitions": [],
+        "dialog_contrast": 5.895006920356563
+      },
+      "exit_code": 0,
+      "requested_dark": false,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-006.png"
+    },
+    {
+      "status": "pass",
+      "view": "admin",
+      "checks": [
+        "common-frame-tailwind-class-dark-mode",
+        "bundled-frame-theme-applied",
+        "frame-text-contrast-at-least-4.5",
+        "six-reasoning-controls",
+        "known-unsupported-values-stay-disabled",
+        "safe-text-and-write-only-key",
+        "duplicate-and-selection-locked",
+        "existing-global-loading-reused",
+        "native-dialog-visible-from-mobile-bottom",
+        "result-dialog-text-contrast-at-least-4.5",
+        "credential-not-in-result-and-cleared-on-ack",
+        "focus-restored-after-render",
+        "unsupported-values-preserved-after-lock",
+        "model-save-through-common-result",
+        "saved-reasoning-contract-and-revision",
+        "manual-model-registration-complete",
+        "read-failure-preserves-existing-list",
+        "409-preserves-user-input",
+        "stale-close-event-keeps-current-confirmation-open",
+        "ack-refresh-failure-not-retried",
+        "ack-result-read-only-recovery",
+        "lost-response-preserves-input-without-repost",
+        "unknown-result-get-only-adoption",
+        "probe-ack-ends-overlay-while-queue-stays-visible",
+        "running-is-not-final-success",
+        "status-network-error-keeps-job-and-resume",
+        "status-resume-does-not-submit-new-test",
+        "named-retirement-confirmation",
+        "retirement-cancel-does-not-write",
+        "retired-provider-cannot-reactivate",
+        "no-shared-model-cancel-or-reset",
+        "every-post-carries-csrf",
+        "responsive-no-document-overflow"
+      ],
+      "width": 1440,
+      "dark": true,
+      "theme": {
+        "requested_dark": true,
+        "applied_dark": true,
+        "body_background": "rgb(15, 23, 42)",
+        "body_text": "rgb(241, 245, 249)",
+        "system_dark": true,
+        "tailwind": {
+          "dark_mode": "class",
+          "config_keys": [
+            "darkMode",
+            "theme"
+          ],
+          "config_script_count": 1,
+          "matching_rules": [
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-100",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".bg-slate-900\\/60",
+              "conditions": [],
+              "matches_body": false,
+              "background": "rgba(15, 23, 42, 0.6)",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".text-slate-800",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:bg-slate-900:is(.dark *)",
+              "conditions": [],
+              "matches_body": true,
+              "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+              "color": ""
+            },
+            {
+              "sheet": "inline-5",
+              "selector": ".dark\\:text-slate-100:is(.dark *)",
+              "conditions": [],
+              "matches_body": true,
+              "background": "",
+              "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+            }
+          ],
+          "media_conditions": [],
+          "unreadable_sheets": [
+            {
+              "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+              "error": "SecurityError"
+            }
+          ]
+        },
+        "settled_body_transitions": [],
+        "dialog_contrast": 5.895006920356563
+      },
+      "exit_code": 0,
+      "requested_dark": true,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-007.png"
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 320,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 320,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 297,
+            "bottom": 1025,
+            "width": 289,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 296,
+            "bottom": 183,
+            "width": 287,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 286,
+            "bottom": 163,
+            "width": 183.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 781.938,
+            "right": 269,
+            "bottom": 877.938,
+            "width": 233,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 354.781,
+            "right": 296,
+            "bottom": 708.938,
+            "width": 287,
+            "height": 354.156
+          },
+          "composer": {
+            "left": 21,
+            "top": 708.938,
+            "right": 284,
+            "bottom": 940.125,
+            "width": 263,
+            "height": 231.188
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "287px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "183.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 781.938,
+                "right": 173.391,
+                "bottom": 825.938,
+                "width": 95.125,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "95.125px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 181.391,
+                "top": 781.938,
+                "right": 269,
+                "bottom": 825.938,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 833.938,
+                "right": 166.094,
+                "bottom": 877.938,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 225,
+                "top": 833.938,
+                "right": 269,
+                "bottom": 877.938,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 305
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-008.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 320,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 320,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 297,
+            "bottom": 1025,
+            "width": 289,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 296,
+            "bottom": 183,
+            "width": 287,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 286,
+            "bottom": 163,
+            "width": 183.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 781.938,
+            "right": 269,
+            "bottom": 877.938,
+            "width": 233,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 354.781,
+            "right": 296,
+            "bottom": 708.938,
+            "width": 287,
+            "height": 354.156
+          },
+          "composer": {
+            "left": 21,
+            "top": 708.938,
+            "right": 284,
+            "bottom": 940.125,
+            "width": 263,
+            "height": 231.188
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "287px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "183.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 781.938,
+                "right": 173.391,
+                "bottom": 825.938,
+                "width": 95.125,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "95.125px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 181.391,
+                "top": 781.938,
+                "right": 269,
+                "bottom": 825.938,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 833.938,
+                "right": 166.094,
+                "bottom": 877.938,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 225,
+                "top": 833.938,
+                "right": 269,
+                "bottom": 877.938,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 305
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-009.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 360,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 360,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 337,
+            "bottom": 1025,
+            "width": 329,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 336,
+            "bottom": 183,
+            "width": 327,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 326,
+            "bottom": 163,
+            "width": 223.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 807.531,
+            "right": 309,
+            "bottom": 903.531,
+            "width": 273,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 334.984,
+            "right": 336,
+            "bottom": 734.531,
+            "width": 327,
+            "height": 399.547
+          },
+          "composer": {
+            "left": 21,
+            "top": 734.531,
+            "right": 324,
+            "bottom": 940.125,
+            "width": 303,
+            "height": 205.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "327px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "223.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 807.531,
+                "right": 213.391,
+                "bottom": 851.531,
+                "width": 135.125,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "135.125px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 221.391,
+                "top": 807.531,
+                "right": 309,
+                "bottom": 851.531,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 859.531,
+                "right": 166.094,
+                "bottom": 903.531,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 265,
+                "top": 859.531,
+                "right": 309,
+                "bottom": 903.531,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 345
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-010.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 360,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 360,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 337,
+            "bottom": 1025,
+            "width": 329,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 336,
+            "bottom": 183,
+            "width": 327,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 326,
+            "bottom": 163,
+            "width": 223.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 807.531,
+            "right": 309,
+            "bottom": 903.531,
+            "width": 273,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 334.984,
+            "right": 336,
+            "bottom": 734.531,
+            "width": 327,
+            "height": 399.547
+          },
+          "composer": {
+            "left": 21,
+            "top": 734.531,
+            "right": 324,
+            "bottom": 940.125,
+            "width": 303,
+            "height": 205.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "327px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "223.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 807.531,
+                "right": 213.391,
+                "bottom": 851.531,
+                "width": 135.125,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "135.125px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 221.391,
+                "top": 807.531,
+                "right": 309,
+                "bottom": 851.531,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 859.531,
+                "right": 166.094,
+                "bottom": 903.531,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 265,
+                "top": 859.531,
+                "right": 309,
+                "bottom": 903.531,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 345
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-011.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 390,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 390,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 367,
+            "bottom": 1025,
+            "width": 359,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 366,
+            "bottom": 183,
+            "width": 357,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 356,
+            "bottom": 163,
+            "width": 253.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 807.531,
+            "right": 339,
+            "bottom": 903.531,
+            "width": 303,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 334.984,
+            "right": 366,
+            "bottom": 734.531,
+            "width": 357,
+            "height": 399.547
+          },
+          "composer": {
+            "left": 21,
+            "top": 734.531,
+            "right": 354,
+            "bottom": 940.125,
+            "width": 333,
+            "height": 205.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "357px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "253.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 807.531,
+                "right": 214.266,
+                "bottom": 851.531,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 807.531,
+                "right": 319.609,
+                "bottom": 851.531,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 859.531,
+                "right": 166.094,
+                "bottom": 903.531,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 295,
+                "top": 859.531,
+                "right": 339,
+                "bottom": 903.531,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 375
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-012.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 390,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 390,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 367,
+            "bottom": 1025,
+            "width": 359,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 366,
+            "bottom": 183,
+            "width": 357,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 356,
+            "bottom": 163,
+            "width": 253.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 807.531,
+            "right": 339,
+            "bottom": 903.531,
+            "width": 303,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 334.984,
+            "right": 366,
+            "bottom": 734.531,
+            "width": 357,
+            "height": 399.547
+          },
+          "composer": {
+            "left": 21,
+            "top": 734.531,
+            "right": 354,
+            "bottom": 940.125,
+            "width": 333,
+            "height": 205.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "357px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "253.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 807.531,
+                "right": 214.266,
+                "bottom": 851.531,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 807.531,
+                "right": 319.609,
+                "bottom": 851.531,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 859.531,
+                "right": 166.094,
+                "bottom": 903.531,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 295,
+                "top": 859.531,
+                "right": 339,
+                "bottom": 903.531,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 375
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-013.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 430,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 430,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 407,
+            "bottom": 1025,
+            "width": 399,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 406,
+            "bottom": 183,
+            "width": 397,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 396,
+            "bottom": 163,
+            "width": 293.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 807.531,
+            "right": 379,
+            "bottom": 903.531,
+            "width": 343,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 315.188,
+            "right": 406,
+            "bottom": 734.531,
+            "width": 397,
+            "height": 419.344
+          },
+          "composer": {
+            "left": 21,
+            "top": 734.531,
+            "right": 394,
+            "bottom": 940.125,
+            "width": 373,
+            "height": 205.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "397px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "293.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 807.531,
+                "right": 214.266,
+                "bottom": 851.531,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 807.531,
+                "right": 319.609,
+                "bottom": 851.531,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 859.531,
+                "right": 166.094,
+                "bottom": 903.531,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 335,
+                "top": 859.531,
+                "right": 379,
+                "bottom": 903.531,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 415
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-014.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 430,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 430,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 125,
+            "right": 407,
+            "bottom": 1025,
+            "width": 399,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 126,
+            "right": 406,
+            "bottom": 183,
+            "width": 397,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 145,
+            "right": 396,
+            "bottom": 163,
+            "width": 293.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 807.531,
+            "right": 379,
+            "bottom": 903.531,
+            "width": 343,
+            "height": 96
+          },
+          "scroll": {
+            "left": 9,
+            "top": 315.188,
+            "right": 406,
+            "bottom": 734.531,
+            "width": 397,
+            "height": 419.344
+          },
+          "composer": {
+            "left": 21,
+            "top": 734.531,
+            "right": 394,
+            "bottom": 940.125,
+            "width": 373,
+            "height": 205.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "397px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "293.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 807.531,
+                "right": 214.266,
+                "bottom": 851.531,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 807.531,
+                "right": 319.609,
+                "bottom": 851.531,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 64.094,
+                "top": 859.531,
+                "right": 166.094,
+                "bottom": 903.531,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 335,
+                "top": 859.531,
+                "right": 379,
+                "bottom": 903.531,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 415
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-015.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 760,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 745,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 93,
+            "right": 722,
+            "bottom": 993,
+            "width": 714,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 94,
+            "right": 721,
+            "bottom": 151,
+            "width": 712,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 113,
+            "right": 711,
+            "bottom": 131,
+            "width": 608.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 846.719,
+            "right": 694,
+            "bottom": 890.719,
+            "width": 658,
+            "height": 44
+          },
+          "scroll": {
+            "left": 9,
+            "top": 263.391,
+            "right": 721,
+            "bottom": 773.719,
+            "width": 712,
+            "height": 510.328
+          },
+          "composer": {
+            "left": 21,
+            "top": 773.719,
+            "right": 709,
+            "bottom": 927.313,
+            "width": 688,
+            "height": 153.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "712px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "608.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 846.719,
+                "right": 214.266,
+                "bottom": 890.719,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 846.719,
+                "right": 319.609,
+                "bottom": 890.719,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 360.094,
+                "top": 846.719,
+                "right": 462.094,
+                "bottom": 890.719,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 650,
+                "top": 846.719,
+                "right": 694,
+                "bottom": 890.719,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 730
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-016.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 760,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 745,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 93,
+            "right": 722,
+            "bottom": 993,
+            "width": 714,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 94,
+            "right": 721,
+            "bottom": 151,
+            "width": 712,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 113,
+            "right": 711,
+            "bottom": 131,
+            "width": 608.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 846.719,
+            "right": 694,
+            "bottom": 890.719,
+            "width": 658,
+            "height": 44
+          },
+          "scroll": {
+            "left": 9,
+            "top": 263.391,
+            "right": 721,
+            "bottom": 773.719,
+            "width": 712,
+            "height": 510.328
+          },
+          "composer": {
+            "left": 21,
+            "top": 773.719,
+            "right": 709,
+            "bottom": 927.313,
+            "width": 688,
+            "height": 153.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "712px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "608.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 846.719,
+                "right": 214.266,
+                "bottom": 890.719,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 846.719,
+                "right": 319.609,
+                "bottom": 890.719,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 360.094,
+                "top": 846.719,
+                "right": 462.094,
+                "bottom": 890.719,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 650,
+                "top": 846.719,
+                "right": 694,
+                "bottom": 890.719,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 730
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-017.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 761,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 746,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 93,
+            "right": 723,
+            "bottom": 993,
+            "width": 715,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 94,
+            "right": 722,
+            "bottom": 151,
+            "width": 713,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 113,
+            "right": 712,
+            "bottom": 131,
+            "width": 609.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 846.719,
+            "right": 695,
+            "bottom": 890.719,
+            "width": 659,
+            "height": 44
+          },
+          "scroll": {
+            "left": 9,
+            "top": 263.391,
+            "right": 722,
+            "bottom": 773.719,
+            "width": 713,
+            "height": 510.328
+          },
+          "composer": {
+            "left": 21,
+            "top": 773.719,
+            "right": 710,
+            "bottom": 927.313,
+            "width": 689,
+            "height": 153.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "713px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "609.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 846.719,
+                "right": 214.266,
+                "bottom": 890.719,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 846.719,
+                "right": 319.609,
+                "bottom": 890.719,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 360.094,
+                "top": 846.719,
+                "right": 462.094,
+                "bottom": 890.719,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 651,
+                "top": 846.719,
+                "right": 695,
+                "bottom": 890.719,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 731
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-018.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 761,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 746,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 8,
+            "top": 93,
+            "right": 723,
+            "bottom": 993,
+            "width": 715,
+            "height": 900
+          },
+          "header": {
+            "left": 9,
+            "top": 94,
+            "right": 722,
+            "bottom": 151,
+            "width": 713,
+            "height": 57
+          },
+          "titleRect": {
+            "left": 102.531,
+            "top": 113,
+            "right": 712,
+            "bottom": 131,
+            "width": 609.469,
+            "height": 18
+          },
+          "modelRow": {
+            "left": 36,
+            "top": 846.719,
+            "right": 695,
+            "bottom": 890.719,
+            "width": 659,
+            "height": 44
+          },
+          "scroll": {
+            "left": 9,
+            "top": 263.391,
+            "right": 722,
+            "bottom": 773.719,
+            "width": 713,
+            "height": 510.328
+          },
+          "composer": {
+            "left": 21,
+            "top": 773.719,
+            "right": 710,
+            "bottom": 927.313,
+            "width": 689,
+            "height": 153.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "flex",
+            "height": "57px",
+            "minHeight": "auto",
+            "width": "713px",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "6px 10px",
+            "borderWidth": "0px 0px 1px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "18px",
+            "minHeight": "auto",
+            "width": "609.469px",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 78.266,
+                "top": 846.719,
+                "right": 214.266,
+                "bottom": 890.719,
+                "width": 136,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 232,
+                "top": 846.719,
+                "right": 319.609,
+                "bottom": 890.719,
+                "width": 87.609,
+                "height": 44
+              },
+              "style": {
+                "display": "flex",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 360.094,
+                "top": 846.719,
+                "right": 462.094,
+                "bottom": 890.719,
+                "width": 102,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 651,
+                "top": 846.719,
+                "right": 695,
+                "bottom": 890.719,
+                "width": 44,
+                "height": 44
+              },
+              "style": {
+                "display": "block",
+                "height": "44px",
+                "minHeight": "auto",
+                "width": "44px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 731
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-019.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 820,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 805,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 22,
+            "top": 103,
+            "right": 768,
+            "bottom": 987,
+            "width": 746,
+            "height": 884
+          },
+          "header": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "titleRect": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "modelRow": {
+            "left": 272,
+            "top": 801.719,
+            "right": 728,
+            "bottom": 881.719,
+            "width": 456,
+            "height": 80
+          },
+          "scroll": {
+            "left": 233,
+            "top": 236.188,
+            "right": 767,
+            "bottom": 728.719,
+            "width": 534,
+            "height": 492.531
+          },
+          "composer": {
+            "left": 257,
+            "top": 728.719,
+            "right": 743,
+            "bottom": 918.313,
+            "width": 486,
+            "height": 189.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "none",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 314.266,
+                "top": 801.719,
+                "right": 450.266,
+                "bottom": 837.719,
+                "width": 136,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 468,
+                "top": 801.719,
+                "right": 555.609,
+                "bottom": 837.719,
+                "width": 87.609,
+                "height": 36
+              },
+              "style": {
+                "display": "flex",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 596.094,
+                "top": 801.719,
+                "right": 698.094,
+                "bottom": 837.719,
+                "width": 102,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 692,
+                "top": 845.719,
+                "right": 728,
+                "bottom": 881.719,
+                "width": 36,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "36px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 790
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-020.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 820,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 805,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 22,
+            "top": 103,
+            "right": 768,
+            "bottom": 987,
+            "width": 746,
+            "height": 884
+          },
+          "header": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "titleRect": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "modelRow": {
+            "left": 272,
+            "top": 801.719,
+            "right": 728,
+            "bottom": 881.719,
+            "width": 456,
+            "height": 80
+          },
+          "scroll": {
+            "left": 233,
+            "top": 236.188,
+            "right": 767,
+            "bottom": 728.719,
+            "width": 534,
+            "height": 492.531
+          },
+          "composer": {
+            "left": 257,
+            "top": 728.719,
+            "right": 743,
+            "bottom": 918.313,
+            "width": 486,
+            "height": 189.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "none",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 314.266,
+                "top": 801.719,
+                "right": 450.266,
+                "bottom": 837.719,
+                "width": 136,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 468,
+                "top": 801.719,
+                "right": 555.609,
+                "bottom": 837.719,
+                "width": 87.609,
+                "height": 36
+              },
+              "style": {
+                "display": "flex",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 596.094,
+                "top": 801.719,
+                "right": 698.094,
+                "bottom": 837.719,
+                "width": 102,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 692,
+                "top": 845.719,
+                "right": 728,
+                "bottom": 881.719,
+                "width": 36,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "36px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 790
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-021.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 1440,
+      "theme": "light",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 1425,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "light",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 22,
+            "top": 103,
+            "right": 1388,
+            "bottom": 987,
+            "width": 1366,
+            "height": 884
+          },
+          "header": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "titleRect": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "modelRow": {
+            "left": 417,
+            "top": 845.719,
+            "right": 1237,
+            "bottom": 881.719,
+            "width": 820,
+            "height": 36
+          },
+          "scroll": {
+            "left": 267,
+            "top": 196.594,
+            "right": 1387,
+            "bottom": 772.719,
+            "width": 1120,
+            "height": 576.125
+          },
+          "composer": {
+            "left": 402,
+            "top": 772.719,
+            "right": 1252,
+            "bottom": 918.313,
+            "width": 850,
+            "height": 145.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "none",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 459.266,
+                "top": 845.719,
+                "right": 595.266,
+                "bottom": 881.719,
+                "width": 136,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 613,
+                "top": 845.719,
+                "right": 700.609,
+                "bottom": 881.719,
+                "width": 87.609,
+                "height": 36
+              },
+              "style": {
+                "display": "flex",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 741.094,
+                "top": 845.719,
+                "right": 843.094,
+                "bottom": 881.719,
+                "width": 102,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 1201,
+                "top": 845.719,
+                "right": 1237,
+                "bottom": 881.719,
+                "width": 36,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "36px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 1410
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-022.png",
+      "request_count": 5
+    },
+    {
+      "status": "fail",
+      "checks": [
+        "initialNormal-composer-dom-order",
+        "initialNormal-model-label-and-refresh-button-type",
+        "initialNormal-duplicate-header-content-removed",
+        "initialNormal-no-upper-model-toolbar",
+        "initialNormal-model-width-within-measured-136px-cap"
+      ],
+      "error": "initialNormal-shared-control-height-font-and-border-box",
+      "width": 1440,
+      "theme": "dark",
+      "layout": {
+        "initialNormal": {
+          "viewport": {
+            "width": 1425,
+            "height": 1000,
+            "devicePixelRatio": 1
+          },
+          "theme": "dark",
+          "title": "표와 휴지통 확인 <img src=x>",
+          "selectedModel": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+          "selectedModelText": "260Strata / Qwen3.8 Flash Next",
+          "selectedLevel": "medium",
+          "measuredModelCap": 136,
+          "cssModelCap": "136px",
+          "root": {
+            "left": 22,
+            "top": 103,
+            "right": 1388,
+            "bottom": 987,
+            "width": 1366,
+            "height": 884
+          },
+          "header": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "titleRect": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "modelRow": {
+            "left": 417,
+            "top": 845.719,
+            "right": 1237,
+            "bottom": 881.719,
+            "width": 820,
+            "height": 36
+          },
+          "scroll": {
+            "left": 267,
+            "top": 196.594,
+            "right": 1387,
+            "bottom": 772.719,
+            "width": 1120,
+            "height": 576.125
+          },
+          "composer": {
+            "left": 402,
+            "top": 772.719,
+            "right": 1252,
+            "bottom": 918.313,
+            "width": 850,
+            "height": 145.594
+          },
+          "status": {
+            "left": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "width": 0,
+            "height": 0
+          },
+          "headerStyle": {
+            "display": "none",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "14px",
+            "fontWeight": "400",
+            "lineHeight": "23.1px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "normal",
+            "overflow": "visible",
+            "textOverflow": "clip"
+          },
+          "titleStyle": {
+            "display": "block",
+            "height": "auto",
+            "minHeight": "0px",
+            "width": "auto",
+            "fontSize": "12px",
+            "fontWeight": "650",
+            "lineHeight": "18px",
+            "boxSizing": "border-box",
+            "padding": "0px",
+            "borderWidth": "0px",
+            "whiteSpace": "nowrap",
+            "overflow": "hidden",
+            "textOverflow": "ellipsis"
+          },
+          "controls": {
+            "ai-model": {
+              "rect": {
+                "left": 459.266,
+                "top": 845.719,
+                "right": 595.266,
+                "bottom": 881.719,
+                "width": 136,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "136px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-model-refresh": {
+              "rect": {
+                "left": 613,
+                "top": 845.719,
+                "right": 700.609,
+                "bottom": 881.719,
+                "width": 87.609,
+                "height": 36
+              },
+              "style": {
+                "display": "flex",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "87.6094px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "16.8px",
+                "boxSizing": "border-box",
+                "padding": "0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "nowrap",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-level": {
+              "rect": {
+                "left": 741.094,
+                "top": 845.719,
+                "right": 843.094,
+                "bottom": 881.719,
+                "width": 102,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "102px",
+                "fontSize": "12px",
+                "fontWeight": "400",
+                "lineHeight": "normal",
+                "boxSizing": "border-box",
+                "padding": "0px 25px 0px 8px",
+                "borderWidth": "1px",
+                "whiteSpace": "pre",
+                "overflow": "clip",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            },
+            "ai-send": {
+              "rect": {
+                "left": 1201,
+                "top": 845.719,
+                "right": 1237,
+                "bottom": 881.719,
+                "width": 36,
+                "height": 36
+              },
+              "style": {
+                "display": "block",
+                "height": "36px",
+                "minHeight": "auto",
+                "width": "36px",
+                "fontSize": "21px",
+                "fontWeight": "500",
+                "lineHeight": "34.65px",
+                "boxSizing": "border-box",
+                "padding": "0px",
+                "borderWidth": "0px",
+                "whiteSpace": "normal",
+                "overflow": "visible",
+                "textOverflow": "clip"
+              },
+              "disabled": false
+            }
+          },
+          "pageScrollWidth": 1410
+        }
+      },
+      "dialog": "",
+      "notice": "",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-023.png",
+      "request_count": 5
+    },
+    {
+      "status": "pass",
+      "kind": "layout-measurement",
+      "checks": [],
+      "width": 430,
+      "theme": "light",
+      "layout": {
+        "fixture_state": "initial-Qwen-medium-stored-table",
+        "selected_model": "260Strata / Qwen3.8 Flash Next",
+        "level": "medium",
+        "root": {
+          "x": 8,
+          "y": 125,
+          "width": 399,
+          "height": 900,
+          "display": "grid",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "workspace": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "display": "contents",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "header": {
+          "x": 9,
+          "y": 126,
+          "width": 397,
+          "height": 57,
+          "display": "flex",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "6px 10px"
+        },
+        "model_controls": {
+          "x": 36,
+          "y": 807.53125,
+          "width": 288,
+          "height": 44,
+          "display": "flex",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "model": {
+          "x": 78.265625,
+          "y": 807.53125,
+          "width": 136,
+          "height": 44,
+          "display": "block",
+          "font_size": "12px",
+          "line_height": "normal",
+          "padding": "0px 25px 0px 8px"
+        },
+        "refresh": {
+          "x": 232,
+          "y": 807.53125,
+          "width": 87.609375,
+          "height": 44,
+          "display": "flex",
+          "font_size": "12px",
+          "line_height": "16.8px",
+          "padding": "0px 8px"
+        },
+        "reasoning": {
+          "x": 64.09375,
+          "y": 859.53125,
+          "width": 102,
+          "height": 44,
+          "display": "block",
+          "font_size": "12px",
+          "line_height": "normal",
+          "padding": "0px 25px 0px 8px"
+        },
+        "scroll": {
+          "x": 9,
+          "y": 315.1875,
+          "width": 397,
+          "height": 419.34375,
+          "display": "block",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "20px 16px"
+        },
+        "composer": {
+          "x": 21,
+          "y": 734.53125,
+          "width": 373,
+          "height": 205.59375,
+          "display": "block",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "12px 14px 10px"
+        },
+        "composer_actions": {
+          "x": 36,
+          "y": 807.53125,
+          "width": 343,
+          "height": 96,
+          "display": "flex",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "page_scroll_width": 415,
+        "status_hidden": true
+      },
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-024.png"
+    },
+    {
+      "status": "pass",
+      "kind": "layout-measurement",
+      "checks": [],
+      "width": 1440,
+      "theme": "light",
+      "layout": {
+        "fixture_state": "initial-Qwen-medium-stored-table",
+        "selected_model": "260Strata / Qwen3.8 Flash Next",
+        "level": "medium",
+        "root": {
+          "x": 22,
+          "y": 103,
+          "width": 1366,
+          "height": 884,
+          "display": "grid",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "workspace": {
+          "x": 267,
+          "y": 104,
+          "width": 1120,
+          "height": 882,
+          "display": "flex",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "header": {
+          "x": 0,
+          "y": 0,
+          "width": 0,
+          "height": 0,
+          "display": "none",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "model_controls": {
+          "x": 417,
+          "y": 845.71875,
+          "width": 288,
+          "height": 36,
+          "display": "flex",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "model": {
+          "x": 459.265625,
+          "y": 845.71875,
+          "width": 136,
+          "height": 36,
+          "display": "block",
+          "font_size": "12px",
+          "line_height": "normal",
+          "padding": "0px 25px 0px 8px"
+        },
+        "refresh": {
+          "x": 613,
+          "y": 845.71875,
+          "width": 87.609375,
+          "height": 36,
+          "display": "flex",
+          "font_size": "12px",
+          "line_height": "16.8px",
+          "padding": "0px 8px"
+        },
+        "reasoning": {
+          "x": 741.09375,
+          "y": 845.71875,
+          "width": 102,
+          "height": 36,
+          "display": "block",
+          "font_size": "12px",
+          "line_height": "normal",
+          "padding": "0px 25px 0px 8px"
+        },
+        "scroll": {
+          "x": 267,
+          "y": 196.59375,
+          "width": 1120,
+          "height": 576.125,
+          "display": "block",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "28px 36px"
+        },
+        "composer": {
+          "x": 402,
+          "y": 772.71875,
+          "width": 850,
+          "height": 145.59375,
+          "display": "block",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "12px 14px 10px"
+        },
+        "composer_actions": {
+          "x": 417,
+          "y": 845.71875,
+          "width": 820,
+          "height": 36,
+          "display": "flex",
+          "font_size": "14px",
+          "line_height": "23.1px",
+          "padding": "0px"
+        },
+        "page_scroll_width": 1410,
+        "status_hidden": true
+      },
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/004_AI_Assistant_Compact_Layout_Staging/screenshots-merged-round1/screen-025.png"
+    }
+  ]
+}

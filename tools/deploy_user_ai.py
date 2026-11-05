@@ -1,9 +1,9 @@
 """Linux-only, scoped release operations for the approved equipment assistant.
 
 [MINI-COMMENT: ASSISTANT.RELEASE]
-[EN rev.1]
+[EN rev.2]
 [Role] Prepares private settings, checks a production snapshot and activates a known release.
-[Dependencies] An exact Git commit, existing protected Strata key and user-owned Python app.
+[Dependencies] An exact Git commit, existing private USER_AI configuration or explicit protected key input, and user-owned Python app.
 [Impact] Preserves the Flask key/business rows and records backups; never controls shared model jobs.
 """
 import argparse
@@ -29,7 +29,6 @@ import urllib.request
 
 ROOT = Path('/home/nekohost/services/Mini-Server-Web-EqMgmt')
 CONFIG = Path('/home/nekohost/.config/eqmgmt/assistant-worker.env')
-KEY = Path('/etc/nginx/private/strata-upstream-key.conf')
 sys.path.insert(0, str(ROOT))
 
 
@@ -92,25 +91,64 @@ def fingerprints(path):
     return values
 
 
-def prepare():
-    """Reuse only the fixed existing root-protected key after interactive sudo authentication."""
+def read_private_key(key_file, account_uid):
+    """[MINI-COMMENT: ASSISTANT.RELEASE.KEY.INPUT]
+    [EN rev.1]
+    [Role] Reads one explicitly supplied owner-only plaintext key without any Nginx dependency.
+    [Dependencies] Linux O_NOFOLLOW, stable file metadata and a canonical private parent.
+    [Impact] Rejects symlinks, oversized/control data and unsafe permissions without exposing credentials.
+    """
+    path = Path(key_file)
+    if not path.is_absolute() or path.resolve() != path:
+        raise ValueError('Use an absolute protected key-file path without symlinks')
+    parent = path.parent.lstat()
+    metadata = path.lstat()
+    if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid not in (0, account_uid) or
+            stat.S_IMODE(parent.st_mode) & 0o077 or not stat.S_ISREG(metadata.st_mode) or
+            metadata.st_uid not in (0, account_uid) or stat.S_IMODE(metadata.st_mode) != 0o600 or
+            not 1 <= metadata.st_size <= 8192):
+        raise PermissionError('Key input must be a private regular file with mode 0600 in an owner-only directory')
+    descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+    with os.fdopen(descriptor, 'rb') as stream:
+        actual = os.fstat(stream.fileno())
+        if (actual.st_dev, actual.st_ino, actual.st_uid, actual.st_mode) != (metadata.st_dev, metadata.st_ino, metadata.st_uid, metadata.st_mode):
+            raise PermissionError('Key input changed during validation')
+        raw = stream.read(8193)
+    key = raw.decode('ascii').rstrip('\r\n')
+    if not key or len(key) > 4096 or any(not 33 <= ord(char) <= 126 for char in key):
+        raise ValueError('Key input must contain one printable line')
+    if key in ('REPLACE_WITH_API_KEY', '<actual-key>'):
+        raise ValueError('Use the existing provider key from a protected input file')
+    return key
+
+
+def prepare(key_file=None):
+    """[MINI-COMMENT: ASSISTANT.RELEASE.KEY.PREPARE]
+    [EN rev.1]
+    [Role] Preserves an existing private assistant configuration or creates it from explicit protected key input.
+    [Dependencies] Verified Linux sudo owner; independent USER_AI secrets and the fixed private configuration path.
+    [Impact] Never reads/deletes an old Nginx include, overwrites existing keys or rotates an API key.
+    """
     assert os.geteuid() == 0 and os.environ.get('SUDO_USER') == 'nekohost'
     account = pwd.getpwnam('nekohost')
-    for path in (KEY.parent, KEY):
-        meta = path.lstat()
-        assert meta.st_uid == 0 and not stat.S_IMODE(meta.st_mode) & 0o077 and not path.is_symlink()
-    raw = KEY.read_text()
-    match = re.fullmatch(r'proxy_set_header Authorization "Bearer ((?:[^"\\]|\\[\\"$])+)";\s*', raw)
-    if not match:
-        raise ValueError('Existing key include does not match the reviewed writer format')
-    key = re.sub(r'\\([\\"$])', r'\1', match[1])
-    assert key and len(key) <= 4096 and all(33 <= ord(c) <= 126 for c in key)
-    CONFIG.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
     assert CONFIG.parent.resolve() == CONFIG.parent
-    os.chown(CONFIG.parent, account.pw_uid, account.pw_gid)
-    assert stat.S_IMODE(CONFIG.parent.stat().st_mode) == 0o700
-    if CONFIG.exists():
-        raise FileExistsError('Private configuration already exists; preserve it and use activate')
+    if CONFIG.exists() or CONFIG.is_symlink():
+        parent, metadata = CONFIG.parent.lstat(), CONFIG.lstat()
+        if (not stat.S_ISDIR(parent.st_mode) or parent.st_uid != account.pw_uid or stat.S_IMODE(parent.st_mode) != 0o700 or
+                not stat.S_ISREG(metadata.st_mode) or metadata.st_uid != account.pw_uid or stat.S_IMODE(metadata.st_mode) != 0o600):
+            raise PermissionError('Existing assistant configuration must remain a private owned regular file')
+        return {'private_config': str(CONFIG), 'mode': '0600', 'existing_config_preserved': True,
+                'key_input_read': False, 'legacy_nginx_dependency': False, 'secrets_disclosed': False}
+    if key_file is None:
+        raise ValueError('A new configuration requires --key-file; existing USER_AI configuration is preserved without one')
+    key = read_private_key(key_file, account.pw_uid)
+    created_parent = not CONFIG.parent.exists()
+    CONFIG.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
+    parent = CONFIG.parent.lstat()
+    if not stat.S_ISDIR(parent.st_mode) or stat.S_IMODE(parent.st_mode) != 0o700 or parent.st_uid not in ((0,) if created_parent else (account.pw_uid,)):
+        raise PermissionError('Assistant configuration directory must be private and owned by the service account')
+    if created_parent:
+        os.chown(CONFIG.parent, account.pw_uid, account.pw_gid)
     values = {
         'USER_AI_ENABLED': 'true', 'USER_AI_WRITE_TOOLS': 'true',
         'USER_AI_PUBLIC_ORIGIN': 'https://nekohost.org',
@@ -126,7 +164,8 @@ def prepare():
     }
     save(CONFIG, ''.join(name + '=' + json.dumps(value) + '\n' for name, value in values.items()).encode())
     os.chown(CONFIG, account.pw_uid, account.pw_gid)
-    return {'private_config': str(CONFIG), 'mode': '0600', 'key_reused': True, 'secrets_disclosed': False}
+    return {'private_config': str(CONFIG), 'mode': '0600', 'existing_config_preserved': False,
+            'key_input_read': True, 'legacy_nginx_dependency': False, 'secrets_disclosed': False}
 
 
 def check_copy(release):
@@ -257,6 +296,7 @@ def main():
     parser.add_argument('--commit', required=True)
     parser.add_argument('--release', type=Path)
     parser.add_argument('--pid', type=int)
+    parser.add_argument('--key-file', type=Path, help='New configuration only: protected owner-only plaintext key file; never a Nginx include')
     args = parser.parse_args()
     assert os.name == 'posix' and socket.gethostname() == 'nkhst-pentium'
     assert re.fullmatch('[0-9a-f]{40}', args.commit) and git('rev-parse', 'HEAD') == args.commit
@@ -264,7 +304,7 @@ def main():
     os.chdir(ROOT)
     sys.dont_write_bytecode = True
     if args.action == 'prepare-key':
-        result = prepare()
+        result = prepare(args.key_file)
     else:
         assert os.geteuid() == pwd.getpwnam('nekohost').pw_uid
         assert args.release and args.release.resolve() == args.release and args.release.parent == ROOT / 'instance/releases'

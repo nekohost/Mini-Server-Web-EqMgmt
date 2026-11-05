@@ -1,7 +1,7 @@
 """[MINI-COMMENT: ASSISTANT.PROVIDERS]
-[EN rev.2]
+[EN rev.3]
 [Role] Stores immutable connections and verified, published model identities in the private AI database.
-[Dependencies] Store v3, deployment endpoint policy and optional standard Fernet with an external key.
+[Dependencies] Store v4 lifecycle/guard migration, deployment endpoint policy and optional standard Fernet with an external key.
 [Impact] Browser/model callers receive opaque choices; active jobs retain their accepted route and credentials.
 """
 import json
@@ -42,8 +42,8 @@ CREATE TABLE IF NOT EXISTS ai_selection_events(id INTEGER PRIMARY KEY,conversati
 
 def migrate(db):
     """[MINI-COMMENT: ASSISTANT.PROVIDERS.MIGRATE]
-    [EN rev.1]
-    [Role] Adds v3 routing/selection/draft fields while preserving v1/v2 history and unknown locks.
+    [EN rev.2]
+    [Role] Adds routing/selection/draft fields without downgrading a v4 lifecycle/guard database.
     [Dependencies] Store's single startup writer transaction; old workers must be stopped before migration.
     [Impact] Legacy active requests retain a dedicated group; no global slot is silently freed.
     """
@@ -67,9 +67,10 @@ def migrate(db):
     db.execute('UPDATE jobs SET resource_group=? WHERE resource_group IS NULL', (LEGACY_GROUP,))
     # Historical messages are deliberately not attributed to an invented provider/model.
     db.execute('DROP INDEX IF EXISTS one_application_request')
-    db.execute("CREATE UNIQUE INDEX IF NOT EXISTS one_group_request ON jobs(resource_group) WHERE state IN ('running','draining','recovery_required')")
+    if db.execute('SELECT version FROM ai_meta').fetchone()[0] < 4:
+        db.execute("CREATE UNIQUE INDEX IF NOT EXISTS one_group_request ON jobs(resource_group) WHERE state IN ('running','draining','recovery_required')")
     db.execute('CREATE INDEX IF NOT EXISTS group_queue ON jobs(resource_group,state,queue_order)')
-    db.execute('UPDATE ai_meta SET version=3')
+    db.execute('UPDATE ai_meta SET version=3 WHERE version<3')
 
 
 class Registry:
@@ -79,7 +80,7 @@ class Registry:
     """
     def __init__(self, store, config):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.INIT]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Implements init within this module's fixed boundary.
         [Dependencies] This module's explicit resources and fixed protocol; no caller-selected service.
         [Impact] Preserves this module's protected network, model selection and immutable route boundary.
@@ -119,6 +120,8 @@ class Registry:
                     cancel=1,error=COALESCE(error,'이전 버전 요청의 실제 모델/연결 기록이 없습니다. 자체 요청 종료 확인 후 새 요청으로 이어 주세요.'),
                     error_code=COALESCE(error_code,'PROCESSING_FAILED') WHERE id=?""",(row['id'],))
                 db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'",(row['id'],))
+                db.execute("""UPDATE ai_execution_guards SET state='recovery_required',cancel=1,updated=?
+                    WHERE job=? AND state IN ('running','draining','recovery_required')""", (time.time(), row['id']))
             store.expire(db)
 
     def secret(self, credential, legacy_worker=False):
@@ -240,9 +243,9 @@ class Registry:
 
     def save(self, data, pid=None):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.SAVE]
-        [EN rev.1]
+        [EN rev.2]
         [Role] Saves a new immutable basic revision under optimistic admin revision checking.
-        [Dependencies] Server network allowlist and separate encrypted key storage.
+        [Dependencies] Server network allowlist, separate encrypted key storage and retained execution guards.
         [Impact] Existing jobs retain their old revision; retired providers cannot be resurrected by stale forms.
         """
         object_only(data, ('name','base_url','adapter','resource_group','new_group','enabled','retired','manual','sort_order','revision','api_key'), ('name','base_url','adapter','enabled','manual','revision'))
@@ -272,7 +275,7 @@ class Registry:
                 raise AssistantError('같은 API 주소의 연결은 기존 물리 자원 그룹을 공유해야 합니다.',409)
             if old:
                 old_group=db.execute('SELECT resource_group FROM ai_provider_revisions WHERE provider=? AND revision=?',(pid,old['revision'])).fetchone()[0]
-                if old_group!=group and db.execute("SELECT 1 FROM jobs WHERE selection_id IN (SELECT id FROM ai_provider_models WHERE provider=?) AND state IN ('queued','running','draining','recovery_required')",(pid,)).fetchone():
+                if old_group!=group and (db.execute("SELECT 1 FROM jobs WHERE selection_id IN (SELECT id FROM ai_provider_models WHERE provider=?) AND state IN ('queued','running','draining','recovery_required')",(pid,)).fetchone() or db.execute("SELECT 1 FROM ai_execution_guards WHERE resource_group=? AND state IN ('running','draining','recovery_required')", (old_group,)).fetchone()):
                     raise AssistantError('접수/실행 요청을 정리한 뒤 물리 자원 그룹을 변경해 주세요.',409)
             if not old and db.execute('SELECT COUNT(*) FROM ai_providers').fetchone()[0]>=100:
                 raise AssistantError('연결 등록 한도(100개)에 도달했습니다.',429)
@@ -393,3 +396,4 @@ class Registry:
             if data.get('default'):
                 db.execute('UPDATE ai_provider_settings SET default_model=? WHERE id=1', (mid,))
         return mid
+

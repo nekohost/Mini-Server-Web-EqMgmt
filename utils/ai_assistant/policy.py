@@ -180,10 +180,10 @@ EQUIPMENT_FIELDS = {
     'replacement_due_date': STRING, 'memo': {'type': 'string', 'maxLength': 4000},
     'is_public': {'type': 'boolean'}, 'is_draft': {'type': 'boolean'}}
 TOOLS = [
-    tool('search_equipment', '본인 또는 공개된 장비를 조회합니다. 공개는 조회만 가능합니다.',
+    tool('search_equipment', '본인 또는 공개된 장비를 조회합니다. 공개는 조회만 가능합니다. 선택 필터를 사용하지 않으면 생략하며 status/due의 빈 문자열도 필터 없음입니다.',
          {'scope': {'type': 'string', 'enum': ['my', 'public', 'draft']}, 'query': STRING,
           'due': {'type':'string','enum':['','soon','expired']},
-          'status': {'type':'string','enum':['ACTIVE','LOANED','REPAIR','DISPOSED']},
+          'status': {'type':'string','enum':['','ACTIVE','LOANED','REPAIR','DISPOSED'], 'description':'생략 또는 빈 문자열은 상태 필터 없음입니다.'},
           'page': {'type': 'integer', 'minimum': 1, 'maximum': 1000}}),
     tool('get_equipment', '허용된 장비의 상세·변경 가능 상태·첨부 목록을 조회합니다.', {'equipment_id': ID}, ['equipment_id']),
     tool('search_catalog', '승인된 카테고리·제조사·모델 노드·옵션을 제한 조회합니다.', {'query': STRING}),
@@ -209,3 +209,22 @@ for _item in TOOLS:
     if _item['function']['name'].startswith('prepare_'):
         _item['function']['parameters']['properties']['supersedes_proposal']={'type':'string','minLength':32,'maxLength':32}
 TOOL_MAP = {item['function']['name']: item['function'] for item in TOOLS}
+
+
+def normalized_tool_arguments(name, arguments):
+    """[MINI-COMMENT: ASSISTANT.TOOL.NORMALIZE]
+    [EN rev.1]
+    [Role] Validates one fixed tool schema and canonicalizes only documented empty read filters.
+    [Dependencies] TOOL_MAP and the same strict validator used before HTTP execution and domain dispatch.
+    [Impact] Raw request bodies remain auditable; write enums, unknown fields and non-string values stay rejected.
+    """
+    if not isinstance(name, str) or name not in TOOL_MAP:
+        raise AssistantError('허용되지 않은 작업입니다.', 403)
+    validate_schema(arguments, TOOL_MAP[name]['parameters'])
+    result = dict(arguments)
+    if name == 'search_equipment':
+        for field in ('status', 'due'):
+            if result.get(field) == '':
+                result.pop(field)
+    return result
+

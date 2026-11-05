@@ -983,3 +983,9 @@
 2026-09-12 현행 구현 상태와 잔여 범위는 [15개 로드맵 묶음 상세 계획](Plans/2026/09/11/004_All_Unimplemented_Roadmap_Plan.md)을 따른다. 017·038·039는 관련 코드가 존재하므로 전체 신규 구현 대상으로 계산하지 않는다. 037은 제한적 조회 도구·수동 제출 폼이 구현되어 있으며 변경형 도구 확장은 별도 범위다. [DB 계약 및 기존 릴리스 적용 결과](Reports/2026/09/12/003_Database_Contract_Production_Release_Report.md)에 서버별 상태를 구분했다.
 
 2026-09-13 제안 002·007·008·010·019·022/033·023·026의 승인된 구현을 백업 서버에 적용했다. 해당 대기 항목(중복 포함)은 미구현 목록에서 제거하고 원안·현재 명세는 PROPOSALS.md/ROADMAP.md 및 FEATURES.md에 보존했다. [검증·배포 결과](Reports/2026/09/13/003_Roadmap_Batch_Release_Report.md).
+
+## AI-UX-20261105 — 사용자 요청 AI 도우미 후속 개선
+
+- **상태:** 운영 소스 병합 완료 / 서버 배포 진행.
+- 사용자가 승인한 표·조회 오류 수정·모델 표시·관리자 메뉴/모달·옛 화면 정리·대화 휴지통과 공간 절약을 기존 기능에 병합했다.
+- 원안과 검증 이력은 [1~7번 계획](Plans/2026/11/05/001_AI_Assistant_UX_and_Strata_Retirement_Plan.md), [추가 배치 계획](Plans/2026/11/05/003_AI_Assistant_Compact_Layout_Plan.md), [배포 기록](Reports/2026/11/05/005_AI_Assistant_Production_Release_Report.md)에 보존한다. 최종 기능 명세는 FEATURES.md18절이다. 기존 제안 번호·037 후속·보류 유지보수의 완료 상태를 대신 바꾸지 않는다.

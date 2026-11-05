@@ -1,7 +1,7 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.5]
+[EN rev.6]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
-[Dependencies] Private SQLite v3 additive migration and epoch-bound group leases; equipment transactions stay in Domain.
+[Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
 [Impact] Keeps existing data and unknown-request locks; accepted output is never evicted to admit new input.
 """
 import base64
@@ -38,10 +38,13 @@ CREATE TABLE IF NOT EXISTS storage_accounts(owner INTEGER NOT NULL,account_key T
 '''
 
 
-class Store:
+from .lifecycle import LifecycleStore, METADATA, migrate as migrate_lifecycle, validate_schema as validate_lifecycle_schema
+
+
+class Store(LifecycleStore):
     """[Role] Owns short AI-only transactions. [Dependencies] SQLite/WAL. [Impact] Never spans inference."""
     def __init__(self, path, completion_reserve=32000000, epoch='initial-v3'):
-        """[Role] Adds private v3 tables/columns while preserving all v1/v2 messages, jobs and unknown locks.
+        """[Role] Adds private v4 lifecycle columns and independent guards while preserving existing messages/jobs/unknown locks.
         [Dependencies] A protected local path and explicit bounded extension budget, not equipment.db.
         [Impact] Existing over-budget history remains readable; only new admissions can be refused.
         """
@@ -64,7 +67,7 @@ class Store:
             db.execute('PRAGMA journal_mode=WAL')
             if db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='ai_meta'").fetchone():
                 prior=[r[0] for r in db.execute('SELECT version FROM ai_meta')]
-                if prior==[3]:
+                if prior in ([3], [4]):
                     required={'conversations':{'selection_id','next_level','selection_revision','account_key'},
                         'jobs':{'selection_id','route_snapshot','resource_group','purpose','probe_plan','handoff_chars'},
                         'ai_provider_models':{'profile_revision','verified_revision'},
@@ -73,11 +76,14 @@ class Store:
                     for table,columns in required.items():
                         if not columns<={r[1] for r in db.execute('PRAGMA table_info('+table+')')}:
                             raise ValueError('incomplete assistant v3 schema')
-                    if not db.execute("SELECT 1 FROM sqlite_master WHERE type='index' AND name='one_group_request'").fetchone():
+                    slot = db.execute("SELECT tbl_name FROM sqlite_master WHERE type='index' AND name='one_group_request'").fetchone()
+                    if prior == [3] and (slot is None or slot[0] != 'jobs'):
                         raise ValueError('incomplete assistant v3 slot index')
+                    if prior == [4]:
+                        validate_lifecycle_schema(db)
             db.executescript('BEGIN IMMEDIATE;\n' + SCHEMA)
             versions = [r[0] for r in db.execute('SELECT version FROM ai_meta')]
-            if versions not in ([1], [2], [3]):
+            if versions not in ([1], [2], [3], [4]):
                 raise ValueError('unsupported assistant schema')
             if 'account_key' not in {r[1] for r in db.execute('PRAGMA table_info(conversations)')}:
                 raise ValueError('incomplete assistant account identity schema')
@@ -97,6 +103,7 @@ class Store:
                     (self.output_reservation,))
             from .providers import migrate
             migrate(db)
+            migrate_lifecycle(db, self.epoch)
             db.execute("""INSERT OR IGNORE INTO storage_accounts(owner,account_key,used_chars)
                 SELECT c.owner,c.account_key,COALESCE(SUM(length(m.content)+length(m.reasoning)),0)
                 +COALESCE((SELECT SUM(j.handoff_chars) FROM jobs j JOIN conversations hc ON hc.id=j.conversation WHERE hc.owner=c.owner AND hc.account_key=c.account_key),0)
@@ -130,44 +137,57 @@ class Store:
         finally:
             db.close()
 
-    def conversation(self, owner, cid, db, account_key):
-        """[Role] Hides foreign conversation existence with both owner and account identity.
-        [Dependencies] A freshly authenticated server actor and opaque conversation ID.
-        [Impact] Pagination cannot expand access to another account.
+    def conversation(self, owner, cid, db, account_key, view='active'):
+        """[Role] Reads a current owner/account conversation in one explicit active or trash view.
+        [Dependencies] Server UTC and v4 lifecycle metadata; default access excludes every trashed row.
+        [Impact] Expired trash is unreadable even when periodic cleanup has not run yet.
         """
+        self._view(view)
         row = db.execute('SELECT * FROM conversations WHERE id=? AND owner=? AND account_key=?',
                          (opaque(cid), owner, account_key)).fetchone()
-        if row is None:
+        if row is None or bool(row['is_deleted']) != (view == 'trash'):
             raise AssistantError('대화를 찾을 수 없습니다.', 404)
-        return dict(row)
+        if row['is_deleted'] and time.time() >= row['purge_after']:
+            raise AssistantError('보관 기간이 끝난 대화입니다.', 410)
+        return dict(row, read_only=view == 'trash')
 
-    def conversations(self, owner, account_key, cursor=None):
+    def conversations(self, owner, account_key, cursor=None, view='active'):
         """[MINI-COMMENT: ASSISTANT.HISTORY.PAGE]
-        [EN rev.1]
-        [Role] Pages stable owner-local title ordering without making cursor contents an auth grant.
-        [Dependencies] Explicit owner/account predicates on every page and bounded cursor decoding.
-        [Impact] All 200 retained conversations remain reachable; concurrent promotions may repeat, never leak.
+        [EN rev.2]
+        [Role] Pages state-bound owner-local history while excluding pure diagnostic conversations.
+        [Dependencies] Owner/account/state predicates, server time and a cursor bound to the same view.
+        [Impact] Mixed chat/probe history remains reachable; active cursors never authorize trash pagination.
         """
+        self._view(view)
         anchor = None
         if cursor:
             try:
-                if not isinstance(cursor, str) or len(cursor) > 200:
+                if not isinstance(cursor, str) or len(cursor) > 240:
                     raise ValueError()
                 anchor = json.loads(base64.b64decode(cursor + '=' * (-len(cursor) % 4), altchars=b'-_', validate=True))
-                if not isinstance(anchor, list) or len(anchor) != 2 or type(anchor[0]) not in (int, float) or not math.isfinite(anchor[0]) or not 0 < anchor[0] < 32503680000:
+                if not isinstance(anchor, list) or len(anchor) != 3 or anchor[0] != view or type(anchor[1]) not in (int, float) or not math.isfinite(anchor[1]) or not 0 < anchor[1] < 32503680000:
                     raise ValueError()
-                opaque(anchor[1])
+                opaque(anchor[2])
             except (ValueError, TypeError):
                 raise AssistantError('대화 목록 위치를 확인해 주세요.') from None
         with self.db() as db:
-            sql, args = 'SELECT id,title,updated FROM conversations WHERE owner=? AND account_key=?', [owner, account_key]
+            now = time.time()
+            order = 'deleted_at' if view == 'trash' else 'updated'
+            sql = '''SELECT id,title,created,updated,is_deleted,deleted_at,purge_after,lifecycle_revision
+                FROM conversations c WHERE owner=? AND account_key=? AND is_deleted=?
+                AND (NOT EXISTS(SELECT 1 FROM jobs j WHERE j.conversation=c.id)
+                OR EXISTS(SELECT 1 FROM jobs j WHERE j.conversation=c.id AND j.purpose='chat'))'''
+            args = [owner, account_key, int(view == 'trash')]
+            if view == 'trash':
+                sql += ' AND purge_after>?'
+                args.append(now)
             if anchor:
-                sql += ' AND (updated<? OR (updated=? AND id<?))'
-                args += [anchor[0], anchor[0], anchor[1]]
-            rows = [dict(r) for r in db.execute(sql + ' ORDER BY updated DESC,id DESC LIMIT 51', args)]
+                sql += ' AND ('+order+'<? OR ('+order+'=? AND id<?))'
+                args += [anchor[1], anchor[1], anchor[2]]
+            rows = [dict(r, read_only=view == 'trash') for r in db.execute(sql + ' ORDER BY '+order+' DESC,id DESC LIMIT 51', args)]
             page = rows[:50]
-            next_cursor = base64.urlsafe_b64encode(canonical([page[-1]['updated'], page[-1]['id']]).encode()).decode().rstrip('=') if len(rows) > 50 else None
-            return {'conversations': page, 'next_cursor': next_cursor}
+            next_cursor = base64.urlsafe_b64encode(canonical([view, page[-1][order], page[-1]['id']]).encode()).decode().rstrip('=') if len(rows) > 50 else None
+            return {'conversations': page, 'next_cursor': next_cursor, 'view': view, 'server_time': now}
 
     def create_conversation(self, owner, account_key):
         """[Role] Creates only a bounded owner-local conversation on user intent.
@@ -242,6 +262,7 @@ class Store:
         [Dependencies] Equipment atomic receipt, AI transaction and the per-turn receipt reservation.
         [Impact] Duplicate confirms do not consume storage twice; actual results survive policy reductions.
         """
+        self.conversation(job['owner'], job['conversation'], db, job['account_key'])
         if db.execute('SELECT 1 FROM messages WHERE conversation=? AND job IS NULL AND content=?', (job['conversation'], record)).fetchone():
             return
         self._charge(db, job, len(record))
@@ -249,13 +270,15 @@ class Store:
 
     def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.3]
-        [Role] Accepts input once only when the full bounded completion has reserved storage.
+        [EN rev.4]
+        [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Current owner auth, idempotency, rate/admission limits and base plus extension budget.
         [Impact] Crossing the base does not discard generated results; insufficient remaining budget rejects new input.
         """
         with self.db(True) as db:
             conv=self.conversation(owner, cid, db, account_key)
+            if purpose == 'chat' and db.execute("SELECT 1 FROM jobs WHERE conversation=?", (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
+                raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
             fingerprint = digest([cid, content, level, route['selection_id'], route['revision'], route.get('profile_revision'), purpose]) if route else digest([cid, content, level])
             old = db.execute('SELECT j.id,j.input_hash,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=?', (owner, client_key)).fetchone()
             if old:
@@ -281,16 +304,20 @@ class Store:
                 raise AssistantError('보관 예산에서 답변을 끝까지 저장할 공간을 확보하지 못했습니다. 기존 기록은 보존됩니다. 관리자에게 추가 예산을 문의해 주세요.', 429)
             if shutil.disk_usage(self.path.parent).free < 128*1024*1024:
                 raise AssistantError('대화 저장 공간이 부족합니다. 기존 기록은 보존됩니다. 관리자에게 문의해 주세요.', 507)
-            if db.execute("SELECT COUNT(*) FROM jobs WHERE state NOT IN ('done','failed','cancelled')").fetchone()[0] >= 20:
+            if db.execute("""SELECT (SELECT COUNT(*) FROM jobs WHERE state NOT IN ('done','failed','cancelled'))+
+                (SELECT COUNT(*) FROM ai_execution_guards g WHERE state IN ('running','draining','recovery_required')
+                AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job))""").fetchone()[0] >= 20:
                 raise AssistantError('요청이 많습니다. 잠시 후 다시 보내 주세요.', 429)
-            if db.execute("SELECT COUNT(*) FROM jobs WHERE owner=? AND state NOT IN ('done','failed','cancelled')", (owner,)).fetchone()[0] >= 2:
+            if db.execute("""SELECT (SELECT COUNT(*) FROM jobs WHERE owner=? AND state NOT IN ('done','failed','cancelled'))+
+                (SELECT COUNT(*) FROM ai_execution_guards g WHERE owner=? AND state IN ('running','draining','recovery_required')
+                AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job))""", (owner, owner)).fetchone()[0] >= 2:
                 raise AssistantError('진행 중인 요청을 먼저 확인해 주세요.', 429)
             if db.execute("SELECT 1 FROM jobs WHERE conversation=? AND state IN ('queued','running','draining','recovery_required')", (cid,)).fetchone():
                 raise AssistantError('이 대화의 이전 응답을 기다려 주세요.', 409)
             jid = uuid.uuid4().hex
             order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]
             history = [dict(r) for r in db.execute("""SELECT role,content FROM messages WHERE conversation=? AND content<>''
-                AND (job IS NULL OR job IN (SELECT id FROM jobs WHERE state IN ('done','waiting_confirmation')))
+                AND (job IS NULL OR job IN (SELECT id FROM jobs WHERE purpose='chat' AND state IN ('done','waiting_confirmation')))
                 ORDER BY id DESC LIMIT 12""", (cid,))][::-1][-8:]
             history.append({'role': 'user', 'content': content})
             db.execute("""INSERT INTO jobs(id,conversation,owner,client_key,input_hash,binding,expires,level,state,queue_order,
@@ -331,9 +358,9 @@ class Store:
         [Dependencies] Explicit account filters for all browser callers.
         [Impact] Internal lease validation never authorizes a browser confirmation.
         """
-        sql, args = 'SELECT j.*,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.id=?', [opaque(jid)]
+        sql, args = 'SELECT j.*,c.account_key,c.is_deleted,c.purge_after FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.id=?', [opaque(jid)]
         if owner is not None:
-            sql += ' AND j.owner=?'
+            sql += ' AND j.owner=? AND c.is_deleted=0'
             args.append(owner)
         if account_key is not None:
             sql += ' AND c.account_key=?'
@@ -343,24 +370,29 @@ class Store:
             raise AssistantError('요청을 찾을 수 없습니다.', 404)
         return dict(row)
 
-    def snapshot(self, owner, cid, account_key, before=None):
-        """[Role] Pages owner-local messages without cutting off older retained history.
+    def snapshot(self, owner, cid, account_key, before=None, view='active'):
+        """[Role] Pages owner-local non-diagnostic messages within the explicit active/read-only trash view.
         [Dependencies] A positive before cursor, latest 60 messages and only their jobs/cards plus live work.
         [Impact] Pagination never exposes bindings, leases, raw context or another account.
         """
+        self._view(view)
         if before is not None and (type(before) is not int or not 1 <= before <= 2**63-1):
             raise AssistantError('이전 대화 내용의 위치를 확인해 주세요.')
-        with self.db(True) as db:
-            conv = self.conversation(owner, cid, db, account_key)
-            self.expire(db)
-            sql, args = 'SELECT id,job,role,content,reasoning FROM messages WHERE conversation=?', [cid]
+        with self.db(view == 'active') as db:
+            conv = self.conversation(owner, cid, db, account_key, view)
+            if db.execute('SELECT 1 FROM jobs WHERE conversation=?', (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
+                raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
+            if view == 'active':
+                self.expire(db)
+            sql, args = """SELECT id,job,role,content,reasoning FROM messages WHERE conversation=?
+                AND (job IS NULL OR EXISTS(SELECT 1 FROM jobs j WHERE j.id=messages.job AND j.purpose='chat'))""", [cid]
             if before is not None:
                 sql += ' AND id<?'
                 args.append(before)
             rows = [dict(r) for r in db.execute(sql+' ORDER BY id DESC LIMIT 61', args)]
             messages = rows[:60][::-1]
             visible = {m['job'] for m in messages if m['job']}
-            live = [r[0] for r in db.execute("SELECT id FROM jobs WHERE conversation=? AND state NOT IN ('done','failed','cancelled')", (cid,))]
+            live = [r[0] for r in db.execute("SELECT id FROM jobs WHERE conversation=? AND purpose='chat' AND state NOT IN ('done','failed','cancelled')", (cid,))]
             ids = sorted(visible | set(live))
             jobs, cards = [], []
             if ids:
@@ -374,30 +406,37 @@ class Store:
                     item['answer_started'] = bool(db.execute("SELECT 1 FROM message_steps WHERE job=? AND content<>'' LIMIT 1", (row['id'],)).fetchone())
                     jobs.append(item)
                 cards = [dict(r) for r in db.execute('SELECT id,job,operation,payload,before_json,expires,state,result FROM proposals WHERE owner=? AND job IN ('+placeholders+') ORDER BY created', [owner, *ids])]
-            return {'conversation': {k: conv[k] for k in ('id','title','created','updated','selection_id','next_level','selection_revision')}, 'messages': messages,
-                    'jobs': jobs, 'proposals': cards, 'next_before': messages[0]['id'] if len(rows) > 60 else None}
+            return {'conversation': {k: conv[k] for k in ('id','title','created','updated','selection_id','next_level','selection_revision','is_deleted','deleted_at','purge_after','lifecycle_revision','read_only')}, 'messages': messages,
+                    'jobs': jobs, 'proposals': cards, 'next_before': messages[0]['id'] if len(rows) > 60 else None,
+                    'view': view, 'read_only': view == 'trash', 'server_time': time.time()}
 
     def claim(self, worker):
         """[MINI-COMMENT: ASSISTANT.QUEUE.CLAIM]
-        [EN rev.3]
-        [Role] Claims one app request and initializes its isolated stream step atomically.
-        [Dependencies] Partial unique index, fresh actor checks by HTTP and retained completion reservation.
+        [EN rev.4]
+        [Role] Claims one active app request through the independent authoritative group guard.
+        [Dependencies] Content-free guard unique index, fresh actor checks by HTTP and retained completion reservation.
         [Impact] Prior reasoning stays intact; a stale/unknown request is never stolen or reissued.
         """
         with self.db(True) as db:
             self.expire(db)
-            row = db.execute("""SELECT j.*,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.state='queued'
-                AND NOT EXISTS(SELECT 1 FROM jobs active WHERE active.resource_group=j.resource_group AND active.state IN ('running','draining','recovery_required'))
+            row = db.execute("""SELECT j.*,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.state='queued' AND c.is_deleted=0
+                AND NOT EXISTS(SELECT 1 FROM ai_execution_guards active WHERE active.resource_group=j.resource_group AND active.state IN ('running','draining','recovery_required'))
                 ORDER BY j.queue_order LIMIT 1""").fetchone()
             if row is None:
                 return None
             # At most one already queued turn from the last owner may defer another owner's group turn.
             last=db.execute('SELECT last_owner FROM ai_resource_groups WHERE id=?',(row['resource_group'],)).fetchone()
             if last and last[0]==row['owner']:
-                fair=db.execute("SELECT j.*,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.state='queued' AND j.resource_group=? AND j.owner<>? ORDER BY j.queue_order LIMIT 1",(row['resource_group'],row['owner'])).fetchone()
+                fair=db.execute("SELECT j.*,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.state='queued' AND c.is_deleted=0 AND j.resource_group=? AND j.owner<>? ORDER BY j.queue_order LIMIT 1",(row['resource_group'],row['owner'])).fetchone()
                 if fair:
                     row=fair
             token = secrets.token_hex(32)
+            now = time.time()
+            db.execute("""INSERT INTO ai_execution_guards(job,resource_group,owner,account_key,worker,lease_hash,epoch,state,cancel,heartbeat,created,updated)
+                VALUES(?,?,?,?,?,?,?,'running',0,?,?,?)
+                ON CONFLICT(job) DO UPDATE SET resource_group=excluded.resource_group,worker=excluded.worker,
+                lease_hash=excluded.lease_hash,epoch=excluded.epoch,state='running',cancel=0,heartbeat=excluded.heartbeat,updated=excluded.updated""",
+                (row['id'], row['resource_group'], row['owner'], row['account_key'], worker, digest([self.epoch,token]), self.epoch, now, now, now))
             db.execute("UPDATE jobs SET state='running',worker=?,lease_hash=?,heartbeat=?,updated=? WHERE id=?", (worker, digest([self.epoch,token]), time.time(), time.time(), row['id']))
             db.execute('UPDATE ai_resource_groups SET last_owner=? WHERE id=?',(row['owner'],row['resource_group']))
             db.execute('INSERT OR IGNORE INTO message_steps(job,step) VALUES(?,?)', (row['id'], row['steps']))
@@ -411,18 +450,22 @@ class Store:
         [Dependencies] A private worker boundary, active state and constant-time hash comparison.
         [Impact] Late reports cannot alter a newer step or bypass owner confirmation.
         """
+        guard = self._guard_lease(db, jid, token)
         row = self.job(jid, db)
-        if row['state'] not in ('running','draining') or not isinstance(token, str) or not secrets.compare_digest(row['lease_hash'] or '', digest([self.epoch,token])):
+        if guard['state'] not in ('running','draining') or row['state'] not in ('running','draining') or not isinstance(token, str) or not secrets.compare_digest(row['lease_hash'] or '', digest([self.epoch,token])):
             raise AssistantError('이 작업의 처리 권한이 만료되었습니다.', 409)
         return row
 
     def _step_snapshot(self, db, job, reasoning, content):
         """[MINI-COMMENT: ASSISTANT.STREAM.SNAPSHOT]
-        [EN rev.1]
-        [Role] Stores one step and composes append-only reasoning across all model steps.
+        [EN rev.2]
+        [Role] Stores one active conversation step and composes append-only reasoning across model steps.
         [Dependencies] Exact offsets/snapshot prefixes, per-turn display bounds and reserved ledger updates.
         [Impact] Completion cannot overwrite earlier reasoning or silently move an observed reasoning cursor backwards.
         """
+        current = db.execute('SELECT c.is_deleted,j.cancel FROM conversations c JOIN jobs j ON j.conversation=c.id WHERE j.id=?', (job['id'],)).fetchone()
+        if current is None or current['is_deleted'] or current['cancel']:
+            return
         previous = db.execute('SELECT reasoning,content FROM message_steps WHERE job=? AND step=?', (job['id'], job['steps'])).fetchone()
         if previous is None:
             raise AssistantError('응답 단계 정보를 확인하지 못했습니다.', 409)
@@ -435,6 +478,7 @@ class Store:
         db.execute('UPDATE message_steps SET reasoning=?,content=? WHERE job=? AND step=?', (reasoning, content, job['id'], job['steps']))
         self._message_text(db, job, combined, content)
         db.execute('UPDATE jobs SET heartbeat=?,updated=? WHERE id=?', (time.time(), time.time(), job['id']))
+        db.execute('UPDATE ai_execution_guards SET heartbeat=?,updated=? WHERE job=?', (time.time(), time.time(), job['id']))
 
     def append(self, jid, token, reasoning='', content='', reasoning_offset=None, content_offset=None):
         """[Role] Appends one offset-identified delta, acknowledging exact retry duplicates without appending twice.
@@ -443,6 +487,8 @@ class Store:
         """
         with self.db(True) as db:
             job = self.lease(db, jid, token)
+            if job['is_deleted'] or job['cancel']:
+                return True
             previous = db.execute('SELECT reasoning,content FROM message_steps WHERE job=? AND step=?', (jid, job['steps'])).fetchone()
             values = []
             for field, delta, offset in (('reasoning', reasoning, reasoning_offset), ('content', content, content_offset)):
@@ -466,6 +512,8 @@ class Store:
         """
         with self.db(True) as db:
             job = self.lease(db, jid, token)
+            if job['is_deleted'] or job['cancel']:
+                return
             old = db.execute('SELECT reasoning,content FROM message_steps WHERE job=? AND step=?', (jid, job['steps'])).fetchone()
             self._step_snapshot(db, job, old['reasoning'] if reasoning is None else reasoning, old['content'] if content is None else content)
 
@@ -482,6 +530,7 @@ class Store:
             db.execute('UPDATE jobs SET state=?,cancel=1,error=COALESCE(error,?),error_code=COALESCE(error_code,?),updated=? WHERE id=?',
                        (state, error, error_code, time.time(), jid))
             db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'", (jid,))
+            db.execute("UPDATE ai_execution_guards SET cancel=1,state=CASE WHEN state='running' THEN 'draining' ELSE state END,updated=? WHERE job=? AND state IN ('running','draining','recovery_required')", (time.time(), jid))
             self.expire(db)
             return state
 
@@ -494,6 +543,7 @@ class Store:
         signature = mac(secret, pid, job['id'], job['owner'], job['binding'], operation, payload, before, expires)
         with self.db(True) as db:
             current = self.job(job['id'], db)
+            self.conversation(current['owner'], current['conversation'], db, current['account_key'])
             if current['cancel'] or current['state'] != 'running':
                 raise AssistantError('작업이 취소되었습니다.', 409)
             if db.execute('SELECT 1 FROM proposals WHERE id=?', (pid,)).fetchone():
@@ -511,13 +561,15 @@ class Store:
 
     def finish(self, jid, token, state, error=None, context=None, error_code=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.FINISH]
-        [EN rev.1]
-        [Role] Finalizes outcomes while limiting ordinary tasks to six steps and fixed capability plans to eight.
+        [EN rev.2]
+        [Role] Finalizes outcomes and releases only definitively terminated independent execution guards.
         [Dependencies] Current lease, authoritative response outcome and pending confirmations.
         [Impact] Failed model responses cannot leave the app queue running or leave executable pending proposals.
         """
         with self.db(True) as db:
             row = self.lease(db, jid, token)
+            if row['is_deleted']:
+                context = None
             if row['cancel'] and state != 'recovery_required':
                 error_code = row['error_code'] or error_code or 'USER_CANCELLED'
                 error = row['error'] or error
@@ -534,6 +586,8 @@ class Store:
             order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]
             db.execute('UPDATE jobs SET state=?,error=COALESCE(error,?),error_code=COALESCE(error_code,?),context=?,steps=steps+1,queue_order=?,updated=? WHERE id=?',
                        (state, error, error_code, canonical(context) if context is not None else row['context'], order, time.time(), jid))
+            db.execute('UPDATE ai_execution_guards SET state=?,cancel=?,updated=? WHERE job=?',
+                       ('recovery_required' if state == 'recovery_required' else 'released', int(bool(row['cancel'])), time.time(), jid))
             self.expire(db)
             return state
 
@@ -556,17 +610,21 @@ class Store:
                 WHEN state='recovery_required' THEN state ELSE 'cancelled' END,error=COALESCE(error,?),error_code=COALESCE(error_code,'AUTH_EXPIRED')
                 WHERE binding=? AND state NOT IN ('done','failed','cancelled')""", (ERROR_REASONS['AUTH_EXPIRED'], binding))
             db.execute("UPDATE proposals SET state='cancelled' WHERE state='pending' AND job IN (SELECT id FROM jobs WHERE binding=?)", (binding,))
+            db.execute("""UPDATE ai_execution_guards SET cancel=1,state=CASE WHEN state='running' THEN 'draining' ELSE state END,updated=?
+                WHERE job IN (SELECT id FROM jobs WHERE binding=?) AND state IN ('running','draining','recovery_required')""", (time.time(), binding))
             self.expire(db)
 
     def select_model(self, owner, cid, account_key, mid, level, revision):
         """[MINI-COMMENT: ASSISTANT.SELECTION]
-        [EN rev.1]
-        [Role] Saves the next-turn selection under an owner-bound optimistic revision.
+        [EN rev.2]
+        [Role] Saves the next-turn selection only for active non-diagnostic owner-bound conversations.
         [Dependencies] HTTP-verified model/profile and the same AI writer as the selection event.
         [Impact] Queued/running jobs and existing proposal signatures are never changed.
         """
         with self.db(True) as db:
             conv = self.conversation(owner, cid, db, account_key)
+            if db.execute('SELECT 1 FROM jobs WHERE conversation=?', (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
+                raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
             if type(revision) is not int or revision != conv['selection_revision']:
                 raise AssistantError('다른 탭에서 모델 선택을 바꿨습니다. 대화를 다시 열어 주세요.', 409)
             db.execute('UPDATE conversations SET selection_id=?,next_level=?,selection_revision=selection_revision+1 WHERE id=?', (mid, level, cid))
@@ -578,8 +636,8 @@ class Store:
 
     def save_draft(self, job, args):
         """[MINI-COMMENT: ASSISTANT.DRAFT]
-        [EN rev.1]
-        [Role] Stores a normalized unconfirmed task draft with source and revision in the reserved ledger.
+        [EN rev.2]
+        [Role] Stores a normalized draft only for an active conversation with its source and reserved ledger.
         [Dependencies] Server-normalized partial fields, current uncancelled lease and per-turn draft cap.
         [Impact] Neither a model switch nor this storage tool executes or confirms equipment changes.
         """
@@ -587,6 +645,7 @@ class Store:
         normalized = normalized_draft(args)
         with self.db(True) as db:
             current = self.job(job['id'], db)
+            self.conversation(current['owner'], current['conversation'], db, current['account_key'])
             if current['state'] != 'running' or current['cancel']:
                 raise AssistantError('작업이 중단되었습니다.', 409)
             old = db.execute('SELECT * FROM ai_task_drafts WHERE conversation=?', (job['conversation'],)).fetchone()
@@ -605,15 +664,20 @@ class Store:
 
     def charge_handoff(self, db, job, context):
         """[MINI-COMMENT: ASSISTANT.HANDOFF.BUDGET]
-        [EN rev.1]
-        [Role] Charges the bounded persisted source summary against its separately reserved allowance.
+        [EN rev.2]
+        [Role] Charges only an active conversation source summary against its separately reserved allowance.
         [Dependencies] First-step ContextBuilder output and the same writer as jobs.context persistence.
         [Impact] Derived summaries cannot create an unaccounted persistent storage path.
         """
         from .context import MAX_HANDOFF
+        self.conversation(job['owner'], job['conversation'], db, job['account_key'])
+        current = self.job(job['id'], db)
+        if current['state'] != 'running' or current['cancel']:
+            raise AssistantError('작업이 중단되었습니다.', 409)
         size=len(context[0]['content'])
         if size>MAX_HANDOFF:
             raise AssistantError('인계 요약의 보관 한도를 초과했습니다.',413)
         old=db.execute('SELECT handoff_chars FROM jobs WHERE id=?',(job['id'],)).fetchone()[0]
         self._charge(db,job,size-old)
         db.execute('UPDATE jobs SET handoff_chars=? WHERE id=?',(size,job['id']))
+

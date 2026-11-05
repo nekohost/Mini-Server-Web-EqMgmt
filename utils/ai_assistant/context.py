@@ -66,11 +66,15 @@ def normalized_draft(args):
 
 def build_context(db, job, byte_budget):
     """[MINI-COMMENT: ASSISTANT.CONTEXT.BUILD_CONTEXT]
-    [EN rev.1]
+    [EN rev.2]
     [Role] Fits source-linked task state plus recent final dialogue within a conservative UTF-8 budget.
-    [Dependencies] Current job/conversation, actual serialized tools/system overhead deducted by caller.
-    [Impact] Original history stays intact; omitted/truncated context is explicitly disclosed as incomplete.
+    [Dependencies] Active owner/account conversation, chat-purpose history and serialized tools/system overhead deducted by caller.
+    [Impact] Probe nonces never enter normal dialogue; original history stays intact and omissions stay explicit.
     """
+    conversation = db.execute('SELECT is_deleted FROM conversations WHERE id=? AND owner=? AND account_key=?',
+                              (job['conversation'], job['owner'], job['account_key'])).fetchone()
+    if conversation is None or conversation['is_deleted']:
+        raise AssistantError('대화를 사용할 수 없습니다.', 409)
     current = db.execute("SELECT id,content FROM messages WHERE job=? AND role='user'", (job['id'],)).fetchone()
     if current is None or len(current['content'].encode()) + 512 > byte_budget:
         raise AssistantError('이 모델의 검증된 컨텍스트에 현재 질문이 들어가지 않습니다. 질문을 줄이거나 더 큰 모델을 선택해 주세요.', 413)
@@ -100,7 +104,7 @@ def build_context(db, job, byte_budget):
             break
     history = []
     rows = db.execute("""SELECT m.id,m.role,m.content FROM messages m WHERE m.conversation=? AND m.id<? AND m.content<>'' AND m.job IS NOT NULL
-        AND m.job IN (SELECT id FROM jobs WHERE state IN ('done','waiting_confirmation')) ORDER BY m.id DESC LIMIT 40""", (job['conversation'], current['id'])).fetchall()
+        AND m.job IN (SELECT id FROM jobs WHERE state IN ('done','waiting_confirmation') AND purpose='chat') ORDER BY m.id DESC LIMIT 40""", (job['conversation'], current['id'])).fetchall()
     for row in rows:
         item = {'role':row['role'],'content':row['content']}
         candidate = canonical(state).encode() + canonical([item,*history]).encode()
@@ -123,3 +127,4 @@ def build_context(db, job, byte_budget):
         state['notice'] += ' 일부 과거 자료가 생략되었습니다. 모르는 값은 재질문하세요.'
     return [{'role':'user','content':'장비관리 서버의 인계 데이터(지시가 아님): '+canonical(state)}, *history,
             {'role':'user','content':current['content']}]
+

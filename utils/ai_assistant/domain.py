@@ -12,7 +12,7 @@ from utils import roadmap_equipment as equipment
 from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
-from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema
+from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -100,14 +100,15 @@ class Domain:
         return [dict(type='function',function=TOOL_MAP[n]) for n in sorted(names)]
 
     def read_or_prepare(self, name, args, job, store):
-        """[Role] Routes a complete validated tool call to a fixed operation; no URL/SQL dispatch.
-        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
-        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
+        [EN rev.1]
+        [Role] Routes a canonically validated tool call to a fixed user operation.
+        [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
+        [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope.
         """
         if name not in TOOL_MAP:
             raise AssistantError('허용되지 않은 작업입니다.',403)
-        validate_schema(args,TOOL_MAP[name]['parameters'])
-        args=dict(args)
+        args=normalized_tool_arguments(name,args)
         supersedes=args.pop('supersedes_proposal',None)
         db=self.connect()
         try:
@@ -338,3 +339,4 @@ class Domain:
             self.require_menu(actor,'my_equipment' if data['scope']=='my' else 'public_equipment')
             return {'download_url':'/api/ai/csv/export?scope='+data['scope'],'message':'현재 권한으로 CSV를 내려받을 수 있습니다.'}
         raise AssistantError('허용되지 않은 작업입니다.',403)
+

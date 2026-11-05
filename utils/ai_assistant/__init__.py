@@ -24,7 +24,7 @@ from utils import roadmap_equipment as equipment, roadmap_files as files
 from .domain import Domain
 from .policy import (AssistantError, DEFAULT_LEVEL, ERROR_REASONS, LEGACY_LEVELS, LEVELS, LEVEL_LABELS, MAX_CONTENT, MAX_REASONING,
                      SYSTEM, TERMINAL, TOOL_MAP, canonical, digest, identity, mac, object_only,
-                     opaque, stream_text, text, validate_schema)
+                     opaque, stream_text, text, validate_schema, normalized_tool_arguments)
 from .store import Store
 from .providers import Registry, PROTOCOL, public_source
 from .reasoning import VERSION as REASONING_VERSION, normalize_profile
@@ -41,11 +41,15 @@ def enabled(value):
 
 
 def visible_assistant_menus(rows, role, config):
-    """[Role] Hides only the new menu when disabled, preserving the separate Strata menu policy.
-    [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
-    [Impact] Preserves the module's owner/validation/transaction boundary described above.
+    """[MINI-COMMENT: ASSISTANT.MENUS]
+    [EN rev.1]
+    [Role] Publishes the enabled user assistant and its admin-only settings menu.
+    [Dependencies] Current server role and feature flag; business grant checks still run at routes.
+    [Impact] An erroneous user grant cannot expose AI connection administration.
     """
-    return [dict(r) for r in rows if r['MenuCode'] not in ('equipment_ai','equipment_ai_settings') or enabled(config.get('USER_AI_ENABLED',False))]
+    active=enabled(config.get('USER_AI_ENABLED',False))
+    return [dict(r) for r in rows if (r['MenuCode'] not in ('equipment_ai','equipment_ai_settings') or
+            active and (r['MenuCode']=='equipment_ai' or role=='admin'))]
 
 
 class PassiveSessionInterface(SecureCookieSessionInterface):
@@ -64,10 +68,10 @@ class PassiveSessionInterface(SecureCookieSessionInterface):
 
 def install_assistant(app, services):
     """[MINI-COMMENT: ASSISTANT.INSTALL]
-    [EN rev.3]
+    [EN rev.4]
     [Role] Wires disabled-by-default assistant features with injected existing application contracts.
     [Dependencies] A stable strong app secret, independent worker secret and explicit public origin.
-    [Impact] Enabling additively upgrades only the AI store and reserves extended result storage, not equipment DDL.
+    [Impact] Enabling upgrades the AI store and reparents only the verified admin menu while preserving business data/grants.
     """
     app.config.setdefault('USER_AI_ENABLED',enabled(os.getenv('USER_AI_ENABLED','')))
     app.config.setdefault('USER_AI_WRITE_TOOLS',enabled(os.getenv('USER_AI_WRITE_TOOLS','')))
@@ -112,7 +116,11 @@ def install_assistant(app, services):
             db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai','AI 도우미','/assistant','내 장비 조회·등록·수정과 신청',NULL,51,?,?)",(now,now))
             for role in ('admin','user'):
                 db.execute("INSERT OR IGNORE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES(?,'equipment_ai',1,?)",(role,now))
-            db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai_settings','AI 연결 관리','/admin/ai/providers','장비관리 AI 연결·공개 모델 관리',NULL,52,?,?)",(now,now))
+            settings=db.execute("SELECT Url,ParentMenuCode FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone()
+            if settings and (settings['Url']!='/admin/ai/providers' or settings['ParentMenuCode'] not in (None,'admin_center')):
+                raise ValueError('assistant settings menu collision')
+            db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai_settings','AI 연결 관리','/admin/ai/providers','장비관리 AI 연결·공개 모델 관리','admin_center',52,?,?)",(now,now))
+            db.execute("UPDATE menus SET ParentMenuCode='admin_center',UpdatedAt=? WHERE MenuCode='equipment_ai_settings' AND Url='/admin/ai/providers' AND ParentMenuCode IS NULL",(now,))
             db.execute("INSERT OR IGNORE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES('admin','equipment_ai_settings',1,?)",(now,))
             db.commit()
         except Exception:
@@ -179,6 +187,41 @@ def install_assistant(app, services):
         if request.remote_addr not in ('127.0.0.1','::1') or not expected or not secrets.compare_digest(given,'Bearer '+expected):
             raise AssistantError('처리 권한이 없습니다.',403)
 
+    def worker_lease_boundary(jid,token,outcome=None):
+        """[MINI-COMMENT: ASSISTANT.WORKER.LIFECYCLE.BOUNDARY]
+        [EN rev.1]
+        [Role] Resolves a live lease or a content-free deletion guard, including a concurrent purge.
+        [Dependencies] The caller first authenticates the loopback worker; every guard rechecks its lease.
+        [Impact] Known completion delivery cannot strand a purged request or restore its discarded text.
+        """
+        def guarded():
+            """[Role] Chooses one bounded guard check. [Dependencies] Validated outcome. [Impact] Does not run tools."""
+            return store.guard_finish(jid,token,outcome) if outcome is not None else store.guard_event(jid,token)
+        result=guarded()
+        if result is not None:
+            return None,result
+        try:
+            with store.db() as db:
+                return store.lease(db,jid,token),None
+        except AssistantError as error:
+            if error.status in (404,409):
+                result=guarded()
+                if result is not None:
+                    return None,result
+            raise
+
+    def require_administrator_grant(db,actor):
+        """[MINI-COMMENT: ASSISTANT.ADMIN.CURRENT.GRANT]
+        [EN rev.1]
+        [Role] Rechecks actual administrator status and the dedicated menu without trusting projected roles.
+        [Dependencies] An already authenticated live actor and current business-DB role/grant rows.
+        [Impact] A revoked admin cannot inspect old diagnostics or publish a newly verified model profile.
+        """
+        role=db.execute('SELECT Role FROM users WHERE UserId=?',(actor['UserId'],)).fetchone()
+        grant=db.execute("SELECT IsAllowed FROM role_menu_permissions WHERE Role='admin' AND MenuCode='equipment_ai_settings'").fetchone()
+        if not role or role['Role']!='admin' or not grant or not grant[0]:
+            raise AssistantError('관리자 AI 연결 관리 권한이 필요합니다.',403)
+
     def job_actor(job):
         """[Role] Checks job expiry/revocation and current rights before each step/tool response.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
@@ -193,15 +236,17 @@ def install_assistant(app, services):
             actor=domain.actor(db,job['owner'],job['binding'])
             if actor['account_key']!=job['account_key']:
                 raise AssistantError('계정 식별정보가 변경되었습니다.',401)
+            if job['purpose']=='probe':
+                require_administrator_grant(db,actor)
             return actor
         finally:
             db.close()
 
     def maintenance_cleanup():
         """[MINI-COMMENT: ASSISTANT.MAINTENANCE.LEASE]
-        [EN rev.1]
+        [EN rev.2]
         [Role] Authenticates only fixed cleanup callbacks without opening the equipment DB.
-        [Dependencies] Loopback worker secret and a current AI-only step lease.
+        [Dependencies] Loopback worker secret and a current AI-only job or detached execution-guard lease.
         [Impact] New claims/admin/browser operations cannot use this maintenance exception.
         """
         if not store or request.method!='POST' or not re.fullmatch(r'/internal/ai/jobs/[0-9a-f]{32}/(?:event|finish)',request.path):
@@ -213,7 +258,12 @@ def install_assistant(app, services):
                 return False
             jid=request.path.split('/')[4]
             with store.db() as db:
-                store.lease(db,jid,data.get('lease'))
+                try:
+                    store.lease(db,jid,data.get('lease'))
+                except AssistantError as error:
+                    if error.status not in (404,409):
+                        raise
+                    store._guard_lease(db,jid,data.get('lease'))
             return True
         except Exception:
             return False
@@ -230,25 +280,35 @@ def install_assistant(app, services):
         actor=browser(write)
         db=connect()
         try:
-            row=db.execute('SELECT Role FROM users WHERE UserId=?',(actor['UserId'],)).fetchone()
-            grant=db.execute("SELECT IsAllowed FROM role_menu_permissions WHERE Role='admin' AND MenuCode='equipment_ai_settings'").fetchone()
-            if not row or row['Role']!='admin' or not grant or not grant[0]:
-                raise AssistantError('관리자 AI 연결 관리 권한이 필요합니다.',403)
+            require_administrator_grant(db,actor)
         finally:
             db.close()
         return actor
 
+    def ordinary_conversation(actor,cid,db,view='active'):
+        """[MINI-COMMENT: ASSISTANT.CONVERSATION.PURPOSE]
+        [EN rev.1]
+        [Role] Keeps pure administrator diagnostics outside ordinary chat while preserving mixed legacy history.
+        [Dependencies] Current owner/account lifecycle and persisted job purposes, never a title/nonce heuristic.
+        [Impact] Existing user turns stay accessible; a diagnostic record cannot become a new normal-chat context.
+        """
+        conv=store.conversation(actor['UserId'],cid,db,actor['account_key'],view=view)
+        purposes=db.execute("SELECT COUNT(*) AS total,SUM(CASE WHEN purpose='chat' THEN 1 ELSE 0 END) AS chats FROM jobs WHERE conversation=?",(cid,)).fetchone()
+        if purposes['total'] and not purposes['chats']:
+            raise AssistantError('기능 시험 기록은 관리자 연결 화면에서 확인해 주세요. 일반 질문은 새 대화에서 시작해 주세요.',409)
+        return conv
+
     def selected(actor,cid=None,explicit=None,level=None):
         """[MINI-COMMENT: ASSISTANT.HTTP.SELECTED]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Restores a conversation's choice before considering defaults for new/unselected chats.
-        [Dependencies] Current published/verified registry profile and owner-bound conversation.
+        [Dependencies] Current published/verified registry profile and active owner-bound ordinary conversation.
         [Impact] Removed/offline saved models raise a reselection reason instead of silent failover.
         """
         conv=None
         if cid:
             with store.db() as db:
-                conv=store.conversation(actor['UserId'],cid,db,actor['account_key'])
+                conv=ordinary_conversation(actor,cid,db)
         mid=explicit or (conv['selection_id'] if conv else None) or registry.choices()['default_model']
         if not mid:
             raise AssistantError('사용 가능한 모델이 없습니다. 관리자에게 연결/모델 시험을 요청해 주세요.',503)
@@ -474,6 +534,24 @@ def install_assistant(app, services):
         jid=store.enqueue(actor['UserId'],cid,'관리자 모델 기능 시험','low',opaque(data['client_key']),actor['binding'],time.time()+1800,actor['account_key'],route,'probe',plan)
         return jsonify(success=True,job_id=jid,conversation_id=cid),202
 
+    @bp.get('/api/admin/ai/probes')
+    @login
+    def admin_probe_lookup():
+        """[MINI-COMMENT: ASSISTANT.PROBE.LOOKUP]
+        [EN rev.1]
+        [Role] Resolves an uncertain probe acknowledgement without resubmitting model work.
+        [Dependencies] Actual administrator, owner/account identity and an opaque client idempotency key.
+        [Impact] A read returns only this administrator's probe IDs, never nonce, prompt or credentials.
+        """
+        actor=administrator()
+        if set(request.args)!= {'client_key'}:
+            raise AssistantError('시험 확인 식별자를 확인해 주세요.')
+        key=opaque(request.args.get('client_key'))
+        with store.db() as db:
+            row=db.execute("SELECT j.id,j.conversation FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=? AND c.account_key=? AND j.purpose='probe' AND c.is_deleted=0",
+                           (actor['UserId'],key,actor['account_key'])).fetchone()
+        return jsonify(success=True,found=bool(row),**({'job_id':row['id'],'conversation_id':row['conversation']} if row else {}))
+
     @bp.route('/api/ai/conversations',methods=['GET','POST'])
     @login
     def conversations():
@@ -490,7 +568,7 @@ def install_assistant(app, services):
                 initial=registry.resolve(choice)['profile']['default_level']
                 store.select_model(actor['UserId'],cid,actor['account_key'],choice,initial,0)
             return jsonify(success=True,id=cid,selection_revision=1 if choice else 0),201
-        return jsonify(success=True,**store.conversations(actor['UserId'],actor['account_key'],request.args.get('cursor')))
+        return jsonify(success=True,**store.conversations(actor['UserId'],actor['account_key'],request.args.get('cursor'),view=request.args.get('view','active')))
 
     @bp.get('/api/ai/conversations/<cid>/messages')
     @login
@@ -504,7 +582,30 @@ def install_assistant(app, services):
             before=int(request.args['before']) if 'before' in request.args else None
         except ValueError:
             raise AssistantError('이전 대화 내용의 위치를 확인해 주세요.') from None
-        return jsonify(success=True,**store.snapshot(actor['UserId'],cid,actor['account_key'],before),storage=store.storage_status(actor['UserId'],actor['account_key']))
+        view=request.args.get('view','active')
+        with store.db() as db:
+            ordinary_conversation(actor,opaque(cid),db,view=view)
+        return jsonify(success=True,**store.snapshot(actor['UserId'],cid,actor['account_key'],before,view=view),storage=store.storage_status(actor['UserId'],actor['account_key']))
+
+    @bp.post('/api/ai/conversations/<cid>/trash')
+    @bp.post('/api/ai/conversations/<cid>/restore')
+    @bp.post('/api/ai/conversations/<cid>/purge')
+    @login
+    def conversation_lifecycle(cid):
+        """[MINI-COMMENT: ASSISTANT.CONVERSATION.LIFECYCLE.HTTP]
+        [EN rev.1]
+        [Role] Applies only a real user's explicitly requested trash, restore or permanent deletion.
+        [Dependencies] Current owner/account, CSRF/Origin, strict revision/idempotency input and Store's transaction.
+        [Impact] The server alone sets retention times; models cannot delete conversations or business data.
+        """
+        actor=browser(True)
+        data=object_only(body(),('lifecycle_revision','operation_id'),('lifecycle_revision','operation_id'))
+        revision=data['lifecycle_revision']
+        if type(revision) is not int or not 0<=revision<=2**63-1:
+            raise AssistantError('대화 상태를 새로 확인해 주세요.',409)
+        action=request.path.rsplit('/',1)[-1]
+        result=store.lifecycle(actor['UserId'],opaque(cid),actor['account_key'],action,revision,opaque(data['operation_id']))
+        return jsonify(success=True,**result,storage=store.storage_status(actor['UserId'],actor['account_key']))
 
     @bp.post('/api/ai/conversations/<cid>/turns')
     @login
@@ -541,6 +642,12 @@ def install_assistant(app, services):
             raise AssistantError('응답 위치가 올바르지 않습니다.') from None
         with store.db() as db:
             job=store.job(jid,db,actor['UserId'],actor['account_key'])
+            if job['purpose']=='probe':
+                access=connect()
+                try:
+                    require_administrator_grant(access,actor)
+                finally:
+                    access.close()
             msg=db.execute("SELECT id,reasoning,content FROM messages WHERE job=? AND role='assistant'",(jid,)).fetchone()
             # Content may reset for a continuation. Steps lets the UI reset only the provisional answer.
             generation=job['steps']+(1 if job['state'] in ('running','draining','recovery_required') else 0)
@@ -572,24 +679,29 @@ def install_assistant(app, services):
     @login
     def confirm(pid):
         """[MINI-COMMENT: ASSISTANT.CONFIRM.HTTP]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Requires a live owner's explicit CSRF-protected confirmation of frozen server content.
-        [Dependencies] Domain's atomic receipt transaction; worker authentication never substitutes for login.
-        [Impact] Retries recover real results and charge one reserved receipt; model text cannot authorize writes.
+        [Dependencies] Current active-conversation execution gate and Domain's atomic business receipt transaction.
+        [Impact] Trash blocks new confirmations; already admitted commits remain authoritative without duplicate writes.
         """
         actor=browser(True)
         if not enabled(app.config['USER_AI_WRITE_TOOLS']):
             raise AssistantError('현재 AI 변경 기능은 비활성 상태입니다.',403)
         object_only(body(),())
         with store.db() as db:
-            row=db.execute('SELECT p.* FROM proposals p JOIN jobs j ON j.id=p.job JOIN conversations c ON c.id=j.conversation WHERE p.id=? AND p.owner=? AND c.account_key=?',(opaque(pid),actor['UserId'],actor['account_key'])).fetchone()
+            row=db.execute('SELECT j.conversation FROM proposals p JOIN jobs j ON j.id=p.job JOIN conversations c ON c.id=j.conversation WHERE p.id=? AND p.owner=? AND c.account_key=?',(opaque(pid),actor['UserId'],actor['account_key'])).fetchone()
+            if row is None:
+                raise AssistantError('확인 항목을 찾을 수 없습니다.',404)
+            cid=row['conversation']
+        # Only this short local business transaction holds the lifecycle writer; no model/network wait runs here.
+        with store.execution_gate(actor['UserId'],cid,actor['account_key']) as db:
+            row=db.execute('SELECT * FROM proposals WHERE id=? AND owner=?',(opaque(pid),actor['UserId'])).fetchone()
             if row is None:
                 raise AssistantError('확인 항목을 찾을 수 없습니다.',404)
             proposal=dict(row)
             job=store.job(proposal['job'],db,actor['UserId'],actor['account_key'])
-        result=domain.execute(proposal,job)
-        # Equipment commit is authoritative. A retry reads its receipt if this separate update fails.
-        with store.db(True) as db:
+            result=domain.execute(proposal,job)
+            # Equipment commit is authoritative. A retry reads its receipt if this separate AI update rolls back.
             db.execute("UPDATE proposals SET state='applied',result=? WHERE id=?",(canonical(result),pid))
             display_result={k:v for k,v in result.items() if k!='replayed'}
             record='장비관리 서버 확인 완료 ['+pid+']: '+canonical(display_result)
@@ -670,19 +782,27 @@ def install_assistant(app, services):
             reason=str(error) if isinstance(error,AssistantError) else ERROR_REASONS['PROCESSING_FAILED']
             app.logger.warning('assistant pre-dispatch failure job=%s type=%s',job['id'],type(error).__name__)
             auth_failure=isinstance(error,AssistantError) and error.status in (401,403)
-            store.finish(job['id'],job['lease'],'cancelled' if auth_failure else 'failed',reason,error_code='AUTH_EXPIRED' if auth_failure else 'PROCESSING_FAILED')
+            try:
+                store.finish(job['id'],job['lease'],'cancelled' if auth_failure else 'failed',reason,error_code='AUTH_EXPIRED' if auth_failure else 'PROCESSING_FAILED')
+            except AssistantError as lifecycle_error:
+                # No model was dispatched. A concurrent purge may have removed its job but must not strand its guard.
+                if lifecycle_error.status not in (404,409) or store.guard_finish(job['id'],job['lease'],'failed') is None:
+                    raise
             return jsonify(success=True,job=None)
 
     @bp.post('/internal/ai/jobs/<jid>/event')
     def event(jid):
-        """[Role] Stores offset-identified deltas and communicates a stopped job while draining its own response.
-        [Dependencies] Worker auth, current lease, per-step snapshots and current actor validation.
-        [Impact] A bad stream chunk records a reason without freeing a still-running upstream request.
+        """[MINI-COMMENT: ASSISTANT.WORKER.EVENT]
+        [EN rev.1]
+        [Role] Stores active deltas or discards a trashed/purged request while its own response drains.
+        [Dependencies] Worker authentication, a current job or minimal execution-guard lease and offset checks.
+        [Impact] Late chunks cannot recreate deleted dialogue or release an unconfirmed upstream slot.
         """
         worker()
         data=object_only(body(262144),('lease','reasoning','content','reasoning_offset','content_offset'),('lease',))
-        with store.db() as db:
-            job=store.lease(db,jid,data['lease'])
+        job,guarded=worker_lease_boundary(jid,data['lease'])
+        if guarded is not None:
+            return jsonify(success=True,**guarded)
         try:
             job_actor(job)
         except Exception as error:
@@ -696,27 +816,40 @@ def install_assistant(app, services):
                 stream_text(data.get('content','')),data.get('reasoning_offset'),data.get('content_offset'))
             accepted=True
         except AssistantError as error:
+            guarded=store.guard_event(jid,data['lease'])
+            if guarded is not None:
+                return jsonify(success=True,**guarded)
             store.cancel(job['owner'],jid,error=ERROR_REASONS['INVALID_RESPONSE']+' '+str(error),error_code='INVALID_RESPONSE')
             cancelled=True
         with store.db() as db:
             step=db.execute('SELECT length(reasoning) AS r,length(content) AS c FROM message_steps WHERE job=? AND step=?',(jid,job['steps'])).fetchone()
+        if step is None:
+            guarded=store.guard_event(jid,data['lease'])
+            if guarded is not None:
+                return jsonify(success=True,**guarded)
+            raise AssistantError('응답 저장 위치를 확인할 수 없습니다.',409)
         return jsonify(success=True,accepted=accepted,reasoning_offset=step['r'],content_offset=step['c'],cancel=cancelled or not enabled(app.config.get('USER_AI_ENABLED')))
 
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.1]
-        [Role] Finalizes every authenticated known completion, including malformed model responses.
-        [Dependencies] Verified lease, full step reconciliation, closed tool schemas and current actor/menu checks.
-        [Impact] Known errors release the app queue and preserve their reason/output; uncertain upstream work stays locked.
+        [EN rev.2]
+        [Role] Finalizes active completions or only the minimal guard of a trashed/purged request.
+        [Dependencies] Verified lease, lifecycle boundary, shared tool normalization and current actor/menu checks.
+        [Impact] Known errors preserve their reason; deleted dialogue stays absent and uncertain upstream work stays locked.
         """
         worker()
         data=body(2097152)
         if not isinstance(data,dict) or 'lease' not in data:
             raise AssistantError('작업 완료 권한을 확인해 주세요.')
-        with store.db() as db:
-            job=store.lease(db,jid,data['lease'])
         outcome=data.get('outcome')
+        if outcome in ('complete','failed','recovery_required','cancelled'):
+            job,guarded=worker_lease_boundary(jid,data['lease'],outcome)
+            if guarded is not None:
+                return jsonify(success=True,state=guarded)
+        else:
+            with store.db() as db:
+                job=store.lease(db,jid,data['lease'])
         known=outcome in ('complete','failed','cancelled')
         code='INVALID_RESPONSE'
         try:
@@ -740,7 +873,7 @@ def install_assistant(app, services):
                 return jsonify(success=True,state=store.finish(jid,data['lease'],outcome,
                     ERROR_REASONS[final_code],error_code=final_code))
             try:
-                job_actor(job)
+                actor=job_actor(job)
             except AssistantError as error:
                 return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
             with store.db() as db:
@@ -770,6 +903,15 @@ def install_assistant(app, services):
                         profile['verified_levels']=profile['levels']
                     profile=normalize_profile(route['model'],route['adapter'],profile)
                     with store.db(True) as db:
+                        live=store.lease(db,jid,data['lease'])
+                        store.conversation(live['owner'],live['conversation'],db,live['account_key'])
+                        if live['cancel']:
+                            raise AssistantError('시험이 중단되어 설정을 갱신하지 않았습니다.',409)
+                        access=connect()
+                        try:
+                            require_administrator_grant(access,actor)
+                        finally:
+                            access.close()
                         version=db.execute('SELECT p.revision,m.profile_revision FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id WHERE m.id=?',(job['selection_id'],)).fetchone()
                         if tuple(version)!=(route['revision'],route['profile_revision']):
                             raise AssistantError('시험 중 연결 설정이 변경되었습니다. 현재 설정에서 다시 시험해 주세요.',409)
@@ -794,7 +936,10 @@ def install_assistant(app, services):
                     raise AssistantError('제공되지 않은 작업 도구가 요청되었습니다.')
                 arguments=text(call['arguments'],16384)
                 args=json.loads(arguments)
-                validate_schema(args,allowed[name]['parameters'])
+                if name in TOOL_MAP:
+                    args=normalized_tool_arguments(name,args)
+                else:
+                    validate_schema(args,allowed[name]['parameters'])
                 prepared.append((cid,name,arguments,args))
             context=json.loads(job['context'])
             content=stream_text(data.get('content',''),MAX_CONTENT)
@@ -803,6 +948,13 @@ def install_assistant(app, services):
                 assistant={'role':'assistant','content':content,'tool_calls':[]}
                 results=[]
                 for cid,name,arguments,args in prepared:
+                    # A previous tool may have overlapped a user's trash action. Do not admit the next one.
+                    with store.db() as db:
+                        live=store.lease(db,jid,data['lease'])
+                        store.conversation(live['owner'],live['conversation'],db,live['account_key'])
+                    if live['cancel']:
+                        return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled'))
+                    job=live
                     try:
                         if name.startswith('prepare_') and not enabled(app.config['USER_AI_WRITE_TOOLS']):
                             raise AssistantError('현재 변경 제안 기능은 비활성 상태입니다.',403)
@@ -839,6 +991,10 @@ def install_assistant(app, services):
             return jsonify(success=True,state=store.finish(jid,data['lease'],'queued' if prepared else 'done',context=context))
         except Exception as error:
             # A trusted worker already reported completion: rejecting its syntax must still release its lease.
+            if outcome in ('complete','failed','recovery_required','cancelled'):
+                guarded=store.guard_finish(jid,data['lease'],outcome)
+                if guarded is not None:
+                    return jsonify(success=True,state=guarded)
             reason=ERROR_REASONS[code]
             if isinstance(error,(AssistantError,InputError,LineupNodeError)):
                 reason+=' '+str(error)
@@ -856,13 +1012,7 @@ def install_assistant(app, services):
         data=object_only(body(),('acknowledgement',),('acknowledgement',))
         if data['acknowledgement']!='OWN_REQUEST_CONFIRMED_FINISHED':
             raise AssistantError('자체 요청 종료 확인이 필요합니다.',409)
-        with store.db(True) as db:
-            job=store.job(jid,db)
-            if job['state'] not in ('running','draining','recovery_required'):
-                raise AssistantError('복구 대상 상태가 아닙니다.',409)
-            db.execute("UPDATE jobs SET state='failed',error=COALESCE(error,'이전 자체 요청 종료 확인 후 복구되었습니다.'),error_code=COALESCE(error_code,'PROCESSING_FAILED'),updated=? WHERE id=?",(time.time(),jid))
-            db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'",(jid,))
-            store.expire(db)
+        store.acknowledge_finished(jid)
         return jsonify(success=True)
 
     @bp.route('/api/ai/equipment/<int:eid>/files',methods=['POST'])
@@ -1008,3 +1158,4 @@ def install_assistant(app, services):
             db.close()
 
     app.register_blueprint(bp)
+

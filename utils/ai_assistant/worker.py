@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.3]
+[EN rev.4]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
 [Dependencies] requests, private loopback worker API and server-only environment credentials.
-[Impact] Reports safe persistent failure codes and offset-idempotent chunks without replaying inference or controlling shared Strata state.
+[Impact] Discards cancelled output while draining only its own response; purged content and group occupancy remain server-controlled.
 """
 import argparse
 import json
@@ -23,6 +23,10 @@ from .providers import PROTOCOL
 from .transport import EndpointPolicy, model_request
 
 LOG=logging.getLogger('equipment_assistant_worker')
+
+
+class DispatchCancelled(Exception):
+    """[Role] Ends a known not-dispatched own request. [Dependencies] Server admission. [Impact] No upstream request."""
 
 
 def sse(response):
@@ -110,8 +114,8 @@ class Worker:
 
     def run_job(self, job):
         """[MINI-COMMENT: ASSISTANT.WORKER.STEP]
-        [EN rev.3]
-        [Role] Streams separate reasoning/content and submits only fully completed structured tool calls.
+        [EN rev.4]
+        [Role] Verifies dispatch admission, drains cancelled own streams and submits only completed live tool calls.
         [Dependencies] Strata Chat Completions SSE; an HTTP EOF without DONE is not a completed request.
         [Impact] Failures stop tool continuation with a persistent reason; uncertain upstream completion holds the own-request lock without replay.
         """
@@ -122,6 +126,7 @@ class Worker:
         calls={}
         last_flush=time.monotonic()
         outcome='recovery_required'
+        dispatched=False
         finish_reason=None
         done=False
         error_code='STREAM_INCOMPLETE'
@@ -155,6 +160,14 @@ class Worker:
             last_flush=time.monotonic()
 
         try:
+            admission=self.post('/internal/ai/jobs/'+job['id']+'/event', {'lease':job['lease']})
+            if admission.get('cancel') or admission.get('accepted') is False:
+                cancelled.set()
+                outcome='cancelled'
+                error_code='USER_CANCELLED'
+                raise DispatchCancelled()
+            if job.get('protocol') and admission.get('accepted') is not True:
+                raise ValueError('missing server dispatch admission')
             route=job.get('route')
             payload={'model':route['model'] if route else self.model,'messages':job['messages'],'stream':True,
                      'max_tokens':job.get('max_tokens',4096),
@@ -167,6 +180,7 @@ class Worker:
                 payload['strata_mcp']=False
             # Compatibility branch is only for historical direct fixtures; v3 claim always supplies a route.
             with nullcontext(None) if route else requests.Session() as client:
+                dispatched=True
                 if route:
                     response_context=model_request(self.policy,route['base_url'],'/chat/completions',
                         self.key if route.get('legacy_worker_key') else route.get('api_key',''),payload,self.timeout)
@@ -186,6 +200,13 @@ class Worker:
                         if item=='[DONE]':
                             done=True
                             break
+                        if cancelled.is_set():
+                            reasoning.clear()
+                            content.clear()
+                            total_reasoning.clear()
+                            total_content.clear()
+                            calls.clear()
+                            continue
                         if item is not None:
                             if not isinstance(item,dict) or item.get('error'):
                                 raise ValueError('invalid model frame')
@@ -231,8 +252,13 @@ class Worker:
             if cancelled.is_set():
                 outcome='cancelled' if done else 'recovery_required'
                 error_code='USER_CANCELLED'
+        except DispatchCancelled:
+            pass
         except Exception as error:
-            if isinstance(error,requests.Timeout):
+            if not dispatched:
+                outcome='failed'
+                error_code='PROCESSING_FAILED'
+            elif isinstance(error,requests.Timeout):
                 error_code='CONNECTION_TIMEOUT'
             elif isinstance(error,requests.ConnectionError):
                 error_code='CONNECTION_FAILED'
@@ -241,7 +267,8 @@ class Worker:
             complete.set()
             pulse.join(timeout=16)
         report={'lease':job['lease'],'outcome':outcome,'error_code':error_code,
-                'content':''.join(total_content)[:MAX_CONTENT],'reasoning':''.join(total_reasoning)[:MAX_REASONING],
+                'content':'' if cancelled.is_set() else ''.join(total_content)[:MAX_CONTENT],
+                'reasoning':'' if cancelled.is_set() else ''.join(total_reasoning)[:MAX_REASONING],
                 'calls':[calls[k] for k in sorted(calls)] if outcome=='complete' else []}
         for attempt in range(3):
             try:
@@ -250,7 +277,7 @@ class Worker:
             except Exception as error:
                 # Retry only delivery of this fixed report. Never repeat a model request/tool step.
                 LOG.error('finish report job=%s type=%s attempt=%s',job['id'],type(error).__name__,attempt+1)
-                if isinstance(error,requests.HTTPError) and error.response is not None and error.response.status_code<500:
+                if isinstance(error,requests.HTTPError) and error.response is not None and error.response.status_code<500 and error.response.status_code not in (404,409):
                     break
                 if attempt<2:
                     self.stop.wait(attempt+1)
@@ -311,3 +338,4 @@ def main():
 
 if __name__=='__main__':
     main()
+

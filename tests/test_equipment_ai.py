@@ -645,8 +645,10 @@ class AssistantTests(unittest.TestCase):
         self.login(3)
         foreign=self.client.get('/api/ai/conversations',query_string={'cursor':'%%%'});self.assertEqual(foreign.status_code,400)
         import base64
-        crafted=base64.urlsafe_b64encode(canonical([time.time()+100,cid]).encode()).decode()
+        crafted=base64.urlsafe_b64encode(canonical(['active',time.time()+100,cid]).encode()).decode()
         self.assertEqual(self.client.get('/api/ai/conversations',query_string={'cursor':crafted}).get_json()['conversations'],[])
+        old_format=base64.urlsafe_b64encode(canonical([time.time()+100,cid]).encode()).decode()
+        self.assertEqual(self.client.get('/api/ai/conversations',query_string={'cursor':old_format}).status_code,400)
 
     def test_more_than_sixty_messages_reachable_and_owner_guarded(self):
         """[Role] Reads every retained message across before pages. [Dependencies] Synthetic older rows and owner-scoped conversation access. [Impact] No saved message is hidden behind the old sixty-message cutoff."""
@@ -704,7 +706,7 @@ class AssistantTests(unittest.TestCase):
             migrated=Store(self.store.path)
             self.assertIsNone(migrated.claim('fixture-new-worker'))
             with migrated.db() as db:
-                self.assertEqual(db.execute('SELECT version FROM ai_meta').fetchone()[0],3)
+                self.assertEqual(db.execute('SELECT version FROM ai_meta').fetchone()[0],4)
                 self.assertEqual(db.execute("SELECT reasoning FROM messages WHERE job=? AND role='assistant'",(jid,)).fetchone()[0],'보존할 추론')
                 actual=db.execute('SELECT SUM(length(content)+length(reasoning)) FROM messages').fetchone()[0]+db.execute('SELECT COALESCE(SUM(handoff_chars),0) FROM jobs').fetchone()[0]
                 self.assertEqual(actual,db.execute('SELECT used_chars FROM storage_accounts').fetchone()[0])
@@ -825,3 +827,4 @@ class ProtocolTests(unittest.TestCase):
 
 if __name__=='__main__':
     unittest.main()
+

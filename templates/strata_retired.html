@@ -1,0 +1,18 @@
+{% extends 'miniserver_frame.html' %}
+{% block title %}기존 Strata 화면 종료 · 장비관리{% endblock %}
+{% block page_title %}기존 Strata 화면 종료{% endblock %}
+{% block content %}
+<!-- [MINI-COMMENT: STRATA.RETIREMENT.VIEW]
+[EN rev.1]
+[Role] Explains the retired UI and links to the independent assistant without loading old code.
+[Dependencies] Existing authenticated frame only.
+[Impact] Preserves browser-local legacy history and sends no prompts, keys or requests to Strata.
+-->
+<section class="max-w-2xl mx-auto p-6 space-y-4" aria-labelledby="strata-retired-title">
+  <h2 id="strata-retired-title" class="text-xl font-semibold">기존 Strata 시험 화면이 종료되었습니다.</h2>
+  <p>장비관리 AI 대화는 AI 도우미에서 계속할 수 있습니다. 기존 화면의 요청을 새 대화로 자동 전송하지 않습니다.</p>
+  <p>이전 브라우저에 저장된 대화는 이 전환으로 삭제하거나 새 AI 대화에 자동 병합하지 않습니다.</p>
+  <a href="/assistant" class="inline-block rounded border px-4 py-3 font-semibold">AI 도우미 열기</a>
+  <a href="/portal" class="inline-block rounded border px-4 py-3">메인으로</a>
+</section>
+{% endblock %}
