@@ -1,0 +1,42 @@
+{
+  "stage_full_initial": {
+    "tests": 244,
+    "failures": 2,
+    "errors": 0,
+    "seconds": 72.291,
+    "failed_names": [
+      "test_extended_storage_reserves_completion_and_retains_output_over_base",
+      "test_storage_reservations_prevent_oversubscription_and_release_on_cancel"
+    ],
+    "cause": "base fixtures inherited installed production search availability"
+  },
+  "stage_full_after_fixture_isolation": {
+    "tests": 244,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 45.26,
+    "digest": "371499219b45cb3a76e5c13036508cfd59955c723c4ed63f70972f0a2b8c24fd"
+  },
+  "stage_focused": {
+    "tests": 25,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 6.197
+  },
+  "stage_reservation_regressions": {
+    "tests": 3,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 0.628
+  },
+  "final_wording_change_after_full": "Explicit requested search must call tool; no execution logic changed. Root full suite to follow.",
+  "root_full": {
+    "tests": 244,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 71.819,
+    "digest": "f45f26e326927385b85f30aa1df284078f2460498f24b76efabc5b7561f7ebdf"
+  }
+}

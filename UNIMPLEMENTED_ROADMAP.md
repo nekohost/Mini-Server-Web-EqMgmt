@@ -17,3 +17,7 @@
 
 보류 권장 제안 006·009·012는 [미구현 제안](UNIMPLEMENTED_PROPOSALS.md)에서 별도 관리하며 이 대기열에 포함하지 않는다. 별도 계획서도 자동 편입하지 않는다.
 완료 원안·배포 근거·기능 명세는 [ROADMAP.md](ROADMAP.md), [PROPOSALS.md](PROPOSALS.md), [FEATURES.md](FEATURES.md)에 보존한다.
+
+## AI-SEARCH-GOOGLE-KEYLESS-20261105 — Google 직접 일반 검색
+
+Google의 서버 보안 확인/사용 가능한 연결 수단 부재로 API 없는 일반 검색 활성은 미완료다. 일반 HTTP·표준 Chromium·Hermes 구현을 확인했으며 기존 Yahoo/GitHub 동작과 구분한다. 정상 연결 경로 확보와 실제 검색·지속성 검증 뒤 완료 처리한다. Google 뉴스나 타 엔진 결과를 Google 일반 검색으로 표기하지 않는다. [검증020](Reports/2026/11/05/020_AI_Automatic_Search_Providers_Report.md).

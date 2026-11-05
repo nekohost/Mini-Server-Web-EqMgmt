@@ -1,0 +1,14 @@
+{
+  "reference_root": "C:\\Users\\nkhst\\AppData\\Local\\hermes\\installs\\398a1dc3deb6ffc9\\environments\\81c5ecbaf44c43d383665262091de000\\workspace",
+  "read_only": true,
+  "public_source_sha256": {
+    "agent/web_search_registry.py": "894a60888a3994d5215ab371c7a997867a59f0a3319350c3c0cccc3b7f963091",
+    "agent/web_search_provider.py": "965deba9b467c3fb2959138a8312b58e8a02016a1ac1124bd3c7ca02e1c380ff",
+    "plugins/web/ddgs/provider.py": "cdcb1b584a1b24464a6f5e105ffd987e77e1a4f9d7facdd92a9ebc5b770f00a3",
+    "plugins/web/ddgs/_search_worker.py": "f0b13cf012e9c07db413ac7e71e0f9d6256cae895921b8032963f6367404513c"
+  },
+  "web_config_section_present": false,
+  "search_variable_names": [],
+  "credentials_copied": false,
+  "active_hermes_provider_not_executed": true
+}

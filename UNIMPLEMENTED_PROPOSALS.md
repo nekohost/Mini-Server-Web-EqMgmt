@@ -68,3 +68,9 @@
 ---
 
 [현황 판정 및 검증 근거](Reports/2026/09/13/004_Roadmap_Status_Sync_Report.md).
+
+## AI-SEARCH-GOOGLE-KEYLESS-20261105 — Google 일반 검색 연결 미해결
+
+- API 없는 Google 일반 검색을 장비 서버에서 안정적으로 제공하는 연결 경로는 미완료다. 일반 HTTP는 JS 안내/403, 표준 Chromium은 보안 확인을 반환했다. Hermes 제공자 구조를 확인했으나 이를 해결하는 Google 연결이 확인되지 않았다.
+- 정상 이용 가능한 Google 연결 수단을 확보한 뒤 실제 검색/지속성/운영 자원과 차단 재발 처리를 검증해야 한다. CAPTCHA·접근 제한을 우회하지 않으며 뉴스/Yahoo 결과로 대체 성공 처리하지 않는다.
+- Yahoo 문맥 검색·GitHub 공개 검색과 별도 항목이다. [계획·검증020](Reports/2026/11/05/020_AI_Automatic_Search_Providers_Report.md).

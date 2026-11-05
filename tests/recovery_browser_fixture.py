@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.RECOVERY.BROWSER] [EN rev.1]
+"""[MINI-COMMENT: ASSISTANT.RECOVERY.BROWSER] [EN rev.2]
 [Role] Reproduces a stopped request and verifies authenticated terminal reconciliation in real candidate DOM.
 [Dependencies] Existing synthetic owner transport, Linux Chromium and the reviewed real-frame capture.
 [Impact] Does not use real accounts, release a guard, dispatch inference or modify production data.
@@ -23,6 +23,7 @@ def run_browser(project, assets):
     cached['templates/equipment_ai.html']=re.sub(r'<button type="button" id="ai-refresh-state"[^>]*>상태 다시 확인</button>','',assets['templates/equipment_ai.html'])
     if cached['templates/equipment_ai.html']==assets['templates/equipment_ai.html']:
         raise ValueError('cached-template compatibility control was not removed')
+    cached['templates/equipment_ai.html']=cached['templates/equipment_ai.html'].replace('<div class="ai-send-actions">','<div class="ai-send-actions"><button type="button" id="ai-web-search">구 화면 검색 버튼</button><span id="ai-web-search-help">구 화면 검색 안내</span>')
     legacy=run_ui_browser(project,cached,script,sizes=(320,390,1440),themes=('light','dark'),capture=capture_real_frames)
     for item in legacy:
         item['template_mode']='cached-before-recovery'

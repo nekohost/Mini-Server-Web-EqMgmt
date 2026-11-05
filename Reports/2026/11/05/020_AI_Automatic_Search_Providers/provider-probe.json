@@ -1,0 +1,96 @@
+[
+  {
+    "providers": [
+      {
+        "id": "yahoo",
+        "name": "Yahoo",
+        "available": true,
+        "scopes": [
+          "web"
+        ]
+      },
+      {
+        "id": "github",
+        "name": "GitHub",
+        "available": true,
+        "scopes": [
+          "repositories",
+          "issues"
+        ],
+        "notice": "익명 공개 저장소·이슈 검색. 코드·비공개 저장소 검색은 제공하지 않습니다."
+      },
+      {
+        "id": "google",
+        "name": "Google",
+        "available": false,
+        "scopes": [
+          "web"
+        ],
+        "reason": "Google 일반 검색의 서버 접속이 보안 확인으로 차단됩니다. 이용 가능한 Google 검색 연결 설정이 필요합니다."
+      }
+    ]
+  },
+  {
+    "provider": "yahoo",
+    "scope": "web",
+    "seconds": 1.962,
+    "engine": "Yahoo",
+    "status": "ok",
+    "items": [
+      {
+        "title": "삼성 갤럭시 S25 - 위키백과, 우리 모두의 백과사전",
+        "url": "https://ko.wikipedia.org/wiki/삼성_갤럭시_S25"
+      },
+      {
+        "title": "삼성 갤럭시 S25 | S25+ | Galaxy AI | Samsung 대한민국",
+        "url": "https://www.samsung.com/sec/smartphones/galaxy-s25/"
+      },
+      {
+        "title": "스펙 | 삼성 갤럭시 S25 | S25+ | Samsung 대한민국",
+        "url": "https://www.samsung.com/sec/smartphones/galaxy-s25/specs/"
+      }
+    ]
+  },
+  {
+    "provider": "github",
+    "scope": "repositories",
+    "seconds": 0.762,
+    "engine": "GitHub",
+    "status": "ok",
+    "items": [
+      {
+        "title": "pallets/flask",
+        "url": "https://github.com/pallets/flask"
+      },
+      {
+        "title": "railwayapp-templates/flask",
+        "url": "https://github.com/railwayapp-templates/flask"
+      },
+      {
+        "title": "roytuts/flask",
+        "url": "https://github.com/roytuts/flask"
+      }
+    ]
+  },
+  {
+    "provider": "github",
+    "scope": "issues",
+    "seconds": 0.72,
+    "engine": "GitHub",
+    "status": "ok",
+    "items": [
+      {
+        "title": "[rejected AI] Config.from_prefixed_env raises TypeError when scalar and nested environment variables share a prefix",
+        "url": "https://github.com/pallets/flask/issues/6177"
+      },
+      {
+        "title": "AI junk",
+        "url": "https://github.com/pallets/flask/issues/6126"
+      },
+      {
+        "title": "test_bad_environ_raises_bad_request fails with Werkzeug>=3.1.7",
+        "url": "https://github.com/pallets/flask/issues/6092"
+      }
+    ]
+  }
+]

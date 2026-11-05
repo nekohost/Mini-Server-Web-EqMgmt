@@ -1,4 +1,4 @@
-/* [MINI-COMMENT: ASSISTANT.RECOVERY.UI.TEST] [EN rev.1]
+/* [MINI-COMMENT: ASSISTANT.RECOVERY.UI.TEST] [EN rev.2]
  * [Role] Reproduces terminal state changes without lifecycle revisions and a delayed previous poll.
  * [Dependencies] Candidate owner-scoped DOM and inert authenticated transport only.
  * [Impact] Proves draft/search/error retention and manual-only resubmission while unknown requests remain locked.
@@ -58,7 +58,7 @@ function runAiRecoveryFixture(server,cid,oldCid,modelId,jid,sleep,theme) {
             await wait(()=>$('ai-send').disabled&&$('ai-progress-text').textContent.includes('종료 확인이 필요합니다.'),'unknown execution remains blocked');
             await wait(()=>oldPolls>0,'previous job poll is deliberately pending');
             $('ai-input').value='종료 확인 후 보낼 초안'; $('ai-input').dispatchEvent(new Event('input',{bubbles:true}));
-            $('ai-web-search').click(); document.querySelector('.ai-thought').open=true;
+            assert(!$('ai-web-search'),'automatic-search-has-no-stale-toggle'); document.querySelector('.ai-thought').open=true;
             const reads=messageReads; window.dispatchEvent(new Event('focus'));
             await wait(()=>messageReads>reads,'unchanged lifecycle snapshot read'); await sleep(120);
             assert($('ai-send').disabled&&turns().length===0,'unknown-server-state-is-never-unlocked-or-replayed');
@@ -68,7 +68,7 @@ function runAiRecoveryFixture(server,cid,oldCid,modelId,jid,sleep,theme) {
             phase='failed'; const terminalReads=messageReads; window.dispatchEvent(new Event('focus'));
             await wait(()=>messageReads>terminalReads,'terminal same-revision snapshot');
             await wait(()=>!$('ai-send').disabled,'terminal snapshot releases stale composer lock',180);
-            assert($('ai-input').value==='종료 확인 후 보낼 초안'&&$('ai-web-search').getAttribute('aria-pressed')==='true','terminal-refresh-preserves-draft-and-next-search-consent');
+            assert($('ai-input').value==='종료 확인 후 보낼 초안'&&!$('ai-web-search'),'terminal-refresh-preserves-draft-and-automatic-search-ui');
             assert(document.querySelector('.ai-thought').open&&document.querySelector('.ai-thought').textContent.includes(thought),'terminal-refresh-retains-entire-thought-and-reader-choice');
             assert($('ai-progress-text').textContent.includes(failure.split(' 이전 요청의')[0])&&$('ai-progress-text').textContent.includes('새 요청')&&!$('ai-progress-text').textContent.includes('종료 확인이 필요합니다.'),'original-failure-cause-and-current-recovery-guidance-both-visible');
             assert(turns().length===0,'terminal-refresh-only-reads-does-not-send-an-inference');

@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.1]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.2]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -32,13 +32,16 @@ class FakeSearch:
     def __init__(self):
         """[Role] Keeps per-test isolated calls/callback/failure state without any global cache."""
         self.calls=[];self.callback=None;self.failure=None
-    def search(self, query, max_results=5, sensitive=()):
+    def search(self, query, max_results=5, sensitive=(), provider='auto', scope=None):
         """[Role] Runs actual query privacy validation and then an optional cancel/revoke/failure hook."""
         query=validate_query(query,sensitive)
         self.calls.append(query)
         if self.callback:self.callback()
         if self.failure:raise WebSearchError(self.failure)
-        return evidence(query)
+        result=evidence(query)
+        result['engine']='GitHub' if provider=='github' else 'Yahoo'
+        result['scope']=scope or ('repositories' if provider=='github' else 'web')
+        return result
 
 
 class SearchSafetyTests(unittest.TestCase):
@@ -78,7 +81,7 @@ class SearchSafetyTests(unittest.TestCase):
         args,kwargs=run.call_args
         self.assertEqual(args[0][1:4],['-I','-B','-c']);self.assertEqual(kwargs['timeout'],SEARCH_DEADLINE)
         self.assertEqual(kwargs['env'],{'PATH':'/usr/bin:/bin','LANG':'C.UTF-8'})
-        self.assertEqual(json.loads(kwargs['input']),{'query':'Flask docs','max_results':3})
+        self.assertEqual(json.loads(kwargs['input']),{'query':'Flask docs','max_results':3,'provider':'yahoo','scope':'web'})
         self.assertNotIn('api_key',kwargs['input'].decode())
 
     def test_child_timeout_bad_output_and_missing_runtime_fail_closed(self):
@@ -147,12 +150,51 @@ class WebSearchIntegrationTests(unittest.TestCase):
         history=self.client.get('/api/ai/conversations/'+cid+'/messages').get_json();self.assertEqual(history['jobs'][0]['web_search_version'],1)
         self.assertNotIn('context',history['jobs'][0]);self.assertIn('Flask official documentation',canonical(self.audit_logs))
 
+    def test_auto_exposes_search_without_forcing_an_unnecessary_external_request(self):
+        """[Role] Verifies new omitted-control requests can complete an ordinary answer without fabricated evidence.
+        [Dependencies] Real admission/claim/finish/store paths and inert search. [Impact] Auto is optional while legacy required still fails without search.
+        """
+        jid=self.turn(allow=None)['job_id']
+        with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['reserved_chars'],self.store.output_reservation+SEARCH_RESERVATION)
+        job=self.claim()
+        self.assertFalse(job['web_search_required']);self.assertIn('web_search',[t['function']['name'] for t in job['tools']])
+        self.assertIn('현재 요청 웹 검색: 자동',job['messages'][0]['content'])
+        self.assertEqual(self.finish(job,content='안녕하세요. 필요한 장비 업무를 알려 주세요.')['state'],'done')
+        self.assertEqual(self.search.calls,[])
+        with self.store.db() as db:
+            row=self.store.job(jid,db);self.assertEqual(json.loads(row['route_snapshot'])['web_search_mode'],'auto');self.assertEqual(row['reserved_chars'],0)
+
+    def test_auto_model_selected_github_sources_survive_the_next_step_and_reload(self):
+        """[Role] Verifies a context-chosen public GitHub search retains its real provider/scope.
+        [Dependencies] Actual normalized tool dispatch and stored evidence. [Impact] No Yahoo label or forced repeated search is introduced.
+        """
+        cid=self.conversation();jid=self.turn(cid,None)['job_id'];job=self.claim()
+        self.assertEqual(self.search_step(job,query='Flask',provider='github',scope='repositories')['state'],'queued')
+        self.finish(self.claim(),content='공개 저장소 검색 결과입니다. [1]')
+        result=self.client.get('/api/ai/conversations/'+cid+'/messages').get_json()['jobs'][0]['web_searches'][0]
+        self.assertEqual((result['engine'],result['scope']),('GitHub','repositories'));self.assertEqual(len(self.search.calls),1)
+
+    def test_auto_without_available_search_completes_without_a_false_required_failure(self):
+        """[Role] Keeps ordinary conversation available when search is disabled or not installed.
+        [Dependencies] Server capability and immutable auto snapshot. [Impact] No implicit external access or blanket turn rejection.
+        """
+        self.search.available=False;self.turn(allow=None);job=self.claim()
+        self.assertNotIn('web_search',[t['function']['name'] for t in job['tools']]);self.assertFalse(job['web_search_required'])
+        self.assertEqual(self.finish(job,content='일반 설명을 제공합니다.')['state'],'done');self.assertEqual(self.search.calls,[])
+
+    def test_auto_invalid_provider_or_private_query_never_reaches_search(self):
+        """[Role] Applies existing privacy/schema guards even when search permission is automatic.
+        [Dependencies] Real schema validation and owner-sensitive values. [Impact] Context selection never broadens endpoints or confidential disclosure.
+        """
+        self.turn(allow=None);self.assertEqual(self.search_step(self.claim(),provider='http://127.0.0.1')['state'],'failed');self.assertEqual(self.search.calls,[])
+        self.turn(allow=None);self.assertEqual(self.search_step(self.claim(),query='SERIAL-2 specifications')['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(self.search.calls,[])
+
     def test_default_off_denies_forged_search_before_io_and_is_terminal(self):
         """[Dependencies] Immutable route flag and Domain reauthorization. [Impact] A model cannot grant itself internet access."""
-        cid=self.conversation();jid=self.turn(cid,None)['job_id'];job=self.claim()
+        cid=self.conversation();jid=self.turn(cid,False)['job_id'];job=self.claim()
         self.assertNotIn('web_search',[x['function']['name'] for x in job['tools']])
         result=self.search_step(job);self.assertEqual(result['state'],'failed');self.assertEqual(result['error_code'],'WEB_SEARCH_DISABLED');self.assertEqual(self.search.calls,[])
-        view=self.client.get('/api/ai/jobs/'+jid).get_json();self.assertIn('웹 검색을 켜고',view['error'])
+        view=self.client.get('/api/ai/jobs/'+jid).get_json();self.assertIn('접수 설정',view['error'])
 
     def test_boolean_unavailable_csrf_and_owner_boundaries(self):
         """[Dependencies] Strict real browser body and signed actor/menu checks. [Impact] Nonboolean consent and another user's source access fail."""
@@ -163,9 +205,9 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.assertEqual(self.client.post('/api/ai/conversations/'+cid+'/turns',json={},headers={'Origin':'https://evil.example'}).status_code,403)
 
     def test_idempotent_legacy_flag_and_changed_opt_in_cannot_reuse_acceptance_key(self):
-        """[Dependencies] Stored request fingerprint. [Impact] Existing false/absent retries remain compatible; changed internet permission cannot mutate an accepted job."""
+        """[Dependencies] Stored request fingerprint. [Impact] Identical auto retries reuse the accepted job; changed search policy cannot mutate its snapshot."""
         cid=self.conversation();key=uuid.uuid4().hex;first=self.turn(cid,None,key)['job_id']
-        self.assertEqual(self.turn(cid,False,key)['job_id'],first);self.turn(cid,True,key,expected=409)
+        self.assertEqual(self.turn(cid,None,key)['job_id'],first);self.turn(cid,False,key,expected=409);self.turn(cid,True,key,expected=409)
 
     def test_private_queries_and_private_detail_taint_never_reach_network(self):
         """[Dependencies] Current owner serials and actual private tool result. [Impact] Only public/model keywords can leave after explicit opt-in."""

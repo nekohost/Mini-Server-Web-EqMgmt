@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.7]
+[EN rev.8]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
-[Impact] Adds owner-bound rename and passive expiring status while preserving audit content, completion reservations and all worker boundaries.
+[Impact] New requests use context-selected search; immutable legacy required/off jobs, owner-bound audit/storage and worker boundaries are preserved.
 """
 from datetime import datetime
 import json
@@ -31,7 +31,7 @@ from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
 from .status import read_status
-from .web_search import SearchService, WebSearchError, public_searches
+from .web_search import SearchService, WebSearchError, public_searches, search_mode
 
 
 def enabled(value):
@@ -401,7 +401,7 @@ def install_assistant(app, services):
             tools=[t['function']['name'] for t in domain.tools(actor) if enabled(app.config['USER_AI_WRITE_TOOLS']) or not t['function']['name'].startswith('prepare_')],
             scopes=(['my','draft'] if 'my_equipment' in actor['menus'] else [])+(['public'] if 'public_equipment' in actor['menus'] else []),
             writes=enabled(app.config['USER_AI_WRITE_TOOLS']),file_tools='my_equipment' in actor['menus'] and enabled(app.config['USER_AI_WRITE_TOOLS']),
-            web_search={'available':domain.search_service.available,'default':False,'engine':'Yahoo','notice':'웹 검색을 켜면 공개 검색어가 외부 검색 엔진으로 전송됩니다. 계정·인증·시리얼·비공개 메모를 넣지 마세요.'},
+            web_search={'available':domain.search_service.available,'mode':'auto','providers':getattr(domain.search_service,'providers',[]),'notice':'질문에 필요한 경우 AI가 공개 검색어를 외부 검색 제공자에게 보냅니다. 계정·인증·시리얼·비공개 메모는 검색하지 않습니다.'},
             storage=store.storage_status(actor['UserId'],actor['account_key']))
 
     @bp.get('/api/ai/models')
@@ -643,12 +643,14 @@ def install_assistant(app, services):
             raise AssistantError('추론 설정 형식이 변경되었습니다. 화면을 새로고침해 주세요.',409)
         key=opaque(data['client_key'])
         route,level,conv=selected(actor,opaque(cid),opaque(data['selection_id']) if 'selection_id' in data else None,data['level'])
-        allow_search=data.get('web_search',False)
-        if type(allow_search) is not bool:
+        legacy_search=data.get('web_search')
+        if 'web_search' in data and type(legacy_search) is not bool:
             raise AssistantError('웹 검색 사용 여부는 true/false여야 합니다.')
-        if allow_search and (not domain.search_service.available or not route['profile'].get('tools')):
+        available=domain.search_service.available and bool(route['profile'].get('tools'))
+        if legacy_search is True and not available:
             raise AssistantError('현재 서버 또는 선택한 모델에서 웹 검색을 사용할 수 없습니다.')
-        route['web_search_allowed']=allow_search
+        route['web_search_mode']='required' if legacy_search is True else 'off' if legacy_search is False else 'auto'
+        route['web_search_allowed']=available and legacy_search is not False
         jid=store.enqueue(actor['UserId'],opaque(cid),content,level,key,actor['binding'],time.time()+min(1800,app.permanent_session_lifetime.total_seconds()),actor['account_key'],route)
         return jsonify(success=True,job_id=jid),202
 
@@ -791,7 +793,13 @@ def install_assistant(app, services):
             if not enabled(app.config['USER_AI_WRITE_TOOLS']):
                 tools=[t for t in tools if not t['function']['name'].startswith('prepare_')]
             system=SYSTEM+'\n서울 기준 오늘 날짜: '+datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
-            system+='\n현재 요청 웹 검색: '+('허용됨. 반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요. 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if route.get('web_search_allowed') is True and domain.search_service.available else '꺼짐. 외부 웹 검색을 수행하거나 검색했다고 주장하지 마세요.')
+            if route.get('web_search_allowed') is True and domain.search_service.available:
+                system+='\n현재 요청 웹 검색: '+('허용됨. 반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요. 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route)=='required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
+                providers=getattr(domain.search_service,'providers',[])
+                if providers:
+                    system+='\n검색 제공자 상태: '+canonical(providers)+'. 사용 가능한 제공자만 선택하고 사용하지 않은 검색 엔진으로 검색했다고 주장하지 마세요.'
+            else:
+                system+='\n현재 요청 웹 검색: 사용 불가. 외부 검색을 수행하거나 검색했다고 주장하지 말고 현재 접수/모델/서버에서 검색이 제공되지 않음을 알리세요. 검색 버튼을 켜라고 안내하지 마세요.'
             if not route['profile'].get('tools'):
                 system+='\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
             output_tokens=min(4096,max(512,route['context_tokens']//4))
@@ -824,7 +832,7 @@ def install_assistant(app, services):
                 raise AssistantError('선택한 모델의 문맥 한도로 작업을 중단했습니다. 기록을 확인하고 질문을 줄이거나 더 큰 모델을 선택해 주세요.',413)
             packet={'id':job['id'],'lease':job['lease'],'steps':job['steps'],'messages':messages,'tools':tools,
                     'reasoning_effort':route.get('reasoning_effort'),'route':route,'max_tokens':output_tokens,'protocol':PROTOCOL,
-                    'web_search_required':job['purpose']=='chat' and route.get('web_search_allowed') is True and not public_searches(context)}
+                    'web_search_required':job['purpose']=='chat' and route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context)}
             canonical(packet)
             return jsonify(success=True,job=packet)
         except Exception as error:
@@ -997,7 +1005,7 @@ def install_assistant(app, services):
             context=json.loads(job['context'])
             content=stream_text(data.get('content',''),MAX_CONTENT)
             code='PROCESSING_FAILED'
-            if route.get('web_search_allowed') is True and not public_searches(context) and not any(name=='web_search' for _,name,_,_ in prepared):
+            if route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context) and not any(name=='web_search' for _,name,_,_ in prepared):
                 raise WebSearchError('WEB_SEARCH_REQUIRED')
             if prepared:
                 assistant={'role':'assistant','content':content,'tool_calls':[]}

@@ -1,0 +1,91 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "60da723d6fec16bd3a958d97fae663d3ab96cb7ff3f9fd17904a9c75782965e1",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "root": {
+            "left": 8,
+            "right": 382,
+            "top": 92,
+            "bottom": 835,
+            "width": 374,
+            "height": 743
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 744.41,
+            "bottom": 788.41,
+            "width": 44,
+            "height": 44
+          },
+          "form": {
+            "left": 21,
+            "right": 369,
+            "top": 671.41,
+            "bottom": 825,
+            "width": 348,
+            "height": 153.59
+          },
+          "chat": {
+            "left": 9,
+            "right": 381,
+            "top": 213.34,
+            "bottom": 671.41,
+            "width": 372,
+            "height": 458.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/initial-ui/screen-000.png"
+    }
+  ],
+  "fixture_digest": "60da723d6fec16bd3a958d97fae663d3ab96cb7ff3f9fd17904a9c75782965e1"
+}

@@ -409,3 +409,10 @@ Linux 회귀99건, 추가 격리 HTTP19건, 실제 템플릿 브라우저26건 �
 - 동일 대화/job의 인증된 terminal snapshot을 확인하면 오래된 보내기 잠금을 갱신한다. 기존 job poll이 지연돼도 선택/job별 조회가 분리돼 다음 요청을 막거나 덮어쓰지 않는다.
 - 오류 영역에서 `상태 다시 확인`을 제공한다. 조회 실패·job 누락·종료 미확인은 잠금을 유지하며 재전송/관리자 ACK/외부 요청 취소를 수행하지 않는다. 실패 사유·원본 추론·대화·감사를 보존하고 현재 종료 확인 결과를 안내한다.
 - 초안·추론 펼침·현재 화면의 웹 검색 선택을 보존하며 기존 HTML 캐시와 새 정적 자산의 혼합도 지원한다. [계획019](Plans/2026/11/05/019_AI_Stopped_Conversation_Recovery_Plan.md),[검증·운영019](Reports/2026/11/05/019_AI_Stopped_Conversation_Recovery_Report.md).
+
+## 23. 문맥 기반 자동 웹 검색·제공자 구분 (2026-11-05)
+
+- 웹 검색 버튼/숨은 선택 상태를 제거하고 신규 요청은 서버가 auto 정책으로 접수한다. 모델이 최신 정보·명시적 검색 요청·외부 근거 등에 web_search를 사용하며 인사/일반 설명/내 장비 업무에는 검색을 강제하지 않는다. 21·22절의 opt-in UI는 당시 버전 기록이며 이번 방식으로 갱신됐다.
+- Yahoo 일반 웹 검색을 유지하고 GitHub 익명 공개 저장소·이슈 검색을 추가했다. 실제 제공자·공개 범위·일부 결과 여부를 출처에 표시한다. 비공개 저장소/전체 코드 검색·임의 endpoint/redirect·Git/Hermes 인증 재사용은 제공하지 않는다.
+- Google adapter와 사용 불가 사유를 구분했다. HTTP/표준 Chromium의 Google 일반 검색은 보안 확인으로 제한돼 활성화하지 못했으며 API 없는 Google 일반 검색은 미해결 항목이다. Yahoo나 Google 뉴스 결과를 Google 일반 검색으로 표시하지 않는다.
+- 구 UI의 명시적 required/off와 기존 접수 snapshot을 유지하고 auto의 불필요한 검색 의무를 없앴다. 검색 가능한 auto는 기존64K 출처 예약·민감 값/소유자/lease/취소·감사·휴지통/환급 경계를 그대로 적용한다. [계획020](Plans/2026/11/05/020_AI_Automatic_Search_Providers_Plan.md),[검증020](Reports/2026/11/05/020_AI_Automatic_Search_Providers_Report.md).

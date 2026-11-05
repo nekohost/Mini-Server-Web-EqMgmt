@@ -1,4 +1,4 @@
-/* [MINI-COMMENT: ASSISTANT.WEB.UI] [EN rev.1]
+/* [MINI-COMMENT: ASSISTANT.WEB.UI] [EN rev.2]
  * [Role] Renders only server-projected search sources as safe native disclosures and explicit external links.
  * [Dependencies] Existing stable message articles and bounded versioned source arrays; no fetch, HTML parser or model-generated links.
  * [Impact] Repeated snapshots preserve focus/open state, result instructions remain text and citations never execute equipment operations.
@@ -21,7 +21,7 @@
         try { return decodeURIComponent(decodeURIComponent(value)); } catch (_) { return '\u0000'; }
     }
     function render(article, searches) {
-        /* [MINI-COMMENT: ASSISTANT.WEB.CITATIONS] [EN rev.1]
+        /* [MINI-COMMENT: ASSISTANT.WEB.CITATIONS] [EN rev.2]
          * [Role] Appends bounded authoritative search evidence to one existing owner-visible message.
          * [Dependencies] At most two searches/five plain-text source records each and server-projected HTTPS URLs.
          * [Impact] No automatic outbound request, raw HTML or unsafe link; reload/trash view remains a read-only citation display.
@@ -29,6 +29,8 @@
         if (!article || !Array.isArray(searches)) return;
         const accepted = searches.slice(0,2).map(search => ({
             query: String(search.query || '').slice(0,300), at: String(search.searched_at || '').slice(0,60),
+            engine: ['Yahoo','Google','GitHub'].includes(search.engine) ? search.engine : '웹 검색',
+            scope: search.engine === 'GitHub' ? search.scope === 'issues' ? '공개 이슈' : '공개 저장소' : '일반 웹', partial: search.status === 'partial',
             results: (Array.isArray(search.results) ? search.results : []).slice(0,5).map(item => ({
                 title: String(item.title || '').slice(0,180), snippet: String(item.snippet || '').slice(0,700), url: safeUrl(item.url)
             })).filter(item => item.url && item.title)
@@ -39,10 +41,10 @@
         const opened = element?.open || false;
         if (!element) { element = article.ownerDocument.createElement('details'); element.className = 'ai-web-sources'; article.append(element); }
         const doc = article.ownerDocument, fragment = doc.createDocumentFragment(), summary = doc.createElement('summary');
-        summary.textContent = '웹 검색 출처 · Yahoo · ' + accepted.reduce((sum,search) => sum + search.results.length,0) + '건'; fragment.append(summary);
+        summary.textContent = '웹 검색 출처 · ' + [...new Set(accepted.map(search => search.engine))].join(' / ') + ' · ' + accepted.reduce((sum,search) => sum + search.results.length,0) + '건'; fragment.append(summary);
         const note = doc.createElement('p'); note.className = 'ai-web-source-note'; note.textContent = '검색 결과의 제목과 요약입니다. 원문 전체를 열람한 결과는 아닙니다.'; fragment.append(note);
         for (const search of accepted) {
-            const heading = doc.createElement('p'); heading.className = 'ai-web-query'; heading.textContent = '검색어: ' + search.query; fragment.append(heading);
+            const heading = doc.createElement('p'); heading.className = 'ai-web-query'; heading.textContent = `${search.engine} · ${search.scope}${search.partial ? ' · 일부 결과' : ''} · 검색어: ${search.query}`; fragment.append(heading);
             const when = doc.createElement('p'); when.className = 'ai-web-source-note'; when.textContent = '검색 시각: ' + search.at; fragment.append(when);
             if (!search.results.length) { const empty = doc.createElement('p'); empty.textContent = '검색 결과가 없습니다.'; fragment.append(empty); continue; }
             const list = doc.createElement('ol');

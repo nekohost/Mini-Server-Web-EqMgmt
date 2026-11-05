@@ -1,0 +1,19 @@
+{
+  "all_match": true,
+  "files": {
+    "static/js/equipment_ai.js": true,
+    "static/js/equipment_ai_web_search.js": true,
+    "templates/equipment_ai.html": true,
+    "tests/recovery_browser_fixture.py": true,
+    "tests/run_assistant_fixture.py": true,
+    "tests/test_ai_recovery_ui.js": true,
+    "tests/test_ai_search_providers.py": true,
+    "tests/test_ai_web_search.py": true,
+    "tests/test_ai_web_search_ui.js": true,
+    "utils/ai_assistant/__init__.py": true,
+    "utils/ai_assistant/domain.py": true,
+    "utils/ai_assistant/policy.py": true,
+    "utils/ai_assistant/store.py": true,
+    "utils/ai_assistant/web_search.py": true
+  }
+}

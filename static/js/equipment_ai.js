@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.19]
+ * [EN rev.20]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
  * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request.
@@ -241,6 +241,8 @@
         const root = document.getElementById('equipment-ai');
         if (!root) return;
         const $ = id => document.getElementById(id);
+        // Remove legacy opt-in controls when a running server still holds the earlier template in cache.
+        $('ai-web-search')?.remove(); $('ai-web-search-help')?.remove();
         // Cached server templates may precede these static assets during an idle-safe hot deployment.
         if (!$('ai-refresh-state')) {
             const refreshState = document.createElement('button');
@@ -260,7 +262,6 @@
         let historyView = 'active', conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
         let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
-        let webSearchAllowed = false;
         let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null;
         let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
         let renameContext = null, renameBusy = false, renameFocus = null, bulkStopRequested = false;
@@ -561,13 +562,6 @@
                 button.hidden = !model || !model.tools || !(capabilities.tools || []).includes(button.dataset.tool) || button.dataset.write && !capabilities.writes || button.dataset.own === 'true' && !(capabilities.scopes || []).includes('my');
             });
             $('ai-send').disabled = modelUnavailable || changingModel || openingConversation || Boolean(activeJob) || readOnly() || lifecycleBusy || creatingConversation;
-            const searchButton = $('ai-web-search');
-            if (searchButton) {
-                searchButton.hidden = !capabilities?.web_search;
-                searchButton.disabled = !capabilities?.web_search?.available || !model?.tools || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy || creatingConversation;
-                searchButton.setAttribute('aria-pressed',String(webSearchAllowed));
-                searchButton.title = !capabilities?.web_search?.available ? '현재 서버에서 웹 검색을 사용할 수 없습니다.' : !model?.tools ? '선택한 모델은 웹 검색 도구 호출을 지원하지 않습니다.' : `웹 검색 ${webSearchAllowed ? '켜짐' : '꺼짐'} · 켠 요청은 실제 검색 후 답변 · 공개 검색어는 외부 Yahoo 검색 엔진으로 전송됩니다.`;
-            }
             lifecycleControls();
         }
 
@@ -1385,7 +1379,6 @@
          * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs and message nodes, while the compact heading exposes the complete selected title.
          */
         async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true } = {}) {
-            const retainedSearch = preserveReader && conversation === cid && conversationView === view && webSearchAllowed;
             if (conversation !== cid || conversationView !== view) resetFileWorkspace();
             const pane = $('ai-scroll');
             const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
@@ -1397,7 +1390,7 @@
             const result = loaded || await api(`/api/ai/conversations/${cid}/messages?view=${view}`);
             if (selected !== selection || disposed) return;
             conversationMeta = result.conversation; conversationView = result.conversation.is_deleted ? 'trash' : view;
-            conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null; webSearchAllowed = retainedSearch;
+            conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
             unattributedSelection = !result.conversation.selection_id;
             modelId = result.conversation.selection_id || defaultModel;
             modelRevision = result.conversation.selection_revision || 0;
@@ -1532,7 +1525,6 @@
         $('ai-level').addEventListener('change', () => { if (readOnly() || lifecycleBusy || openingConversation || changingModel) return; requestKey = null; $('ai-level-help').textContent = reasoningHelp[$('ai-level').value] || ''; saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model').addEventListener('change', () => { if (openingConversation || changingModel || readOnly() || lifecycleBusy) return; modelId = $('ai-model').value; const model = modelChoices.find(item => item.id === modelId); modelControls(initialLevel(model)); saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model-refresh').addEventListener('click', () => loadModels().catch(error => notice(error.message, 'inventory')));
-        $('ai-web-search')?.addEventListener('click', () => { if ($('ai-web-search').disabled) return; webSearchAllowed = !webSearchAllowed; requestKey = null; modelControls(); });
         $('ai-input').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); if (!$('ai-send').disabled) $('ai-form').requestSubmit(); } });
         root.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { if (readOnly() || lifecycleBusy) return; $('ai-input').value = button.dataset.prompt; requestKey = null; $('ai-input').focus(); }));
         $('ai-form').addEventListener('submit', async event => {
@@ -1542,7 +1534,7 @@
             try {
                 if (!conversation) { const result = await api('/api/ai/conversations', { method: 'POST', data: {} }); conversation = result.id; modelRevision = result.selection_revision || 1; await saveSelection(); }
                 requestKey ||= crypto.randomUUID().replaceAll('-', '');
-                await api(`/api/ai/conversations/${conversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2, web_search: webSearchAllowed } });
+                await api(`/api/ai/conversations/${conversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2 } });
                 $('ai-input').value = ''; requestKey = null; await open(conversation, 'active');
             } catch (error) { notice(error.message); modelControls(); if ([404,409,410].includes(error.status)) await refreshLifecycle(); }
         });

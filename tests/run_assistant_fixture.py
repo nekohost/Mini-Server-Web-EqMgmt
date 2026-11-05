@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.LINUX.FIXTURE.RUNNER]
-[EN rev.17]
+[EN rev.18]
 [Role] Transfers audited candidate source in memory to the authorized Linux fixture host over SSH.
 [Dependencies] Root source plus staged overlays, subprocess SSH and Python stdlib; never imports the app on Windows.
 [Impact] Sparse overlays retain unchanged baseline tests/assets; full generated browser evidence is saved beside screenshots with compact stdout, and no remote source/config or production DB is modified.
@@ -34,7 +34,7 @@ def main():
     if project is None:
         raise ValueError('fixture project root was not found')
     fixture_roots=(overlay/'tests',) if overlay==project else (project/'tests',overlay.parent/'tests',overlay/'tests')
-    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py'}
+    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py','test_ai_search_providers.py'}
     browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py','web_search_browser_fixture.py','recovery_browser_fixture.py'}
     def candidate_file(relative):
         """[Role] Selects a changed overlay source or the unchanged reviewed project baseline. [Impact] No production app import occurs on Windows."""
@@ -89,6 +89,8 @@ def main():
     encoded=base64.b64encode(zlib.compress(json.dumps(payload,ensure_ascii=False).encode())).decode()
     script='''import base64,zlib,json,os,sys,time,types,importlib.abc,importlib.util,unittest,tempfile,subprocess,logging
 os.environ['PYTHONDONTWRITEBYTECODE']='1'
+# Synthetic base fixtures never inherit the production runtime's availability; search suites inject their own transport.
+os.environ['USER_AI_WEB_SEARCH']='false'
 sys.dont_write_bytecode=True
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 payload=json.loads(zlib.decompress(base64.b64decode(PAYLOAD)))

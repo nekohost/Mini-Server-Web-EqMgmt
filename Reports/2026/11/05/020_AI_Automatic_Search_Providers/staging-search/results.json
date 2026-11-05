@@ -1,0 +1,618 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "4bb7657e667ff4c9733185f377a384c8aba485118c735f69563cc8855d0988f7",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 320,
+      "theme": "light",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "root": {
+            "left": 8,
+            "right": 312,
+            "top": 92,
+            "bottom": 835,
+            "width": 304,
+            "height": 743
+          },
+          "send": {
+            "left": 240,
+            "right": 284,
+            "top": 719.02,
+            "bottom": 763.02,
+            "width": 44,
+            "height": 44
+          },
+          "form": {
+            "left": 21,
+            "right": 299,
+            "top": 646.02,
+            "bottom": 825,
+            "width": 278,
+            "height": 178.98
+          },
+          "chat": {
+            "left": 9,
+            "right": 311,
+            "top": 213.34,
+            "bottom": 646.02,
+            "width": 302,
+            "height": 432.67
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 320,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 320,
+      "theme": "dark",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "root": {
+            "left": 8,
+            "right": 312,
+            "top": 92,
+            "bottom": 835,
+            "width": 304,
+            "height": 743
+          },
+          "send": {
+            "left": 240,
+            "right": 284,
+            "top": 719.02,
+            "bottom": 763.02,
+            "width": 44,
+            "height": 44
+          },
+          "form": {
+            "left": 21,
+            "right": 299,
+            "top": 646.02,
+            "bottom": 825,
+            "width": 278,
+            "height": 178.98
+          },
+          "chat": {
+            "left": 9,
+            "right": 311,
+            "top": 213.34,
+            "bottom": 646.02,
+            "width": 302,
+            "height": 432.67
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 320,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 390,
+      "theme": "light",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "root": {
+            "left": 8,
+            "right": 382,
+            "top": 92,
+            "bottom": 835,
+            "width": 374,
+            "height": 743
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 744.41,
+            "bottom": 788.41,
+            "width": 44,
+            "height": 44
+          },
+          "form": {
+            "left": 21,
+            "right": 369,
+            "top": 671.41,
+            "bottom": 825,
+            "width": 348,
+            "height": 153.59
+          },
+          "chat": {
+            "left": 9,
+            "right": 381,
+            "top": 213.34,
+            "bottom": 671.41,
+            "width": 372,
+            "height": 458.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "root": {
+            "left": 8,
+            "right": 382,
+            "top": 92,
+            "bottom": 835,
+            "width": 374,
+            "height": 743
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 744.41,
+            "bottom": 788.41,
+            "width": 44,
+            "height": 44
+          },
+          "form": {
+            "left": 21,
+            "right": 369,
+            "top": 671.41,
+            "bottom": 825,
+            "width": 348,
+            "height": 153.59
+          },
+          "chat": {
+            "left": 9,
+            "right": 381,
+            "top": 213.34,
+            "bottom": 671.41,
+            "width": 372,
+            "height": 458.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-003.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 820,
+      "theme": "light",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 820,
+          "height": 900,
+          "pageWidth": 820,
+          "pageHeight": 900,
+          "root": {
+            "left": 22,
+            "right": 798,
+            "top": 103,
+            "bottom": 875,
+            "width": 776,
+            "height": 772
+          },
+          "send": {
+            "left": 722,
+            "right": 758,
+            "top": 789.41,
+            "bottom": 825.41,
+            "width": 36,
+            "height": 36
+          },
+          "form": {
+            "left": 257,
+            "right": 773,
+            "top": 716.41,
+            "bottom": 862,
+            "width": 516,
+            "height": 145.59
+          },
+          "chat": {
+            "left": 233,
+            "right": 797,
+            "top": 167.34,
+            "bottom": 716.41,
+            "width": 564,
+            "height": 549.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 820,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-004.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 820,
+      "theme": "dark",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 820,
+          "height": 900,
+          "pageWidth": 820,
+          "pageHeight": 900,
+          "root": {
+            "left": 22,
+            "right": 798,
+            "top": 103,
+            "bottom": 875,
+            "width": 776,
+            "height": 772
+          },
+          "send": {
+            "left": 722,
+            "right": 758,
+            "top": 789.41,
+            "bottom": 825.41,
+            "width": 36,
+            "height": 36
+          },
+          "form": {
+            "left": 257,
+            "right": 773,
+            "top": 716.41,
+            "bottom": 862,
+            "width": 516,
+            "height": 145.59
+          },
+          "chat": {
+            "left": 233,
+            "right": 797,
+            "top": 167.34,
+            "bottom": 716.41,
+            "width": 564,
+            "height": 549.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 820,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-005.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 1440,
+          "height": 900,
+          "pageWidth": 1440,
+          "pageHeight": 900,
+          "root": {
+            "left": 22,
+            "right": 1418,
+            "top": 103,
+            "bottom": 875,
+            "width": 1396,
+            "height": 772
+          },
+          "send": {
+            "left": 1216,
+            "right": 1252,
+            "top": 789.41,
+            "bottom": 825.41,
+            "width": 36,
+            "height": 36
+          },
+          "form": {
+            "left": 417,
+            "right": 1267,
+            "top": 716.41,
+            "bottom": 862,
+            "width": 850,
+            "height": 145.59
+          },
+          "chat": {
+            "left": 267,
+            "right": 1417,
+            "top": 167.34,
+            "bottom": 716.41,
+            "width": 1150,
+            "height": 549.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-006.png"
+    },
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 1440,
+      "theme": "dark",
+      "checks": [
+        "automatic-search-removes-toggle-and-obsolete-help",
+        "new-turn-delegates-search-decision-to-server-auto-mode",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "actual-multiple-providers-have-distinct-source-labels",
+        "github-scope-and-partial-results-are-not-mislabeled-as-general-web",
+        "citation-numbers-survive-common-list-reset",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-keeps-automatic-search-without-toggle",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "send-control-remains-in-viewport-without-search-button",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 1440,
+          "height": 900,
+          "pageWidth": 1440,
+          "pageHeight": 900,
+          "root": {
+            "left": 22,
+            "right": 1418,
+            "top": 103,
+            "bottom": 875,
+            "width": 1396,
+            "height": 772
+          },
+          "send": {
+            "left": 1216,
+            "right": 1252,
+            "top": 789.41,
+            "bottom": 825.41,
+            "width": 36,
+            "height": 36
+          },
+          "form": {
+            "left": 417,
+            "right": 1267,
+            "top": 716.41,
+            "bottom": 862,
+            "width": 850,
+            "height": 145.59
+          },
+          "chat": {
+            "left": 267,
+            "right": 1417,
+            "top": 167.34,
+            "bottom": 716.41,
+            "width": 1150,
+            "height": 549.06
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/020_AI_Automatic_Search_Providers/staging-search/screen-007.png"
+    }
+  ],
+  "fixture_digest": "4bb7657e667ff4c9733185f377a384c8aba485118c735f69563cc8855d0988f7"
+}

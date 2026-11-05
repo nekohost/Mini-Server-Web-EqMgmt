@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.5]
+[EN rev.6]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
 [Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
@@ -105,7 +105,7 @@ class Domain:
 
     def read_or_prepare(self, name, args, job, store):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.3]
+        [EN rev.4]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
         [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope; one additive display policy separates answer fields from retained tool-linkage IDs without duplicating rows or rewriting source values.
@@ -144,7 +144,7 @@ class Domain:
                     raise WebSearchError('WEB_SEARCH_BLOCKED')
                 sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
                 db.close();db=None
-                result=self.search_service.search(args['query'],args.get('max_results',5),sensitive)
+                result=self.search_service.search(args['query'],args.get('max_results',5),sensitive,provider=args.get('provider','auto'),scope=args.get('scope'))
                 # Search I/O holds no business DB connection/transaction; revalidate the actor afterwards.
                 db=self.connect()
                 self.actor(db,job['owner'],job['binding'])

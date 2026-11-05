@@ -5,7 +5,7 @@
 {% block container_class %}assistant-container{% endblock %}
 {% block content %}
 <!-- [MINI-COMMENT: ASSISTANT.VIEW]
-[EN rev.13]
+[EN rev.14]
 [Role] Independent equipment chat with measured disclosures beside reasoning, synchronized header/input connection status, safe tables and request-only file/CSV dialogs.
 [Dependencies] equipment_ai.js/css, equipment_ai_polish.js and the authenticated frame/status API; no Strata iframe/vendor UI.
 [Impact] Native details preserve selection/refresh state; stopped requests expose a read-only state check, and input-adjacent status never replaces the original failure cause.
@@ -58,7 +58,7 @@
             <details id="ai-model-settings" class="ai-control-support ai-model-settings"><summary title="AI 모델 선택"><span>AI 모델 선택</span></summary><div id="ai-model-panel" class="ai-control-panel"><div class="ai-model-control"><div class="ai-model-field"><label for="ai-model">AI 모델</label><select id="ai-model" aria-describedby="ai-model-status ai-unavailable-models"></select></div><button id="ai-model-refresh" class="ai-button" type="button">목록 새로고침</button></div></div></details>
             <details id="ai-reasoning-support" class="ai-control-support" hidden><summary title="추론 단계 지원 안내"><span>추론 단계 지원 안내</span></summary><div id="ai-reasoning-panel" class="ai-control-panel"><ul id="ai-reasoning-reasons"></ul></div></details>
           </div>
-          <div class="ai-send-actions"><button id="ai-web-search" type="button" class="ai-button ai-web-toggle" aria-label="웹 검색" aria-pressed="false" aria-describedby="ai-web-search-help" title="웹 검색 꺼짐 · 검색어는 외부 Yahoo 검색 엔진으로 전송됩니다." disabled hidden>웹 검색</button><button id="ai-send" type="submit" class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button></div><span id="ai-web-search-help" class="ai-sr-only">켜면 다음 요청은 외부 Yahoo 검색 엔진의 공개 웹 검색 후 답변합니다. 계정·인증·시리얼·비공개 메모를 넣지 마세요.</span>
+          <div class="ai-send-actions"><button id="ai-send" type="submit" class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button></div>
         </div>
         <div class="ai-disclosure-spacer" aria-hidden="true"></div>
         <p id="ai-model-status" class="ai-control-status" role="status" hidden></p>

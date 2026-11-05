@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.9]
+[EN rev.10]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
 [Impact] Keeps existing data and unknown-request locks; accepted output is never evicted to admit new input.
@@ -18,7 +18,7 @@ import uuid
 
 from .policy import (AssistantError, ERROR_REASONS, MAX_CONTENT, MAX_PROPOSALS, MAX_REASONING,
                      MAX_RECEIPT, OUTPUT_RESERVATION, TERMINAL, canonical, digest, mac, opaque)
-from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION
+from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION, search_mode
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_meta(version INTEGER NOT NULL);
@@ -271,17 +271,19 @@ class Store(LifecycleStore):
 
     def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.8]
+        [EN rev.9]
         [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Current owner auth, idempotency, rate/admission limits and base plus extension budget.
-        [Impact] Opted-in search reserves 64K additional characters including JSON escaping without changing the 32M base; insufficient budget rejects new input and durable manual-title markers protect renamed conversations.
+        [Impact] Search-capable auto/required requests reserve 64K including JSON escaping and retain distinct immutable retry fingerprints; the 32M base, insufficient-budget rejection and durable manual titles are preserved.
         """
         with self.db(True) as db:
             conv=self.conversation(owner, cid, db, account_key)
             if purpose == 'chat' and db.execute("SELECT 1 FROM jobs WHERE conversation=?", (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
                 raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
             fingerprint = digest([cid, content, level, route['selection_id'], route['revision'], route.get('profile_revision'), purpose]) if route else digest([cid, content, level])
-            if route and route.get('web_search_allowed') is True:
+            if route and search_mode(route)=='auto':
+                fingerprint=digest([fingerprint,'web-search-auto-v1',route.get('web_search_allowed') is True])
+            elif route and route.get('web_search_allowed') is True:
                 fingerprint=digest([fingerprint,'web-search-opt-in-v1'])
             old = db.execute('SELECT j.id,j.input_hash,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=?', (owner, client_key)).fetchone()
             if old:
