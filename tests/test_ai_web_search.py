@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.3]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.4]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -46,6 +46,26 @@ class FakeSearch:
 
 class SearchSafetyTests(unittest.TestCase):
     """[Role] Exercises boundary inputs and the real isolated runner without actually making network requests."""
+    def test_planner_exact_boolean_spellings_preserve_false_and_original_audit_values(self):
+        """[Role] Covers real local-model quoted booleans without general coercion.
+        [Dependencies] Shared HTTP/domain normalizer. [Impact] False stays false; original arguments remain unchanged for audit.
+        """
+        for value,expected in ((True,True),(False,False),('true',True),('false',False),('True',True),('False',False)):
+            with self.subTest(value=value):
+                raw={'needed':value};result=normalized_tool_arguments('plan_web_search',raw)
+                self.assertIs(result['needed'],expected);self.assertEqual(raw,{'needed':value})
+
+    def test_planner_ambiguous_values_and_write_boolean_strings_remain_rejected(self):
+        """[Role] Keeps malformed planning and all write booleans strictly denied.
+        [Dependencies] Existing schema validator. [Impact] No yes/no, numeric truthiness or write permission broadening.
+        """
+        for value in ('yes','no','TRUE','FALSE',' true','false ',1,0,None,[],{}):
+            with self.subTest(value=value),self.assertRaises(AssistantError):
+                normalized_tool_arguments('plan_web_search',{'needed':value})
+        for value in ('true','false','True','False'):
+            with self.subTest(write=value),self.assertRaises(AssistantError):
+                normalized_tool_arguments('prepare_preferences',{'deadline_email_opt_in':value})
+
     def test_private_queries_rejected_but_public_numbers_and_documentation_survive(self):
         """[Dependencies] Real public-query validator. [Impact] No generic numeric masking or credential-documentation false denial."""
         for query in ['x','',None,123,'x\x00y','email@example.org','token=secret-value','Bearer abcdefghijklmnop','010-1234-5678','900101-1234567','https://127.0.0.1/admin','a'*32]:
@@ -181,6 +201,24 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.finish(self.claim(),content='공개 저장소 검색 결과입니다. [1]')
         result=self.client.get('/api/ai/conversations/'+cid+'/messages').get_json()['jobs'][0]['web_searches'][0]
         self.assertEqual((result['engine'],result['scope']),('GitHub','repositories'));self.assertEqual(len(self.search.calls),1)
+
+    def test_quoted_planning_boolean_controls_real_dispatch_without_rewriting_raw_context(self):
+        """[Role] Replays the observed model format through admission, finish, domain and durable context.
+        [Dependencies] Real routes plus inert outbound search. [Impact] True searches once, false never searches, audit originals survive.
+        """
+        for value,expected in (('True',True),('False',False),('true',True),('false',False)):
+            with self.subTest(value=value):
+                before=len(self.search.calls);jid=self.turn(allow=None)['job_id']
+                self.assertEqual(self.plan_step(self.claim(),value,query='Samsung Galaxy S25 specifications')['state'],'queued')
+                next_job=self.claim()
+                self.assertEqual('web_search' in [t['function']['name'] for t in next_job['tools']],expected)
+                self.assertEqual(self.finish(next_job,content='검색 결과입니다.' if expected else '안녕하세요.')['state'],'done')
+                self.assertEqual(len(self.search.calls)-before,int(expected))
+                with self.store.db() as db:
+                    row=self.store.job(jid,db);self.assertEqual(row['reserved_chars'],0);context=json.loads(row['context'])
+                call=next(c for m in context if m.get('role')=='assistant' for c in m.get('tool_calls',[]) if c['function']['name']=='plan_web_search')
+                self.assertEqual(json.loads(call['function']['arguments'])['needed'],value)
+                self.assertEqual(len(public_searches(context)),int(expected))
 
     def test_auto_without_available_search_completes_without_a_false_required_failure(self):
         """[Role] Keeps ordinary conversation available when search is disabled or not installed.

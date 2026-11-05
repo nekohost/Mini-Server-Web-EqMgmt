@@ -1,0 +1,90 @@
+{
+  "checked_at_utc": "2026-11-05T12:48:31.010933+00:00",
+  "runs": [
+    {
+      "id": "f9d6e5ac20064f778953a866c5bccae5",
+      "conversation": "283009cf655449c09a180010b370031f",
+      "state": "done",
+      "seconds": 16.746,
+      "steps": 2,
+      "level": "off",
+      "mode": "auto",
+      "search_allowed": true,
+      "error_code": null,
+      "reserved_chars": 0,
+      "answer": "Flask 공식 저장소는 **pallets/flask**이며 링크는 https://github.com/pallets/flask 입니다.",
+      "reasoning_chars": 0,
+      "calls": [
+        {
+          "name": "plan_web_search",
+          "arguments": {
+            "max_results": 5,
+            "needed": true,
+            "provider": "github",
+            "query": "flask in:name language:Python",
+            "scope": "repositories"
+          }
+        }
+      ],
+      "searches": [
+        {
+          "query": "flask in:name language:Python",
+          "engine": "GitHub",
+          "scope": "repositories",
+          "searched_at": "2026-11-05T12:47:57.678446+00:00",
+          "status": "ok",
+          "results": [
+            {
+              "number": 1,
+              "title": "pallets/flask",
+              "url": "https://github.com/pallets/flask",
+              "snippet": "The Python micro framework for building web applications."
+            },
+            {
+              "number": 2,
+              "title": "railwayapp-templates/flask",
+              "url": "https://github.com/railwayapp-templates/flask",
+              "snippet": ""
+            },
+            {
+              "number": 3,
+              "title": "roytuts/flask",
+              "url": "https://github.com/roytuts/flask",
+              "snippet": ""
+            },
+            {
+              "number": 4,
+              "title": "GeekTrainer/Flask",
+              "url": "https://github.com/GeekTrainer/Flask",
+              "snippet": ""
+            },
+            {
+              "number": 5,
+              "title": "wikibook/flask",
+              "url": "https://github.com/wikibook/flask",
+              "snippet": "『파이썬 웹 프로그래밍 : 플라스크를 이용한 쉽고 빠른 웹 개발』 예제 코드 "
+            }
+          ]
+        }
+      ],
+      "proposals": 0
+    },
+    {
+      "id": "f2e3665248a346c4b0e25d3065e27e36",
+      "conversation": "283009cf655449c09a180010b370031f",
+      "state": "failed",
+      "seconds": 7.048,
+      "steps": 1,
+      "level": "off",
+      "mode": "auto",
+      "search_allowed": true,
+      "error_code": "INVALID_TOOL_CALL",
+      "reserved_chars": 0,
+      "answer": "",
+      "reasoning_chars": 0,
+      "calls": [],
+      "searches": [],
+      "proposals": 0
+    }
+  ]
+}

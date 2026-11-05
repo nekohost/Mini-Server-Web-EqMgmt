@@ -54,3 +54,11 @@ GitHub 검색어 지침을 보완하고, 더 나아가 첫 auto 단계에 고정
 보완한 false 결정은 뒤 단계의 검색 도구도 제거하고 위조된 검색 호출을 서버에서 거부한다. 이 경계까지 포함한 Staging 전체248개/46.054초(오류·실패·skip0)를 통과했다. 첫248개/46.509초와 후속 경계를 구분해 보존했다. 최종 후속8개(기존 runner/provider 시험 사본2개 포함)를 [원문](020_AI_Automatic_Search_Providers/reviewed-planning-guarded-source.zip)/[SHA](020_AI_Automatic_Search_Providers/reviewed-planning-guarded-source.json)로 보존했다. 초기14개와 후속8개를 합친 최종15개 source manifest를 생성하고 root 바이트 동일성을 확인했다. UI source 변경이 없으므로 기존24화면1,018개 결과는 유지하고 새 판단 흐름은 전체 backend와 실제 운영 모델로 다시 확인한다.
 
 merged-root도248개/45.830초(오류·실패·skip0)로 통과했다. 후속8개 중 실제 변경은HTTP/Domain/정책/worker/검색 보조와 시험이며, root15개 전체 SHA를 고정했다. 해당 후보8개만 정리하고 Google 미해결 및 기존9개 dirty를 보존한 별도 코드 commit으로 반영한다. 이전 운영의 응답/모델 선택 실패는 지우거나 성공으로 바꾸지 않는다.
+
+## 실제 모델 boolean 직렬화 호환 보완
+
+7d554b4의 실제 DB 사본 검사·private 백업·운영 적용은 통과했다. 첫 실제 GitHub 요청은 `plan_web_search`의 needed=true, `flask in:name language:Python`으로5건을 검색하고 공식 pallets/flask 링크를16.746초/2단계로 정확히 반환했다. 이어 일반 S25 검색은7.048초/1단계에 INVALID_TOOL_CALL로 중단됐다. 감사의 원본 호출을 확인한 결과 공개 검색어/제공자/범위는 올바르지만 needed가 boolean이 아닌 문자열 `"True"`였다. 화면에 구체적인 형식 사유가 표시됐고 보내기 버튼은 다시 활성화됐다. 이 실패를 성공으로 바꾸지 않는다.
+
+수정 전 범위 판단: 네 가지 정확한 boolean 철자만 검색 판단의 해당 필드에서 변환하면 모델의 직렬화 차이를 수용하면서 임의 문자열의 truthy 처리나 장비 변경 권한 완화를 피할 수 있다. 공통 validate_schema는 그대로 두고 원본 인수 감사도 유지한다. Staging에서 정규화·true/false 실제 검색 여부·숫자/불명확 값 거부·다른 업무 도구의 엄격성을 확인한 뒤 root·운영 재검증한다. Google 미활성 상태와 UI source는 변경하지 않는다.
+
+검색 경계32개/5.734초, Staging 전체251개/47.266초와 root 전체251개/47.245초가 오류·실패·skip0으로 통과했다. 첫 focus 명령이 모듈만 지정해 runner의 class 필터에서 제외된 호출 오류는 실행 대상을 두 TestCase로 정정했고 운영 코드/데이터에는 영향을 주지 않았다. 실제 boolean/네 문자열의 true·false 분기와 원본 보존, 숫자/공백/대문자 불명확 값·업무 boolean 문자열 거부를 검증했다. [보존 후보 원문](020_AI_Automatic_Search_Providers/reviewed-boolean-source.zip)과 SHA를 저장했고 root 바이트 일치15개를 확인했다. UI source가 그대로이므로 기존24화면1,018개 결과를 유지한다.

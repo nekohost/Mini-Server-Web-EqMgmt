@@ -60,5 +60,33 @@
     "skipped": 0,
     "seconds": 45.83,
     "digest": "aa081e406e692337110c08f0490079f992c6f63b9b835e5b10bbef5a713dc39b"
+  },
+  "boolean_focused": {
+    "tests": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 5.734
+  },
+  "boolean_stage_full": {
+    "tests": 251,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 47.266,
+    "digest": "c747bd776903e995b923546e2f3856e428a0b8b94f50f3e98540e6cb35c0dd6c"
+  },
+  "boolean_harness_invocation": {
+    "failed_invocation": "module-only focus was excluded by runner class filter",
+    "fixed_invocation": "two fully qualified TestCase targets",
+    "production_modified": false
+  },
+  "boolean_root_full": {
+    "tests": 251,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 47.245,
+    "digest": "d7cda5373cd5585ea992a3d9f6266ebc6e093b044dbee88d23a02eb235df4696"
   }
 }

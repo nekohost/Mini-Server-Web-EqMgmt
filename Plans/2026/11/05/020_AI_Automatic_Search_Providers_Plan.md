@@ -18,6 +18,8 @@ approval: requested-extension-of-authorized-ai-release
 
 실제 운영 시험에서 자동 도구 선택만으로는 Qwen이 검색 없이 ‘결과 없음’이라고 답한 사례를 확인했다. auto의 첫 단계에 `plan_web_search` 고정 named tool을 제공해 AI가 맥락에 따른 needed/query/provider/scope를 구조화해 결정하도록 보강한다. needed=true면 같은 서버 권한/민감정보/lease 경계에서 실제 검색을 실행하고, false면 외부 요청 없이 기존 답변/장비 도구 단계로 이어간다. 일반 답변이나 다른 업무 도구로 첫 결정을 건너뛸 수 없다. 이는 모든 질문에 외부 검색을 강제하는 것이 아니며 UI 버튼/키워드 정규식 분류도 추가하지 않는다. 기존 턴 단계/컨텍스트/보관 한도를 유지하므로 검색 없는 질문에도 판단 단계1회가 추가될 수 있다. required/off와 비가용 검색의 기존 경로는 유지한다.
 
+운영 Qwen의 일반 검색에서 JSON boolean 대신 문자열 `"True"`를 보낸 실제 형식 오류를 확인했다. 검색 판단 도구의 needed 필드에 한해서 정확한 `true`/`false`/`True`/`False` 네 문자열만 boolean으로 정규화한 뒤 기존 schema를 검증한다. false 문자열은 반드시 False이며 숫자·yes/no·공백/다른 값은 거부한다. 원본 호출은 감사에 그대로 남기고 장비 변경 등 다른 도구/공통 boolean 검증은 완화하지 않는다. 합성 true/false 실제 경로·잘못된 입력과 장비 도구 엄격성 검증 후 새 private 백업/운영 적용을 진행한다.
+
 ## 제공자
 
 - Google: 공식 Custom Search JSON API는 신규 고객에 닫혀 있고 기존 고객도2027-01-01 전환 대상이다. 기존 키/cx가 없으므로 새 유료 계약/계정·타 앱 자격증명을 만들거나 가져오지 않는다. 공식 DDGS의 Google 재활성 버전을 별도 hash-locked runtime에서 검증한다. CAPTCHA/접근 차단을 우회하지 않고 실제 결과를 확인하지 못하면 활성 성공으로 표시하지 않는다.

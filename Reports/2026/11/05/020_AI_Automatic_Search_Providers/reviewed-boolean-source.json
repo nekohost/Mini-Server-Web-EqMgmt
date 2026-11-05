@@ -1,0 +1,8 @@
+{
+  "files": {
+    "tests/run_assistant_fixture.py": "78f8add6b024267d0c81f097ba7c999c1f55ff2636cec93c266278fef9959074",
+    "tests/test_ai_web_search.py": "023c5e55d84306fbc374265fffebb98b22ae1be9731116d0f48f5a0a3f952b4e",
+    "utils/ai_assistant/policy.py": "fea98d498991200d99a893931a95a05ed27d495edd5ca5dc5133d11a03a48644"
+  },
+  "archive_sha256": "a4f819c5a4c73af92190a073f01d4e6b3a7524df3fbf35d34f3627ce4c1b3163"
+}

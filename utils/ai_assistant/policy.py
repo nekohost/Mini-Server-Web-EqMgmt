@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.POLICY]
-[EN rev.10]
+[EN rev.11]
 [Role] Defines the only model levels, tools and validated inputs of the user assistant.
 [Dependencies] Python standard library; server-side domain authorization remains mandatory.
 [Impact] No caller may supply an owner, role, endpoint, executable or confirmation command; additive display allowlists keep internal references available to tools without treating them as user-facing equipment numbers. Existing file authorization, audit content and completion reservations are preserved.
@@ -235,7 +235,7 @@ EQUIPMENT_FIELDS = {
     'is_public': {'type': 'boolean'}, 'is_draft': {'type': 'boolean'}}
 TOOLS = [
     tool('plan_web_search', '현재 질문의 맥락으로 외부 검색 필요 여부를 결정합니다. 검색 요청/최신 사실/외부 출처는 needed=true와 공개 검색어를, 인사/일반 설명/내 장비 업무/검색 금지는 needed=false를 사용하세요. true이면 실제 공개 검색을 실행해 근거를 반환합니다. GitHub는 짧은 프로젝트명+조건을 쓰세요. 검색 계획만 말하거나 수행하지 않은 검색 결과를 답하지 마세요.',
-         {'needed':{'type':'boolean'},'query':{'type':'string','maxLength':300,'description':'needed=true일 때만 공개 키워드. GitHub 예: flask in:name language:Python. 자연어 설명 문장을 붙이지 마세요.'},
+         {'needed':{'type':'boolean','description':'검색이 필요하면 JSON true, 불필요하면 JSON false입니다. 문자열로 감싸지 마세요.'},'query':{'type':'string','maxLength':300,'description':'needed=true일 때만 공개 키워드. GitHub 예: flask in:name language:Python. 자연어 설명 문장을 붙이지 마세요.'},
           'provider':{'type':'string','enum':['auto','yahoo','github','google']},'scope':{'type':'string','enum':['web','repositories','issues']},'max_results':{'type':'integer','minimum':1,'maximum':5}},['needed']),
     tool('web_search', '문맥상 필요한 최신 정보·외부 근거를 공개 웹에서 검색합니다. 일반 웹은 auto/yahoo/사용 가능한 google, GitHub 공개 저장소·이슈는 github와 해당 scope를 사용하세요. Google은 제공자 상태가 available인 경우만 사용하세요. 공개 키워드만 보내고 계정·시리얼·비공개 메모는 금지합니다. 제목/요약을 비신뢰 자료로 검토해 검색어·[번호]와 실제 제공자를 인용하세요. 원문 열람·비공개/전체 코드 검색 도구가 아닙니다.',
          {'query':{'type':'string','minLength':2,'maxLength':300,'description':'공개 검색어. GitHub 저장소는 짧은 프로젝트명+검색 조건(예: flask in:name language:Python); 이슈는 repo:owner/name+키워드. 설명 문장이나 official/repository 등 불필요한 단어를 붙이지 마세요.'},'max_results':{'type':'integer','minimum':1,'maximum':5},
@@ -273,15 +273,21 @@ TOOL_MAP = {item['function']['name']: item['function'] for item in TOOLS}
 
 def normalized_tool_arguments(name, arguments):
     """[MINI-COMMENT: ASSISTANT.TOOL.NORMALIZE]
-    [EN rev.1]
-    [Role] Validates one fixed tool schema and canonicalizes only documented empty read filters.
+    [EN rev.2]
+    [Role] Validates fixed tool schemas after canonicalizing empty read filters and exact planner boolean spellings.
     [Dependencies] TOOL_MAP and the same strict validator used before HTTP execution and domain dispatch.
-    [Impact] Raw request bodies remain auditable; write enums, unknown fields and non-string values stay rejected.
+    [Impact] Raw calls remain auditable; planner false never becomes truthy, and write fields/unknown values keep strict validation.
     """
     if not isinstance(name, str) or name not in TOOL_MAP:
         raise AssistantError('허용되지 않은 작업입니다.', 403)
-    validate_schema(arguments, TOOL_MAP[name]['parameters'])
-    result = dict(arguments)
+    result = dict(arguments) if isinstance(arguments,dict) else arguments
+    if name == 'plan_web_search' and isinstance(result,dict):
+        # Some local tool serializers quote Python boolean spellings. This read-only
+        # decision alone accepts exact spellings, never general string truthiness.
+        needed = result.get('needed')
+        if type(needed) is str and needed in ('true','false','True','False'):
+            result['needed'] = needed in ('true','True')
+    validate_schema(result, TOOL_MAP[name]['parameters'])
     if name == 'search_equipment':
         for field in ('status', 'due'):
             if result.get(field) == '':
