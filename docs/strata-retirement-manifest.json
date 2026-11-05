@@ -1,8 +1,10 @@
 {
   "schema_version": 1,
-  "status": "candidate-only-no-removal-executed",
+  "status": "production-applied-and-verified-20261105",
   "work_id": "STAGING-20261105-AI-UX-TRASH",
   "application_scope": "equipment-management-web-only",
+  "release_report": "Reports/2026/11/05/005_AI_Assistant_Production_Release_Report.md",
+  "code_commit": "a8c8a86bad43da7197d88f88cd49c95f4f0e01c0",
   "preconditions": [
     "Independent assistant/API/worker/connection smoke tests pass",
     "No legacy browser request remains active; do not cancel shared generation",

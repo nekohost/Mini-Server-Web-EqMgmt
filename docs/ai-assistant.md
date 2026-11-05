@@ -1,6 +1,6 @@
 # 장비관리 AI 도우미 운영 안내
 
-AI 대화는 `/assistant`를 제공한다. AI 연결 관리는 메인 메뉴 대신 관리자 센터에서 `/admin/ai/providers`로 진입하며 연결·자동 모델 목록·선택형 수동 등록·공개 모델·지원 추론 단계를 관리한다. 기존 `/ai`·`/ai/console`은 폐기 안내와 새 AI 링크만 제공하고 옛 API/browser proxy는 upstream에 연결하지 않는다. 공유 Strata 서비스와 새 AI adapter·키는 보존한다. 이 문서는 2026-11-05 Staging 후보이며, 기존 운영 검증은 [012 보고서](../Reports/2026/11/04/012_AI_Production_Release_Report.md)와 구분한다.
+AI 대화는 `/assistant`를 제공한다. AI 연결 관리는 메인 메뉴 대신 관리자 센터에서 `/admin/ai/providers`로 진입하며 연결·자동 모델 목록·선택형 수동 등록·공개 모델·지원 추론 단계를 관리한다. 기존 `/ai`·`/ai/console`은 폐기 안내와 새 AI 링크만 제공하고 옛 API/browser proxy는 upstream에 연결하지 않는다. 공유 Strata 서비스와 새 AI adapter·키는 보존한다. 2026-11-05 기존 Staging 전체와 공간 절약 배치를 현재 운영 백업서버에 적용했다. [이번 실제 배포·검증](../Reports/2026/11/05/005_AI_Assistant_Production_Release_Report.md)과 [최초 운영 검증](../Reports/2026/11/04/012_AI_Production_Release_Report.md)을 구분한다.
 
 대화·추론·정규화 업무 초안·요청별 연결과 모델 출처를 사용자별 별도 AI DB에 저장한다. 같은 대화에서 모델을 바꾸면 다음 요청부터 적용하고 접수된 요청의 연결·설정·인증 revision은 유지한다. off/low/medium/high/xhigh/max가 모두 보이며 지원되지 않거나 관리자가 허용하지 않은 단계는 비활성이다. 현재 Strata Qwen3.8 Flash Next의 사전 설정은 off/low/medium/xhigh, 기본 medium이다.
 
@@ -26,7 +26,7 @@ AI DB v4는 대화 내용과 별도의 최소 실행 점유 원장을 사용한�
 
 웹앱은 기존 사용자 Python 구동 방식을 유지한다. AI worker는 `systemd/equipment-ai-worker.service`를 사용자 단위로 설치하며 `systemctl --user status equipment-ai-worker`로 확인한다. 네트워크 읽기 제한은 1800초이고 총 생성 시간 제한은 아니다. worker가 중단되면 신규 요청 처리를 재개하기 전에 종료 불명확 작업의 상태를 확인한다.
 
-배포 도구 `tools/deploy_user_ai.py`는 정확한 commit과 고정 호스트/경로를 검사한다. `check-copy`는 업무 DB의 새 private 사본에서 전체 앱/AI v4 초기화와 업무 행·기존 메뉴 metadata·계정 식별자·익명 HTTP 경계를 검증한다. `prepare-key`는 기존 USER_AI 설정이 있으면 그 바이트를 보존하며, 신규 설정에는 명시적인 owner-only key-file을 요구한다. 옛 root Nginx key include를 읽는 의존성은 제거한다. 보호 키 값은 인수나 출력에 넣지 않는다. `activate`는 별도 운영 승인 후 현재 PID/cwd/명령을 대조하고 SIGTERM·일관 백업을 거쳐 앱과 자체 worker를 시작하는 운영 단계다.
+초기 설치용 `tools/deploy_user_ai.py`는 정확한 commit과 고정 호스트/경로를 검사한다. `check-copy`는 업무 DB의 새 private 사본에서 전체 앱/AI v4 초기화와 업무 행·기존 메뉴 metadata·계정 식별자·익명 HTTP 경계를 검증한다. `prepare-key`는 기존 USER_AI 설정이 있으면 그 바이트를 보존하며, 신규 설정에는 명시적인 owner-only key-file을 요구한다. 옛 root Nginx key include를 읽는 의존성은 제거한다. 보호 키 값은 인수나 출력에 넣지 않는다. 이미 설치된 환경의 이번 업그레이드는 `tools/deploy_ai_ux_release.py`의 pause/check-copy/activate를 사용했다. 정확한 idle 웹 PID/cwd/argv를 확인해 자체 접수를 닫고 worker/web을 정상 종료한 뒤, quiesced 백업과 실제 사본 검증·기존 행/비밀 보존을 확인하고 같은 코드로 재개한다. 옛 gateway의 root Nginx 단계는 `tools/retire_equipment_strata_nginx.py`로 전용 include만 백업·검사·적용한다.
 
 v4 적용은 신규 접수 차단·자기 요청 실제 종료 확인·worker/앱 정리·일관 백업 뒤 호환 코드/전진 migration/worker를 함께 적용한다. retention timer는 모든 점유·권한·삭제 검증 후에만 설치/활성화한다. 정리 CLI는 기존 v4 DB·명시적인 USER_AI_DATABASE/USER_AI_DATABASE_EPOCH를 요구하고 v3를 자동 이전하지 않는다. 기존 worker.env에 DB 경로가 없으면 정확한 private 경로를 먼저 지정한다.
 

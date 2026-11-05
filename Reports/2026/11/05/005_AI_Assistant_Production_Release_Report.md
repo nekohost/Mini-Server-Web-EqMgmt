@@ -3,7 +3,7 @@ artifact_id: REPORT-20261105-005
 work_id: RELEASE-20261105-AI-UX
 owner: Codex
 created_at: 2026-11-05
-status: in-progress
+status: complete
 ---
 
 # AI 도우미 운영 병합·배포 기록
@@ -33,3 +33,47 @@ status: in-progress
 - root 전용 fixture 경로를 맞춘 뒤 Linux 격리 검증: backend178개 모두 통과(실패/오류/skip0,34.935초), 화면24개 기능 시나리오+3개 측정 화면,2657개 검사 모두 통과. 검증 digest `2d534e4a50a9b7ae6615a85a15c14035bea4d48a0371d998c65bcbde3a15e32c`. Windows에서 앱을 기동하지 않았다. 첫 root 검사에서 관련 없는 테스트가 함께 수집되는 harness 문제는 AI 테스트 allowlist로 수정한 뒤 위 결과를 얻었다.
 - 현재 Staging49개 원문은 [보존 ZIP](005_AI_Assistant_Production_Release/staging-merged-candidate.zip)에 전부 보관하고 ZIP 내용/각 원문 SHA를 확인한 뒤 해당 후보 파일만 apply_patch로 정리했다. ZIP SHA256 `a779dd45254638a981de6fa218cffcd4d6f33e0648b2ebd68adbad61a9fb56aa`. 다른 Staging은 그대로다. [검증·원문 해시](005_AI_Assistant_Production_Release/validation-before-deploy.json).
 - 업그레이드 도구는 정확한 host/user/commit/PID/cwd/argv와 자체 idle job을 확인하고 신규 접수 차단→worker/web 정상 종료→quiesced DB 백업→사본 검증→v4 기동/기존 행 확인→접수 재개 순서로 동작한다. 다른 서비스나 공유 Strata를 제어하지 않는다. Nginx 보조 도구는 기존 장비관리 include 하나만 백업·교체하고 구문/재적용 실패 시 원복하며 별도 upstream key를 열거나 바꾸지 않는다.
+
+## 실제 서버 적용 결과
+
+기능 커밋은 `055fcbfee5dde4abc2b0b623f8ce06d37546abf9`, 최종 실행 코드 커밋은 `a8c8a86bad43da7197d88f88cd49c95f4f0e01c0`다. 기존 다른 dirty9개를 포함하지 않고 기존 GitHub 계정의 main으로 push한 뒤 서버에서 fast-forward했다. 설치 전용 명령을 재사용하지 않았다.
+
+2026-11-05 13:22 KST경 자체 미종료 job0을 확인해 접수를 닫고 기존 worker와 확인된 웹 PID719360을 정상 종료했다. 정지 시점 업무/AI 일관 백업을 다시 보존했다. CLI로 실행한 사본 검사에서 프로젝트 모듈 경로 누락이 발견됐고, 배포 보조 도구의 sys.path를 보완한 `a8c8a86`을 적용한 뒤 `copy-ce570f926bde/result.json`에서 같은 보존·v4·인증 검사를 통과했다. 이 오류 중에도 운영 DB 이전이나 기존 기록 초기화는 수행하지 않았다.
+
+13:23:14 KST 웹 PID824644와 자체 worker를 기동했다. 접수 재개 전에 기존 업무18개 테이블·AI14개 테이블의 기존 행/열·감사 append-only와 비밀 설정을 확인했다. app/worker 환경에 같은 절대 AI DB 경로만 가산하고 Flask key/암호키/token/epoch는 보존했다. 기존 대화5·메시지22·job11은 유지됐다. v4와 메뉴 부모 `admin_center`를 확인한 뒤 접수를 재개했다.
+
+사용자가 현재PC의 SSH 창에서 sudo 인증을 직접 수행했다. root Nginx 보조 도구로 `mini-server-backup` 사이트의 기존 전용 include 한 개만 백업·교체하고 `nginx -t`와 reload를 통과했다. 기존 별도 upstream key는 helper가 열지 않았고 metadata도 동일하다. 옛 공개 자산11개는 유지보수 중 같은 Git으로 교체했고 LICENSE/README/OFL·Git/후보 ZIP은 유지했다. 공유 Strata나 다른 사이트의 설정/프로세스는 수정하지 않았다.
+
+| 실제 확인 | 결과 |
+| --- | --- |
+| HTTPS 익명 | login200, assistant/admin302, AI capabilities401 |
+| 옛 gateway/auth/static | 8개 경로 GET/POST16개 모두410 |
+| 실제 관리자 메뉴 | 메인 포털에는 AI 연결 관리 없음, 관리자 센터에 있음 |
+| 실제 AI 조회 | `search_equipment`, off,2단계,9.224초,done,오류 없음,미확정 업무0 |
+| 표 표시·지속성 | 본인 장비 총2건을 DOM table1개/본문1행으로 표시, 재진입 후 동일 응답 유지 |
+| 실행 점유 | 해당 guard released,예약 문자0,자체 worker active |
+| 휴지통 정리 | timer active;13:23 및13:25 실행 status ok/purged0/more_expired false |
+| 운영 무결성 | AI integrity_check ok;장비/카탈로그 등 업무17개 테이블 동일;users3명 동일하고 직접 로그인으로 SessionToken만 갱신 |
+| 기록 보존 | 기존 done9/failed1/cancelled1 유지,검증용 done1·대화1·메시지2만 추가;과거 실패를 성공으로 바꾸지 않음 |
+
+실제 검증 대화는 “배포 검증: 내 장비 조회와 표…”로 계정에 남겼다. 장비/신청을 생성·수정·삭제하지 않았으며 기존 감사 행도 보존됐다. 휴지통은 빈 목록과30일/복구/재이동 기준 안내만 실제 확인했고 운영 대화를 삭제하거나 실제 연결 설정 revision을 변경하지 않았다. 휴지통 이동·복구·재이동·만료/영구삭제·일반 사용자 권한·관리자 저장/결과/응답 유실 분기는 Linux 격리178개와2657개 화면 검사에서 확인한 결과다. 실제 브라우저는 기존 관리자 계정으로 검증했으며 일반 사용자 실계정으로 별도 로그인했다고 주장하지 않는다.
+
+## 실제 화면 결과와 한계
+
+| 화면 | 결과·근거 |
+| --- | --- |
+| PC1440×1000 | 상단 대화 제목 숨김,좌측 선택1개,모델136px/추론100px,제어기36px/글자12px,가로 넘침 없음. [표 응답](005_AI_Assistant_Production_Release/production-desktop-table.jpg) |
+| 모바일390×844 | 좌측 목록 자동 숨김,제목18px 한 줄/말줄임,모델136px/추론100px,제어기44px/글자12px,표285px/가로 넘침 없음. [표 응답](005_AI_Assistant_Production_Release/production-mobile-table.jpg) |
+| 관리자 | [센터 메뉴](005_AI_Assistant_Production_Release/production-admin-center.jpg),[모바일 연결 설정](005_AI_Assistant_Production_Release/production-admin-mobile.jpg) |
+| 휴지통 | [운영 빈 휴지통과 보관 안내](005_AI_Assistant_Production_Release/production-mobile-trash.jpg) |
+| 옛 UI | [로그인된 폐기 안내](005_AI_Assistant_Production_Release/production-strata-retired.jpg),새 assistant 링크로 복귀 정상 |
+
+PC/모바일에서 이번 배치로 인한 잘림·겹침·가로 넘침은 발견되지 않았다. 모바일 응답은 대화 영역을 스크롤해 표까지 확인했다. 브라우저 오류0이며 공통 기존 Tailwind CDN의 production 사용 경고2건은 관찰 기록으로 남긴다. 이번 기능의 실행 오류나 신규 회귀로 판정하지 않았고 공통 자산 빌드 전환으로 범위를 확대하지 않았다. 뷰포트 설정은 초기화하고 assistant 화면으로 복귀했다. 최초 모바일 측정이 다른 관리자 탭에 적용된 도구 대상 문제는 대상을 바로잡은 후 위390px 근거로 교체했으며 잘못된 측정은 최종 결과로 쓰지 않았다.
+
+상세 기계 근거는 [production-verification.json](005_AI_Assistant_Production_Release/production-verification.json)이다. 검증 스크린샷에는 비밀 key·장비 상세·실제 대화 원문 전체를 담지 않았다. 짧은 읽기 전용 요청의 시간이며 장문·전체 모델 성능이나 일반 지능 평가가 아니다. 기존037 및 AI-TECHDEBT-001은 보류 상태를 유지한다.
+
+## 복구와 보존
+
+서버 private release 및 현재PC private 사본에는 초기/정지 시점 두 DB,원래 환경/worker unit/프로세스 환경,원래 maintenance 및 Nginx include를 보존했다. 정지 시점 업무 DB SHA256 `80f11b2f073e49280ee4cfe51cf93bdae9040b7156bc9cd3dbf3d0dc1ad75b8f`,AI DB SHA256 `f506a9c1328e6d4607e5594269dc0623224170adc43269ba42c255aac144fd28`이 양쪽에서 일치한다. Windows private 디렉터리는 현재 사용자만 상속 FullControl이며 Git 밖이다.
+
+기능 복귀 시 먼저 자체 접수/진행 작업과 최신 v4 점유·삭제 원장을 확인한다. v3 코드만 단독 재기동하거나 과거 DB로 전체 덮어쓰지 않는다. 필요한 개별 코드/설정 복구는 보존 SHA/바이트와 새 기록을 함께 검토한다. Nginx include는 원래 바이트를 사용해 검사·reload할 수 있으나 키 회전·다른 사이트 변경과 묶지 않는다. 최종 운영 판정은 적용·읽기 전용 실모델/화면 검증 완료다.

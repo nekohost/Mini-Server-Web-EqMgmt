@@ -1,0 +1,292 @@
+{
+  "reviewed_at_utc": "2026-11-05T04:29:44.362Z",
+  "code_commit": "a8c8a86bad43da7197d88f88cd49c95f4f0e01c0",
+  "feature_commit": "055fcbfee5dde4abc2b0b623f8ce06d37546abf9",
+  "pre_activation": {
+    "https_anonymous": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/strata": 410,
+      "/strata/": 410,
+      "/api/strata/status": 410,
+      "/_eqmgmt_strata_auth": 410,
+      "/static/js/strata_page.js": 410,
+      "/static/vendor/strata/app.js": 410
+    },
+    "ai": {
+      "version": 4,
+      "jobs_by_state": {
+        "cancelled": 1,
+        "done": 9,
+        "failed": 1
+      },
+      "conversations": 5,
+      "messages": 22,
+      "trashed": 0
+    },
+    "admin_menu_parent": "admin_center",
+    "units": {
+      "equipment-ai-worker.service": [
+        "Result=success",
+        "ExecMainStatus=0",
+        "ActiveState=active",
+        "SubState=running"
+      ],
+      "equipment-ai-retention.service": [
+        "Result=success",
+        "ExecMainStatus=0",
+        "ActiveState=inactive",
+        "SubState=dead"
+      ],
+      "equipment-ai-retention.timer": [
+        "NextElapseUSecRealtime=Thu 2026-11-05 13:25:00 KST",
+        "Result=success",
+        "ActiveState=active",
+        "SubState=waiting"
+      ]
+    },
+    "quiesced_backups": {
+      "equipment-quiesced.sqlite3": {
+        "sha256": "80f11b2f073e49280ee4cfe51cf93bdae9040b7156bc9cd3dbf3d0dc1ad75b8f",
+        "bytes": 136962048
+      },
+      "assistant-quiesced.sqlite3": {
+        "sha256": "f506a9c1328e6d4607e5594269dc0623224170adc43269ba42c255aac144fd28",
+        "bytes": 245760
+      }
+    },
+    "nginx_result_exists": true,
+    "activated": {
+      "status": "active",
+      "app_pid": 824644,
+      "worker": "active",
+      "ai_version": 4,
+      "old_business_rows_preserved": true,
+      "old_ai_rows_preserved": true,
+      "secrets_preserved": true,
+      "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+      "retention_timer_enabled": true,
+      "activated_at_utc": "2026-11-05T04:23:14.368658+00:00"
+    }
+  },
+  "after_live_check": {
+    "post_login_business_metadata_differences": {
+      "users": {
+        "before_rows": 3,
+        "after_rows": 3,
+        "columns": [
+          "SessionToken"
+        ]
+      }
+    },
+    "unchanged_business_tables": 17,
+    "old_audit_rows_preserved": true,
+    "latest_live_smoke": {
+      "state": "done",
+      "level": "off",
+      "steps": 2,
+      "elapsed_seconds": 9.224,
+      "error_code": null,
+      "reserved_chars": 0,
+      "tool_names": [
+        "search_equipment"
+      ],
+      "proposal_count": 0
+    },
+    "guards": {
+      "released": 1
+    },
+    "ai": {
+      "conversations": 6,
+      "messages": 24,
+      "jobs_by_state": {
+        "cancelled": 1,
+        "done": 10,
+        "failed": 1
+      },
+      "deleted": 0
+    },
+    "integrity": "ok",
+    "nginx": {
+      "status": "applied",
+      "include": "/etc/nginx/snippets/eqmgmt-strata.conf",
+      "site": "mini-server-backup",
+      "commit": "a8c8a86bad43da7197d88f88cd49c95f4f0e01c0",
+      "old_sha256": "8a21444bd07aba17520117f8e347da91b117cc7357a065c064a99189338871d6",
+      "new_sha256": "7e84ddfcb7f9fb611e5244095436858f00c650a992018c173fe55d225fb81c4e",
+      "nginx_test": "pass",
+      "nginx_reload": "pass",
+      "private_key_read_by_helper": false,
+      "private_key_unchanged": true
+    }
+  },
+  "legacy_https": {
+    "retired_route_checks": [
+      {
+        "path": "/strata",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/strata",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/strata/",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/strata/",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/api/strata/status",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/api/strata/status",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/_eqmgmt_strata_auth",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/_eqmgmt_strata_auth",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/static/js/strata_page.js",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/static/js/strata_page.js",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/static/js/strata_bridge.js",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/static/js/strata_bridge.js",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/static/css/strata.css",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/static/css/strata.css",
+        "method": "POST",
+        "status": 410
+      },
+      {
+        "path": "/static/vendor/strata/app.js",
+        "method": "GET",
+        "status": 410
+      },
+      {
+        "path": "/static/vendor/strata/app.js",
+        "method": "POST",
+        "status": 410
+      }
+    ],
+    "all_pass": true,
+    "worker": "active",
+    "retention": "active"
+  },
+  "retention_runs": {
+    "activation": "ok; purged=0",
+    "scheduled_1325_kst": "ok; purged=0; more_expired=false"
+  },
+  "live_browser": {
+    "account_role": "admin",
+    "normal_user_equipment_tools_only": true,
+    "task": "search_equipment; count-only table; no equipment mutations",
+    "conversation_retained": true,
+    "markdown_table": true,
+    "table_body_rows": 1,
+    "desktop": {
+      "width": 1440,
+      "height": 1000,
+      "title_hidden": true,
+      "selected_conversation_highlight": true,
+      "page_horizontal_overflow": false,
+      "model_width": 136,
+      "reasoning_width": 100,
+      "controls_height": 36,
+      "controls_font": 12
+    },
+    "mobile": {
+      "width": 390,
+      "height": 844,
+      "title_visible": true,
+      "title_height": 18,
+      "sidebar_hidden": true,
+      "page_horizontal_overflow": false,
+      "model_width": 136,
+      "reasoning_width": 100,
+      "controls_height": 44,
+      "controls_font": 12,
+      "table_width": 285
+    },
+    "reasoning": {
+      "display": [
+        "off",
+        "low",
+        "medium",
+        "high",
+        "xhigh",
+        "max"
+      ],
+      "disabled": [
+        "high",
+        "max"
+      ]
+    },
+    "admin_connection_location": "admin_center; absent from portal",
+    "trash": "empty; 30-day/restore/reset-period notice visible; no production conversation removed",
+    "legacy_ai": "authenticated retirement notice; assistant link works",
+    "reload_preserves_response": true,
+    "js_errors": 0,
+    "existing_warnings": [
+      "Tailwind CDN production-use advisory"
+    ],
+    "viewport_override_reset": true,
+    "screenshots": [
+      "production-desktop-new.jpg",
+      "production-desktop-table.jpg",
+      "production-mobile-table.jpg",
+      "production-admin-center.jpg",
+      "production-admin-mobile.jpg",
+      "production-mobile-trash.jpg",
+      "production-strata-retired.jpg"
+    ]
+  },
+  "limits": [
+    "Live UI used the existing admin account; normal-user/authorization failures, Trash/restore/purge and admin save/result flows were checked in isolated Linux fixtures, not by mutating production accounts or connections.",
+    "Existing failure/cancellation records remain unchanged.",
+    "The live smoke is a short read-only test, not long-context or model intelligence benchmarking."
+  ],
+  "private_backup": {
+    "server": "instance/releases/20261105-ai-ux-20261105T035939Z-4309ab",
+    "local": "C:/Users/nkhst/.codex/private-releases/20261105-ai-ux-20261105T035939Z-4309ab",
+    "hashes_match": true,
+    "windows_acl": "current user only; inherited child full control",
+    "tracked": false
+  }
+}

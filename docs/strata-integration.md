@@ -1,6 +1,6 @@
-# 장비관리의 기존 Strata 웹 화면 폐기 후보
+# 장비관리의 기존 Strata 웹 화면 폐기
 
-이 문서는 `STAGING-20261105-AI-UX-TRASH`의 Staging 후보다. 실제 운영 코드·DB·Nginx·서비스·API 키를 변경하거나 제거한 기록이 아니다. 승인 Plan은 `Plans/2026/11/05/001_AI_Assistant_UX_and_Strata_Retirement_Plan.md`이며 정확한 제거 whitelist는 `docs/strata-retirement-manifest.json`에 둔다.
+`STAGING-20261105-AI-UX-TRASH` 후보는 2026-11-05 사용자 승인에 따라 운영 소스와 현재 운영 백업서버에 적용됐다. 전용 Nginx include 검사·reload와 실제 HTTPS GET/POST410, 로그인된 `/ai` 안내 및 신규 assistant의 실제 Strata 조회를 확인했다. [운영 적용·검증 기록](../Reports/2026/11/05/005_AI_Assistant_Production_Release_Report.md)에 백업·commit·화면 근거를 둔다. 원안 Plan은 `Plans/2026/11/05/001_AI_Assistant_UX_and_Strata_Retirement_Plan.md`이며 정확한 공개 자산 제거 whitelist는 `docs/strata-retirement-manifest.json`이다. 키 파일·공유 Strata·기존 메뉴/grant 행은 보존했다.
 
 기존 `/ai`와 `/ai/console`은 현재 로그인 검사를 거쳐 폐기 안내와 `/assistant` 링크를 제공한다. 브라우저 iframe·bridge·health 호출을 로드하지 않는다. 이전 POST를 새 AI 대화로 변환하지 않고 `eqmgmt.strata.*` localStorage를 삭제하거나 병합하지 않는다. 메뉴 코드 `strata`는 관리자/일반 사용자 목록에서 항상 숨기며 기존 메뉴·grant 행은 보존한다. `STRATA_ENABLED=true`가 남아 있어도 gateway가 다시 열리지 않는다.
 
@@ -28,7 +28,7 @@ sudo python3 tools/deploy_user_ai.py prepare-key --commit <승인된-40자리-co
 
 기존 설정이 있으면 `--key-file` 없이 같은 action을 호출할 수 있다. 이 action은 기존 private 환경을 교체하지 않으므로 현재 운영 중인 환경·allowlist·키를 보존해 후속 승인된 검증에 사용한다. 옛 `tools/deploy_strata.py`와 `tools/write_strata_nginx_key.py`는 비활성 안내와 비정상 종료만 제공하며 재설치/키 쓰기를 수행하지 않는다. 기존 설치의 Git 이력은 그대로 남는다.
 
-## 운영 적용 전 순서
+## 운영 적용·향후 재검증 순서
 
 1. 새 assistant의 표·일반 조회·모델 선택·관리자 저장/시험과 내부 worker 회귀를 통과한다. v4 lifecycle/점유 원장 이전과 호환 복귀 조건도 통합 검증한다.
 2. 관련 환경·Nginx site/snippet·원본 메뉴/grant 행을 보호된 백업에 보존한다. 실제 DB 백업·참조 검토는 별도 승인 범위에서만 수행한다.
@@ -37,7 +37,7 @@ sudo python3 tools/deploy_user_ai.py prepare-key --commit <승인된-40자리-co
 5. 앱 후보와 관리자 메뉴 metadata 이전을 검토·병합한다. `equipment_ai_settings`의 URL/code/name/order/grant를 보존한 채 부모만 `admin_center`로 멱등 이전한다.
 6. 해당 HTTPS server의 전용 snippet만 deny 후보로 교체한다. 다른 사이트/global proxy 설정은 수정하지 않는다. `sudo nginx -t` 통과 후 승인된 reload를 수행한다. 비밀 값이 나올 수 있는 `nginx -T` 출력을 보고서에 붙이지 않는다.
 7. 익명/일반/관리자의 모든 옛 proxy·auth·health·static GET/POST가 404/410인지 확인한다. 옛 auth location의 2xx를 허용하지 않는다. 새 assistant·모델 조회·worker와 다른 서비스 Strata 사용을 다시 확인한다.
-8. 차단 확인 후 manifest의 정확한 `remove_public_files_after_denial` 목록만 배포에서 회수한다. glob/상위 디렉터리 재귀 삭제를 하지 않는다. Git/검토 아카이브와 라이선스 고지는 유지한다. 이 Staging 작업은 실제 원본 파일을 삭제하지 않는다.
+8. manifest의 정확한 `remove_public_files_after_denial` 목록11개만 회수한다. glob/상위 디렉터리 재귀 삭제를 하지 않는다. Git/검토 아카이브와 라이선스 고지는 유지한다. 이번에는 자체 웹/worker가 정지된 유지보수 중 앱과 공개 자산을 같은 Git으로 교체했고 앱의 옛 auth 차단과 Nginx deny를 함께 검증했다.
 9. 기존 메뉴·grant 행의 최종 삭제가 필요하면 FK/참조/정확한 행/원래 metadata 복구를 별도 확인한다. 현재 후보는 행 삭제나 grant 변경을 수행하지 않는다.
 10. 옛 `STRATA_*` 환경 변수는 사용처가 더 없음을 확인한 뒤 운영 절차에서만 정리한다. `USER_AI_*`는 유지한다.
 

@@ -986,6 +986,6 @@
 
 ## AI-UX-20261105 — 사용자 요청 AI 도우미 후속 개선
 
-- **상태:** 운영 소스 병합 완료 / 서버 배포 진행.
+- **상태:** 운영 서버 적용·실제 검증 완료.
 - 사용자가 승인한 표·조회 오류 수정·모델 표시·관리자 메뉴/모달·옛 화면 정리·대화 휴지통과 공간 절약을 기존 기능에 병합했다.
 - 원안과 검증 이력은 [1~7번 계획](Plans/2026/11/05/001_AI_Assistant_UX_and_Strata_Retirement_Plan.md), [추가 배치 계획](Plans/2026/11/05/003_AI_Assistant_Compact_Layout_Plan.md), [배포 기록](Reports/2026/11/05/005_AI_Assistant_Production_Release_Report.md)에 보존한다. 최종 기능 명세는 FEATURES.md18절이다. 기존 제안 번호·037 후속·보류 유지보수의 완료 상태를 대신 바꾸지 않는다.
