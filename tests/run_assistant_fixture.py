@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.LINUX.FIXTURE.RUNNER]
-[EN rev.14]
+[EN rev.16]
 [Role] Transfers audited candidate source in memory to the authorized Linux fixture host over SSH.
 [Dependencies] Root source plus staged overlays, subprocess SSH and Python stdlib; never imports the app on Windows.
 [Impact] Sparse overlays retain unchanged baseline tests/assets; full generated browser evidence is saved beside screenshots with compact stdout, and no remote source/config or production DB is modified.
@@ -27,15 +27,15 @@ def main():
     parser.add_argument('--tmpfs-fixtures',action='store_true',help='Use private Linux tmpfs for disposable functional fixtures; never changes SQLite durability settings.')
     parser.add_argument('--browser-width',type=int,action='append',default=[],choices=[320,360,390,430,760,761,820,1425,1440])
     parser.add_argument('--browser-theme',action='append',default=[],choices=['light','dark'])
-    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner'],default='all')
+    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner','web-search'],default='all')
     args=parser.parse_args()
     overlay=Path(__file__).resolve().parents[1]
     project=next((parent for parent in (overlay,*overlay.parents) if (parent/'AGENTS.md').is_file()), None)
     if project is None:
         raise ValueError('fixture project root was not found')
     fixture_roots=(overlay/'tests',) if overlay==project else (project/'tests',overlay.parent/'tests',overlay/'tests')
-    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py'}
-    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py'}
+    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py'}
+    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py','web_search_browser_fixture.py'}
     def candidate_file(relative):
         """[Role] Selects a changed overlay source or the unchanged reviewed project baseline. [Impact] No production app import occurs on Windows."""
         staged=overlay/relative
@@ -153,7 +153,9 @@ if payload['browser'] and result.wasSuccessful():
     browser.__file__='<candidate>/tests/assistant_browser_fixture.py'
     sys.modules[browser.__name__]=browser
     exec(compile(payload['browser'],browser.__file__,'exec'),browser.__dict__)
-    for name,source in payload['browser_fixtures'].items():
+    ordered=sorted(payload['browser_fixtures'],key=lambda name:(0 if name=='assistant_ui_browser_fixture.py' else 1 if name=='viewport_scrollbar_browser_fixture.py' else 2,name))
+    for name in ordered:
+        source=payload['browser_fixtures'][name]
         extra=types.ModuleType(name.removesuffix('.py'))
         extra.__file__='<candidate>/tests/'+name
         sys.modules[extra.__name__]=extra
@@ -164,6 +166,10 @@ if payload['browser'] and result.wasSuccessful():
         browser.FRAME_DIAGNOSTIC_SCRIPT=getattr(admin,'FRAME_DIAGNOSTIC_SCRIPT','')
     results=browser.run_browser(os.getcwd(),payload['assets']) if payload['browser_target'] in ('all','legacy') else []
     for name in payload['browser_fixtures']:
+        if payload['browser_target']=='web-search':
+            if name=='web_search_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
         if payload['browser_target']=='status-banner':
             if name=='status_banner_browser_fixture.py':
                 results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))

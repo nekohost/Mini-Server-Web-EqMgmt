@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.CONTEXT]
-[EN rev.3]
+[EN rev.4]
 [Role] Reconstructs model-independent context from owner-local source messages, drafts, cards and receipts.
 [Dependencies] AI SQLite rows, bounded canonical JSON and each verified model context budget.
 [Impact] Hidden reasoning, credentials and unmatched tool IDs never cross to another model; preserved workflow references are explicitly excluded from ordinary answer presentation.
@@ -7,6 +7,7 @@
 import json
 
 from .policy import AssistantError, DISPLAY_POLICY_VERSION, EQUIPMENT_FIELDS, TOOL_MAP, canonical, text, tool, validate_schema
+from .web_search import public_searches
 from utils.roadmap_validation import equipment_fields
 
 MAX_DRAFT = 16384
@@ -66,7 +67,7 @@ def normalized_draft(args):
 
 def build_context(db, job, byte_budget):
     """[MINI-COMMENT: ASSISTANT.CONTEXT.BUILD_CONTEXT]
-    [EN rev.3]
+    [EN rev.4]
     [Role] Fits source-linked task state plus recent final dialogue within a conservative UTF-8 budget.
     [Dependencies] Active owner/account conversation, chat-purpose history and serialized tools/system overhead deducted by caller.
     [Impact] Probe nonces never enter normal dialogue; original history and working IDs stay intact, omissions stay explicit, and handoff references are not presented as user equipment numbers.
@@ -91,10 +92,19 @@ def build_context(db, job, byte_budget):
         state['pending_cards'].append(item)
     for row in db.execute("SELECT id,content FROM messages WHERE conversation=? AND job IS NULL ORDER BY id DESC LIMIT 8", (job['conversation'],)):
         state['receipts'].append({'source_message':row['id'], 'server_receipt':row['content']})
+    state['public_web_sources']=[]
+    for row in db.execute("SELECT context FROM jobs WHERE conversation=? AND id<>? AND purpose='chat' AND state IN ('done','waiting_confirmation') ORDER BY created DESC LIMIT 2",(job['conversation'],job['id'])):
+        for search in public_searches(row['context']):
+            if len(state['public_web_sources'])>=2:
+                break
+            state['public_web_sources'].append({'kind':'UNTRUSTED_PUBLIC_SEARCH_EVIDENCE','query':search['query'],'searched_at':search['searched_at'],
+                'sources':[{'number':item['number'],'title':item['title'],'url':item['url']} for item in search['results']]})
     truncated = False
     while len(canonical(state).encode()) > min(MAX_HANDOFF-512,max(256, available // 2)):
         truncated = True
-        if state['receipts']:
+        if state['public_web_sources']:
+            state['public_web_sources'].pop()
+        elif state['receipts']:
             state['receipts'].pop()
         elif state['pending_cards']:
             state['pending_cards'].pop()

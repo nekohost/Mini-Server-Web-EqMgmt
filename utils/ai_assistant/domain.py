@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.4]
+[EN rev.5]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
 [Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
@@ -13,6 +13,7 @@ from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
 from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
+from .web_search import WebSearchError, MAX_SEARCHES, public_searches
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -20,12 +21,13 @@ READ_MENUS = ('my_equipment','public_equipment')
 
 class Domain:
     """[Role] Receives existing connection/maintenance dependencies without importing the app."""
-    def __init__(self, connect, secret, maintenance):
+    def __init__(self, connect, secret, maintenance, search_service=None):
         """[Role] Keeps credentials and DB gating in the trusted equipment-server process.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
         self.connect,self.secret,self.maintenance=connect,secret,maintenance
+        self.search_service=search_service
 
     def actor(self, db, uid, binding=None):
         """[MINI-COMMENT: ASSISTANT.ACTOR]
@@ -84,7 +86,7 @@ class Domain:
             self.require_menu(actor,'public_equipment')
         return row
 
-    def tools(self, actor):
+    def tools(self, actor, web_search_allowed=False):
         """[Role] Advertises only available user tools; execution checks the same permissions again.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
@@ -97,11 +99,13 @@ class Domain:
         if 'my_approvals' in actor['menus']:
             names.update(('list_my_requests','prepare_catalog_request','prepare_option_request'))
         names.add('prepare_preferences')
+        if web_search_allowed and self.search_service is not None and self.search_service.available:
+            names.add('web_search')
         return [dict(type='function',function=TOOL_MAP[n]) for n in sorted(names)]
 
     def read_or_prepare(self, name, args, job, store):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
         [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope; one additive display policy separates answer fields from retained tool-linkage IDs without duplicating rows or rewriting source values.
@@ -117,8 +121,34 @@ class Domain:
                 raise AssistantError('계정 식별정보가 변경되었습니다.',401)
             if time.time()>job['expires'] or job['cancel']:
                 raise AssistantError('로그인 작업 권한이 만료되었거나 취소되었습니다.',401)
-            if name not in {t['function']['name'] for t in self.tools(actor)}:
+            search_allowed=json.loads(job.get('route_snapshot') or '{}').get('web_search_allowed') is True
+            if name=='web_search' and not search_allowed:
+                raise WebSearchError('WEB_SEARCH_DISABLED')
+            if name=='web_search' and (self.search_service is None or not self.search_service.available):
+                raise WebSearchError('WEB_SEARCH_UNAVAILABLE')
+            if name not in {t['function']['name'] for t in self.tools(actor,search_allowed)}:
                 raise AssistantError('허용되지 않은 작업입니다.',403)
+            if name=='web_search':
+                context=json.loads(job['context'])
+                if len(public_searches(context))>=MAX_SEARCHES:
+                    raise WebSearchError('WEB_SEARCH_LIMIT')
+                # Detailed private values must never become a later web-search query in this turn.
+                for entry in context:
+                    if entry.get('role')=='tool':
+                        value=json.loads(entry['content'])
+                        equipment_value=value.get('equipment') if isinstance(value,dict) else None
+                        if isinstance(equipment_value,dict) and ('serial_number' in equipment_value or 'memo' in equipment_value):
+                            raise WebSearchError('WEB_SEARCH_BLOCKED')
+                private=list(db.execute('SELECT serial_number,memo FROM equipments WHERE user_id=? LIMIT 1001',(actor['UserId'],)))
+                if len(private)>1000:
+                    raise WebSearchError('WEB_SEARCH_BLOCKED')
+                sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
+                db.close();db=None
+                result=self.search_service.search(args['query'],args.get('max_results',5),sensitive)
+                # Search I/O holds no business DB connection/transaction; revalidate the actor afterwards.
+                db=self.connect()
+                self.actor(db,job['owner'],job['binding'])
+                return result
             if name=='search_equipment':
                 scope=args.get('scope','my')
                 self.require_menu(actor,'public_equipment' if scope=='public' else 'my_equipment')
@@ -195,7 +225,8 @@ class Domain:
                 raise AssistantError('허용되지 않은 작업입니다.',403)
             return store.proposal(job,operation,payload,before,self.secret,supersedes)
         finally:
-            db.close()
+            if db is not None:
+                db.close()
 
     def validate_equipment(self, db, actor, payload, old):
         """[Role] Uses the returned shared normalization for the exact reviewed and stored equipment snapshot.

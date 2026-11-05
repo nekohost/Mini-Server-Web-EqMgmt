@@ -1,0 +1,101 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "8433e898c3c9e919bc5efb84d20c06de4155125954f7b695a9145465bc8f2fe3",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "web-search",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "internet-default-off",
+        "external-query-disclosure-accessible",
+        "explicit-user-opt-in",
+        "opt-in-sent-with-turn",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations",
+        "reload-restores-authoritative-sources",
+        "history-reopen-resets-consent",
+        "no-horizontal-page-overflow",
+        "page-fits-or-declared-minimum-fallback",
+        "compact-controls-remain-in-viewport",
+        "search-and-send-control-heights-match",
+        "chat-preserves-measured-minimum",
+        "no-business-or-lifecycle-mutations"
+      ],
+      "layout": {
+        "expanded": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "root": {
+            "left": 8,
+            "right": 382,
+            "top": 92,
+            "bottom": 835,
+            "width": 374,
+            "height": 743
+          },
+          "toggle": {
+            "left": 260,
+            "right": 304,
+            "top": 719.02,
+            "bottom": 763.02,
+            "width": 44,
+            "height": 44
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 719.02,
+            "bottom": 763.02,
+            "width": 44,
+            "height": 44
+          },
+          "form": {
+            "left": 21,
+            "right": 369,
+            "top": 646.02,
+            "bottom": 825,
+            "width": 348,
+            "height": 178.98
+          },
+          "chat": {
+            "left": 9,
+            "right": 381,
+            "top": 213.34,
+            "bottom": 646.02,
+            "width": 372,
+            "height": 432.67
+          },
+          "fit": "fit"
+        }
+      },
+      "queryPolls": 3,
+      "production_data_used": false,
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/018_AI_Web_Search/staging-web-search-initial-4/screen-000.png"
+    }
+  ],
+  "fixture_digest": "8433e898c3c9e919bc5efb84d20c06de4155125954f7b695a9145465bc8f2fe3"
+}

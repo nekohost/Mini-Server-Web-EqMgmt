@@ -1,0 +1,20 @@
+{
+  "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-search-20261105T084615Z-e2866a",
+  "status": "private-backup-and-confirmed-own-request-release",
+  "old_head": "cee4e5e060e4d323d889e9d3e9b0749ed6d463af",
+  "active_after": {},
+  "unit_states": {
+    "equipment-ai-worker.service": {
+      "is-active": "active",
+      "is-enabled": "enabled"
+    },
+    "equipment-ai-retention.timer": {
+      "is-active": "active",
+      "is-enabled": "enabled"
+    },
+    "equipment-ai-retention.service": {
+      "is-active": "inactive",
+      "is-enabled": "static"
+    }
+  }
+}

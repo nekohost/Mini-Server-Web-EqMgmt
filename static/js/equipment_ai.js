@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.16]
+ * [EN rev.17]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
  * [Impact] Actual frame geometry controls height only when minimum content space fits; resizing preserves reader/model/request state. Fixed file links, stale-preview isolation, explicit writes and independent lifecycle/notice recovery remain intact.
@@ -253,6 +253,7 @@
         let historyView = 'active', conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
         let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
+        let webSearchAllowed = false;
         let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null;
         let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
         let renameContext = null, renameBusy = false, renameFocus = null, bulkStopRequested = false;
@@ -552,6 +553,13 @@
                 button.hidden = !model || !model.tools || !(capabilities.tools || []).includes(button.dataset.tool) || button.dataset.write && !capabilities.writes || button.dataset.own === 'true' && !(capabilities.scopes || []).includes('my');
             });
             $('ai-send').disabled = modelUnavailable || changingModel || openingConversation || Boolean(activeJob) || readOnly() || lifecycleBusy || creatingConversation;
+            const searchButton = $('ai-web-search');
+            if (searchButton) {
+                searchButton.hidden = !capabilities?.web_search;
+                searchButton.disabled = !capabilities?.web_search?.available || !model?.tools || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy || creatingConversation;
+                searchButton.setAttribute('aria-pressed',String(webSearchAllowed));
+                searchButton.title = !capabilities?.web_search?.available ? '현재 서버에서 웹 검색을 사용할 수 없습니다.' : !model?.tools ? '선택한 모델은 웹 검색 도구 호출을 지원하지 않습니다.' : `웹 검색 ${webSearchAllowed ? '켜짐' : '꺼짐'} · 다음 요청부터 적용 · 공개 검색어는 외부 Yahoo 검색 엔진으로 전송됩니다.`;
+            }
             lifecycleControls();
         }
 
@@ -719,6 +727,19 @@
             }
             entry.render = render;
             entry.presenter.update(snapshot);
+        }
+
+        /** [Role] Restores only authoritative web-search evidence for owner-authorized message nodes.
+         * [Dependencies] Bounded versioned job projections and the safe native source renderer.
+         * [Impact] Pagination/reload/model switches preserve sources; raw tool context never enters the browser.
+         */
+        function searchEvidence(jobs) {
+            for (const item of jobs || []) {
+                const stream = streams.get(item.id);
+                if (!stream || !nodes.has(stream.messageId)) continue;
+                stream.webSearchVersion = item.web_search_version || 0;
+                window.EquipmentAiWebSearch?.render(nodes.get(stream.messageId).article,item.web_searches);
+            }
         }
 
         /** [Role] Creates stable message nodes so a poll cannot reset an expanded native details element. */
@@ -1331,6 +1352,7 @@
                     hydrate(message); $('ai-messages').insertBefore(nodes.get(message.id).article, anchor);
                 }
                 for (const item of result.proposals) proposalCard(item);
+                searchEvidence(result.jobs);
                 nextBefore = result.next_before; $('ai-more-messages').hidden = !nextBefore;
                 pane.scrollTop = position + pane.scrollHeight - height;
             } finally { loadingHistory = false; $('ai-more-messages').disabled = false; }
@@ -1354,7 +1376,7 @@
             const result = loaded || await api(`/api/ai/conversations/${cid}/messages?view=${view}`);
             if (selected !== selection || disposed) return;
             conversationMeta = result.conversation; conversationView = result.conversation.is_deleted ? 'trash' : view;
-            conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
+            conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null; webSearchAllowed = false;
             unattributedSelection = !result.conversation.selection_id;
             modelId = result.conversation.selection_id || defaultModel;
             modelRevision = result.conversation.selection_revision || 0;
@@ -1373,6 +1395,7 @@
                 if (stream) sourceLabel(stream.messageId, item.source);
                 if (stream && stream.reasoning && !stream.answerStarted && ['running','draining'].includes(item.state)) nodes.get(stream.messageId).details.open = true;
             }
+            searchEvidence(result.jobs);
             if (job) { activeJob = job.id; progress(job); schedule(100); }
             else if (!readOnly() && result.jobs[0]) progress(result.jobs[0]);
             modelControls(result.conversation.next_level || 'medium');
@@ -1406,14 +1429,15 @@
             const jid = activeJob, selected = selection;
             try {
                 const previous = streams.get(jid) || { messageId: null, reasoning: '', content: '', r: 0, c: 0, generation: 0, answerStarted: false };
-                const result = await api(`/api/ai/jobs/${jid}?r=${previous.r}&c=${previous.c}&v=${previous.generation}`);
+                const result = await api(`/api/ai/jobs/${jid}?r=${previous.r}&c=${previous.c}&v=${previous.generation}&w=${previous.webSearchVersion ?? -1}`);
                 if (selected !== selection || jid !== activeJob || disposed) return;
-                const next = { ...mergeStream(previous, result), messageId: result.message_id };
+                const next = { ...mergeStream(previous, result), messageId: result.message_id, webSearchVersion: result.web_search_version ?? previous.webSearchVersion ?? 0 };
                 storageNotice(result.storage);
                 streams.set(jid, next);
                 presentStream(jid, previous, next, result);
                 follow(() => {
                     sourceLabel(result.message_id, result.source);
+                    window.EquipmentAiWebSearch?.render(nodes.get(result.message_id)?.article,result.web_searches);
                     for (const item of result.proposals) proposalCard(item);
                 });
                 progress(result); retryDelay = 1500;
@@ -1487,6 +1511,7 @@
         $('ai-level').addEventListener('change', () => { if (readOnly() || lifecycleBusy || openingConversation || changingModel) return; requestKey = null; $('ai-level-help').textContent = reasoningHelp[$('ai-level').value] || ''; saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model').addEventListener('change', () => { if (openingConversation || changingModel || readOnly() || lifecycleBusy) return; modelId = $('ai-model').value; const model = modelChoices.find(item => item.id === modelId); modelControls(initialLevel(model)); saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model-refresh').addEventListener('click', () => loadModels().catch(error => notice(error.message, 'inventory')));
+        $('ai-web-search')?.addEventListener('click', () => { if ($('ai-web-search').disabled) return; webSearchAllowed = !webSearchAllowed; requestKey = null; modelControls(); });
         $('ai-input').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); if (!$('ai-send').disabled) $('ai-form').requestSubmit(); } });
         root.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { if (readOnly() || lifecycleBusy) return; $('ai-input').value = button.dataset.prompt; requestKey = null; $('ai-input').focus(); }));
         $('ai-form').addEventListener('submit', async event => {
@@ -1496,7 +1521,7 @@
             try {
                 if (!conversation) { const result = await api('/api/ai/conversations', { method: 'POST', data: {} }); conversation = result.id; modelRevision = result.selection_revision || 1; await saveSelection(); }
                 requestKey ||= crypto.randomUUID().replaceAll('-', '');
-                await api(`/api/ai/conversations/${conversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2 } });
+                await api(`/api/ai/conversations/${conversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2, web_search: webSearchAllowed } });
                 $('ai-input').value = ''; requestKey = null; await open(conversation, 'active');
             } catch (error) { notice(error.message); modelControls(); if ([404,409,410].includes(error.status)) await refreshLifecycle(); }
         });

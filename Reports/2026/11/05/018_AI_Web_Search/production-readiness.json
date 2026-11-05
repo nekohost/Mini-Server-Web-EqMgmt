@@ -1,0 +1,41 @@
+{
+  "head": "cee4e5e060e4d323d889e9d3e9b0749ed6d463af",
+  "tracked_clean": true,
+  "active_jobs_and_orphan_guards": {
+    "recovery_required": 1
+  },
+  "web_pids": [
+    896752
+  ],
+  "units": {
+    "equipment-ai-worker.service": {
+      "MainPID": "896770",
+      "ActiveState": "active",
+      "SubState": "running",
+      "UnitFileState": "enabled"
+    },
+    "equipment-ai-retention.service": {
+      "MainPID": "0",
+      "ActiveState": "inactive",
+      "SubState": "dead",
+      "UnitFileState": "static"
+    },
+    "equipment-ai-retention.timer": {
+      "ActiveState": "active",
+      "SubState": "waiting",
+      "UnitFileState": "enabled"
+    }
+  },
+  "maintenance": null,
+  "private_hashes": {
+    "/home/nekohost/services/Mini-Server-Web-EqMgmt/.env": "22943c5d62c7591e4c44c901eddb374845d5651e762a80bda99572e701c3c2fc",
+    "/home/nekohost/.config/eqmgmt/assistant-worker.env": "6dcfcaf64bfdc7deb1479dff17e93a3579ebdae9141ee0aff4ad3568d0ecd5ec"
+  },
+  "runtime_ready": {
+    "status": "ready",
+    "runtime": "runtime-ddgs-9.6.1-primp-0.15.0",
+    "lock_sha256": "89e5e3265b54de55f0313c4b8eea2266f2e29137ab03b489baec8b712f3b74e1",
+    "separate_application_environment": true,
+    "listener": false
+  }
+}

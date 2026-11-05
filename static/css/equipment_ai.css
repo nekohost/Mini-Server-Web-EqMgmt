@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.STYLES]
- * [EN rev.11]
+ * [EN rev.12]
  * [Role] Styles measured inline disclosures, synchronized input-adjacent status, themed lifecycle controls, viewport-fitted chat and requested file dialogs.
  * [Dependencies] Existing frame typography/theme, shared semantic colors and equipment_ai_polish.js's bounded layout measurement.
  * [Impact] Closed summaries share the reasoning row when they fit; status and open bodies reserve normal-flow space without covering input/chat controls, and lifecycle controls remain scoped to the assistant.
@@ -101,6 +101,17 @@
 #equipment-ai[data-disclosure-layout=flow] .ai-inline-disclosures{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;gap:4px 14px}
 #equipment-ai[data-disclosure-layout=flow] .ai-inline-disclosures .ai-control-support{flex:0 1 auto}
 #equipment-ai .ai-send{grid-column:3;grid-row:1;border:0;border-radius:10px;color:white;background:#087e78;width:var(--ai-control-height);height:var(--ai-control-height);flex-shrink:0;margin-left:auto;font-size:21px;font-weight:500}
+#equipment-ai .ai-send-actions{grid-column:3;grid-row:1;display:flex;align-items:center;gap:6px;min-width:0}
+#equipment-ai .ai-web-toggle{width:var(--ai-control-height);height:var(--ai-control-height);padding:2px;font-size:11px;line-height:1.2;white-space:normal;text-align:center}
+#equipment-ai .ai-web-toggle[aria-pressed=true]{border-color:var(--ai-semantic-ready);background:var(--ai-soft);color:var(--ai-semantic-ready);font-weight:650}
+#equipment-ai .ai-web-sources{margin:14px 0 0;padding:10px 12px;border:1px solid var(--ai-line);border-radius:10px;color:var(--ai-text);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+#equipment-ai .ai-web-sources summary{cursor:pointer;color:var(--ai-muted);font-weight:600}
+#equipment-ai .ai-web-sources ol{margin:8px 0 0;padding-left:22px}
+#equipment-ai .ai-web-sources li{padding:4px 0}
+#equipment-ai .ai-web-sources a{color:var(--ai-semantic-ready);text-decoration:underline;text-underline-offset:2px}
+#equipment-ai .ai-web-sources p{margin:4px 0;white-space:pre-wrap}
+#equipment-ai .ai-web-sources .ai-web-source-note{font-size:11px;color:var(--ai-muted)}
+#equipment-ai .ai-web-sources .ai-web-query{font-weight:600;margin-top:10px}
 #equipment-ai .ai-footnote{text-align:center;color:var(--ai-muted);font-size:12px;line-height:1.6;margin:10px 0;overflow-wrap:anywhere}
 #equipment-ai .ai-notice{font-size:12px;color:var(--ai-text);border-bottom:1px solid var(--ai-line);padding:10px 30px;background:var(--ai-soft)}
 #equipment-ai .ai-more-history{display:block;margin:10px auto;flex-shrink:0;font-size:11px}

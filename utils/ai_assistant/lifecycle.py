@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.LIFECYCLE]
-[EN rev.3]
+[EN rev.4]
 [Role] Adds owner-bound trash, title CAS receipts and content-free execution guards to AI v4.
 [Dependencies] Store's short BEGIN IMMEDIATE transactions; no equipment database or model connection.
 [Impact] Purging conversation content never frees an unconfirmed upstream request or deletes business/audit data.
@@ -11,6 +11,7 @@ import time
 import unicodedata
 
 from .policy import AssistantError, ERROR_REASONS, digest, opaque
+from .web_search import evidence_chars
 
 RETENTION_SECONDS = 30 * 86400
 ACTIVE_GUARDS = ('running', 'draining', 'recovery_required')
@@ -267,10 +268,10 @@ class LifecycleStore:
 
     def _purge_record(self, db, conv, operation_id, now):
         """[MINI-COMMENT: ASSISTANT.LIFECYCLE.PURGE]
-        [EN rev.1]
+        [EN rev.2]
         [Role] Deletes one conversation's content in FK order and charges its actual retained characters once.
         [Dependencies] Validated current row, AI writer, independent execution guards and storage ledger.
-        [Impact] Audit artifacts, business data, providers, keys, revocations and active guard occupancy survive.
+        [Impact] Actual search evidence is refunded with conversation content; audit artifacts, business data, providers, keys, revocations and active guard occupancy survive.
         """
         cid, owner, account_key = conv['id'], conv['owner'], conv['account_key']
         if db.execute('''SELECT 1 FROM messages m JOIN jobs j ON j.id=m.job
@@ -281,6 +282,7 @@ class LifecycleStore:
         removed = db.execute('SELECT COALESCE(SUM(length(content)+length(reasoning)),0) FROM messages WHERE conversation=?', (cid,)).fetchone()[0]
         removed += db.execute('SELECT COALESCE(SUM(handoff_chars),0) FROM jobs WHERE conversation=?', (cid,)).fetchone()[0]
         removed += db.execute('SELECT COALESCE(SUM(length(data)),0) FROM ai_task_drafts WHERE conversation=?', (cid,)).fetchone()[0]
+        removed += sum(evidence_chars(row[0]) for row in db.execute('SELECT context FROM jobs WHERE conversation=?',(cid,)))
         reserved = db.execute('SELECT COALESCE(SUM(reserved_chars),0) FROM jobs WHERE conversation=?', (cid,)).fetchone()[0]
         if used < removed:
             raise ValueError('assistant storage ledger does not cover purged content')

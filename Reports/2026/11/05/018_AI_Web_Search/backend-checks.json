@@ -1,0 +1,21 @@
+{
+  "staging": {
+    "tests": 230,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 45.185,
+    "fixture_digest": "1e082b4d7145e9fc9c3f85c8beb011e0e8aa1bf459e254d68682e2af7e1bb1f4"
+  },
+  "merged_root": {
+    "tests": 230,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 44.185,
+    "fixture_digest": "ba97909d4702a3b98c21f8b0bce877d0f1b68eeeaadf16dac03ff4cfb664f6b2"
+  },
+  "linux_python": "3.12.3",
+  "windows_app_imported": false,
+  "production_app_or_database_used": false
+}

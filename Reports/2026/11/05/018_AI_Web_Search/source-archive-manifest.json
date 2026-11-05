@@ -1,0 +1,115 @@
+{
+  "reviewed_at": "2026-11-05T08:43:21.075840+00:00",
+  "source_count": 18,
+  "archive_sha256": "68cb3f65b7945fa1451562cfdbe71bd933b0d665b52f42808e12b70eefc821ee",
+  "files": [
+    {
+      "path": "static/css/equipment_ai.css",
+      "original_path": "Staging/20261105-ai-web-search/static/css/equipment_ai.css",
+      "sha256": "3e293cc011a3ac4a3d3952a19088f905d5c9b513899b4f8a9eb06418c82fef55",
+      "bytes": 29910
+    },
+    {
+      "path": "static/js/equipment_ai.js",
+      "original_path": "Staging/20261105-ai-web-search/static/js/equipment_ai.js",
+      "sha256": "46ff81fed2bb39969f8331b737ffcc24ce99b2e5c14043932e6abd32ef88c4f9",
+      "bytes": 134524
+    },
+    {
+      "path": "static/js/equipment_ai_polish.js",
+      "original_path": "Staging/20261105-ai-web-search/static/js/equipment_ai_polish.js",
+      "sha256": "0f3310320300b77634b0d92bdc024e56c5f9d5c69eba19c214439b67db1ed697",
+      "bytes": 13612
+    },
+    {
+      "path": "static/js/equipment_ai_web_search.js",
+      "original_path": "Staging/20261105-ai-web-search/static/js/equipment_ai_web_search.js",
+      "sha256": "00d433de6daa1cc53b193d0313894ca83200e6065f9d921c7d4c9cf3ddb75e8d",
+      "bytes": 4943
+    },
+    {
+      "path": "templates/equipment_ai.html",
+      "original_path": "Staging/20261105-ai-web-search/templates/equipment_ai.html",
+      "sha256": "f124d838ac7085a946b700823f2e5223052a4bb6e572ff19c067744c3271f800",
+      "bytes": 11239
+    },
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "original_path": "Staging/20261105-ai-web-search/tests/run_assistant_fixture.py",
+      "sha256": "5ed7edf00690014e08f64e6e21f7ae63f81dc2b6b186a0f1508d56eca1061e95",
+      "bytes": 19023
+    },
+    {
+      "path": "tests/test_ai_web_search.py",
+      "original_path": "Staging/20261105-ai-web-search/tests/test_ai_web_search.py",
+      "sha256": "4bccaf4d3c90a793a2c7efc1e6ee37eea2cbd4cf47fe1fefdb8a7f84d7a1117a",
+      "bytes": 20023
+    },
+    {
+      "path": "tests/test_ai_web_search_ui.js",
+      "original_path": "Staging/20261105-ai-web-search/tests/test_ai_web_search_ui.js",
+      "sha256": "b822f29e0f37c73334c2df8d5f7d49601cf8c2ccdae32421588d067d94f4d83b",
+      "bytes": 7895
+    },
+    {
+      "path": "tests/web_search_browser_fixture.py",
+      "original_path": "Staging/20261105-ai-web-search/tests/web_search_browser_fixture.py",
+      "sha256": "3d894f1217db0d114c4b4b76b1fc01c35b639fbfbff46fd03844ab1745a56a24",
+      "bytes": 1340
+    },
+    {
+      "path": "tools/prepare_ai_web_search.py",
+      "original_path": "Staging/20261105-ai-web-search/tools/prepare_ai_web_search.py",
+      "sha256": "e7cec2b116f610451f580fd1ecac3a2a226895e15b503c56e0c113054cd10f2b",
+      "bytes": 3578
+    },
+    {
+      "path": "tools/requirements-web-search.lock",
+      "original_path": "Staging/20261105-ai-web-search/tools/requirements-web-search.lock",
+      "sha256": "89e5e3265b54de55f0313c4b8eea2266f2e29137ab03b489baec8b712f3b74e1",
+      "bytes": 1794
+    },
+    {
+      "path": "utils/ai_assistant/__init__.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/__init__.py",
+      "sha256": "4c663d8784247ec7d1e33de321d6d039b1f5e52225db27d3334a8f9e71ae63ce",
+      "bytes": 75964
+    },
+    {
+      "path": "utils/ai_assistant/context.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/context.py",
+      "sha256": "fa698ed0cab2cea9a7049c7f4ba7db0dbdcba27ce58ae4dba1f048cd01a6073b",
+      "bytes": 10060
+    },
+    {
+      "path": "utils/ai_assistant/domain.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/domain.py",
+      "sha256": "f96c8aa15b4f3669d194334deeb93939f31eb114ca9a310ada2d3f11563305e7",
+      "bytes": 28323
+    },
+    {
+      "path": "utils/ai_assistant/lifecycle.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/lifecycle.py",
+      "sha256": "c5805d7957eb6984b7623fabfbd5ef6389310baba028212266df5021bdbc0cd5",
+      "bytes": 38929
+    },
+    {
+      "path": "utils/ai_assistant/policy.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/policy.py",
+      "sha256": "710d132c45d60a8951b031e53162d4ffbbacc852084c331738155cfd2c11fd48",
+      "bytes": 22019
+    },
+    {
+      "path": "utils/ai_assistant/store.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/store.py",
+      "sha256": "9adf339e4449e423201e1edcab213b89f6ca213ff014c9a9674f397dcec2b3e9",
+      "bytes": 53556
+    },
+    {
+      "path": "utils/ai_assistant/web_search.py",
+      "original_path": "Staging/20261105-ai-web-search/utils/ai_assistant/web_search.py",
+      "sha256": "195c672378284cf975f0e98a07db175dd022b0963057f078d0645d4d2b67b262",
+      "bytes": 13591
+    }
+  ]
+}

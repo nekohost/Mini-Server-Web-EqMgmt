@@ -1,0 +1,91 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "9b7f1331033c87f33ccb86900027136454776d631ebd87f09f8b50b960beb527",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "view": "web-search",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "internet-default-off",
+        "external-query-disclosure-accessible",
+        "explicit-user-opt-in",
+        "opt-in-sent-with-turn",
+        "sources-default-collapsed",
+        "poll-ack-preserves-source-open-state-and-focus",
+        "source-version-ack-avoids-repeated-evidence",
+        "unsafe-protocol-and-private-IP-links-rejected",
+        "external-link-isolated-no-referrer",
+        "hostile-result-text-does-not-execute",
+        "answer-completion-preserves-citations",
+        "model-switch-keeps-current-citations"
+      ],
+      "error": "tool-model restored timed out",
+      "layout": {},
+      "geometry": {
+        "width": 390,
+        "height": 844,
+        "pageWidth": 390,
+        "pageHeight": 844,
+        "root": {
+          "left": 8,
+          "right": 382,
+          "top": 92,
+          "bottom": 835,
+          "width": 374,
+          "height": 743
+        },
+        "toggle": {
+          "left": 260,
+          "right": 304,
+          "top": 619.42,
+          "bottom": 663.42,
+          "width": 44,
+          "height": 44
+        },
+        "send": {
+          "left": 310,
+          "right": 354,
+          "top": 619.42,
+          "bottom": 663.42,
+          "width": 44,
+          "height": 44
+        },
+        "form": {
+          "left": 21,
+          "right": 369,
+          "top": 546.42,
+          "bottom": 825,
+          "width": 348,
+          "height": 278.58
+        },
+        "chat": {
+          "left": 9,
+          "right": 381,
+          "top": 213.34,
+          "bottom": 546.42,
+          "width": 372,
+          "height": 333.08
+        },
+        "fit": "fit"
+      },
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/018_AI_Web_Search/staging-web-search-initial-3/screen-000.png"
+    }
+  ],
+  "fixture_digest": "9b7f1331033c87f33ccb86900027136454776d631ebd87f09f8b50b960beb527"
+}

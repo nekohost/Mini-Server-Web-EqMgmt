@@ -1,0 +1,120 @@
+{
+  "runtime": "runtime-ddgs-9.6.1-primp-0.15.0",
+  "lock_sha256": "89e5e3265b54de55f0313c4b8eea2266f2e29137ab03b489baec8b712f3b74e1",
+  "queries": [
+    {
+      "query": "Python Flask official documentation",
+      "status": "ok",
+      "engine": "Yahoo",
+      "results": [
+        {
+          "number": 1,
+          "title": "Welcome to Flask — Flask Documentation (3.1.x)",
+          "url": "https://flask.palletsprojects.com/",
+          "snippet": "This section of the documentation explains the different parts of the Flask framework and how they can be used, customized, and extended. Beyond Flask itself, look for community-maintained extensions to add even more functionality."
+        },
+        {
+          "number": 2,
+          "title": "Quickstart — Flask Documentation (3.1.x)",
+          "url": "https://flask.palletsprojects.com/en/stable/quickstart/",
+          "snippet": "Flask provides a really simple way to give feedback to a user with the flashing system. The flashing system basically makes it possible to record a message at the end of a request and access it on the next (and only the next) request."
+        },
+        {
+          "number": 3,
+          "title": "Welcome to Flask — Flask Documentation (2.3.x)",
+          "url": "https://flaskx.readthedocs.io/en/latest/",
+          "snippet": "This section of the documentation explains the different parts of the Flask framework and how they can be used, customized, and extended. Beyond Flask itself, look for community-maintained extensions to add even more functionality."
+        },
+        {
+          "number": 4,
+          "title": "Flask Tutorial - GeeksforGeeks",
+          "url": "https://www.geeksforgeeks.org/python/flask-tutorial/",
+          "snippet": "Jun 30, 2026 · Covers creating and running a basic Flask app, understanding routes, HTTP methods, variables, redirects and basic configurations. Explains creating dynamic web pages using templates and managing static files like CSS, JavaScript and images."
+        },
+        {
+          "number": 5,
+          "title": "Flask Documentation (2",
+          "url": "https://flask-doc-pdf-gen.readthedocs.io/_/downloads/en/latest/pdf/",
+          "snippet": "This section of the documentation explains the different parts of the Flask framework and how they can be used, customized, and extended. Beyond Flask itself, look for community-maintained extensions to add even more functionality."
+        }
+      ],
+      "searched_at": "2026-11-05T08:41:39.014180+00:00",
+      "elapsed_seconds": 1.349,
+      "official_domain_found": true
+    },
+    {
+      "query": "삼성 갤럭시 S25 공식 사양",
+      "status": "ok",
+      "engine": "Yahoo",
+      "results": [
+        {
+          "number": 1,
+          "title": "삼성 갤럭시 S25 - 위키백과, 우리 모두의 백과사전",
+          "url": "https://ko.wikipedia.org/wiki/삼성_갤럭시_S25",
+          "snippet": "삼성 갤럭시 S25 (Samsung Galaxy S25 )는 삼성 전자 가 개발한 안드로이드 기반 플래그십 스마트폰으로, 갤럭시 S24 시리즈 의 후속작이며, 삼성 갤럭시 S 시리즈 에 속한다. [6][7][8] 2025년 1월 23일 한국 시간 새벽 3시에 미국 캘리포니아주 산호세에서 열린 갤럭시 언팩 행사에서 발표되었다. [9] 추가 모델인 S25 ..."
+        },
+        {
+          "number": 2,
+          "title": "삼성 갤럭시 S25 | S25+ | Galaxy AI | Samsung 대한민국",
+          "url": "https://www.samsung.com/sec/smartphones/galaxy-s25/",
+          "snippet": "한층 더 강력해진 ProVisual Engine 카메라, 맞춤형 프로세서, 오래 지속되는 배터리, 향상된 Galaxy AI를 탑재한 스마트폰 갤럭시 S 25 와 S 25 +를 만나보세요."
+        },
+        {
+          "number": 3,
+          "title": "스펙 | 삼성 갤럭시 S25 | S25+ | Samsung 대한민국",
+          "url": "https://www.samsung.com/sec/smartphones/galaxy-s25/specs/",
+          "snippet": "새로운 갤럭시 S 25 와 S 25 +의 세부 스펙을 확인해보세요. Galaxy AI, 색상, 카메라 기능, 강력한 프로세서, 배터리 등에 대해 확인할 수 있습니다."
+        },
+        {
+          "number": 4,
+          "title": "[삼성 스마트폰] 갤럭시 S25/S25+/S25 Ultra, 사양(스펙) 및 기능이 ...",
+          "url": "https://www.samsungsvc.co.kr/solution/3187302",
+          "snippet": "Oct 21, 2026 · 갤럭시 S 25 /S 25 +/S25 Ultra는 크기, 무게, 후면카메라, AP, 메모리, 저장공간, 배터리 용량, UWB, S펜 등에 차이가 있습니다. 아래 사양 (스펙) 표 보다 자세한 내용을 알고 싶으시면 삼성닷컴에서 확인해 보세요. ※ 제품 사양 의 경우 출시 국가에 따라 상이할 수 있습니다."
+        },
+        {
+          "number": 5,
+          "title": "갤럭시 S25 - 나무위키 [삼성 스마트폰] 갤럭시 S25 엣지, 사양(스펙) 및 기능이 궁금합니다. 갤럭시 S25/S25+/S25 Ultra, 사양 (스펙) 및 기능이 궁금합니다. - Sa...",
+          "url": "https://namu.wiki/w/갤럭시+S25",
+          "snippet": "GPU는 1.2 GHz Adreno 830 이, NPU는 Hexagon V79가 탑재되어 있다. 생산 공정은 TSMC N3E 공정이다. 삼성전자는 엑시노스 2400이 탑재된 갤럭시 S 24 대비 CPU 45% / GPU 48% / NPU 68%, 스냅드래곤 8 Gen 3 for Galaxy가 탑재된 S24와 비교 시 CPU 39% / GPU 25% / NPU 41% 성능 향상을 홍보하고 있다. Oct 22, 2026 · 갤럭시 S 25 엣지는 앞서 출시된 갤럭시 S 25 시리즈 대비 크기, 무게, 후면카메라, 배터리 등의 차이가 있습니다. 아래 사양 (스펙) 표 보다 자세한 내용을 알고 싶으시면 삼성닷컴에서 확인해 보세요. ※ 제품 사양 의 경우 출시 국가에 따라 상이할 수 있습니다. Feb 19, 2025 · 갤럭시 S 25 /S 25 +/S25 Ultra는 크기, 무게, 후면카메라, AP, 메모리, 저장공간, 배터리 용량, UWB, S펜 등에 차이가 있습니다. 아래 사양 (스펙) 표 보다 자세한 내용을 알고 싶으시면 삼성닷컴에서 확인해 보세요. ※ 제품 사양 의 경우 출시 국가에 따라 상이할 수 있습니다."
+        }
+      ],
+      "searched_at": "2026-11-05T08:41:40.702014+00:00",
+      "elapsed_seconds": 1.688,
+      "official_domain_found": true
+    },
+    {
+      "query": "서울시청 공식 홈페이지",
+      "status": "ok",
+      "engine": "Yahoo",
+      "results": [
+        {
+          "number": 1,
+          "title": "서울특별시청 - 홈페이지 (www.seoul.go.kr) - 대한민국 행정구역",
+          "url": "https://koreacity.infoflex.net/서울특별시청/",
+          "snippet": "Sep 24, 2026 · 서울특별시청 홈페이지 에서는 서울시의 행정 정보와 다양한 공공 서비스를 확인하거나 이용할 수 있습니다. 이 사이트는 서울 시민과 방문객을 위해 시정 운영 현황을 안내하고, 주택, 교통, 복지 등 다양한 분야의 정책 정보를 제공합니다."
+        },
+        {
+          "number": 2,
+          "title": "Official Website of the Seoul Metropolitan Government",
+          "url": "https://english.seoul.go.kr/",
+          "snippet": "The Official Website of Seoul. You can view a wealth of information about the city, including the main policies, history, culture, tourism, metropolitan experience, medical welfare, transportation, etc., along with an overall introduction to the city such as Seoul-related videos, photos, and map."
+        },
+        {
+          "number": 3,
+          "title": "서울소개 | 서울특별시",
+          "url": "https://www.seoul.go.kr/seoul/seoul.do",
+          "snippet": "인스타그램 유튜브 페이스북 엑스 블로그 카카오스토리 서울특별시 문의 전화번호 120, 120 다산콜재단 서울특별시청 04524 서울특별시 중구 세종대로 110 [찾아오시는 길] 대표전화: 02-120 또는 02-731-2120 (365일 24시간 운영/유료 유료 안내팝업 열기"
+        },
+        {
+          "number": 4,
+          "title": "Seoul Metropolitan Government - Official Website of the Seoul ...",
+          "url": "https://world.seoul.go.kr/",
+          "snippet": "The Official Website of Seoul. You can view a wealth of information about the city, including the main policies, history, culture, tourism, metropolitan experience, medical welfare, transportation, etc., along with an overall introduction to the city such as Seoul-related videos, photos, and map."
+        }
+      ],
+      "searched_at": "2026-11-05T08:41:42.117447+00:00",
+      "elapsed_seconds": 1.415,
+      "official_domain_found": true
+    }
+  ]
+}

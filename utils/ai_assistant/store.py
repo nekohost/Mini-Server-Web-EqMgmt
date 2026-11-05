@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.7]
+[EN rev.8]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
 [Impact] Keeps existing data and unknown-request locks; accepted output is never evicted to admit new input.
@@ -18,6 +18,7 @@ import uuid
 
 from .policy import (AssistantError, ERROR_REASONS, MAX_CONTENT, MAX_PROPOSALS, MAX_REASONING,
                      MAX_RECEIPT, OUTPUT_RESERVATION, TERMINAL, canonical, digest, mac, opaque)
+from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_meta(version INTEGER NOT NULL);
@@ -104,11 +105,10 @@ class Store(LifecycleStore):
             from .providers import migrate
             migrate(db)
             migrate_lifecycle(db, self.epoch)
-            db.execute("""INSERT OR IGNORE INTO storage_accounts(owner,account_key,used_chars)
-                SELECT c.owner,c.account_key,COALESCE(SUM(length(m.content)+length(m.reasoning)),0)
-                +COALESCE((SELECT SUM(j.handoff_chars) FROM jobs j JOIN conversations hc ON hc.id=j.conversation WHERE hc.owner=c.owner AND hc.account_key=c.account_key),0)
-                +COALESCE((SELECT SUM(length(d.data)) FROM ai_task_drafts d JOIN conversations dc ON dc.id=d.conversation WHERE dc.owner=c.owner AND dc.account_key=c.account_key),0)
-                FROM conversations c LEFT JOIN messages m ON m.conversation=c.id GROUP BY c.owner,c.account_key""")
+            missing=db.execute('''SELECT DISTINCT c.owner,c.account_key FROM conversations c
+                WHERE NOT EXISTS(SELECT 1 FROM storage_accounts a WHERE a.owner=c.owner AND a.account_key=c.account_key)''').fetchall()
+            for owner,account_key in missing:
+                self._account(db,owner,account_key)
             db.commit()
         except Exception:
             db.rollback()
@@ -205,10 +205,10 @@ class Store(LifecycleStore):
 
     def _account(self, db, owner, account_key):
         """[MINI-COMMENT: ASSISTANT.STORAGE.BUDGET]
-        [EN rev.1]
-        [Role] Reads the logical message-character ledger; reservations budget already admitted completion.
+        [EN rev.2]
+        [Role] Reads the logical message/source-character ledger; reservations budget already admitted completion.
         [Dependencies] The same AI writer transaction as every message mutation and terminal transition.
-        [Impact] Base 32M plus extension is explicit; internal snapshots/log bytes are not counted as messages.
+        [Impact] Base 32M plus extension is explicit; retained public search evidence is charged once while internal duplicate snapshots/log bytes are excluded.
         """
         row = db.execute('SELECT used_chars FROM storage_accounts WHERE owner=? AND account_key=?', (owner, account_key)).fetchone()
         if row is None:
@@ -216,6 +216,7 @@ class Store(LifecycleStore):
                 JOIN conversations c ON c.id=m.conversation WHERE c.owner=? AND c.account_key=?""", (owner, account_key)).fetchone()[0]
             used+=db.execute('SELECT COALESCE(SUM(j.handoff_chars),0) FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE c.owner=? AND c.account_key=?',(owner,account_key)).fetchone()[0]
             used+=db.execute('SELECT COALESCE(SUM(length(d.data)),0) FROM ai_task_drafts d JOIN conversations c ON c.id=d.conversation WHERE c.owner=? AND c.account_key=?',(owner,account_key)).fetchone()[0]
+            used+=sum(evidence_chars(row[0]) for row in db.execute('SELECT j.context FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE c.owner=? AND c.account_key=?',(owner,account_key)))
             db.execute('INSERT INTO storage_accounts VALUES(?,?,?)', (owner, account_key, used))
             return used
         return row[0]
@@ -270,16 +271,18 @@ class Store(LifecycleStore):
 
     def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.5]
+        [EN rev.7]
         [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Current owner auth, idempotency, rate/admission limits and base plus extension budget.
-        [Impact] Crossing the base does not discard generated results; insufficient remaining budget rejects new input, and durable manual-title markers prevent subsequent automatic title replacement.
+        [Impact] Opted-in search reserves 32K additional characters without changing the 32M base; insufficient budget rejects new input and durable manual-title markers protect renamed conversations.
         """
         with self.db(True) as db:
             conv=self.conversation(owner, cid, db, account_key)
             if purpose == 'chat' and db.execute("SELECT 1 FROM jobs WHERE conversation=?", (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
                 raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
             fingerprint = digest([cid, content, level, route['selection_id'], route['revision'], route.get('profile_revision'), purpose]) if route else digest([cid, content, level])
+            if route and route.get('web_search_allowed') is True:
+                fingerprint=digest([fingerprint,'web-search-opt-in-v1'])
             old = db.execute('SELECT j.id,j.input_hash,c.account_key FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=?', (owner, client_key)).fetchone()
             if old:
                 if old['account_key']!=account_key:
@@ -292,6 +295,7 @@ class Store(LifecycleStore):
                 if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose=='chat' and (not model['published'] or model['verified_revision']!=model['revision'])):
                     raise AssistantError('접수 중 모델 설정이 변경되었습니다. 모델을 다시 확인해 주세요.',409)
             now = time.time()
+            output_reservation=self.output_reservation+(SEARCH_RESERVATION if route and route.get('web_search_allowed') is True else 0)
             minute, day = db.execute('SELECT SUM(created>=?),COUNT(*) FROM jobs WHERE owner=? AND created>=?',
                                      (now-60, owner, now-86400)).fetchone()
             if (minute or 0) >= self.turn_limit_minute or day >= self.turn_limit_day:
@@ -300,7 +304,7 @@ class Store(LifecycleStore):
             used = self._account(db, owner, account_key)
             reserved = db.execute("""SELECT COALESCE(SUM(j.reserved_chars),0) FROM jobs j JOIN conversations c ON c.id=j.conversation
                 WHERE j.owner=? AND c.account_key=?""", (owner, account_key)).fetchone()[0]
-            if used + reserved + len(content) + self.output_reservation > self.history_limit + self.completion_reserve:
+            if used + reserved + len(content) + output_reservation > self.history_limit + self.completion_reserve:
                 raise AssistantError('보관 예산에서 답변을 끝까지 저장할 공간을 확보하지 못했습니다. 기존 기록은 보존됩니다. 관리자에게 추가 예산을 문의해 주세요.', 429)
             if shutil.disk_usage(self.path.parent).free < 128*1024*1024:
                 raise AssistantError('대화 저장 공간이 부족합니다. 기존 기록은 보존됩니다. 관리자에게 문의해 주세요.', 507)
@@ -323,7 +327,7 @@ class Store(LifecycleStore):
             db.execute("""INSERT INTO jobs(id,conversation,owner,client_key,input_hash,binding,expires,level,state,queue_order,
                 context,reserved_chars,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (jid, cid, owner, client_key, fingerprint, binding, expires, level, 'queued', order,
-                 canonical(history), self.output_reservation, now, now))
+                 canonical(history), output_reservation, now, now))
             db.execute('INSERT INTO messages(conversation,job,role,content,created) VALUES(?,?,?,?,?)', (cid, jid, 'user', content, now))
             db.execute('INSERT INTO messages(conversation,job,role,created) VALUES(?,?,?,?)', (cid, jid, 'assistant', now))
             if route:
@@ -401,8 +405,10 @@ class Store(LifecycleStore):
             jobs, cards = [], []
             if ids:
                 placeholders = ','.join('?' for _ in ids)
-                for row in db.execute('SELECT id,state,level,error,error_code,queue_order,created,steps,route_snapshot FROM jobs WHERE owner=? AND conversation=? AND id IN ('+placeholders+') ORDER BY created DESC', [owner, cid, *ids]):
+                for row in db.execute('SELECT id,state,level,error,error_code,queue_order,created,steps,route_snapshot,context FROM jobs WHERE owner=? AND conversation=? AND id IN ('+placeholders+') ORDER BY created DESC', [owner, cid, *ids]):
                     item = dict(row)
+                    item['web_searches']=public_searches(item.pop('context'))
+                    item['web_search_version']=len(item['web_searches'])
                     from .providers import public_source
                     item['source']=public_source(item.pop('route_snapshot'))
                     group=db.execute('SELECT resource_group FROM jobs WHERE id=?',(row['id'],)).fetchone()[0]
@@ -565,15 +571,17 @@ class Store(LifecycleStore):
 
     def finish(self, jid, token, state, error=None, context=None, error_code=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.FINISH]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Finalizes outcomes and releases only definitively terminated independent execution guards.
         [Dependencies] Current lease, authoritative response outcome and pending confirmations.
-        [Impact] Failed model responses cannot leave the app queue running or leave executable pending proposals.
+        [Impact] Failures stop pending work; cancelled/deleted jobs accept no late context and new search evidence consumes its reserved storage exactly once.
         """
         with self.db(True) as db:
             row = self.lease(db, jid, token)
-            if row['is_deleted']:
+            if row['is_deleted'] or row['cancel']:
                 context = None
+            if context is not None:
+                self._charge(db,row,evidence_chars(context)-evidence_chars(row['context']))
             if row['cancel'] and state != 'recovery_required':
                 error_code = row['error_code'] or error_code or 'USER_CANCELLED'
                 error = row['error'] or error

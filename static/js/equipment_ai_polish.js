@@ -1,4 +1,4 @@
-/* [MINI-COMMENT: ASSISTANT.POLISH] [EN rev.2]
+/* [MINI-COMMENT: ASSISTANT.POLISH] [EN rev.3]
  * [Role] Measures native disclosure space and synchronizes header/input status from the same server-confirmed connection/own-queue evidence.
  * [Dependencies] Existing assistant DOM, authenticated passive status API and assistant-status-context events from the chat controller.
  * [Impact] No chat/model/draft/scroll state or provider request is changed; late responses are discarded and all local observers/timers are disposed.
@@ -9,7 +9,7 @@
     let disposed = false;
     const cleanups = [];
 
-    /* [MINI-COMMENT: ASSISTANT.POLISH.DISCLOSURES] [EN rev.1]
+    /* [MINI-COMMENT: ASSISTANT.POLISH.DISCLOSURES] [EN rev.2]
      * [Role] Uses the real control/summary dimensions to choose two inline lines or a narrow/zoom fallback.
      * [Dependencies] Native details retain their original controls; open panels are positioned below the action row and reserve an equal-height spacer.
      * [Impact] Independent open states and focus survive resize; full-width bodies cannot cover the reasoning/send controls or following errors.
@@ -18,7 +18,7 @@
         const actions = root.querySelector('.ai-composer-actions');
         const group = root.querySelector('.ai-inline-disclosures');
         const level = root.querySelector('.ai-level-control');
-        const send = root.querySelector('#ai-send');
+        const send = root.querySelector('.ai-send-actions') || root.querySelector('#ai-send');
         const details = group ? Array.from(group.querySelectorAll('details')) : [];
         if (!actions || !group || !level || !send || !details.length) return () => {};
         let frame = null, stopped = false;

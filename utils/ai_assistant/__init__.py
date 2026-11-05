@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.5]
+[EN rev.6]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] Adds owner-bound rename and passive expiring status while preserving audit content, completion reservations and all worker boundaries.
@@ -31,6 +31,7 @@ from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
 from .status import read_status
+from .web_search import SearchService, WebSearchError, public_searches
 
 
 def enabled(value):
@@ -69,7 +70,7 @@ class PassiveSessionInterface(SecureCookieSessionInterface):
 
 def install_assistant(app, services):
     """[MINI-COMMENT: ASSISTANT.INSTALL]
-    [EN rev.5]
+    [EN rev.6]
     [Role] Wires disabled-by-default assistant, owner-authorized rename and passive status routes with injected application contracts.
     [Dependencies] A stable strong app secret, independent worker secret and explicit public origin.
     [Impact] Enabling upgrades the AI store and reparents only the verified admin menu while preserving business data/grants.
@@ -94,7 +95,8 @@ def install_assistant(app, services):
     is_enabled=enabled(app.config['USER_AI_ENABLED'])
     store=None
     registry=None
-    domain=Domain(connect,app.secret_key,services['get_maintenance_state'])
+    domain=Domain(connect,app.secret_key,services['get_maintenance_state'],
+        SearchService(app.root_path,enabled(os.getenv('USER_AI_WEB_SEARCH','true'))))
     if is_enabled:
         if not app.secret_key or len(app.secret_key)<32 or app.secret_key=='default_secret_key_if_not_found' or len(app.config['USER_AI_WORKER_TOKEN'])<32:
             raise ValueError('assistant requires independent strong server secrets')
@@ -399,6 +401,7 @@ def install_assistant(app, services):
             tools=[t['function']['name'] for t in domain.tools(actor) if enabled(app.config['USER_AI_WRITE_TOOLS']) or not t['function']['name'].startswith('prepare_')],
             scopes=(['my','draft'] if 'my_equipment' in actor['menus'] else [])+(['public'] if 'public_equipment' in actor['menus'] else []),
             writes=enabled(app.config['USER_AI_WRITE_TOOLS']),file_tools='my_equipment' in actor['menus'] and enabled(app.config['USER_AI_WRITE_TOOLS']),
+            web_search={'available':domain.search_service.available,'default':False,'engine':'Yahoo','notice':'웹 검색을 켜면 공개 검색어가 외부 검색 엔진으로 전송됩니다. 계정·인증·시리얼·비공개 메모를 넣지 마세요.'},
             storage=store.storage_status(actor['UserId'],actor['account_key']))
 
     @bp.get('/api/ai/models')
@@ -632,7 +635,7 @@ def install_assistant(app, services):
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
         actor=browser(True)
-        data=object_only(body(),('content','level','client_key','selection_id','reasoning_version'),('content','level','client_key'))
+        data=object_only(body(),('content','level','client_key','selection_id','reasoning_version','web_search'),('content','level','client_key'))
         content=text(data['content'],8000)
         if not isinstance(data['level'],str) or data['level'] not in (*LEVELS,DEFAULT_LEVEL):
             raise AssistantError('추론 수준을 확인해 주세요.')
@@ -640,6 +643,12 @@ def install_assistant(app, services):
             raise AssistantError('추론 설정 형식이 변경되었습니다. 화면을 새로고침해 주세요.',409)
         key=opaque(data['client_key'])
         route,level,conv=selected(actor,opaque(cid),opaque(data['selection_id']) if 'selection_id' in data else None,data['level'])
+        allow_search=data.get('web_search',False)
+        if type(allow_search) is not bool:
+            raise AssistantError('웹 검색 사용 여부는 true/false여야 합니다.')
+        if allow_search and (not domain.search_service.available or not route['profile'].get('tools')):
+            raise AssistantError('현재 서버 또는 선택한 모델에서 웹 검색을 사용할 수 없습니다.')
+        route['web_search_allowed']=allow_search
         jid=store.enqueue(actor['UserId'],opaque(cid),content,level,key,actor['binding'],time.time()+min(1800,app.permanent_session_lifetime.total_seconds()),actor['account_key'],route)
         return jsonify(success=True,job_id=jid),202
 
@@ -671,7 +680,8 @@ def install_assistant(app, services):
         actor=browser()
         try:
             ro,co=int(request.args.get('r','0')),int(request.args.get('c','0'))
-            if not 0<=ro<=100000 or not 0<=co<=64000:
+            search_version=int(request.args.get('w','-1'))
+            if not 0<=ro<=100000 or not 0<=co<=64000 or not -1<=search_version<=2:
                 raise ValueError()
         except ValueError:
             raise AssistantError('응답 위치가 올바르지 않습니다.') from None
@@ -692,8 +702,10 @@ def install_assistant(app, services):
             reasoning,content=msg['reasoning'][ro:ro+8192],msg['content'][co:co+8192]
             cards=[dict(r) for r in db.execute('SELECT id,job,operation,payload,before_json,state,result,expires FROM proposals WHERE job=? AND owner=? ORDER BY created',(jid,actor['UserId']))]
             answer_started=bool(db.execute("SELECT 1 FROM message_steps WHERE job=? AND content<>'' LIMIT 1",(jid,)).fetchone())
+            web_searches=public_searches(job['context'])
             position=db.execute("SELECT COUNT(*)+1 FROM jobs WHERE state='queued' AND resource_group=? AND queue_order<?",(job['resource_group'],job['queue_order'])).fetchone()[0] if job['state']=='queued' else None
         return jsonify(success=True,id=jid,state=job['state'],error=job['error'],error_code=job['error_code'],steps=job['steps'],generation=generation,position=position,
+            web_search_version=len(web_searches),web_searches=web_searches if search_version!=len(web_searches) else None,
             worker_stale=bool(job['heartbeat'] and job['state'] in ('running','draining') and time.time()-job['heartbeat']>45),
             message_id=msg['id'],reasoning=reasoning,content=content,r=ro+len(reasoning),c=co+len(content),
             content_length=len(msg['content']),reasoning_length=len(msg['reasoning']),proposals=cards,answer_started=answer_started,
@@ -773,12 +785,13 @@ def install_assistant(app, services):
             route['api_key']=registry.secret(route['credential'])
             route['legacy_worker_key']=route['credential']=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
-            tools=domain.tools(actor) if route['profile'].get('tools') else []
+            tools=domain.tools(actor,route.get('web_search_allowed') is True) if route['profile'].get('tools') else []
             if tools:
                 tools=[*tools,DRAFT_TOOL,TASK_DRAFT_TOOL]
             if not enabled(app.config['USER_AI_WRITE_TOOLS']):
                 tools=[t for t in tools if not t['function']['name'].startswith('prepare_')]
             system=SYSTEM+'\n서울 기준 오늘 날짜: '+datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
+            system+='\n현재 요청 웹 검색: '+('허용됨. 필요한 공개 정보는 web_search로 검색하세요.' if route.get('web_search_allowed') is True and domain.search_service.available else '꺼짐. 외부 웹 검색을 수행하거나 검색했다고 주장하지 마세요.')
             if not route['profile'].get('tools'):
                 system+='\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
             output_tokens=min(4096,max(512,route['context_tokens']//4))
@@ -976,6 +989,10 @@ def install_assistant(app, services):
                 else:
                     validate_schema(args,allowed[name]['parameters'])
                 prepared.append((cid,name,arguments,args))
+            if sum(name=='web_search' for _,name,_,_ in prepared)>1:
+                raise AssistantError('웹 검색은 한 단계에 한 번씩 요청해 주세요.')
+            # Search failure must occur before even preparing an unrelated business confirmation card.
+            prepared.sort(key=lambda item: item[1]!='web_search')
             context=json.loads(job['context'])
             content=stream_text(data.get('content',''),MAX_CONTENT)
             code='PROCESSING_FAILED'
@@ -1031,7 +1048,10 @@ def install_assistant(app, services):
                 if guarded is not None:
                     return jsonify(success=True,state=guarded)
             reason=ERROR_REASONS[code]
-            if isinstance(error,(AssistantError,InputError,LineupNodeError)):
+            if isinstance(error,WebSearchError):
+                code=error.code
+                reason=str(error)
+            elif isinstance(error,(AssistantError,InputError,LineupNodeError)):
                 reason+=' '+str(error)
             app.logger.warning('assistant stopped job=%s code=%s type=%s',jid,code,type(error).__name__)
             state=store.finish(jid,data['lease'],'failed' if known else 'recovery_required',reason,error_code=code)
