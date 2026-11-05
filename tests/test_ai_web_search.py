@@ -98,6 +98,17 @@ class SearchSafetyTests(unittest.TestCase):
         self.assertEqual(len(public_searches(canonical(context))),1)
         self.assertEqual(public_searches('malformed'),[])
 
+    def test_maximum_escaped_result_json_fits_reserved_search_budget(self):
+        """[Dependencies] Actual SearchService projection/canonical JSON and bounded two-search contract. [Impact] Valid hostile text cannot exceed the admitted source budget through JSON escaping."""
+        service=SearchService(Path('/synthetic'))
+        raw=[{'title':'"\\'*90,'url':'https://example.org/'+str(i)+'"'*1470,'snippet':'"\\'*350} for i in range(5)]
+        output=json.dumps({'results':raw}).encode()
+        with patch.object(SearchService,'available',new_callable=PropertyMock,return_value=True),patch('utils.ai_assistant.web_search.subprocess.run',return_value=SimpleNamespace(returncode=0,stdout=output)):
+            first=service.search('Q'*300);second=service.search('R'*300)
+        self.assertEqual(len(first['results']),5);self.assertEqual(len(first['results'][0]['snippet']),700)
+        retained=len(canonical(first))+len(canonical(second))
+        self.assertGreater(retained,32000);self.assertLessEqual(retained,SEARCH_RESERVATION)
+
 
 class WebSearchIntegrationTests(unittest.TestCase):
     """[Role] Uses real signed browser/worker routes and synthetic SQLite with no external model/search."""

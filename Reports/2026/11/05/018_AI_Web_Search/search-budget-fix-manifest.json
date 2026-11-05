@@ -1,0 +1,21 @@
+{
+  "files": [
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "sha256": "5ed7edf00690014e08f64e6e21f7ae63f81dc2b6b186a0f1508d56eca1061e95"
+    },
+    {
+      "path": "tests/test_ai_web_search.py",
+      "sha256": "0d245b19a01b511f49f7eaf2b9a6b0238c5aa637dc6ba399320e9f64e9cd4b89"
+    },
+    {
+      "path": "utils/ai_assistant/store.py",
+      "sha256": "889977ba59892b55b0f521c3e0a7c6a9ec0b0472e3de73b9966158973a35511e"
+    },
+    {
+      "path": "utils/ai_assistant/web_search.py",
+      "sha256": "900c78fb6e939119c2ab59fd3ceecf8ae904a75049a8b9dc1012d27f366cb2ca"
+    }
+  ],
+  "archive_sha256": "bb2f63dc9dda4a41d4035ba394cdc84894390d0db5a88c1e748317fb20b27a2f"
+}

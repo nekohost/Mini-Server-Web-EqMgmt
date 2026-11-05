@@ -71,3 +71,40 @@ private 서버 백업 경로는 `/home/nekohost/services/Mini-Server-Web-EqMgmt/
 실행 commit `97fe899bba8fbd8f09cf209779a93341647abb87`를 push한 뒤 retention timer를 잠시 정지하고 cleanup의 자연 종료/active0을 재확인했다. 이전 own web/worker만 정상 종료하고 같은 commit을 pull했다. 새 프로세스의 실제 DB 사본 검사에서 업무18개·AI17개 테이블과 기존 감사/삭제 원장을 보존했다. v4 유지·비밀 유지·기존 행 대조 후8:48:57UTC NORMAL로 재개했고 own web PID907570,worker/timer active를 확인했다.
 
 일반 계정 test05에서 기본 off인 버튼을 켜 공개 Flask 문서 질문을 보냈다. 실제 Qwen 모델은 `web_search`를 호출했고 Yahoo5건·공식 Pallets 출처와 `[1]` 인용 답변을 완료했다. 운영 화면의 실제 목록 스타일에서 **출처 번호가 공통 list reset에 가려지는 문제**가 보였다. 첫 실제 화면을 보존하고 CSS의 decimal/outside를 명시했다. 같은 Staging에 CSS/driver/harness3개만 재구성해8화면168개 검사(번호 스타일 포함)를 통과했다. 후속 ZIP/SHA와 root 동일성을 확인하고 이3개 후보를 다시 정리했다. 실행 Python/worker 변경이 없으므로 이 후속은 검증한 정적 자산만 fast-forward하고 실제 화면 reload로 검사하며 정상 작업자를 반복 재시작하지 않는다.
+
+후속 commit `602972a4198cb1d93b9bdbd777e1d892995a0e2c`를 같은 서버에 fast-forward했다. source18개·공개 CSS HTTP SHA가 맞고 web PID907570/worker PID907580은 그대로다. 실제 AX에 출처1~5의 list marker와 브라우저 computed decimal을 확인했다. 추가 실행 변경은 없으며 마지막 완료 문서 commit도 동일 방식으로 동기화한다.
+
+## 실제 검색·화면·보존 결과
+
+실제 요청 `Flask의 공식 문서를 웹 검색으로 찾아 주요 용도를 두 문장으로 설명하고 출처를 알려주세요.`는 test05/user·Qwen3.8 Flash Next/off로 **13.232초·2단계·완료**됐다. 실제 도구는 `web_search`1회,질의 `Flask official documentation`,검색 결과5건과 첫 공식 출처 `https://flask.palletsprojects.com/`를 반환했다. 생성 답변에는 `[1]`과 공식 문서/출처 목록 안내가 있고 검색 요약에 근거한 주요 용도2문장을 제공했다. 별도 장비 변경 proposal0,오류 없음,guard released,예약 문자0이다. 출처 JSON2,117자가 정확히 사용량에 포함됐으며 본인 전체 보관 원장과 실제 메시지/인계/초안/검색량 합계가 일치한다. 이13.232초는 짧은 질문1회의 접수→완료이며 일반 모델 성능이나 검색 전용 지연으로 확대하지 않는다.
+
+실제 추가 데이터는 검증 대화1개·메시지2개·job1개·이름 변경 영수증1개다. 제목은 `운영 검증 · 웹 검색과 출처`로 정리했다. reload 후 답변·출처5건·제목이 복원되고 웹 검색은 off로 재시작했다. 모델 변경/취소/검색 오류/휴지통/위험 링크는 합성19개와 UI에서 검증했으며 운영 오류/삭제를 인위적으로 만들지 않았다.
+
+| 실제 운영 화면 | 결과 |
+|---|---|
+| PC1440×1000 기본/출처 펼침 | 문서1440×1000,fit,채팅674.656px. 검색/보내기36px,실제 번호·HTTPS 출처 확인 |
+| 모바일390×844 기본/출처 펼침 | 문서390×844,fit,채팅458.266px. 검색/보내기44px,제목·native 출처·테마 스크롤 유지 |
+| 지속성/안전 표시 | 검색 기본 off·5건 복원·decimal 번호·no-referrer/새 탭 링크·콘솔 error0 |
+
+최종 [PC 답변](018_AI_Web_Search/production-desktop-collapsed-final.jpg),[PC 출처](018_AI_Web_Search/production-desktop-expanded-final.jpg),[모바일 답변](018_AI_Web_Search/production-mobile-collapsed.jpg),[모바일 검색어/출처](018_AI_Web_Search/production-mobile-sources-final.jpg)를 직접 검토했다. 번호 수정 전 원본 이미지는 별도 이름으로 보존했다. viewport override를 해제하고 일반 계정의 검토 탭을 남겼다. 실제 화면은 시스템 다크,라이트/다크/320~1440px 전수는 합성 범위이며 실물 모바일 터치/키보드/모든 모델의 도구 사용은 검증 완료로 주장하지 않는다.
+
+서버와 현재 PC의 private 경로에 정지 시점의 업무/AI DB·환경·unit·process·기존 원본 source/사본 결과19개를 보존하고 SHA를 일치시켰다. 첫 전체 전송은 중복 DB/소스 압축 때문에45초 전송 제한에 걸렸고, 이후 정지 DB/설정·결과만 전송했다. Windows에서 재생성한 Git tar는 CRLF 영향으로 원본 tar와 달라 byte-identical 백업으로 사용하지 않았으며 Linux 원본 tar를 별도로 전송해 SHA를 맞췄다. 원문을 덮거나 지우지 않았다. [private 사본 확인](018_AI_Web_Search/private-backup-verification.json).
+
+운영은 NORMAL,worker/timer active,active/orphan 요청0,anon login200/assistant302/capabilities401/admin302다. `.env`/worker.env 바이트 SHA는 이전과 같다. 실제 사본의 업무18개·AI17개/감사/삭제 보존과 접수 재개 전 기존 행 대조는 release helper에서 통과했다. 기존 실패 요청은 `failed/STREAM_INCOMPLETE`로 보존하며 정상 성공으로 바꾸지 않았다. [실제 요청·서비스/사본](018_AI_Web_Search/production-verification.json),[소스/HTTP](018_AI_Web_Search/production-source-verification.json),[실제 UI 기하](018_AI_Web_Search/production-ui-verification.json).
+
+## 사후 Validation1~8
+
+1. 거버넌스: 사용자 명시 승인 안에서 계획→Staging→검증→원문/SHA→root→운영을 수행했다. 018의 후보18개와 후속3개만 정리했고 기존9개 dirty는 보존했다.
+2. 의도: 장비관리 AI에 공개 웹 검색과 출처를 가산하고 운영 일반 사용자 요청까지 확인했다. 기존 장비 업무/확인·관리자/사용자 범위는 유지했다.
+3. 논리: backend230개를 Staging/merged root에서 각각 통과했고,최종 검색 UI8화면168개와 기존 UI4화면642개를 확인했다. 취소 후 늦은 출처·보관 원장·번호 reset 문제를 수정했다.
+4. 운영: isolated hash-locked runtime·정확한 commit·own idle 전환·실제 DB 사본을 확인했고 static 후속에는 재시작을 반복하지 않았다. 정상 LLM 생성의 전역 시간 제한은 추가하지 않았다.
+5. 보안: opt-in snapshot·actor/CSRF/lease·공개 키워드/알려진 비공개 값·위험 URL·신뢰 구분/확인을 검증했다. 임의 fetch/셸·키 전달이 없으며 자연어 지침을 완전한 방어로 주장하지 않는다.
+6. 복구: private 원본 DB/설정/소스를 양쪽에 보존했다. 최신 대화/삭제·감사 원장을 과거 DB로 덮지 않으며 실패 기록/배포 중 오류도 보존했다.
+7. UX: 기본 off·간단한 버튼·이유 있는 비활성/실패·source 접기/번호/새 탭·reload·PC/모바일을 확인하고 실제 발견한 번호 표시를 보완했다.
+8. 메타: 실제 검색/합성·검색 요약/원문 열람·짧은 요청 시간/일반 성능을 구분했다. 외부 Yahoo HTML 검색은 차단/변경/품질 편차가 있고 다른 API/유료 SLA/웹페이지 탐색을 제공한 것으로 확대하지 않는다.
+
+현재 명세는 FEATURES21·운영 안내·원장018에 기록한다. FEATURES19/ROADMAP017의 당시 web_search 보류 기록은 역사로 보존하고 이번018에서 완료로 갱신한다. 기존 WebMCP037·AI-TECHDEBT-001 등 별도 보류는 이번 작업으로 완료 처리하지 않는다.
+
+## 최종 JSON 보관 경계 보강
+
+최종 정적 검토에서 제목/요약/URL의 JSON escape가 문자 저장량을 늘릴 수 있음을 확인했다. 실제 SearchService의 최대5건을2회 모의한 경계 검사를 추가했고,32K 예약에서 **48,764자 >32,000자 실패**를 재현했다. 결과를 줄이거나 정답 기준을 완화하지 않고 검색 예약만64K로 늘렸다. 기본32M/확장32M와 실제2,117자 사용량 계산은 그대로이며 사용하지 않은 예약은 완료 시 해제된다. 이 추가 검사를 포함해 Staging231개·오류0/실패0/skip0,43.974초를 확인했다. 후보4개의 ZIP/SHA·root 동일성을 보존하고 해당 후보만 정리했다. 이 뒤 merged-root 재검증·같은 idle 백업/배포·실제 확인을 수행한다. 앞선32K 설명과230개 결과는 당시 이력이고 최종 계약은64K/231개다.

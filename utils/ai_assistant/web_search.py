@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.SEARCH] [EN rev.1]
+"""[MINI-COMMENT: ASSISTANT.WEB.SEARCH] [EN rev.2]
 [Role] Executes opt-in public searches in a fixed, isolated Yahoo-only runtime and projects bounded citation data.
 [Dependencies] A separately hash-locked DDGS/primp virtualenv, stdlib subprocess and owner-authorized dispatch.
 [Impact] No model-selected origin, URL fetch, cookie, proxy or application secret enters the child; an eight-second search deadline never cancels an LLM request. Results remain untrusted evidence, not instructions.
@@ -16,7 +16,8 @@ from urllib.parse import unquote, urlsplit
 RUNTIME_NAME = 'runtime-ddgs-9.6.1-primp-0.15.0'
 MAX_SEARCHES = 2
 MAX_RESULTS = 5
-SEARCH_RESERVATION = 32000
+# JSON quoting can double bounded titles/URLs/snippets; preserve both full accepted envelopes.
+SEARCH_RESERVATION = 64000
 MAX_QUERY = 300
 SEARCH_DEADLINE = 8
 PRIVACY_MESSAGE = '검색어에 계정·인증·연락처 또는 비공개 장비 정보가 포함될 수 있어 웹 검색을 중단했습니다. 공개 제품명이나 일반 키워드로 다시 요청해 주세요.'

@@ -17,5 +17,27 @@
   },
   "linux_python": "3.12.3",
   "windows_app_imported": false,
-  "production_app_or_database_used": false
+  "production_app_or_database_used": false,
+  "final_staging": {
+    "tests": 231,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 43.974,
+    "fixture_digest": "b51d5aaa3ba4f0f1541736b0df279df085cc9252207f3d49550305feff4110dd"
+  },
+  "final_merged_root": {
+    "tests": 231,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 44.167,
+    "fixture_digest": "ac1211475fde4dbbfd295a4c2407ca527bfa555e5dd31f98349254636d352a03"
+  },
+  "escaped_evidence_regression": {
+    "old_reservation": 32000,
+    "valid_json_chars": 48764,
+    "final_reservation": 64000,
+    "result": "pass"
+  }
 }

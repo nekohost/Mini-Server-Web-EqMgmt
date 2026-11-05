@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.8]
+[EN rev.9]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
 [Impact] Keeps existing data and unknown-request locks; accepted output is never evicted to admit new input.
@@ -271,10 +271,10 @@ class Store(LifecycleStore):
 
     def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.7]
+        [EN rev.8]
         [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Current owner auth, idempotency, rate/admission limits and base plus extension budget.
-        [Impact] Opted-in search reserves 32K additional characters without changing the 32M base; insufficient budget rejects new input and durable manual-title markers protect renamed conversations.
+        [Impact] Opted-in search reserves 64K additional characters including JSON escaping without changing the 32M base; insufficient budget rejects new input and durable manual-title markers protect renamed conversations.
         """
         with self.db(True) as db:
             conv=self.conversation(owner, cid, db, account_key)

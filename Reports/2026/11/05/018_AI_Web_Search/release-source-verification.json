@@ -7,7 +7,7 @@
     "static/js/equipment_ai_web_search.js": "00d433de6daa1cc53b193d0313894ca83200e6065f9d921c7d4c9cf3ddb75e8d",
     "templates/equipment_ai.html": "f124d838ac7085a946b700823f2e5223052a4bb6e572ff19c067744c3271f800",
     "tests/run_assistant_fixture.py": "5ed7edf00690014e08f64e6e21f7ae63f81dc2b6b186a0f1508d56eca1061e95",
-    "tests/test_ai_web_search.py": "4bccaf4d3c90a793a2c7efc1e6ee37eea2cbd4cf47fe1fefdb8a7f84d7a1117a",
+    "tests/test_ai_web_search.py": "0d245b19a01b511f49f7eaf2b9a6b0238c5aa637dc6ba399320e9f64e9cd4b89",
     "tests/test_ai_web_search_ui.js": "0bcf5e8ed95cebdd1badb939720f7ec6c64305eaa0d3fa74092a813dc29f75b8",
     "tests/web_search_browser_fixture.py": "3d894f1217db0d114c4b4b76b1fc01c35b639fbfbff46fd03844ab1745a56a24",
     "tools/prepare_ai_web_search.py": "e7cec2b116f610451f580fd1ecac3a2a226895e15b503c56e0c113054cd10f2b",
@@ -17,8 +17,8 @@
     "utils/ai_assistant/domain.py": "f96c8aa15b4f3669d194334deeb93939f31eb114ca9a310ada2d3f11563305e7",
     "utils/ai_assistant/lifecycle.py": "c5805d7957eb6984b7623fabfbd5ef6389310baba028212266df5021bdbc0cd5",
     "utils/ai_assistant/policy.py": "710d132c45d60a8951b031e53162d4ffbbacc852084c331738155cfd2c11fd48",
-    "utils/ai_assistant/store.py": "9adf339e4449e423201e1edcab213b89f6ca213ff014c9a9674f397dcec2b3e9",
-    "utils/ai_assistant/web_search.py": "195c672378284cf975f0e98a07db175dd022b0963057f078d0645d4d2b67b262"
+    "utils/ai_assistant/store.py": "889977ba59892b55b0f521c3e0a7c6a9ec0b0472e3de73b9966158973a35511e",
+    "utils/ai_assistant/web_search.py": "900c78fb6e939119c2ab59fd3ceecf8ae904a75049a8b9dc1012d27f366cb2ca"
   },
-  "citation_followup": "CSS-only production asset; Python/application runtime unchanged"
+  "search_budget_fix": 64000
 }
