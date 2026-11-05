@@ -1,0 +1,13 @@
+{
+  "created_at": "2026-11-05T09:49:24.221578+00:00",
+  "candidate": "Staging/20261105-ai-recovery",
+  "files": {
+    "static/css/equipment_ai.css": "9faf986ca819e25259e0125d8003cb1647dd5a0f55abdc10fb4fc9ed81001abd",
+    "static/js/equipment_ai.js": "cb81df99695ef1b94460611596af3e841f722729647a6740d39e0939684f7dbc",
+    "templates/equipment_ai.html": "8318c3fce91f33c9b1d4130b2f2f2e75c859ee5f8a3b9ad60a1373655b278062",
+    "tests/recovery_browser_fixture.py": "8364a2df88c4c01075463a7bb207174a9338f62060e8d915a8b06d0ce28b8cd8",
+    "tests/run_assistant_fixture.py": "d5c45a248861ab4633c8a7ff604f5d50390459bdf5eebef5d74ee7471b071893",
+    "tests/test_ai_recovery_ui.js": "43eadedc38ae693445b9437b23ede6e652433591eec536d0a7372fb2863c0e52"
+  },
+  "archive_sha256": "36c28657ecd58d94b9bb5c5e8e16fec3a433392d299090b91e41779559892a2e"
+}

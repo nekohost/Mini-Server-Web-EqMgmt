@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.18]
+ * [EN rev.19]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
- * [Impact] Actual frame geometry controls height only when minimum content space fits; resizing preserves reader/model/request state. Fixed file links, stale-preview isolation, explicit writes and independent lifecycle/notice recovery remain intact.
+ * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request.
  */
 (function () {
     'use strict';
@@ -241,6 +241,13 @@
         const root = document.getElementById('equipment-ai');
         if (!root) return;
         const $ = id => document.getElementById(id);
+        // Cached server templates may precede these static assets during an idle-safe hot deployment.
+        if (!$('ai-refresh-state')) {
+            const refreshState = document.createElement('button');
+            refreshState.id = 'ai-refresh-state'; refreshState.type = 'button'; refreshState.className = 'ai-button'; refreshState.hidden = true;
+            refreshState.textContent = '상태 다시 확인'; refreshState.title = '이 대화의 현재 요청 상태를 다시 확인합니다. 요청을 다시 보내거나 종료하지 않습니다.';
+            $('ai-progress').append(refreshState);
+        }
         const csrf = root.dataset.csrf;
         const disposeViewport = fitViewport(root);
         const nodes = new Map(), streams = new Map(), cards = new Map(), presenters = new Map();
@@ -248,7 +255,7 @@
         const uncertainLifecycle = new Map();
         const trashSelection = new Set();
         const terminal = new Set(['done', 'failed', 'cancelled', 'waiting_confirmation']);
-        let conversation = null, activeJob = null, timer = null, disposed = false, polling = false;
+        let conversation = null, activeJob = null, timer = null, disposed = false, polling = null;
         let selection = 0, requestKey = null, csvToken = null, retryDelay = 1500, accountContext = null, identityTimer = null, checkingIdentity = false;
         let historyView = 'active', conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
         let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
@@ -364,6 +371,7 @@
                 button.disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || uncertainLifecycle.has(button.dataset.conversationId);
             });
             $('ai-cancel').disabled = locked;
+            $('ai-refresh-state').disabled = locked || syncingLifecycle || openingConversation;
             $('ai-lifecycle-reconcile').hidden = !uncertainLifecycle.size;
             $('ai-lifecycle-reconcile').disabled = lifecycleBusy || syncingLifecycle;
             const trashText = conversationView === 'trash' && conversationMeta ? `휴지통의 대화입니다. 읽기 전용이며 ${lifecycleDate(conversationMeta.purge_after)}에 보관이 만료됩니다. 이동한 시각부터 30일 동안 보관하며, 만료 시점부터 열람과 복구가 제한됩니다. 취소된 요청과 작업은 복구해도 다시 실행되지 않습니다.` : '';
@@ -867,16 +875,21 @@
             cards.set(proposal.id, { element: card, version });
         }
 
-        /** [Role] Displays only app-local queue position and observable own-request progress. */
+        /** [Role] Retains original failure causes and distinguishes unknown execution from confirmed terminal state. */
         function progress(job) {
             publishStatusContext();
             const states = { queued: `장비관리 요청 대기 · 내부 순서 ${job.position || '확인 중'}`, running: '응답을 기다리거나 생성하고 있습니다.',
                 draining: '작업 중단됨 · 이 요청의 응답 종료를 확인하고 있습니다.', recovery_required: '작업 중단됨 · 이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요.',
                 waiting_confirmation: '변경할 내용을 확인해 주세요.', failed: '작업 중단됨 · 응답을 완료하지 못했습니다.', cancelled: '작업을 중단했습니다. 이미 적용된 결과는 유지됩니다.', done: '' };
-            const explanation = ['failed','cancelled','draining','recovery_required'].includes(job.state) && job.error ? ' ' + job.error : '';
-            $('ai-progress').hidden = !states[job.state]; $('ai-progress-text').textContent = (job.worker_stale && job.state === 'running' ? '처리 작업자의 연결 상태를 확인하고 있습니다.' : states[job.state] || '') + explanation;
+            const confirmedIncomplete = job.state === 'failed' && job.error_code === 'STREAM_INCOMPLETE';
+            // Only the obsolete instruction is superseded in the UI; stored failure/audit text is untouched.
+            const cause = confirmedIncomplete ? job.error?.replace(/ 이전 요청의 종료 확인이 필요합니다\.$/u, '') : job.error;
+            const explanation = ['failed','cancelled','draining','recovery_required'].includes(job.state) && cause ? ' ' + cause : '';
+            const recovered = confirmedIncomplete ? ' 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다.' : '';
+            $('ai-progress').hidden = !states[job.state]; $('ai-progress-text').textContent = (job.worker_stale && job.state === 'running' ? '처리 작업자의 연결 상태를 확인하고 있습니다.' : states[job.state] || '') + explanation + recovered;
             const busy = !terminal.has(job.state);
             $('ai-cancel').hidden = !['queued','running'].includes(job.state);
+            $('ai-refresh-state').hidden = !['draining','recovery_required','failed'].includes(job.state);
             $('ai-send').disabled = busy || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy;
             $('ai-input').disabled = readOnly() || lifecycleBusy;
             $('ai-progress').querySelector('.ai-pulse').hidden = !['queued','running'].includes(job.state);
@@ -995,7 +1008,11 @@
             modelControls();
         }
 
-        /** [Role] Revalidates server lifecycle metadata on return/reconnect and replaces only a changed selected chat. */
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.RECOVERY] [EN rev.1]
+         * [Role] Reconciles lifecycle and a confirmed terminal state of the exact locally active job.
+         * [Dependencies] Fresh owner-authenticated snapshot, current selection and existing full-message hydration.
+         * [Impact] Unknown/missing jobs stay locked; no cancellation, execution ACK or inference replay is performed.
+         */
         async function refreshLifecycle() {
             if (disposed || syncingLifecycle || lifecycleBusy || openingConversation) return;
             syncingLifecycle = true; lifecycleControls();
@@ -1004,8 +1021,11 @@
                 if (cid) {
                     const current = await readLifecycle(cid);
                     if (selected !== selection || disposed) return;
+                    const confirmedJob = current?.result.jobs.find(job => job.id === activeJob && terminal.has(job.state));
                     if (!current) { clearConversation(); notice('이 대화는 현재 열 수 없습니다. 목록을 갱신했습니다.'); }
-                    else if (current.view === conversationView && current.result.conversation.title !== conversationMeta?.title &&
+                    else if (confirmedJob && current.view === conversationView && current.result.conversation.lifecycle_revision === conversationMeta?.lifecycle_revision) {
+                        await open(cid, current.view, { preserveReader: true, result: current.result, refreshList: false });
+                    } else if (current.view === conversationView && current.result.conversation.title !== conversationMeta?.title &&
                         current.result.conversation.deleted_at === conversationMeta?.deleted_at && current.result.conversation.purge_after === conversationMeta?.purge_after &&
                         (!activeJob || current.result.jobs.some(job => job.id === activeJob && !terminal.has(job.state)))) {
                         applyRenameMetadata(current.result.conversation);
@@ -1365,6 +1385,7 @@
          * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs and message nodes, while the compact heading exposes the complete selected title.
          */
         async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true } = {}) {
+            const retainedSearch = preserveReader && conversation === cid && conversationView === view && webSearchAllowed;
             if (conversation !== cid || conversationView !== view) resetFileWorkspace();
             const pane = $('ai-scroll');
             const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
@@ -1376,7 +1397,7 @@
             const result = loaded || await api(`/api/ai/conversations/${cid}/messages?view=${view}`);
             if (selected !== selection || disposed) return;
             conversationMeta = result.conversation; conversationView = result.conversation.is_deleted ? 'trash' : view;
-            conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null; webSearchAllowed = false;
+            conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null; webSearchAllowed = retainedSearch;
             unattributedSelection = !result.conversation.selection_id;
             modelId = result.conversation.selection_id || defaultModel;
             modelRevision = result.conversation.selection_revision || 0;
@@ -1418,15 +1439,15 @@
         function schedule(delay = 1500) { clearTimeout(timer); if (!disposed && activeJob && !readOnly()) timer = setTimeout(poll, document.hidden ? Math.max(5000, delay) : delay); }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.STREAM]
-         * [EN rev.6]
+         * [EN rev.7]
          * [Role] Accepts original deltas immediately and paces only the visible prefixes.
-         * [Dependencies] Server generation/code-point cursors and disposable snapshot presenters.
+         * [Dependencies] Server generation/code-point cursors, selection/job-owned poll tokens and disposable snapshot presenters.
          * [Impact] Automatic close occurs once per turn; selected text, table scroll and manual reopening survive updates, remotely trashed chats stop polling, and a completed explicit new-chat action releases every composer/model lock. Model-setting/inventory errors own their notices so unrelated successful work cannot erase them.
          */
         async function poll() {
-            if (polling || !activeJob || disposed || readOnly()) { schedule(); return; }
-            polling = true;
+            if (polling?.job === activeJob && polling.selected === selection || !activeJob || disposed || readOnly()) { schedule(); return; }
             const jid = activeJob, selected = selection;
+            const token = { job: jid, selected }; polling = token;
             try {
                 const previous = streams.get(jid) || { messageId: null, reasoning: '', content: '', r: 0, c: 0, generation: 0, answerStarted: false };
                 const result = await api(`/api/ai/jobs/${jid}?r=${previous.r}&c=${previous.c}&v=${previous.generation}&w=${previous.webSearchVersion ?? -1}`);
@@ -1449,7 +1470,7 @@
                     if ([404,409,410].includes(error.status)) { await refreshLifecycle(); if (selected !== selection || readOnly()) return; }
                     retryDelay = Math.min(retryDelay * 2, 15000); schedule(retryDelay);
                 }
-            } finally { polling = false; }
+            } finally { if (polling === token) polling = null; }
         }
 
         /** [Role] Creates a new account-local conversation only on explicit user intent. */
@@ -1526,6 +1547,11 @@
             } catch (error) { notice(error.message); modelControls(); if ([404,409,410].includes(error.status)) await refreshLifecycle(); }
         });
         $('ai-cancel').addEventListener('click', async () => { if (!activeJob || readOnly() || lifecycleBusy) return; try { await api(`/api/ai/jobs/${activeJob}/cancel`, { method: 'POST', data: {} }); schedule(50); } catch (error) { notice(error.message); } });
+        $('ai-refresh-state').addEventListener('click', async () => {
+            if ($('ai-refresh-state').disabled || disposed) return;
+            notice();
+            try { await refreshLifecycle(); } catch (error) { if (!disposed) notice(error.message); }
+        });
 
         root.addEventListener('click', event => {
             const anchor = event.target.closest('a[data-ai-workspace]');

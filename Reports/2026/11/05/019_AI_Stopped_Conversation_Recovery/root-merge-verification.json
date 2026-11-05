@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "static/css/equipment_ai.css": true,
+    "static/js/equipment_ai.js": true,
+    "templates/equipment_ai.html": true,
+    "tests/recovery_browser_fixture.py": true,
+    "tests/run_assistant_fixture.py": true,
+    "tests/test_ai_recovery_ui.js": true
+  },
+  "all_match": true
+}

@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.STYLES]
- * [EN rev.13]
+ * [EN rev.14]
  * [Role] Styles measured inline disclosures, synchronized input-adjacent status, themed lifecycle controls, viewport-fitted chat and requested file dialogs.
  * [Dependencies] Existing frame typography/theme, shared semantic colors and equipment_ai_polish.js's bounded layout measurement.
  * [Impact] Closed summaries share the reasoning row when they fit; status and open bodies reserve normal-flow space without covering input/chat controls, and lifecycle controls remain scoped to the assistant.
@@ -116,7 +116,9 @@
 #equipment-ai .ai-notice{font-size:12px;color:var(--ai-text);border-bottom:1px solid var(--ai-line);padding:10px 30px;background:var(--ai-soft)}
 #equipment-ai .ai-more-history{display:block;margin:10px auto;flex-shrink:0;font-size:11px}
 #equipment-ai .ai-more-history[hidden]{display:none}
-#equipment-ai .ai-progress{max-width:850px;margin:0 auto 11px;display:flex;align-items:center;gap:9px;font-size:11px;color:var(--ai-muted)}
+#equipment-ai .ai-progress{max-width:850px;margin:0 auto 11px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;font-size:11px;color:var(--ai-muted)}
+#equipment-ai #ai-progress-text{flex:1 1 240px;min-width:0;line-height:1.6;overflow-wrap:anywhere}
+#equipment-ai .ai-progress .ai-button{flex:0 0 auto;margin-left:auto;min-height:36px;white-space:nowrap}
 #equipment-ai #ai-cancel{margin-left:auto;background:none;border:1px solid var(--ai-line);border-radius:6px;padding:3px 8px;font-size:10px}
 #equipment-ai .ai-pulse{width:6px;height:6px;background:var(--ai-accent);border-radius:50%;animation:ai-pulse 1.4s infinite}
 #equipment-ai .ai-proposal{border:1px solid var(--ai-line);border-left:3px solid var(--ai-accent);border-radius:11px;padding:18px 20px;margin-bottom:15px;background:var(--ai-bg)}

@@ -1,0 +1,24 @@
+{
+  "staging": {
+    "platform": "linux",
+    "tests": 234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 61.622,
+    "fixture_digest": "ea25983e00cbbf108012faf16f728e0810005bce7bc3ab7da4643936d7571c19"
+  },
+  "root": {
+    "platform": "linux",
+    "tests": 234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 70.988,
+    "fixture_digest": "9f3310e414e4b0071e5096afdb5bf80a7914e7a476bfef9510d5c6267ff40fb2"
+  },
+  "production_app_imported": false,
+  "production_database_opened": false,
+  "storage": "linux-tmpfs-functional-only",
+  "source": "completed run_assistant_fixture.py stdout and successful exit codes"
+}

@@ -1,0 +1,48 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "b73f8ccf7c7f29d5a39992bd70fd27e1fe6c01817cf085535b9e9d1ac6d2e7ab",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "terminal-refresh-preserves-draft-and-next-search-consent",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료 확인이 필요합니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "error": "read-only-state-retry-is-available",
+      "stack": "Error: read-only-state-retry-is-available\n    at assert (http://127.0.0.1:41679/?theme=dark:390:54)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:41679/?theme=dark:415:48)",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/019_AI_Stopped_Conversation_Recovery/initial-fix/screen-000.png"
+    }
+  ],
+  "fixture_digest": "b73f8ccf7c7f29d5a39992bd70fd27e1fe6c01817cf085535b9e9d1ac6d2e7ab"
+}

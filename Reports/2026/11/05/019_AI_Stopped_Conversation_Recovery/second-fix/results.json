@@ -1,0 +1,65 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "39d759ffa4a2b9aa28c8c93abd098a6aa3b37439e62c4173a1e0b3688c0e1994",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "terminal-refresh-preserves-draft-and-next-search-consent",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료 확인이 필요합니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 390,
+          "height": 844,
+          "pageWidth": 390,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료 확인이 필요합니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/019_AI_Stopped_Conversation_Recovery/second-fix/screen-000.png"
+    }
+  ],
+  "fixture_digest": "39d759ffa4a2b9aa28c8c93abd098a6aa3b37439e62c4173a1e0b3688c0e1994"
+}

@@ -1,0 +1,35 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "4425e4281ab65d029e40419fe80f185edd67ce603f56c1364b55291ad29dad27",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "unknown-server-state-is-never-unlocked-or-replayed"
+      ],
+      "layout": {},
+      "error": "terminal snapshot releases stale composer lock timed out",
+      "stack": "Error: terminal snapshot releases stale composer lock timed out\n    at wait (http://127.0.0.1:33031/?theme=dark:389:121)\n    at async HTMLDocument.<anonymous> (http://127.0.0.1:33031/?theme=dark:409:13)",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/019_AI_Stopped_Conversation_Recovery/before/screen-000.png"
+    }
+  ],
+  "fixture_digest": "4425e4281ab65d029e40419fe80f185edd67ce603f56c1364b55291ad29dad27"
+}

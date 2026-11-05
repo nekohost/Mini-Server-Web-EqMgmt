@@ -1,5 +1,7 @@
 # 장비관리 AI 도우미 운영 안내
 
+2026-11-05 중단 대화의 입력 잠금 보완: 현재 소유자의 대화 snapshot에서 같은 요청이 failed/done/cancelled/확인대기로 종료된 것을 확인하면 오래된 화면 잠금을 갱신한다. 주기 확인·포커스 복귀·오류 영역의 `상태 다시 확인`은 읽기 조회이며 이전 요청을 다시 보내거나 외부 모델을 종료하지 않는다. job이 없거나 running/draining/recovery_required이면 종료를 추측해 보내기를 허용하지 않는다. 종료 확인 뒤 초안·추론 펼침·같은 화면의 다음 요청용 검색 선택을 보존하며, 다른 대화 열기/전체 새로고침은 기존처럼 웹 검색 off다. failed/STREAM_INCOMPLETE의 과거 ‘종료 확인 필요’ 문구는 화면에서 현재 확인 안내로 대체하되 원래 실패 원인·DB/감사는 보존한다. [진단·검증019](../Reports/2026/11/05/019_AI_Stopped_Conversation_Recovery_Report.md).
+
 AI 대화는 `/assistant`를 제공한다. AI 연결 관리는 메인 메뉴 대신 관리자 센터에서 `/admin/ai/providers`로 진입하며 연결·자동 모델 목록·선택형 수동 등록·공개 모델·지원 추론 단계를 관리한다. 기존 `/ai`·`/ai/console`은 폐기 안내와 새 AI 링크만 제공하고 옛 API/browser proxy는 upstream에 연결하지 않는다. 공유 Strata 서비스와 새 AI adapter·키는 보존한다. 2026-11-05 기존 Staging 전체와 공간 절약 배치를 현재 운영 백업서버에 적용했다. [이번 실제 배포·검증](../Reports/2026/11/05/005_AI_Assistant_Production_Release_Report.md)과 [최초 운영 검증](../Reports/2026/11/04/012_AI_Production_Release_Report.md)을 구분한다.
 
 대화·추론·정규화 업무 초안·요청별 연결과 모델 출처를 사용자별 별도 AI DB에 저장한다. 같은 대화에서 모델을 바꾸면 다음 요청부터 적용하고 접수된 요청의 연결·설정·인증 revision은 유지한다. off/low/medium/high/xhigh/max가 모두 보이며 지원되지 않거나 관리자가 허용하지 않은 단계는 비활성이다. 현재 Strata Qwen3.8 Flash Next의 사전 설정은 off/low/medium/xhigh, 기본 medium이다.

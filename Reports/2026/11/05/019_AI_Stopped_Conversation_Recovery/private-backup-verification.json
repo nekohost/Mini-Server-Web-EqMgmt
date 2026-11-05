@@ -1,0 +1,17 @@
+{
+  "remote_release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-recovery-20261105T095044Z-16cf20",
+  "local_private_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-recovery-20261105T095044Z-16cf20",
+  "files_sha_matched": 2,
+  "source_files": 3,
+  "head": "f29ae87dab7870e6651d9678c5ecbbe5074c7a77",
+  "web_pid": "915380",
+  "worker_pid": "915399",
+  "maintenance": "NORMAL",
+  "job_state": "failed",
+  "error_code": "STREAM_INCOMPLETE",
+  "source_sha256": {
+    "static/js/equipment_ai.js": "32447f964a3aa3db45899e915dc3b62e705b68a75a59eed4794f731cc8be3e6b",
+    "static/css/equipment_ai.css": "a877629298e01f538748f6b0d6dbf07a5b33caa41bf8de25a98cddf8a0128c06",
+    "templates/equipment_ai.html": "e12c41526b8dc5c298ff7a7f41e88503ae2d7228c2bd222c1d1e5d062139d920"
+  }
+}
