@@ -2,11 +2,13 @@
 artifact_id: REPORT-20261105-018
 work_id: RELEASE-20261105-AI-WEB-SEARCH
 owner: Codex
-status: in-progress
+status: completed
 approval: explicit-staging-and-production
 ---
 
 # AI 웹 검색 검증·운영 기록
+
+최종 완료: 실제 검색을 먼저 수행하는 기본 off 웹 검색·안전한 번호 출처·64K 저장 예약을 운영에 반영했다. 최종 Staging/merged-root234개가 각각 통과했으며 검색 UI8화면168개와 기존 UI4화면642개를 확인했다. 실제 Flask 검색13.232초와 한국어 S25 요청의 삼성 공식 검색14.841초를 검증했다. 모델이 검색 없이 답한 중간4.012초 사례는 보존하고 검색 성공으로 계산하지 않았다. 최종 실행 소스는a3168ea이며 마지막 문서 commit은 실행 소스를 바꾸지 않는다.
 
 recorder ensure 성공(watcher11268), profile legacy/runtime-session-mismatch(verified=false), governance1.8.1 validate 오류0/경고0과 context31개를 확인했다. 분할 출력에서 누락된 operations.staging/records2개는 별도로 전부 읽었다. 현재 local/server HEAD는 `cee4e5e060e4d323d889e9d3e9b0749ed6d463af`다. 기존9개 tracked dirty와 다른 untracked 자료는 보존한다. 사용자 명시 승인은 구현·검증·필요 수정·운영 반영까지다.
 
@@ -112,3 +114,17 @@ private 서버 백업 경로는 `/home/nekohost/services/Mini-Server-Web-EqMgmt/
 merged-root도231개/44.167초로 통과했다. 실행 commit73f516e를 private 후속 백업·실제 업무18/AI17 테이블 보존·idle own 전환으로 적용했다. 후속 private 백업17개는 현재PC 사본과 SHA를 일치시켰다. 새 web PID911927과worker/timer 정상으로 재개했다. 이어진 한국어 S25 질의에서는 **모델이 검색을 호출하지 않고 검색 결과1번이라고 답하는 오류**를 발견했다. 이4.012초·1단계·도구0·출처0 사례는 정상 검색 성공으로 계산하지 않는다. 실제 저장된 답변/오류 사례를 그대로 보존하고,켜진 요청은 첫 단계에서 named web_search를 요구하며,이를 무시한 응답은 WEB_SEARCH_REQUIRED로 실패하도록 보강했다. 기존 다른업무 도구의 권한/확인은 유지한다.
 
 또한 최대 검색 JSON을 worker finish로 검증하면서 기존 일반 업무 도구의16K 결과 상한이 검색 결과까지 대체할 수 있음을 확인했다. 검색 envelope에는32K의 별도 검증 상한을 적용하고 초과는 명시적 실패로 남긴다. 정상 최대 자료를 줄여 맞추지 않는다. 실제 worker payload의 named tool 선택·off/후속 단계의 기존 동작·검색 없는 가짜 인용 실패·큰 출처 보존을 추가해 신규 검색 검사23개가 통과했다. 최종 전체 검증/운영 결과는 아래 후속 기록을 따른다.
+
+## 최종 운영 판정
+
+최종 Staging234개/54.970초·merged-root234개/44.572초가 실패0/오류0/skip0으로 통과했다. 변경된 안내를 포함한 검색 UI8화면168개도 통과했다. 실행 commit `a3168ea5c89bcc141c4b935b40404c55f4605ebb`를 기존과 같은 idle gate·정지 백업·업무18개/AI17개 테이블·감사/삭제/원래 메시지 보존 검증 후 적용했다. 최종 private 백업은 `/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-required-20261105T091524Z-bb578f`,현재PC의 같은 이름 private 디렉터리이며20개 파일 SHA를 대조했다. 첫19개/예산17개/최종20개의 백업과 각 단계 원문을 모두 유지한다.
+
+같은 한국어 S25 질문을 test05/user·Qwen3.8 Flash Next/off에서 다시 실행했다. 이번에는 **14.841초·2단계·실제 web_search1회·5건·완료**다. 실제 검색어는 `Samsung Galaxy S25 official product page`,첫 출처는 삼성 공식 `https://www.samsung.com/us/smartphones/galaxy-s25/`다. 실제 출처를 인용한 답변과 번호 목록/검색어/시각이 표시됐다. 검색 자료2,437자를 포함한 사용자 전체 원장이 실제 보관량과 일치하고 proposal0,오류 없음,guard released,예약0이다. 앞선 검색 없는 답변은 이력으로 남아 있으며 새 보호 계약의 성공으로 집계하지 않는다.
+
+이 작업의 실제 추가 데이터는 대화1개·메시지6개·job3개·이름 변경 영수증1개다. 성공 검색은Flask/S25의2건이며 중간 도구0의1건은 문제 재현 기록이다. 실제 장비/신청을 변경하거나 대화/감사 기록을 삭제하지 않았다. 최초 브라우저 연결이 최종 재접속 도중 debugger 동기화 오류가 있어 같은 IAB의 새 탭으로 복구했고 정상 로그인·실제 요청/화면을 다시 확인했다. 앱 오류로 바꾸어 기록하지 않는다.
+
+최종 PC1440×1000 화면은 document1440×1000/fit·출처5건·decimal 번호·기본 off·console error0으로 확인했다. [최종 삼성 검색 화면](018_AI_Web_Search/production-samsung-reviewed.jpg),[실제 UI 확인](018_AI_Web_Search/required-production-desktop-verification.json),[최종 요청·배포·원장](018_AI_Web_Search/final-production-verification.json),[최종 private 사본](018_AI_Web_Search/required-private-backup-verification.json). 이전 모바일390×844/기본·펼침과 현재 합성 모바일/테마 화면을 함께 보존했다. viewport override는 해제하고 실제 검토 탭을 유지했다.
+
+최종 own web PID915380·worker PID915399,worker/timer active·NORMAL·active/orphan0,개인 설정/비밀 바이트 유지다. 실행 소스19개와 공개 JS/CSS4개 HTTP SHA가 일치했다. 완료 원장/명세/증거를 마지막 문서 commit으로 push하고 서버를 같은 HEAD로 fast-forward한다. 이 단계에서는 실행 소스/PID를 다시 바꾸지 않는다. 최종234개·23개 검색 세부·실제 검색2건을 현재 판정으로 사용하고 앞선230/231/선택형 검색 설명은 중간 원문 이력으로 보존한다.
+
+마지막 부분 staging 검사에서는 기존 dirty9개 중8개가 최초 원문 SHA와 일치했다. PROPOSALS의018 바깥 내용은 앞선 보존 검사에서는 일치했으나 마지막 검사에서 SHA가 달랐다. 원인을 단정하거나 그 내용을 되돌리지 않고 현재 원문도 private에 보존했다. 해당 바깥 변경은 commit에 포함하지 않고 HEAD에018 신규 절만 합성해 index에 넣었다. FEATURES/ROADMAP도 동일하게018 절만 포함하며 기존 dirty/추가 관측 변경은 작업 트리에 유지한다. 최초 보존 증거와 마지막 관측 증거는 별도로 남긴다.

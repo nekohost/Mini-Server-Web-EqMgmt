@@ -2,7 +2,7 @@
 artifact_id: TASK-20261105-018
 work_id: RELEASE-20261105-AI-WEB-SEARCH
 owner: Codex
-status: in-progress
+status: completed
 approval: explicit-staging-and-production
 ---
 
@@ -17,5 +17,7 @@ approval: explicit-staging-and-production
 - [x] scoped commit/push와 운영 반영을 수행한다.
 - [x] 실제 서버 백업/DB 사본 보존·idle own web/worker 전환과 실제 사용을 확인한다.
 - [x] 기능 명세·완료 원장과 최종 결과/화면을 기록한다.
-- [ ] 완료 기록 commit을 서버와 동기화하고 최종 상태를 확인한다.
-- [ ] JSON escape의 최대 출처 저장량을64K 예약으로 보강하고 최종231개 검사/배포를 확인한다.
+- [x] JSON escape의 최대 출처 저장량을64K 예약으로 보강하고231개 검사/배포를 확인한다.
+- [x] 실제 검색 없는 모델 답변을 재현/보존하고 실제 검색 선행·완료 보호 및 큰 결과 보관을 보강한다.
+- [x] 최종234개·검색 UI8화면168개와 실제 한국어 검색/출처·private 백업을 확인한다.
+- [x] 완료 기록 commit을 push하고 서버와 같은 HEAD·실행 소스/PID를 최종 확인한다.

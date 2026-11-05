@@ -1,0 +1,61 @@
+{
+  "initial_matches": 8,
+  "all_current_outside_scope_content_preserved": true,
+  "files": {
+    ".agent-governance/capabilities/chatgpt-remote.yaml": {
+      "matches_initial": true,
+      "initial_sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+      "observed_outside_018_sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+      "outside_018_not_staged": true
+    },
+    "FEATURES.md": {
+      "matches_initial": true,
+      "initial_sha256": "5b848613414f899958c916f17e21fcc1612d6f2cec2fd53f01116b511c5f760b",
+      "observed_outside_018_sha256": "5b848613414f899958c916f17e21fcc1612d6f2cec2fd53f01116b511c5f760b",
+      "outside_018_not_staged": true
+    },
+    "PROPOSALS.md": {
+      "matches_initial": false,
+      "initial_sha256": "490e4e74d077e78f6ecd3e41e47ed43c6b699dc359d25486c093cbdd96b9b253",
+      "observed_outside_018_sha256": "fb06a7f308bc50a1400452d330c10eaf1645d5e2f3b1e0daa727af24f5d1c6b3",
+      "outside_018_not_staged": true
+    },
+    "ROADMAP.md": {
+      "matches_initial": true,
+      "initial_sha256": "9529da234b6b98a7e75284df537f2d2eaec09f3a40f9c021ea6e21c0aeededad",
+      "observed_outside_018_sha256": "9529da234b6b98a7e75284df537f2d2eaec09f3a40f9c021ea6e21c0aeededad",
+      "outside_018_not_staged": true
+    },
+    "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md": {
+      "matches_initial": true,
+      "initial_sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+      "observed_outside_018_sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+      "outside_018_not_staged": true
+    },
+    "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md": {
+      "matches_initial": true,
+      "initial_sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+      "observed_outside_018_sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+      "outside_018_not_staged": true
+    },
+    "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md": {
+      "matches_initial": true,
+      "initial_sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+      "observed_outside_018_sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+      "outside_018_not_staged": true
+    },
+    "UNIMPLEMENTED_PROPOSALS.md": {
+      "matches_initial": true,
+      "initial_sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509",
+      "observed_outside_018_sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509",
+      "outside_018_not_staged": true
+    },
+    "UNIMPLEMENTED_ROADMAP.md": {
+      "matches_initial": true,
+      "initial_sha256": "29e85ca043e15216667833aa3f7f636f22a6705f1e326fc0cde801c2f247a82b",
+      "observed_outside_018_sha256": "29e85ca043e15216667833aa3f7f636f22a6705f1e326fc0cde801c2f247a82b",
+      "outside_018_not_staged": true
+    }
+  },
+  "shared_docs_only_own_new_sections_staged": true
+}

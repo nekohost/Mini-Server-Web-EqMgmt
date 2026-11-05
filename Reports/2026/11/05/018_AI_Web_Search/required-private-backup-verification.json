@@ -1,0 +1,8 @@
+{
+  "remote_release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-required-20261105T091524Z-bb578f",
+  "local_private_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-web-required-20261105T091524Z-bb578f",
+  "sha_matched_files": 20,
+  "quiesced_databases": 2,
+  "previous_source_files": 5,
+  "live_logs_and_sqlite_auxiliary_excluded": true
+}

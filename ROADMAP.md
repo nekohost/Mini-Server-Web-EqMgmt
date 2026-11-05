@@ -382,3 +382,9 @@
 - **상태:** [개발 완료 (FEATURES.md 이관)] / 운영 적용·실제 일반 계정 확인 완료.
 - 기존1~10에 내부 ID 표시 규칙과 입력칸 노랑/빨강 안내를 가산 병합하고 실제 DB 사본/기존 기록 보존을 확인했다. [계획017](Plans/2026/11/05/017_AI_Display_Status_Release_Plan.md), [운영 보고017](Reports/2026/11/05/017_AI_Display_Status_Release_Report.md).
 - 037 변경형 WebMCP, AI-TECHDEBT-001 및 web_search 등 보류 범위는 이 완료와 구분한다.
+
+## AI-WEB-SEARCH-20261105 — 공개 검색 운영 완료
+
+- **상태:** 개발 완료(FEATURES21 이관)·운영 일반 사용자 실제 검증 완료. 017 당시 보류했던 web_search는 이번 사용자 명시 승인으로 별도 수행했다.
+- opt-in·실제 검색 선행/검색 없는 완료 차단·격리 검색·출처 번호/보관·모델 인계·검색 오류/64K 예약과 기존 업무 권한을 검증했다. Staging/root backend234개,검색/기존 UI12화면810개와 실제 Qwen 검색2건·PC/모바일을 확인했다.
+- [계획018](Plans/2026/11/05/018_AI_Web_Search_Plan.md),[배포·실제 결과018](Reports/2026/11/05/018_AI_Web_Search_Report.md). 기존037·AI-TECHDEBT-001과 고급 연결 설정 등 별도 미구현/보류는 유지한다.

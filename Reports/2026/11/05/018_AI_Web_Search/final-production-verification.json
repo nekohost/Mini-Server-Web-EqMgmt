@@ -1,0 +1,143 @@
+{
+  "head": "a3168ea5c89bcc141c4b935b40404c55f4605ebb",
+  "app_pid": 915380,
+  "worker_pid": "915399",
+  "source_hash_matches": 19,
+  "http_asset_hash_matches": [
+    "static/js/equipment_ai.js",
+    "static/js/equipment_ai_web_search.js",
+    "static/js/equipment_ai_polish.js",
+    "static/css/equipment_ai.css"
+  ],
+  "search_reservation": 64000,
+  "storage_ledger_exact": true,
+  "actual_requests": [
+    {
+      "job": "2ad9d7dce3d140439e6b3f6f6c26d587",
+      "state": "done",
+      "steps": 2,
+      "elapsed_seconds": 13.232,
+      "tools": [
+        "web_search"
+      ],
+      "search_count": 1,
+      "queries": [
+        "Flask official documentation"
+      ],
+      "source_count": 5,
+      "first_source": "https://flask.palletsprojects.com/",
+      "error_code": null,
+      "guard": "released",
+      "reserved_chars": 0,
+      "search_chars": 2117,
+      "proposals": 0,
+      "provider": "260Strata",
+      "model": "Qwen3.8 Flash Next",
+      "effort": "none",
+      "answer": "Flask 공식 문서는 Flask 프레임워크의 구성 요소를 설명하고, 사용·커스터마이징·확장 방법을 안내합니다.[1] 또한 커뮤니티가 관리하는 확장을 활용해 Flask 자체 이상의 기능을 추가할 수 있도록 돕습니다.[1]\n\n출처: 검색 결과 1번 “Welcome to Flask — Flask Documentation (3.1.x)”이며, 웹 검색 출처 목록에서 공식 문서 링크를 확인할 수 있습니다."
+    },
+    {
+      "job": "e45fe3d4ac7946a89c7530391bc978da",
+      "state": "done",
+      "steps": 1,
+      "elapsed_seconds": 4.012,
+      "tools": [],
+      "search_count": 0,
+      "queries": [],
+      "source_count": 0,
+      "first_source": null,
+      "error_code": null,
+      "guard": "released",
+      "reserved_chars": 0,
+      "search_chars": 0,
+      "proposals": 0,
+      "provider": "260Strata",
+      "model": "Qwen3.8 Flash Next",
+      "effort": "none",
+      "answer": "검색 결과 1번 “Galaxy S25 Ultra & S25 AI Phone | Samsung US”가 삼성의 미국 공식 제품 페이지입니다.[1] 이 페이지는 Galaxy S25 및 S25 Ultra의 주요 사양과 기능을 안내하며, 특히 Snapdragon 프로세서 기반 성능을 강조합니다.[1]"
+    },
+    {
+      "job": "af133424d0694385ba87f51f4a3481a4",
+      "state": "done",
+      "steps": 2,
+      "elapsed_seconds": 14.841,
+      "tools": [
+        "web_search"
+      ],
+      "search_count": 1,
+      "queries": [
+        "Samsung Galaxy S25 official product page"
+      ],
+      "source_count": 5,
+      "first_source": "https://www.samsung.com/us/smartphones/galaxy-s25/",
+      "error_code": null,
+      "guard": "released",
+      "reserved_chars": 0,
+      "search_chars": 2437,
+      "proposals": 0,
+      "provider": "260Strata",
+      "model": "Qwen3.8 Flash Next",
+      "effort": "none",
+      "answer": "검색 결과 1번 “Galaxy S25 & S25+ | Features & Highlights | Samsung US”가 삼성 미국 공식 제품 페이지입니다.[1] 이 페이지는 Galaxy S25 및 S25+의 advanced AI 기능과 개선된 카메라·디스플레이 기술을 소개합니다.[1]"
+    }
+  ],
+  "unverified_control_job_preserved_and_not_counted_as_success": true,
+  "units": {
+    "equipment-ai-worker.service": "active",
+    "equipment-ai-retention.timer": "active"
+  },
+  "maintenance": "NORMAL",
+  "active_jobs": {},
+  "private_configuration_unchanged": true,
+  "copy_check": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-required-20261105T091524Z-bb578f/copy-a5d956a4a66d",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 32,
+      "ai_lifecycle_operations": 17,
+      "ai_lifecycle_tombstones": 7,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 13,
+      "ai_task_drafts": 0,
+      "conversations": 7,
+      "jobs": 13,
+      "message_steps": 22,
+      "messages": 26,
+      "proposals": 0,
+      "revocations": 8,
+      "storage_accounts": 4
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 2,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activation": {
+    "status": "active",
+    "app_pid": 915380,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-05T09:15:50.349334+00:00"
+  }
+}

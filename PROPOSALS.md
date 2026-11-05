@@ -1037,3 +1037,9 @@
 - **상태:** 운영 서버 적용·실제 검증 완료. work_id `RELEASE-20261105-AI-DISPLAY-STATUS`.
 - 도구의 내부 참조와 답변 업무 필드를 구분하는 지침/메타를 추가하고, 입력칸 바로 위에 상단과 같은 노랑/빨강 사유 안내를 제공한다. 기존1~10을 가산하여 배포했다.
 - [계획017](Plans/2026/11/05/017_AI_Display_Status_Release_Plan.md), [검증·운영 보고017](Reports/2026/11/05/017_AI_Display_Status_Release_Report.md), 현재 기능은 FEATURES.md20절이다. 원문 숫자/업무 참조/감사는 유지하며 모델 지침과 강제 보안 경계를 구분한다.
+
+## AI-WEB-SEARCH-20261105 — 공개 웹 검색과 안전한 출처
+
+- **상태:** 개발 완료(FEATURES21 이관)·운영 반영/일반 계정 실검색 검증 완료. work_id `RELEASE-20261105-AI-WEB-SEARCH`.
+- 사용자가 보류했던 web_search를 이번 명시 승인으로 진행했다. 요청별 기본 off·고정 Yahoo 검색·비공개 값/위험 링크 보호·접히는 실제 출처·모델 인계·문자 예산을 추가했다. 원래 업무 권한/확인·실패/감사/휴지통은 유지한다.
+- [계획018](Plans/2026/11/05/018_AI_Web_Search_Plan.md),[완료 보고018](Reports/2026/11/05/018_AI_Web_Search_Report.md). 기존037 변경형 WebMCP나 다른 보류 범위를 완료 처리하지 않는다.
