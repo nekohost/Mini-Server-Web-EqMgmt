@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.STYLES]
- * [EN rev.12]
+ * [EN rev.13]
  * [Role] Styles measured inline disclosures, synchronized input-adjacent status, themed lifecycle controls, viewport-fitted chat and requested file dialogs.
  * [Dependencies] Existing frame typography/theme, shared semantic colors and equipment_ai_polish.js's bounded layout measurement.
  * [Impact] Closed summaries share the reasoning row when they fit; status and open bodies reserve normal-flow space without covering input/chat controls, and lifecycle controls remain scoped to the assistant.
@@ -106,7 +106,7 @@
 #equipment-ai .ai-web-toggle[aria-pressed=true]{border-color:var(--ai-semantic-ready);background:var(--ai-soft);color:var(--ai-semantic-ready);font-weight:650}
 #equipment-ai .ai-web-sources{margin:14px 0 0;padding:10px 12px;border:1px solid var(--ai-line);border-radius:10px;color:var(--ai-text);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
 #equipment-ai .ai-web-sources summary{cursor:pointer;color:var(--ai-muted);font-weight:600}
-#equipment-ai .ai-web-sources ol{margin:8px 0 0;padding-left:22px}
+#equipment-ai .ai-web-sources ol{margin:8px 0 0;padding-left:22px;list-style-type:decimal;list-style-position:outside}
 #equipment-ai .ai-web-sources li{padding:4px 0}
 #equipment-ai .ai-web-sources a{color:var(--ai-semantic-ready);text-decoration:underline;text-underline-offset:2px}
 #equipment-ai .ai-web-sources p{margin:4px 0;white-space:pre-wrap}

@@ -1,0 +1,17 @@
+{
+  "files": [
+    {
+      "path": "static/css/equipment_ai.css",
+      "sha256": "a877629298e01f538748f6b0d6dbf07a5b33caa41bf8de25a98cddf8a0128c06"
+    },
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "sha256": "5ed7edf00690014e08f64e6e21f7ae63f81dc2b6b186a0f1508d56eca1061e95"
+    },
+    {
+      "path": "tests/test_ai_web_search_ui.js",
+      "sha256": "0bcf5e8ed95cebdd1badb939720f7ec6c64305eaa0d3fa74092a813dc29f75b8"
+    }
+  ],
+  "archive_sha256": "632d6314d7e1ca51b60444a6a2351fb833b139cca2cef3d7bd2b5512b3f2d5a7"
+}

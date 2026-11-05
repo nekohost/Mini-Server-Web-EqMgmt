@@ -65,3 +65,9 @@ Linux private 임시 package target에서 DDGS9.6.1을 시험했다. unconstrain
 운영 사전 점검은 이전 HEAD `cee4e5e`·tracked clean·own web PID896752와 worker/timer를 확인했다. 기존 owner1 요청1건이8:33UTC `ValueError/STREAM_INCOMPLETE/recovery_required`로 남아 있었다. 응답/오류를 성공으로 바꾸지 않았다. 실제 고정 Strata `/slots`에서 모든 슬롯 `is_processing=false`를 두 번 확인한 뒤, 기존 trusted loopback `acknowledge-finished`로 이 자체 요청만 `failed/STREAM_INCOMPLETE`와 released 점유로 정리했다. 전역 cancel/다른 서비스 제어는 사용하지 않았다. DB·환경·unit·기존 소스는 정리 전에 private 백업했다. 최초 비인증 `/slots` 조회401은 인증된 동일 읽기 경로로 바로잡았다.
 
 private 서버 백업 경로는 `/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-search-20261105T084615Z-e2866a`다. 본문에는 key/DB 원문을 넣지 않는다. 정상 종료 확인 후 active/orphan 점유는0이고 retention은 enabled/active,cleanup은 inactive다. [준비 기록](018_AI_Web_Search/release-preparation.json),[병합 SHA](018_AI_Web_Search/root-merge-verification.json),[소스 원문](018_AI_Web_Search/source-archive-manifest.json).
+
+## 운영 전환·출처 번호 보완
+
+실행 commit `97fe899bba8fbd8f09cf209779a93341647abb87`를 push한 뒤 retention timer를 잠시 정지하고 cleanup의 자연 종료/active0을 재확인했다. 이전 own web/worker만 정상 종료하고 같은 commit을 pull했다. 새 프로세스의 실제 DB 사본 검사에서 업무18개·AI17개 테이블과 기존 감사/삭제 원장을 보존했다. v4 유지·비밀 유지·기존 행 대조 후8:48:57UTC NORMAL로 재개했고 own web PID907570,worker/timer active를 확인했다.
+
+일반 계정 test05에서 기본 off인 버튼을 켜 공개 Flask 문서 질문을 보냈다. 실제 Qwen 모델은 `web_search`를 호출했고 Yahoo5건·공식 Pallets 출처와 `[1]` 인용 답변을 완료했다. 운영 화면의 실제 목록 스타일에서 **출처 번호가 공통 list reset에 가려지는 문제**가 보였다. 첫 실제 화면을 보존하고 CSS의 decimal/outside를 명시했다. 같은 Staging에 CSS/driver/harness3개만 재구성해8화면168개 검사(번호 스타일 포함)를 통과했다. 후속 ZIP/SHA와 root 동일성을 확인하고 이3개 후보를 다시 정리했다. 실행 Python/worker 변경이 없으므로 이 후속은 검증한 정적 자산만 fast-forward하고 실제 화면 reload로 검사하며 정상 작업자를 반복 재시작하지 않는다.

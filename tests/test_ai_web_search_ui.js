@@ -1,4 +1,4 @@
-/* [MINI-COMMENT: ASSISTANT.WEB.UI.TEST] [EN rev.1]
+/* [MINI-COMMENT: ASSISTANT.WEB.UI.TEST] [EN rev.2]
  * [Role] Exercises real opt-in controls, streaming citations, immutable source links and responsive layout with inert transport.
  * [Dependencies] Existing candidate DOM and synthetic history/model route behavior; native real-frame screenshots.
  * [Impact] No real query or business write is issued; hostile page text stays inert and conversation changes reset internet permission.
@@ -40,6 +40,7 @@ function runAiWebSearchFixture(server,cid,oldCid,modelId,jid,sleep,theme) {
             assert(source===document.querySelector('.ai-web-sources')&&source.open&&document.activeElement===stable,'poll-ack-preserves-source-open-state-and-focus');
             assert(queries.some(q=>new URLSearchParams(q).get('w')==='1'),'source-version-ack-avoids-repeated-evidence');
             assert(source.querySelectorAll('a').length===1,'unsafe-protocol-and-private-IP-links-rejected');
+            assert(getComputedStyle(source.querySelector('ol')).listStyleType==='decimal','citation-numbers-survive-common-list-reset');
             assert(stable.target==='_blank'&&stable.rel.includes('noopener')&&stable.rel.includes('noreferrer')&&stable.referrerPolicy==='no-referrer','external-link-isolated-no-referrer');
             assert(source.textContent.includes('<img')&&source.textContent.includes('<script>')&&!source.querySelector('img,script')&&!window.__webPwned,'hostile-result-text-does-not-execute');
             await wait(()=>server.polls>=3&&!$('ai-send').disabled,'completed stream');
