@@ -1,0 +1,167 @@
+{
+  "at_utc": "2026-11-05T23:07:35.137462+00:00",
+  "account": "test05",
+  "new_jobs": [
+    {
+      "id": "2852d2da9bd14843bf13b25012a65266",
+      "state": "done",
+      "steps": 3,
+      "level": "xhigh",
+      "error_code": null,
+      "reserved_chars": 0,
+      "elapsed_seconds": 174.665,
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "reasoning_effort": "xhigh",
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 819
+        },
+        {
+          "step": 1,
+          "content_chars": 0,
+          "reasoning_chars": 1222
+        },
+        {
+          "step": 2,
+          "content_chars": 3009,
+          "reasoning_chars": 12479
+        }
+      ],
+      "corrections_used": [],
+      "searches": [
+        {
+          "engine": "Yahoo",
+          "results": 5
+        },
+        {
+          "engine": "Yahoo",
+          "results": 5
+        }
+      ],
+      "guard_states": [
+        "released"
+      ],
+      "finish_reports": [
+        {
+          "audit_id": 196628,
+          "at_kst": "2026-11-06 08:03:38",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 819,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 196776,
+          "at_kst": "2026-11-06 08:03:58",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 1222,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 198052,
+          "at_kst": "2026-11-06 08:06:18",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 3009,
+          "reasoning_chars": 12479,
+          "state": "done",
+          "response_correction": null,
+          "error_code": null
+        }
+      ],
+      "claims": [
+        {
+          "audit_id": 196526,
+          "at_kst": "2026-11-06 08:03:24",
+          "step": 0,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": "plan_web_search",
+          "tools": [
+            "plan_web_search"
+          ]
+        },
+        {
+          "audit_id": 196630,
+          "at_kst": "2026-11-06 08:03:39",
+          "step": 1,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": null,
+          "tools": [
+            "get_equipment",
+            "list_my_requests",
+            "prepare_catalog_request",
+            "prepare_csv_export",
+            "prepare_equipment_create",
+            "prepare_equipment_status",
+            "prepare_equipment_update",
+            "prepare_option_request",
+            "prepare_preferences",
+            "search_catalog",
+            "search_equipment",
+            "web_search",
+            "save_equipment_draft",
+            "save_task_draft"
+          ]
+        },
+        {
+          "audit_id": 196778,
+          "at_kst": "2026-11-06 08:03:59",
+          "step": 2,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": null,
+          "tools": [
+            "get_equipment",
+            "list_my_requests",
+            "prepare_catalog_request",
+            "prepare_csv_export",
+            "prepare_equipment_create",
+            "prepare_equipment_status",
+            "prepare_equipment_update",
+            "prepare_option_request",
+            "prepare_preferences",
+            "search_catalog",
+            "search_equipment",
+            "save_equipment_draft",
+            "save_task_draft"
+          ]
+        }
+      ]
+    }
+  ],
+  "active_jobs": 0,
+  "active_guards": 0,
+  "total_reserved_chars": 0,
+  "original_failed_job_unchanged": {
+    "state": "failed",
+    "error_code": "WEB_SEARCH_PLAN_REQUIRED",
+    "reserved_chars": 0
+  }
+}

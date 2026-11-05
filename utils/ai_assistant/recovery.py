@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.RESPONSE.CORRECTION]
-[EN rev.2]
+[EN rev.3]
 [Role] Defines bounded correction steps for completed responses missing a decision or an answer.
 [Dependencies] Server-owned per-job context and fixed system messages; no database, transport or model output parsing.
-[Impact] Each phase is offered once across known message versions, user/assistant text cannot grant a correction, and prior jobs cannot transfer control through dialogue history.
+[Impact] Each phase is offered once across known message versions; only its pending instruction reaches the model, while durable controls and ordinary dialogue remain separate.
 """
 import json
 
@@ -47,6 +47,18 @@ def _context(job):
     if not isinstance(value, list):
         raise ValueError('invalid correction context')
     return value
+
+
+def model_context(context):
+    """[MINI-COMMENT: ASSISTANT.RESPONSE.CORRECTION.PROJECTION]
+    [EN rev.1]
+    [Role] Projects dialogue without durable correction controls for the upstream model.
+    [Dependencies] Exact current/previous server-message recognition; callers pin the pending instruction in their primary system message.
+    [Impact] Completed phases cannot keep commanding later steps, multiple system roles are avoided, and stored one-correction limits remain intact.
+    """
+    if not isinstance(context, list):
+        raise ValueError('invalid correction context')
+    return [message for message in context if _message_phase(message) is None]
 
 
 def correction_phase(job):

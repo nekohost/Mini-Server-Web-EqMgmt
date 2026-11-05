@@ -1,0 +1,15 @@
+{
+  "at_utc": "2026-11-05T23:12:07.466448+00:00",
+  "files": {
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4",
+    "tests/test_ai_input_reliability.py": "c734cabdda1daee902d972d15db70d31aae1a5f61722bfd84460f60709543d6f",
+    "tests/test_ai_web_search.py": "607e0104107d84ddbee71f21556c5e6f2927272d1207e0d5992a590eafb3e282",
+    "utils/ai_assistant/__init__.py": "03491a4ee5f97ea1cb3018aac2cc8ecbb33ccf7447f92dc380de47443b77ddaf",
+    "utils/ai_assistant/policy.py": "8fdff866df340accf76fa7be9d3dfcdc3bd35048f86dbde1c5a578734d228c7d",
+    "utils/ai_assistant/recovery.py": "7a20fcbc2ad2ed19e77317fcc01cbc0c8b83f698a4afce06fd2827004d24f715",
+    "utils/ai_assistant/web_search.py": "7d3dc6cb4755c881d0132d6ea60dda428e5c277cedfb66302773a642a2ba28c4",
+    "utils/ai_assistant/worker.py": "cd1dd3571080b2cb456cbf204d9d0880a825645efadf4ab2b211150bff8dc7fe"
+  },
+  "archive_sha256": "9f91d5f48edd0697ca100e2d7a22dcd63c7e072fae76dd2c7106e26a4fd243cb",
+  "all_root_match": true
+}

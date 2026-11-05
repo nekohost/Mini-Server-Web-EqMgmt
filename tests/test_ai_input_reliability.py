@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.INPUT.STREAM.TESTS] [EN rev.3]
+"""[MINI-COMMENT: ASSISTANT.INPUT.STREAM.TESTS] [EN rev.4]
 [Role] Exercises explicit upstream stream termination without a final empty separator.
 [Dependencies] Real worker SSE parser and inert byte-line response; no network or production state.
 [Impact] Exact DONE survives EOF while a truncated response cannot authorize completion.
@@ -7,7 +7,7 @@ import json
 import unittest
 
 from utils.ai_assistant.worker import sse
-from utils.ai_assistant.recovery import CORRECTIONS, correction_context, correction_phase
+from utils.ai_assistant.recovery import CORRECTIONS, _ANSWER_V1, correction_context, correction_phase, model_context
 
 
 class EndMarkerTests(unittest.TestCase):
@@ -59,6 +59,18 @@ class ResponseCorrectionStateTests(unittest.TestCase):
         completed=self.job([*planned,{'role':'assistant','content':'valid reply'}],steps=2)
         self.assertIsNone(correction_phase(completed));self.assertIsNone(correction_context(completed,'search_plan'))
         self.assertIsNotNone(correction_context(completed,'answer'))
+
+    def test_model_projection_removes_only_exact_server_controls_without_mutating_state(self):
+        """[Role] Keeps consumed/current controls out of upstream dialogue while preserving copied text, ordinary system data and durable limits."""
+        dialogue=[{'role':'user','content':CORRECTIONS['search_plan']},
+                  {'role':'assistant','content':CORRECTIONS['answer']},
+                  {'role':'system','content':'ordinary instruction'}]
+        controls=[{'role':'system','content':content} for content in [*CORRECTIONS.values(),_ANSWER_V1]]
+        context=[*dialogue,*controls];before=json.dumps(context,ensure_ascii=False)
+        self.assertEqual(model_context(context),dialogue)
+        self.assertEqual(json.dumps(context,ensure_ascii=False),before)
+        self.assertIsNone(correction_context(self.job(context),'answer'))
+        with self.assertRaises(ValueError):model_context({})
 
     def test_probe_zero_step_and_invalid_context_fail_closed(self):
         """[Role] Keeps probe/initial admission and corrupt state outside the pending-correction path."""

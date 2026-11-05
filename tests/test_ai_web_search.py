@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.7]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.8]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -16,6 +16,7 @@ import uuid
 from assistant_fixture_tests import AssistantTests, ProtocolTests
 from assistant_provider_fixture_tests import ProviderTests
 from utils.ai_assistant.policy import canonical, normalized_tool_arguments, AssistantError
+from utils.ai_assistant.recovery import CORRECTIONS
 from utils.ai_assistant.web_search import (SearchService, WebSearchError, validate_query, safe_url,
     project_results, public_searches, evidence_chars, SEARCH_RESERVATION, RUNTIME_NAME, SEARCH_DEADLINE)
 
@@ -316,8 +317,12 @@ class WebSearchIntegrationTests(unittest.TestCase):
         corrected=self.claim();self.assertEqual(corrected['id'],jid);self.assertEqual(corrected['steps'],1)
         self.assertNotEqual(corrected['lease'],first['lease']);self.assertEqual(corrected['reasoning_effort'],first['reasoning_effort'])
         self.assertEqual(corrected['required_tool'],'plan_web_search');self.assertEqual([x['function']['name'] for x in corrected['tools']],['plan_web_search'])
+        self.assertEqual(sum(m['role']=='system' for m in corrected['messages']),1)
+        self.assertIn(CORRECTIONS['search_plan'],corrected['messages'][0]['content'])
         self.assertEqual(self.plan_step(corrected,True,query='Flask public docs')['state'],'queued')
-        self.assertEqual(self.finish(self.claim(),content='실제 출처를 확인했습니다. [1]')['state'],'done');self.assertEqual(len(self.search.calls),1)
+        answer=self.claim();self.assertEqual(sum(m['role']=='system' for m in answer['messages']),1)
+        self.assertNotIn(CORRECTIONS['search_plan'],answer['messages'][0]['content'])
+        self.assertEqual(self.finish(answer,content='실제 출처를 확인했습니다. [1]')['state'],'done');self.assertEqual(len(self.search.calls),1)
         with self.store.db() as db:
             self.assertEqual(len(public_searches(self.store.job(jid,db)['context'])),1)
             self.assertEqual(db.execute('SELECT reasoning FROM message_steps WHERE job=? AND step=0',(jid,)).fetchone()[0],'R'*741)
@@ -342,6 +347,8 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Role] Prevents an empty successful answer while keeping new operations out of the correction phase."""
         jid=self.turn(allow=False)['job_id'];self.assertEqual(self.finish(self.claim(),content=' \n ',reasoning='검토')['state'],'queued')
         corrected=self.claim();self.assertEqual(corrected['tools'],[]);self.assertIsNone(corrected['required_tool'])
+        self.assertEqual(sum(m['role']=='system' for m in corrected['messages']),1)
+        self.assertIn(CORRECTIONS['answer'],corrected['messages'][0]['content'])
         self.assertEqual(self.finish(corrected,content='확인할 자료가 부족합니다.')['state'],'done');self.assertEqual(self.search.calls,[])
         self.assert_correction_released(jid)
 
@@ -471,6 +478,11 @@ class WebSearchIntegrationTests(unittest.TestCase):
                 job=self.claim();self.assertEqual(job['id'],jid);worker.run_job(job)
         payloads=[call.args[4] for call in transport.call_args_list]
         self.assertEqual(len(payloads),4);self.assertTrue(all(p['reasoning_effort']=='xhigh' for p in payloads))
+        self.assertTrue(all(sum(m['role']=='system' for m in p['messages'])==1 for p in payloads))
+        self.assertIn(CORRECTIONS['search_plan'],payloads[1]['messages'][0]['content'])
+        self.assertNotIn(CORRECTIONS['search_plan'],payloads[2]['messages'][0]['content'])
+        self.assertNotIn(CORRECTIONS['search_plan'],payloads[3]['messages'][0]['content'])
+        self.assertIn(CORRECTIONS['answer'],payloads[3]['messages'][0]['content'])
         self.assertEqual(payloads[1]['tool_choice'],{'type':'function','function':{'name':'plan_web_search'}});self.assertNotIn('tools',payloads[-1])
         self.assertTrue(any('finish=stop done=True calls=0 content_chars=0 reasoning_chars=741' in line for line in logs.output))
         self.assertFalse(any('R'*100 in line for line in logs.output));self.assertEqual(len(self.search.calls),1)

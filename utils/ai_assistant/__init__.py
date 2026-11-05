@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.12]
+[EN rev.13]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] Missing decisions/answers and explicitly terminated token-limit responses receive bounded corrections; immutable consent, storage and unknown-request guards are preserved.
@@ -32,7 +32,7 @@ from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
 from .status import read_status
 from .web_search import SearchService, WebSearchError, MAX_SEARCHES, public_searches, search_mode, search_planning, search_permitted
-from .recovery import correction_context, correction_phase
+from .recovery import CORRECTIONS, correction_context, correction_phase, model_context
 
 
 def enabled(value):
@@ -840,7 +840,9 @@ def install_assistant(app, services):
                     db.execute('UPDATE jobs SET context=? WHERE id=?',(canonical(context),job['id']))
             else:
                 context=json.loads(job['context'])
-            messages=[{'role':'system','content':system},*context]
+            if correcting is not None:
+                system+='\n'+CORRECTIONS[correcting]
+            messages=[{'role':'system','content':system},*model_context(context)]
             if len(canonical([messages,tools]).encode())+output_tokens+512>route['context_tokens'] or len(canonical(context))>120000:
                 raise AssistantError('선택한 모델의 문맥 한도로 작업을 중단했습니다. 기록을 확인하고 질문을 줄이거나 더 큰 모델을 선택해 주세요.',413)
             packet={'id':job['id'],'lease':job['lease'],'steps':job['steps'],'messages':messages,'tools':tools,

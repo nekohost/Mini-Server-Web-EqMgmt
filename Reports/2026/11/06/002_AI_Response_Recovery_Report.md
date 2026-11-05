@@ -46,3 +46,11 @@ recovery.py는 정확한 서버 system 메시지만 보정 상태로 인정하�
 V2 전체292개가55.992초·실패/오류/skip0으로 통과했다. worker의 실제 termination 보고→API→Store→검색 결과 보존→도구 없는 답변 보정을 합성 SSE로 연결했고, 초기 판단 단계의 길이 소진·근거 없는 구 완료 보고·잘못된 메타 타입·미완료 길이 오류·legacy required 우회 거부·동일 보정 예산 소진·이전 버전 보정 메시지 호환을 추가 확인했다. 원문8개를 reviewed-source-v2.zip(SHA256 4432bf82b6a8e52cb40f3db08621eeb3c12debb5690650cdd8f2fac064f766fb)에 보존했고 root8개가 그 SHA/AST와 일치했다. 최종 소스 판정은 source-manifest-v2.json을 기준으로 한다.
 
 V2 root 전체292개도56.198초·실패/오류/skip0으로 통과했다. 원문 ZIP/manifest/root의8개 SHA를 대조한 뒤 V2 후보8개만 정리했다. [최종 root 검증](002_AI_Response_Recovery/root-verification-v2.json),[정리](002_AI_Response_Recovery/merge-and-cleanup-v2.json).
+
+V2 commitf78c1d33513e80efcdb6b251dbcea466822e98b1은2026-11-06 08:02:25 KST에 다시 활성화했다. 첫 운영 시험의 실패까지 포함한 현재 두 DB·설정·source를 새 private release `20261105-ai-ux-response-v2-20261105T230117-a319b9`와 현재PC 사용자 전용 사본14개로 새로 보존했고 SHA를 전부 대조했다. 실제 DB 사본과 접수 재개 전 원본의 업무18개·AI17개 테이블, 기존32개 job/64개 메시지·lifecycle5행·감사 보존을 확인했다. web1031215/worker1031225, NORMAL·worker/retention active, 키/단위 불변·최종 source8개 일치를 확인했다. [최종 배포](002_AI_Response_Recovery/deployment-v2.json),[현재PC 백업 대조](002_AI_Response_Recovery/private-backup-verification-v2.json).
+
+V2의 동일 실제 xhigh 비교 질문은 job2852d2da9bd14843bf13b25012a65266에서174.665초·3단계로 done 처리됐다. 실제 Yahoo 검색2회 뒤 최종 답변3,009자·추론12,479자, DONE=true/stop을 확인했다. max_tokens8,192·xhigh를 전 단계 유지했고 보정은 필요하지 않았다. guard released·예약0·다음 보내기 가능과 비교표11행·결론·출처 화면을 확인했다. 이 시험은 실제 모델의 완결 응답 근거이며 비교 내용의 사실 정확도 평가로 확대하지 않는다. [화면](002_AI_Response_Recovery/production-v2-comparison.jpg).
+
+최종 교차 검토에서는 완료된 보정 system 지시가 같은 job의 다음 단계 모델 입력에 남을 위험을 발견했다. final Staging에서 영속 원장은 보존하되 모델용 context에서 정확한 현행/구 서버 제어 메시지만 제외하고, 활성 보정 지시만 첫 system 메시지에 합친다. 실제 API와4단계 SSE 회귀에서 단일 system 메시지·활성 지시 포함·완료된 검색 지시 제거를 검사하고, 순수 projection의 원문/복사된 user·assistant 문자열/구 버전 횟수 보존을 추가 검사한다.
+
+최종 Staging293개는56.045초, 병합 후 root293개는55.981초에 실패/오류/skip0으로 통과했다. 원문8개를 reviewed-source-final.zip(SHA256 9f91d5f48edd0697ca100e2d7a22dcd63c7e072fae76dd2c7106e26a4fd243cb)에 보존하고 root8개 SHA/AST를 확인했다. ZIP·원문·root가 일치하는 이번 후보8개만 정리했다. [Staging 검증](002_AI_Response_Recovery/stage-verification-final.json),[root 검증](002_AI_Response_Recovery/root-verification-final.json),[최종 원문 목록](002_AI_Response_Recovery/source-manifest-final.json),[후보 정리](002_AI_Response_Recovery/merge-and-cleanup-final.json).
