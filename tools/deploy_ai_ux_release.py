@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """[MINI-COMMENT: ASSISTANT.UPGRADE.RELEASE]
-[EN rev.2]
+[EN rev.3]
 [Role] Upgrades the installed equipment assistant using private snapshots and an exact Git release.
 [Dependencies] The fixed Linux host/user/project, existing private settings and the reviewed v4 candidate.
 [Impact] Stops only an idle local web/worker pair; preserves secrets, business rows and every pre-existing AI row.
@@ -335,6 +335,7 @@ def main():
     if not stat.S_ISDIR(info.st_mode) or info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o700:
         raise PermissionError('release directory must be private and owned')
     os.chdir(ROOT)
+    sys.path.insert(0, str(ROOT))
     sys.dont_write_bytecode = True
     descriptor = os.open(release / 'upgrade.lock', os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
     with os.fdopen(descriptor, 'a') as lock:
