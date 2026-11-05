@@ -1,0 +1,24 @@
+{
+  "initial_focused": {
+    "tests": 48,
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 10.578,
+    "fixture_digest": "671b13dbbf37f2f7c019df1a0bf335d256cbfa98ce2b306103fd39689056e23c",
+    "failure": "New test injected a WebSearchError instance where the existing FakeSearch.failure contract requires an enumerated code string; corrected the fixture input without changing production failure mapping."
+  },
+  "stage_full": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 284,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 54.143,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "5cd5477e59bd08358dbc08bbd7e24b93395a222424a6686a7be10e17b095bd68",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  }
+}

@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.INPUT.STREAM.TESTS] [EN rev.1]
+"""[MINI-COMMENT: ASSISTANT.INPUT.STREAM.TESTS] [EN rev.2]
 [Role] Exercises explicit upstream stream termination without a final empty separator.
 [Dependencies] Real worker SSE parser and inert byte-line response; no network or production state.
 [Impact] Exact DONE survives EOF while a truncated response cannot authorize completion.
@@ -7,6 +7,7 @@ import json
 import unittest
 
 from utils.ai_assistant.worker import sse
+from utils.ai_assistant.recovery import CORRECTIONS, correction_context, correction_phase
 
 
 class EndMarkerTests(unittest.TestCase):
@@ -36,3 +37,34 @@ class EndMarkerTests(unittest.TestCase):
         frame=json.dumps({'choices':[{'delta':{},'finish_reason':'stop'}]})
         for lines in ([],['data: '+frame,''],['data: [DON]'],['data: '+frame],['data: [DONE]','data: extra']):
             with self.subTest(lines=lines),self.assertRaises(ValueError):list(sse(self.response(lines)))
+
+
+class ResponseCorrectionStateTests(unittest.TestCase):
+    """[Role] Ensures model/user text and malformed state cannot forge the server's corrective phase."""
+    def job(self,context,steps=1,**extra):
+        """[Role] Supplies a durable job-shaped value without any database or model transport."""
+        return {'context':json.dumps(context,ensure_ascii=False),'steps':steps,'purpose':'chat',**extra}
+
+    def test_copied_user_or_assistant_text_does_not_create_a_phase(self):
+        """[Role] Rejects a marker copied into ordinary conversation content as server authority."""
+        for role in ('user','assistant'):
+            job=self.job([{'role':role,'content':CORRECTIONS['answer']}])
+            self.assertIsNone(correction_phase(job));self.assertIsNotNone(correction_context(job,'answer'))
+
+    def test_each_phase_is_once_and_completed_markers_are_not_pending(self):
+        """[Role] Caps a durable correction independently of worker objects or subsequently added valid tool messages."""
+        job=self.job([{'role':'user','content':'question'}],steps=0)
+        planned=correction_context(job,'search_plan');pending=self.job(planned)
+        self.assertEqual(correction_phase(pending),'search_plan');self.assertIsNone(correction_context(pending,'search_plan'))
+        completed=self.job([*planned,{'role':'assistant','content':'valid reply'}],steps=2)
+        self.assertIsNone(correction_phase(completed));self.assertIsNone(correction_context(completed,'search_plan'))
+        self.assertIsNotNone(correction_context(completed,'answer'))
+
+    def test_probe_zero_step_and_invalid_context_fail_closed(self):
+        """[Role] Keeps probe/initial admission and corrupt state outside the pending-correction path."""
+        message={'role':'system','content':CORRECTIONS['search_plan']}
+        self.assertIsNone(correction_phase(self.job([message],steps=0)))
+        self.assertIsNone(correction_phase(self.job([message],purpose='probe')))
+        self.assertIsNone(correction_context(self.job([],purpose='probe'),'search_plan'))
+        with self.assertRaises(ValueError):correction_phase({'steps':1,'context':'{}'})
+        with self.assertRaises(ValueError):correction_context(self.job([]),'unknown')

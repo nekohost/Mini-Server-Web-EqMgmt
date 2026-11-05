@@ -1,0 +1,52 @@
+{
+  "at_utc": "2026-11-05T22:37:10.075703+00:00",
+  "head": "1d711824000c049586603ebc18285a412abf03fa",
+  "dirty": {
+    ".agent-governance/capabilities/chatgpt-remote.yaml": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+    "FEATURES.md": "85d7e393fd3709c92966b27c1613a7bb0858f9ab39ff48eeac03b31bd2b4e810",
+    "PROPOSALS.md": "77ed990f2571268f6c926adeecf3ddd80aa15f5bf51f2807321d316515fe0a3e",
+    "ROADMAP.md": "4bd1005035ad16cd41ae3681163c8e95c0cda99ee154c2a3ff5147de478dda52",
+    "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+    "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+    "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+    "UNIMPLEMENTED_PROPOSALS.md": "76f68e45965434f8de6923d7b3f9d2bac60559ad2f794fbe7f8fdc9341fa5de0",
+    "UNIMPLEMENTED_ROADMAP.md": "d325ea67ec2dc4f3d21ec21bff97b7bbe54239cf9cd659a26ab2f9eba930f41c"
+  },
+  "status": [
+    " M .agent-governance/capabilities/chatgpt-remote.yaml",
+    " M FEATURES.md",
+    " M PROPOSALS.md",
+    " M ROADMAP.md",
+    " M Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+    " M Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+    " M Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+    " M UNIMPLEMENTED_PROPOSALS.md",
+    " M UNIMPLEMENTED_ROADMAP.md",
+    "?? 5650U-COPY-NOTES.txt",
+    "?? Plans/2026/09/28/",
+    "?? Plans/2026/09/29/",
+    "?? Plans/2026/11/06/",
+    "?? Reports/2026/09/29/001_Optional_Real_Name_and_Next_Roadmap_Review.md",
+    "?? Reports/2026/09/29/003_Service_Role_Separation_Feasibility_Report.md",
+    "?? Reports/2026/09/29/index.md",
+    "?? Reports/2026/10/30/003_Backup_Server_SSH_Connection_Report.md",
+    "?? Reports/2026/11/05/006_Test_User_Accounts_Report.md",
+    "?? Reports/2026/11/05/008_Test_User_Accounts_03_05_Report.md",
+    "?? Reports/2026/11/06/",
+    "?? Run-Local-5650U.cmd",
+    "?? Tasks/2026/10/30/003_Backup_Server_SSH_Connection_Task.md",
+    "?? Tasks/2026/11/05/006_Test_User_Accounts_Task.md",
+    "?? Tasks/2026/11/05/008_Test_User_Accounts_03_05_Task.md",
+    "?? Tasks/2026/11/06/",
+    "?? docs/service-operations-handoff.md"
+  ],
+  "source_sha256": {
+    "utils/ai_assistant/__init__.py": "133dc7ab4c928ced2e705e0891f71c7a0b7bca76a1c7e3c7bfb1015a09d74ef3",
+    "utils/ai_assistant/web_search.py": "c5361b39dab5459e09c5ff78e54c0042f95bcffcd9137926d3ae78f278ce66f1",
+    "utils/ai_assistant/worker.py": "89b1d1ec14059e26fd897afac53c8036375d37b9427dafc9fe7b022955452a1c",
+    "utils/ai_assistant/policy.py": "fea98d498991200d99a893931a95a05ed27d495edd5ca5dc5133d11a03a48644",
+    "tests/test_ai_web_search.py": "863c10a177872e4c0490bbe399b25c04b93f14c492185db81f712b99dd04c2db",
+    "tests/test_ai_input_reliability.py": "a40f1ec53adc0aad888305f9590a02d932a45b7b632f668bc476330f95acab6e",
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4"
+  }
+}

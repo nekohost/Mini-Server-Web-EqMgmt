@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.10]
+[EN rev.11]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
-[Impact] New requests use context-selected search; immutable legacy required/off jobs, owner-bound audit/storage and worker boundaries are preserved.
+[Impact] Completed missing decisions/answers receive bounded server-owned correction steps; immutable search consent, audit/storage and unknown-request guards are preserved.
 """
 from datetime import datetime
 import json
@@ -32,6 +32,7 @@ from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
 from .status import read_status
 from .web_search import SearchService, WebSearchError, MAX_SEARCHES, public_searches, search_mode, search_planning, search_permitted
+from .recovery import correction_context, correction_phase
 
 
 def enabled(value):
@@ -760,7 +761,7 @@ def install_assistant(app, services):
 
     @bp.post('/internal/ai/claim')
     def claim():
-        """[Role] Supplies one private worker with minimal model context for one internal queue step.
+        """[Role] Supplies one private worker with minimal model context, including a bounded correction when the prior response completed.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
@@ -788,9 +789,10 @@ def install_assistant(app, services):
             route['legacy_worker_key']=route['credential']=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
             planning=search_planning(job,route)
+            correcting=correction_phase(job)
             search_allowed=search_permitted(job,route)
             searches_remaining=max(0,MAX_SEARCHES-len(public_searches(job['context'])))
-            tools=domain.tools(actor,search_allowed and searches_remaining>0,planning) if route['profile'].get('tools') else []
+            tools=domain.tools(actor,search_allowed and searches_remaining>0,planning) if route['profile'].get('tools') and correcting!='answer' else []
             # Copy only the advertised function, never mutate shared TOOL_MAP descriptions.
             tools=[{**t,'function':{**t['function'],'description':t['function']['description']+f' 현재 요청의 남은 검색은{searches_remaining}회입니다. 한 단계에 검색 하나만 요청하세요.'}}
                    if t['function']['name'] in ('web_search','plan_web_search') else t for t in tools]
@@ -902,10 +904,10 @@ def install_assistant(app, services):
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.3]
-        [Role] Enforces the first automatic search decision before tool effects and finalizes active or minimal deleted-request guards.
-        [Dependencies] Verified lease, lifecycle boundary, shared tool normalization and current actor/menu checks.
-        [Impact] Known errors preserve their reason; deleted dialogue stays absent and uncertain upstream work stays locked.
+        [EN rev.4]
+        [Role] Enforces automatic search decisions and permits one bounded correction for a known-completed missing decision or empty answer.
+        [Dependencies] Verified lease, server-owned correction context, lifecycle boundary and current actor/menu checks.
+        [Impact] Answer corrections admit no tools; real failures remain terminal, deleted dialogue stays absent and uncertain upstream work stays locked.
         """
         worker()
         data=body(2097152)
@@ -991,8 +993,22 @@ def install_assistant(app, services):
             if not isinstance(calls,list) or len(calls)>4:
                 raise AssistantError('도구 호출 수를 확인해 주세요.')
             planning=search_planning(job,route)
+            correcting=correction_phase(job)
+            if planning and not calls:
+                corrected=correction_context(job,'search_plan')
+                if corrected is None:
+                    raise WebSearchError('WEB_SEARCH_PLAN_RECOVERY_FAILED')
+                if len(canonical(corrected))>120000:
+                    code='LENGTH_LIMIT'
+                    raise ValueError('correction context limit')
+                state=store.finish(jid,data['lease'],'queued',context=corrected)
+                if state=='queued':
+                    app.logger.warning('assistant correction job=%s phase=search_plan step=%s',jid,job['steps'])
+                return jsonify(success=True,state=state,response_correction='search_plan' if state=='queued' else None)
             if planning and len(calls)!=1:
                 raise WebSearchError('WEB_SEARCH_PLAN_REQUIRED')
+            if correcting=='answer' and calls:
+                raise AssistantError('답변 보정 단계에서는 새로운 작업 도구를 실행할 수 없습니다.')
             prepared=[]
             ids=set()
             # Validate the entire response before allowing even its first tool to prepare a card.
@@ -1037,6 +1053,18 @@ def install_assistant(app, services):
             code='PROCESSING_FAILED'
             if route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context) and not any(name=='web_search' for _,name,_,_ in prepared):
                 raise WebSearchError('WEB_SEARCH_REQUIRED')
+            if not prepared and not content.strip():
+                corrected=correction_context(job,'answer')
+                if corrected is None:
+                    code='EMPTY_RESPONSE'
+                    raise ValueError('empty completed answer after correction')
+                if len(canonical(corrected))>120000:
+                    code='LENGTH_LIMIT'
+                    raise ValueError('correction context limit')
+                state=store.finish(jid,data['lease'],'queued',context=corrected)
+                if state=='queued':
+                    app.logger.warning('assistant correction job=%s phase=answer step=%s',jid,job['steps'])
+                return jsonify(success=True,state=state,response_correction='answer' if state=='queued' else None)
             if prepared:
                 assistant={'role':'assistant','content':content,'tool_calls':[]}
                 results=[]

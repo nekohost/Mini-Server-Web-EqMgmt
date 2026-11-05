@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.5]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.6]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -235,14 +235,192 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.turn(allow=None);self.assertEqual(self.plan_step(self.claim(),True,query='Flask',provider='http://127.0.0.1')['state'],'failed');self.assertEqual(self.search.calls,[])
         self.turn(allow=None);self.assertEqual(self.plan_step(self.claim(),True,query='SERIAL-2 specifications')['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(self.search.calls,[])
 
-    def test_auto_cannot_skip_the_decision_or_use_other_tools_in_its_place(self):
-        """[Role] Stops an auto model that ignores its explicit decision tool before claiming an unperformed search.
-        [Dependencies] Actual first-step gate. [Impact] No external request or business preparation occurs on either invalid response.
+    def test_auto_corrects_missing_decision_without_accepting_prose_or_other_tools(self):
+        """[Role] Offers one decision correction without accepting prose as executed search.
+        [Dependencies] Real queue/claim/finish boundary. [Impact] Wrong tools still fail before I/O and the correction cannot bypass a false decision.
         """
         self.turn(allow=None);result=self.finish(self.claim(),content='검색 결과가 없었습니다.')
-        self.assertEqual(result['state'],'failed');self.assertEqual(result['error_code'],'WEB_SEARCH_PLAN_REQUIRED');self.assertEqual(self.search.calls,[])
+        self.assertEqual(result['state'],'queued');self.assertEqual(result['response_correction'],'search_plan');self.assertEqual(self.search.calls,[])
+        corrected=self.claim();self.assertEqual(corrected['required_tool'],'plan_web_search')
+        self.assertNotIn('검색 결과가 없었습니다.',[m.get('content') for m in corrected['messages']])
+        self.plan_step(corrected);self.finish(self.claim(),content='실제 검색은 하지 않았습니다.')
         self.turn(allow=None);result=self.search_step(self.claim())
         self.assertEqual(result['error_code'],'WEB_SEARCH_PLAN_REQUIRED');self.assertEqual(self.search.calls,[])
+
+    def assert_correction_released(self,jid):
+        """[Role] Checks the independent execution guard and reserved storage after a corrected or rejected response."""
+        with self.store.db() as db:
+            self.assertEqual(self.store.job(jid,db)['reserved_chars'],0)
+            self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'released')
+
+    def test_missing_decision_is_corrected_once_and_real_search_still_runs(self):
+        """[Role] Replays the observed741-character reasoning-only completion through the durable correction and real search boundary."""
+        jid=self.turn(allow=None,level='xhigh')['job_id'];first=self.claim()
+        result=self.finish(first,content='',reasoning='R'*741)
+        self.assertEqual((result['state'],result['response_correction']),('queued','search_plan'));self.assertEqual(self.search.calls,[])
+        corrected=self.claim();self.assertEqual(corrected['id'],jid);self.assertEqual(corrected['steps'],1)
+        self.assertNotEqual(corrected['lease'],first['lease']);self.assertEqual(corrected['reasoning_effort'],first['reasoning_effort'])
+        self.assertEqual(corrected['required_tool'],'plan_web_search');self.assertEqual([x['function']['name'] for x in corrected['tools']],['plan_web_search'])
+        self.assertEqual(self.plan_step(corrected,True,query='Flask public docs')['state'],'queued')
+        self.assertEqual(self.finish(self.claim(),content='실제 출처를 확인했습니다. [1]')['state'],'done');self.assertEqual(len(self.search.calls),1)
+        with self.store.db() as db:
+            self.assertEqual(len(public_searches(self.store.job(jid,db)['context'])),1)
+            self.assertEqual(db.execute('SELECT reasoning FROM message_steps WHERE job=? AND step=0',(jid,)).fetchone()[0],'R'*741)
+        self.assert_correction_released(jid)
+
+    def test_missing_decision_correction_can_explicitly_decline_search(self):
+        """[Role] Keeps false decisions and ordinary questions from creating external searches after correction."""
+        jid=self.turn(allow=None)['job_id'];self.finish(self.claim(),content='')
+        self.plan_step(self.claim(),False);answer=self.claim()
+        self.assertNotIn('web_search',[t['function']['name'] for t in answer['tools']])
+        self.assertEqual(self.finish(answer,content='주어진 정보로 설명합니다.')['state'],'done');self.assertEqual(self.search.calls,[])
+        self.assert_correction_released(jid)
+
+    def test_repeated_missing_decision_is_terminal_and_does_not_loop(self):
+        """[Role] Verifies correction exhaustion releases the guard and retains a specific failure instead of retrying indefinitely."""
+        jid=self.turn(allow=None)['job_id'];self.finish(self.claim(),content='',reasoning='첫 검토')
+        result=self.finish(self.claim(),content='',reasoning='두 번째 검토')
+        self.assertEqual((result['state'],result['error_code']),('failed','WEB_SEARCH_PLAN_RECOVERY_FAILED'))
+        self.assertIsNone(self.claim());self.assertEqual(self.search.calls,[]);self.assert_correction_released(jid)
+
+    def test_empty_answer_is_corrected_without_offering_tools(self):
+        """[Role] Prevents an empty successful answer while keeping new operations out of the correction phase."""
+        jid=self.turn(allow=False)['job_id'];self.assertEqual(self.finish(self.claim(),content=' \n ',reasoning='검토')['state'],'queued')
+        corrected=self.claim();self.assertEqual(corrected['tools'],[]);self.assertIsNone(corrected['required_tool'])
+        self.assertEqual(self.finish(corrected,content='확인할 자료가 부족합니다.')['state'],'done');self.assertEqual(self.search.calls,[])
+        self.assert_correction_released(jid)
+
+    def test_empty_answer_after_search_preserves_sources_and_does_not_search_twice(self):
+        """[Role] Keeps already charged evidence intact through an answer-only correction."""
+        jid=self.turn(allow=None)['job_id'];self.plan_step(self.claim(),True,query='Flask docs')
+        with self.store.db() as db:charged=evidence_chars(self.store.job(jid,db)['context'])
+        self.finish(self.claim(),content='',reasoning='결과 검토');corrected=self.claim();self.assertEqual(corrected['tools'],[])
+        self.assertEqual(self.finish(corrected,content='확인된 출처입니다. [1]')['state'],'done');self.assertEqual(len(self.search.calls),1)
+        with self.store.db() as db:self.assertEqual(evidence_chars(self.store.job(jid,db)['context']),charged)
+        self.assert_correction_released(jid)
+
+    def test_empty_answer_correction_rejects_forged_tool_calls_before_effects(self):
+        """[Role] Prevents a model from repeating search or preparing a mutation during answer-only repair."""
+        for name,args in (('web_search',{'query':'Flask'}),('prepare_equipment_create',{'name':'duplicate'})):
+            with self.subTest(name=name):
+                jid=self.turn(allow=False)['job_id'];self.finish(self.claim(),content='')
+                result=self.finish(self.claim(),[{'id':'forged','name':name,'arguments':canonical(args)}])
+                self.assertEqual((result['state'],result['error_code']),('failed','INVALID_TOOL_CALL'))
+                with self.store.db() as db:self.assertEqual(db.execute('SELECT COUNT(*) FROM proposals WHERE job=?',(jid,)).fetchone()[0],0)
+                self.assert_correction_released(jid)
+        self.assertEqual(self.search.calls,[])
+
+    def test_second_empty_answer_has_a_specific_error_and_no_next_dispatch(self):
+        """[Role] Ensures even a permanently empty model cannot produce a blank done state or endless correction."""
+        jid=self.turn(allow=False)['job_id'];self.finish(self.claim(),content='')
+        result=self.finish(self.claim(),content='\n\t',reasoning='추론만 있음')
+        self.assertEqual((result['state'],result['error_code']),('failed','EMPTY_RESPONSE'));self.assertIsNone(self.claim())
+        self.assert_correction_released(jid)
+
+    def test_uncertain_stream_never_queues_a_correction(self):
+        """[Role] Holds an uncertain upstream slot instead of dispatching an overlapping corrective request."""
+        jid=self.turn(allow=None)['job_id'];result=self.finish(self.claim(),content='',outcome='recovery_required')
+        self.assertEqual(result['state'],'recovery_required');self.assertIsNone(self.claim())
+        with self.store.db() as db:
+            row=self.store.job(jid,db);self.assertGreater(row['reserved_chars'],0)
+            self.assertFalse(any(m.get('role')=='system' for m in json.loads(row['context'])))
+            self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'recovery_required')
+
+    def test_cancellation_or_trash_between_correction_steps_prevents_dispatch(self):
+        """[Role] Crosses the new queued phase with authoritative cancellation and lifecycle writers."""
+        for mode in ('cancel','trash'):
+            with self.subTest(mode=mode):
+                cid=self.conversation();jid=self.turn(cid,allow=None)['job_id'];self.finish(self.claim(),content='')
+                with self.store.db() as db:account=self.store.job(jid,db)['account_key']
+                if mode=='cancel':self.store.cancel(2,jid)
+                else:self.store.lifecycle(2,cid,account,'trash',0,uuid.uuid4().hex)
+                self.assertIsNone(self.claim());self.assert_correction_released(jid)
+
+    def test_late_old_finish_cannot_append_another_correction_or_replace_a_new_lease(self):
+        """[Role] Preserves a single correction when a fixed finish report is redelivered after a lost acknowledgement."""
+        jid=self.turn(allow=None)['job_id'];first=self.claim();self.finish(first,content='');corrected=self.claim()
+        response=self.client.post('/internal/ai/jobs/'+jid+'/finish',json={'lease':first['lease'],'outcome':'complete','content':'','calls':[]},headers=self.worker_headers)
+        self.assertEqual(response.status_code,409)
+        self.assertEqual(self.plan_step(corrected,False)['state'],'queued');self.assertEqual(self.finish(self.claim(),content='안내합니다.')['state'],'done')
+        self.assert_correction_released(jid)
+
+    def test_corrected_decision_still_enforces_privacy_and_real_search_errors(self):
+        """[Role] Keeps failed query/privacy/provider operations terminal rather than hiding them behind answer repair."""
+        jid=self.turn(allow=None)['job_id'];self.finish(self.claim(),content='')
+        self.assertEqual(self.plan_step(self.claim(),True,query='SERIAL-2 specifications')['error_code'],'WEB_SEARCH_BLOCKED')
+        self.assertEqual(self.search.calls,[]);self.assert_correction_released(jid)
+        jid=self.turn(allow=None)['job_id'];self.finish(self.claim(),content='');self.search.failure='WEB_SEARCH_TIMEOUT'
+        result=self.plan_step(self.claim(),True,query='Flask docs');self.assertEqual((result['state'],result['error_code']),('failed','WEB_SEARCH_TIMEOUT'))
+        self.assert_correction_released(jid)
+
+    def test_correction_does_not_expand_the_total_step_budget(self):
+        """[Role] Leaves the Store's existing six-step cap authoritative even for an otherwise valid correction."""
+        jid=self.turn(allow=False)['job_id']
+        with self.store.db(True) as db:db.execute('UPDATE jobs SET steps=5 WHERE id=?',(jid,))
+        self.assertEqual(self.finish(self.claim(),content='')['state'],'failed')
+        with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['error_code'],'STEP_LIMIT')
+        self.assert_correction_released(jid)
+
+    def test_cancel_or_trash_during_correction_admission_never_queues_more_work(self):
+        """[Role] Races the exact corrective finish with owner cancellation/lifecycle changes before its transaction."""
+        from utils.ai_assistant.recovery import correction_context
+        for mode in ('cancel','trash'):
+            with self.subTest(mode=mode):
+                cid=self.conversation();jid=self.turn(cid,allow=None)['job_id'];job=self.claim()
+                with self.store.db() as db:account=self.store.job(jid,db)['account_key']
+                def interrupted(current,phase):
+                    """[Role] Applies the real lifecycle writer between pure correction preparation and guarded completion."""
+                    context=correction_context(current,phase)
+                    if mode=='cancel':self.store.cancel(2,jid)
+                    else:self.store.lifecycle(2,cid,account,'trash',0,uuid.uuid4().hex)
+                    return context
+                with patch('utils.ai_assistant.correction_context',side_effect=interrupted):result=self.finish(job,content='')
+                self.assertEqual(result['state'],'cancelled');self.assertIsNone(result['response_correction']);self.assertIsNone(self.claim())
+                self.assert_correction_released(jid)
+
+    def test_logout_between_correction_steps_revokes_its_dispatch(self):
+        """[Role] Prevents a corrective model step from outliving the accepted user's authentication."""
+        jid=self.turn(allow=None)['job_id'];self.finish(self.claim(),content='')
+        with self.store.db() as db:binding=self.store.job(jid,db)['binding']
+        self.store.revoke(binding);self.assertIsNone(self.claim());self.assert_correction_released(jid)
+
+    def test_a_new_question_does_not_inherit_prior_correction_control(self):
+        """[Role] Crosses durable correction history with the actual next-turn context builder."""
+        from utils.ai_assistant.recovery import CORRECTIONS
+        cid=self.conversation();self.turn(cid,allow=None);self.finish(self.claim(),content='')
+        self.plan_step(self.claim(),False);self.finish(self.claim(),content='일반 안내입니다.')
+        self.turn(cid,allow=None);fresh=self.claim()
+        self.assertEqual(fresh['steps'],0);self.assertEqual(fresh['required_tool'],'plan_web_search')
+        self.assertFalse(any(m.get('content') in CORRECTIONS.values() for m in fresh['messages']))
+        self.plan_step(fresh,False);self.assertEqual(self.finish(self.claim(),content='새 답변입니다.')['state'],'done')
+
+    def test_worker_streams_corrections_through_real_routes_and_preserves_xhigh(self):
+        """[Role] Crosses real SSE parsing, worker reports, durable queue, validated search and empty-answer repair without a model/network.
+        [Dependencies] Inert model SSE only; actual Flask/Domain/Store boundaries. [Impact] Two distinct corrective steps produce one actual search and one final answer.
+        """
+        from utils.ai_assistant.worker import Worker
+        def reply(delta,finish):
+            """[Role] Builds a genuinely terminated synthetic model step, including its exact final signal."""
+            return ProtocolTests.response(self,['data: '+canonical({'choices':[{'delta':delta,'finish_reason':finish}]}),'','data: [DONE]',''])
+        def post(path,data):
+            """[Role] Uses actual authenticated internal routes instead of bypassing queue/final validation."""
+            response=self.client.post(path,json=data,headers=self.worker_headers)
+            self.assertEqual(response.status_code,200,response.get_json());return response.get_json()
+        responses=[reply({'reasoning_content':'R'*741},'stop'),
+                   reply({'tool_calls':[{'index':0,'id':'plan','function':{'name':'plan_web_search','arguments':canonical({'needed':True,'query':'Flask docs'})}}]},'tool_calls'),
+                   reply({'reasoning_content':'결과 검토'},'stop'),reply({'content':'실제 출처를 확인했습니다. [1]'},'stop')]
+        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model');worker.post=post
+        jid=self.turn(allow=None,level='xhigh')['job_id']
+        with patch('utils.ai_assistant.worker.model_request',side_effect=responses) as transport,self.assertLogs('equipment_assistant_worker',level='INFO') as logs:
+            for _ in range(4):
+                job=self.claim();self.assertEqual(job['id'],jid);worker.run_job(job)
+        payloads=[call.args[4] for call in transport.call_args_list]
+        self.assertEqual(len(payloads),4);self.assertTrue(all(p['reasoning_effort']=='xhigh' for p in payloads))
+        self.assertEqual(payloads[1]['tool_choice'],{'type':'function','function':{'name':'plan_web_search'}});self.assertNotIn('tools',payloads[-1])
+        self.assertTrue(any('finish=stop done=True calls=0 content_chars=0 reasoning_chars=741' in line for line in logs.output))
+        self.assertFalse(any('R'*100 in line for line in logs.output));self.assertEqual(len(self.search.calls),1)
+        with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['state'],'done')
+        self.assert_correction_released(jid)
 
     def test_auto_decision_is_first_step_only_and_does_not_become_fake_sources(self):
         """[Role] Prevents a second planning call and keeps a false decision out of source accounting.
