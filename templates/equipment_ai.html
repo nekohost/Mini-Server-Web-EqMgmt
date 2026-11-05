@@ -4,10 +4,10 @@
 {% block container_class %}assistant-container{% endblock %}
 {% block content %}
 <!-- [MINI-COMMENT: ASSISTANT.VIEW]
-[EN rev.6]
-[Role] Independent equipment chat with compact responsive session identification, composer model controls, safe tables, owner history and explicit trash lifecycle controls.
+[EN rev.8]
+[Role] Independent equipment chat with a default-collapsed model picker below reasoning, safe tables and request-only file/CSV dialogs.
 [Dependencies] equipment_ai.js/css and the existing authenticated frame; no Strata iframe/vendor UI.
-[Impact] Stable control IDs preserve model/request state; mobile drawer placement follows the header grid row, conditional support details stay near the composer, and trash messages remain read-only with explicit permanent-deletion confirmation.
+[Impact] Native model disclosure preserves the existing selection/refresh DOM and leaves errors outside; the composer retains request-only file dialogs and independent trash/lifecycle confirmations.
 -->
 <link rel="stylesheet" href="{{ url_for('static',filename='css/equipment_ai.css') }}">
 <section id="equipment-ai" data-csrf="{{ assistant_csrf }}" aria-label="장비관리 AI 도우미">
@@ -52,23 +52,28 @@
         <label for="ai-input" class="ai-sr-only">AI 도우미에게 보낼 내용</label>
         <textarea id="ai-input" name="content" rows="2" maxlength="8000" placeholder="내 장비에 대해 물어보거나, 필요한 일을 요청해 보세요." required></textarea>
         <div class="ai-composer-actions">
-          <div class="ai-model-control"><div class="ai-model-field"><label for="ai-model">AI 모델</label><select id="ai-model" aria-describedby="ai-model-status ai-unavailable-models"></select></div><button id="ai-model-refresh" class="ai-button" type="button">목록 새로고침</button></div>
           <div class="ai-level-control"><label for="ai-level">추론</label><select id="ai-level" aria-label="추론 수준" aria-describedby="ai-level-help ai-reasoning-support" disabled><option value="off" disabled>off</option><option value="low" disabled>low</option><option value="medium" selected disabled>medium</option><option value="high" disabled>high</option><option value="xhigh" disabled>xhigh</option><option value="max" disabled>max</option></select><span id="ai-level-help" class="ai-sr-only">모델별 지원과 관리자 허용 단계를 확인합니다.</span></div>
           <button id="ai-send" type="submit" class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button>
         </div>
+        <details id="ai-model-settings" class="ai-control-support ai-model-settings"><summary>AI 모델 선택</summary><div class="ai-model-control"><div class="ai-model-field"><label for="ai-model">AI 모델</label><select id="ai-model" aria-describedby="ai-model-status ai-unavailable-models"></select></div><button id="ai-model-refresh" class="ai-button" type="button">목록 새로고침</button></div></details>
         <p id="ai-model-status" class="ai-control-status" role="status" hidden></p>
         <details id="ai-unavailable-models" class="ai-control-support" hidden><summary>사용할 수 없는 모델 안내</summary><ul id="ai-unavailable-model-reasons"></ul></details>
         <details id="ai-reasoning-support" class="ai-control-support" hidden><summary>추론 단계 지원 안내</summary><ul id="ai-reasoning-reasons"></ul></details>
       </form>
-      <p class="ai-footnote">등록·수정·신청은 내용을 확인한 뒤 적용됩니다. 장비 삭제와 관리자 업무는 처리하지 않습니다.</p>
-      <details class="ai-file-tools"><summary>파일 첨부·CSV 가져오기</summary><fieldset id="ai-file-controls" class="ai-file-controls"><div class="ai-file-grid">
-        <form id="ai-upload-form"><h3>내 장비에 파일 첨부</h3><label>장비 번호 <input id="ai-upload-equipment" type="number" min="1" required></label><label>PNG·JPEG·PDF, 최대 10MiB <input id="ai-upload-file" type="file" accept=".png,.jpg,.jpeg,.pdf" required></label><button class="ai-button" type="submit">선택한 파일 첨부</button></form>
-        <form id="ai-csv-form"><h3>내 장비 CSV 가져오기</h3><label>CSV, 최대 1MiB·500행 <input id="ai-csv-file" type="file" accept=".csv" required></label><button class="ai-button" type="submit">등록 전 미리보기</button><pre id="ai-csv-preview" hidden></pre><button id="ai-csv-confirm" class="ai-button" type="button" hidden>검증된 CSV 장비 등록</button></form>
-      </div></fieldset></details>
     </div>
     </div>
   </div>
   <dialog id="ai-lifecycle-dialog" class="ai-dialog" aria-labelledby="ai-dialog-title" aria-describedby="ai-dialog-message ai-dialog-detail"><h2 id="ai-dialog-title" tabindex="-1"></h2><p id="ai-dialog-message"></p><p id="ai-dialog-detail"></p><div class="ai-dialog-actions"><button type="button" class="ai-button" id="ai-dialog-cancel">취소</button><button type="button" class="ai-button" id="ai-dialog-confirm">확인</button></div></dialog>
+  <dialog id="ai-file-dialog" class="ai-file-dialog" aria-labelledby="ai-file-title" aria-describedby="ai-file-description">
+    <div class="ai-file-heading"><h2 id="ai-file-title" tabindex="-1">CSV 작업</h2><button id="ai-file-close" class="ai-button" type="button" aria-label="파일 작업 닫기">닫기</button></div>
+    <p id="ai-file-description"></p>
+    <p id="ai-file-notice" class="ai-file-notice" role="status" aria-live="polite" hidden></p>
+    <fieldset id="ai-file-controls" class="ai-file-controls">
+      <form id="ai-upload-form" hidden><label>장비 번호 <input id="ai-upload-equipment" type="number" min="1" required></label><label>PNG·JPEG·PDF, 최대 10MiB <input id="ai-upload-file" type="file" accept=".png,.jpg,.jpeg,.pdf" required></label><button class="ai-button" type="submit">선택한 파일 첨부</button></form>
+      <form id="ai-csv-form" hidden><label>CSV, 최대 1MiB·500행 <input id="ai-csv-file" type="file" accept=".csv" required></label><button class="ai-button" type="submit">등록 전 미리보기</button><pre id="ai-csv-preview" hidden></pre><button id="ai-csv-confirm" class="ai-button" type="button" hidden>검증된 CSV 장비 등록</button></form>
+      <section id="ai-csv-export" hidden><p id="ai-csv-export-scope"></p><a id="ai-csv-download" class="ai-button" download>CSV 파일 내려받기</a></section>
+    </fieldset>
+  </dialog>
 </section>
 <noscript>AI 도우미를 사용하려면 JavaScript를 활성화해 주세요.</noscript>
 {% endblock %}

@@ -1,0 +1,176 @@
+{
+  "work_id": "RELEASE-20261105-AI-CSV-LAYOUT",
+  "prepared": {
+    "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-csv-layout-20261105T055225Z-121eb6",
+    "old_head": "cb1d72c6abfd4abdb288315138501a9d9a7fe28a",
+    "old_pid": 824644,
+    "business_tables": 18,
+    "ai_tables": 17,
+    "files": [
+      {
+        "name": "assistant-before.sqlite3",
+        "sha256": "598f8be72f196eeebaed002a07f46f812732499f9f400445bbe60a16943ccf65",
+        "mode": "0o600"
+      },
+      {
+        "name": "assistant-before.sqlite3-shm",
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "mode": "0o600"
+      },
+      {
+        "name": "assistant-before.sqlite3-wal",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "name": "equipment-ai-retention.service.before",
+        "sha256": "bcb13d2a0d50a98ff4521d641f3f52b6d00bef67c74125051b048a57fa5eba27",
+        "mode": "0o600"
+      },
+      {
+        "name": "equipment-ai-retention.timer.before",
+        "sha256": "bd72116858a5398a00b9bb4cb7c4c9836522ea0a52d49dab7684ade2e63b30a4",
+        "mode": "0o600"
+      },
+      {
+        "name": "equipment-before.sqlite3",
+        "sha256": "3a77b24a01269f59168af0949d1ead4d9bbc184cfc8fe7febbe54ac7ee952a88",
+        "mode": "0o600"
+      },
+      {
+        "name": "equipment-before.sqlite3-shm",
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+        "mode": "0o600"
+      },
+      {
+        "name": "equipment-before.sqlite3-wal",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "mode": "0o600"
+      },
+      {
+        "name": "web.env.before",
+        "sha256": "22943c5d62c7591e4c44c901eddb374845d5651e762a80bda99572e701c3c2fc",
+        "mode": "0o600"
+      },
+      {
+        "name": "worker.env.before",
+        "sha256": "6dcfcaf64bfdc7deb1479dff17e93a3579ebdae9141ee0aff4ad3568d0ecd5ec",
+        "mode": "0o600"
+      },
+      {
+        "name": "worker.service.before",
+        "sha256": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+        "mode": "0o600"
+      }
+    ],
+    "secrets_printed": false
+  },
+  "root_merge": {
+    "merged_sources": [
+      {
+        "path": "static/css/equipment_ai.css",
+        "sha256": "6bca5a6a4126a982670566f4c4a34a45e539eec40d4201f1af7a5449ff923d91"
+      },
+      {
+        "path": "static/js/equipment_ai.js",
+        "sha256": "3324e62c88ae5c14fb58a5fcecefdb3550c0c35f55c2d32e3429abfee4f77d73"
+      },
+      {
+        "path": "templates/equipment_ai.html",
+        "sha256": "a2f70171ef629adcb06d1aa222dad5dceb4dcd6689e5eec099ebdd3b5de3c24a"
+      },
+      {
+        "path": "tests/assistant_browser_fixture.py",
+        "sha256": "82fac0f55bf2d803799e07abd0529a6604b45e2834374a728c5696f5d5fcdd32"
+      },
+      {
+        "path": "tests/assistant_ui_browser_fixture.py",
+        "sha256": "4cc2a66270425130069a78a37087f28c49ca8e3587061c31942d6590675f2472"
+      },
+      {
+        "path": "tests/csv_popup_browser_fixture.py",
+        "sha256": "3e9dbb2a37c79eb1fe63b09b7a95b99e60df5fcb044671df7921f142e7392c64"
+      },
+      {
+        "path": "tests/model_disclosure_browser_fixture.py",
+        "sha256": "63843480abd0f73ca887744b28db3c41021567fd4a42eeb49616a3c8973e5c8e"
+      },
+      {
+        "path": "tests/run_assistant_fixture.py",
+        "sha256": "dff3c8c733d505a10034b62727722123a24edbe6cb4a991765de2f8b250f9e1e"
+      },
+      {
+        "path": "tests/test_equipment_ai_ui.js",
+        "sha256": "5bbd1c11d2be306465d2e365ae62483fe3c501f02bb33e81fb4a7412cc7ea7cf"
+      },
+      {
+        "path": "tests/viewport_scrollbar_browser_fixture.py",
+        "sha256": "fd371d57d4350649eb552c1c87d44b34aaa8cb1f4c0a2092fd4c4bfbe2848249"
+      },
+      {
+        "path": "utils/ai_assistant/policy.py",
+        "sha256": "ce8621c1e6c96a86098a2285d06bbe31e6f8964a957e654b194fa08d45ea3a8e"
+      }
+    ],
+    "static": {
+      "python_ast": 7,
+      "node_check": 2
+    },
+    "staging_files_byte_verified": 13,
+    "archive": {
+      "path": "Reports/2026/11/05/010_AI_Model_Disclosure/reviewed-merged-sources.zip",
+      "sha256": "dfb07adbd74fd1665335092d6ef84f8dc383b1c4fe222dd50fcf6bcc097c32d1",
+      "files": 13,
+      "byte_verified": true
+    }
+  },
+  "previous_dirty_baseline": [
+    {
+      "path": ".agent-governance/capabilities/chatgpt-remote.yaml",
+      "sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+      "lf_sha256": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4"
+    },
+    {
+      "path": "FEATURES.md",
+      "sha256": "295d5041acbce80aecab3de49843ce499402c89ad6d687713c76371483d35dc6",
+      "lf_sha256": "295d5041acbce80aecab3de49843ce499402c89ad6d687713c76371483d35dc6"
+    },
+    {
+      "path": "PROPOSALS.md",
+      "sha256": "ba2831db99e341bbeb862ee2e0b6a812a1c92bea0ecd2712b73fff679ae89998",
+      "lf_sha256": "ba2831db99e341bbeb862ee2e0b6a812a1c92bea0ecd2712b73fff679ae89998"
+    },
+    {
+      "path": "ROADMAP.md",
+      "sha256": "ab6d7628f4dec8fe55997658fd2563dab41f9ba5bd25876848a2ceff5d53bc57",
+      "lf_sha256": "ab6d7628f4dec8fe55997658fd2563dab41f9ba5bd25876848a2ceff5d53bc57"
+    },
+    {
+      "path": "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+      "sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+      "lf_sha256": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3"
+    },
+    {
+      "path": "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+      "sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+      "lf_sha256": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0"
+    },
+    {
+      "path": "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+      "sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+      "lf_sha256": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea"
+    },
+    {
+      "path": "UNIMPLEMENTED_PROPOSALS.md",
+      "sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509",
+      "lf_sha256": "cd0b02f7aaa6ffa68658164fb8760f99ab7ae15698205d4ead77ca7d63416509"
+    },
+    {
+      "path": "UNIMPLEMENTED_ROADMAP.md",
+      "sha256": "29e85ca043e15216667833aa3f7f636f22a6705f1e326fc0cde801c2f247a82b",
+      "lf_sha256": "29e85ca043e15216667833aa3f7f636f22a6705f1e326fc0cde801c2f247a82b"
+    }
+  ],
+  "future_plan": "PLANNED-20261105-AI-HEADER (unimplemented)",
+  "staging_files_cleaned": 13
+}

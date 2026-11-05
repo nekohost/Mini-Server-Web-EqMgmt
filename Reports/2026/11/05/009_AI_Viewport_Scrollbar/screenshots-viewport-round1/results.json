@@ -1,0 +1,82 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "516460cbac36497ffeb0b21b96388823961ccca2f2db90745cb03ac6675546c2",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 320px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 320,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-000.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 320px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 320,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-001.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 390px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-002.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 390px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-003.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 820px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 820,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-004.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 820px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 820,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-005.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 1440px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-006.png"
+    },
+    {
+      "status": "fail",
+      "error": "UI browser viewport mismatch: requested 1440px, actual Nonepx; UI browser fixture did not complete",
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round1/screen-007.png"
+    }
+  ],
+  "fixture_digest": "516460cbac36497ffeb0b21b96388823961ccca2f2db90745cb03ac6675546c2"
+}

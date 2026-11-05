@@ -1,11 +1,11 @@
 /* [MINI-COMMENT: ASSISTANT.STYLES]
- * [EN rev.6]
- * [Role] Styles compact responsive chat, wrapping composer model controls, bounded table regions and accessible lifecycle dialogs.
+ * [EN rev.9]
+ * [Role] Styles default-collapsed model controls, measured-height chat and themed native scrollbars alongside requested file dialogs.
  * [Dependencies] Existing frame typography/theme.
- * [Impact] Preserves theme variables and scoped overflow; desktop removes the header footprint, while the mobile drawer begins at the actual header grid edge and controls retain shared sizes and native-compatible normal line height.
+ * [Impact] Closed model controls consume summary space only; expanded controls keep their measured sizing, errors stay outside, and viewport minimums/scrollbar themes remain scoped to the assistant.
  */
 .assistant-container{max-width:1600px;margin:0 auto;padding:18px 22px 24px}
-#equipment-ai{--ai-bg:#fff;--ai-panel:#f7f8fa;--ai-text:#242d39;--ai-muted:#717b89;--ai-line:#e7ebef;--ai-accent:#087e78;--ai-soft:#e9f6f3;display:grid;grid-template-columns:244px minmax(0,1fr);height:calc(100dvh - 116px);min-height:620px;max-height:1250px;background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-line);border-radius:18px;overflow:hidden;font-size:14px;line-height:1.65;box-shadow:0 10px 40px #23304406}
+#equipment-ai{--ai-bg:#fff;--ai-panel:#f7f8fa;--ai-text:#242d39;--ai-muted:#717b89;--ai-line:#e7ebef;--ai-accent:#087e78;--ai-soft:#e9f6f3;display:grid;grid-template-columns:244px minmax(0,1fr);--ai-min-height:620px;height:var(--ai-fitted-height,calc(100dvh - 116px));min-height:var(--ai-measured-min-height,var(--ai-min-height));box-sizing:border-box;max-height:1250px;background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-line);border-radius:18px;overflow:hidden;font-size:14px;line-height:1.65;box-shadow:0 10px 40px #23304406}
 .dark #equipment-ai{--ai-bg:#141c28;--ai-panel:#101722;--ai-text:#e6ebf2;--ai-muted:#97a5b6;--ai-line:#2a3545;--ai-accent:#66d3c2;--ai-soft:#193730}
 #equipment-ai{font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
 /* W0 is the font-ready, pre-compact Qwen3.8 Flash Next reasoning select outer width measured at 1440 CSS px; the new reasoning width is independent. */
@@ -71,8 +71,8 @@
 #equipment-ai .ai-model-field{display:flex;align-items:center;gap:6px;flex:1 1 8rem;max-width:calc(var(--ai-model-max-width) + 3.25rem);min-width:0}
 #equipment-ai .ai-level-control{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
 #equipment-ai .ai-model-control label,#equipment-ai .ai-level-control label{font-size:var(--ai-control-font-size);line-height:1.4;color:var(--ai-muted);white-space:nowrap;flex-shrink:0}
-#equipment-ai .ai-composer-actions select,#equipment-ai #ai-model-refresh{box-sizing:border-box;height:var(--ai-control-height);border:1px solid var(--ai-line);border-radius:7px;padding:0 8px;background:var(--ai-panel);color:var(--ai-text);font-size:var(--ai-control-font-size);line-height:normal;font-weight:400}
-#equipment-ai .ai-composer-actions select{padding-right:25px}
+#equipment-ai .ai-composer-actions select,#equipment-ai #ai-model,#equipment-ai #ai-model-refresh{box-sizing:border-box;height:var(--ai-control-height);border:1px solid var(--ai-line);border-radius:7px;padding:0 8px;background:var(--ai-panel);color:var(--ai-text);font-size:var(--ai-control-font-size);line-height:normal;font-weight:400}
+#equipment-ai .ai-composer-actions select,#equipment-ai #ai-model{padding-right:25px}
 #equipment-ai #ai-model{width:0;min-width:0;max-width:var(--ai-model-max-width);flex:1 1 0}
 #equipment-ai #ai-model-refresh{flex-shrink:0;white-space:nowrap}
 #equipment-ai #ai-level{width:auto;max-width:100%;min-width:0;flex:0 1 auto}
@@ -81,6 +81,8 @@
 #equipment-ai .ai-control-support summary{cursor:pointer}
 #equipment-ai .ai-control-support[open]{display:block}
 #equipment-ai .ai-control-support ul{padding:5px 0 0 16px;margin:0}
+#equipment-ai .ai-model-settings{display:block;margin-right:0}
+#equipment-ai .ai-model-settings .ai-model-control{margin-top:8px}
 #equipment-ai .ai-send{border:0;border-radius:10px;color:white;background:#087e78;width:var(--ai-control-height);height:var(--ai-control-height);flex-shrink:0;margin-left:auto;font-size:21px;font-weight:500}
 #equipment-ai .ai-footnote{text-align:center;color:var(--ai-muted);font-size:12px;line-height:1.6;margin:10px 0;overflow-wrap:anywhere}
 #equipment-ai .ai-notice{font-size:12px;color:var(--ai-text);border-bottom:1px solid var(--ai-line);padding:10px 30px;background:var(--ai-soft)}
@@ -137,6 +139,40 @@
 #equipment-ai #ai-dialog-detail{font-size:12px;color:var(--ai-muted)}
 #equipment-ai .ai-dialog-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:9px;margin-top:22px}#equipment-ai .ai-dialog-actions button{min-height:40px;max-width:100%}
 @media(prefers-reduced-motion:reduce){#equipment-ai .ai-pulse{animation:none}#equipment-ai .ai-suggestions button{transition:none}}
+/* [MINI-COMMENT: ASSISTANT.STYLES.SCROLLBARS] [EN rev.1]
+ * [Role] Themes native horizontal/vertical scrollbars only inside the assistant.
+ * [Dependencies] Standard scrollbar properties with WebKit geometry/hover fallback and existing theme ancestry.
+ * [Impact] Wheel, touch, keyboard and thumb dragging remain native; forced-colors restores platform contrast.
+ */
+#equipment-ai{--ai-scroll-track:#edf1f6;--ai-scroll-thumb:#748399;--ai-scroll-hover:#53657e}
+.dark #equipment-ai{--ai-scroll-track:#111a27;--ai-scroll-thumb:#61758d;--ai-scroll-hover:#8fa6c2}
+#equipment-ai,#equipment-ai *{scrollbar-width:thin;scrollbar-color:var(--ai-scroll-thumb) var(--ai-scroll-track)}
+#equipment-ai ::-webkit-scrollbar{width:10px;height:10px}
+#equipment-ai ::-webkit-scrollbar-track,#equipment-ai ::-webkit-scrollbar-corner{background:var(--ai-scroll-track)}
+#equipment-ai ::-webkit-scrollbar-thumb{background:var(--ai-scroll-thumb);border:2px solid var(--ai-scroll-track);border-radius:12px;background-clip:padding-box}
+#equipment-ai ::-webkit-scrollbar-thumb:hover{background-color:var(--ai-scroll-hover)}
+@media(forced-colors:active){#equipment-ai,#equipment-ai *{scrollbar-color:auto;scrollbar-width:auto}#equipment-ai ::-webkit-scrollbar-track,#equipment-ai ::-webkit-scrollbar-corner{background:Canvas}#equipment-ai ::-webkit-scrollbar-thumb{background:CanvasText;border-color:Canvas}}
+/* [MINI-COMMENT: ASSISTANT.STYLES.FILE.WORKSPACE] [EN rev.1]
+ * [Role] Bounds the user-opened native file workspace in both themes and every viewport.
+ * [Dependencies] Existing assistant theme tokens and dialog top-layer semantics.
+ * [Impact] Closed dialogs remain absent from layout; long previews scroll locally and file inputs cannot widen the page.
+ */
+#equipment-ai .ai-file-dialog{box-sizing:border-box;width:min(720px,calc(100vw - 32px));max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);margin:auto;padding:24px;border:1px solid var(--ai-line);border-radius:16px;background:var(--ai-panel);color:var(--ai-text);overflow:auto;overscroll-behavior:contain;box-shadow:0 24px 80px #0005}
+#equipment-ai .ai-file-dialog::backdrop{background:#0008}
+#equipment-ai .ai-file-dialog [hidden]{display:none!important}
+#equipment-ai .ai-file-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;position:sticky;top:-24px;background:var(--ai-panel);padding:8px 0;z-index:1}
+#equipment-ai .ai-file-heading h2{font-size:18px;line-height:1.5;font-weight:650;overflow-wrap:anywhere;outline:none}
+#equipment-ai .ai-file-dialog p{font-size:13px;line-height:1.8;overflow-wrap:anywhere;white-space:pre-line;margin:10px 0}
+#equipment-ai .ai-file-dialog #ai-file-description{color:var(--ai-muted)}
+#equipment-ai .ai-file-dialog .ai-file-notice{border:1px solid var(--ai-line);border-radius:8px;padding:10px 12px;background:var(--ai-bg)}
+#equipment-ai .ai-file-dialog .ai-file-controls{min-width:0;border:0;padding:0;margin:18px 0 0}
+#equipment-ai .ai-file-dialog form,#equipment-ai .ai-file-dialog section{min-width:0;display:grid;gap:16px}
+#equipment-ai .ai-file-dialog label{min-width:0;display:grid;gap:7px;font-size:13px}
+#equipment-ai .ai-file-dialog input{box-sizing:border-box;min-width:0;width:100%;max-width:100%;border:1px solid var(--ai-line);border-radius:8px;padding:10px;background:var(--ai-bg);color:var(--ai-text);font-size:13px}
+#equipment-ai .ai-file-dialog input:focus-visible,#equipment-ai .ai-file-dialog .ai-button:focus-visible{outline:2px solid var(--ai-accent);outline-offset:3px}
+#equipment-ai .ai-file-dialog .ai-button{min-height:44px;white-space:normal;text-align:center;text-decoration:none}
+#equipment-ai #ai-csv-preview{min-width:0;max-width:100%;max-height:min(34dvh,320px);overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;border:1px solid var(--ai-line);border-radius:8px;padding:12px;background:var(--ai-bg);font-size:12px;line-height:1.8;font-family:inherit}
+@media(max-width:430px){#equipment-ai .ai-file-dialog{padding:16px;width:calc(100vw - 20px);max-width:calc(100vw - 20px)}#equipment-ai .ai-file-heading{top:-16px}#equipment-ai .ai-file-heading h2{font-size:16px}}
 @media(max-width:1100px){#equipment-ai{grid-template-columns:210px minmax(0,1fr)}#equipment-ai .ai-scroll{padding:24px}#equipment-ai .ai-bottom{padding:0 24px 12px}}
 /* The positioned drawer uses row 2 as its containing block, so the header's actual height also determines the drawer edge after text zoom or title changes. */
-@media(max-width:760px){.assistant-container{padding:8px}#equipment-ai{--ai-control-height:44px;position:relative;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:calc(100dvh - 100px);min-height:550px;border-radius:12px}#equipment-ai .ai-workspace{display:contents}#equipment-ai .ai-workspace-body{grid-column:1;grid-row:2}#equipment-ai .ai-sidebar{position:absolute;grid-column:1;grid-row:2;left:0;top:0;bottom:0;width:250px;max-width:100%;box-sizing:border-box;z-index:5;box-shadow:10px 0 20px #0001;display:none}#equipment-ai .ai-sidebar.is-open{display:flex}#equipment-ai .ai-header{display:flex;grid-column:1;grid-row:1;align-items:center;gap:10px;min-width:0;padding:6px 10px;border-bottom:1px solid var(--ai-line)}#equipment-ai .ai-mobile-toggle{display:inline-flex;flex-shrink:0;min-height:var(--ai-control-height);font-size:12px}#equipment-ai .ai-scroll{padding:20px 16px}#equipment-ai .ai-bottom{padding:0 12px 9px}#equipment-ai .ai-welcome{margin:25px auto}#equipment-ai .ai-welcome-description{font-size:11px}#equipment-ai .ai-suggestions{grid-template-columns:1fr;gap:7px;margin-top:25px}#equipment-ai .ai-suggestions button{min-height:0;padding:12px 15px}#equipment-ai .ai-suggestions small{margin-top:3px}#equipment-ai .ai-proposal dl{grid-template-columns:90px minmax(0,1fr)}#equipment-ai .ai-file-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.assistant-container{padding:8px}#equipment-ai{--ai-control-height:44px;position:relative;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);--ai-min-height:550px;height:var(--ai-fitted-height,calc(100dvh - 100px));min-height:var(--ai-measured-min-height,var(--ai-min-height));border-radius:12px}#equipment-ai .ai-workspace{display:contents}#equipment-ai .ai-workspace-body{grid-column:1;grid-row:2}#equipment-ai .ai-sidebar{position:absolute;grid-column:1;grid-row:2;left:0;top:0;bottom:0;width:250px;max-width:100%;box-sizing:border-box;z-index:5;box-shadow:10px 0 20px #0001;display:none}#equipment-ai .ai-sidebar.is-open{display:flex}#equipment-ai .ai-header{display:flex;grid-column:1;grid-row:1;align-items:center;gap:10px;min-width:0;padding:6px 10px;border-bottom:1px solid var(--ai-line)}#equipment-ai .ai-mobile-toggle{display:inline-flex;flex-shrink:0;min-height:var(--ai-control-height);font-size:12px}#equipment-ai .ai-scroll{padding:20px 16px}#equipment-ai .ai-bottom{padding:0 12px 9px}#equipment-ai .ai-welcome{margin:25px auto}#equipment-ai .ai-welcome-description{font-size:11px}#equipment-ai .ai-suggestions{grid-template-columns:1fr;gap:7px;margin-top:25px}#equipment-ai .ai-suggestions button{min-height:0;padding:12px 15px}#equipment-ai .ai-suggestions small{margin-top:3px}#equipment-ai .ai-proposal dl{grid-template-columns:90px minmax(0,1fr)}#equipment-ai .ai-file-grid{grid-template-columns:1fr}}

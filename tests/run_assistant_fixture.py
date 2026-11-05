@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.LINUX.FIXTURE.RUNNER]
-[EN rev.7]
+[EN rev.12]
 [Role] Transfers audited candidate source in memory to the authorized Linux fixture host over SSH.
 [Dependencies] Root source plus staged overlays, subprocess SSH and Python stdlib; never imports the app on Windows.
-[Impact] Reports measured Linux test duration from either the candidate overlay or the merged root; no remote source/config file is modified and synthetic DBs are removed by their tests.
+[Impact] Sparse overlays retain unchanged baseline tests/assets; full generated browser evidence is saved beside screenshots with compact stdout, and no remote source/config or production DB is modified.
 """
 import argparse
 import base64
@@ -25,13 +25,17 @@ def main():
     parser.add_argument('--artifact-dir',help='Create new screenshot artifacts under this project Reports directory.')
     parser.add_argument('--summary-only',action='store_true',help='Keep check names and failures while suppressing routine fixture logs.')
     parser.add_argument('--tmpfs-fixtures',action='store_true',help='Use private Linux tmpfs for disposable functional fixtures; never changes SQLite durability settings.')
-    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat'],default='all')
+    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','popup-short','viewport','disclosure'],default='all')
     args=parser.parse_args()
     overlay=Path(__file__).resolve().parents[1]
     project=overlay if (overlay/'AGENTS.md').is_file() else overlay.parents[2]
-    fixture_roots=(overlay/'tests',) if overlay==project else (overlay/'tests',overlay.parent/'tests')
+    fixture_roots=(overlay/'tests',) if overlay==project else (project/'tests',overlay.parent/'tests',overlay/'tests')
     extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py'}
-    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py'}
+    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py'}
+    def candidate_file(relative):
+        """[Role] Selects a changed overlay source or the unchanged reviewed project baseline. [Impact] No production app import occurs on Windows."""
+        staged=overlay/relative
+        return staged if staged.is_file() else project/relative
     sources={'utils':{'source':'','package':True}}
     for source_root in (project,overlay):
         for file in sorted((source_root/'utils').rglob('*.py')):
@@ -42,8 +46,9 @@ def main():
         'static/css/equipment_ai.css','static/css/equipment_ai_providers.css',
         'static/js/equipment_ai.js','static/js/equipment_ai_providers.js','static/js/session_timer.js')
     assets={relative:((overlay/relative) if (overlay/relative).is_file() else project/relative).read_text(encoding='utf-8-sig') for relative in candidate_paths}
-    for file in sorted((overlay/'templates').glob('strata*.html')):
-        assets[file.relative_to(overlay).as_posix()]=file.read_text(encoding='utf-8-sig')
+    for source_root in (project,overlay):
+        for file in sorted((source_root/'templates').glob('strata*.html')):
+            assets[file.relative_to(source_root).as_posix()]=file.read_text(encoding='utf-8-sig')
     for fixture_root in fixture_roots:
         for file in sorted(fixture_root.glob('*.js')):
             assets['tests/'+file.name]=file.read_text(encoding='utf-8-sig')
@@ -55,15 +60,15 @@ def main():
             'static/css/roadmap.css','static/js/common.js','static/js/roadmap_preferences.js',
             'static/js/navigation.js','static/js/menu_cards.js','static/js/catalog_requests.js','static/js/tailwindcss.js'):
         assets.setdefault(relative,(project/relative).read_text(encoding='utf-8-sig'))
-    payload={'sources':sources,'assets':assets,'app':(overlay/'app.py').read_text(encoding='utf-8-sig'),
-             'test':(overlay/'tests'/'test_equipment_ai.py').read_text(encoding='utf-8-sig'),
-             'provider_test':(overlay/'tests'/'test_multi_provider_ai.py').read_text(encoding='utf-8-sig'),
-             'browser':(overlay/'tests'/'assistant_browser_fixture.py').read_text(encoding='utf-8-sig') if args.browser or args.browser_only else None,
+    payload={'sources':sources,'assets':assets,'app':candidate_file('app.py').read_text(encoding='utf-8-sig'),
+             'test':candidate_file('tests/test_equipment_ai.py').read_text(encoding='utf-8-sig'),
+             'provider_test':candidate_file('tests/test_multi_provider_ai.py').read_text(encoding='utf-8-sig'),
+             'browser':candidate_file('tests/assistant_browser_fixture.py').read_text(encoding='utf-8-sig') if args.browser or args.browser_only else None,
              'browser_only':args.browser_only,'provider_only':args.provider_only,
              'focus':args.focus,
              'tmpfs_fixtures':args.tmpfs_fixtures,
              'browser_target':args.browser_target,
-             'extra_tests':{p.name:p.read_text(encoding='utf-8-sig') for p in sorted((overlay/'tests').glob('test_*.py'))
+             'extra_tests':{p.name:p.read_text(encoding='utf-8-sig') for folder in fixture_roots for p in sorted(folder.glob('test_*.py'))
                             if p.name in extra_test_names},
              'admin_files':{relative:((overlay/relative) if (overlay/relative).is_file() else project/relative).read_text(encoding='utf-8-sig')
                             for relative in admin_paths if (overlay/relative).is_file() or (project/relative).is_file()},
@@ -147,6 +152,18 @@ if payload['browser'] and result.wasSuccessful():
         browser.FRAME_DIAGNOSTIC_SCRIPT=getattr(admin,'FRAME_DIAGNOSTIC_SCRIPT','')
     results=browser.run_browser(os.getcwd(),payload['assets']) if payload['browser_target'] in ('all','legacy') else []
     for name in payload['browser_fixtures']:
+        if payload['browser_target']=='disclosure':
+            if name=='model_disclosure_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='viewport':
+            if name=='viewport_scrollbar_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='popup-short':
+            if name=='csv_popup_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_short_browser(os.getcwd(),payload['assets']))
+            continue
         if payload['browser_target']=='legacy' or payload['browser_target']=='admin' and 'admin' not in name or payload['browser_target']=='chat' and 'admin' in name:
             continue
         results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
@@ -156,6 +173,7 @@ sys.exit(0 if result.wasSuccessful() else 1)
 '''.replace('PAYLOAD',repr(encoded))
     result=subprocess.run(['ssh','-o','BatchMode=yes',args.host,'/home/nekohost/services/Mini-Server-Web-EqMgmt/.venv/bin/python','-'],input=script,text=True,
         encoding='utf-8',capture_output=True,timeout=900)
+    backend_result=None
     for line in result.stdout.splitlines():
         if line.startswith('BROWSER_RESULT='):
             browser_results=json.loads(line[len('BROWSER_RESULT='):])
@@ -178,8 +196,19 @@ sys.exit(0 if result.wasSuccessful() else 1)
                     if 'requests' in item:
                         captured=item.pop('requests')
                         item['request_count']=len(captured) if isinstance(captured,(list,dict)) else captured
-            print('BROWSER_RESULT='+json.dumps(browser_results))
+            if args.artifact_dir:
+                report_path=destination/'results.json'
+                with report_path.open('x',encoding='utf-8',newline='\n') as generated:
+                    json.dump({'backend':backend_result,'browser':browser_results,'fixture_digest':payload['fixture_digest']},generated,ensure_ascii=False,indent=2)
+            if args.summary_only and args.artifact_dir:
+                print('BROWSER_SUMMARY='+json.dumps({'views':len(browser_results),'checks':sum(len(item.get('checks',[])) for item in browser_results),
+                    'failures':[{'view':item.get('view'),'width':item.get('width'),'theme':item.get('theme'),'error':item.get('error')} for item in browser_results if item['status']!='pass'],
+                    'details':str(report_path.relative_to(project))}))
+            else:
+                print('BROWSER_RESULT='+json.dumps(browser_results))
         else:
+            if line.startswith('{"platform":'):
+                backend_result=json.loads(line)
             print(line)
     if args.summary_only:
         separator=result.stderr.find('='*10)
@@ -192,4 +221,3 @@ sys.exit(0 if result.wasSuccessful() else 1)
 
 if __name__=='__main__':
     main()
-

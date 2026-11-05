@@ -1,0 +1,2594 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "d251a9ec5430007ca18ed4c746055c85c55280e38ba8dcf445842f1b6f90a310",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "model-disclosure-collapsed",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 320,
+      "theme": "light",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 620.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 204.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 620.21875,
+            "left": 9,
+            "right": 311,
+            "height": 385.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 693.21875,
+            "bottom": 737.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 620.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 204.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 620.21875,
+            "left": 9,
+            "right": 311,
+            "height": 385.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 693.21875,
+            "bottom": 737.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 693.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 69.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 693.21875,
+            "bottom": 710.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 568.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 256.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 568.21875,
+            "left": 9,
+            "right": 311,
+            "height": 333.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 641.21875,
+            "bottom": 685.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        },
+        "savedHeight": 52,
+        "final": {
+          "panelOpen": false,
+          "panel": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 620.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 204.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 620.21875,
+            "left": 9,
+            "right": 311,
+            "height": 385.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 693.21875,
+            "bottom": 737.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 320,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-collapsed",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 320,
+      "theme": "dark",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 620.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 204.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 620.21875,
+            "left": 9,
+            "right": 311,
+            "height": 385.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 693.21875,
+            "bottom": 737.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 620.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 204.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 620.21875,
+            "left": 9,
+            "right": 311,
+            "height": 385.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 693.21875,
+            "bottom": 737.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 693.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 69.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 693.21875,
+            "bottom": 710.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 568.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 256.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 568.21875,
+            "left": 9,
+            "right": 311,
+            "height": 333.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 641.21875,
+            "bottom": 685.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        },
+        "savedHeight": 52,
+        "final": {
+          "panelOpen": false,
+          "panel": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "summary": {
+            "top": 745.21875,
+            "bottom": 762.8125,
+            "left": 36,
+            "right": 284,
+            "height": 17.59375,
+            "width": 248
+          },
+          "composer": {
+            "top": 620.21875,
+            "bottom": 825,
+            "left": 21,
+            "right": 299,
+            "height": 204.78125,
+            "width": 278
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 620.21875,
+            "left": 9,
+            "right": 311,
+            "height": 385.421875,
+            "width": 302
+          },
+          "reasoning": {
+            "top": 693.21875,
+            "bottom": 737.21875,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 78.265625,
+            "right": 188.390625,
+            "height": 44,
+            "width": 110.125
+          },
+          "refresh": {
+            "top": 770.8125,
+            "bottom": 814.8125,
+            "left": 196.390625,
+            "right": 284,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 36,
+            "right": 137.84375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 320,
+          "height": 844
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 320,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-expanded",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 390,
+      "theme": "light",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 645.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 179.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 645.8125,
+            "left": 9,
+            "right": 381,
+            "height": 411.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 645.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 179.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 645.8125,
+            "left": 9,
+            "right": 381,
+            "height": 411.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 718.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 69.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 718.8125,
+            "bottom": 736.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 593.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 231.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 593.8125,
+            "left": 9,
+            "right": 381,
+            "height": 359.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 666.8125,
+            "bottom": 710.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "savedHeight": 52,
+        "final": {
+          "panelOpen": true,
+          "panel": {
+            "top": 718.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 69.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 718.8125,
+            "bottom": 736.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 593.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 231.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 593.8125,
+            "left": 9,
+            "right": 381,
+            "height": 359.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 666.8125,
+            "bottom": 710.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-expanded",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 390,
+      "theme": "dark",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 645.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 179.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 645.8125,
+            "left": 9,
+            "right": 381,
+            "height": 411.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 770.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 645.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 179.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 645.8125,
+            "left": 9,
+            "right": 381,
+            "height": 411.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 718.8125,
+            "bottom": 762.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 796.40625,
+            "bottom": 840.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 718.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 69.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 718.8125,
+            "bottom": 736.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 593.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 231.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 593.8125,
+            "left": 9,
+            "right": 381,
+            "height": 359.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 666.8125,
+            "bottom": 710.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "savedHeight": 52,
+        "final": {
+          "panelOpen": true,
+          "panel": {
+            "top": 718.8125,
+            "bottom": 788.40625,
+            "left": 36,
+            "right": 354,
+            "height": 69.59375,
+            "width": 318
+          },
+          "summary": {
+            "top": 718.8125,
+            "bottom": 736.40625,
+            "left": 36,
+            "right": 354,
+            "height": 17.59375,
+            "width": 318
+          },
+          "composer": {
+            "top": 593.8125,
+            "bottom": 825,
+            "left": 21,
+            "right": 369,
+            "height": 231.1875,
+            "width": 348
+          },
+          "chat": {
+            "top": 234.796875,
+            "bottom": 593.8125,
+            "left": 9,
+            "right": 381,
+            "height": 359.015625,
+            "width": 372
+          },
+          "reasoning": {
+            "top": 666.8125,
+            "bottom": 710.8125,
+            "left": 64.09375,
+            "right": 166.09375,
+            "height": 44,
+            "width": 102
+          },
+          "model": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 78.265625,
+            "right": 214.265625,
+            "height": 44,
+            "width": 136
+          },
+          "refresh": {
+            "top": 744.40625,
+            "bottom": 788.40625,
+            "left": 232,
+            "right": 319.609375,
+            "height": 44,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 796.40625,
+            "bottom": 814,
+            "left": 179.09375,
+            "right": 280.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 844,
+          "clientHeight": 844,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-003.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-collapsed",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 820,
+      "theme": "light",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 171.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 233,
+            "right": 797,
+            "height": 535.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 171.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 233,
+            "right": 797,
+            "height": 535.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 763.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 61.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 763.8125,
+            "bottom": 781.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 646.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 215.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 646.8125,
+            "left": 233,
+            "right": 797,
+            "height": 491.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 719.8125,
+            "bottom": 755.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        },
+        "savedHeight": 44,
+        "final": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 171.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 233,
+            "right": 797,
+            "height": 535.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 820,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-004.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-collapsed",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 820,
+      "theme": "dark",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 171.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 233,
+            "right": 797,
+            "height": 535.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 171.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 233,
+            "right": 797,
+            "height": 535.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 763.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 61.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 763.8125,
+            "bottom": 781.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 646.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 215.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 646.8125,
+            "left": 233,
+            "right": 797,
+            "height": 491.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 719.8125,
+            "bottom": 755.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        },
+        "savedHeight": 44,
+        "final": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 272,
+            "right": 758,
+            "height": 17.59375,
+            "width": 486
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 257,
+            "right": 773,
+            "height": 171.1875,
+            "width": 516
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 233,
+            "right": 797,
+            "height": 535.015625,
+            "width": 564
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 300.09375,
+            "right": 402.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 314.265625,
+            "right": 450.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 468,
+            "right": 555.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 415.09375,
+            "right": 516.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 820,
+          "height": 900
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 820,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-005.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-expanded",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 1440,
+      "theme": "light",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 171.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 535.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 171.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 535.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 763.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 61.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 763.8125,
+            "bottom": 781.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 646.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 215.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 646.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 491.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 719.8125,
+            "bottom": 755.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        },
+        "savedHeight": 44,
+        "final": {
+          "panelOpen": true,
+          "panel": {
+            "top": 763.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 61.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 763.8125,
+            "bottom": 781.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 646.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 215.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 646.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 491.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 719.8125,
+            "bottom": 755.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-006.png"
+    },
+    {
+      "status": "pass",
+      "view": "model-disclosure-expanded",
+      "checks": [
+        "native-model-panel-defaults-to-collapsed-after-hydration",
+        "only-model-and-refresh-are-inside-disclosure",
+        "reasoning-disclosure-support-dom-order",
+        "collapsed-disclosure-is-visually-below-reasoning-and-above-support",
+        "model-status-is-live-and-outside-collapsible-content",
+        "native-summary-click-reveals-existing-controls",
+        "collapsing-removes-control-row-and-increases-chat-space",
+        "expanded-model-row-stays-between-reasoning-and-support",
+        "moved-model-select-and-refresh-retain-shared-control-size",
+        "expanded-controls-fit-composer-and-model-width-cap",
+        "closing-keeps-existing-nodes-model-reasoning-and-draft",
+        "toggle-does-not-refetch-save-submit-or-reset-reader",
+        "loading-remains-visible-when-panel-is-closed",
+        "refresh-completion-keeps-panel-closed-and-current-model",
+        "refresh-error-cause-stays-visible-outside-closed-panel",
+        "successful-retry-preserves-open-state-selection-and-draft",
+        "model-change-keeps-panel-open-and-existing-save-path",
+        "chat-only-model-explanation-remains-visible-while-collapsed",
+        "reasoning-support-and-disabled-options-remain-independent",
+        "settings-use-csrf-without-submitting-a-chat-turn",
+        "final-disclosure-state-keeps-fitted-page-without-outer-overflow"
+      ],
+      "width": 1440,
+      "theme": "dark",
+      "layout": {
+        "initial": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 171.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 535.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        },
+        "collapsed": {
+          "panelOpen": false,
+          "panel": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 807.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 690.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 171.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 690.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 535.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 763.8125,
+            "bottom": 799.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 833.40625,
+            "bottom": 869.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        },
+        "expanded": {
+          "panelOpen": true,
+          "panel": {
+            "top": 763.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 61.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 763.8125,
+            "bottom": 781.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 646.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 215.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 646.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 491.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 719.8125,
+            "bottom": 755.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        },
+        "savedHeight": 44,
+        "final": {
+          "panelOpen": true,
+          "panel": {
+            "top": 763.8125,
+            "bottom": 825.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 61.59375,
+            "width": 820
+          },
+          "summary": {
+            "top": 763.8125,
+            "bottom": 781.40625,
+            "left": 432,
+            "right": 1252,
+            "height": 17.59375,
+            "width": 820
+          },
+          "composer": {
+            "top": 646.8125,
+            "bottom": 862,
+            "left": 417,
+            "right": 1267,
+            "height": 215.1875,
+            "width": 850
+          },
+          "chat": {
+            "top": 155.796875,
+            "bottom": 646.8125,
+            "left": 267,
+            "right": 1417,
+            "height": 491.015625,
+            "width": 1150
+          },
+          "reasoning": {
+            "top": 719.8125,
+            "bottom": 755.8125,
+            "left": 460.09375,
+            "right": 562.09375,
+            "height": 36,
+            "width": 102
+          },
+          "model": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 474.265625,
+            "right": 610.265625,
+            "height": 36,
+            "width": 136
+          },
+          "refresh": {
+            "top": 789.40625,
+            "bottom": 825.40625,
+            "left": 628,
+            "right": 715.609375,
+            "height": 36,
+            "width": 87.609375
+          },
+          "support": {
+            "top": 833.40625,
+            "bottom": 851,
+            "left": 575.09375,
+            "right": 676.9375,
+            "height": 17.59375,
+            "width": 101.84375
+          },
+          "documentHeight": 900,
+          "clientHeight": 900,
+          "width": 1440,
+          "height": 900
+        }
+      },
+      "production_data_used": false,
+      "interaction": "native summary click and programmatic focus; physical keyboard/touch not exercised",
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/screen-007.png"
+    }
+  ],
+  "fixture_digest": "d251a9ec5430007ca18ed4c746055c85c55280e38ba8dcf445842f1b6f90a310"
+}

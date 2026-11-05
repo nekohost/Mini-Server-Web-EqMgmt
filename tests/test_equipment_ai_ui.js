@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.UI.LIFECYCLE.REGRESSION]
- * [EN rev.4]
+ * [EN rev.6]
  * [Role] Drives the real candidate DOM against a deterministic in-memory transport, including a second live app frame.
  * [Dependencies] assistant_ui_browser_fixture.py injection before equipment_ai.js; synthetic IDs, data and CSRF only.
  * [Impact] Preserves table/lifecycle/stream regressions while checking the compact composer, scoped error recovery, conditional model/support feedback, measured 136px model cap, browser-measured native reasoning widths, 760/761 boundary and state-preserving reflow without touching real services. Focus checks here are programmatic; native keyboard and zoom probes remain separate.
@@ -168,12 +168,12 @@
         };
         /** [Role] Checks compact-layout requirements against pixels and accessible DOM relationships.
          * [Dependencies] Stable control IDs, separate reasoning support and the shared <=760px header/sidebar breakpoint.
-         * [Impact] Does not substitute a CSS-token assertion for the independently measured model-width cap or claim native keyboard coverage.
+         * [Impact] Measures expanded model controls below reasoning; default-collapsed layout is checked separately and native keyboard coverage is not claimed.
          */
         const compact = name => {
             const metrics = measure(name), form = $('ai-form'), root = $('equipment-ai'), header = root.querySelector('.ai-header');
             const ids = ['ai-model', 'ai-model-refresh', 'ai-level', 'ai-send'];
-            assert(ids.every(id => form.contains($(id))) && ids.every((id, index) => !index || Boolean($(ids[index - 1]).compareDocumentPosition($(id)) & Node.DOCUMENT_POSITION_FOLLOWING)), name + '-composer-dom-order');
+            assert(ids.every(id => form.contains($(id))) && $('ai-model-settings').open && Boolean($('ai-level').compareDocumentPosition($('ai-model-settings')) & Node.DOCUMENT_POSITION_FOLLOWING) && Boolean($('ai-model-settings').compareDocumentPosition($('ai-reasoning-support')) & Node.DOCUMENT_POSITION_FOLLOWING), name + '-composer-reasoning-model-disclosure-support-order');
             assert(root.querySelector('label[for="ai-model"]').textContent.trim() === 'AI 모델' && $('ai-model-refresh').type === 'button', name + '-model-label-and-refresh-button-type');
             assert(!document.getElementById('ai-model-caption') && !header.querySelector('.ai-model-dot,.ai-header-note') && !header.textContent.includes('내 장비, 더 간편하게'), name + '-duplicate-header-content-removed');
             assert(!root.querySelector('.ai-workspace > .ai-model-control') && root.querySelector('.ai-bottom').contains($('ai-model-status')), name + '-no-upper-model-toolbar');
@@ -191,7 +191,7 @@
             } else {
                 assert(metrics.header.height === 0 && metrics.headerStyle.display === 'none' && getComputedStyle($('ai-sidebar')).display !== 'none', name + '-desktop-header-has-no-layout-height');
             }
-            if (innerWidth >= 1440) assert(ids.every(id => Math.abs(metrics.controls[id].rect.top + metrics.controls[id].rect.height / 2 - (peers[0].rect.top + peers[0].rect.height / 2)) <= 1), name + '-desktop-controls-share-one-line');
+            if (innerWidth >= 1440) assert(Math.abs(metrics.controls['ai-model'].rect.top-metrics.controls['ai-model-refresh'].rect.top)<=1 && metrics.controls['ai-model'].rect.top>metrics.controls['ai-level'].rect.bottom, name + '-desktop-model-row-is-below-reasoning');
             assert(metrics.root.right <= innerWidth + 1 && metrics.pageScrollWidth <= innerWidth + 1 && metrics.composer.right <= metrics.root.right + 1 && metrics.controls['ai-send'].rect.right <= metrics.composer.right + 1, name + '-compact-controls-do-not-overflow-page');
             return metrics;
         };
@@ -252,6 +252,9 @@
         try {
             await wait(() => $('ai-title').textContent.includes('표와 휴지통') && !$('ai-model').disabled, 'initial chat');
             await document.fonts.ready;
+            assert(!$('ai-model-settings').open && !$('ai-model-settings').hasAttribute('open'), 'model-settings-default-collapsed');
+            $('ai-model-settings').querySelector('summary').click();
+            assert($('ai-model-settings').open, 'model-settings-native-summary-expands-controls');
             compact('initialNormal');
             assert(titleIsAccessible(server.conversations.get(cid).title), 'current-title-retains-complete-accessible-name');
             assert([...$('ai-level').options].map(option => option.textContent).join('|') === 'off|low|medium|high|xhigh|max', 'six-reasoning-option-labels-stay-short-and-stable');
@@ -423,9 +426,14 @@
             await wait(() => !$('ai-model').disabled && $('ai-model-status').textContent.includes('대화 전용'));
             assert($('ai-level').disabled && document.querySelector('.ai-source').textContent.includes('260Strata'), 'chat-only-status-and-frozen-source-preserved');
 
+            assert(!document.querySelector('.ai-footnote') && !document.querySelector('.ai-bottom .ai-file-tools') && !$('ai-file-dialog').open, 'footer-space-released-until-user-requests-file-work');
+            const fileRequest = document.createElement('p'); module.exports.markdown(fileRequest,'[CSV 가져오기 열기](/assistant?panel=csv-import)'); $('ai-messages').append(fileRequest); fileRequest.querySelector('a').click();
+            assert($('ai-file-dialog').open && $('ai-file-title').textContent === 'CSV 가져오기', 'conversation-link-opens-existing-csv-flow-in-dialog');
             const data = new DataTransfer(); data.items.add(new File(['Name,OptionId\nCSV fixture,3'], 'fixture.csv', { type: 'text/csv' }));
             $('ai-csv-file').files = data.files; $('ai-csv-form').requestSubmit(); await wait(() => !$('ai-csv-preview').hidden);
             assert($('ai-csv-preview').textContent.includes('CSV 시험') && $('ai-csv-preview').textContent.includes('비공개'), 'existing-csv-preview-flow-preserved');
+            $('ai-file-close').click();
+            assert(!$('ai-file-dialog').open && document.activeElement === fileRequest.querySelector('a'), 'file-popup-close-restores-trigger-without-replay');
             const csrfWrites = server.requests.filter(entry => entry.method === 'POST');
             assert(csrfWrites.every(entry => entry.headers['X-CSRFToken'] === 'fixture-csrf'), 'all-mutations-retain-csrf');
             await move('trash'); await dismiss();
@@ -557,6 +565,9 @@
             assert($('ai-model').value === modelId && $('ai-level').value === 'medium' && $('ai-model').selectedOptions[0].textContent === '260Strata / Qwen3.8 Flash Next', 'final-measurement-uses-Qwen-medium-and-real-stored-table');
             assert(server.requests.filter(entry => entry.method === 'POST').every(entry => entry.headers['X-CSRFToken'] === 'fixture-csrf'), 'new-compact-scenarios-also-retain-csrf');
             compact('finalNormal');
+            $('ai-model-settings').querySelector('summary').click();
+            assert(!$('ai-model-settings').open, 'model-settings-return-to-collapsed-for-final-screen');
+            measure('finalCollapsed');
             report.textContent = JSON.stringify({ status: 'pass', checks, width: innerWidth, theme, requests: server.requests.length, layout, focusMethod: 'programmatic-focus', viewportEmulation: 'CSS layout/reduced height only; native zoom, Tab traversal and phone keyboard are not exercised here', selectedModel: { id: $('ai-model').value, text: $('ai-model').selectedOptions[0].textContent, level: $('ai-level').value } });
         } catch (error) {
             report.textContent = JSON.stringify({ status: 'fail', checks, error: error.message, width: innerWidth, theme, layout, dialog: $('ai-dialog-title')?.textContent, notice: $('ai-notice')?.textContent, requests: server.requests.slice(-8) });

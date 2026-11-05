@@ -1,0 +1,47 @@
+{
+  "archive": "Reports/2026/11/05/007_AI_Assistant_CSV_Popup/reviewed-csv-popup-sources.zip",
+  "sha256": "0a83a9629bae9e359bcb83a4ed0dbe409c1260f5449ce386ceccd81b58bca62c",
+  "files": 10,
+  "old_candidate_files": [
+    {
+      "path": "overlay/static/css/equipment_ai.css",
+      "sha256": "c93b6ec0b1530763837092ac0ae9badd8044131ab18f31970527f8f90c69d33b",
+      "bytes": 21279
+    },
+    {
+      "path": "overlay/static/js/equipment_ai.js",
+      "sha256": "e2b43ad8935950bd84b5690396e84db95a3dc91a009a222ea43c9588493410b5",
+      "bytes": 95258
+    },
+    {
+      "path": "overlay/templates/equipment_ai.html",
+      "sha256": "68cbc52800ad16bd6f207387f732a06a55f91e038a95aaaa12fa15fcaa9f3780",
+      "bytes": 9426
+    },
+    {
+      "path": "overlay/tests/assistant_browser_fixture.py",
+      "sha256": "82fac0f55bf2d803799e07abd0529a6604b45e2834374a728c5696f5d5fcdd32",
+      "bytes": 27639
+    },
+    {
+      "path": "overlay/tests/csv_popup_browser_fixture.py",
+      "sha256": "3e9dbb2a37c79eb1fe63b09b7a95b99e60df5fcb044671df7921f142e7392c64",
+      "bytes": 15177
+    },
+    {
+      "path": "overlay/tests/run_assistant_fixture.py",
+      "sha256": "5f3b28bc31d716f5900ebc865a8bd7e388ee9839ae20cc46618c1572a2562c45",
+      "bytes": 15115
+    },
+    {
+      "path": "overlay/tests/test_equipment_ai_ui.js",
+      "sha256": "dcd1c055092e3103e1c277aef12644ded52ec51bb5e999b700b4beeeaba1d7fe",
+      "bytes": 70709
+    },
+    {
+      "path": "overlay/utils/ai_assistant/policy.py",
+      "sha256": "ce8621c1e6c96a86098a2285d06bbe31e6f8964a957e654b194fa08d45ea3a8e",
+      "bytes": 15879
+    }
+  ]
+}

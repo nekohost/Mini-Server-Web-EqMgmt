@@ -1,0 +1,217 @@
+{
+  "work_id": "STAGING-20261105-AI-MODEL-DISCLOSURE",
+  "status": "completed-in-staging",
+  "reviewed_at": "2026-11-05T05:44:36.227132+00:00",
+  "scope": "Default-collapsed model select/refresh below reasoning and above reasoning support in the current staging.",
+  "excluded": [
+    "production source merge",
+    "git commit/push",
+    "deployment",
+    "production DB writes",
+    "web_search"
+  ],
+  "stage": "Staging/20261105-ai-csv-popup",
+  "static_checks": {
+    "python_ast": 7,
+    "javascript_node_check": 2,
+    "status": "pass"
+  },
+  "source_files": [
+    {
+      "path": "overlay/static/css/equipment_ai.css",
+      "sha256": "6bca5a6a4126a982670566f4c4a34a45e539eec40d4201f1af7a5449ff923d91"
+    },
+    {
+      "path": "overlay/static/js/equipment_ai.js",
+      "sha256": "3324e62c88ae5c14fb58a5fcecefdb3550c0c35f55c2d32e3429abfee4f77d73"
+    },
+    {
+      "path": "overlay/templates/equipment_ai.html",
+      "sha256": "a2f70171ef629adcb06d1aa222dad5dceb4dcd6689e5eec099ebdd3b5de3c24a"
+    },
+    {
+      "path": "overlay/tests/assistant_browser_fixture.py",
+      "sha256": "82fac0f55bf2d803799e07abd0529a6604b45e2834374a728c5696f5d5fcdd32"
+    },
+    {
+      "path": "overlay/tests/assistant_ui_browser_fixture.py",
+      "sha256": "4cc2a66270425130069a78a37087f28c49ca8e3587061c31942d6590675f2472"
+    },
+    {
+      "path": "overlay/tests/csv_popup_browser_fixture.py",
+      "sha256": "3e9dbb2a37c79eb1fe63b09b7a95b99e60df5fcb044671df7921f142e7392c64"
+    },
+    {
+      "path": "overlay/tests/model_disclosure_browser_fixture.py",
+      "sha256": "63843480abd0f73ca887744b28db3c41021567fd4a42eeb49616a3c8973e5c8e"
+    },
+    {
+      "path": "overlay/tests/run_assistant_fixture.py",
+      "sha256": "dff3c8c733d505a10034b62727722123a24edbe6cb4a991765de2f8b250f9e1e"
+    },
+    {
+      "path": "overlay/tests/test_equipment_ai_ui.js",
+      "sha256": "5bbd1c11d2be306465d2e365ae62483fe3c501f02bb33e81fb4a7412cc7ea7cf"
+    },
+    {
+      "path": "overlay/tests/viewport_scrollbar_browser_fixture.py",
+      "sha256": "fd371d57d4350649eb552c1c87d44b34aaa8cb1f4c0a2092fd4c4bfbe2848249"
+    },
+    {
+      "path": "overlay/utils/ai_assistant/policy.py",
+      "sha256": "ce8621c1e6c96a86098a2285d06bbe31e6f8964a957e654b194fa08d45ea3a8e"
+    }
+  ],
+  "root_baseline": [
+    {
+      "path": "app.py",
+      "sha256": "36589f2696285b2808252569ae4b75b42ed24ca939a7cfb32ccc2d18fbbffd4b",
+      "matches": true
+    },
+    {
+      "path": "templates/equipment_ai.html",
+      "sha256": "3ff8e1f2606ac678518d50d7db34520bf405f6eb6b6ef0bc560656e131414c44",
+      "matches": true
+    },
+    {
+      "path": "static/js/equipment_ai.js",
+      "sha256": "405dd98e6732b5cd42d69af593fe252d00c0c4544e7c3f30a2cc45a482c2e9d4",
+      "matches": true
+    },
+    {
+      "path": "static/css/equipment_ai.css",
+      "sha256": "63d68144498b38f2b0ad2465e8a1dcb4d170329e5c9327f82a77d6266385cbf1",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/policy.py",
+      "sha256": "11a46f56e5d0c2296e616299651a826272f404944e83978cbce41458daa50bb3",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/__init__.py",
+      "sha256": "570c19fae7d2393783398e3d4a27b876fea10ca794cafaa8b303e00f23f1fa90",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/domain.py",
+      "sha256": "7cbaac22b5a1b7f7d69fbbcccd0dac473ed30fe15e2e82fba1ed81fa994bed0b",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/store.py",
+      "sha256": "bdc11e8d7782a4bf0a513d1cb3ad34c4c58f2e081d0c9be442b2960026ace48d",
+      "matches": true
+    },
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "sha256": "56f540ddf7e0f98437d8bef37be1b3a1a89e6c37716bc55cc57d53b443677f1e",
+      "matches": true
+    },
+    {
+      "path": "tests/assistant_browser_fixture.py",
+      "sha256": "302d43c65ef3165636716723c347a76e40f313d748cd06095e348bf5882a076f",
+      "matches": true
+    },
+    {
+      "path": "tests/test_equipment_ai_ui.js",
+      "sha256": "718fe404f2f0b68f0afece86004114928b45e056ec917e0ab154ea40a9b464c5",
+      "matches": true
+    }
+  ],
+  "business_client_policy_unchanged_from_009": [
+    "overlay/static/js/equipment_ai.js",
+    "overlay/utils/ai_assistant/policy.py"
+  ],
+  "parent_009_archive": {
+    "path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/reviewed-merged-sources.zip",
+    "sha256": "d72f52fac03969c02230141e2e8bd85b85d3ac2ad8e8b1a5ed3cd4189006b973",
+    "files": 12,
+    "byte_verified": true
+  },
+  "merged_archive": {
+    "path": "Reports/2026/11/05/010_AI_Model_Disclosure/reviewed-merged-sources.zip",
+    "sha256": "dfb07adbd74fd1665335092d6ef84f8dc383b1c4fe222dd50fcf6bcc097c32d1",
+    "files": 13,
+    "byte_verified": true
+  },
+  "browser_runs": [
+    {
+      "path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-merged-round1/results.json",
+      "sha256": "0e00d80df44b80f6da8a284dba8d7b25e7d40abe1539091b987a11583ab8166c",
+      "views": 51,
+      "checks": 3431,
+      "failures": 0,
+      "fixture_digest": "4a2efb07e73aea670032e4394218addcc1c11e89aa432b377743c84e85072177",
+      "counted_in_final": true
+    },
+    {
+      "path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-short-mobile/results.json",
+      "sha256": "f724c297481a0b36df9fe72979a8085dc326623b4b7de8f3b7d6af89f7858e34",
+      "views": 4,
+      "checks": 112,
+      "failures": 0,
+      "fixture_digest": "7ff1cb3823733e9ecb15b0118e2e37bfb0b3a12c52200daaf5bdbb05bb967ef2",
+      "counted_in_final": true
+    },
+    {
+      "path": "Reports/2026/11/05/010_AI_Model_Disclosure/screenshots-disclosure-round1/results.json",
+      "sha256": "85923bbfd4dce425f45972f09d273834ea8d5b7c2197983c0627de9cf6d234c9",
+      "views": 8,
+      "checks": 168,
+      "failures": 0,
+      "fixture_digest": "d251a9ec5430007ca18ed4c746055c85c55280e38ba8dcf445842f1b6f90a310",
+      "counted_in_final": false
+    }
+  ],
+  "final_browser_total": {
+    "views": 55,
+    "checks": 3543,
+    "failures": 0
+  },
+  "same_initial_layout_comparison_from_009": [
+    {
+      "width": 430,
+      "old_composer": 205.59375,
+      "collapsed_composer": 179.1875,
+      "composer_height_change": -26.40625,
+      "old_chat": 460.21875,
+      "new_chat": 486.625,
+      "chat_height_change": 26.40625
+    },
+    {
+      "width": 1425,
+      "old_composer": 145.59375,
+      "collapsed_composer": 171.1875,
+      "composer_height_change": 25.59375,
+      "old_chat": 619.8125,
+      "new_chat": 594.21875,
+      "chat_height_change": -25.59375
+    },
+    {
+      "width": 1440,
+      "old_composer": 145.59375,
+      "collapsed_composer": 171.1875,
+      "composer_height_change": 25.59375,
+      "old_chat": 619.8125,
+      "new_chat": 594.21875,
+      "chat_height_change": -25.59375
+    }
+  ],
+  "backend_inherited": {
+    "path": "Reports/2026/11/05/007_AI_Assistant_CSV_Popup/validation.json",
+    "tests": 178,
+    "rerun_in_this_task": false
+  },
+  "governance": {
+    "version": "1.8.1",
+    "validate": "pass",
+    "errors": 0,
+    "warnings": 0
+  },
+  "limitations": [
+    "Linux Chromium synthetic data, native summary click and programmatic focus; physical keyboard/touch/pinch/cross-browser/live model not tested.",
+    "Mobile430 gains26.40625px chat height against009; desktop1440 loses25.59375px because the requested summary row is new.",
+    "Collapsed versus expanded controls save52px on mobile and44px on desktop; these are not the009-to010 overall gains."
+  ]
+}

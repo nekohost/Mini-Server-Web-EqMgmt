@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.UI.LIFECYCLE.BROWSER.FIXTURE]
-[EN rev.4]
+[EN rev.5]
 [Role] Runs the candidate chat UI in isolated Linux Chromium with synthetic transport and two same-origin tabs.
 [Dependencies] Flask/Jinja, Linux Chromium, candidate asset strings and test_equipment_ai_ui.js supplied by the caller.
 [Impact] Exercises 320/360/390/430/760/761/820/1440 CSS-pixel viewports in both themes, rejects requested/actual width mismatches and permits a 1425px baseline comparison without production authentication, model calls or real database writes.
@@ -30,8 +30,8 @@ def run_browser(project, assets):
     return run_ui_browser(project, assets, script)
 
 
-def run_ui_browser(project, assets, script, sizes=(320, 360, 390, 430, 760, 761, 820, 1440), themes=("light", "dark")):
-    """[Role] Serves only candidate UI assets on loopback and returns bounded browser results and screenshots."""
+def run_ui_browser(project, assets, script, sizes=(320, 360, 390, 430, 760, 761, 820, 1440), themes=("light", "dark"), capture=None):
+    """[Role] Serves loopback candidate UI and supports a reviewed real-frame capture for geometry-sensitive checks."""
     app = Flask("assistant_ui_lifecycle_fixture", static_folder=None)
     app.secret_key = "synthetic-ui-fixture-not-a-production-key"
     app.jinja_loader = ChoiceLoader([
@@ -91,7 +91,7 @@ def run_ui_browser(project, assets, script, sizes=(320, 360, 390, 430, 760, 761,
                 with tempfile.TemporaryDirectory(prefix="eq-assistant-ui-") as tmp:
                     screenshot = Path(tmp) / "screen.png"
                     command = ["/usr/bin/chromium", "--headless", "--no-sandbox", "--disable-gpu", "--disable-dev-shm-usage", "--no-proxy-server", "--disable-background-networking", "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE 127.0.0.1", "--user-data-dir=" + str(Path(tmp) / "profile"), "--window-size=" + str(max(width + 40, 500)) + ",1100", "--virtual-time-budget=30000", "--screenshot=" + str(screenshot), "--dump-dom", "http://127.0.0.1:" + str(server.server_port) + "/viewport?width=" + str(width) + "&theme=" + theme]
-                    process = subprocess.run(command, capture_output=True, text=True, timeout=50)
+                    process = capture(command, screenshot) if capture else subprocess.run(command, capture_output=True, text=True, timeout=50)
                     match = re.search(r'<pre id="browser-test-result"[^>]*>(.*?)</pre>', process.stdout, re.S)
                     result = json.loads(html.unescape(match[1])) if match and match[1] else {"status": "fail", "error": "UI browser fixture did not complete"}
                     actual_width = result.get("width")

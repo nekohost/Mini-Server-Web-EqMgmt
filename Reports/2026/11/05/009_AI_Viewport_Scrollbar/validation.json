@@ -1,0 +1,182 @@
+{
+  "work_id": "STAGING-20261105-AI-VIEWPORT",
+  "status": "completed-in-staging",
+  "reviewed_at": "2026-11-05T05:32:20.149337+00:00",
+  "scope": [
+    "measured assistant viewport fitting",
+    "themed native assistant scrollbars"
+  ],
+  "excluded": [
+    "web_search",
+    "production source merge",
+    "git commit/push",
+    "deployment",
+    "production DB writes"
+  ],
+  "stage": "Staging/20261105-ai-csv-popup",
+  "static_checks": {
+    "python_ast": 6,
+    "javascript_node_check": 2,
+    "status": "pass"
+  },
+  "source_files": [
+    {
+      "path": "overlay/static/css/equipment_ai.css",
+      "sha256": "0fdd0892701cb084b8732662f090e862d3b040e2b74151efde9de50f7859a2bd"
+    },
+    {
+      "path": "overlay/static/js/equipment_ai.js",
+      "sha256": "3324e62c88ae5c14fb58a5fcecefdb3550c0c35f55c2d32e3429abfee4f77d73"
+    },
+    {
+      "path": "overlay/templates/equipment_ai.html",
+      "sha256": "68cbc52800ad16bd6f207387f732a06a55f91e038a95aaaa12fa15fcaa9f3780"
+    },
+    {
+      "path": "overlay/tests/assistant_browser_fixture.py",
+      "sha256": "82fac0f55bf2d803799e07abd0529a6604b45e2834374a728c5696f5d5fcdd32"
+    },
+    {
+      "path": "overlay/tests/assistant_ui_browser_fixture.py",
+      "sha256": "4cc2a66270425130069a78a37087f28c49ca8e3587061c31942d6590675f2472"
+    },
+    {
+      "path": "overlay/tests/csv_popup_browser_fixture.py",
+      "sha256": "3e9dbb2a37c79eb1fe63b09b7a95b99e60df5fcb044671df7921f142e7392c64"
+    },
+    {
+      "path": "overlay/tests/run_assistant_fixture.py",
+      "sha256": "2b48a11efd22b5a3020b57fcb57873353f49658e5c0cc33133f60febb2755406"
+    },
+    {
+      "path": "overlay/tests/test_equipment_ai_ui.js",
+      "sha256": "dcd1c055092e3103e1c277aef12644ded52ec51bb5e999b700b4beeeaba1d7fe"
+    },
+    {
+      "path": "overlay/tests/viewport_scrollbar_browser_fixture.py",
+      "sha256": "fd371d57d4350649eb552c1c87d44b34aaa8cb1f4c0a2092fd4c4bfbe2848249"
+    },
+    {
+      "path": "overlay/utils/ai_assistant/policy.py",
+      "sha256": "ce8621c1e6c96a86098a2285d06bbe31e6f8964a957e654b194fa08d45ea3a8e"
+    }
+  ],
+  "root_baseline": [
+    {
+      "path": "app.py",
+      "sha256": "36589f2696285b2808252569ae4b75b42ed24ca939a7cfb32ccc2d18fbbffd4b",
+      "matches": true
+    },
+    {
+      "path": "templates/equipment_ai.html",
+      "sha256": "3ff8e1f2606ac678518d50d7db34520bf405f6eb6b6ef0bc560656e131414c44",
+      "matches": true
+    },
+    {
+      "path": "static/js/equipment_ai.js",
+      "sha256": "405dd98e6732b5cd42d69af593fe252d00c0c4544e7c3f30a2cc45a482c2e9d4",
+      "matches": true
+    },
+    {
+      "path": "static/css/equipment_ai.css",
+      "sha256": "63d68144498b38f2b0ad2465e8a1dcb4d170329e5c9327f82a77d6266385cbf1",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/policy.py",
+      "sha256": "11a46f56e5d0c2296e616299651a826272f404944e83978cbce41458daa50bb3",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/__init__.py",
+      "sha256": "570c19fae7d2393783398e3d4a27b876fea10ca794cafaa8b303e00f23f1fa90",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/domain.py",
+      "sha256": "7cbaac22b5a1b7f7d69fbbcccd0dac473ed30fe15e2e82fba1ed81fa994bed0b",
+      "matches": true
+    },
+    {
+      "path": "utils/ai_assistant/store.py",
+      "sha256": "bdc11e8d7782a4bf0a513d1cb3ad34c4c58f2e081d0c9be442b2960026ace48d",
+      "matches": true
+    },
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "sha256": "56f540ddf7e0f98437d8bef37be1b3a1a89e6c37716bc55cc57d53b443677f1e",
+      "matches": true
+    },
+    {
+      "path": "tests/assistant_browser_fixture.py",
+      "sha256": "302d43c65ef3165636716723c347a76e40f313d748cd06095e348bf5882a076f",
+      "matches": true
+    },
+    {
+      "path": "tests/test_equipment_ai_ui.js",
+      "sha256": "718fe404f2f0b68f0afece86004114928b45e056ec917e0ab154ea40a9b464c5",
+      "matches": true
+    }
+  ],
+  "parent_007_archive": {
+    "path": "Reports/2026/11/05/007_AI_Assistant_CSV_Popup/reviewed-csv-popup-sources.zip",
+    "sha256": "0a83a9629bae9e359bcb83a4ed0dbe409c1260f5449ce386ceccd81b58bca62c",
+    "verified": true
+  },
+  "merged_archive": {
+    "path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/reviewed-merged-sources.zip",
+    "sha256": "d72f52fac03969c02230141e2e8bd85b85d3ac2ad8e8b1a5ed3cd4189006b973",
+    "files": 12,
+    "byte_verified": true
+  },
+  "browser_runs": [
+    {
+      "path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-merged/results.json",
+      "sha256": "6d735e8b1fc0c939037f8025f52ab99c5faaaa4d20f00a8a61b92e50fb3dc305",
+      "views": 43,
+      "checks": 3215,
+      "failures": 0,
+      "fixture_digest": "d8b0587d14b246123bb6b50091e3967030b8ae1c9b013fe26536a634dd4e2c0a",
+      "counted_in_final": true
+    },
+    {
+      "path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-short-mobile/results.json",
+      "sha256": "ac8c0063982f515a9cf5c81b1d17f67b8bf7affb4d83e8eca33b573a8232f5d9",
+      "views": 4,
+      "checks": 112,
+      "failures": 0,
+      "fixture_digest": "5901505070693770918d1ffe905b80069f5530e7b00dabdbd2d58c485983762d",
+      "counted_in_final": true
+    },
+    {
+      "path": "Reports/2026/11/05/009_AI_Viewport_Scrollbar/screenshots-viewport-round3/results.json",
+      "sha256": "72fd8ec2224748197e26409aa02e5f72a84962520bd1096140d734c40b374f88",
+      "views": 8,
+      "checks": 284,
+      "failures": 0,
+      "fixture_digest": "4d4508e89ceed242cab85836fb0c943afe93daa635626a3322ec0a03d438ee23",
+      "counted_in_final": false
+    }
+  ],
+  "final_browser_total": {
+    "views": 47,
+    "checks": 3327,
+    "failures": 0
+  },
+  "backend_inherited": {
+    "path": "Reports/2026/11/05/007_AI_Assistant_CSV_Popup/validation.json",
+    "tests": 178,
+    "rerun_in_this_task": false,
+    "reason": "Production Python/policy sources unchanged from reviewed 007."
+  },
+  "governance": {
+    "version": "1.8.1",
+    "validate": "pass",
+    "errors": 0,
+    "warnings": 0
+  },
+  "limitations": [
+    "Linux Chromium synthetic data and real-frame viewport resizing; not a physical phone keyboard/pinch/drag or cross-browser/live model test.",
+    "Below-minimum viewports intentionally retain document scrolling."
+  ]
+}

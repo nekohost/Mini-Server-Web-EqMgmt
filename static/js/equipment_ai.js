@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.11]
- * [Role] Renders owner chat, safe streamed tables, separate thoughts and explicit conversation lifecycle actions.
+ * [EN rev.13]
+ * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
  * [Dependencies] Vanilla DOM/fetch and /api/ai; existing file/CSV APIs retain their own authorization.
- * [Impact] Preserves reader state and immutable answer provenance; owner-list refresh never delays a hydrated composer, compact model controls retain unavailable efforts and conditional constraints/inventory errors while deduplicating inventory reads, and trash actions require server revisions and explicit user intent. Recovered model operations clear only their own current notice.
+ * [Impact] Actual frame geometry controls height only when minimum content space fits; resizing preserves reader/model/request state. Fixed file links, stale-preview isolation, explicit writes and independent lifecycle/notice recovery remain intact.
  */
 (function () {
     'use strict';
@@ -29,6 +29,31 @@
     const pendingMarkdown = new WeakMap();
     const tableLimit = { columns: 40, rows: 200 };
 
+    /** [MINI-COMMENT: ASSISTANT.CLIENT.FILE.LINK]
+     * [EN rev.1]
+     * [Role] Maps only exact app-owned file links to a fixed dialog panel.
+     * [Dependencies] Two literal workspace paths and the existing my/public CSV export URL.
+     * [Impact] Query additions, remote origins, fragments and model HTML cannot choose an endpoint, owner or executable.
+     */
+    function fileWorkspaceTarget(href) {
+        if (href === '/assistant?panel=csv-import') return { panel: 'csv-import' };
+        if (href === '/assistant?panel=attachment') return { panel: 'attachment' };
+        for (const scope of ['my','public']) if (href === '/api/ai/csv/export?scope=' + scope) return { panel: 'csv-export', scope };
+        return null;
+    }
+
+    /** [Role] Marks a safely rendered local anchor as a dialog trigger without parsing model attributes. */
+    function workspaceLink(anchor, href) {
+        const target = fileWorkspaceTarget(href);
+        if (target) {
+            anchor.dataset.aiWorkspace = target.panel;
+            if (target.scope) anchor.dataset.aiScope = target.scope;
+            anchor.setAttribute('aria-haspopup', 'dialog');
+            anchor.setAttribute('aria-controls', 'ai-file-dialog');
+        }
+        return anchor;
+    }
+
     /** [Role] Splits unescaped table pipes, retaining escapes until safe inline rendering. */
     function tableCells(line) {
         const source = line.trim();
@@ -54,8 +79,8 @@
                 const code = doc.createElement('code'); code.textContent = unescape(part.slice(1, -1)); block.append(code);
             } else if (part.startsWith('**') && part.endsWith('**') && part.length > 4) {
                 const strong = doc.createElement('strong'); strong.textContent = unescape(part.slice(2, -2)); block.append(strong);
-            } else if (link && /^(?:\/api\/ai\/equipment\/[1-9]\d*\/files\/[1-9]\d*\/download|\/api\/ai\/csv\/export\?scope=(?:my|public)|\/(?:my_equipment|public_equipment|my_approvals|mypage))$/.test(link[2])) {
-                const anchor = doc.createElement('a'); anchor.href = link[2]; anchor.textContent = unescape(link[1]); block.append(anchor);
+            } else if (link && (fileWorkspaceTarget(link[2]) || /^(?:\/api\/ai\/equipment\/[1-9]\d*\/files\/[1-9]\d*\/download|\/(?:my_equipment|public_equipment|my_approvals|mypage))$/.test(link[2]))) {
+                const anchor = doc.createElement('a'); anchor.href = link[2]; anchor.textContent = unescape(link[1]); block.append(workspaceLink(anchor, link[2]));
             } else block.append(doc.createTextNode(unescape(part || '')));
         }
     }
@@ -155,7 +180,53 @@
         });
     }
 
-    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown };
+    /** [MINI-COMMENT: ASSISTANT.CLIENT.VIEWPORT]
+     * [EN rev.1]
+     * [Role] Fits the assistant to measured document/visual viewport space without hiding short-screen content.
+     * [Dependencies] Existing CSS minimums, actual frame padding/nav, ResizeObserver and batched animation frames.
+     * [Impact] Only style/diagnostic attributes change; no scroll position, selected conversation, draft or network operation is reset. Minimum/zoom fallback retains page scrolling and teardown removes every observer/listener.
+     */
+    function fitViewport(root) {
+        const pane = root.querySelector('#ai-scroll'), viewport = window.visualViewport;
+        let frame = null, stopped = false;
+        const pixels = value => Number.parseFloat(value) || 0;
+        const setStyle = (name, value) => { if (root.style.getPropertyValue(name) !== value) root.style.setProperty(name,value); };
+        const setData = (name, value) => { if (root.dataset[name] !== String(value)) root.dataset[name] = String(value); };
+        const measure = () => {
+            frame = null; if (stopped || !root.isConnected || !pane) return;
+            const style = getComputedStyle(root), box = root.getBoundingClientRect();
+            let bottom = pixels(style.marginBottom);
+            for (let ancestor = root.parentElement; ancestor; ancestor = ancestor.parentElement) {
+                const parentStyle = getComputedStyle(ancestor);
+                bottom += pixels(parentStyle.paddingBottom) + pixels(parentStyle.borderBottomWidth) + pixels(parentStyle.marginBottom);
+                if (ancestor === document.body) break;
+            }
+            const height = viewport?.height || window.innerHeight;
+            const available = Math.floor(height - Math.max(0, box.top + window.scrollY) - bottom - 1);
+            const fixed = Math.max(0,root.clientHeight - pane.clientHeight);
+            const minimum = Math.ceil(Math.max(pixels(style.getPropertyValue('--ai-min-height')),fixed + 120));
+            const maximum = Number.parseFloat(style.maxHeight);
+            setStyle('--ai-measured-min-height',minimum + 'px');
+            const fits = (!viewport || Math.abs(viewport.scale - 1) < .01) && available >= minimum;
+            if (fits) setStyle('--ai-fitted-height',Math.max(minimum,Math.min(available,Number.isFinite(maximum) ? maximum : available)) + 'px');
+            else if (root.style.getPropertyValue('--ai-fitted-height')) root.style.removeProperty('--ai-fitted-height');
+            setData('viewportFit',fits ? 'fit' : 'minimum'); setData('viewportAvailable',available); setData('viewportMinimum',minimum);
+        };
+        const queue = () => { if (!stopped && frame === null) frame = requestAnimationFrame(measure); };
+        const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(queue) : null;
+        for (const element of [root,root.parentElement,pane,document.querySelector('nav[aria-label="전역 네비게이션"]')]) if (element) observer?.observe(element);
+        window.addEventListener('resize',queue); window.addEventListener('orientationchange',queue);
+        viewport?.addEventListener('resize',queue); viewport?.addEventListener('scroll',queue);
+        document.fonts?.addEventListener('loadingdone',queue); document.fonts?.ready.then(queue);
+        queue();
+        return () => {
+            stopped = true; if (frame !== null) cancelAnimationFrame(frame); observer?.disconnect();
+            window.removeEventListener('resize',queue); window.removeEventListener('orientationchange',queue);
+            viewport?.removeEventListener('resize',queue); viewport?.removeEventListener('scroll',queue); document.fonts?.removeEventListener('loadingdone',queue);
+        };
+    }
+
+    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget };
     if (typeof document === 'undefined') return;
 
     /** [Role] Initializes this standalone screen, preserving drafts/details/scroll across incremental polling. */
@@ -164,6 +235,7 @@
         if (!root) return;
         const $ = id => document.getElementById(id);
         const csrf = root.dataset.csrf;
+        const disposeViewport = fitViewport(root);
         const nodes = new Map(), streams = new Map(), cards = new Map();
         const history = { active: { items: new Map(), cursor: null, depth: 1, request: 0, pending: null }, trash: { items: new Map(), cursor: null, depth: 1, request: 0, pending: null } };
         const uncertainLifecycle = new Map();
@@ -174,6 +246,7 @@
         let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
         let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null;
+        let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
         const controller = new AbortController();
         const labels = { equipment_create: '내 장비 등록', equipment_update: '내 장비 정보 수정', equipment_status: '내 장비 상태 변경',
             catalog_request: '카탈로그 등록 신청', option_request: '옵션 등록 신청', preferences: '내 설정 변경', csv_export: 'CSV 내보내기' };
@@ -209,9 +282,8 @@
             const locked = readOnly() || lifecycleBusy || creatingConversation;
             $('ai-input').disabled = locked;
             $('ai-form').hidden = readOnly();
-            root.querySelector('.ai-footnote').hidden = readOnly();
-            root.querySelector('.ai-file-tools').hidden = readOnly() || !capabilities?.file_tools;
-            $('ai-file-controls').disabled = locked;
+            if (readOnly() && (filePanel || $('ai-file-dialog').open)) resetFileWorkspace();
+            $('ai-file-controls').disabled = locked || fileBusy;
             root.querySelectorAll('[data-prompt]').forEach(button => { button.disabled = locked; });
             root.querySelectorAll('.ai-confirm').forEach(button => { button.disabled = locked || Number(button.dataset.expires) * 1000 < Date.now(); });
             $('ai-conversation-actions').hidden = !conversation || !conversationMeta;
@@ -259,6 +331,91 @@
             const resolve = dialogResolve; dialogResolve = null; dialog.close();
             restoreDialogFocus();
             if (resolve) resolve(confirmed);
+        }
+
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.FILE.WORKSPACE]
+         * [EN rev.2]
+         * [Role] Opens one user-requested native dialog while retaining the existing file/CSV API boundary.
+         * [Dependencies] Current capabilities, owner conversation lifecycle, native dialog focus and a separate operation epoch.
+         * [Impact] Closing never resends work; boundaries discard selected files/tokens and reject late previews. A completed write may report its outcome to the same account after a conversation switch, without populating that conversation's file panel.
+         */
+        function openFileWorkspace(panel, scope, trigger) {
+            if (disposed || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || creatingConversation || dialogResolve) {
+                notice('현재 대화 상태에서는 파일 작업을 열 수 없습니다. 정상 대화에서 다시 요청해 주세요.'); return;
+            }
+            const exported = panel === 'csv-export' && ['my','public'].includes(scope);
+            if (exported ? !(capabilities?.scopes || []).includes(scope) : !['csv-import','attachment'].includes(panel) || !capabilities?.file_tools) {
+                notice('이 파일 작업을 사용할 권한이 없거나 현재 비활성 상태입니다.'); return;
+            }
+            if (fileBusy && filePanel !== panel) { notice('진행 중인 파일 작업의 결과를 확인한 뒤 다른 작업을 열어 주세요.'); return; }
+            notice('', 'file');
+            if (filePanel !== panel) fileNotice('');
+            filePanel = panel;
+            $('ai-upload-form').hidden = panel !== 'attachment'; $('ai-csv-form').hidden = panel !== 'csv-import'; $('ai-csv-export').hidden = !exported;
+            const descriptions = {
+                'csv-import': ['CSV 가져오기', '파일을 선택해 등록 전 내용을 확인하세요. 확인 버튼을 눌러야 본인 장비에 등록됩니다.'],
+                attachment: ['내 장비에 파일 첨부', '본인 장비 번호와 첨부할 파일을 선택하세요. 파일은 모델에 보내지 않고 장비관리 서버에 업로드합니다.'],
+                'csv-export': ['CSV 내보내기', '선택한 범위를 확인한 뒤 파일을 내려받으세요. 다운로드 시 현재 계정의 권한을 다시 확인합니다.']
+            };
+            [$('ai-file-title').textContent, $('ai-file-description').textContent] = descriptions[panel];
+            if (exported) {
+                $('ai-csv-export-scope').textContent = scope === 'my' ? '내보낼 범위: 내 장비' : '내보낼 범위: 공개 장비';
+                $('ai-csv-download').href = '/api/ai/csv/export?scope=' + scope;
+            }
+            const dialog = $('ai-file-dialog');
+            if (!dialog.open) { fileFocus = trigger || document.activeElement; dialog.showModal(); }
+            $('ai-file-title').focus({ preventScroll: true });
+            lifecycleControls();
+        }
+
+        /** [Role] Restores a still-visible trigger or the composer after an Escape/close, without changing pending requests. */
+        function closeFileWorkspace() {
+            if (!$('ai-file-dialog').open) return;
+            $('ai-file-dialog').close();
+            const target = [fileFocus, $('ai-input'), $('ai-menu-toggle')].find(node => node?.isConnected && !node.disabled && node.getClientRects().length);
+            target?.focus({ preventScroll: true });
+        }
+
+        /** [Role] Clears all transient file data at an owner/conversation boundary and invalidates late HTTP callbacks. */
+        function resetFileWorkspace() {
+            ++fileEpoch; ++csvFileVersion; csvToken = null; fileBusy = false; filePanel = null; fileFocus = null;
+            const dialog = $('ai-file-dialog');
+            if (dialog?.open) dialog.close();
+            $('ai-upload-form')?.reset(); $('ai-csv-form')?.reset();
+            if ($('ai-csv-preview')) { $('ai-csv-preview').hidden = true; $('ai-csv-preview').textContent = ''; }
+            if ($('ai-csv-confirm')) $('ai-csv-confirm').hidden = true;
+            if ($('ai-csv-download')) $('ai-csv-download').removeAttribute('href');
+            if ($('ai-file-notice')) { $('ai-file-notice').hidden = true; $('ai-file-notice').textContent = ''; }
+            dialog?.setAttribute('aria-busy', 'false');
+        }
+
+        /** [Role] Keeps result/error feedback inside the popup, announcing completed work outside it if the user closed it. */
+        function fileNotice(message) {
+            if (disposed) return;
+            $('ai-file-notice').textContent = message; $('ai-file-notice').hidden = !message;
+            if (message && !$('ai-file-dialog').open) notice(message, 'file');
+        }
+
+        /** [Role] Admits one explicit file operation and ignores results whose conversation/account epoch was invalidated. */
+        async function fileOperation(message, action, { write = false } = {}) {
+            if (fileBusy || disposed || readOnly() || lifecycleBusy || !capabilities?.file_tools || !$('ai-file-dialog').open) return;
+            const epoch = fileEpoch, account = accountContext, cid = conversation;
+            const current = () => !disposed && epoch === fileEpoch && account === accountContext && cid === conversation && !readOnly();
+            fileBusy = true; fileNotice(message); $('ai-file-dialog').setAttribute('aria-busy','true'); lifecycleControls();
+            try {
+                const outcome = await action(current);
+                if (typeof outcome === 'string') {
+                    if (current()) fileNotice(outcome);
+                    else if (write && !disposed && account === accountContext) notice('이전 대화에서 요청한 파일 작업: ' + outcome, 'file');
+                }
+            }
+            catch (error) {
+                if (current()) fileNotice(error.message);
+                else if (write && !disposed && account === accountContext) notice('이전 대화에서 요청한 파일 작업: ' + error.message, 'file');
+            }
+            finally {
+                if (current()) { fileBusy = false; $('ai-file-dialog').setAttribute('aria-busy','false'); lifecycleControls(); }
+            }
         }
 
         /** [Role] Renders only published opaque choices and restores conversation-specific supported reasoning.
@@ -407,7 +564,7 @@
             }
             const context = response.headers.get('X-Assistant-Account');
             if (response.status === 401 || response.status === 403 && method === 'GET' && !context || context && accountContext && context !== accountContext) {
-                disposed = true; clearTimeout(timer); nodes.clear(); streams.clear(); cards.clear(); root.replaceChildren();
+                resetFileWorkspace(); disposed = true; clearTimeout(timer); nodes.clear(); streams.clear(); cards.clear(); root.replaceChildren();
                 window.location.assign(response.status === 401 ? '/login' : response.status === 403 ? '/portal' : '/assistant');
                 throw new Error('로그인 상태가 변경되었습니다.');
             }
@@ -531,8 +688,8 @@
             if (applied) {
                 const result = JSON.parse(proposal.result || '{}');
                 const text = document.createElement('p'); text.textContent = resultText(result); text.style.whiteSpace = 'pre-line'; card.append(text);
-                if (/^\/api\/ai\/csv\/export\?scope=(my|public)$/.test(result.download_url || '')) {
-                    const link = document.createElement('a'); link.href = result.download_url; link.className = 'ai-button'; link.textContent = 'CSV 다운로드'; card.append(link);
+                if (fileWorkspaceTarget(result.download_url)?.panel === 'csv-export') {
+                    const link = document.createElement('a'); link.href = result.download_url; link.className = 'ai-button'; link.textContent = 'CSV 다운로드'; card.append(workspaceLink(link, result.download_url));
                 }
             } else if (proposal.state === 'pending' && !readOnly()) {
                 const execute = document.createElement('button'); execute.type = 'button'; execute.className = 'ai-confirm'; execute.textContent = '이 내용으로 실행';
@@ -661,6 +818,7 @@
 
         /** [Role] Clears an unavailable selected chat without creating a new conversation or replaying any cancelled work. */
         function clearConversation() {
+            resetFileWorkspace();
             ++selection; clearTimeout(timer); conversation = null; conversationMeta = null; conversationView = 'active'; activeJob = null; nextBefore = null;
             nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
             $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle('대화를 선택해 주세요.');
@@ -818,6 +976,7 @@
          * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs and message nodes, while the compact heading exposes the complete selected title.
          */
         async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true } = {}) {
+            if (conversation !== cid || conversationView !== view) resetFileWorkspace();
             const pane = $('ai-scroll');
             const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
             const selected = ++selection; clearTimeout(timer); activeJob = null; nextBefore = null;
@@ -961,28 +1120,59 @@
         });
         $('ai-cancel').addEventListener('click', async () => { if (!activeJob || readOnly() || lifecycleBusy) return; try { await api(`/api/ai/jobs/${activeJob}/cancel`, { method: 'POST', data: {} }); schedule(50); } catch (error) { notice(error.message); } });
 
-        /** [Role] Sends only a user-selected file to the existing own-equipment attachment endpoint. */
+        root.addEventListener('click', event => {
+            const anchor = event.target.closest('a[data-ai-workspace]');
+            if (!anchor || !root.contains(anchor)) return;
+            event.preventDefault(); openFileWorkspace(anchor.dataset.aiWorkspace, anchor.dataset.aiScope, anchor);
+        });
+        $('ai-file-close').addEventListener('click', closeFileWorkspace);
+        $('ai-file-dialog').addEventListener('cancel', event => { event.preventDefault(); closeFileWorkspace(); });
+        $('ai-csv-download').addEventListener('click', event => {
+            const target = fileWorkspaceTarget($('ai-csv-download').getAttribute('href'));
+            if (readOnly() || lifecycleBusy || disposed || !target || !(capabilities?.scopes || []).includes(target.scope)) { event.preventDefault(); fileNotice('현재 권한과 대화 상태를 확인한 뒤 다시 요청해 주세요.'); }
+        });
+
+        /** [Role] Sends only a user-selected file from the requested popup to the existing own-equipment endpoint. */
         $('ai-upload-form').addEventListener('submit', async event => {
-            event.preventDefault(); if (readOnly() || lifecycleBusy) return; const id = Number($('ai-upload-equipment').value), file = $('ai-upload-file').files[0];
-            if (!Number.isSafeInteger(id) || id < 1 || !file || file.size > 10 * 1024 * 1024) { notice('장비 번호와 10MiB 이하 파일을 선택해 주세요.'); return; }
-            const form = new FormData(); form.append('file', file); const button = event.currentTarget.querySelector('button'); button.disabled = true;
-            try { await api(`/api/ai/equipment/${id}/files`, { method: 'POST', form }); notice('선택한 파일이 첨부되었습니다.'); $('ai-upload-file').value = ''; } catch (error) { notice(error.message); } finally { button.disabled = false; }
+            event.preventDefault(); if (filePanel !== 'attachment') return;
+            const id = Number($('ai-upload-equipment').value), file = $('ai-upload-file').files[0];
+            if (!Number.isSafeInteger(id) || id < 1 || !file || file.size > 10 * 1024 * 1024) { fileNotice('장비 번호와 10MiB 이하 파일을 선택해 주세요.'); return; }
+            const form = new FormData(); form.append('file', file);
+            await fileOperation('파일을 업로드하고 있습니다.', async current => {
+                await api(`/api/ai/equipment/${id}/files`, { method: 'POST', form });
+                if (current()) $('ai-upload-file').value = '';
+                return '선택한 파일이 첨부되었습니다.';
+            }, { write: true });
         });
         /** [Role] Reuses the existing authenticated CSV preview token, never asks the model to parse a raw file. */
         $('ai-csv-form').addEventListener('submit', async event => {
-            event.preventDefault(); if (readOnly() || lifecycleBusy) return; csvToken = null; $('ai-csv-confirm').hidden = true;
-            const file = $('ai-csv-file').files[0]; if (!file || file.size > 1024 * 1024) { notice('1MiB 이하 CSV 파일을 선택해 주세요.'); return; }
+            event.preventDefault(); if (fileBusy || filePanel !== 'csv-import') return;
+            csvToken = null; $('ai-csv-confirm').hidden = true; $('ai-csv-preview').hidden = true;
+            const file = $('ai-csv-file').files[0], version = ++csvFileVersion;
+            if (!file || file.size > 1024 * 1024) { fileNotice('1MiB 이하 CSV 파일을 선택해 주세요.'); return; }
             const form = new FormData(); form.append('file', file);
-            try { const result = await api('/api/ai/csv/preview', { method: 'POST', form });
+            await fileOperation('CSV 파일의 등록 전 내용을 확인하고 있습니다.', async current => {
+                const result = await api('/api/ai/csv/preview', { method: 'POST', form });
+                if (!current() || version !== csvFileVersion || file !== $('ai-csv-file').files[0]) return;
                 $('ai-csv-preview').textContent = csvPreviewText(result);
-                $('ai-csv-preview').hidden = false; csvToken = result.token; $('ai-csv-confirm').hidden = !csvToken;
-            } catch (error) { notice(error.message); }
+                $('ai-csv-preview').hidden = false; csvToken = typeof result.token === 'string' && result.token ? result.token : null; $('ai-csv-confirm').hidden = !csvToken;
+                fileNotice(csvToken ? '등록 전 내용을 확인한 뒤 아래 버튼을 눌러 주세요.' : 'CSV 내용을 확인해 주세요. 오류가 있는 파일은 등록할 수 없습니다.');
+            });
         });
-        $('ai-csv-file').addEventListener('change', () => { csvToken = null; $('ai-csv-confirm').hidden = true; $('ai-csv-preview').hidden = true; });
+        $('ai-csv-file').addEventListener('change', () => { ++csvFileVersion; csvToken = null; $('ai-csv-confirm').hidden = true; $('ai-csv-preview').hidden = true; });
         $('ai-csv-confirm').addEventListener('click', async () => {
-            if (!csvToken || readOnly() || lifecycleBusy) return; $('ai-csv-confirm').disabled = true;
-            try { const result = await api('/api/ai/csv/commit', { method: 'POST', data: { token: csvToken } }); notice(`${result.count}개 장비가 등록되었습니다.`); csvToken = null; $('ai-csv-confirm').hidden = true; }
-            catch (error) { notice(error.message); } finally { $('ai-csv-confirm').disabled = false; }
+            if (!csvToken || fileBusy || filePanel !== 'csv-import') return;
+            const token = csvToken;
+            await fileOperation('확인한 CSV 장비를 등록하고 있습니다.', async current => {
+                try {
+                    const result = await api('/api/ai/csv/commit', { method: 'POST', data: { token } });
+                    if (current()) { csvToken = null; $('ai-csv-confirm').hidden = true; }
+                    return `${result.count}개 장비가 등록되었습니다.`;
+                } catch (error) {
+                    if (current()) { csvToken = null; $('ai-csv-confirm').hidden = true; }
+                    return error.outcomeUnknown ? 'CSV 등록 결과를 확인하지 못했습니다. 내 장비에서 반영 여부를 확인해 주세요. 자동으로 다시 등록하지 않습니다.' : error.message;
+                }
+            }, { write: true });
         });
 
         /** [Role] Treats cross-tab storage/channel data only as a hint to authenticated rereads. */
@@ -996,7 +1186,7 @@
             lifecycleChannel.addEventListener('message', event => lifecycleHint(event.data));
         }
         window.addEventListener('storage', event => { if (event.key === 'eqmgmt.ai.lifecycle') { try { lifecycleHint(JSON.parse(event.newValue)); } catch (_) { /* Malformed hints have no authority. */ } } });
-        window.addEventListener('pagehide', () => { disposed = true; clearTimeout(timer); clearInterval(identityTimer); lifecycleChannel?.close(); controller.abort(); }, { once: true });
+        window.addEventListener('pagehide', () => { disposed = true; disposeViewport(); clearTimeout(timer); clearInterval(identityTimer); lifecycleChannel?.close(); controller.abort(); }, { once: true });
         window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });
         window.addEventListener('focus', checkIdentity);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIdentity(); });
@@ -1008,7 +1198,6 @@
             root.querySelectorAll('[data-tool]').forEach(button => {
                 button.hidden = !(capabilities.tools || []).includes(button.dataset.tool) || button.dataset.own === 'true' && !(capabilities.scopes || []).includes('my');
             });
-            root.querySelector('.ai-file-tools').hidden = !capabilities.file_tools;
             if (!capabilities.writes) notice('현재 조회와 대화 기능을 사용할 수 있습니다. 변경 제안은 운영 설정에서 비활성 상태입니다.');
             await loadModels();
             const list = await conversations(); if (list.length) await open(list[0].id);

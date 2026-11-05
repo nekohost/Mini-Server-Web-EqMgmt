@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.BROWSER.FIXTURE]
-[EN rev.5]
+[EN rev.6]
 [Role] Runs the actual candidate DOM/CSS against a deterministic, local-only browser transport.
 [Dependencies] Linux Chromium, Flask/Jinja and synthetic responses; no production login/model is used.
 [Impact] Tests thinking disclosure, safe rendering, readable business results/CSV and responsive layout without deploying source; model restoration is verified through the compact selector while immutable answer provenance stays independent.
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     await wait(()=>document.querySelector('#ai-conversations button'));
     assert([...document.querySelectorAll('#ai-level option')].map(x=>x.value).join(',')==='off,low,medium,high,xhigh,max','six-standard-levels');
     assert(document.querySelector('#ai-level option[value=high]').disabled&&document.querySelector('#ai-level option[value=max]').disabled&&!document.querySelector('#ai-level option[value=low]').disabled,'known-unsupported-levels-visible-disabled');
-    assert(getComputedStyle(document.querySelector('.ai-footnote')).fontSize==='12px','readable-footnote-size');
+    assert(!document.querySelector('.ai-footnote')&&!document.querySelector('.ai-bottom .ai-file-tools')&&!document.getElementById('ai-file-dialog').open,'permanent-footer-guidance-and-file-toolbar-removed');
     assert(document.getElementById('ai-model').options.length===2&&document.getElementById('ai-model').textContent.includes('Strata PC A'),'provider-model-picker');
     assert(document.getElementById('ai-level').value==='medium','conversation-reasoning-restored');
     await wait(()=>!document.getElementById('ai-more-conversations').hidden);
@@ -104,11 +104,14 @@ document.addEventListener('DOMContentLoaded',async()=>{
     await wait(()=>document.getElementById('ai-messages').textContent.includes('오래된 답변'));
     assert(document.getElementById('ai-messages').firstElementChild.textContent.includes('오래된 질문'),'older-messages-prepended');
     assert(thought.open&&document.contains(thought),'history-loading-preserves-live-details');
+    const workspace=document.createElement('p');module.exports.markdown(workspace,'[CSV 가져오기 열기](/assistant?panel=csv-import)');document.getElementById('ai-messages').append(workspace);workspace.querySelector('a').click();
+    assert(document.getElementById('ai-file-dialog').open&&document.getElementById('ai-file-title').textContent==='CSV 가져오기','request-link-opens-csv-dialog');
     const selected=new DataTransfer();selected.items.add(new File(['synthetic fixture only'],'fixture.csv',{type:'text/csv'}));
     document.getElementById('ai-csv-file').files=selected.files;document.getElementById('ai-csv-form').requestSubmit();
     await wait(()=>!document.getElementById('ai-csv-preview').hidden);
     const csv=document.getElementById('ai-csv-preview').textContent;
     assert(csv.includes('장비 이름: 확인 장비')&&csv.includes('비공개')&&!csv.includes('OptionId')&&!csv.includes('{'),'csv-preview-user-language');
+    document.getElementById('ai-file-close').click();
     forceError=true;pollCount=0;
     document.getElementById('ai-input').value='실패 처리 확인';document.getElementById('ai-form').requestSubmit();
     await wait(()=>document.getElementById('ai-progress-text').textContent.includes('응답 형식 오류'));
@@ -269,4 +272,3 @@ def run_browser(project,assets):
     finally:
         server.shutdown();thread.join(timeout=5);server.server_close()
     return results
-
