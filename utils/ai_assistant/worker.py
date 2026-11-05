@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.5]
+[EN rev.6]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
 [Dependencies] requests, private loopback worker API and server-only environment credentials.
 [Impact] Delivers small SSE batches within 150ms when frames arrive, preserves monotonic offsets and drains only its own cancelled response; group occupancy remains server-controlled.
@@ -175,6 +175,10 @@ class Worker:
                      'temperature':0.6,'top_p':0.95}
             if job['tools']:
                 payload['tools']=job['tools']
+            if job.get('web_search_required') is True:
+                if not any(tool.get('function',{}).get('name')=='web_search' for tool in job['tools']):
+                    raise ValueError('required search tool is unavailable')
+                payload['tool_choice']={'type':'function','function':{'name':'web_search'}}
             if job.get('reasoning_effort') is not None:
                 payload['reasoning_effort']=job['reasoning_effort']
             if not route or route['adapter']=='strata':

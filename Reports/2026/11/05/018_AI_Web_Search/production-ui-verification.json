@@ -1,0 +1,231 @@
+{
+  "views": [
+    {
+      "answer": "AI 도우미추론 과정 · 다시 보기Flask 공식 문서는 Flask 프레임워크의 구성 요소를 설명하고, 사용·커스터마이징·확장 방법을 안내합니다.[1] 또한 커뮤니티가 관리하는 확장을 활용해 Flask 자체 이상의 기능을 추가할 수 있도록 돕습니다.[1]출처: 검색 결과 1번 “Welcome to Flask — Flask Documentation (3.1.x)”이며, 웹 검색 출처 목록에서 공식 문서 링크를 확인할 수 있습니다.260Strata / Qwen3.8 Flash Next · off웹 검색 출처 · Yahoo · 5건검색 결과의 제목과 요약입니다. 원문 전체를 열람한 결과는 아닙니다.검색어: Flask official documentation검색 시각: 2026-11-05T08:50:06.129209+00:00Welcome to Flask — Flask Documentation (3.1.x)This section of the documentation explains the different parts of the Flask framework and how they can be used, customized, and extended. Beyond Flask itself, look for community-maintained extensions to add even more functionality.Quickstart — Flask Documentation (3.1.x)Flask provides a really simple way to give feedback to a user with the flashing system. The flashing system basically makes it possible to record a message at the end of a request and access it on the next (and only the next) request.Welcome to Flask — Flask Documentation (2.3.x)This section of the documentation explains the different parts of the Flask framework and how they can be used, customized, and extended. Beyond Flask itself, look for community-maintained extensions to add even more functionality.Flask Tutorial - GeeksforGeeksJun 30, 2026 · Covers creating and running a basic Flask app, understanding routes, HTTP methods, variables, redirects and basic configurations. Explains creating dynamic web pages using templates and managing static files like CSS, JavaScript and images.Welcome to Flask — Flask Documentation (2.3.x)This section of the documentation explains the different parts of the Flask framework and how they can be used, customized, and extended. Beyond Flask itself, look for community-maintained extensions to add even more functionality.",
+      "chat": {
+        "bottom": 842,
+        "height": 633.859375,
+        "left": 267,
+        "right": 1417,
+        "top": 208.140625,
+        "width": 1150
+      },
+      "defaultOff": true,
+      "fit": "fit",
+      "height": 1000,
+      "links": [
+        {
+          "referrerPolicy": "no-referrer",
+          "rel": "noopener noreferrer",
+          "target": "_blank",
+          "title": "Welcome to Flask — Flask Documentation (3.1.x)",
+          "url": "https://flask.palletsprojects.com/"
+        },
+        {
+          "referrerPolicy": "no-referrer",
+          "rel": "noopener noreferrer",
+          "target": "_blank",
+          "title": "Quickstart — Flask Documentation (3.1.x)",
+          "url": "https://flask.palletsprojects.com/en/stable/quickstart/"
+        },
+        {
+          "referrerPolicy": "no-referrer",
+          "rel": "noopener noreferrer",
+          "target": "_blank",
+          "title": "Welcome to Flask — Flask Documentation (2.3.x)",
+          "url": "https://flaskx.readthedocs.io/en/latest/"
+        },
+        {
+          "referrerPolicy": "no-referrer",
+          "rel": "noopener noreferrer",
+          "target": "_blank",
+          "title": "Flask Tutorial - GeeksforGeeks",
+          "url": "https://www.geeksforgeeks.org/python/flask-tutorial/"
+        },
+        {
+          "referrerPolicy": "no-referrer",
+          "rel": "noopener noreferrer",
+          "target": "_blank",
+          "title": "Welcome to Flask — Flask Documentation (2.3.x)",
+          "url": "https://flask-doc-pdf-gen.readthedocs.io/"
+        }
+      ],
+      "pageHeight": 1000,
+      "pageWidth": 1440,
+      "selectedConversation": "운영 검증 · 웹 검색과 출처",
+      "send": {
+        "bottom": 951,
+        "height": 36,
+        "left": 1216,
+        "right": 1252,
+        "top": 915,
+        "width": 36
+      },
+      "sourceCount": 5,
+      "sourcesOpen": true,
+      "toggle": {
+        "bottom": 951,
+        "height": 36,
+        "left": 1174,
+        "right": 1210,
+        "top": 915,
+        "width": 36
+      },
+      "view": "desktop-expanded",
+      "width": 1440
+    },
+    {
+      "chat": {
+        "bottom": 842,
+        "height": 674.65625,
+        "left": 267,
+        "right": 1417,
+        "top": 167.34375,
+        "width": 1150
+      },
+      "defaultOff": true,
+      "fit": "fit",
+      "height": 1000,
+      "pageHeight": 1000,
+      "pageWidth": 1440,
+      "selectedConversation": "운영 검증 · 웹 검색과 출처",
+      "send": {
+        "bottom": 951,
+        "height": 36,
+        "left": 1216,
+        "right": 1252,
+        "top": 915,
+        "width": 36
+      },
+      "sourceCount": 5,
+      "sourceNumberStyle": "decimal",
+      "sourcesOpen": false,
+      "toggle": {
+        "bottom": 951,
+        "height": 36,
+        "left": 1174,
+        "right": 1210,
+        "top": 915,
+        "width": 36
+      },
+      "width": 1440,
+      "view": "desktop-collapsed-after-reload"
+    },
+    {
+      "chat": {
+        "bottom": 842,
+        "height": 674.65625,
+        "left": 267,
+        "right": 1417,
+        "top": 167.34375,
+        "width": 1150
+      },
+      "defaultOff": true,
+      "fit": "fit",
+      "height": 1000,
+      "pageHeight": 1000,
+      "pageWidth": 1440,
+      "selectedConversation": "운영 검증 · 웹 검색과 출처",
+      "send": {
+        "bottom": 951,
+        "height": 36,
+        "left": 1216,
+        "right": 1252,
+        "top": 915,
+        "width": 36
+      },
+      "sourceCount": 5,
+      "sourceNumberStyle": "decimal",
+      "sourcesOpen": true,
+      "toggle": {
+        "bottom": 951,
+        "height": 36,
+        "left": 1174,
+        "right": 1210,
+        "top": 915,
+        "width": 36
+      },
+      "width": 1440,
+      "view": "desktop-expanded-numbered"
+    },
+    {
+      "chat": {
+        "bottom": 671.609375,
+        "height": 458.265625,
+        "left": 9,
+        "right": 381,
+        "top": 213.34375,
+        "width": 372
+      },
+      "defaultOff": true,
+      "fit": "fit",
+      "height": 844,
+      "pageHeight": 844,
+      "pageWidth": 390,
+      "selectedConversation": "운영 검증 · 웹 검색과 출처",
+      "send": {
+        "bottom": 788.609375,
+        "height": 44,
+        "left": 310,
+        "right": 354,
+        "top": 744.609375,
+        "width": 44
+      },
+      "sourceCount": 5,
+      "sourceNumberStyle": "decimal",
+      "sourcesOpen": false,
+      "toggle": {
+        "bottom": 788.609375,
+        "height": 44,
+        "left": 260,
+        "right": 304,
+        "top": 744.609375,
+        "width": 44
+      },
+      "width": 390,
+      "view": "mobile-collapsed"
+    },
+    {
+      "chat": {
+        "bottom": 671.609375,
+        "height": 458.265625,
+        "left": 9,
+        "right": 381,
+        "top": 213.34375,
+        "width": 372
+      },
+      "defaultOff": true,
+      "fit": "fit",
+      "height": 844,
+      "pageHeight": 844,
+      "pageWidth": 390,
+      "selectedConversation": "운영 검증 · 웹 검색과 출처",
+      "send": {
+        "bottom": 788.609375,
+        "height": 44,
+        "left": 310,
+        "right": 354,
+        "top": 744.609375,
+        "width": 44
+      },
+      "sourceCount": 5,
+      "sourceNumberStyle": "decimal",
+      "sourcesOpen": true,
+      "toggle": {
+        "bottom": 788.609375,
+        "height": 44,
+        "left": 260,
+        "right": 304,
+        "top": 744.609375,
+        "width": 44
+      },
+      "width": 390,
+      "view": "mobile-expanded-numbered"
+    }
+  ],
+  "consoleErrors": [],
+  "checkedAt": "2026-11-05T08:56:38.204Z",
+  "status": "pass",
+  "reloadRestoredAnswerAndSources": true,
+  "sourceNumberFixVerified": true
+}

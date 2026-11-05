@@ -1,0 +1,33 @@
+{
+  "files": [
+    {
+      "path": "static/js/equipment_ai.js",
+      "sha256": "32447f964a3aa3db45899e915dc3b62e705b68a75a59eed4794f731cc8be3e6b"
+    },
+    {
+      "path": "templates/equipment_ai.html",
+      "sha256": "e12c41526b8dc5c298ff7a7f41e88503ae2d7228c2bd222c1d1e5d062139d920"
+    },
+    {
+      "path": "tests/run_assistant_fixture.py",
+      "sha256": "5ed7edf00690014e08f64e6e21f7ae63f81dc2b6b186a0f1508d56eca1061e95"
+    },
+    {
+      "path": "tests/test_ai_web_search.py",
+      "sha256": "b61a49ea452ae91f3d3873a2833d4a3f15c9889cac0e44ce3e0bcfc1a0a47e87"
+    },
+    {
+      "path": "utils/ai_assistant/__init__.py",
+      "sha256": "cd2b24a2344b94fe236c9b37eefa2decd58beeeaeded712b6c9c902f215fddaa"
+    },
+    {
+      "path": "utils/ai_assistant/web_search.py",
+      "sha256": "aef4265d21f90e34c88cefd09c5aba6d526db71b51891e6afe7e0d25598423cd"
+    },
+    {
+      "path": "utils/ai_assistant/worker.py",
+      "sha256": "a3874ea7b148f49f538f4fd989942262635f4f87707127b295da365dbadbbc0f"
+    }
+  ],
+  "archive_sha256": "d6534d1da48a4557bbb299cb62957eee4e562dbd0477145ef0e9390615a2174d"
+}

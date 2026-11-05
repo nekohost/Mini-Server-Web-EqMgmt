@@ -10,10 +10,10 @@ import subprocess
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch, PropertyMock
+from unittest.mock import patch, PropertyMock, MagicMock
 import uuid
 
-from assistant_fixture_tests import AssistantTests
+from assistant_fixture_tests import AssistantTests, ProtocolTests
 from assistant_provider_fixture_tests import ProviderTests
 from utils.ai_assistant.policy import canonical, normalized_tool_arguments, AssistantError
 from utils.ai_assistant.web_search import (SearchService, WebSearchError, validate_query, safe_url,
@@ -139,8 +139,8 @@ class WebSearchIntegrationTests(unittest.TestCase):
     def test_consent_controls_claim_and_sources_survive_finish_reload_and_poll_ack(self):
         """[Dependencies] Real claim/finish/history/delta routes. [Impact] Sources persist and acknowledged evidence is not resent every250ms."""
         cid=self.conversation();jid=self.turn(cid,True)['job_id'];job=self.claim()
-        self.assertIn('web_search',[x['function']['name'] for x in job['tools']]);self.assertIn('현재 요청 웹 검색: 허용됨',job['messages'][0]['content'])
-        self.assertEqual(self.search_step(job)['state'],'queued');self.finish(self.claim(),content='공식 문서를 확인했습니다. [1]')
+        self.assertIn('web_search',[x['function']['name'] for x in job['tools']]);self.assertIn('현재 요청 웹 검색: 허용됨',job['messages'][0]['content']);self.assertTrue(job['web_search_required'])
+        self.assertEqual(self.search_step(job)['state'],'queued');next_job=self.claim();self.assertFalse(next_job['web_search_required']);self.finish(next_job,content='공식 문서를 확인했습니다. [1]')
         view=self.client.get('/api/ai/jobs/'+jid).get_json();self.assertEqual(view['web_search_version'],1);self.assertEqual(view['web_searches'][0]['results'][0]['url'],'https://docs.example.org/guide')
         self.assertIsNone(self.client.get('/api/ai/jobs/'+jid+'?w=1').get_json()['web_searches'])
         self.assertEqual(self.client.get('/api/ai/jobs/'+jid+'?w=999').status_code,400)
@@ -170,8 +170,8 @@ class WebSearchIntegrationTests(unittest.TestCase):
     def test_private_queries_and_private_detail_taint_never_reach_network(self):
         """[Dependencies] Current owner serials and actual private tool result. [Impact] Only public/model keywords can leave after explicit opt-in."""
         self.turn(allow=True);result=self.search_step(self.claim(),query='SERIAL-2 official specifications');self.assertEqual(result['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(self.search.calls,[])
-        self.turn(allow=True);job=self.claim();self.finish(job,[{'id':'detail','name':'get_equipment','arguments':'{"equipment_id":2}'}]);result=self.search_step(self.claim())
-        self.assertEqual(result['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(self.search.calls,[])
+        self.turn(allow=True);self.search_step(self.claim());job=self.claim();self.finish(job,[{'id':'detail','name':'get_equipment','arguments':'{"equipment_id":2}'}]);result=self.search_step(self.claim())
+        self.assertEqual(result['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(len(self.search.calls),1)
 
     def test_search_failure_precedes_business_preparation_and_releases_guard(self):
         """[Dependencies] Complete-batch validation and search-first safe ordering. [Impact] No confirmation card is prepared after a failed external search."""
@@ -252,3 +252,34 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Dependencies] Public keyword guard. [Impact] Private LAN/link-local addresses do not leave the equipment service in a search query."""
         for literal in ('10.0.0.4','192.168.2.9','172.16.4.2','169.254.9.8'):
             with self.subTest(literal=literal),self.assertRaises(WebSearchError):validate_query(literal+' device documentation')
+
+    def test_search_enabled_answer_without_actual_search_fails_instead_of_fabricating_evidence(self):
+        """[Dependencies] Real finish guard despite a provider ignoring forced tool choice. [Impact] Search-free model prose cannot be reported as a completed web search."""
+        jid=self.turn(allow=True)['job_id'];result=self.finish(self.claim(),content='검색 결과 1번이라고 꾸민 답변 [1]')
+        self.assertEqual(result['state'],'failed');self.assertEqual(result['error_code'],'WEB_SEARCH_REQUIRED')
+        view=self.client.get('/api/ai/jobs/'+jid).get_json();self.assertEqual(view['web_searches'],[]);self.assertIn('검색으로 확인되지 않았습니다',view['error'])
+
+    def test_large_escaped_evidence_is_retained_without_generic_business_result_truncation(self):
+        """[Dependencies] Actual worker finish envelope and safe source projection. [Impact] Valid search JSON above the old16K business cap remains complete and charged."""
+        payload=evidence();payload['results']=project_results([{'title':'"\\'*90,'url':'https://example.org/'+str(i)+'"'*1470,'snippet':'"\\'*350} for i in range(5)])
+        with patch.object(self.search,'search',return_value=payload):
+            jid=self.turn(allow=True)['job_id'];self.assertEqual(self.search_step(self.claim())['state'],'queued')
+        with self.store.db() as db:ctx=self.store.job(jid,db)['context']
+        self.assertGreater(evidence_chars(ctx),16000);self.assertEqual(len(public_searches(ctx)[0]['results']),5)
+
+
+class WebSearchWorkerTests(unittest.TestCase):
+    """[Role] Checks actual OpenAI worker request selection with inert transport and no model connection."""
+    response=ProtocolTests.response
+    def test_only_server_required_search_selects_the_named_tool(self):
+        """[Dependencies] Actual worker payload and synthetic SSE. [Impact] On requests force the fixed search function; off/continuation requests keep existing behavior."""
+        from utils.ai_assistant.worker import Worker
+        for required in (True,False):
+            worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model')
+            client=MagicMock();client.__enter__.return_value=client
+            client.post.return_value=self.response(['data: '+canonical({'choices':[{'delta':{'content':'synthetic'},'finish_reason':'stop'}]}),'','data: [DONE]',''])
+            worker.post=lambda *_:{'success':True,'accepted':True,'cancel':False}
+            with patch('utils.ai_assistant.worker.requests.Session',return_value=client),patch.object(worker.stop,'wait',return_value=False):
+                worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[],'tools':[{'type':'function','function':{'name':'web_search'}}],'web_search_required':required})
+            payload=client.post.call_args.kwargs['json']
+            self.assertEqual(payload.get('tool_choice'),{'type':'function','function':{'name':'web_search'}} if required else None)

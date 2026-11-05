@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.17]
+ * [EN rev.18]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
  * [Impact] Actual frame geometry controls height only when minimum content space fits; resizing preserves reader/model/request state. Fixed file links, stale-preview isolation, explicit writes and independent lifecycle/notice recovery remain intact.
@@ -558,7 +558,7 @@
                 searchButton.hidden = !capabilities?.web_search;
                 searchButton.disabled = !capabilities?.web_search?.available || !model?.tools || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy || creatingConversation;
                 searchButton.setAttribute('aria-pressed',String(webSearchAllowed));
-                searchButton.title = !capabilities?.web_search?.available ? '현재 서버에서 웹 검색을 사용할 수 없습니다.' : !model?.tools ? '선택한 모델은 웹 검색 도구 호출을 지원하지 않습니다.' : `웹 검색 ${webSearchAllowed ? '켜짐' : '꺼짐'} · 다음 요청부터 적용 · 공개 검색어는 외부 Yahoo 검색 엔진으로 전송됩니다.`;
+                searchButton.title = !capabilities?.web_search?.available ? '현재 서버에서 웹 검색을 사용할 수 없습니다.' : !model?.tools ? '선택한 모델은 웹 검색 도구 호출을 지원하지 않습니다.' : `웹 검색 ${webSearchAllowed ? '켜짐' : '꺼짐'} · 켠 요청은 실제 검색 후 답변 · 공개 검색어는 외부 Yahoo 검색 엔진으로 전송됩니다.`;
             }
             lifecycleControls();
         }

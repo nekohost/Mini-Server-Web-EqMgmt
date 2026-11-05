@@ -39,5 +39,21 @@
     "valid_json_chars": 48764,
     "final_reservation": 64000,
     "result": "pass"
+  },
+  "required_search_staging": {
+    "tests": 234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 54.97,
+    "fixture_digest": "da00b547edd033f79f989120008da3f8c68552035ea21b3cd1343e8bbc41603d"
+  },
+  "required_search_root": {
+    "tests": 234,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 44.572,
+    "fixture_digest": "500713b11506e30c43f607226272499ae440ce0b3bdbe8b8942f9bdc925a5eee"
   }
 }

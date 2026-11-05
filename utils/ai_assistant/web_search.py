@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.SEARCH] [EN rev.2]
+"""[MINI-COMMENT: ASSISTANT.WEB.SEARCH] [EN rev.3]
 [Role] Executes opt-in public searches in a fixed, isolated Yahoo-only runtime and projects bounded citation data.
 [Dependencies] A separately hash-locked DDGS/primp virtualenv, stdlib subprocess and owner-authorized dispatch.
 [Impact] No model-selected origin, URL fetch, cookie, proxy or application secret enters the child; an eight-second search deadline never cancels an LLM request. Results remain untrusted evidence, not instructions.
@@ -27,6 +27,7 @@ ERRORS = {
     'WEB_SEARCH_UNAVAILABLE': '웹 검색 결과를 확인하지 못했습니다. 검색 서비스가 차단되거나 일시적으로 응답하지 않을 수 있습니다. 잠시 후 다시 요청해 주세요.',
     'WEB_SEARCH_TIMEOUT': '웹 검색 응답 시간이 초과되어 이 작업을 중단했습니다. 검색어를 좁혀 다시 요청해 주세요.',
     'WEB_SEARCH_LIMIT': '한 요청의 웹 검색 횟수 한도에 도달했습니다. 현재 결과를 확인하고 필요한 검색을 새 요청으로 보내 주세요.',
+    'WEB_SEARCH_REQUIRED': '모델이 실제 웹 검색을 수행하지 않아 검색 응답을 완료하지 않았습니다. 표시된 답변은 검색으로 확인되지 않았습니다. 도구 호출을 지원하는 모델로 다시 요청해 주세요.',
 }
 
 # This is fixed code, never caller-provided command text. -I/-B and the minimal environment exclude app credentials/proxies.

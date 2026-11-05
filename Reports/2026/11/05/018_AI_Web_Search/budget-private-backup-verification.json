@@ -1,0 +1,8 @@
+{
+  "remote_release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-budget-20261105T090334Z-50cb4a",
+  "local_private_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-web-budget-20261105T090334Z-50cb4a",
+  "sha_matched_files": 17,
+  "quiesced_databases": 2,
+  "previous_source_files": 2,
+  "live_logs_and_sqlite_auxiliary_excluded": true
+}

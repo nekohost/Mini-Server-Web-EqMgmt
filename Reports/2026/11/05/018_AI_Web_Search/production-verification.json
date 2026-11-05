@@ -1,0 +1,91 @@
+{
+  "actual_model_test": {
+    "job": "2ad9d7dce3d140439e6b3f6f6c26d587",
+    "conversation": "6b36fd8c269a4e08bac8f2bee979cfb3",
+    "state": "done",
+    "steps": 2,
+    "elapsed_seconds": 13.232,
+    "tools": [
+      "web_search"
+    ],
+    "search_count": 1,
+    "query": "Flask official documentation",
+    "results": 5,
+    "first_source": "https://flask.palletsprojects.com/",
+    "error_code": null,
+    "guard": "released",
+    "reserved_chars": 0,
+    "search_chars": 2117,
+    "storage_ledger_exact": true,
+    "proposals": 0,
+    "answer": "Flask 공식 문서는 Flask 프레임워크의 구성 요소를 설명하고, 사용·커스터마이징·확장 방법을 안내합니다.[1] 또한 커뮤니티가 관리하는 확장을 활용해 Flask 자체 이상의 기능을 추가할 수 있도록 돕습니다.[1]\n\n출처: 검색 결과 1번 “Welcome to Flask — Flask Documentation (3.1.x)”이며, 웹 검색 출처 목록에서 공식 문서 링크를 확인할 수 있습니다.",
+    "prior_failed_job_preserved": {
+      "state": "failed",
+      "error_code": "STREAM_INCOMPLETE"
+    }
+  },
+  "anonymous_http": {
+    "/login": 200,
+    "/assistant": 302,
+    "/api/ai/capabilities": 401,
+    "/admin/ai/providers": 302
+  },
+  "units": {
+    "equipment-ai-worker.service": "active",
+    "equipment-ai-retention.timer": "active"
+  },
+  "maintenance": "NORMAL",
+  "active_jobs": {},
+  "private_configuration_hashes_unchanged": true,
+  "copy_check": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-web-search-20261105T084615Z-e2866a/copy-357012a78ca4",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 30,
+      "ai_lifecycle_operations": 16,
+      "ai_lifecycle_tombstones": 7,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 11,
+      "ai_task_drafts": 0,
+      "conversations": 6,
+      "jobs": 11,
+      "message_steps": 19,
+      "messages": 22,
+      "proposals": 0,
+      "revocations": 8,
+      "storage_accounts": 4
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 1,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activation": {
+    "status": "active",
+    "app_pid": 907570,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-05T08:48:57.507431+00:00"
+  }
+}

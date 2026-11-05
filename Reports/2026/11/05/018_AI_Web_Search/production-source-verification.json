@@ -1,0 +1,8 @@
+{
+  "head": "602972a4198cb1d93b9bdbd777e1d892995a0e2c",
+  "source_hash_matches": 18,
+  "static_http_sha_matches": true,
+  "app_pid": 907570,
+  "worker_pid": "907580",
+  "runtime_not_restarted_for_css": true
+}
