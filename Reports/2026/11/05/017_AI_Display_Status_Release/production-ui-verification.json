@@ -1,0 +1,175 @@
+{
+  "status": "pass",
+  "account_role": "user",
+  "account": "test05",
+  "real_query": "공개 장비 리스트를 표 형태로 출력해주세요.",
+  "real_table_rows": 2,
+  "table_headers": [
+    "이름",
+    "모델",
+    "옵션",
+    "상태",
+    "보증 종료일",
+    "교체 예정일"
+  ],
+  "internal_id_column_absent": true,
+  "rename_and_reload_persisted": true,
+  "production_warning_states_artificially_forced": false,
+  "console_errors": [],
+  "screens": [
+    {
+      "name": "production-desktop-collapsed",
+      "bannerHidden": true,
+      "chat": {
+        "height": 633.859375,
+        "width": 1150,
+        "x": 267,
+        "y": 208.140625
+      },
+      "document": {
+        "height": 1000,
+        "width": 1440
+      },
+      "fit": "fit",
+      "form": {
+        "height": 120,
+        "width": 850,
+        "x": 417,
+        "y": 842
+      },
+      "headerState": "stale",
+      "modelPanelOpen": false,
+      "renameTooltip": "대화 세션의 이름 변경",
+      "supportOpen": false,
+      "tableHeaders": [
+        "이름",
+        "모델",
+        "옵션",
+        "상태",
+        "보증 종료일",
+        "교체 예정일"
+      ],
+      "tableRows": 2,
+      "title": "운영 검증 · 장비 표와 내부 참조 표시",
+      "titleVisible": false,
+      "trashTooltip": "휴지통으로 이동",
+      "viewport": {
+        "height": 1000,
+        "width": 1440
+      }
+    },
+    {
+      "name": "production-desktop-expanded",
+      "bannerHidden": true,
+      "chatHeight": 517.859375,
+      "document": {
+        "height": 1000,
+        "width": 1440
+      },
+      "fit": "fit",
+      "headerState": "ready",
+      "modelOpen": true,
+      "supportOpen": true,
+      "tableHeaders": [
+        "이름",
+        "모델",
+        "옵션",
+        "상태",
+        "보증 종료일",
+        "교체 예정일"
+      ],
+      "tableRows": 2,
+      "title": "운영 검증 · 장비 표와 내부 참조 표시",
+      "titleVisible": false,
+      "viewport": {
+        "height": 1000,
+        "width": 1440
+      }
+    },
+    {
+      "name": "production-mobile-expanded",
+      "bannerHidden": true,
+      "chatHeight": 318.859375,
+      "document": {
+        "height": 844,
+        "width": 390
+      },
+      "fit": "fit",
+      "headerState": "ready",
+      "modelOpen": true,
+      "supportOpen": true,
+      "tableHeaders": [
+        "이름",
+        "모델",
+        "옵션",
+        "상태",
+        "보증 종료일",
+        "교체 예정일"
+      ],
+      "tableRows": 2,
+      "title": "운영 검증 · 장비 표와 내부 참조 표시",
+      "titleVisible": true,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "name": "production-mobile-collapsed",
+      "bannerHidden": true,
+      "chatHeight": 483.65625,
+      "document": {
+        "height": 844,
+        "width": 390
+      },
+      "fit": "fit",
+      "headerState": "ready",
+      "modelOpen": false,
+      "supportOpen": false,
+      "tableHeaders": [
+        "이름",
+        "모델",
+        "옵션",
+        "상태",
+        "보증 종료일",
+        "교체 예정일"
+      ],
+      "tableRows": 2,
+      "title": "운영 검증 · 장비 표와 내부 참조 표시",
+      "titleVisible": true,
+      "viewport": {
+        "height": 844,
+        "width": 390
+      }
+    },
+    {
+      "name": "production-desktop-collapsed-final",
+      "bannerHidden": true,
+      "chatHeight": 674.65625,
+      "document": {
+        "height": 1000,
+        "width": 1440
+      },
+      "fit": "fit",
+      "headerState": "ready",
+      "modelOpen": false,
+      "supportOpen": false,
+      "tableHeaders": [
+        "이름",
+        "모델",
+        "옵션",
+        "상태",
+        "보증 종료일",
+        "교체 예정일"
+      ],
+      "tableRows": 2,
+      "title": "운영 검증 · 장비 표와 내부 참조 표시",
+      "titleVisible": false,
+      "viewport": {
+        "height": 1000,
+        "width": 1440
+      }
+    }
+  ],
+  "capture_anomaly": "The first fullPage screenshot was visually invalid despite correct DOM geometry; preserved separately and replaced with viewport getScreenshot captures."
+}

@@ -370,3 +370,15 @@
 - **상태:** [개발 완료 (FEATURES.md 이관)] / 운영 서버 적용·실제 검증 완료.
 - 007 요청형 CSV 팝업,009 화면 실측/scrollbar,010 모델 선택 접기를 함께 배포한다. 운영 상태·보존·검증은 [012 배포 보고](Reports/2026/11/05/012_AI_Staging_Production_Release_Report.md), 상세 기능은 FEATURES.md19절을 따른다.
 - 011 상단 상태 아이콘·두 줄 메뉴는 별도 미실현 계획으로만 보존하고 이번 실행 대기열에 자동 편입하지 않는다.
+
+## AI-POLISH-20261105 — 화면 개선1~10 구현·운영 완료
+
+- **상태:** [개발 완료 (FEATURES.md 이관)] / 운영 서버 적용·실제 검증 완료.
+- 후속 사용자 지시로011/013/014/015의1~9와 부드러운 출력10을 Staging016에서 검증했다. 원안·당시012 보류·016의 Staging 한정 결과는 보존하고,017의 명시 승인으로 운영에 반영했다.
+- [Staging016](Reports/2026/11/05/016_AI_Polish_Staging_Report.md), [운영017](Reports/2026/11/05/017_AI_Display_Status_Release_Report.md), 현재 명세는 FEATURES.md20절이다.
+
+## AI-DISPLAY-STATUS-20261105 — 내부 참조·상태 안내 운영 완료
+
+- **상태:** [개발 완료 (FEATURES.md 이관)] / 운영 적용·실제 일반 계정 확인 완료.
+- 기존1~10에 내부 ID 표시 규칙과 입력칸 노랑/빨강 안내를 가산 병합하고 실제 DB 사본/기존 기록 보존을 확인했다. [계획017](Plans/2026/11/05/017_AI_Display_Status_Release_Plan.md), [운영 보고017](Reports/2026/11/05/017_AI_Display_Status_Release_Report.md).
+- 037 변경형 WebMCP, AI-TECHDEBT-001 및 web_search 등 보류 범위는 이 완료와 구분한다.

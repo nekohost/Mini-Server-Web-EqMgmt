@@ -1,0 +1,31 @@
+{
+  "scoped_doc_index": {
+    "FEATURES.md": {
+      "index_changed": true,
+      "unrelated_head_body_preserved": true,
+      "index_blob": "57925146149b106bb490305bc4c83d4b59666633"
+    },
+    "PROPOSALS.md": {
+      "index_changed": true,
+      "unrelated_head_body_preserved": true,
+      "index_blob": "18c3f38e92302c96ab0596dd3aa4a62fdc9bdffc"
+    },
+    "ROADMAP.md": {
+      "index_changed": true,
+      "unrelated_head_body_preserved": true,
+      "index_blob": "563db56f8902f7903614199c6e34475f3e1301cd"
+    },
+    "UNIMPLEMENTED_PROPOSALS.md": {
+      "index_changed": true,
+      "unrelated_head_body_preserved": true,
+      "index_blob": "c0e3bb56db8601d13d6d71aae52d56527d9e259d"
+    },
+    "UNIMPLEMENTED_ROADMAP.md": {
+      "index_changed": false,
+      "unrelated_head_body_preserved": true
+    }
+  },
+  "unrelated_dirty_sha_preserved": 4,
+  "staged_files_before_evidence": 19,
+  "runtime_files_changed": 0
+}

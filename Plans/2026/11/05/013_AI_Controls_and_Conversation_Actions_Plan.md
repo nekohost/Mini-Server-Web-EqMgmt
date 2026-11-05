@@ -3,14 +3,15 @@ artifact_id: PLAN-20261105-013
 work_id: PLANNED-20261105-AI-CONTROLS-ACTIONS
 related_work_id: PLANNED-20261105-AI-HEADER
 owner: Codex
-status: verified-in-staging
-implementation_approval: staging-only
+status: complete
+implementation_approval: staging-and-production-explicit
 implemented_by: STAGING-20261105-AI-POLISH
+released_by: RELEASE-20261105-AI-DISPLAY-STATUS
 ---
 
 # AI 도우미 접이식 배치·휴지통·세션 이름·하단 정리 — 미실현 계획
 
-> 후속 상태: 사용자 추가 지시로 [계획016](016_AI_Polish_Staging_Plan.md)에서 Staging 구현·검증을 완료했다. 아래 등록 원안과 과거 완료 기록은 보존하며 운영 미반영 상태다.
+> 후속 상태:016의 Staging 검증 원안을 보존하고 사용자 명시 승인에 따른 [017 운영 반영](../../../../Reports/2026/11/05/017_AI_Display_Status_Release_Report.md)을 완료했다. 아래 본문은 등록 당시 원안이다.
 
 사용자 요구4건을 계획으로만 보존한다. 실제 구현·Staging/운영 반영은 별도 지시 전 시작하지 않는다. 기존 [상단 상태 아이콘·메뉴 계획011](011_AI_Header_Status_and_Menu_Plan.md)도 미실현 상태를 유지한다.
 

@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261105-017
 work_id: RELEASE-20261105-AI-DISPLAY-STATUS
 owner: Codex
-status: approved-including-production
+status: complete
 predecessor: STAGING-20261105-AI-POLISH
 ---
 
@@ -43,3 +43,5 @@ ai-bottom에서 form/textarea 바로 위에 compact한 role=status/aria-live 영
 retention timer의 원래 enabled/active 상태를 private 기록에 보존하고 전환 동안 timer만 일시 정지한다. 이미 실행 중인 cleanup은 종료시키지 않고 정상 완료를 기다린 뒤 DB snapshot과 전환을 진행한다. 최종 commit pull 이후 새 프로세스에서 실제 DB 사본 검사를 실행하고 그 HEAD/결과를 대조한다. 기동 오류가 나면 접수를 다시 차단하고 기존 코드/환경을 복원하되 최신 DB·삭제 원장은 덮지 않는다.
 
 실행 중 장애나 인증상 필요한 정보가 생기면 사실과 필요한 조치만 알리며, 이미 받은 운영 반영 승인을 다시 묻지 않는다.
+
+완료: 기존1~10과 추가11~12를 `df305864b63b23b20550a8f07900f70d6a413595`로 운영에 반영했다. 실제 일반 계정의 도구 조회·ID 없는 표·이름 변경/reload·PC/모바일과 데이터 보존을 확인했으며 상세 결과와 한계는 [보고017](../../../../Reports/2026/11/05/017_AI_Display_Status_Release_Report.md)을 따른다.

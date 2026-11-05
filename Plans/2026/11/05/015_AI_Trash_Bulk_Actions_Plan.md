@@ -2,14 +2,15 @@
 artifact_id: PLAN-20261105-015
 work_id: PLANNED-20261105-AI-TRASH-BULK
 owner: Codex
-status: verified-in-staging
-implementation_approval: staging-only
+status: complete
+implementation_approval: staging-and-production-explicit
 implemented_by: STAGING-20261105-AI-POLISH
+released_by: RELEASE-20261105-AI-DISPLAY-STATUS
 ---
 
 # AI 휴지통 안내·일괄 작업 — 미실현 계획
 
-> 후속 상태: 사용자 추가 지시로 [계획016](016_AI_Polish_Staging_Plan.md)에서 Staging 구현·검증을 완료했다. 아래 등록 원안은 보존하며 운영 데이터 복구·삭제나 배포는 수행하지 않았다.
+> 후속 상태:016의 Staging 검증 원안을 보존하고 사용자 명시 승인에 따른 [017 운영 반영](../../../../Reports/2026/11/05/017_AI_Display_Status_Release_Report.md)을 완료했다. 아래 본문은 등록 당시 원안이다.
 
 사용자가 요청한 휴지통 개선2건을 계획으로만 추가한다. 최근 화면 개선 표의 기존1~7번은 유지하고 이번 항목은 **8~9번**으로 이어 붙인다. 실제 구현·Staging/운영 반영과 대화 데이터 변경은 별도 지시 전 시작하지 않는다.
 

@@ -2,14 +2,15 @@
 artifact_id: PLAN-20261105-011
 work_id: PLANNED-20261105-AI-HEADER
 owner: Codex
-status: verified-in-staging
-implementation_approval: staging-only
+status: complete
+implementation_approval: staging-and-production-explicit
 implemented_by: STAGING-20261105-AI-POLISH
+released_by: RELEASE-20261105-AI-DISPLAY-STATUS
 ---
 
 # AI 상단 상태 아이콘·메뉴 두 줄 표시 — 미실현 계획
 
-> 후속 상태: 사용자의 추가 구현 지시에 따라 [계획016](016_AI_Polish_Staging_Plan.md)에서 Staging 구현·검증을 완료했다. 아래는 등록 당시 원안이며 운영에는 아직 반영하지 않았다.
+> 후속 상태:016의 Staging 검증 원안을 보존하고 사용자 명시 승인에 따른 [017 운영 반영](../../../../Reports/2026/11/05/017_AI_Display_Status_Release_Report.md)을 완료했다. 아래 본문은 등록 당시 원안이다.
 
 사용자는 아래 두 건을 계획으로만 보존하고 구현하지 않도록 지시했다. 007/009/010 Staging 운영 배포와 별개이며 이번 배포에 포함하지 않는다. 현재 공통 상단 바에는 아이콘이 없고 좁은 화면의 좌/우 메뉴가 각각 세 줄이 되는 구조를 확인했다.
 

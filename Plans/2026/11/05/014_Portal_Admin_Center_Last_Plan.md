@@ -2,14 +2,15 @@
 artifact_id: PLAN-20261105-014
 work_id: PLANNED-20261105-PORTAL-ADMIN-LAST
 owner: Codex
-status: verified-in-staging
-implementation_approval: staging-only
+status: complete
+implementation_approval: staging-and-production-explicit
 implemented_by: STAGING-20261105-AI-POLISH
+released_by: RELEASE-20261105-AI-DISPLAY-STATUS
 ---
 
 # 메인 포털 관리자 센터 마지막 고정 — 미실현 계획
 
-> 후속 상태: 사용자 추가 지시에 따라 [계획016](016_AI_Polish_Staging_Plan.md)에서 Staging 구현·실제 포털 화면 검증을 완료했다. 아래는 등록 원안이며 운영에는 반영하지 않았다.
+> 후속 상태:016의 Staging 검증 원안을 보존하고 사용자 명시 승인에 따른 [017 운영 반영](../../../../Reports/2026/11/05/017_AI_Display_Status_Release_Report.md)을 완료했다. 아래 본문은 등록 당시 원안이다.
 
 메인 포털에서 **관리자 센터는 항상 마지막 메뉴로 표시**한다. 나의 결재함·AI 도우미 및 앞으로 추가되는 메뉴도 관리자 센터 앞에 표시되어야 한다. 이번에는 계획만 등록하며 실제 구현·Staging/운영 반영은 별도 지시 전 시작하지 않는다.
 

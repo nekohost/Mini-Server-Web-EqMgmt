@@ -1,0 +1,121 @@
+{
+  "application": {
+    "status": "active",
+    "head": "df305864b63b23b20550a8f07900f70d6a413595",
+    "source_files_sha256_match": 39,
+    "runtime_files": 18,
+    "copy_result": "copy-c4f4fc66cfaf/result.json",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 16,
+      "ai_lifecycle_operations": 7,
+      "ai_lifecycle_tombstones": 1,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 15,
+      "ai_task_drafts": 0,
+      "conversations": 9,
+      "jobs": 26,
+      "message_steps": 42,
+      "messages": 52,
+      "proposals": 1,
+      "revocations": 7,
+      "storage_accounts": 4
+    },
+    "old_lifecycle_rows": 5,
+    "copy_authentication": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "activation": {
+      "status": "active",
+      "app_pid": 896752,
+      "worker": "active",
+      "ai_version": 4,
+      "old_business_rows_preserved": true,
+      "old_ai_rows_preserved": true,
+      "secrets_preserved": true,
+      "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+      "retention_timer_enabled": true,
+      "activated_at_utc": "2026-11-05T07:45:58.368250+00:00"
+    },
+    "checked_at_utc": "2026-11-05T07:45:58.403479+00:00"
+  },
+  "post_deploy": {
+    "status": "pass",
+    "head": "df305864b63b23b20550a8f07900f70d6a413595",
+    "anonymous_https": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/api/ai/status": 401
+    },
+    "http_asset_sha_match": [
+      "static/css/ai_polish_frame.css",
+      "static/css/equipment_ai.css",
+      "static/js/ai_stream_presenter.js",
+      "static/js/equipment_ai.js",
+      "static/js/equipment_ai_polish.js",
+      "static/js/menu_cards.js"
+    ],
+    "runtime_files_sha_match": 18,
+    "maintenance": "NORMAL",
+    "services": {
+      "equipment-ai-worker.service": "active",
+      "equipment-ai-retention.timer": "active"
+    },
+    "timer_original_state_restored": true,
+    "private_settings_and_units_unchanged": true,
+    "active_jobs_or_orphan_guards": 0,
+    "audit_subset_preserved": true,
+    "checked_at_utc": "2026-11-05T07:46:54.449006+00:00"
+  },
+  "actual_data": {
+    "status": "pass",
+    "real_job": {
+      "state": "done",
+      "level": "off",
+      "steps": 2,
+      "elapsed_seconds": 11.174,
+      "error_code": null,
+      "tool_names": [
+        "search_equipment"
+      ],
+      "actual_equipment_rows": 2,
+      "raw_tool_working_ids_preserved": true,
+      "display_policy_internal_ids_excluded": true,
+      "no_equipment_write_proposals": true,
+      "execution_guard": "released",
+      "reserved_chars": 0
+    },
+    "old_business_and_audit_rows_preserved": true,
+    "business_exception": "normal login SessionToken only",
+    "old_ai_messages_jobs_receipts_and_guards_preserved": true,
+    "existing_chat_renames_matched_new_receipts": 1,
+    "expected_old_ai_operational_row_changes": {
+      "conversations": 1,
+      "storage_accounts": 2,
+      "ai_providers": 1,
+      "ai_provider_models": 1
+    },
+    "counts_after_ui": {
+      "conversations": 10,
+      "messages": 62,
+      "jobs": 31,
+      "ai_execution_guards": 21,
+      "ai_lifecycle_operations": 9
+    },
+    "new_conversation_title_persisted": true,
+    "live_active_jobs_and_orphan_guards": {},
+    "checked_at_utc": "2026-11-05T07:54:05.306120+00:00"
+  },
+  "private_backups_mirrored_sha256": 29
+}
