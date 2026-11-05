@@ -1,0 +1,8 @@
+{
+  "remote_release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-auto-search-20261105T121820Z-f73111",
+  "local_private_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-auto-search-20261105T121820Z-f73111",
+  "files_sha_matched": 14,
+  "quiesced_databases": 2,
+  "original_source_archive": "old-runtime-source.tar",
+  "credentials_and_database_contents_not_in_git": true
+}

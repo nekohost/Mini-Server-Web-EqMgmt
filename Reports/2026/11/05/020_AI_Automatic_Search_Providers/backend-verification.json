@@ -38,5 +38,27 @@
     "skipped": 0,
     "seconds": 71.819,
     "digest": "f45f26e326927385b85f30aa1df284078f2460498f24b76efabc5b7561f7ebdf"
+  },
+  "planning_focused": {
+    "tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "seconds": 5.218
+  },
+  "planning_stage_full": {
+    "tests": 248,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 46.054,
+    "digest": "3480090e2f030d251bdbb4e2148934e7f8b1c029773b244befbd3b4339bfba64"
+  },
+  "planning_root_full": {
+    "tests": 248,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 45.83,
+    "digest": "aa081e406e692337110c08f0490079f992c6f63b9b835e5b10bbef5a713dc39b"
   }
 }

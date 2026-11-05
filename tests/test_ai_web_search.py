@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.2]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.3]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -139,6 +139,12 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Role] Completes the fake model with a real validated search tool request."""
         return self.finish(job,[{'id':uuid.uuid4().hex,'name':'web_search','arguments':canonical({'query':query,**extra})}])
 
+    def plan_step(self,job,needed=False,**extra):
+        """[Role] Supplies a genuine model decision to the first auto step without bypassing schema or execution.
+        [Dependencies] Real finish route and explicit planner tool. [Impact] True decisions execute search; false decisions never call external transport.
+        """
+        return self.finish(job,[{'id':uuid.uuid4().hex,'name':'plan_web_search','arguments':canonical({'needed':needed,**extra})}])
+
     def test_consent_controls_claim_and_sources_survive_finish_reload_and_poll_ack(self):
         """[Dependencies] Real claim/finish/history/delta routes. [Impact] Sources persist and acknowledged evidence is not resent every250ms."""
         cid=self.conversation();jid=self.turn(cid,True)['job_id'];job=self.claim()
@@ -157,9 +163,11 @@ class WebSearchIntegrationTests(unittest.TestCase):
         jid=self.turn(allow=None)['job_id']
         with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['reserved_chars'],self.store.output_reservation+SEARCH_RESERVATION)
         job=self.claim()
-        self.assertFalse(job['web_search_required']);self.assertIn('web_search',[t['function']['name'] for t in job['tools']])
+        self.assertFalse(job['web_search_required']);self.assertEqual(job['required_tool'],'plan_web_search');self.assertEqual([t['function']['name'] for t in job['tools']],['plan_web_search'])
         self.assertIn('현재 요청 웹 검색: 자동',job['messages'][0]['content'])
-        self.assertEqual(self.finish(job,content='안녕하세요. 필요한 장비 업무를 알려 주세요.')['state'],'done')
+        self.assertEqual(self.plan_step(job)['state'],'queued')
+        normal=self.claim();self.assertIsNone(normal['required_tool']);self.assertNotIn('web_search',[t['function']['name'] for t in normal['tools']])
+        self.assertEqual(self.finish(normal,content='안녕하세요. 필요한 장비 업무를 알려 주세요.')['state'],'done')
         self.assertEqual(self.search.calls,[])
         with self.store.db() as db:
             row=self.store.job(jid,db);self.assertEqual(json.loads(row['route_snapshot'])['web_search_mode'],'auto');self.assertEqual(row['reserved_chars'],0)
@@ -169,7 +177,7 @@ class WebSearchIntegrationTests(unittest.TestCase):
         [Dependencies] Actual normalized tool dispatch and stored evidence. [Impact] No Yahoo label or forced repeated search is introduced.
         """
         cid=self.conversation();jid=self.turn(cid,None)['job_id'];job=self.claim()
-        self.assertEqual(self.search_step(job,query='Flask',provider='github',scope='repositories')['state'],'queued')
+        self.assertEqual(self.plan_step(job,True,query='Flask',provider='github',scope='repositories')['state'],'queued')
         self.finish(self.claim(),content='공개 저장소 검색 결과입니다. [1]')
         result=self.client.get('/api/ai/conversations/'+cid+'/messages').get_json()['jobs'][0]['web_searches'][0]
         self.assertEqual((result['engine'],result['scope']),('GitHub','repositories'));self.assertEqual(len(self.search.calls),1)
@@ -186,8 +194,37 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Role] Applies existing privacy/schema guards even when search permission is automatic.
         [Dependencies] Real schema validation and owner-sensitive values. [Impact] Context selection never broadens endpoints or confidential disclosure.
         """
-        self.turn(allow=None);self.assertEqual(self.search_step(self.claim(),provider='http://127.0.0.1')['state'],'failed');self.assertEqual(self.search.calls,[])
-        self.turn(allow=None);self.assertEqual(self.search_step(self.claim(),query='SERIAL-2 specifications')['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(self.search.calls,[])
+        self.turn(allow=None);self.assertEqual(self.plan_step(self.claim(),True,query='Flask',provider='http://127.0.0.1')['state'],'failed');self.assertEqual(self.search.calls,[])
+        self.turn(allow=None);self.assertEqual(self.plan_step(self.claim(),True,query='SERIAL-2 specifications')['error_code'],'WEB_SEARCH_BLOCKED');self.assertEqual(self.search.calls,[])
+
+    def test_auto_cannot_skip_the_decision_or_use_other_tools_in_its_place(self):
+        """[Role] Stops an auto model that ignores its explicit decision tool before claiming an unperformed search.
+        [Dependencies] Actual first-step gate. [Impact] No external request or business preparation occurs on either invalid response.
+        """
+        self.turn(allow=None);result=self.finish(self.claim(),content='검색 결과가 없었습니다.')
+        self.assertEqual(result['state'],'failed');self.assertEqual(result['error_code'],'WEB_SEARCH_PLAN_REQUIRED');self.assertEqual(self.search.calls,[])
+        self.turn(allow=None);result=self.search_step(self.claim())
+        self.assertEqual(result['error_code'],'WEB_SEARCH_PLAN_REQUIRED');self.assertEqual(self.search.calls,[])
+
+    def test_auto_decision_is_first_step_only_and_does_not_become_fake_sources(self):
+        """[Role] Prevents a second planning call and keeps a false decision out of source accounting.
+        [Dependencies] Server phase and correlated evidence projection. [Impact] Plans cannot bypass later tools or create citation badges without a search.
+        """
+        jid=self.turn(allow=None)['job_id'];self.plan_step(self.claim())
+        with self.store.db() as db:self.assertEqual(public_searches(self.store.job(jid,db)['context']),[])
+        result=self.plan_step(self.claim(),True,query='Flask');self.assertEqual(result['state'],'failed');self.assertEqual(self.search.calls,[])
+        self.turn(allow=None);self.plan_step(self.claim());result=self.search_step(self.claim())
+        self.assertEqual(result['error_code'],'WEB_SEARCH_DISABLED');self.assertEqual(self.search.calls,[])
+
+    def test_planning_search_retains_large_evidence_and_charges_actual_source_json(self):
+        """[Role] Verifies a true planning decision keeps complete search output above the business-result cap.
+        [Dependencies] Real planner dispatch, finish/storage and actual evidence_chars. [Impact] Search evidence is never truncated as ordinary planning metadata.
+        """
+        payload=evidence();payload['results']=project_results([{'title':'"\\'*90,'url':'https://example.org/'+str(i)+'"'*1470,'snippet':'"\\'*350} for i in range(5)])
+        with patch.object(self.search,'search',return_value=payload):
+            jid=self.turn(allow=None)['job_id'];self.assertEqual(self.plan_step(self.claim(),True,query='Flask')['state'],'queued')
+        with self.store.db() as db:context=self.store.job(jid,db)['context']
+        self.assertGreater(evidence_chars(context),16000);self.assertEqual(len(public_searches(context)[0]['results']),5)
 
     def test_default_off_denies_forged_search_before_io_and_is_terminal(self):
         """[Dependencies] Immutable route flag and Domain reauthorization. [Impact] A model cannot grant itself internet access."""
@@ -325,3 +362,18 @@ class WebSearchWorkerTests(unittest.TestCase):
                 worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[],'tools':[{'type':'function','function':{'name':'web_search'}}],'web_search_required':required})
             payload=client.post.call_args.kwargs['json']
             self.assertEqual(payload.get('tool_choice'),{'type':'function','function':{'name':'web_search'}} if required else None)
+
+    def test_server_auto_decision_uses_a_fixed_named_tool_and_rejects_unknown_names(self):
+        """[Role] Verifies the automatic decision is a forced structured model choice, never a model-selected endpoint.
+        [Dependencies] Actual worker payload and inert SSE/loopback transport. [Impact] Invalid required names do not dispatch an upstream request.
+        """
+        from utils.ai_assistant.worker import Worker
+        for name in ('plan_web_search','unsafe_dynamic_tool'):
+            worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model')
+            client=MagicMock();client.__enter__.return_value=client
+            client.post.return_value=self.response(['data: '+canonical({'choices':[{'delta':{'content':'synthetic'},'finish_reason':'stop'}]}),'','data: [DONE]',''])
+            worker.post=lambda *_:{'success':True,'accepted':True,'cancel':False}
+            with patch('utils.ai_assistant.worker.requests.Session',return_value=client),patch.object(worker.stop,'wait',return_value=False):
+                worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[],'tools':[{'type':'function','function':{'name':'plan_web_search'}}],'required_tool':name})
+            if name=='plan_web_search':self.assertEqual(client.post.call_args.kwargs['json']['tool_choice'],{'type':'function','function':{'name':'plan_web_search'}})
+            else:client.post.assert_not_called()

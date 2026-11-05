@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.SEARCH] [EN rev.4]
+"""[MINI-COMMENT: ASSISTANT.WEB.SEARCH] [EN rev.5]
 [Role] Executes context-selected public searches through fixed Yahoo/GitHub/Google adapters and projects bounded citations.
 [Dependencies] A separately hash-locked DDGS/primp virtualenv, stdlib subprocess and owner-authorized dispatch.
 [Impact] No model-selected origin, URL fetch, cookie, proxy or application secret enters the child; an eight-second search deadline never cancels an LLM request. Results remain untrusted evidence, not instructions.
@@ -27,6 +27,7 @@ ERRORS = {
     'WEB_SEARCH_DISABLED': '이 요청의 접수 설정에서는 웹 검색을 사용할 수 없습니다. 화면을 새로고침한 뒤 검색이 필요한 내용을 새 요청으로 보내 주세요.',
     'WEB_SEARCH_PROVIDER_UNAVAILABLE': '선택한 검색 제공자에 연결할 수 없습니다. Google 일반 검색은 현재 서버에서 보안 확인으로 차단되어 사용 가능한 연결 설정이 필요합니다. 다른 제공자로 검색하거나 연결 상태를 확인해 주세요.',
     'WEB_SEARCH_RATE_LIMIT': '검색 제공자의 요청 한도에 도달했습니다. 잠시 후 다시 검색해 주세요.',
+    'WEB_SEARCH_PLAN_REQUIRED': 'AI가 질문의 검색 필요 여부를 확정하지 못해 이 작업을 중단했습니다. 잠시 후 다시 요청해 주세요.',
     'WEB_SEARCH_UNAVAILABLE': '웹 검색 결과를 확인하지 못했습니다. 검색 서비스가 차단되거나 일시적으로 응답하지 않을 수 있습니다. 잠시 후 다시 요청해 주세요.',
     'WEB_SEARCH_TIMEOUT': '웹 검색 응답 시간이 초과되어 이 작업을 중단했습니다. 검색어를 좁혀 다시 요청해 주세요.',
     'WEB_SEARCH_LIMIT': '한 요청의 웹 검색 횟수 한도에 도달했습니다. 현재 결과를 확인하고 필요한 검색을 새 요청으로 보내 주세요.',
@@ -110,6 +111,34 @@ def search_mode(route):
     """
     mode=route.get('web_search_mode')
     return mode if mode in ('auto','required','off') else 'required' if route.get('web_search_allowed') is True else 'off'
+
+
+def search_planning(job,route):
+    """[Role] Requires one model-owned structured decision before a new automatic searchable chat step.
+    [Dependencies] Immutable route mode/permission and authoritative job purpose/step. [Impact] Old jobs and unavailable-search chats keep their existing path.
+    """
+    return job.get('purpose','chat')=='chat' and job.get('steps',0)==0 and route.get('web_search_allowed') is True and search_mode(route)=='auto'
+
+
+def search_permitted(job,route):
+    """[Role] Enforces the stored model decision when an automatic turn chose no external search.
+    [Dependencies] Server-owned correlated planning tool results only. [Impact] False decisions remove later search capability; malformed context fails closed.
+    """
+    if route.get('web_search_allowed') is not True:
+        return False
+    if search_mode(route)!='auto' or job.get('steps',0)==0:
+        return True
+    try:
+        messages=json.loads(job.get('context') or '[]')
+        ids={c['id'] for m in messages if m.get('role')=='assistant' for c in m.get('tool_calls',[]) if c.get('function',{}).get('name')=='plan_web_search'}
+        for message in messages:
+            if message.get('role')=='tool' and message.get('tool_call_id') in ids:
+                result=json.loads(message['content'])
+                if result.get('kind')=='web_search_plan' and result.get('needed') is False:
+                    return False
+        return True
+    except (TypeError,ValueError,KeyError,AttributeError):
+        return False
 
 
 def compact(value):
@@ -301,7 +330,7 @@ class SearchService:
 
 
 def public_searches(context):
-    """[MINI-COMMENT: ASSISTANT.WEB.SOURCES] [EN rev.2]
+    """[MINI-COMMENT: ASSISTANT.WEB.SOURCES] [EN rev.3]
     [Role] Projects only actual web_search tool results from a stored job into safe, bounded user-visible sources.
     [Dependencies] Existing authoritative tool-call IDs and server-created result envelopes; no model prose/HTML parsing.
     [Impact] Reload/model switches preserve citations without exposing unrelated tool IDs, private equipment payloads or raw context.
@@ -309,7 +338,7 @@ def public_searches(context):
     try:
         messages = json.loads(context) if isinstance(context,str) else context
         ids = {call['id'] for m in messages if m.get('role') == 'assistant' for call in m.get('tool_calls',[])
-               if call.get('function',{}).get('name') == 'web_search'}
+               if call.get('function',{}).get('name') in ('web_search','plan_web_search')}
         searches = []
         for message in messages:
             if message.get('role') != 'tool' or message.get('tool_call_id') not in ids:
@@ -336,7 +365,7 @@ def evidence_chars(context):
     """
     try:
         messages=json.loads(context) if isinstance(context,str) else context
-        ids={c['id'] for m in messages if m.get('role')=='assistant' for c in m.get('tool_calls',[]) if c.get('function',{}).get('name')=='web_search'}
+        ids={c['id'] for m in messages if m.get('role')=='assistant' for c in m.get('tool_calls',[]) if c.get('function',{}).get('name') in ('web_search','plan_web_search')}
         return sum(len(m['content']) for m in messages if m.get('role')=='tool' and m.get('tool_call_id') in ids
             and json.loads(m['content']).get('kind')=='web_search')
     except (ValueError,TypeError,KeyError,AttributeError):

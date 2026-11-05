@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.6]
+[EN rev.7]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
 [Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
@@ -13,7 +13,7 @@ from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
 from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
-from .web_search import WebSearchError, MAX_SEARCHES, public_searches
+from .web_search import WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -86,11 +86,13 @@ class Domain:
             self.require_menu(actor,'public_equipment')
         return row
 
-    def tools(self, actor, web_search_allowed=False):
+    def tools(self, actor, web_search_allowed=False, planning=False):
         """[Role] Advertises only available user tools; execution checks the same permissions again.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
+        if planning and web_search_allowed:
+            return [dict(type='function',function=TOOL_MAP['plan_web_search'])]
         names=set()
         if actor['menus'] & set(READ_MENUS):
             names.update(('search_equipment','get_equipment','search_catalog','prepare_csv_export','prepare_catalog_request','prepare_option_request'))
@@ -105,7 +107,7 @@ class Domain:
 
     def read_or_prepare(self, name, args, job, store):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.4]
+        [EN rev.5]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
         [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope; one additive display policy separates answer fields from retained tool-linkage IDs without duplicating rows or rewriting source values.
@@ -121,14 +123,18 @@ class Domain:
                 raise AssistantError('계정 식별정보가 변경되었습니다.',401)
             if time.time()>job['expires'] or job['cancel']:
                 raise AssistantError('로그인 작업 권한이 만료되었거나 취소되었습니다.',401)
-            search_allowed=json.loads(job.get('route_snapshot') or '{}').get('web_search_allowed') is True
-            if name=='web_search' and not search_allowed:
+            route=json.loads(job.get('route_snapshot') or '{}')
+            search_allowed=search_permitted(job,route)
+            planning=search_planning(job,route)
+            if name in ('web_search','plan_web_search') and not search_allowed:
                 raise WebSearchError('WEB_SEARCH_DISABLED')
-            if name=='web_search' and (self.search_service is None or not self.search_service.available):
-                raise WebSearchError('WEB_SEARCH_UNAVAILABLE')
-            if name not in {t['function']['name'] for t in self.tools(actor,search_allowed)}:
+            if name not in {t['function']['name'] for t in self.tools(actor,search_allowed,planning)}:
                 raise AssistantError('허용되지 않은 작업입니다.',403)
-            if name=='web_search':
+            if name=='plan_web_search' and not args['needed']:
+                return {'kind':'web_search_plan','needed':False,'notice':'이 질문은 외부 검색 없이 답하거나 기존 장비 업무 도구로 처리하세요. 실제 검색을 수행하지 않았으므로 검색 결과가 있다고 주장하지 마세요.'}
+            if name in ('web_search','plan_web_search'):
+                if self.search_service is None or not self.search_service.available:
+                    raise WebSearchError('WEB_SEARCH_UNAVAILABLE')
                 context=json.loads(job['context'])
                 if len(public_searches(context))>=MAX_SEARCHES:
                     raise WebSearchError('WEB_SEARCH_LIMIT')
@@ -144,7 +150,7 @@ class Domain:
                     raise WebSearchError('WEB_SEARCH_BLOCKED')
                 sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
                 db.close();db=None
-                result=self.search_service.search(args['query'],args.get('max_results',5),sensitive,provider=args.get('provider','auto'),scope=args.get('scope'))
+                result=self.search_service.search(args.get('query'),args.get('max_results',5),sensitive,provider=args.get('provider','auto'),scope=args.get('scope'))
                 # Search I/O holds no business DB connection/transaction; revalidate the actor afterwards.
                 db=self.connect()
                 self.actor(db,job['owner'],job['binding'])

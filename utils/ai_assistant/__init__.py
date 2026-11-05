@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.8]
+[EN rev.9]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] New requests use context-selected search; immutable legacy required/off jobs, owner-bound audit/storage and worker boundaries are preserved.
@@ -31,7 +31,7 @@ from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
 from .status import read_status
-from .web_search import SearchService, WebSearchError, public_searches, search_mode
+from .web_search import SearchService, WebSearchError, public_searches, search_mode, search_planning, search_permitted
 
 
 def enabled(value):
@@ -787,13 +787,17 @@ def install_assistant(app, services):
             route['api_key']=registry.secret(route['credential'])
             route['legacy_worker_key']=route['credential']=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
-            tools=domain.tools(actor,route.get('web_search_allowed') is True) if route['profile'].get('tools') else []
-            if tools:
+            planning=search_planning(job,route)
+            search_allowed=search_permitted(job,route)
+            tools=domain.tools(actor,search_allowed,planning) if route['profile'].get('tools') else []
+            if tools and not planning:
                 tools=[*tools,DRAFT_TOOL,TASK_DRAFT_TOOL]
             if not enabled(app.config['USER_AI_WRITE_TOOLS']):
                 tools=[t for t in tools if not t['function']['name'].startswith('prepare_')]
             system=SYSTEM+'\n서울 기준 오늘 날짜: '+datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
-            if route.get('web_search_allowed') is True and domain.search_service.available:
+            if route.get('web_search_allowed') is True and not search_allowed and search_mode(route)=='auto':
+                system+='\n현재 요청은 AI가 외부 검색 없이 처리하기로 결정했습니다. 검색을 했다고 주장하지 말고 기존 대화/장비 업무 도구로 처리하세요.'
+            elif search_allowed and domain.search_service.available:
                 system+='\n현재 요청 웹 검색: '+('허용됨. 반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요. 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route)=='required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
                 providers=getattr(domain.search_service,'providers',[])
                 if providers:
@@ -832,6 +836,7 @@ def install_assistant(app, services):
                 raise AssistantError('선택한 모델의 문맥 한도로 작업을 중단했습니다. 기록을 확인하고 질문을 줄이거나 더 큰 모델을 선택해 주세요.',413)
             packet={'id':job['id'],'lease':job['lease'],'steps':job['steps'],'messages':messages,'tools':tools,
                     'reasoning_effort':route.get('reasoning_effort'),'route':route,'max_tokens':output_tokens,'protocol':PROTOCOL,
+                    'required_tool':'plan_web_search' if planning else None,
                     'web_search_required':job['purpose']=='chat' and route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context)}
             canonical(packet)
             return jsonify(success=True,job=packet)
@@ -890,8 +895,8 @@ def install_assistant(app, services):
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.2]
-        [Role] Finalizes active completions or only the minimal guard of a trashed/purged request.
+        [EN rev.3]
+        [Role] Enforces the first automatic search decision before tool effects and finalizes active or minimal deleted-request guards.
         [Dependencies] Verified lease, lifecycle boundary, shared tool normalization and current actor/menu checks.
         [Impact] Known errors preserve their reason; deleted dialogue stays absent and uncertain upstream work stays locked.
         """
@@ -978,6 +983,9 @@ def install_assistant(app, services):
             calls=data.get('calls',[])
             if not isinstance(calls,list) or len(calls)>4:
                 raise AssistantError('도구 호출 수를 확인해 주세요.')
+            planning=search_planning(job,route)
+            if planning and len(calls)!=1:
+                raise WebSearchError('WEB_SEARCH_PLAN_REQUIRED')
             prepared=[]
             ids=set()
             # Validate the entire response before allowing even its first tool to prepare a card.
@@ -988,6 +996,10 @@ def install_assistant(app, services):
                     raise AssistantError('도구 호출 식별자가 중복되었습니다.')
                 ids.add(cid)
                 name=text(call['name'],100)
+                if planning and name!='plan_web_search':
+                    raise WebSearchError('WEB_SEARCH_PLAN_REQUIRED')
+                if not planning and name=='plan_web_search':
+                    raise AssistantError('이 단계에서는 검색 계획 도구를 사용할 수 없습니다.')
                 allowed={**TOOL_MAP,'save_equipment_draft':DRAFT_TOOL['function'],'save_task_draft':TASK_DRAFT_TOOL['function']}
                 if not route['profile'].get('tools') or name not in allowed:
                     raise AssistantError('제공되지 않은 작업 도구가 요청되었습니다.')
@@ -998,10 +1010,10 @@ def install_assistant(app, services):
                 else:
                     validate_schema(args,allowed[name]['parameters'])
                 prepared.append((cid,name,arguments,args))
-            if sum(name=='web_search' for _,name,_,_ in prepared)>1:
+            if sum(name in ('web_search','plan_web_search') for _,name,_,_ in prepared)>1:
                 raise AssistantError('웹 검색은 한 단계에 한 번씩 요청해 주세요.')
             # Search failure must occur before even preparing an unrelated business confirmation card.
-            prepared.sort(key=lambda item: item[1]!='web_search')
+            prepared.sort(key=lambda item: item[1] not in ('web_search','plan_web_search'))
             context=json.loads(job['context'])
             content=stream_text(data.get('content',''),MAX_CONTENT)
             code='PROCESSING_FAILED'
@@ -1043,9 +1055,10 @@ def install_assistant(app, services):
                         result={'error':str(error)}
                     assistant['tool_calls'].append({'id':cid,'type':'function','function':{'name':name,'arguments':arguments}})
                     result_text=canonical(result)
-                    if name=='web_search' and len(result_text)>32000:
+                    search_result=name in ('web_search','plan_web_search') and isinstance(result,dict) and result.get('kind')=='web_search'
+                    if search_result and len(result_text)>32000:
                         raise WebSearchError('WEB_SEARCH_UNAVAILABLE')
-                    if name!='web_search' and len(result_text)>16000:
+                    if not search_result and len(result_text)>16000:
                         result_text=canonical({'error':'조회 결과가 많습니다. 검색 조건을 좁혀 주세요.'})
                     results.append({'role':'tool','tool_call_id':cid,'content':result_text})
                 context.extend([assistant,*results])

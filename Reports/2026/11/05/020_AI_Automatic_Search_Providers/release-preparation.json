@@ -1,0 +1,15 @@
+{
+  "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-auto-search-20261105T121820Z-f73111",
+  "pause": {
+    "status": "quiesced",
+    "old_pid": 915380,
+    "active_jobs": 0,
+    "shared_model_controlled": false
+  },
+  "old_web_pid": 915380,
+  "old_worker_pid": "915399",
+  "timer_before": {
+    "is-active": "active",
+    "is-enabled": "enabled"
+  }
+}

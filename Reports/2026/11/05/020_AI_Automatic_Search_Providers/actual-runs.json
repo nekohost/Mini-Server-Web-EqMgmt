@@ -1,0 +1,45 @@
+[
+  {
+    "id": "4c78a2c58a31470d8ef637854d4cf65c",
+    "conversation": "283009cf655449c09a180010b370031f",
+    "state": "done",
+    "seconds": 7.217,
+    "steps": 1,
+    "mode": "auto",
+    "allowed": true,
+    "error_code": null,
+    "reserved_chars": 0,
+    "reasoning_chars": 0,
+    "answer": "안녕하세요, 장비관리 AI 도우미입니다. 😊",
+    "calls": [],
+    "searches": [],
+    "proposals": 0
+  },
+  {
+    "id": "85bd0f7f0da848afa0936df2a5b05f5b",
+    "conversation": "283009cf655449c09a180010b370031f",
+    "state": "done",
+    "seconds": 6.339,
+    "steps": 2,
+    "mode": "auto",
+    "allowed": true,
+    "error_code": null,
+    "reserved_chars": 0,
+    "reasoning_chars": 0,
+    "answer": "GitHub 공개 저장소 검색 결과, Flask 공식 저장소가 반환되지 않았습니다.",
+    "calls": [
+      "web_search"
+    ],
+    "searches": [
+      {
+        "query": "Flask official Python web framework repository",
+        "engine": "GitHub",
+        "scope": "repositories",
+        "searched_at": "2026-11-05T12:21:49.573057+00:00",
+        "status": "empty",
+        "results": []
+      }
+    ],
+    "proposals": 0
+  }
+]

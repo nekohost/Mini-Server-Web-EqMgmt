@@ -1,0 +1,13 @@
+{
+  "files": {
+    "tests/run_assistant_fixture.py": "78f8add6b024267d0c81f097ba7c999c1f55ff2636cec93c266278fef9959074",
+    "tests/test_ai_search_providers.py": "e6da75ee05c509d00fc8b76cf353d66e4c11897164c001e1310e59ad7fad1f3e",
+    "tests/test_ai_web_search.py": "f21a13a423660331a3b195b3d5f69b90bc3f89abc9461a4ae52db6497ee55c7a",
+    "utils/ai_assistant/__init__.py": "3dad06a447da9bb33d2e6a0932d0f509fa28426a68370e4823b3503a16d0961c",
+    "utils/ai_assistant/domain.py": "d53e9b66af604fd98ee41f6bf46ef004e21783c7c18efa3077ed1b133fd607d4",
+    "utils/ai_assistant/policy.py": "bca4f410965df3fb67616cb0eef7e406b8ba1dd16763d9bf6e6ab3cbfacf986d",
+    "utils/ai_assistant/web_search.py": "ed0207db7cb94c848c716293431460e82b5c7f3ad52a70a7d30d131431b5920b",
+    "utils/ai_assistant/worker.py": "39d7dc458cfa63cb74d8ec3b3c59d9ea7ef111ca4a73bed29b409b471e253017"
+  },
+  "archive_sha256": "208f201b390842d05550ea0090be90dd852ba8ffa99a2e58c4553d25b4eceaf7"
+}

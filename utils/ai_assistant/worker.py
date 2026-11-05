@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.6]
+[EN rev.7]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
 [Dependencies] requests, private loopback worker API and server-only environment credentials.
 [Impact] Delivers small SSE batches within 150ms when frames arrive, preserves monotonic offsets and drains only its own cancelled response; group occupancy remains server-controlled.
@@ -115,8 +115,8 @@ class Worker:
 
     def run_job(self, job):
         """[MINI-COMMENT: ASSISTANT.WORKER.STEP]
-        [EN rev.5]
-        [Role] Verifies dispatch admission, drains cancelled own streams and submits only completed live tool calls.
+        [EN rev.6]
+        [Role] Verifies dispatch admission, applies only the server's fixed required decision/search tool and submits completed live calls.
         [Dependencies] Strata Chat Completions SSE; an HTTP EOF without DONE is not a completed request.
         [Impact] Flushes display batches at 150ms or 4096 characters without changing final content, stop reasons or uncertain-request locks.
         """
@@ -175,7 +175,12 @@ class Worker:
                      'temperature':0.6,'top_p':0.95}
             if job['tools']:
                 payload['tools']=job['tools']
-            if job.get('web_search_required') is True:
+            required_tool=job.get('required_tool')
+            if required_tool is not None:
+                if required_tool!='plan_web_search' or job.get('web_search_required') is True or not any(tool.get('function',{}).get('name')==required_tool for tool in job['tools']):
+                    raise ValueError('invalid required planning tool')
+                payload['tool_choice']={'type':'function','function':{'name':required_tool}}
+            elif job.get('web_search_required') is True:
                 if not any(tool.get('function',{}).get('name')=='web_search' for tool in job['tools']):
                     raise ValueError('required search tool is unavailable')
                 payload['tool_choice']={'type':'function','function':{'name':'web_search'}}

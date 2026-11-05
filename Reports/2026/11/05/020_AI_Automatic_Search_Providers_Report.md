@@ -40,3 +40,17 @@ Hermes의 설치 코드 `agent/web_search_registry.py`, `agent/web_search_provid
 실제 Linux Chromium의 검색 UI8화면160개·019 회복12화면216개·기존 대화 UI4화면642개, 합계24화면1,018개 검사를 Staging/root에서 각각 통과했다. 최신 template와 옛 버튼이 남은 캐시 template를 함께 검사했다. 동적 Yahoo/GitHub 출처·공개 이슈/부분 결과·안전 링크/비신뢰 텍스트·모델 전환/재열기·초안/오류 복구·정적 높이와 실제 프레임을 확인했다. 첫 모바일 화면을 직접 검토했고 웹 검색 버튼 공간이 없어지고 실제 제공자 출처를 구분한다. 실제 운영 계정/모델을 쓴 검사는 뒤에서 별도 기록한다.
 
 최종 후보14개는 [원문 ZIP](020_AI_Automatic_Search_Providers/reviewed-staging-source.zip)/[SHA manifest](020_AI_Automatic_Search_Providers/reviewed-staging-source.json)로 보존했고 root14개 SHA가 전부 같았다. Python AST/JS 구문을 통과했다. Google API 없는 일반 검색은 미구현 원장에 남기며 후보의 일반 웹/GitHub 완료와 구분한다. 이어서 기존9개 dirty를 보존한 scoped commit과 private 백업·idle own 전환/실제 DB 사본 검증을 수행한다.
+
+## 첫 운영 확인에서 발견한 모델 선택 결함
+
+실행878245b를 private 원문/두 DB 백업·retention 자연 종료 확인·idle own web/worker 정상 전환·새 source 실제 DB 사본 검사로 적용했다. 업무18/AI17 테이블과 감사/기존 lifecycle2개·모든 기존 행을 보존했고 web946578/worker946588·NORMAL·timer active를 확인했다. 원본 source/config/DB14개를 현재PC 사용자 전용 private 경로와 SHA 대조했다. 상세 [활성화](020_AI_Automatic_Search_Providers/production-activation.json),[백업](020_AI_Automatic_Search_Providers/private-backup-verification.json).
+
+test05 일반 계정의 첫 인사는 auto/1단계/7.217초·검색0으로 완료했다. 이어 GitHub 검색은 auto에서 실제 도구를 골랐으나 `Flask official Python web framework repository`라는 과도한 AND 검색어로0건/6.339초를 반환했다. 다음 S25 요청은1.909초·도구 호출0인데 ‘검색 결과가 없었습니다.’라고 답했다. 현재 사용자 메시지는 context에 정확히 포함돼 있었으며 이 둘을 검색 품질 성공으로 계산하지 않는다. [당시 응답 원본](020_AI_Automatic_Search_Providers/actual-runs-before-quality.json)은 보존한다.
+
+GitHub 검색어 지침을 보완하고, 더 나아가 첫 auto 단계에 고정 `plan_web_search`를 사용해 모델의 검색 필요 결정을 실제 실행과 연결한다. needed=true만 기존 SearchService를 실행하고 결과를 같은 call ID의 실제 근거로 보관하며, false는 출처/외부 요청 없이 일반 답변 또는 기존 장비 도구로 이어간다. 첫 결정을 생략하거나 장비 변경 도구로 대체하면 종료 사유를 남기고 중단한다. 검색 판단은 AI가 하며 서버가 질문 키워드로 모든 요청을 강제 검색하지 않는다. 기존 privacy/lease/취소/32M/64K·턴 단계 등 현재 한도를 유지한다.
+
+후속 Staging에서 실제 packet/worker named choice·false의 외부 호출0/출처0·true의 실제 adapter/저장량·첫 단계 우회/후반 재사용 거부·16K를 넘는 계획 검색 출처·구 required/off를 검사했고 관련30개/5.218초가 통과했다. 새 worker/HTTP/Domain이 함께 반영되므로 전체 회귀와 새 private backup·idle 전환 뒤 실제 모델을 다시 검증한다. UI source는 변경하지 않는다. Google 미해결 상태는 그대로다.
+
+보완한 false 결정은 뒤 단계의 검색 도구도 제거하고 위조된 검색 호출을 서버에서 거부한다. 이 경계까지 포함한 Staging 전체248개/46.054초(오류·실패·skip0)를 통과했다. 첫248개/46.509초와 후속 경계를 구분해 보존했다. 최종 후속8개(기존 runner/provider 시험 사본2개 포함)를 [원문](020_AI_Automatic_Search_Providers/reviewed-planning-guarded-source.zip)/[SHA](020_AI_Automatic_Search_Providers/reviewed-planning-guarded-source.json)로 보존했다. 초기14개와 후속8개를 합친 최종15개 source manifest를 생성하고 root 바이트 동일성을 확인했다. UI source 변경이 없으므로 기존24화면1,018개 결과는 유지하고 새 판단 흐름은 전체 backend와 실제 운영 모델로 다시 확인한다.
+
+merged-root도248개/45.830초(오류·실패·skip0)로 통과했다. 후속8개 중 실제 변경은HTTP/Domain/정책/worker/검색 보조와 시험이며, root15개 전체 SHA를 고정했다. 해당 후보8개만 정리하고 Google 미해결 및 기존9개 dirty를 보존한 별도 코드 commit으로 반영한다. 이전 운영의 응답/모델 선택 실패는 지우거나 성공으로 바꾸지 않는다.
