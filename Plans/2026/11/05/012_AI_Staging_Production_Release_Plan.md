@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261105-012
 work_id: RELEASE-20261105-AI-CSV-LAYOUT
 owner: Codex
-status: approved-for-release
+status: deployed-and-verified
 ---
 
 # 검증된 AI Staging 운영 배포

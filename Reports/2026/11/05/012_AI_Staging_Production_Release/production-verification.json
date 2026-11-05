@@ -1,0 +1,231 @@
+{
+  "work_id": "RELEASE-20261105-AI-CSV-LAYOUT",
+  "code_commit": "43a01945b0b2d3dd15a2bed5bdc07e42682c081c",
+  "feature_commit": "bb48ac586b61e75331a256d007b39728743d5eba",
+  "helper_fix": {
+    "helper_sha": "cb525efd49e38c87a054a37ca00e36a45cc8b8cb05d0390ebd34828c15256830",
+    "archive_sha": "85dd69dfb77f1cf30cad6a87a18bc3fa28d2181f7d7271a3262b22f3a48216e3",
+    "copy_result": "copy-8d0255f331cf/result.json",
+    "old_lifecycle_rows": 5
+  },
+  "quiesced": {
+    "status": "quiesced",
+    "old_pid": 824644,
+    "active_jobs": 0,
+    "shared_model_controlled": false
+  },
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 178,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 34.974,
+    "fixture_digest": "e01e64fd1ae3f52ef2b000a5eeeb1da7ca3f90bd6f269982ea6e9d3121b1b394",
+    "production_app_imported": false,
+    "production_database_opened": false
+  },
+  "database_copy": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-csv-layout-20261105T055225Z-121eb6/copy-ba56a0a4fac9",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 7,
+      "ai_lifecycle_operations": 7,
+      "ai_lifecycle_tombstones": 1,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 13,
+      "ai_task_drafts": 0,
+      "conversations": 8,
+      "jobs": 17,
+      "message_steps": 32,
+      "messages": 34,
+      "proposals": 1,
+      "revocations": 7,
+      "storage_accounts": 3
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 5,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activation": {
+    "status": "active",
+    "app_pid": 867701,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-05T06:00:28.941643+00:00"
+  },
+  "production_health": {
+    "head": "43a01945b0b2d3dd15a2bed5bdc07e42682c081c",
+    "web_pid": 867701,
+    "worker": "active",
+    "retention": "active",
+    "maintenance": "NORMAL",
+    "https_anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401
+    },
+    "source_hashes": [
+      {
+        "path": "static/css/equipment_ai.css",
+        "sha256": "6bca5a6a4126a982670566f4c4a34a45e539eec40d4201f1af7a5449ff923d91"
+      },
+      {
+        "path": "static/js/equipment_ai.js",
+        "sha256": "3324e62c88ae5c14fb58a5fcecefdb3550c0c35f55c2d32e3429abfee4f77d73"
+      },
+      {
+        "path": "templates/equipment_ai.html",
+        "sha256": "a2f70171ef629adcb06d1aa222dad5dceb4dcd6689e5eec099ebdd3b5de3c24a"
+      },
+      {
+        "path": "tests/assistant_browser_fixture.py",
+        "sha256": "82fac0f55bf2d803799e07abd0529a6604b45e2834374a728c5696f5d5fcdd32"
+      },
+      {
+        "path": "tests/assistant_ui_browser_fixture.py",
+        "sha256": "4cc2a66270425130069a78a37087f28c49ca8e3587061c31942d6590675f2472"
+      },
+      {
+        "path": "tests/csv_popup_browser_fixture.py",
+        "sha256": "3e9dbb2a37c79eb1fe63b09b7a95b99e60df5fcb044671df7921f142e7392c64"
+      },
+      {
+        "path": "tests/model_disclosure_browser_fixture.py",
+        "sha256": "63843480abd0f73ca887744b28db3c41021567fd4a42eeb49616a3c8973e5c8e"
+      },
+      {
+        "path": "tests/run_assistant_fixture.py",
+        "sha256": "dff3c8c733d505a10034b62727722123a24edbe6cb4a991765de2f8b250f9e1e"
+      },
+      {
+        "path": "tests/test_equipment_ai_ui.js",
+        "sha256": "5bbd1c11d2be306465d2e365ae62483fe3c501f02bb33e81fb4a7412cc7ea7cf"
+      },
+      {
+        "path": "tests/viewport_scrollbar_browser_fixture.py",
+        "sha256": "fd371d57d4350649eb552c1c87d44b34aaa8cb1f4c0a2092fd4c4bfbe2848249"
+      },
+      {
+        "path": "utils/ai_assistant/policy.py",
+        "sha256": "ce8621c1e6c96a86098a2285d06bbe31e6f8964a957e654b194fa08d45ea3a8e"
+      }
+    ],
+    "http_assets": [
+      {
+        "path": "static/js/equipment_ai.js",
+        "http_sha_matches": true
+      },
+      {
+        "path": "static/css/equipment_ai.css",
+        "http_sha_matches": true
+      }
+    ],
+    "ai_states": {
+      "cancelled": 1,
+      "done": 16,
+      "failed": 1
+    },
+    "ai_counts": {
+      "conversations": 9,
+      "messages": 36,
+      "jobs": 18,
+      "proposals": 1
+    },
+    "lifecycle_nonzero": 5,
+    "ai_integrity": "ok",
+    "settings_unchanged": true
+  },
+  "post_verification_data": {
+    "business_tables_identical": [
+      "approval_requests",
+      "categories",
+      "email_verifications",
+      "equipment",
+      "equipment_files",
+      "equipment_imports",
+      "equipment_notification_log",
+      "equipment_options",
+      "equipments",
+      "equipments_audit_log",
+      "lineup_nodes",
+      "manufacturers",
+      "menus",
+      "password_resets",
+      "role_menu_permissions",
+      "sys_migrations",
+      "user_settings"
+    ],
+    "users_only_session_token_changed": true,
+    "old_chat_rows": {
+      "conversations": "preserved",
+      "messages": "preserved",
+      "jobs": "preserved",
+      "proposals": "preserved"
+    },
+    "audit_append_preserved": true,
+    "real_job": {
+      "id": "3d8c3df22a8a4ff0a7af0b14384d1dfc",
+      "state": "done",
+      "level": "off",
+      "steps": 1,
+      "error_code": null,
+      "reserved_chars": 0,
+      "created_to_terminal_seconds": 7.003,
+      "proposals_created": 0
+    },
+    "execution_guards": {
+      "released": 8
+    },
+    "verification_user_id": 9
+  },
+  "ui_evidence": "production-ui-verification.json",
+  "desktop_default_observed": {
+    "width": 1440,
+    "height": 1000,
+    "pageHeight": 1000,
+    "pageWidth": 1440,
+    "panelOpen": false,
+    "reasoning": "medium"
+  },
+  "browser_console_errors": 0,
+  "verification_account": "test05 (user)",
+  "staging_browser_evidence": {
+    "views": 55,
+    "checks": 3543,
+    "failures": 0
+  },
+  "scope_exclusions": [
+    "planned header star/status colors and two-row navigation",
+    "web_search",
+    "equipment writes",
+    "schema migration",
+    "shared Strata control"
+  ],
+  "private_backup_files_verified_initial": 7,
+  "private_backup_total_verified": 14
+}

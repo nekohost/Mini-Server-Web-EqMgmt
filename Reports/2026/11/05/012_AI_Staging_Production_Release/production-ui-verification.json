@@ -1,0 +1,114 @@
+{
+  "desktopExpanded": {
+    "height": 1000,
+    "levels": [
+      {
+        "disabled": false,
+        "value": "off"
+      },
+      {
+        "disabled": false,
+        "value": "low"
+      },
+      {
+        "disabled": false,
+        "value": "medium"
+      },
+      {
+        "disabled": true,
+        "value": "high"
+      },
+      {
+        "disabled": false,
+        "value": "xhigh"
+      },
+      {
+        "disabled": true,
+        "value": "max"
+      }
+    ],
+    "model": "260Strata / Qwen3.8 Flash Next",
+    "modelSize": {
+      "bottom": 925.40625,
+      "height": 36,
+      "top": 889.40625,
+      "width": 136
+    },
+    "pageHeight": 1000,
+    "pageWidth": 1440,
+    "panelOpen": true,
+    "reasoningSize": {
+      "bottom": 855.8125,
+      "height": 36,
+      "top": 819.8125,
+      "width": 100
+    },
+    "refreshBusy": "false",
+    "refreshSize": {
+      "bottom": 925.40625,
+      "height": 36,
+      "top": 889.40625,
+      "width": 94.21875
+    },
+    "scrollbar": "rgb(97, 117, 141) rgb(17, 26, 39)",
+    "status": "",
+    "width": 1440
+  },
+  "mobileCollapsed": {
+    "footerRemoved": true,
+    "height": 844,
+    "mode": "fit",
+    "pageHeight": 844,
+    "pageWidth": 390,
+    "panelOpen": false,
+    "progress": "",
+    "scrollbar": "rgb(97, 117, 141) rgb(17, 26, 39)",
+    "width": 390
+  },
+  "mobileExpanded": {
+    "height": 844,
+    "model": "260Strata / Qwen3.8 Flash Next",
+    "modelSize": {
+      "height": 44,
+      "width": 136
+    },
+    "pageHeight": 844,
+    "pageWidth": 390,
+    "panelOpen": true,
+    "reasoning": "off",
+    "reasoningSize": {
+      "height": 44,
+      "width": 100
+    },
+    "refreshSize": {
+      "height": 44,
+      "width": 94.21875
+    },
+    "width": 390
+  },
+  "csvPopup": {
+    "bottom": 577.328125,
+    "clientHeight": 309,
+    "confirmHidden": true,
+    "height": 310.65625,
+    "left": 10,
+    "open": true,
+    "right": 380,
+    "scrollHeight": 309,
+    "scrollbar": "rgb(97, 117, 141) rgb(17, 26, 39)",
+    "title": "CSV 가져오기",
+    "top": 266.671875,
+    "viewportHeight": 844,
+    "viewportWidth": 390,
+    "width": 370
+  },
+  "reloaded": {
+    "dialogOpen": false,
+    "hasCsvLink": true,
+    "model": "260Strata / Qwen3.8 Flash Next",
+    "pageHeight": 844,
+    "panelOpen": false,
+    "reasoning": "off",
+    "viewportHeight": 844
+  }
+}

@@ -999,6 +999,6 @@
 
 ## AI-CSV-LAYOUT-20261105 — CSV·화면 맞춤·모델 선택 접기
 
-- **상태:** Staging 검증 완료 / 사용자 운영 배포 승인 / 적용 진행 중.
+- **상태:** [개발 완료 (FEATURES.md 이관)] / 운영 서버 적용·실제 검증 완료.
 - 007 요청형 CSV 팝업·하단 정리,009 실제 viewport 맞춤/내부 scrollbar 테마,010 모델 선택/새로고침의 기본 접힘을 통합한다.
 - [배포 계획012](Plans/2026/11/05/012_AI_Staging_Production_Release_Plan.md), [검증·운영 기록](Reports/2026/11/05/012_AI_Staging_Production_Release_Report.md). 완료 후 기능 상세는 FEATURES.md19절을 따른다.
