@@ -35,7 +35,7 @@
             const container = document.getElementById('menuContainer');
             container.innerHTML = '';
             
-            window.MenuCards.render(container, menus);
+            window.MenuCards.render(container, window.MenuCards.orderPortal(menus));
         } catch (err) {
             console.error('메뉴 로드 오류:', err);
         }

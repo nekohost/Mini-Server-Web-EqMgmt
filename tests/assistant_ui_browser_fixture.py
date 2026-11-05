@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.UI.LIFECYCLE.BROWSER.FIXTURE]
-[EN rev.5]
+[EN rev.6]
 [Role] Runs the candidate chat UI in isolated Linux Chromium with synthetic transport and two same-origin tabs.
 [Dependencies] Flask/Jinja, Linux Chromium, candidate asset strings and test_equipment_ai_ui.js supplied by the caller.
 [Impact] Exercises 320/360/390/430/760/761/820/1440 CSS-pixel viewports in both themes, rejects requested/actual width mismatches and permits a 1425px baseline comparison without production authentication, model calls or real database writes.
@@ -7,6 +7,7 @@
 import base64
 import html
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
@@ -20,18 +21,29 @@ from werkzeug.serving import make_server
 
 
 def run_browser(project, assets):
-    """[Role] Implements the shared fixture runner contract using the separately reviewable JavaScript checks."""
+    """[MINI-COMMENT: ASSISTANT.UI.BROWSER.REAL.FRAMES] [EN rev.1]
+    [Role] Runs the existing JavaScript regression checks on actual animation frames, including live thought opening.
+    [Dependencies] The reviewed viewport fixture's private Linux CDP capture and run_ui_browser's existing width/theme filters.
+    [Impact] Virtual-time timers cannot skip intermediate presenter frames; feature assertions and synthetic data remain unchanged.
+    """
+    from viewport_scrollbar_browser_fixture import capture_real_frames
     script = assets.get("tests/test_equipment_ai_ui.js")
     if script is None:
         path = Path(project) / "tests/test_equipment_ai_ui.js"
         if not path.is_file():
             path = Path(project) / "Staging/20261105-ai-ux-trash/tests/test_equipment_ai_ui.js"
         script = path.read_text(encoding="utf-8-sig")
-    return run_ui_browser(project, assets, script)
+    return run_ui_browser(project, assets, script, capture=capture_real_frames)
 
 
 def run_ui_browser(project, assets, script, sizes=(320, 360, 390, 430, 760, 761, 820, 1440), themes=("light", "dark"), capture=None):
     """[Role] Serves loopback candidate UI and supports a reviewed real-frame capture for geometry-sensitive checks."""
+    selected_widths = json.loads(os.environ.get('EQ_FIXTURE_WIDTHS', '[]'))
+    selected_themes = json.loads(os.environ.get('EQ_FIXTURE_THEMES', '[]'))
+    sizes = tuple(width for width in sizes if not selected_widths or width in selected_widths)
+    themes = tuple(theme for theme in themes if not selected_themes or theme in selected_themes)
+    if not sizes or not themes:
+        raise ValueError('requested fixture width/theme is not covered by this suite')
     app = Flask("assistant_ui_lifecycle_fixture", static_folder=None)
     app.secret_key = "synthetic-ui-fixture-not-a-production-key"
     app.jinja_loader = ChoiceLoader([

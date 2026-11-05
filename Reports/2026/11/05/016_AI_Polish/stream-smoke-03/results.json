@@ -1,0 +1,428 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "a5759a5f9e83b886836e3453999d9af01643bf5d6f5a043ea308162c400165b3",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "view": "stream-polish",
+      "width": 390,
+      "theme": "dark",
+      "error": "large-table-performance-scenario-has-real-horizontal-scroll",
+      "checks": [
+        "candidate-loads-independent-presenter-before-first-user-turn",
+        "test-reader-is-away-from-follow-bottom",
+        "first-visible-answer-auto-collapses-reasoning-once",
+        "reader-can-manually-reopen-reasoning",
+        "later-chunks-and-reconnect-keep-manually-reopened-reasoning",
+        "streaming-safe-markdown-preserves-selected-text",
+        "incremental-output-preserves-reader-position",
+        "incremental-reasoning-preserves-inner-reader-position",
+        "streaming-and-reconnect-preserve-next-question-draft",
+        "safe-markdown-keeps-model-html-inert",
+        "complete-markdown-keeps-allowed-format-and-local-link",
+        "reconnect-cumulative-reasoning-matches-exact-source-without-duplicates",
+        "terminal-flush-matches-exact-raw-answer-and-reasoning",
+        "real-dom-output-preserves-emoji-combining-hangul-and-flag-boundaries",
+        "completed-output-releases-every-frame-and-listener",
+        "real-raf-paints-multiple-prefixes-between-network-chunks",
+        "failed-output-flushes-and-releases-animation",
+        "failure-preserves-accepted-raw-answer-and-stops-progress",
+        "cancelled-output-releases-animation-and-listeners",
+        "cancel-only-addresses-the-own-fixture-job",
+        "conversation-switch-releases-old-request-and-message",
+        "abandoned-request-cannot-paint-into-new-conversation",
+        "conversation-switch-preserves-composer-draft",
+        "restored-snapshot-hydrates-full-reasoning-without-replay",
+        "restored-snapshot-hydrates-complete-final-answer"
+      ],
+      "metrics": {
+        "normal": {
+          "response_utf16": 5040,
+          "reasoning_utf16": 3560,
+          "presenter_instances": 1,
+          "intermediate_raf_renders": 22,
+          "actual_dom_mutations": 27,
+          "min_frame_gap_ms": 32.19999980926514,
+          "median_frame_gap_ms": 33.5,
+          "max_renderer_ms": 25.40000057220459,
+          "p95_renderer_ms": 13.5,
+          "reconnects": 1,
+          "dom_mutation_samples_ms": [
+            26.9,
+            194.2,
+            243.9,
+            278.9,
+            309.5,
+            343.3,
+            379.2,
+            413.4,
+            445.6,
+            480.7,
+            514.6,
+            547.4,
+            582.2,
+            615,
+            962.5,
+            1033.8,
+            1081.3,
+            1109.8,
+            1147.4,
+            1181.4,
+            1230.3,
+            1263.9,
+            1297.1,
+            1330.4,
+            1363.5,
+            4208.1
+          ],
+          "samples": [
+            {
+              "ms": 171.6,
+              "raf": 1109.8,
+              "reasoning_chars": 272,
+              "answer_chars": 0,
+              "pending": 1740,
+              "render_ms": 21.7
+            },
+            {
+              "ms": 237.6,
+              "raf": 1176.5,
+              "reasoning_chars": 752,
+              "answer_chars": 0,
+              "pending": 1429,
+              "render_ms": 5.5
+            },
+            {
+              "ms": 271.8,
+              "raf": 1209.8,
+              "reasoning_chars": 975,
+              "answer_chars": 0,
+              "pending": 1284,
+              "render_ms": 5.8
+            },
+            {
+              "ms": 304.2,
+              "raf": 1243.1,
+              "reasoning_chars": 1188,
+              "answer_chars": 0,
+              "pending": 1149,
+              "render_ms": 4.6
+            },
+            {
+              "ms": 338.8,
+              "raf": 1276.4,
+              "reasoning_chars": 1412,
+              "answer_chars": 0,
+              "pending": 1003,
+              "render_ms": 3.9
+            },
+            {
+              "ms": 371,
+              "raf": 1309.7,
+              "reasoning_chars": 1618,
+              "answer_chars": 0,
+              "pending": 869,
+              "render_ms": 7.4
+            },
+            {
+              "ms": 404.6,
+              "raf": 1343.1,
+              "reasoning_chars": 1837,
+              "answer_chars": 0,
+              "pending": 727,
+              "render_ms": 8
+            },
+            {
+              "ms": 436.8,
+              "raf": 1376.4,
+              "reasoning_chars": 2044,
+              "answer_chars": 0,
+              "pending": 592,
+              "render_ms": 8
+            },
+            {
+              "ms": 471.4,
+              "raf": 1409.7,
+              "reasoning_chars": 2270,
+              "answer_chars": 0,
+              "pending": 444,
+              "render_ms": 8.6
+            },
+            {
+              "ms": 504.5,
+              "raf": 1443.1,
+              "reasoning_chars": 2487,
+              "answer_chars": 0,
+              "pending": 305,
+              "render_ms": 9.3
+            },
+            {
+              "ms": 538.6,
+              "raf": 1476.4,
+              "reasoning_chars": 2711,
+              "answer_chars": 0,
+              "pending": 159,
+              "render_ms": 8.1
+            },
+            {
+              "ms": 570.9,
+              "raf": 1509.8,
+              "reasoning_chars": 2917,
+              "answer_chars": 0,
+              "pending": 27,
+              "render_ms": 10.6
+            },
+            {
+              "ms": 936.2,
+              "raf": 1876.4,
+              "reasoning_chars": 3007,
+              "answer_chars": 46,
+              "pending": 1095,
+              "render_ms": 25.4
+            },
+            {
+              "ms": 1019.5,
+              "raf": 1959.7,
+              "reasoning_chars": 3134,
+              "answer_chars": 195,
+              "pending": 844,
+              "render_ms": 13.5
+            },
+            {
+              "ms": 1069.5,
+              "raf": 2009.7,
+              "reasoning_chars": 3202,
+              "answer_chars": 277,
+              "pending": 710,
+              "render_ms": 10.9
+            },
+            {
+              "ms": 1102.5,
+              "raf": 2043.1,
+              "reasoning_chars": 3245,
+              "answer_chars": 333,
+              "pending": 626,
+              "render_ms": 6.4
+            },
+            {
+              "ms": 1135.9,
+              "raf": 2076.4,
+              "reasoning_chars": 3288,
+              "answer_chars": 384,
+              "pending": 541,
+              "render_ms": 10.7
+            },
+            {
+              "ms": 1169.4,
+              "raf": 2109.8,
+              "reasoning_chars": 3331,
+              "answer_chars": 435,
+              "pending": 456,
+              "render_ms": 11.3
+            },
+            {
+              "ms": 1219.4,
+              "raf": 2159.7,
+              "reasoning_chars": 3402,
+              "answer_chars": 526,
+              "pending": 316,
+              "render_ms": 10.2
+            },
+            {
+              "ms": 1252.7,
+              "raf": 2193.1,
+              "reasoning_chars": 3443,
+              "answer_chars": 574,
+              "pending": 235,
+              "render_ms": 10.4
+            },
+            {
+              "ms": 1286.1,
+              "raf": 2226.4,
+              "reasoning_chars": 3484,
+              "answer_chars": 624,
+              "pending": 153,
+              "render_ms": 10.3
+            },
+            {
+              "ms": 1319.5,
+              "raf": 2259.7,
+              "reasoning_chars": 3525,
+              "answer_chars": 674,
+              "pending": 71,
+              "render_ms": 10.1
+            }
+          ]
+        }
+      },
+      "diagnostic": {
+        "title": "부드러운 출력 확인 대화",
+        "notice": "",
+        "progress": "응답을 기다리거나 생성하고 있습니다.",
+        "jobs": [
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01",
+            "scenario": "normal",
+            "age": 10408,
+            "state": "done"
+          },
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb02",
+            "scenario": "failure",
+            "age": 6101.099999427795,
+            "state": "failed"
+          },
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb03",
+            "scenario": "normal",
+            "age": 5100.099999427795,
+            "state": "cancelled"
+          },
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb04",
+            "scenario": "normal",
+            "age": 3270.199999809265,
+            "state": "done"
+          },
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb05",
+            "scenario": "normal",
+            "age": 800.1999998092651,
+            "state": "running"
+          }
+        ],
+        "runs": [
+          {
+            "renders": 25,
+            "updates": 5,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 3560,
+              "content": 5040,
+              "streaming": false
+            }
+          },
+          {
+            "renders": 15,
+            "updates": 4,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 2960,
+              "content": 700,
+              "streaming": false
+            }
+          },
+          {
+            "renders": 3,
+            "updates": 2,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 2960,
+              "content": 0,
+              "streaming": false
+            }
+          },
+          {
+            "renders": 2,
+            "updates": 1,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 489,
+              "content": 0,
+              "streaming": true
+            }
+          },
+          {
+            "renders": 15,
+            "updates": 3,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 3052,
+              "content": 98,
+              "streaming": true
+            }
+          }
+        ],
+        "requests": [
+          {
+            "path": "/api/ai/status",
+            "search": "?selection_id=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee&job_id=bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb05",
+            "method": "GET",
+            "time": 10630,
+            "data": null
+          },
+          {
+            "path": "/api/ai/conversations",
+            "search": "?view=active",
+            "method": "GET",
+            "time": 10635.10000038147,
+            "data": null
+          },
+          {
+            "path": "/api/ai/jobs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb05",
+            "search": "?r=0&c=0&v=1",
+            "method": "GET",
+            "time": 10731.800000190735,
+            "data": null
+          },
+          {
+            "path": "/api/ai/capabilities",
+            "search": "",
+            "method": "GET",
+            "time": 10832,
+            "data": null
+          },
+          {
+            "path": "/api/ai/conversations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/messages",
+            "search": "?view=active",
+            "method": "GET",
+            "time": 10833.300000190735,
+            "data": null
+          },
+          {
+            "path": "/api/ai/conversations",
+            "search": "?view=active",
+            "method": "GET",
+            "time": 10836.5,
+            "data": null
+          },
+          {
+            "path": "/api/ai/jobs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb05",
+            "search": "?r=2480&c=0&v=1",
+            "method": "GET",
+            "time": 11000.400000572205,
+            "data": null
+          },
+          {
+            "path": "/api/ai/jobs/bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb05",
+            "search": "?r=2480&c=0&v=1",
+            "method": "GET",
+            "time": 11261.400000572205,
+            "data": null
+          }
+        ]
+      },
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/stream-smoke-03/screen-000.png"
+    }
+  ],
+  "fixture_digest": "a5759a5f9e83b886836e3453999d9af01643bf5d6f5a043ea308162c400165b3"
+}

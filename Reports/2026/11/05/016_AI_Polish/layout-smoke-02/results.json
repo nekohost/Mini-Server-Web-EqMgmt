@@ -1,0 +1,706 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "5bbfb5bd1f2c16816748a5289c7ac6f44dcb81fecc47d1e0bafa16bbaf52a2d8",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "ai-polish",
+      "checks": [
+        "star-survives-title-formatting-with-accessible-description",
+        "sidebar-footer-copy-decoration-and-space-removed",
+        "active-job-status-precedes-next-selection-and-describes-own-queue",
+        "ready-waiting-unavailable-have-distinct-colors-and-shared-tooltip-name",
+        "expired-evidence-is-neutral-without-false-normal-or-failure",
+        "http-and-network-failure-do-not-mark-provider-unavailable",
+        "fresh-evidence-expires-without-waiting-for-next-poll",
+        "context-switch-aborts-and-rejects-late-old-status",
+        "status-message-is-text-only",
+        "hidden-tab-status-polling-uses-reduced-frequency",
+        "visible-tab-status-polling-resumes-normal-frequency",
+        "all-status-requests-are-passive-authenticated-and-uncached",
+        "current-and-history-trash-controls-have-safe-targeted-tooltips",
+        "trash-outline-and-monochrome-symbol-share-header-danger-token",
+        "trash-targets-retain-touch-and-focus-space",
+        "trash-control-retains-programmatic-keyboard-focus",
+        "both-native-disclosures-default-closed-and-retain-existing-controls",
+        "collapsed-summaries-fit-two-lines-right-of-reasoning",
+        "disclosures-open-independently-with-native-summary-click",
+        "expanded-bodies-reserve-separate-full-width-nonoverlapping-space",
+        "measured-spacer-contains-both-open-bodies",
+        "model-errors-remain-outside-collapsible-panels",
+        "closing-model-does-not-close-reasoning-support",
+        "disclosure-toggle-preserves-model-reasoning-draft-reader-and-message-nodes",
+        "native-toggle-does-not-refresh-models-or-submit-data",
+        "two-enlarged-summaries-use-height-based-fallback",
+        "font-enlarged-insufficient-space-uses-measured-next-row-fallback",
+        "long-labels-left-center-right-and-two-control-rows-do-not-overlap",
+        "long-labels-main-stays-centered-beside-two-history-rows",
+        "long-labels-long-menu-labels-clamp-at-two-lines-and-retain-full-names",
+        "long-labels-navigation-stays-within-viewport",
+        "font-enlarged-left-center-right-and-two-control-rows-do-not-overlap",
+        "font-enlarged-main-stays-centered-beside-two-history-rows",
+        "font-enlarged-long-menu-labels-clamp-at-two-lines-and-retain-full-names",
+        "font-enlarged-navigation-stays-within-viewport",
+        "short-height-retains-minimum-chat-space-and-page-scroll-fallback",
+        "trash-shows-only-requested-guidance-and-keeps-accessible-list-name",
+        "portal-dom-admin-last-stable-permitted-case-0",
+        "portal-dom-admin-last-stable-permitted-case-1",
+        "portal-dom-admin-last-stable-permitted-case-2",
+        "portal-dom-admin-last-stable-permitted-case-3",
+        "final-view-has-no-horizontal-overflow-and-retains-chat-minimum"
+      ],
+      "width": 390,
+      "theme": "dark",
+      "layout": {
+        "trashTargets": {
+          "current": {
+            "left": 317,
+            "right": 357,
+            "top": 157,
+            "bottom": 206.344,
+            "width": 40,
+            "height": 49.344
+          },
+          "history": {
+            "left": 205,
+            "right": 241,
+            "top": 378.828,
+            "bottom": 414.828,
+            "width": 36,
+            "height": 36
+          },
+          "sidebar": {
+            "left": 9,
+            "right": 259,
+            "top": 150,
+            "bottom": 834,
+            "width": 250,
+            "height": 684
+          },
+          "sidebarDisplay": "flex"
+        },
+        "collapsed": {
+          "nav": {
+            "left": 16,
+            "right": 374,
+            "top": 0,
+            "bottom": 83,
+            "width": 358,
+            "height": 83
+          },
+          "links": {
+            "left": 16,
+            "right": 136.688,
+            "top": 9.5,
+            "bottom": 73.5,
+            "width": 120.688,
+            "height": 64
+          },
+          "heading": {
+            "left": 140.688,
+            "right": 249.297,
+            "top": 25.5,
+            "bottom": 57.5,
+            "width": 108.609,
+            "height": 32
+          },
+          "controls": {
+            "left": 253.297,
+            "right": 373.984,
+            "top": 8,
+            "bottom": 75,
+            "width": 120.688,
+            "height": 67
+          },
+          "actions": {
+            "left": 36,
+            "right": 354,
+            "top": 744.406,
+            "bottom": 788.406,
+            "width": 318,
+            "height": 44
+          },
+          "level": {
+            "left": 64.094,
+            "right": 166.094,
+            "top": 744.406,
+            "bottom": 788.406,
+            "width": 102,
+            "height": 44
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 744.406,
+            "bottom": 788.406,
+            "width": 44,
+            "height": 44
+          },
+          "group": {
+            "left": 174.094,
+            "right": 302,
+            "top": 749.016,
+            "bottom": 783.797,
+            "width": 127.906,
+            "height": 34.781
+          },
+          "modelPanel": {
+            "left": 174.094,
+            "right": 302,
+            "top": 766.406,
+            "bottom": 876.406,
+            "width": 127.906,
+            "height": 110
+          },
+          "reasoningPanel": {
+            "left": 174.094,
+            "right": 302,
+            "top": 783.797,
+            "bottom": 825.578,
+            "width": 127.906,
+            "height": 41.781
+          },
+          "composer": {
+            "left": 21,
+            "right": 369,
+            "top": 671.406,
+            "bottom": 825,
+            "width": 348,
+            "height": 153.594
+          },
+          "scroll": {
+            "left": 9,
+            "right": 381,
+            "top": 213.344,
+            "bottom": 671.406,
+            "width": 372,
+            "height": 458.063
+          },
+          "disclosureLayout": "stacked",
+          "viewportFit": "fit",
+          "documentWidth": 390,
+          "documentHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "expanded": {
+          "nav": {
+            "left": 16,
+            "right": 374,
+            "top": 0,
+            "bottom": 83,
+            "width": 358,
+            "height": 83
+          },
+          "links": {
+            "left": 16,
+            "right": 136.688,
+            "top": 9.5,
+            "bottom": 73.5,
+            "width": 120.688,
+            "height": 64
+          },
+          "heading": {
+            "left": 140.688,
+            "right": 249.297,
+            "top": 25.5,
+            "bottom": 57.5,
+            "width": 108.609,
+            "height": 32
+          },
+          "controls": {
+            "left": 253.297,
+            "right": 373.984,
+            "top": 8,
+            "bottom": 75,
+            "width": 120.688,
+            "height": 67
+          },
+          "actions": {
+            "left": 36,
+            "right": 354,
+            "top": 620.406,
+            "bottom": 664.406,
+            "width": 318,
+            "height": 44
+          },
+          "level": {
+            "left": 64.094,
+            "right": 166.094,
+            "top": 620.406,
+            "bottom": 664.406,
+            "width": 102,
+            "height": 44
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 620.406,
+            "bottom": 664.406,
+            "width": 44,
+            "height": 44
+          },
+          "group": {
+            "left": 174.094,
+            "right": 302,
+            "top": 625.016,
+            "bottom": 659.797,
+            "width": 127.906,
+            "height": 34.781
+          },
+          "modelPanel": {
+            "left": 36,
+            "right": 354,
+            "top": 672.406,
+            "bottom": 730.406,
+            "width": 318,
+            "height": 58
+          },
+          "reasoningPanel": {
+            "left": 36,
+            "right": 354,
+            "top": 738.406,
+            "bottom": 780.188,
+            "width": 318,
+            "height": 41.781
+          },
+          "composer": {
+            "left": 21,
+            "right": 369,
+            "top": 547.406,
+            "bottom": 825,
+            "width": 348,
+            "height": 277.594
+          },
+          "scroll": {
+            "left": 9,
+            "right": 381,
+            "top": 213.344,
+            "bottom": 547.406,
+            "width": 372,
+            "height": 334.063
+          },
+          "disclosureLayout": "stacked",
+          "viewportFit": "fit",
+          "documentWidth": 390,
+          "documentHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "longNavigation": {
+          "nav": {
+            "left": 16,
+            "right": 374,
+            "top": 0,
+            "bottom": 93.563,
+            "width": 358,
+            "height": 93.563
+          },
+          "links": {
+            "left": 16,
+            "right": 136.688,
+            "top": 8,
+            "bottom": 85.563,
+            "width": 120.688,
+            "height": 77.563
+          },
+          "heading": {
+            "left": 140.688,
+            "right": 249.297,
+            "top": 30.781,
+            "bottom": 62.781,
+            "width": 108.609,
+            "height": 32
+          },
+          "controls": {
+            "left": 253.297,
+            "right": 373.984,
+            "top": 13.281,
+            "bottom": 80.281,
+            "width": 120.688,
+            "height": 67
+          },
+          "actions": {
+            "left": 36,
+            "right": 354,
+            "top": 743.969,
+            "bottom": 787.969,
+            "width": 318,
+            "height": 44
+          },
+          "level": {
+            "left": 64.094,
+            "right": 166.094,
+            "top": 743.969,
+            "bottom": 787.969,
+            "width": 102,
+            "height": 44
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 743.969,
+            "bottom": 787.969,
+            "width": 44,
+            "height": 44
+          },
+          "group": {
+            "left": 174.094,
+            "right": 302,
+            "top": 748.578,
+            "bottom": 783.359,
+            "width": 127.906,
+            "height": 34.781
+          },
+          "modelPanel": {
+            "left": 174.094,
+            "right": 302,
+            "top": 817.969,
+            "bottom": 927.969,
+            "width": 127.906,
+            "height": 110
+          },
+          "reasoningPanel": {
+            "left": 174.094,
+            "right": 302,
+            "top": 835.359,
+            "bottom": 877.141,
+            "width": 127.906,
+            "height": 41.781
+          },
+          "composer": {
+            "left": 21,
+            "right": 369,
+            "top": 670.969,
+            "bottom": 824.563,
+            "width": 348,
+            "height": 153.594
+          },
+          "scroll": {
+            "left": 9,
+            "right": 381,
+            "top": 223.906,
+            "bottom": 670.969,
+            "width": 372,
+            "height": 447.063
+          },
+          "disclosureLayout": "stacked",
+          "viewportFit": "fit",
+          "documentWidth": 390,
+          "documentHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "enlargedNavigation": {
+          "nav": {
+            "left": 16,
+            "right": 374,
+            "top": 0,
+            "bottom": 155.188,
+            "width": 358,
+            "height": 155.188
+          },
+          "links": {
+            "left": 16,
+            "right": 136.688,
+            "top": 8,
+            "bottom": 147.188,
+            "width": 120.688,
+            "height": 139.188
+          },
+          "heading": {
+            "left": 140.688,
+            "right": 249.297,
+            "top": 57.594,
+            "bottom": 97.594,
+            "width": 108.609,
+            "height": 40
+          },
+          "controls": {
+            "left": 253.297,
+            "right": 373.984,
+            "top": 39.594,
+            "bottom": 115.594,
+            "width": 120.688,
+            "height": 76
+          },
+          "actions": {
+            "left": 36,
+            "right": 354,
+            "top": 743.594,
+            "bottom": 787.594,
+            "width": 318,
+            "height": 44
+          },
+          "level": {
+            "left": 64.094,
+            "right": 166.094,
+            "top": 743.594,
+            "bottom": 787.594,
+            "width": 102,
+            "height": 44
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 743.594,
+            "bottom": 787.594,
+            "width": 44,
+            "height": 44
+          },
+          "group": {
+            "left": 174.094,
+            "right": 302,
+            "top": 748.203,
+            "bottom": 782.984,
+            "width": 127.906,
+            "height": 34.781
+          },
+          "modelPanel": {
+            "left": 174.094,
+            "right": 302,
+            "top": 817.594,
+            "bottom": 927.594,
+            "width": 127.906,
+            "height": 110
+          },
+          "reasoningPanel": {
+            "left": 174.094,
+            "right": 302,
+            "top": 834.984,
+            "bottom": 876.766,
+            "width": 127.906,
+            "height": 41.781
+          },
+          "composer": {
+            "left": 21,
+            "right": 369,
+            "top": 670.594,
+            "bottom": 824.188,
+            "width": 348,
+            "height": 153.594
+          },
+          "scroll": {
+            "left": 9,
+            "right": 381,
+            "top": 285.531,
+            "bottom": 670.594,
+            "width": 372,
+            "height": 385.063
+          },
+          "disclosureLayout": "stacked",
+          "viewportFit": "fit",
+          "documentWidth": 390,
+          "documentHeight": 844,
+          "width": 390,
+          "height": 844
+        },
+        "final": {
+          "nav": {
+            "left": 16,
+            "right": 374,
+            "top": 0,
+            "bottom": 93.563,
+            "width": 358,
+            "height": 93.563
+          },
+          "links": {
+            "left": 16,
+            "right": 136.688,
+            "top": 8,
+            "bottom": 85.563,
+            "width": 120.688,
+            "height": 77.563
+          },
+          "heading": {
+            "left": 140.688,
+            "right": 249.297,
+            "top": 30.781,
+            "bottom": 62.781,
+            "width": 108.609,
+            "height": 32
+          },
+          "controls": {
+            "left": 253.297,
+            "right": 373.984,
+            "top": 13.281,
+            "bottom": 80.281,
+            "width": 120.688,
+            "height": 67
+          },
+          "actions": {
+            "left": 36,
+            "right": 354,
+            "top": 619.969,
+            "bottom": 663.969,
+            "width": 318,
+            "height": 44
+          },
+          "level": {
+            "left": 64.094,
+            "right": 166.094,
+            "top": 619.969,
+            "bottom": 663.969,
+            "width": 102,
+            "height": 44
+          },
+          "send": {
+            "left": 310,
+            "right": 354,
+            "top": 619.969,
+            "bottom": 663.969,
+            "width": 44,
+            "height": 44
+          },
+          "group": {
+            "left": 174.094,
+            "right": 302,
+            "top": 624.578,
+            "bottom": 659.359,
+            "width": 127.906,
+            "height": 34.781
+          },
+          "modelPanel": {
+            "left": 36,
+            "right": 354,
+            "top": 671.969,
+            "bottom": 729.969,
+            "width": 318,
+            "height": 58
+          },
+          "reasoningPanel": {
+            "left": 36,
+            "right": 354,
+            "top": 737.969,
+            "bottom": 779.75,
+            "width": 318,
+            "height": 41.781
+          },
+          "composer": {
+            "left": 21,
+            "right": 369,
+            "top": 546.969,
+            "bottom": 824.563,
+            "width": 348,
+            "height": 277.594
+          },
+          "scroll": {
+            "left": 9,
+            "right": 381,
+            "top": 223.906,
+            "bottom": 546.969,
+            "width": 372,
+            "height": 323.063
+          },
+          "disclosureLayout": "stacked",
+          "viewportFit": "fit",
+          "documentWidth": 390,
+          "documentHeight": 844,
+          "width": 390,
+          "height": 844
+        }
+      },
+      "transitions": [
+        {
+          "requested": "ready",
+          "mode": "normal",
+          "displayed": "ready",
+          "scope": "selection",
+          "color": "rgb(102, 211, 194)",
+          "label": "다음 요청 연결 · 최근 정상 응답을 확인했습니다."
+        },
+        {
+          "requested": "waiting_other",
+          "mode": "normal",
+          "displayed": "waiting_other",
+          "scope": "job",
+          "color": "rgb(222, 194, 104)",
+          "label": "진행 중인 요청 · 다른 장비관리 요청의 처리를 기다리고 있습니다."
+        },
+        {
+          "requested": "unavailable",
+          "mode": "normal",
+          "displayed": "unavailable",
+          "scope": "selection",
+          "color": "rgb(255, 171, 176)",
+          "label": "다음 요청 연결 · 선택한 연결의 응답 불가를 확인했습니다."
+        },
+        {
+          "requested": "ready",
+          "mode": "expired",
+          "displayed": "stale",
+          "scope": "selection",
+          "color": "rgb(151, 165, 182)",
+          "label": "다음 요청 연결 · AI 연결 상태의 최근 확인이 필요합니다."
+        },
+        {
+          "requested": "ready",
+          "mode": "http",
+          "displayed": "checking",
+          "scope": "",
+          "color": "rgb(151, 165, 182)",
+          "label": "AI 연결 · 연결 상태를 확인하지 못했습니다. 잠시 후 다시 확인합니다."
+        },
+        {
+          "requested": "ready",
+          "mode": "network",
+          "displayed": "checking",
+          "scope": "",
+          "color": "rgb(151, 165, 182)",
+          "label": "AI 연결 · 연결 상태를 확인하지 못했습니다. 잠시 후 다시 확인합니다."
+        },
+        {
+          "requested": "ready",
+          "mode": "normal",
+          "displayed": "ready",
+          "scope": "selection",
+          "color": "rgb(102, 211, 194)",
+          "label": "다음 요청 연결 · 최근 정상 응답을 확인했습니다."
+        },
+        {
+          "requested": "ready",
+          "mode": "normal",
+          "displayed": "ready",
+          "scope": "job",
+          "color": "rgb(102, 211, 194)",
+          "label": "진행 중인 요청 · 최근 정상 응답을 확인했습니다."
+        },
+        {
+          "requested": "ready",
+          "mode": "normal",
+          "displayed": "ready",
+          "scope": "selection",
+          "color": "rgb(102, 211, 194)",
+          "label": "다음 요청 연결 · <img src=x onerror=\"window.__statusPwned=1\">"
+        },
+        {
+          "requested": "ready",
+          "mode": "normal",
+          "displayed": "ready",
+          "scope": "selection",
+          "color": "rgb(102, 211, 194)",
+          "label": "다음 요청 연결 · 최근 정상 응답을 확인했습니다."
+        }
+      ],
+      "statusRequests": 14,
+      "production_data_used": false,
+      "interaction": "real animation frames; native summary click/programmatic focus and synthetic text enlargement; physical keyboard/touch/browser zoom not exercised",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/layout-smoke-02/screen-000.png"
+    }
+  ],
+  "fixture_digest": "5bbfb5bd1f2c16816748a5289c7ac6f44dcb81fecc47d1e0bafa16bbaf52a2d8"
+}

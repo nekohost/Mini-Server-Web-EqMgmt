@@ -1,6 +1,6 @@
 """[MINI-COMMENT: ASSISTANT.LIFECYCLE]
-[EN rev.2]
-[Role] Adds owner-bound trash, durable deletion receipts and content-free execution guards to AI v4.
+[EN rev.3]
+[Role] Adds owner-bound trash, title CAS receipts and content-free execution guards to AI v4.
 [Dependencies] Store's short BEGIN IMMEDIATE transactions; no equipment database or model connection.
 [Impact] Purging conversation content never frees an unconfirmed upstream request or deletes business/audit data.
 """
@@ -8,6 +8,7 @@ from contextlib import contextmanager
 import math
 import secrets
 import time
+import unicodedata
 
 from .policy import AssistantError, ERROR_REASONS, digest, opaque
 
@@ -15,6 +16,8 @@ RETENTION_SECONDS = 30 * 86400
 ACTIVE_GUARDS = ('running', 'draining', 'recovery_required')
 LIFECYCLE_COLUMNS = {'is_deleted', 'deleted_at', 'purge_after', 'lifecycle_revision'}
 METADATA = ('id', 'is_deleted', 'deleted_at', 'purge_after', 'lifecycle_revision')
+TITLE_LIMIT = 100
+TITLE_BIDI_CONTROLS = frozenset('\u061c\u200e\u200f\u202a\u202b\u202c\u202d\u202e\u2066\u2067\u2068\u2069')
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_execution_guards(job TEXT PRIMARY KEY,resource_group TEXT NOT NULL,owner INTEGER NOT NULL,account_key TEXT NOT NULL,worker TEXT,lease_hash TEXT,epoch TEXT NOT NULL,state TEXT NOT NULL CHECK(state IN ('running','draining','recovery_required','released')),cancel INTEGER NOT NULL DEFAULT 0 CHECK(cancel IN (0,1)),heartbeat REAL,created REAL NOT NULL,updated REAL NOT NULL);
 CREATE UNIQUE INDEX IF NOT EXISTS one_group_request ON ai_execution_guards(resource_group) WHERE state IN ('running','draining','recovery_required');
@@ -136,8 +139,56 @@ class LifecycleStore:
             metadata['lifecycle_revision'] = tombstone[0]
         purged = current is None and tombstone is not None
         metadata['read_only'] = bool(metadata['is_deleted'])
-        return {'conversation': metadata, 'action': row['action'], 'operation_id': row['operation_id'],
-                'replayed': replayed, 'purged': purged, 'server_time': time.time()}
+        # A receipt never bypasses the thirty-day read boundary, even before the cleanup timer runs.
+        renamed = row['action'].startswith('rename:')
+        expired = current is not None and bool(current['is_deleted']) and time.time() >= current['purge_after']
+        if renamed and current is not None and not expired:
+            metadata['title'] = current['title']
+        result = {'conversation': metadata, 'action': 'rename' if renamed else row['action'], 'operation_id': row['operation_id'],
+                  'replayed': replayed, 'purged': purged, 'server_time': time.time()}
+        if renamed:
+            result['expired'] = bool(expired)
+        return result
+
+    def rename_conversation(self, owner, cid, account_key, title, expected_title, revision, operation_id):
+        """[MINI-COMMENT: ASSISTANT.CONVERSATION.RENAME]
+        [EN rev.2]
+        [Role] Renames one active owner/account chat with title and lifecycle compare-and-swap checks.
+        [Dependencies] The existing short writer and durable operation receipts; only a digest of both titles is retained in action.
+        [Impact] Concurrent automatic titles, renames and trash cannot be overwritten silently. A retained rename receipt marks even the literal default title as manual without adding schema or copying title content into audit receipts; expired receipt replay returns state without revealing the title.
+        """
+        opaque(cid)
+        opaque(operation_id)
+        if not isinstance(title, str) or len(title) > 200 or any(unicodedata.category(char) in ('Cc', 'Cs', 'Zl', 'Zp') or char in TITLE_BIDI_CONTROLS for char in title):
+            raise AssistantError('대화 이름에는 줄바꿈이나 제어 문자를 사용할 수 없습니다.')
+        title = title.strip()
+        if not 1 <= len(title) <= TITLE_LIMIT:
+            raise AssistantError('대화 이름은 공백을 제외하고 1~100자로 입력해 주세요.')
+        if not isinstance(expected_title, str) or len(expected_title) > 1000 or any(unicodedata.category(char) == 'Cs' for char in expected_title):
+            raise AssistantError('현재 대화 이름을 새로 확인해 주세요.', 409)
+        if type(revision) is not int or not 0 <= revision < 2**63-1:
+            raise AssistantError('대화 상태를 새로 확인해 주세요.', 409)
+        action = 'rename:' + digest([title, expected_title])
+        with self.db(True) as db:
+            previous = db.execute('SELECT * FROM ai_lifecycle_operations WHERE owner=? AND account_key=? AND operation_id=?',
+                                  (owner, account_key, operation_id)).fetchone()
+            if previous:
+                if previous['conversation'] != cid or previous['action'] != action or previous['expected_revision'] != revision:
+                    raise AssistantError('같은 조작 식별자에 다른 요청이 전달되었습니다.', 409)
+                return self._operation_result(db, previous, True)
+            if db.execute('SELECT COUNT(*) FROM ai_lifecycle_operations WHERE owner=? AND account_key=? AND created>=?',
+                          (owner, account_key, time.time() - 60)).fetchone()[0] >= 60:
+                raise AssistantError('대화 변경 요청이 많습니다. 잠시 후 다시 시도해 주세요.', 429)
+            current = self.conversation(owner, cid, db, account_key)
+            purposes = db.execute("SELECT COUNT(*),SUM(CASE WHEN purpose='chat' THEN 1 ELSE 0 END) FROM jobs WHERE conversation=?", (cid,)).fetchone()
+            if purposes[0] and not purposes[1]:
+                raise AssistantError('기능 시험 기록의 이름은 일반 대화 화면에서 바꿀 수 없습니다.', 409)
+            if current['lifecycle_revision'] != revision or current['title'] != expected_title:
+                raise AssistantError('다른 화면에서 대화 이름이나 상태가 변경되었습니다. 현재 이름을 확인해 주세요.', 409)
+            db.execute('UPDATE conversations SET title=?,lifecycle_revision=lifecycle_revision+1 WHERE id=?', (title, cid))
+            metadata = dict(current, title=title, lifecycle_revision=revision + 1)
+            receipt = self._save_operation(db, owner, account_key, cid, action, revision, operation_id, metadata)
+            return self._operation_result(db, receipt)
 
     def _save_operation(self, db, owner, account_key, cid, action, revision, operation_id, metadata, purged=0, removed=0, reserved=0):
         """[Role] Stores only identity/state/count evidence for exact mutation retries.

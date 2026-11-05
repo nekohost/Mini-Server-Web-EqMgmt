@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.3]
+[EN rev.4]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
-[Impact] Actors are owner-scoped users; reviewed equipment values and stored values share one normalization contract.
+[Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
 """
 import json
 import secrets
@@ -12,7 +12,7 @@ from utils import roadmap_equipment as equipment
 from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
-from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments
+from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -101,10 +101,10 @@ class Domain:
 
     def read_or_prepare(self, name, args, job, store):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.1]
+        [EN rev.2]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
-        [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope.
+        [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope; one additive display policy separates answer fields from retained tool-linkage IDs without duplicating rows or rewriting source values.
         """
         if name not in TOOL_MAP:
             raise AssistantError('허용되지 않은 작업입니다.',403)
@@ -130,12 +130,13 @@ class Domain:
                 # Project the list rather than returning internal user IDs or arbitrary DB columns.
                 rows=result.get('data',result.get('equipments',result.get('items',[]))) if isinstance(result,dict) else result
                 return {'equipment':[{k:v for k,v in r.items() if k in ('EquipmentId','Name','ModelName','FullModelName','OfficialModelName','DisplayModelName','OptionName','Status','Revision','WarrantyEndDate','ReplacementDueDate')} for r in rows],
-                        'page':args.get('page',1),'scope':scope,'total':result['total'],'pages':result['pages'],'per_page':20}
+                        'page':args.get('page',1),'scope':scope,'total':result['total'],'pages':result['pages'],'per_page':20,
+                        'display_policy':display_policy_for(name)}
             if name=='get_equipment':
                 row=self.own(db,actor,args['equipment_id'])
                 owned=row['user_id']==actor['UserId']
                 fields=('id','name','option_id','status','revision','is_public','is_draft','purchase_date','warranty_end_date','replacement_due_date')
-                result={'equipment':{k:row[k] for k in fields},'writable':owned}
+                result={'equipment':{k:row[k] for k in fields},'writable':owned,'display_policy':display_policy_for(name)}
                 if owned:
                     result['equipment'].update(serial_number=row['serial_number'],memo=row['memo'])
                     result['files']=[dict(r) for r in db.execute('SELECT id,original_name,mime_type,size_bytes FROM equipment_files WHERE equipment_id=? AND deleted_at IS NULL ORDER BY id DESC LIMIT 50',(row['id'],))]
@@ -147,6 +148,7 @@ class Domain:
                 self.require_menu(actor,*READ_MENUS)
                 needle='%'+args.get('query','').replace('\\','\\\\').replace('%','\\%').replace('_','\\_')+'%'
                 return {
+                    'display_policy':display_policy_for(name),
                     'categories':[dict(r) for r in db.execute("SELECT CategoryId AS id,Name AS name FROM categories WHERE IsApproved=1 AND Name LIKE ? ESCAPE '\\' LIMIT 10",(needle,))],
                     'manufacturers':[dict(r) for r in db.execute("SELECT ManufacturerId AS id,Name AS name FROM manufacturers WHERE IsApproved=1 AND Name LIKE ? ESCAPE '\\' LIMIT 10",(needle,))],
                     'nodes':[dict(r) for r in db.execute("SELECT id,name,parent_id,category_id,manufacturer_id FROM lineup_nodes WHERE status='APPROVED' AND name LIKE ? ESCAPE '\\' LIMIT 20",(needle,))],
@@ -154,7 +156,8 @@ class Domain:
             if name=='list_my_requests':
                 self.require_menu(actor,'my_approvals')
                 status=args.get('status','')
-                return {'requests':[dict(r) for r in db.execute('SELECT RequestId,RequestType,Status,RejectReason,CreatedAt,UpdatedAt FROM approval_requests WHERE RequesterId=? AND (?=\'\' OR Status=?) ORDER BY RequestId DESC LIMIT 20',(actor['UserId'],status,status))]}
+                return {'requests':[dict(r) for r in db.execute('SELECT RequestId,RequestType,Status,RejectReason,CreatedAt,UpdatedAt FROM approval_requests WHERE RequesterId=? AND (?=\'\' OR Status=?) ORDER BY RequestId DESC LIMIT 20',(actor['UserId'],status,status))],
+                        'display_policy':display_policy_for(name)}
             before={}
             operation=name.removeprefix('prepare_')
             payload=dict(args)
@@ -339,4 +342,3 @@ class Domain:
             self.require_menu(actor,'my_equipment' if data['scope']=='my' else 'public_equipment')
             return {'download_url':'/api/ai/csv/export?scope='+data['scope'],'message':'현재 권한으로 CSV를 내려받을 수 있습니다.'}
         raise AssistantError('허용되지 않은 작업입니다.',403)
-

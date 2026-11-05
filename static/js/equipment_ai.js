@@ -1,13 +1,20 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.13]
+ * [EN rev.16]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
- * [Dependencies] Vanilla DOM/fetch and /api/ai; existing file/CSV APIs retain their own authorization.
+ * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
  * [Impact] Actual frame geometry controls height only when minimum content space fits; resizing preserves reader/model/request state. Fixed file links, stale-preview isolation, explicit writes and independent lifecycle/notice recovery remain intact.
  */
 (function () {
     'use strict';
     const reasoningLevels = ['off', 'low', 'medium', 'high', 'xhigh', 'max'];
     const reasoningHelp = { off: '추론을 끄고 답합니다.', low: '적은 추론으로 답합니다.', medium: '중간 수준으로 검토합니다.', high: '높은 수준으로 검토합니다.', xhigh: '더 깊게 검토하며 시간이 길어질 수 있습니다.', max: '모델이 지원하는 최대 추론 수준입니다.', default: '추론 수준을 지정하지 않고 모델 기본 동작을 사용합니다.' };
+
+    /** [Role] Validates a single-line title by Unicode code points, matching the server's bounded plain-text contract. */
+    function conversationTitleInput(value) {
+        if (typeof value !== 'string' || /[\u0000-\u001f\u007f-\u009f\u061c\u200e\u200f\u2028-\u202e\u2066-\u2069]/u.test(value) || [...value].some(char => char.codePointAt(0) >= 0xd800 && char.codePointAt(0) <= 0xdfff)) return { error: '대화 이름에는 줄바꿈이나 제어 문자를 사용할 수 없습니다.' };
+        const title = value.trim();
+        return [...title].length >= 1 && [...title].length <= 100 ? { title } : { error: '대화 이름은 공백을 제외하고 1~100자로 입력해 주세요.' };
+    }
 
     /** [Role] Uses the server model default only when initializing a new choice, never to replace a saved unavailable effort. */
     const initialLevel = model => model && model.default_level || (model && model.levels && model.levels.includes('medium') ? 'medium' : model && model.levels && model.levels[0] || 'default');
@@ -181,7 +188,7 @@
     }
 
     /** [MINI-COMMENT: ASSISTANT.CLIENT.VIEWPORT]
-     * [EN rev.1]
+     * [EN rev.2]
      * [Role] Fits the assistant to measured document/visual viewport space without hiding short-screen content.
      * [Dependencies] Existing CSS minimums, actual frame padding/nav, ResizeObserver and batched animation frames.
      * [Impact] Only style/diagnostic attributes change; no scroll position, selected conversation, draft or network operation is reset. Minimum/zoom fallback retains page scrolling and teardown removes every observer/listener.
@@ -203,7 +210,7 @@
             }
             const height = viewport?.height || window.innerHeight;
             const available = Math.floor(height - Math.max(0, box.top + window.scrollY) - bottom - 1);
-            const fixed = Math.max(0,root.clientHeight - pane.clientHeight);
+            const fixed = Math.max(0,box.height - pane.getBoundingClientRect().height);
             const minimum = Math.ceil(Math.max(pixels(style.getPropertyValue('--ai-min-height')),fixed + 120));
             const maximum = Number.parseFloat(style.maxHeight);
             setStyle('--ai-measured-min-height',minimum + 'px');
@@ -226,7 +233,7 @@
         };
     }
 
-    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget };
+    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput };
     if (typeof document === 'undefined') return;
 
     /** [Role] Initializes this standalone screen, preserving drafts/details/scroll across incremental polling. */
@@ -236,9 +243,10 @@
         const $ = id => document.getElementById(id);
         const csrf = root.dataset.csrf;
         const disposeViewport = fitViewport(root);
-        const nodes = new Map(), streams = new Map(), cards = new Map();
+        const nodes = new Map(), streams = new Map(), cards = new Map(), presenters = new Map();
         const history = { active: { items: new Map(), cursor: null, depth: 1, request: 0, pending: null }, trash: { items: new Map(), cursor: null, depth: 1, request: 0, pending: null } };
         const uncertainLifecycle = new Map();
+        const trashSelection = new Set();
         const terminal = new Set(['done', 'failed', 'cancelled', 'waiting_confirmation']);
         let conversation = null, activeJob = null, timer = null, disposed = false, polling = false;
         let selection = 0, requestKey = null, csvToken = null, retryDelay = 1500, accountContext = null, identityTimer = null, checkingIdentity = false;
@@ -247,6 +255,7 @@
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
         let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null;
         let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
+        let renameContext = null, renameBusy = false, renameFocus = null, bulkStopRequested = false;
         const controller = new AbortController();
         const labels = { equipment_create: '내 장비 등록', equipment_update: '내 장비 정보 수정', equipment_status: '내 장비 상태 변경',
             catalog_request: '카탈로그 등록 신청', option_request: '옵션 등록 신청', preferences: '내 설정 변경', csv_export: 'CSV 내보내기' };
@@ -269,6 +278,63 @@
         }
         setConversationTitle($('ai-title').textContent);
 
+        /** [Role] Adds lifecycle UI with DOM-only text so this module owns its controls without parsing user titles as HTML. */
+        function installConversationControls() {
+            const button = (id, text, classes = 'ai-button') => {
+                const element = document.createElement('button'); element.type = 'button'; element.id = id; element.className = classes; element.textContent = text; return element;
+            };
+            const rename = button('ai-rename-current', '✎', 'ai-button ai-rename-action');
+            rename.title = '대화 세션의 이름 변경'; rename.setAttribute('aria-label', rename.title);
+            $('ai-trash-current').before(rename);
+            const group = document.createElement('div'); group.id = 'ai-trash-selection-controls'; group.className = 'ai-trash-selection-controls'; group.hidden = true;
+            group.setAttribute('role', 'group'); group.setAttribute('aria-label', '불러온 휴지통 대화 선택');
+            const label = document.createElement('label'); label.className = 'ai-trash-select-all-label';
+            const all = document.createElement('input'); all.id = 'ai-trash-select-all'; all.type = 'checkbox';
+            const range = document.createElement('span'); range.id = 'ai-trash-select-all-label'; label.append(all, range);
+            const count = document.createElement('p'); count.id = 'ai-trash-selected-count'; count.setAttribute('role', 'status'); count.setAttribute('aria-live', 'polite');
+            const actions = document.createElement('div'); actions.className = 'ai-trash-bulk-actions';
+            actions.append(button('ai-trash-bulk-restore', '선택 항목 전체 복구'), button('ai-trash-bulk-purge', '선택 항목 전체 영구삭제', 'ai-button ai-danger'));
+            group.append(label, count, actions); $('ai-conversations').before(group);
+            const dialog = document.createElement('dialog'); dialog.id = 'ai-rename-dialog'; dialog.className = 'ai-dialog ai-lifecycle-dialog';
+            dialog.setAttribute('aria-labelledby', 'ai-rename-title'); dialog.setAttribute('aria-describedby', 'ai-rename-current-title ai-rename-error');
+            const form = document.createElement('form'); form.id = 'ai-rename-form';
+            const title = document.createElement('h2'); title.id = 'ai-rename-title'; title.textContent = '대화 세션의 이름 변경';
+            const current = document.createElement('p'); current.id = 'ai-rename-current-title';
+            const inputLabel = document.createElement('label'); inputLabel.htmlFor = 'ai-rename-input'; inputLabel.textContent = '대화 이름 (1~100자)';
+            const input = document.createElement('input'); input.id = 'ai-rename-input'; input.name = 'title'; input.type = 'text'; input.maxLength = 200; input.autocomplete = 'off'; input.required = true;
+            const error = document.createElement('p'); error.id = 'ai-rename-error'; error.setAttribute('role', 'alert');
+            const footer = document.createElement('div'); footer.className = 'ai-dialog-actions';
+            const save = button('ai-rename-save', '저장'); save.type = 'submit';
+            footer.append(button('ai-rename-cancel', '취소'), save); form.append(title, current, inputLabel, input, error, footer); dialog.append(form); root.append(dialog);
+            const stop = button('ai-bulk-stop', '남은 항목 중단'); stop.hidden = true;
+            $('ai-dialog-cancel').before(stop);
+        }
+        installConversationControls();
+
+        /** [Role] Limits select-all to currently loaded, revision-known trash and keeps unresolved operations out of new batches. */
+        function selectableTrash() {
+            return [...history.trash.items.values()].filter(item => Number.isSafeInteger(item.lifecycle_revision) && item.lifecycle_revision >= 0 && !uncertainLifecycle.has(item.id));
+        }
+
+        /** [Role] Preserves valid ID selections through rerenders and reports loaded scope, partial selection and uncertain items. */
+        function trashSelectionControls() {
+            for (const id of trashSelection) if (!history.trash.items.has(id)) trashSelection.delete(id);
+            const items = selectableTrash(), selected = items.filter(item => trashSelection.has(item.id)).length;
+            const unresolved = [...trashSelection].filter(id => uncertainLifecycle.has(id)).length;
+            const locked = lifecycleBusy || lifecycleIntent || openingConversation || changingModel;
+            $('ai-trash-selection-controls').hidden = historyView !== 'trash';
+            $('ai-trash-select-all-label').textContent = `불러온 ${history.trash.items.size}개 전체 선택`;
+            $('ai-trash-select-all').checked = Boolean(items.length) && selected === items.length;
+            $('ai-trash-select-all').indeterminate = selected > 0 && selected < items.length;
+            $('ai-trash-select-all').disabled = locked || !items.length;
+            $('ai-trash-selected-count').textContent = `선택 ${trashSelection.size}개${unresolved ? ` · 확인 중 ${unresolved}개` : ''}`;
+            for (const id of ['ai-trash-bulk-restore', 'ai-trash-bulk-purge']) $(id).disabled = locked || !selected;
+            root.querySelectorAll('.ai-trash-select').forEach(input => {
+                input.checked = trashSelection.has(input.dataset.conversationId);
+                input.disabled = locked || uncertainLifecycle.has(input.dataset.conversationId);
+            });
+        }
+
         /** [Role] Locks all conversation-dependent writes while trash or a mutation result is unresolved. */
         function readOnly() { return conversationView === 'trash' || Boolean(conversationMeta?.is_deleted) || uncertainLifecycle.has(conversation); }
 
@@ -288,12 +354,13 @@
             root.querySelectorAll('.ai-confirm').forEach(button => { button.disabled = locked || Number(button.dataset.expires) * 1000 < Date.now(); });
             $('ai-conversation-actions').hidden = !conversation || !conversationMeta;
             $('ai-trash-current').hidden = conversationView !== 'active';
+            $('ai-rename-current').hidden = conversationView !== 'active';
             $('ai-restore-current').hidden = $('ai-purge-current').hidden = conversationView !== 'trash';
-            for (const id of ['ai-trash-current', 'ai-restore-current', 'ai-purge-current']) $(id).disabled = lifecycleBusy || openingConversation || changingModel || uncertainLifecycle.has(conversation);
-            for (const id of ['ai-active-tab', 'ai-trash-tab']) $(id).disabled = lifecycleBusy || openingConversation;
-            $('ai-new').disabled = lifecycleBusy || openingConversation || changingModel || creatingConversation;
+            for (const id of ['ai-rename-current', 'ai-trash-current', 'ai-restore-current', 'ai-purge-current']) $(id).disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || uncertainLifecycle.has(conversation);
+            for (const id of ['ai-active-tab', 'ai-trash-tab']) $(id).disabled = lifecycleBusy || lifecycleIntent || openingConversation;
+            $('ai-new').disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || creatingConversation;
             root.querySelectorAll('[data-lifecycle-action]').forEach(button => {
-                button.disabled = lifecycleBusy || openingConversation || changingModel || uncertainLifecycle.has(button.dataset.conversationId);
+                button.disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || uncertainLifecycle.has(button.dataset.conversationId);
             });
             $('ai-cancel').disabled = locked;
             $('ai-lifecycle-reconcile').hidden = !uncertainLifecycle.size;
@@ -302,6 +369,7 @@
             $('ai-lifecycle-text').textContent = uncertainLifecycle.size ? '대화 조작의 처리 결과를 확인하지 못했습니다. 자동으로 다시 보내지 않습니다. 처리 결과를 확인해 주세요.' : trashText;
             $('ai-lifecycle-notice').hidden = !uncertainLifecycle.size && !trashText;
             root.setAttribute('aria-busy', String(lifecycleBusy || openingConversation));
+            trashSelectionControls();
         }
 
         /** [Role] Presents one native dialog and returns explicit confirmation, with cancel as the destructive-action focus. */
@@ -424,6 +492,7 @@
          */
         function modelControls(restoredLevel) {
             if (disposed) return;
+            publishStatusContext();
             restoredLevel ??= $('ai-level').value;
             const fragment = document.createDocumentFragment();
             for (const model of modelChoices) {
@@ -564,7 +633,7 @@
             }
             const context = response.headers.get('X-Assistant-Account');
             if (response.status === 401 || response.status === 403 && method === 'GET' && !context || context && accountContext && context !== accountContext) {
-                resetFileWorkspace(); disposed = true; clearTimeout(timer); nodes.clear(); streams.clear(); cards.clear(); root.replaceChildren();
+                resetFileWorkspace(); disposed = true; clearTimeout(timer); disposePresenters(); trashSelection.clear(); uncertainLifecycle.clear(); nodes.clear(); streams.clear(); cards.clear(); root.replaceChildren();
                 window.location.assign(response.status === 401 ? '/login' : response.status === 403 ? '/portal' : '/assistant');
                 throw new Error('로그인 상태가 변경되었습니다.');
             }
@@ -584,6 +653,72 @@
             action();
             if (near) pane.scrollTop = pane.scrollHeight;
             else pane.scrollTop = position;
+        }
+
+        /** [Role] Publishes only opaque local selection/job identifiers for passive status display.
+         * [Dependencies] Current controller state and the independent header status adapter.
+         * [Impact] No provider probe, chat request or user content is included in the event.
+         */
+        function publishStatusContext() {
+            if (!disposed) window.dispatchEvent(new CustomEvent('assistant-status-context', { detail: { selectionId: modelId, jobId: activeJob } }));
+        }
+
+        /** [Role] Cancels pending display work before a conversation/account loses its DOM.
+         * [Dependencies] Disposable presenters keyed by the current request ID.
+         * [Impact] Received text remains in the authoritative streams map until its owner clears it.
+         */
+        function disposePresenters() {
+            for (const entry of presenters.values()) entry.presenter.dispose();
+            presenters.clear();
+        }
+
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.PRESENT]
+         * [EN rev.1]
+         * [Role] Renders paced prefixes while raw snapshots/cursors and job controls update immediately.
+         * [Dependencies] One disposable presenter per request and the existing safe Markdown/reader guard.
+         * [Impact] First visible answer closes thoughts once; terminal/error text flushes synchronously and no stale frame enters a different conversation.
+         */
+        function presentStream(jid, previous, next, result) {
+            const selected = selection;
+            const node = messageNode({ id: result.message_id, role: 'assistant' });
+            node.displayAnswerStarted ??= Boolean(previous.answerStarted);
+            const render = frame => {
+                if (disposed || selected !== selection || nodes.get(result.message_id) !== node) return;
+                follow(() => {
+                    const firstThought = !node.thought.textContent && Boolean(frame.reasoning);
+                    if (node.thought.textContent !== frame.reasoning) node.thought.textContent = frame.reasoning;
+                    node.details.hidden = !frame.reasoning;
+                    if (firstThought && !node.displayAnswerStarted && !frame.content) node.details.open = true;
+                    if (frame.content && !node.displayAnswerStarted) { node.details.open = false; node.displayAnswerStarted = true; }
+                    node.summary.textContent = frame.streaming && !node.displayAnswerStarted ? '추론 중 · 접기/펼치기' : '추론 과정 · 다시 보기';
+                    if (frame.content !== node.content || node.streaming !== frame.streaming) {
+                        markdown(node.answer, frame.content, { streaming: frame.streaming });
+                        node.content = frame.content; node.streaming = frame.streaming;
+                    }
+                });
+            };
+            const snapshot = { reasoning: next.reasoning, content: next.content, generation: next.generation, streaming: ['running', 'queued'].includes(result.state) };
+            if (!snapshot.streaming) {
+                const final = presenters.get(jid);
+                if (final && !final.presenter.disposed) { final.render = render; final.presenter.update(snapshot); }
+                else render(snapshot);
+                presenters.delete(jid);
+                return;
+            }
+            if (!window.EquipmentAIStreamPresenter) {
+                render(snapshot);
+                return;
+            }
+            let entry = presenters.get(jid);
+            if (!entry || entry.presenter.disposed) {
+                entry = { presenter: window.EquipmentAIStreamPresenter.create({
+                    initial: { reasoning: previous.reasoning, content: previous.content, generation: previous.generation, streaming: true },
+                    render: frame => entry.render(frame)
+                }), render };
+                presenters.set(jid, entry);
+            }
+            entry.render = render;
+            entry.presenter.update(snapshot);
         }
 
         /** [Role] Creates stable message nodes so a poll cannot reset an expanded native details element. */
@@ -615,6 +750,7 @@
                     catch (_) { visible = '처리 결과를 불러오지 못했습니다. 확인 카드를 다시 열어 주세요.'; }
                 }
                 markdown(node.answer, visible);
+                node.content = visible; node.streaming = false; node.displayAnswerStarted = Boolean(message.content);
                 if (message.job) streams.set(message.job, { messageId: message.id, reasoning: message.reasoning, content: message.content,
                     r: Array.from(message.reasoning).length, c: Array.from(message.content).length, generation: null,
                     answerStarted: Boolean(message.content) });
@@ -712,6 +848,7 @@
 
         /** [Role] Displays only app-local queue position and observable own-request progress. */
         function progress(job) {
+            publishStatusContext();
             const states = { queued: `장비관리 요청 대기 · 내부 순서 ${job.position || '확인 중'}`, running: '응답을 기다리거나 생성하고 있습니다.',
                 draining: '작업 중단됨 · 이 요청의 응답 종료를 확인하고 있습니다.', recovery_required: '작업 중단됨 · 이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요.',
                 waiting_confirmation: '변경할 내용을 확인해 주세요.', failed: '작업 중단됨 · 응답을 완료하지 못했습니다.', cancelled: '작업을 중단했습니다. 이미 적용된 결과는 유지됩니다.', done: '' };
@@ -730,11 +867,20 @@
             const items = [...history[historyView].items.values()].sort((a,b) => (historyView === 'trash' ? (b.deleted_at || 0) - (a.deleted_at || 0) : (b.updated || 0) - (a.updated || 0)) || b.id.localeCompare(a.id));
             for (const item of items) {
                 const row = document.createElement('div'); row.className = 'ai-conversation-row';
+                if (historyView === 'trash') {
+                    const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'ai-trash-select';
+                    checkbox.dataset.conversationId = item.id; checkbox.setAttribute('aria-label', `${item.title} · 선택`);
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.disabled || lifecycleBusy || lifecycleIntent) return;
+                        if (checkbox.checked) trashSelection.add(item.id); else trashSelection.delete(item.id);
+                        trashSelectionControls();
+                    }); row.append(checkbox);
+                }
                 const button = document.createElement('button'); button.type = 'button'; button.className = 'ai-conversation';
                 button.textContent = item.title; button.title = item.title; button.setAttribute('aria-current', String(item.id === conversation));
                 button.dataset.conversationId = item.id;
                 const view = historyView;
-                button.addEventListener('click', () => { if (!lifecycleBusy && !changingModel) open(item.id, view).catch(error => notice(error.message)); }); row.append(button);
+                button.addEventListener('click', () => { if (!lifecycleBusy && !lifecycleIntent && !changingModel) open(item.id, view).catch(error => notice(error.message)); }); row.append(button);
                 if (historyView === 'trash') {
                     const dates = document.createElement('p'); dates.className = 'ai-conversation-dates';
                     const remaining = typeof item.purge_after === 'number' ? Math.max(0, Math.ceil((item.purge_after * 1000 - Date.now()) / 86400000)) : null;
@@ -744,6 +890,7 @@
                 for (const action of historyView === 'trash' ? ['restore', 'purge'] : ['trash']) {
                     const control = document.createElement('button'); control.type = 'button'; control.className = 'ai-conversation-action' + (action === 'purge' ? ' ai-danger' : '');
                     control.textContent = { trash: '휴지통', restore: '복구', purge: '영구삭제' }[action];
+                    if (action === 'trash') { control.classList.add('ai-trash-action'); control.title = '휴지통으로 이동'; control.textContent = ''; }
                     control.setAttribute('aria-label', `${item.title} · ${{ trash: '휴지통으로 이동', restore: '복구', purge: '영구삭제' }[action]}`);
                     control.dataset.conversationId = item.id; control.dataset.lifecycleAction = action;
                     control.addEventListener('click', () => mutateLifecycle(action, item).catch(error => notice(error.message))); actions.append(control);
@@ -802,7 +949,8 @@
 
         /** [Role] Changes only the sidebar view; a selected trash conversation stays read-only until explicitly restored. */
         async function changeHistoryView(view) {
-            if (lifecycleBusy || openingConversation) return;
+            if (lifecycleBusy || lifecycleIntent || openingConversation) return;
+            if (view !== historyView) trashSelection.clear();
             historyView = view; renderConversations();
             try { await conversations(); } catch (error) { notice(error.message); }
         }
@@ -820,7 +968,7 @@
         function clearConversation() {
             resetFileWorkspace();
             ++selection; clearTimeout(timer); conversation = null; conversationMeta = null; conversationView = 'active'; activeJob = null; nextBefore = null;
-            nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
+            disposePresenters(); nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
             $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle('대화를 선택해 주세요.');
             $('ai-welcome').hidden = false; $('ai-progress').hidden = true; $('ai-more-messages').hidden = true;
             modelControls();
@@ -836,7 +984,11 @@
                     const current = await readLifecycle(cid);
                     if (selected !== selection || disposed) return;
                     if (!current) { clearConversation(); notice('이 대화는 현재 열 수 없습니다. 목록을 갱신했습니다.'); }
-                    else if (current.view !== conversationView || current.result.conversation.lifecycle_revision !== conversationMeta?.lifecycle_revision) {
+                    else if (current.view === conversationView && current.result.conversation.title !== conversationMeta?.title &&
+                        current.result.conversation.deleted_at === conversationMeta?.deleted_at && current.result.conversation.purge_after === conversationMeta?.purge_after &&
+                        (!activeJob || current.result.jobs.some(job => job.id === activeJob && !terminal.has(job.state)))) {
+                        applyRenameMetadata(current.result.conversation);
+                    } else if (current.view !== conversationView || current.result.conversation.lifecycle_revision !== conversationMeta?.lifecycle_revision) {
                         await open(cid, current.view, { preserveReader: true, result: current.result, refreshList: false });
                         notice(current.view === 'trash' ? '다른 화면에서 휴지통으로 이동한 대화입니다. 읽기 전용으로 표시합니다.' : '서버에서 변경된 대화 상태를 반영했습니다. 취소된 작업은 다시 실행하지 않습니다.');
                     }
@@ -852,11 +1004,223 @@
             else { try { localStorage.setItem('eqmgmt.ai.lifecycle', JSON.stringify(hint)); } catch (_) { /* Focus/visibility revalidation remains available. */ } }
         }
 
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.LIFECYCLE]
+        /** [Role] Updates only title/lifecycle metadata, preserving the composer, message nodes and any running inference. */
+        function applyRenameMetadata(metadata) {
+            if (metadata.id === conversation) {
+                conversationMeta = { ...conversationMeta, ...metadata };
+                if (typeof metadata.title === 'string') setConversationTitle(metadata.title);
+            }
+            for (const view of ['active', 'trash']) {
+                const previous = history[view].items.get(metadata.id);
+                if (previous) history[view].items.set(metadata.id, { ...previous, ...metadata });
+            }
+            renderConversations();
+        }
+
+        /** [Role] Opens a native naming form with an exact original-title snapshot for automatic-title and concurrent-edit checks. */
+        function openRename() {
+            if (!conversationMeta || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
+            // The trigger remains the return target even when pointer activation does not focus a button.
+            renameFocus = $('ai-rename-current');
+            renameContext = { id: conversation, title: conversationMeta.title, expected_title: conversationMeta.title, lifecycle_revision: conversationMeta.lifecycle_revision, account: accountContext };
+            lifecycleIntent = true;
+            $('ai-rename-input').value = conversationMeta.title;
+            $('ai-rename-current-title').textContent = `현재 이름: ${conversationMeta.title}`;
+            $('ai-rename-error').textContent = '';
+            $('ai-rename-dialog').setAttribute('aria-busy', 'false');
+            $('ai-rename-input').disabled = $('ai-rename-cancel').disabled = $('ai-rename-save').disabled = false;
+            $('ai-rename-dialog').showModal(); $('ai-rename-input').focus(); $('ai-rename-input').select(); lifecycleControls();
+        }
+
+        /** [Role] Cancels naming without touching the selected chat, draft, model or stream and returns focus to its trigger. */
+        function closeRename(force = false) {
+            if (renameBusy && !force) return;
+            if ($('ai-rename-dialog').open) $('ai-rename-dialog').close();
+            renameContext = null; lifecycleIntent = false;
+            if (!disposed) { modelControls(); if (renameFocus?.isConnected && !renameFocus.disabled && !renameFocus.hidden) renameFocus.focus({ preventScroll: true }); }
+        }
+
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.RENAME]
          * [EN rev.2]
+         * [Role] Sends an explicit bounded title edit with a stable request identity and both title/lifecycle CAS snapshots.
+         * [Dependencies] Owner/CSRF API, content-free server receipts and the same uncertain-operation map as lifecycle writes.
+         * [Impact] ACK loss locks fresh edits until reconciliation; receipt replay displays current server metadata without replacing live message nodes or replaying model turns, while an expired receipt clears the unavailable chat without fetching its title.
+         */
+        async function commitRename(operation, retry = false) {
+            if (lifecycleBusy || disposed || operation.account !== accountContext) return;
+            renameBusy = true; lifecycleBusy = true; lifecycleControls();
+            for (const id of ['ai-rename-input', 'ai-rename-cancel', 'ai-rename-save']) $(id).disabled = true;
+            $('ai-rename-dialog').setAttribute('aria-busy', 'true');
+            let acknowledged = false;
+            try {
+                const result = await api(`/api/ai/conversations/${operation.id}/rename`, { method: 'POST', data: {
+                    title: operation.new_title, expected_title: operation.expected_title, lifecycle_revision: operation.lifecycle_revision, operation_id: operation.operation_id } });
+                if (!result.conversation || result.conversation.id !== operation.id || !Number.isSafeInteger(result.conversation.lifecycle_revision) ||
+                    (result.purged !== true && (!['undefined', 'boolean'].includes(typeof result.expired) || ![0, 1, false, true].includes(result.conversation.is_deleted) ||
+                    (result.expired !== true && typeof result.conversation.title !== 'string') || (result.expired === true && !result.conversation.is_deleted)))) throw Object.assign(new Error('서버의 이름 변경 확인 정보를 읽지 못했습니다.'), { outcomeUnknown: true });
+                acknowledged = true; uncertainLifecycle.delete(operation.id); announceLifecycle(operation.id);
+                if (result.purged || result.expired) {
+                    history.active.items.delete(operation.id); history.trash.items.delete(operation.id);
+                    if (conversation === operation.id) clearConversation();
+                } else {
+                    applyRenameMetadata(result.conversation);
+                    if (conversation === operation.id && Boolean(result.conversation.is_deleted) !== (conversationView === 'trash')) {
+                        const latest = await readLifecycle(operation.id);
+                        if (latest) await open(operation.id, latest.view, { preserveReader: true, result: latest.result, refreshList: false }); else clearConversation();
+                    }
+                }
+                closeRename(true);
+                let refreshFailed = false;
+                try { await conversations(); } catch (_) { refreshFailed = true; }
+                notice((result.expired ? '이전 대화의 보관 기간이 만료되어 해당 이름과 내용을 더 이상 표시하지 않습니다.' : result.replayed ? '같은 이름 변경 요청의 현재 상태를 확인했습니다.' : '대화 이름을 변경했습니다.') + (refreshFailed ? ' 요청 처리는 확인했으나 목록 새로고침을 완료하지 못했습니다.' : ''));
+            } catch (error) {
+                if (disposed) return;
+                if (acknowledged) {
+                    closeRename(true); notice('이름 변경 처리는 확인했습니다. 현재 대화 상태를 다시 확인해 주세요.');
+                } else if (error.outcomeUnknown) {
+                    uncertainLifecycle.set(operation.id, operation); closeRename(true);
+                    await lifecycleDialog({ title: '이름 변경 결과 확인 필요', message: error.message, detail: '자동으로 다시 보내지 않습니다. 처리 결과 확인에서 현재 이름을 읽거나 같은 조작 식별자로 직접 다시 확인할 수 있습니다.' });
+                } else if (retry) {
+                    await lifecycleDialog({ title: '이름을 변경하지 못했습니다.', message: error.message, detail: '확인하지 못한 기존 요청은 새 식별자로 다시 보내지 않습니다. 처리 결과를 다시 확인해 주세요.' });
+                } else {
+                    $('ai-rename-error').textContent = error.message;
+                    if ([404, 409, 410].includes(error.status)) {
+                        try {
+                            const current = await readLifecycle(operation.id);
+                            if (current?.view === 'active') {
+                                applyRenameMetadata(current.result.conversation);
+                                if (renameContext) Object.assign(renameContext, { expected_title: current.result.conversation.title, lifecycle_revision: current.result.conversation.lifecycle_revision });
+                                $('ai-rename-current-title').textContent = `현재 이름: ${current.result.conversation.title}`;
+                                $('ai-rename-error').textContent += ' 현재 이름을 확인한 뒤 저장을 다시 눌러 주세요.';
+                            } else {
+                                closeRename(true);
+                                if (conversation === operation.id) { if (current) await open(operation.id, current.view, { preserveReader: true, result: current.result, refreshList: false }); else clearConversation(); }
+                                notice(error.message);
+                            }
+                        } catch (_) { $('ai-rename-error').textContent += ' 최신 상태를 읽지 못했습니다. 잠시 뒤 다시 확인해 주세요.'; }
+                    }
+                }
+            } finally {
+                renameBusy = false; lifecycleBusy = false;
+                if (!disposed) {
+                    $('ai-rename-dialog').setAttribute('aria-busy', 'false');
+                    for (const id of ['ai-rename-input', 'ai-rename-cancel', 'ai-rename-save']) $(id).disabled = false;
+                    modelControls(); renderConversations();
+                    if (renameContext && $('ai-rename-dialog').open) $('ai-rename-input').focus(); else if (renameFocus?.isConnected && !renameFocus.disabled && !renameFocus.hidden) renameFocus.focus({ preventScroll: true });
+                    if (invalidationPending) { invalidationPending = false; refreshLifecycle().catch(error => notice(error.message)); }
+                }
+            }
+        }
+
+        /** [Role] Reconfirms a rename's exact original payload before any explicit receipt replay; no new operation identity is allocated. */
+        async function retryRename(operation) {
+            lifecycleIntent = true; lifecycleControls();
+            try {
+                const confirmed = await lifecycleDialog({ title: '이름 변경 요청 확인', message: `“${operation.title}” 대화의 이름을 “${operation.new_title}”로 바꾸는 같은 요청을 확인할까요?`,
+                    detail: '같은 조작 식별자로 다시 보냅니다. 이미 처리되었다면 현재 이름을 확인하며, 아직 처리되지 않았다면 지금 적용됩니다.', confirm: '같은 요청 확인', cancel: true });
+                if (confirmed && !disposed) await commitRename(operation, true);
+            } finally { lifecycleIntent = false; if (!disposed) lifecycleControls(); }
+        }
+
+        /** [Role] Applies one acknowledged bulk result locally; selected restores hydrate once and never restart cancelled work. */
+        async function acceptBulkLifecycle(item, result) {
+            uncertainLifecycle.delete(item.id); trashSelection.delete(item.id); announceLifecycle(item.id); storageNotice(result.storage);
+            history.active.items.delete(item.id); history.trash.items.delete(item.id);
+            if (result.purged) {
+                if (conversation === item.id) clearConversation();
+                return;
+            }
+            const metadata = { ...item, ...result.conversation }, view = metadata.is_deleted ? 'trash' : 'active';
+            history[view].items.set(item.id, metadata);
+            if (conversation === item.id) {
+                conversationMeta = { ...conversationMeta, ...metadata }; conversationView = view;
+                clearTimeout(timer); activeJob = null; disposePresenters(); ++selection; requestKey = null; cards.clear(); $('ai-proposals').replaceChildren();
+                const current = await readLifecycle(item.id, view);
+                if (current) await open(item.id, current.view, { preserveReader: true, result: current.result, refreshList: false }); else clearConversation();
+            }
+        }
+
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.TRASH.BULK]
+         * [EN rev.1]
+         * [Role] Confirms a loaded-ID snapshot and calls the existing owner/revision/operation-bound API strictly sequentially.
+         * [Dependencies] Native destructive confirmation, per-item durable receipts, a fifty-request/sixty-one-second pacing window and the existing uncertain-write reconciliation.
+         * [Impact] Newly loaded rows stay unselected; partial success, known failure, unknown results and unsubmitted work remain distinct. Stop affects only remaining items, and ambiguous operations are never resent automatically or with new IDs.
+         */
+        async function mutateSelectedTrash(action) {
+            if (!['restore', 'purge'].includes(action) || historyView !== 'trash' || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
+            const items = selectableTrash().filter(item => trashSelection.has(item.id)).map(item => ({ ...item }));
+            if (!items.length) return;
+            const account = accountContext, name = action === 'restore' ? '복구' : '영구삭제';
+            lifecycleIntent = true; lifecycleControls();
+            let confirmed;
+            try {
+                confirmed = await lifecycleDialog({ title: `선택 ${items.length}개 ${name} 확인`, message: `현재 불러온 목록에서 선택한 ${items.length}개 대화를 모두 ${name}할까요?`,
+                    detail: (action === 'purge' ? '영구삭제한 대화는 앱에서 복구할 수 없습니다. 별도 감사 기록과 운영 백업은 기존 정책에 따라 남을 수 있습니다.\n\n' : '취소된 AI 요청이나 장비 업무는 다시 실행되지 않습니다.\n\n') + items.map(item => `• ${item.title}`).join('\n'),
+                    confirm: `선택 ${items.length}개 ${name}`, cancel: true, danger: action === 'purge' });
+            } finally { lifecycleIntent = false; if (!disposed) lifecycleControls(); }
+            if (!confirmed || disposed || account !== accountContext) return;
+            lifecycleBusy = true; bulkStopRequested = false; modelControls();
+            const outcomes = [], total = items.length; let windowStart = Date.now(), inWindow = 0;
+            lifecycleDialog({ title: `선택 항목 ${name} 중`, message: `0 / ${total}개 처리`, detail: '선택한 항목을 차례로 처리합니다. 처리 중에는 대화와 보관함 전환이 잠깁니다.', busy: true });
+            $('ai-bulk-stop').hidden = false; $('ai-bulk-stop').disabled = false;
+            try {
+                for (const item of items) {
+                    if (disposed || account !== accountContext) return;
+                    if (!bulkStopRequested && inWindow >= 50) {
+                        const deadline = windowStart + 61000;
+                        while (!bulkStopRequested && Date.now() < deadline && !disposed) {
+                            $('ai-dialog-message').textContent = `${outcomes.length} / ${total}개 처리 · 다음 묶음까지 ${Math.ceil((deadline - Date.now()) / 1000)}초`;
+                            $('ai-dialog-detail').textContent = '서버의 분당 요청 한도를 지키기 위해 기다립니다. 남은 항목 중단을 누르면 아직 보내지 않은 항목은 변경하지 않습니다.';
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                        windowStart = Date.now(); inWindow = 0;
+                    }
+                    if (disposed || account !== accountContext) return;
+                    if (bulkStopRequested) { outcomes.push({ item, state: 'notSent', reason: '사용자 중단 또는 권한/요청 한도로 아직 전송하지 않았습니다.' }); continue; }
+                    const operation = { action, id: item.id, title: String(item.title || '제목 없는 대화'), lifecycle_revision: item.lifecycle_revision, operation_id: crypto.randomUUID().replaceAll('-', '') };
+                    let acknowledged = false;
+                    try {
+                        inWindow++;
+                        const result = await api(`/api/ai/conversations/${item.id}/${action}`, { method: 'POST', data: { lifecycle_revision: operation.lifecycle_revision, operation_id: operation.operation_id } });
+                        if (action === 'purge' ? result.purged !== true : result.purged !== true && (!result.conversation || !Number.isSafeInteger(result.conversation.lifecycle_revision) || ![0, 1, false, true].includes(result.conversation.is_deleted))) throw Object.assign(new Error('서버의 처리 확인 정보를 읽지 못했습니다.'), { outcomeUnknown: true });
+                        acknowledged = true;
+                        await acceptBulkLifecycle(item, result);
+                        outcomes.push({ item, state: 'success', reason: result.replayed ? '같은 요청의 처리 결과를 확인했습니다.' : `${name} 완료` });
+                    } catch (error) {
+                        if (disposed) return;
+                        if (acknowledged) outcomes.push({ item, state: 'success', reason: `${name} 처리는 확인했으나 현재 대화 화면을 갱신하지 못했습니다.` });
+                        else if (error.outcomeUnknown) { uncertainLifecycle.set(item.id, operation); outcomes.push({ item, state: 'unknown', reason: error.message + ' 처리 결과 확인이 필요합니다.' }); }
+                        else {
+                            outcomes.push({ item, state: 'failure', reason: error.message });
+                            if ([401, 403, 429].includes(error.status)) bulkStopRequested = true;
+                        }
+                    }
+                    if (disposed) return;
+                    renderConversations();
+                    $('ai-dialog-message').textContent = `${outcomes.length} / ${total}개 처리`;
+                    $('ai-dialog-detail').textContent = `성공 ${outcomes.filter(outcome => outcome.state === 'success').length}개 · 실패 ${outcomes.filter(outcome => outcome.state === 'failure').length}개 · 확인 중 ${outcomes.filter(outcome => outcome.state === 'unknown').length}개. 처리 결과를 확인하지 못한 요청은 다시 보내지 않습니다.`;
+                }
+                let refreshFailed = false;
+                try { await conversations(); } catch (_) { refreshFailed = true; }
+                renderConversations(); $('ai-bulk-stop').hidden = true;
+                const count = state => outcomes.filter(outcome => outcome.state === state).length;
+                const stateName = { success: '성공', failure: '실패', unknown: '확인 중', notSent: '미처리' };
+                await lifecycleDialog({ title: `선택 항목 ${name} 결과`, message: `성공 ${count('success')}개 · 실패 ${count('failure')}개 · 확인 중 ${count('unknown')}개 · 미처리 ${count('notSent')}개`,
+                    detail: outcomes.map(outcome => `[${stateName[outcome.state]}] ${outcome.item.title} · ${outcome.reason}`).join('\n') + (refreshFailed ? '\n요청별 결과는 위와 같습니다. 목록 새로고침을 완료하지 못했으므로 최신 목록을 다시 확인해 주세요.' : '') });
+            } finally {
+                lifecycleBusy = false; bulkStopRequested = false;
+                if (!disposed) {
+                    $('ai-bulk-stop').hidden = true; modelControls(); renderConversations(); restoreDialogFocus();
+                    if (invalidationPending) { invalidationPending = false; refreshLifecycle().catch(error => notice(error.message)); }
+                }
+            }
+        }
+
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.LIFECYCLE]
+         * [EN rev.3]
          * [Role] Submits one explicitly intended trash/restore/purge operation with a server revision and stable operation ID.
          * [Dependencies] Existing same-origin CSRF/account boundary, native dialogs and server-owned lifecycle timestamps.
-         * [Impact] Duplicate clicks lock; replay receipts retain the current server state, ACK/GET failure and ambiguous writes remain distinct, and restoration never replays turns/proposals.
+         * [Impact] Duplicate clicks lock; cancelled confirmation releases controls immediately, state changes dispose display queues even if a later snapshot fails, and restoration never replays turns/proposals.
          */
         async function mutateLifecycle(action, item, retry = null) {
             if (lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
@@ -870,6 +1234,7 @@
                     detail: retry ? '같은 조작 식별자로 다시 보냅니다. 아직 처리되지 않았다면 지금 적용됩니다. 영구삭제한 대화는 앱에서 복구할 수 없습니다.' : action === 'trash' ? '이동 시점부터 30일간 보관됩니다. 대기 요청과 미확정 작업은 취소되며, 이미 적용한 장비 업무는 유지됩니다.' : `만료 예정: ${lifecycleDate(item.purge_after)}. 앱의 대화 저장소에서 복구할 수 없게 제거합니다. 별도 감사 기록과 운영 백업은 기존 정책에 따라 남을 수 있습니다.`,
                     confirm: retry ? '같은 요청 다시 보내기' : names[action], cancel: true, danger: action === 'purge' });
                 lifecycleIntent = false;
+                if (!disposed) lifecycleControls();
                 if (!confirmed || disposed) return;
             }
             lifecycleBusy = true; modelControls();
@@ -897,7 +1262,7 @@
                     if (!currentMeta) clearConversation();
                     else {
                         conversationMeta = currentMeta; conversationView = currentView; historyView = currentView;
-                        clearTimeout(timer); activeJob = null; ++selection; requestKey = null; cards.clear(); $('ai-proposals').replaceChildren();
+                        clearTimeout(timer); activeJob = null; disposePresenters(); ++selection; requestKey = null; cards.clear(); $('ai-proposals').replaceChildren();
                         if (snapshot) {
                             try { await open(item.id, currentView, { preserveReader: true, result: snapshot, refreshList: false }); } catch (error) { refreshError = error; }
                         }
@@ -938,12 +1303,14 @@
             const changed = current && current.result.conversation.lifecycle_revision > operation.lifecycle_revision;
             if (changed) {
                 uncertainLifecycle.delete(operation.id);
-                if (conversation === operation.id) await open(operation.id, current.view, { preserveReader: true, result: current.result });
+                if (operation.action === 'rename' && current.view === conversationView) applyRenameMetadata(current.result.conversation);
+                else if (conversation === operation.id) await open(operation.id, current.view, { preserveReader: true, result: current.result });
                 else await conversations();
                 modelControls();
-                await lifecycleDialog({ title: '현재 상태 확인', message: `“${operation.title}” 대화는 현재 ${current.view === 'trash' ? '휴지통에 있습니다.' : '정상 대화 목록에 있습니다.'}`, detail: '서버에서 현재 상태를 확인했습니다. 이전 요청이나 취소된 작업을 자동으로 다시 실행하지 않았습니다.' });
+                await lifecycleDialog({ title: '현재 상태 확인', message: operation.action === 'rename' ? `현재 대화 이름: ${current.result.conversation.title}` : `“${operation.title}” 대화는 현재 ${current.view === 'trash' ? '휴지통에 있습니다.' : '정상 대화 목록에 있습니다.'}`, detail: '서버에서 현재 상태를 확인했습니다. 이전 요청이나 취소된 작업을 자동으로 다시 실행하지 않았습니다.' });
                 return;
             }
+            if (operation.action === 'rename') { await retryRename(operation); return; }
             await mutateLifecycle(operation.action, { id: operation.id, title: operation.title, lifecycle_revision: operation.lifecycle_revision }, operation);
         }
 
@@ -970,15 +1337,16 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.OPEN]
-         * [EN rev.2]
+         * [EN rev.3]
          * [Role] Hydrates a selected conversation before enabling its composer; the sidebar refresh runs independently.
-         * [Dependencies] Owner snapshot, selection generation and the serialized history queue.
+         * [Dependencies] Owner snapshot, selection generation, disposable presentation queues and serialized history reads.
          * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs and message nodes, while the compact heading exposes the complete selected title.
          */
         async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true } = {}) {
             if (conversation !== cid || conversationView !== view) resetFileWorkspace();
             const pane = $('ai-scroll');
             const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
+            disposePresenters();
             const selected = ++selection; clearTimeout(timer); activeJob = null; nextBefore = null;
             openingConversation = true; root.setAttribute('aria-busy', 'true'); modelControls();
             try {
@@ -1001,6 +1369,7 @@
                 const stream = streams.get(item.id);
                 if (stream) stream.generation = item.steps + (['running','draining','recovery_required'].includes(item.state) ? 1 : 0);
                 if (stream) stream.answerStarted ||= Boolean(item.answer_started);
+                if (stream && nodes.has(stream.messageId)) nodes.get(stream.messageId).displayAnswerStarted ||= stream.answerStarted;
                 if (stream) sourceLabel(stream.messageId, item.source);
                 if (stream && stream.reasoning && !stream.answerStarted && ['running','draining'].includes(item.state)) nodes.get(stream.messageId).details.open = true;
             }
@@ -1026,9 +1395,9 @@
         function schedule(delay = 1500) { clearTimeout(timer); if (!disposed && activeJob && !readOnly()) timer = setTimeout(poll, document.hidden ? Math.max(5000, delay) : delay); }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.STREAM]
-         * [EN rev.5]
-         * [Role] Applies separate deltas while preserving user-opened thoughts and scroll.
-         * [Dependencies] Server generation/code-point cursors.
+         * [EN rev.6]
+         * [Role] Accepts original deltas immediately and paces only the visible prefixes.
+         * [Dependencies] Server generation/code-point cursors and disposable snapshot presenters.
          * [Impact] Automatic close occurs once per turn; selected text, table scroll and manual reopening survive updates, remotely trashed chats stop polling, and a completed explicit new-chat action releases every composer/model lock. Model-setting/inventory errors own their notices so unrelated successful work cannot erase them.
          */
         async function poll() {
@@ -1042,21 +1411,14 @@
                 const next = { ...mergeStream(previous, result), messageId: result.message_id };
                 storageNotice(result.storage);
                 streams.set(jid, next);
+                presentStream(jid, previous, next, result);
                 follow(() => {
-                    const node = messageNode({ id: result.message_id, role: 'assistant' });
-                    const firstThought = !previous.reasoning && Boolean(next.reasoning);
-                    node.thought.textContent = next.reasoning; node.details.hidden = !next.reasoning;
-                    if (firstThought && !next.answerStarted) node.details.open = true;
-                    if (next.closeThought) node.details.open = false;
-                    node.summary.textContent = result.state === 'running' && !next.answerStarted ? '추론 중 · 접기/펼치기' : '추론 과정 · 다시 보기';
-                    const streaming = !terminal.has(result.state);
-                    if (next.content !== node.content || node.streaming !== streaming) { markdown(node.answer, next.content, { streaming }); node.content = next.content; node.streaming = streaming; }
                     sourceLabel(result.message_id, result.source);
                     for (const item of result.proposals) proposalCard(item);
                 });
                 progress(result); retryDelay = 1500;
                 if (terminal.has(result.state) && next.r >= result.reasoning_length && next.c >= result.content_length) { activeJob = null; modelControls(); }
-                else schedule(next.r < result.reasoning_length || next.c < result.content_length ? 100 : 1500);
+                else schedule(next.r < result.reasoning_length || next.c < result.content_length ? 100 : result.state === 'running' ? 250 : 1500);
             } catch (error) {
                 if (!disposed && selected === selection) {
                     notice(error.message);
@@ -1087,6 +1449,26 @@
         $('ai-dialog-confirm').addEventListener('click', () => finishDialog(true));
         $('ai-dialog-cancel').addEventListener('click', () => finishDialog(false));
         $('ai-lifecycle-dialog').addEventListener('cancel', event => { event.preventDefault(); finishDialog(false); });
+        $('ai-rename-current').addEventListener('click', openRename);
+        $('ai-rename-cancel').addEventListener('click', () => closeRename());
+        $('ai-rename-dialog').addEventListener('cancel', event => { event.preventDefault(); closeRename(); });
+        $('ai-rename-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            if (!renameContext || renameBusy || lifecycleBusy || disposed) return;
+            const input = conversationTitleInput($('ai-rename-input').value);
+            if (input.error) { $('ai-rename-error').textContent = input.error; $('ai-rename-input').focus(); return; }
+            if (renameContext.id !== conversation || readOnly()) { $('ai-rename-error').textContent = '정상 대화의 현재 상태를 다시 확인해 주세요.'; return; }
+            $('ai-rename-error').textContent = '';
+            await commitRename({ ...renameContext, action: 'rename', new_title: input.title, operation_id: crypto.randomUUID().replaceAll('-', '') });
+        });
+        $('ai-trash-select-all').addEventListener('change', () => {
+            if (lifecycleBusy || lifecycleIntent || openingConversation || changingModel || $('ai-trash-select-all').disabled) return;
+            for (const item of selectableTrash()) { if ($('ai-trash-select-all').checked) trashSelection.add(item.id); else trashSelection.delete(item.id); }
+            trashSelectionControls();
+        });
+        $('ai-trash-bulk-restore').addEventListener('click', () => mutateSelectedTrash('restore').catch(error => notice(error.message)));
+        $('ai-trash-bulk-purge').addEventListener('click', () => mutateSelectedTrash('purge').catch(error => notice(error.message)));
+        $('ai-bulk-stop').addEventListener('click', () => { bulkStopRequested = true; $('ai-bulk-stop').disabled = true; $('ai-dialog-detail').textContent = '진행 중인 한 항목의 결과를 확인한 뒤 나머지 항목을 중단합니다.'; });
         $('ai-active-tab').addEventListener('click', () => changeHistoryView('active'));
         $('ai-trash-tab').addEventListener('click', () => changeHistoryView('trash'));
         $('ai-trash-current').addEventListener('click', () => mutateLifecycle('trash', conversationMeta).catch(error => notice(error.message)));
@@ -1186,7 +1568,7 @@
             lifecycleChannel.addEventListener('message', event => lifecycleHint(event.data));
         }
         window.addEventListener('storage', event => { if (event.key === 'eqmgmt.ai.lifecycle') { try { lifecycleHint(JSON.parse(event.newValue)); } catch (_) { /* Malformed hints have no authority. */ } } });
-        window.addEventListener('pagehide', () => { disposed = true; disposeViewport(); clearTimeout(timer); clearInterval(identityTimer); lifecycleChannel?.close(); controller.abort(); }, { once: true });
+        window.addEventListener('pagehide', () => { disposed = true; disposePresenters(); trashSelection.clear(); disposeViewport(); clearTimeout(timer); clearInterval(identityTimer); lifecycleChannel?.close(); controller.abort(); }, { once: true });
         window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });
         window.addEventListener('focus', checkIdentity);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIdentity(); });

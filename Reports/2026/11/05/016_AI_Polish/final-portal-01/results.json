@@ -1,0 +1,2102 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "505757da8d80ad36435018a61c79422b40e325d964f360c39c9ae2002a4e899a",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "width": 390,
+      "height": 1672,
+      "theme": "light",
+      "checks": [
+        "actual-portal-document-and-content-heading",
+        "actual-frame-renders-synthetic-admin-account",
+        "portal-root-has-no-parent-menu-link",
+        "actual-dashboard-loader-uses-synthetic-numeric-stats",
+        "requested-theme-applies-to-real-frame",
+        "initial-admin-last-and-other-api-relative-order",
+        "initial-all-and-only-permitted-api-menus",
+        "initial-admin-is-last-dom-card",
+        "initial-default-tab-order-follows-dom-without-positive-tabindex",
+        "initial-css-does-not-reorder-focus-or-reading-sequence",
+        "initial-card-focusable-my_equipment",
+        "initial-card-focusable-public_equipment",
+        "initial-card-focusable-my_approvals",
+        "initial-card-focusable-equipment_ai",
+        "initial-card-focusable-future_reports",
+        "initial-card-focusable-admin_center",
+        "initial-focusable-sequence-keeps-admin-last",
+        "initial-visual-grid-reading-order-matches-dom",
+        "initial-cards-fit-container-without-horizontal-overflow",
+        "reload-calls-actual-portal-menu-api-loader",
+        "reloaded-admin-last-and-other-api-relative-order",
+        "reloaded-all-and-only-permitted-api-menus",
+        "reloaded-admin-is-last-dom-card",
+        "reloaded-default-tab-order-follows-dom-without-positive-tabindex",
+        "reloaded-css-does-not-reorder-focus-or-reading-sequence",
+        "reloaded-card-focusable-future_reports",
+        "reloaded-card-focusable-public_equipment",
+        "reloaded-card-focusable-equipment_ai",
+        "reloaded-card-focusable-my_equipment",
+        "reloaded-card-focusable-my_approvals",
+        "reloaded-card-focusable-admin_center",
+        "reloaded-focusable-sequence-keeps-admin-last",
+        "reloaded-visual-grid-reading-order-matches-dom",
+        "reloaded-cards-fit-container-without-horizontal-overflow",
+        "presentation-order-does-not-rewrite-api-payload",
+        "permission_reduced-admin-last-and-other-api-relative-order",
+        "permission_reduced-all-and-only-permitted-api-menus",
+        "permission_reduced-admin-is-last-dom-card",
+        "permission_reduced-default-tab-order-follows-dom-without-positive-tabindex",
+        "permission_reduced-css-does-not-reorder-focus-or-reading-sequence",
+        "permission_reduced-card-focusable-equipment_ai",
+        "permission_reduced-card-focusable-future_reports",
+        "permission_reduced-card-focusable-my_equipment",
+        "permission_reduced-focusable-sequence-keeps-admin-last",
+        "permission_reduced-visual-grid-reading-order-matches-dom",
+        "permission_reduced-cards-fit-container-without-horizontal-overflow",
+        "permission-filtered-api-without-admin-never-gains-admin-card",
+        "restored-admin-last-and-other-api-relative-order",
+        "restored-all-and-only-permitted-api-menus",
+        "restored-admin-is-last-dom-card",
+        "restored-default-tab-order-follows-dom-without-positive-tabindex",
+        "restored-css-does-not-reorder-focus-or-reading-sequence",
+        "restored-card-focusable-my_equipment",
+        "restored-card-focusable-public_equipment",
+        "restored-card-focusable-my_approvals",
+        "restored-card-focusable-equipment_ai",
+        "restored-card-focusable-future_reports",
+        "restored-card-focusable-admin_center",
+        "restored-focusable-sequence-keeps-admin-last",
+        "restored-visual-grid-reading-order-matches-dom",
+        "restored-cards-fit-container-without-horizontal-overflow",
+        "menu-description-remains-inert-text-with-full-tooltip",
+        "initial-plus-three-api-reloads-use-read-only-requests",
+        "portal-alias-does-not-initialize-assistant-or-call-ai-services",
+        "actual-portal-grid-has-responsive-column-count",
+        "full-portal-frame-has-no-horizontal-page-overflow",
+        "full-document-capture-includes-final-admin-card",
+        "complete-portal-fits-real-capture-window"
+      ],
+      "stages": {
+        "initial": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1637.58,
+            "width": 343,
+            "height": 1212
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 1043.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1225.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 1249.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1431.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 1455.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1637.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "reloaded": {
+          "api_order": [
+            "future_reports",
+            "public_equipment",
+            "admin_center",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals"
+          ],
+          "dom_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "focus_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "visual_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1637.58,
+            "width": 343,
+            "height": 1212
+          },
+          "cards": [
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 1043.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1225.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 1249.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1431.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 1455.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1637.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "permission_reduced": {
+          "api_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "dom_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "focus_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "visual_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1019.58,
+            "width": 343,
+            "height": 594
+          },
+          "cards": [
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "restored": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1637.58,
+            "width": 343,
+            "height": 1212
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 1043.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1225.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 1249.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1431.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 1455.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1637.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        }
+      },
+      "menu_api_reads": 4,
+      "tab_order_method": "DOM order, default tabIndex and sequential programmatic focus; no synthesized native Tab claim",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/final-portal-01/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "width": 390,
+      "height": 1672,
+      "theme": "dark",
+      "checks": [
+        "actual-portal-document-and-content-heading",
+        "actual-frame-renders-synthetic-admin-account",
+        "portal-root-has-no-parent-menu-link",
+        "actual-dashboard-loader-uses-synthetic-numeric-stats",
+        "requested-theme-applies-to-real-frame",
+        "initial-admin-last-and-other-api-relative-order",
+        "initial-all-and-only-permitted-api-menus",
+        "initial-admin-is-last-dom-card",
+        "initial-default-tab-order-follows-dom-without-positive-tabindex",
+        "initial-css-does-not-reorder-focus-or-reading-sequence",
+        "initial-card-focusable-my_equipment",
+        "initial-card-focusable-public_equipment",
+        "initial-card-focusable-my_approvals",
+        "initial-card-focusable-equipment_ai",
+        "initial-card-focusable-future_reports",
+        "initial-card-focusable-admin_center",
+        "initial-focusable-sequence-keeps-admin-last",
+        "initial-visual-grid-reading-order-matches-dom",
+        "initial-cards-fit-container-without-horizontal-overflow",
+        "reload-calls-actual-portal-menu-api-loader",
+        "reloaded-admin-last-and-other-api-relative-order",
+        "reloaded-all-and-only-permitted-api-menus",
+        "reloaded-admin-is-last-dom-card",
+        "reloaded-default-tab-order-follows-dom-without-positive-tabindex",
+        "reloaded-css-does-not-reorder-focus-or-reading-sequence",
+        "reloaded-card-focusable-future_reports",
+        "reloaded-card-focusable-public_equipment",
+        "reloaded-card-focusable-equipment_ai",
+        "reloaded-card-focusable-my_equipment",
+        "reloaded-card-focusable-my_approvals",
+        "reloaded-card-focusable-admin_center",
+        "reloaded-focusable-sequence-keeps-admin-last",
+        "reloaded-visual-grid-reading-order-matches-dom",
+        "reloaded-cards-fit-container-without-horizontal-overflow",
+        "presentation-order-does-not-rewrite-api-payload",
+        "permission_reduced-admin-last-and-other-api-relative-order",
+        "permission_reduced-all-and-only-permitted-api-menus",
+        "permission_reduced-admin-is-last-dom-card",
+        "permission_reduced-default-tab-order-follows-dom-without-positive-tabindex",
+        "permission_reduced-css-does-not-reorder-focus-or-reading-sequence",
+        "permission_reduced-card-focusable-equipment_ai",
+        "permission_reduced-card-focusable-future_reports",
+        "permission_reduced-card-focusable-my_equipment",
+        "permission_reduced-focusable-sequence-keeps-admin-last",
+        "permission_reduced-visual-grid-reading-order-matches-dom",
+        "permission_reduced-cards-fit-container-without-horizontal-overflow",
+        "permission-filtered-api-without-admin-never-gains-admin-card",
+        "restored-admin-last-and-other-api-relative-order",
+        "restored-all-and-only-permitted-api-menus",
+        "restored-admin-is-last-dom-card",
+        "restored-default-tab-order-follows-dom-without-positive-tabindex",
+        "restored-css-does-not-reorder-focus-or-reading-sequence",
+        "restored-card-focusable-my_equipment",
+        "restored-card-focusable-public_equipment",
+        "restored-card-focusable-my_approvals",
+        "restored-card-focusable-equipment_ai",
+        "restored-card-focusable-future_reports",
+        "restored-card-focusable-admin_center",
+        "restored-focusable-sequence-keeps-admin-last",
+        "restored-visual-grid-reading-order-matches-dom",
+        "restored-cards-fit-container-without-horizontal-overflow",
+        "menu-description-remains-inert-text-with-full-tooltip",
+        "initial-plus-three-api-reloads-use-read-only-requests",
+        "portal-alias-does-not-initialize-assistant-or-call-ai-services",
+        "actual-portal-grid-has-responsive-column-count",
+        "full-portal-frame-has-no-horizontal-page-overflow",
+        "full-document-capture-includes-final-admin-card",
+        "complete-portal-fits-real-capture-window"
+      ],
+      "stages": {
+        "initial": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1637.58,
+            "width": 343,
+            "height": 1212
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 1043.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1225.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 1249.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1431.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 1455.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1637.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "reloaded": {
+          "api_order": [
+            "future_reports",
+            "public_equipment",
+            "admin_center",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals"
+          ],
+          "dom_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "focus_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "visual_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1637.58,
+            "width": 343,
+            "height": 1212
+          },
+          "cards": [
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 1043.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1225.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 1249.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1431.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 1455.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1637.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "permission_reduced": {
+          "api_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "dom_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "focus_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "visual_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1019.58,
+            "width": 343,
+            "height": 594
+          },
+          "cards": [
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "restored": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 425.58,
+            "left": 16,
+            "right": 359,
+            "bottom": 1637.58,
+            "width": 343,
+            "height": 1212
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 425.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 607.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 631.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 813.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 837.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1019.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 1043.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1225.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 1249.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1431.58,
+                "width": 343,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 1455.58,
+                "left": 16,
+                "right": 359,
+                "bottom": 1637.58,
+                "width": 343,
+                "height": 182
+              }
+            }
+          ]
+        }
+      },
+      "menu_api_reads": 4,
+      "tab_order_method": "DOM order, default tabIndex and sequential programmatic focus; no synthesized native Tab claim",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/final-portal-01/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "width": 1440,
+      "height": 1002,
+      "theme": "light",
+      "checks": [
+        "actual-portal-document-and-content-heading",
+        "actual-frame-renders-synthetic-admin-account",
+        "portal-root-has-no-parent-menu-link",
+        "actual-dashboard-loader-uses-synthetic-numeric-stats",
+        "requested-theme-applies-to-real-frame",
+        "initial-admin-last-and-other-api-relative-order",
+        "initial-all-and-only-permitted-api-menus",
+        "initial-admin-is-last-dom-card",
+        "initial-default-tab-order-follows-dom-without-positive-tabindex",
+        "initial-css-does-not-reorder-focus-or-reading-sequence",
+        "initial-card-focusable-my_equipment",
+        "initial-card-focusable-public_equipment",
+        "initial-card-focusable-my_approvals",
+        "initial-card-focusable-equipment_ai",
+        "initial-card-focusable-future_reports",
+        "initial-card-focusable-admin_center",
+        "initial-focusable-sequence-keeps-admin-last",
+        "initial-visual-grid-reading-order-matches-dom",
+        "initial-cards-fit-container-without-horizontal-overflow",
+        "reload-calls-actual-portal-menu-api-loader",
+        "reloaded-admin-last-and-other-api-relative-order",
+        "reloaded-all-and-only-permitted-api-menus",
+        "reloaded-admin-is-last-dom-card",
+        "reloaded-default-tab-order-follows-dom-without-positive-tabindex",
+        "reloaded-css-does-not-reorder-focus-or-reading-sequence",
+        "reloaded-card-focusable-future_reports",
+        "reloaded-card-focusable-public_equipment",
+        "reloaded-card-focusable-equipment_ai",
+        "reloaded-card-focusable-my_equipment",
+        "reloaded-card-focusable-my_approvals",
+        "reloaded-card-focusable-admin_center",
+        "reloaded-focusable-sequence-keeps-admin-last",
+        "reloaded-visual-grid-reading-order-matches-dom",
+        "reloaded-cards-fit-container-without-horizontal-overflow",
+        "presentation-order-does-not-rewrite-api-payload",
+        "permission_reduced-admin-last-and-other-api-relative-order",
+        "permission_reduced-all-and-only-permitted-api-menus",
+        "permission_reduced-admin-is-last-dom-card",
+        "permission_reduced-default-tab-order-follows-dom-without-positive-tabindex",
+        "permission_reduced-css-does-not-reorder-focus-or-reading-sequence",
+        "permission_reduced-card-focusable-equipment_ai",
+        "permission_reduced-card-focusable-future_reports",
+        "permission_reduced-card-focusable-my_equipment",
+        "permission_reduced-focusable-sequence-keeps-admin-last",
+        "permission_reduced-visual-grid-reading-order-matches-dom",
+        "permission_reduced-cards-fit-container-without-horizontal-overflow",
+        "permission-filtered-api-without-admin-never-gains-admin-card",
+        "restored-admin-last-and-other-api-relative-order",
+        "restored-all-and-only-permitted-api-menus",
+        "restored-admin-is-last-dom-card",
+        "restored-default-tab-order-follows-dom-without-positive-tabindex",
+        "restored-css-does-not-reorder-focus-or-reading-sequence",
+        "restored-card-focusable-my_equipment",
+        "restored-card-focusable-public_equipment",
+        "restored-card-focusable-my_approvals",
+        "restored-card-focusable-equipment_ai",
+        "restored-card-focusable-future_reports",
+        "restored-card-focusable-admin_center",
+        "restored-focusable-sequence-keeps-admin-last",
+        "restored-visual-grid-reading-order-matches-dom",
+        "restored-cards-fit-container-without-horizontal-overflow",
+        "menu-description-remains-inert-text-with-full-tooltip",
+        "initial-plus-three-api-reloads-use-read-only-requests",
+        "portal-alias-does-not-initialize-assistant-or-call-ai-services",
+        "actual-portal-grid-has-responsive-column-count",
+        "full-portal-frame-has-no-horizontal-page-overflow",
+        "full-document-capture-includes-final-admin-card",
+        "complete-portal-fits-real-capture-window"
+      ],
+      "stages": {
+        "initial": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 716.39,
+            "width": 1216,
+            "height": 388
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 1042,
+                "right": 1328,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "reloaded": {
+          "api_order": [
+            "future_reports",
+            "public_equipment",
+            "admin_center",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals"
+          ],
+          "dom_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "focus_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "visual_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 716.39,
+            "width": 1216,
+            "height": 388
+          },
+          "cards": [
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 1042,
+                "right": 1328,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "permission_reduced": {
+          "api_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "dom_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "focus_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "visual_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 510.39,
+            "width": 1216,
+            "height": 182
+          },
+          "cards": [
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "restored": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 716.39,
+            "width": 1216,
+            "height": 388
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 1042,
+                "right": 1328,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        }
+      },
+      "menu_api_reads": 4,
+      "tab_order_method": "DOM order, default tabIndex and sequential programmatic focus; no synthesized native Tab claim",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/final-portal-01/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "width": 1440,
+      "height": 1002,
+      "theme": "dark",
+      "checks": [
+        "actual-portal-document-and-content-heading",
+        "actual-frame-renders-synthetic-admin-account",
+        "portal-root-has-no-parent-menu-link",
+        "actual-dashboard-loader-uses-synthetic-numeric-stats",
+        "requested-theme-applies-to-real-frame",
+        "initial-admin-last-and-other-api-relative-order",
+        "initial-all-and-only-permitted-api-menus",
+        "initial-admin-is-last-dom-card",
+        "initial-default-tab-order-follows-dom-without-positive-tabindex",
+        "initial-css-does-not-reorder-focus-or-reading-sequence",
+        "initial-card-focusable-my_equipment",
+        "initial-card-focusable-public_equipment",
+        "initial-card-focusable-my_approvals",
+        "initial-card-focusable-equipment_ai",
+        "initial-card-focusable-future_reports",
+        "initial-card-focusable-admin_center",
+        "initial-focusable-sequence-keeps-admin-last",
+        "initial-visual-grid-reading-order-matches-dom",
+        "initial-cards-fit-container-without-horizontal-overflow",
+        "reload-calls-actual-portal-menu-api-loader",
+        "reloaded-admin-last-and-other-api-relative-order",
+        "reloaded-all-and-only-permitted-api-menus",
+        "reloaded-admin-is-last-dom-card",
+        "reloaded-default-tab-order-follows-dom-without-positive-tabindex",
+        "reloaded-css-does-not-reorder-focus-or-reading-sequence",
+        "reloaded-card-focusable-future_reports",
+        "reloaded-card-focusable-public_equipment",
+        "reloaded-card-focusable-equipment_ai",
+        "reloaded-card-focusable-my_equipment",
+        "reloaded-card-focusable-my_approvals",
+        "reloaded-card-focusable-admin_center",
+        "reloaded-focusable-sequence-keeps-admin-last",
+        "reloaded-visual-grid-reading-order-matches-dom",
+        "reloaded-cards-fit-container-without-horizontal-overflow",
+        "presentation-order-does-not-rewrite-api-payload",
+        "permission_reduced-admin-last-and-other-api-relative-order",
+        "permission_reduced-all-and-only-permitted-api-menus",
+        "permission_reduced-admin-is-last-dom-card",
+        "permission_reduced-default-tab-order-follows-dom-without-positive-tabindex",
+        "permission_reduced-css-does-not-reorder-focus-or-reading-sequence",
+        "permission_reduced-card-focusable-equipment_ai",
+        "permission_reduced-card-focusable-future_reports",
+        "permission_reduced-card-focusable-my_equipment",
+        "permission_reduced-focusable-sequence-keeps-admin-last",
+        "permission_reduced-visual-grid-reading-order-matches-dom",
+        "permission_reduced-cards-fit-container-without-horizontal-overflow",
+        "permission-filtered-api-without-admin-never-gains-admin-card",
+        "restored-admin-last-and-other-api-relative-order",
+        "restored-all-and-only-permitted-api-menus",
+        "restored-admin-is-last-dom-card",
+        "restored-default-tab-order-follows-dom-without-positive-tabindex",
+        "restored-css-does-not-reorder-focus-or-reading-sequence",
+        "restored-card-focusable-my_equipment",
+        "restored-card-focusable-public_equipment",
+        "restored-card-focusable-my_approvals",
+        "restored-card-focusable-equipment_ai",
+        "restored-card-focusable-future_reports",
+        "restored-card-focusable-admin_center",
+        "restored-focusable-sequence-keeps-admin-last",
+        "restored-visual-grid-reading-order-matches-dom",
+        "restored-cards-fit-container-without-horizontal-overflow",
+        "menu-description-remains-inert-text-with-full-tooltip",
+        "initial-plus-three-api-reloads-use-read-only-requests",
+        "portal-alias-does-not-initialize-assistant-or-call-ai-services",
+        "actual-portal-grid-has-responsive-column-count",
+        "full-portal-frame-has-no-horizontal-page-overflow",
+        "full-document-capture-includes-final-admin-card",
+        "complete-portal-fits-real-capture-window"
+      ],
+      "stages": {
+        "initial": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 716.39,
+            "width": 1216,
+            "height": 388
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 1042,
+                "right": 1328,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "reloaded": {
+          "api_order": [
+            "future_reports",
+            "public_equipment",
+            "admin_center",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals"
+          ],
+          "dom_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "focus_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "visual_order": [
+            "future_reports",
+            "public_equipment",
+            "equipment_ai",
+            "my_equipment",
+            "my_approvals",
+            "admin_center"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 716.39,
+            "width": 1216,
+            "height": 388
+          },
+          "cards": [
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 1042,
+                "right": 1328,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "permission_reduced": {
+          "api_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "dom_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "focus_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "visual_order": [
+            "equipment_ai",
+            "future_reports",
+            "my_equipment"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 510.39,
+            "width": 1216,
+            "height": 182
+          },
+          "cards": [
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        },
+        "restored": {
+          "api_order": [
+            "admin_center",
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports"
+          ],
+          "dom_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "focus_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "visual_order": [
+            "my_equipment",
+            "public_equipment",
+            "my_approvals",
+            "equipment_ai",
+            "future_reports",
+            "admin_center"
+          ],
+          "container": {
+            "top": 328.39,
+            "left": 112,
+            "right": 1328,
+            "bottom": 716.39,
+            "width": 1216,
+            "height": 388
+          },
+          "cards": [
+            {
+              "code": "my_equipment",
+              "href": "/my_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "public_equipment",
+              "href": "/public_equipment",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "my_approvals",
+              "href": "/my_approvals",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 732,
+                "right": 1018,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "equipment_ai",
+              "href": "/assistant",
+              "tab_index": 0,
+              "box": {
+                "top": 328.39,
+                "left": 1042,
+                "right": 1328,
+                "bottom": 510.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "future_reports",
+              "href": "/fixture/future_reports",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 112,
+                "right": 398,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            },
+            {
+              "code": "admin_center",
+              "href": "/admin_center",
+              "tab_index": 0,
+              "box": {
+                "top": 534.39,
+                "left": 422,
+                "right": 708,
+                "bottom": 716.39,
+                "width": 286,
+                "height": 182
+              }
+            }
+          ]
+        }
+      },
+      "menu_api_reads": 4,
+      "tab_order_method": "DOM order, default tabIndex and sequential programmatic focus; no synthesized native Tab claim",
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/final-portal-01/screen-003.png"
+    }
+  ],
+  "fixture_digest": "505757da8d80ad36435018a61c79422b40e325d964f360c39c9ae2002a4e899a"
+}

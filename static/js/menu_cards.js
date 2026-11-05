@@ -8,6 +8,14 @@
         const rank = menu => { const index = adminOrder.indexOf(menu.MenuCode); return index < 0 ? adminOrder.length : index; };
         return menus.map((menu, index) => ({menu, index})).sort((a, b) => rank(a.menu) - rank(b.menu) || a.index - b.index).map(item => item.menu);
     }
+    /* [MINI-COMMENT: PORTAL.MENU.ORDER] [EN rev.1]
+     * [Role] Places the portal admin center after all other permitted menus, including future additions.
+     * [Dependencies] MenuCode identifies the existing admin center; callers supply the permission-filtered API list.
+     * [Impact] Stable partitioning preserves other menus and input records; shared rendering/admin ordering stay unchanged.
+     */
+    function orderPortal(menus) {
+        return menus.filter(menu => menu.MenuCode !== 'admin_center').concat(menus.filter(menu => menu.MenuCode === 'admin_center'));
+    }
     function menuLabel(value) {
         // Display-only menu annotations; never rewrite stored names or user/catalog data.
         let text = String(value ?? '');
@@ -39,5 +47,5 @@
         }
         container.replaceChildren(fragment);
     }
-    global.MenuCards = {render, orderAdmin, menuLabel};
+    global.MenuCards = {render, orderAdmin, orderPortal, menuLabel};
 })(window);

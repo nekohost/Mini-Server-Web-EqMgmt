@@ -1,0 +1,47 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "7d00c0de44c703f4b8796a06cb6dfbb6fff054fe17006d81b34acc29e8de7b66",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "view": "stream-polish",
+      "width": 390,
+      "theme": "dark",
+      "error": "candidate-loads-independent-presenter-before-main-client",
+      "checks": [],
+      "metrics": {},
+      "diagnostic": {
+        "title": "새로운 대화",
+        "notice": "",
+        "progress": "",
+        "jobs": [],
+        "runs": [],
+        "requests": [
+          {
+            "path": "/api/ai/capabilities",
+            "search": "",
+            "method": "GET",
+            "time": 1878.9000005722046,
+            "data": null
+          }
+        ]
+      },
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/stream-smoke-01/screen-000.png"
+    }
+  ],
+  "fixture_digest": "7d00c0de44c703f4b8796a06cb6dfbb6fff054fe17006d81b34acc29e8de7b66"
+}

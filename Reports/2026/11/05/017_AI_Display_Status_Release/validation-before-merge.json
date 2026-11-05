@@ -1,0 +1,93 @@
+{
+  "candidate_files": 40,
+  "source_sha256": {
+    "README.md": "180c81f97651a8fff822c962fe548682712c6d52c37f93ed1165300289a379f0",
+    "static/css/ai_polish_frame.css": "de3aa01f2a6ed45e74fb6a9a5303bde4b0ea26170ebe97a901267c1d90f1e677",
+    "static/css/equipment_ai.css": "f27923992d21c01b752f26166b5ba44cfe80c17609dc085677869fb7c5b66eca",
+    "static/js/ai_stream_presenter.js": "279f92e1bffe58269de495732e366c3d3ab6fe337d9541c52954ff0d6f7bc259",
+    "static/js/equipment_ai.js": "f89935b52475a49647497e9e754aa39ed729c28834289625e624fc9fd4414fb7",
+    "static/js/equipment_ai_polish.js": "1100eb89b65b45be66ca1ce097f5c2311749d8cf9b12a6cfc38156fb2399fcc4",
+    "static/js/menu_cards.js": "1522ca24f931097036aebbecefb2246a57e7ff17913cc3a30bbc7ccf4de2bb6e",
+    "templates/equipment_ai.html": "0ae0c4d40de3d82b5f63945f2da01dd864e0f6e683d88d4d2ee536e00da47dbd",
+    "templates/miniserver_frame.html": "7d422264b381de4ce4ac2d55926712bef7f353d91ab02e25f5789d42c430f1d6",
+    "templates/portal.html": "3e9ed74ec55a1baa9497ef65ecbd6713cdb581425a7ed947ef88a0c4fb5666ee",
+    "tests/assistant_browser_fixture.py": "54bb9bbfd86c5066fce7d158f0bcef0eddc8b1b101a9efde08fcb4b04bb6400a",
+    "tests/assistant_ui_browser_fixture.py": "aafc67a6bd157ae052a2af025c77eff5672661cc2c332ed63c405e0ac779fe69",
+    "tests/lifecycle_polish_browser_fixture.py": "ae67a916e30ce0e9729039f7145a2ae6ab567b7aefd5f85158f99ba5ec00ff0c",
+    "tests/model_disclosure_browser_fixture.py": "d5dfca28991e6629b1ca66ef79c7ca55823124bcb4c147151d3855ff77154125",
+    "tests/polish_browser_fixture.py": "d2d031804df001f30b5291ccefc3ffb3d6abc33fb89358312dd6b9f8a93fc5d2",
+    "tests/portal_polish_browser_fixture.py": "4fc6ba6f95a6435e4b82e5b4e0281863f503cd91ebf85f188ccaab28b14f19ae",
+    "tests/run_assistant_fixture.py": "150a8d9bafc3258eca11b6c63b2185b437550d3fbf286284c0b02a8610847671",
+    "tests/status_banner_browser_fixture.py": "927cd5923ab3f0a5c83b13076df59a3ec46f245f9e9900bfcc41a92fd628bd86",
+    "tests/stream_polish_browser_fixture.py": "f820061ed34c60d04a46c460927066bd730cf9089be37953fbb9fffbe596f3b0",
+    "tests/test_ai_display_policy.py": "d9f98c87447e92ef635149da7cd663f6c207df850629d4d488bbdb3f509e1882",
+    "tests/test_ai_polish_layout_ui.js": "e3f708d72513996743b7ebe522a16121684737eec391a8dcc421876fce8dd846",
+    "tests/test_ai_polish_lifecycle.py": "f5bf73f17f0c60c22aefd6318b8f5613a3f1e5dafc3292816fb2978962b051c8",
+    "tests/test_ai_polish_lifecycle_ui.js": "8e1cfe6399be57a180d6561e5af0fa83426554950ebe87daba4a22e20077a567",
+    "tests/test_ai_polish_status.py": "3d234d4f8c90231f2ff78f2a14e7d39d47792c176452a2dba018e9a83651563c",
+    "tests/test_ai_release_guard.py": "75660b0b4c479ba9b74fbb4001674ae0a6952d3c45438841f58218ee505a9439",
+    "tests/test_ai_status_banner_ui.js": "ab1937e472234dc01d23852520ed0a44ff9b7155c806831e36141c5c80e272b1",
+    "tests/test_ai_stream_presenter.js": "ed2f98268acea2fda20704c21f81ec1786fb443f1f09bce532c3f18f5ac617a4",
+    "tests/test_equipment_ai_ui.js": "64a8cd86a29fea342c1e7f5de5988a7b9784338f106ab3d2f0a613c6b119f703",
+    "tests/test_portal_polish_ui.js": "ae313316d54310db5c14a7fe4006cdb71f1989ff990ad57fa58059111eeaa633",
+    "tests/test_stream_polish_browser.js": "67d52d8489d7187c8617e6fef717bb35e728bacb34130a2f6dc3ab9f713b05fd",
+    "tests/viewport_scrollbar_browser_fixture.py": "9be79f2bd714e868ad988250aafd6535c409933ab8f9ea48b58f36e62e1535c5",
+    "tools/deploy_ai_ux_release.py": "fe1595b62328c717b5356e1aa160b51fd295157a69760003f0fe3f128b9e8988",
+    "utils/ai_assistant/__init__.py": "5fada8cd0958ea96877de4dfbfccc2279580fc764f4a458339e7cb40f519d23f",
+    "utils/ai_assistant/context.py": "8a3d65e7a72709d98d4a5e669e8c40a5db24d91c826392b058a38bf04d95fe92",
+    "utils/ai_assistant/domain.py": "05821c840a08e2a70202d91192e9995fa67b179097151da4ac8fa4528e3688f9",
+    "utils/ai_assistant/lifecycle.py": "d201ffa912d299c8c94fe9f37760e2103907ad48dec0bfc4bc55aed5d69e4cfc",
+    "utils/ai_assistant/policy.py": "dc12d9a4773a0533023f72c2592482e217f17cb70aa06199f2cb7dfe4aac3ae8",
+    "utils/ai_assistant/status.py": "026c79cbd87f1f103e1b269cce62b735cca831b19e2c10bf447d247dca91dad9",
+    "utils/ai_assistant/store.py": "787888a2867df9edf21fdfb5f14deb093bff6850e2ac9555ce8524d02a851349",
+    "utils/ai_assistant/worker.py": "0f2e12273c4788cb35d336f8e322731a92c3bc4e46e2aae2369d0a83a19f9fc9"
+  },
+  "archive_sha256": "8d5223f49aeaca4fe7dae9987107a38d6262d8ed4174386d75b2490ba4144315",
+  "prior_016_archive_unchanged": true,
+  "python_ast": 23,
+  "javascript_syntax": 11,
+  "node_presenter_tests": 18,
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 211,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 49.592,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "900a44f52170f031d3a0a26b34811b06f7bda5eaee7d1629da3c959c1fa73da1",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "browser": {
+    "final-banner-01": {
+      "views": 8,
+      "checks": 504,
+      "fixture_digest": "d0ec99ce1fe1439568a72df50195a7ff352a31a2a24d7afc78b0d1966b2715c1"
+    },
+    "regression-ui-01": {
+      "views": 4,
+      "checks": 642,
+      "fixture_digest": "7e40482754ed10361889d41476521ae0c05594c279d60bc612853627fff2829f"
+    },
+    "regression-viewport-01": {
+      "views": 4,
+      "checks": 142,
+      "fixture_digest": "bf13ac4e37e8842d3858bb8cff1405273fd75f565a33dbfba3f830591f5ec68a"
+    },
+    "final-polish-01": {
+      "views": 20,
+      "checks": 748,
+      "fixture_digest": "d757356ebb3ffe63e80d72af49459a0fa0833181fda59a59bbf538658885f2a3"
+    },
+    "final-disclosure-01": {
+      "views": 4,
+      "checks": 84,
+      "fixture_digest": "f12f698da20012261cd5d9d387102e15cc7a50219f4765e2ed18040676512fb9"
+    }
+  },
+  "total_browser_views": 40,
+  "total_browser_checks": 2120,
+  "staging_runtime_unchanged_before_merge": 121
+}

@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.LINUX.FIXTURE.RUNNER]
-[EN rev.12]
+[EN rev.14]
 [Role] Transfers audited candidate source in memory to the authorized Linux fixture host over SSH.
 [Dependencies] Root source plus staged overlays, subprocess SSH and Python stdlib; never imports the app on Windows.
 [Impact] Sparse overlays retain unchanged baseline tests/assets; full generated browser evidence is saved beside screenshots with compact stdout, and no remote source/config or production DB is modified.
@@ -25,13 +25,17 @@ def main():
     parser.add_argument('--artifact-dir',help='Create new screenshot artifacts under this project Reports directory.')
     parser.add_argument('--summary-only',action='store_true',help='Keep check names and failures while suppressing routine fixture logs.')
     parser.add_argument('--tmpfs-fixtures',action='store_true',help='Use private Linux tmpfs for disposable functional fixtures; never changes SQLite durability settings.')
-    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','popup-short','viewport','disclosure'],default='all')
+    parser.add_argument('--browser-width',type=int,action='append',default=[],choices=[320,360,390,430,760,761,820,1425,1440])
+    parser.add_argument('--browser-theme',action='append',default=[],choices=['light','dark'])
+    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner'],default='all')
     args=parser.parse_args()
     overlay=Path(__file__).resolve().parents[1]
-    project=overlay if (overlay/'AGENTS.md').is_file() else overlay.parents[2]
+    project=next((parent for parent in (overlay,*overlay.parents) if (parent/'AGENTS.md').is_file()), None)
+    if project is None:
+        raise ValueError('fixture project root was not found')
     fixture_roots=(overlay/'tests',) if overlay==project else (project/'tests',overlay.parent/'tests',overlay/'tests')
-    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py'}
-    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py'}
+    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py'}
+    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py'}
     def candidate_file(relative):
         """[Role] Selects a changed overlay source or the unchanged reviewed project baseline. [Impact] No production app import occurs on Windows."""
         staged=overlay/relative
@@ -46,6 +50,11 @@ def main():
         'static/css/equipment_ai.css','static/css/equipment_ai_providers.css',
         'static/js/equipment_ai.js','static/js/equipment_ai_providers.js','static/js/session_timer.js')
     assets={relative:((overlay/relative) if (overlay/relative).is_file() else project/relative).read_text(encoding='utf-8-sig') for relative in candidate_paths}
+    # Include every reviewed overlay asset without reading any production credentials or DB.
+    for folder in ('static/js', 'static/css'):
+        for file in sorted((overlay/folder).glob('*')):
+            if file.is_file() and file.suffix in ('.js', '.css'):
+                assets[file.relative_to(overlay).as_posix()] = file.read_text(encoding='utf-8-sig')
     for source_root in (project,overlay):
         for file in sorted((source_root/'templates').glob('strata*.html')):
             assets[file.relative_to(source_root).as_posix()]=file.read_text(encoding='utf-8-sig')
@@ -54,12 +63,12 @@ def main():
             assets['tests/'+file.name]=file.read_text(encoding='utf-8-sig')
     admin_paths=('tools/deploy_user_ai.py','tools/deploy_strata.py','tools/write_strata_nginx_key.py',
                  'systemd/nginx-strata.conf.example','docs/strata-retirement-manifest.json',
-                 'tools/ai_retention_cleanup.py','systemd/equipment-ai-retention.service','systemd/equipment-ai-retention.timer')
+                 'tools/ai_retention_cleanup.py','tools/deploy_ai_ux_release.py','systemd/equipment-ai-retention.service','systemd/equipment-ai-retention.timer')
     # Pin the reviewed local frame/common assets too; the fixture host may be on an older deployment.
-    for relative in ('templates/root_frame.html','templates/miniserver_frame.html','static/css/layout.css','static/css/components.css',
+    for relative in ('templates/root_frame.html','templates/miniserver_frame.html','templates/portal.html','static/css/layout.css','static/css/components.css',
             'static/css/roadmap.css','static/js/common.js','static/js/roadmap_preferences.js',
             'static/js/navigation.js','static/js/menu_cards.js','static/js/catalog_requests.js','static/js/tailwindcss.js'):
-        assets.setdefault(relative,(project/relative).read_text(encoding='utf-8-sig'))
+        assets.setdefault(relative,candidate_file(relative).read_text(encoding='utf-8-sig'))
     payload={'sources':sources,'assets':assets,'app':candidate_file('app.py').read_text(encoding='utf-8-sig'),
              'test':candidate_file('tests/test_equipment_ai.py').read_text(encoding='utf-8-sig'),
              'provider_test':candidate_file('tests/test_multi_provider_ai.py').read_text(encoding='utf-8-sig'),
@@ -68,6 +77,7 @@ def main():
              'focus':args.focus,
              'tmpfs_fixtures':args.tmpfs_fixtures,
              'browser_target':args.browser_target,
+             'browser_widths':args.browser_width,'browser_themes':args.browser_theme,
              'extra_tests':{p.name:p.read_text(encoding='utf-8-sig') for folder in fixture_roots for p in sorted(folder.glob('test_*.py'))
                             if p.name in extra_test_names},
              'admin_files':{relative:((overlay/relative) if (overlay/relative).is_file() else project/relative).read_text(encoding='utf-8-sig')
@@ -82,6 +92,8 @@ os.environ['PYTHONDONTWRITEBYTECODE']='1'
 sys.dont_write_bytecode=True
 logging.getLogger('werkzeug').setLevel(logging.ERROR)
 payload=json.loads(zlib.decompress(base64.b64decode(PAYLOAD)))
+os.environ['EQ_FIXTURE_WIDTHS']=json.dumps(payload['browser_widths'])
+os.environ['EQ_FIXTURE_THEMES']=json.dumps(payload['browser_themes'])
 fixture_storage='disk-temp'
 if payload['tmpfs_fixtures']:
     memory_fixture=tempfile.TemporaryDirectory(prefix='eq-ai-functional-',dir='/dev/shm')
@@ -152,6 +164,27 @@ if payload['browser'] and result.wasSuccessful():
         browser.FRAME_DIAGNOSTIC_SCRIPT=getattr(admin,'FRAME_DIAGNOSTIC_SCRIPT','')
     results=browser.run_browser(os.getcwd(),payload['assets']) if payload['browser_target'] in ('all','legacy') else []
     for name in payload['browser_fixtures']:
+        if payload['browser_target']=='status-banner':
+            if name=='status_banner_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='portal':
+            if name=='portal_polish_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='ui':
+            if name=='assistant_ui_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target'].startswith('polish-'):
+            chosen={'polish-layout':'polish_browser_fixture.py','polish-lifecycle':'lifecycle_polish_browser_fixture.py','polish-stream':'stream_polish_browser_fixture.py'}[payload['browser_target']]
+            if name==chosen:
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='polish':
+            if name in ('lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py'):
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
         if payload['browser_target']=='disclosure':
             if name=='model_disclosure_browser_fixture.py':
                 results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))

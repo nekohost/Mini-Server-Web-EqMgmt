@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.4]
+[EN rev.5]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
 [Dependencies] requests, private loopback worker API and server-only environment credentials.
-[Impact] Discards cancelled output while draining only its own response; purged content and group occupancy remain server-controlled.
+[Impact] Delivers small SSE batches within 150ms when frames arrive, preserves monotonic offsets and drains only its own cancelled response; group occupancy remains server-controlled.
 """
 import argparse
 import json
@@ -37,7 +37,8 @@ def sse(response):
     response.encoding='utf-8'
     data=[]
     size=0
-    for line in response.iter_lines(chunk_size=256,decode_unicode=True):
+    # Avoid waiting for an arbitrary byte buffer after a complete upstream SSE line.
+    for line in response.iter_lines(chunk_size=1,decode_unicode=True):
         if len(line)>262144:
             raise ValueError('oversized SSE line')
         if not line:
@@ -114,10 +115,10 @@ class Worker:
 
     def run_job(self, job):
         """[MINI-COMMENT: ASSISTANT.WORKER.STEP]
-        [EN rev.4]
+        [EN rev.5]
         [Role] Verifies dispatch admission, drains cancelled own streams and submits only completed live tool calls.
         [Dependencies] Strata Chat Completions SSE; an HTTP EOF without DONE is not a completed request.
-        [Impact] Failures stop tool continuation with a persistent reason; uncertain upstream completion holds the own-request lock without replay.
+        [Impact] Flushes display batches at 150ms or 4096 characters without changing final content, stop reasons or uncertain-request locks.
         """
         complete,cancelled=threading.Event(),threading.Event()
         pulse=threading.Thread(target=self.heartbeat,args=(job,complete,cancelled),daemon=True)
@@ -239,7 +240,10 @@ class Worker:
                                     target['arguments']+=function.get('arguments','') or ''
                                     if len(target['arguments'])>16384 or len(target['id'])>100 or len(target['name'])>100:
                                         raise ValueError('oversized tool call')
-                        if sum(map(len,reasoning))+sum(map(len,content))>=4096 or time.monotonic()-last_flush>=1:
+                        # Bound display latency without flooding the app with one write per token.
+                        elapsed = time.monotonic()-last_flush
+                        buffered = sum(map(len,reasoning))+sum(map(len,content))
+                        if buffered and (elapsed>=0.15 or buffered>=4096):
                             flush()
                         # No global cancellation API is used. A cancelled job drains its own response.
                     if done:
@@ -338,4 +342,3 @@ def main():
 
 if __name__=='__main__':
     main()
-

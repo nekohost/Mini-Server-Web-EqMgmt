@@ -1,0 +1,224 @@
+{
+  "work_id": "STAGING-20261105-AI-POLISH",
+  "reviewed_at": "2026-11-05T16:15:07.382322+09:00",
+  "scope": "staging-only",
+  "python_ast_files": 16,
+  "javascript_syntax_files": 10,
+  "node_tests": 18,
+  "node_failures": 0,
+  "node_metrics": [
+    {
+      "scenario": "chunk",
+      "renders": 14,
+      "first_ms": 32,
+      "catch_up_ms": 448,
+      "max_queued_frames": 1
+    },
+    {
+      "scenario": "100k-reasoning-64k-answer",
+      "renders": 14,
+      "catch_up_ms": 448,
+      "segmentation_passes": 2,
+      "segmented_utf16": 164000
+    },
+    {
+      "scenario": "22ms-renderer",
+      "renders": 7,
+      "final_start_ms": 452,
+      "final_end_ms": 474
+    }
+  ],
+  "root_protected_files": 121,
+  "root_changed_files": 0,
+  "browser_views": 38,
+  "browser_checks": 1944,
+  "suites": [
+    {
+      "suite": "final-polish-02",
+      "views": 20,
+      "checks": 748,
+      "failures": 0,
+      "fixture_digest": "8bb80501b7afde7967a7cbf5d2a91be7edde28f1711ae7e39f5f0adf43e2fa70",
+      "results": "Reports/2026/11/05/016_AI_Polish/final-polish-02/results.json"
+    },
+    {
+      "suite": "final-ui-01",
+      "views": 4,
+      "checks": 642,
+      "failures": 0,
+      "fixture_digest": "d35c6e3fa413091dbf2a1e31a8b07997fa04c1ab5073230ad532e5e6741f04b4",
+      "results": "Reports/2026/11/05/016_AI_Polish/final-ui-01/results.json"
+    },
+    {
+      "suite": "final-disclosure-01",
+      "views": 4,
+      "checks": 84,
+      "failures": 0,
+      "fixture_digest": "9458bdb1da6a2fb929664076fad3254f30bb571e6f197a1189d2a3c8ffb212c4",
+      "results": "Reports/2026/11/05/016_AI_Polish/final-disclosure-01/results.json"
+    },
+    {
+      "suite": "final-viewport-01",
+      "views": 4,
+      "checks": 142,
+      "failures": 0,
+      "fixture_digest": "bbb3d9f18d3d0f746a0f9610803727bf310167ed72fba6b90eb980841c53d19b",
+      "results": "Reports/2026/11/05/016_AI_Polish/final-viewport-01/results.json"
+    },
+    {
+      "suite": "final-popup-01",
+      "views": 2,
+      "checks": 56,
+      "failures": 0,
+      "fixture_digest": "8df7b48c360eafcf5712a8203094991286c20d413d4c7518690868ae56feab70",
+      "results": "Reports/2026/11/05/016_AI_Polish/final-popup-01/results.json"
+    },
+    {
+      "suite": "final-portal-01",
+      "views": 4,
+      "checks": 272,
+      "failures": 0,
+      "fixture_digest": "505757da8d80ad36435018a61c79422b40e325d964f360c39c9ae2002a4e899a",
+      "results": "Reports/2026/11/05/016_AI_Polish/final-portal-01/results.json"
+    }
+  ],
+  "stream_metrics": [
+    {
+      "width": 390,
+      "theme": "light",
+      "normal_intermediate_frames": 22,
+      "normal_median_gap_ms": 34.60000038146973,
+      "large_max_renderer_ms": 46.19999980926514,
+      "large_catch_up_ms": 453,
+      "before_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 318,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      },
+      "after_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 318,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      }
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "normal_intermediate_frames": 24,
+      "normal_median_gap_ms": 33.39999961853027,
+      "large_max_renderer_ms": 45.39999961853027,
+      "large_catch_up_ms": 479.69999980926514,
+      "before_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 318,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      },
+      "after_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 318,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      }
+    },
+    {
+      "width": 1440,
+      "theme": "light",
+      "normal_intermediate_frames": 24,
+      "normal_median_gap_ms": 33.40000057220459,
+      "large_max_renderer_ms": 47.69999980926514,
+      "large_catch_up_ms": 471.29999923706055,
+      "before_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 788,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      },
+      "after_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 788,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      }
+    },
+    {
+      "width": 1440,
+      "theme": "dark",
+      "normal_intermediate_frames": 22,
+      "normal_median_gap_ms": 33.90000057220459,
+      "large_max_renderer_ms": 48.90000057220459,
+      "large_catch_up_ms": 475.5,
+      "before_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 788,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      },
+      "after_scroll": {
+        "top": 65,
+        "left": 130,
+        "client_width": 788,
+        "scroll_width": 1800,
+        "table_min_width": "1800px"
+      }
+    }
+  ],
+  "source_hashes": {
+    "README.md": "84d7289978fa53ce16b2192c74f7185d453163ce4b175e32b46753fb618be1f9",
+    "static/css/ai_polish_frame.css": "de3aa01f2a6ed45e74fb6a9a5303bde4b0ea26170ebe97a901267c1d90f1e677",
+    "static/css/equipment_ai.css": "db628db2411f9a2e29803b63e1a7ed4d97c89f4a14a1925c1272c139bab93917",
+    "static/js/ai_stream_presenter.js": "279f92e1bffe58269de495732e366c3d3ab6fe337d9541c52954ff0d6f7bc259",
+    "static/js/equipment_ai.js": "f910e6bc6b5dbc1bd1e30c174004b10e1c4841890a94a8a9022cccc75ae7d39c",
+    "static/js/equipment_ai_polish.js": "0263d0dbb6a9b6f89b84510bfe4519bfadddaf2ea1e6c703bb4b1f25662bec1d",
+    "static/js/menu_cards.js": "1522ca24f931097036aebbecefb2246a57e7ff17913cc3a30bbc7ccf4de2bb6e",
+    "templates/equipment_ai.html": "acc4415c2068ef73afb224ae1b95763b848e4c688e1c3ad422db7a53eb7022c9",
+    "templates/miniserver_frame.html": "7d422264b381de4ce4ac2d55926712bef7f353d91ab02e25f5789d42c430f1d6",
+    "templates/portal.html": "3e9ed74ec55a1baa9497ef65ecbd6713cdb581425a7ed947ef88a0c4fb5666ee",
+    "tests/assistant_browser_fixture.py": "54bb9bbfd86c5066fce7d158f0bcef0eddc8b1b101a9efde08fcb4b04bb6400a",
+    "tests/assistant_ui_browser_fixture.py": "aafc67a6bd157ae052a2af025c77eff5672661cc2c332ed63c405e0ac779fe69",
+    "tests/lifecycle_polish_browser_fixture.py": "ae67a916e30ce0e9729039f7145a2ae6ab567b7aefd5f85158f99ba5ec00ff0c",
+    "tests/model_disclosure_browser_fixture.py": "d5dfca28991e6629b1ca66ef79c7ca55823124bcb4c147151d3855ff77154125",
+    "tests/polish_browser_fixture.py": "d2d031804df001f30b5291ccefc3ffb3d6abc33fb89358312dd6b9f8a93fc5d2",
+    "tests/portal_polish_browser_fixture.py": "4fc6ba6f95a6435e4b82e5b4e0281863f503cd91ebf85f188ccaab28b14f19ae",
+    "tests/run_assistant_fixture.py": "5cc67bde490c15a4030161798d8de0badf9c4bac569bb572619a1659778de948",
+    "tests/stream_polish_browser_fixture.py": "f820061ed34c60d04a46c460927066bd730cf9089be37953fbb9fffbe596f3b0",
+    "tests/test_ai_polish_layout_ui.js": "e3f708d72513996743b7ebe522a16121684737eec391a8dcc421876fce8dd846",
+    "tests/test_ai_polish_lifecycle.py": "f5bf73f17f0c60c22aefd6318b8f5613a3f1e5dafc3292816fb2978962b051c8",
+    "tests/test_ai_polish_lifecycle_ui.js": "8e1cfe6399be57a180d6561e5af0fa83426554950ebe87daba4a22e20077a567",
+    "tests/test_ai_polish_status.py": "3d234d4f8c90231f2ff78f2a14e7d39d47792c176452a2dba018e9a83651563c",
+    "tests/test_ai_stream_presenter.js": "ed2f98268acea2fda20704c21f81ec1786fb443f1f09bce532c3f18f5ac617a4",
+    "tests/test_equipment_ai_ui.js": "64a8cd86a29fea342c1e7f5de5988a7b9784338f106ab3d2f0a613c6b119f703",
+    "tests/test_portal_polish_ui.js": "ae313316d54310db5c14a7fe4006cdb71f1989ff990ad57fa58059111eeaa633",
+    "tests/test_stream_polish_browser.js": "67d52d8489d7187c8617e6fef717bb35e728bacb34130a2f6dc3ab9f713b05fd",
+    "tests/viewport_scrollbar_browser_fixture.py": "9be79f2bd714e868ad988250aafd6535c409933ab8f9ea48b58f36e62e1535c5",
+    "utils/ai_assistant/__init__.py": "5fada8cd0958ea96877de4dfbfccc2279580fc764f4a458339e7cb40f519d23f",
+    "utils/ai_assistant/lifecycle.py": "d201ffa912d299c8c94fe9f37760e2103907ad48dec0bfc4bc55aed5d69e4cfc",
+    "utils/ai_assistant/status.py": "026c79cbd87f1f103e1b269cce62b735cca831b19e2c10bf447d247dca91dad9",
+    "utils/ai_assistant/store.py": "787888a2867df9edf21fdfb5f14deb093bff6850e2ac9555ce8524d02a851349",
+    "utils/ai_assistant/worker.py": "0f2e12273c4788cb35d336f8e322731a92c3bc4e46e2aae2369d0a83a19f9fc9"
+  },
+  "archive": "Reports/2026/11/05/016_AI_Polish/reviewed-staging-sources.zip",
+  "archive_sha256": "4e6e4a6d70f1344d1976eb8147883037dd908cb7984f442b0a775127006d64cc",
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 194,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 38.809,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "95445434d2f5c3f609ae3b81973192f045545db12f2407add6921314b2728c39",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  }
+}

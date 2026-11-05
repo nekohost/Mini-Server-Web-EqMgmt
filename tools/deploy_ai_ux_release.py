@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """[MINI-COMMENT: ASSISTANT.UPGRADE.RELEASE]
-[EN rev.4]
+[EN rev.5]
 [Role] Upgrades the installed equipment assistant using private snapshots and an exact Git release.
 [Dependencies] The fixed Linux host/user/project, existing private settings and the reviewed v4 candidate.
-[Impact] Stops only an idle local web/worker pair; preserves secrets, business rows and every pre-existing AI row.
+[Impact] Stops only an idle local web/worker pair after snapshot-consistent jobs/orphan-guard gates; preserves secrets, business rows and every pre-existing AI row.
 """
 import argparse
 from datetime import datetime, timezone
@@ -103,9 +103,25 @@ def fingerprints(path, baseline=None, business=False):
 
 
 def active_jobs():
-    """[Role] Counts only this assistant's unfinished own work. [Dependencies] Read-only fixed AI DB. [Impact] No request cancellation or model control."""
-    with sqlite3.connect(AI.as_uri() + '?mode=ro', uri=True) as db:
-        return dict(db.execute('SELECT state,COUNT(*) FROM jobs WHERE state IN (?,?,?,?) GROUP BY state', ACTIVE))
+    """[MINI-COMMENT: ASSISTANT.UPGRADE.IDLE]
+    [EN rev.1]
+    [Role] Counts unfinished jobs and active execution guards whose job content was purged.
+    [Dependencies] One explicit read transaction on the fixed v4 AI DB; linked guards are not counted twice.
+    [Impact] Both pause gates reject orphaned running/draining/recovery work without cancelling it; the existing state-to-count mapping remains compatible.
+    """
+    db = sqlite3.connect(AI.as_uri() + '?mode=ro', uri=True)
+    try:
+        db.execute('BEGIN')
+        return dict(db.execute("""SELECT state,SUM(work_count) FROM (
+            SELECT state,COUNT(*) AS work_count FROM jobs WHERE state IN (?,?,?,?) GROUP BY state
+            UNION ALL
+            SELECT g.state,COUNT(*) AS work_count FROM ai_execution_guards g
+            WHERE g.state IN ('running','draining','recovery_required')
+                AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job)
+            GROUP BY g.state
+        ) GROUP BY state""", ACTIVE))
+    finally:
+        db.close()
 
 
 def audit_preserved(before, after):

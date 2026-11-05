@@ -1,0 +1,593 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "0a2d0df7c29f1575b61b3b3f828a11b902e9e843a8640431f03f37ecc8dd621c",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "stream-polish",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "candidate-loads-independent-presenter-before-first-user-turn",
+        "test-reader-is-away-from-follow-bottom",
+        "first-visible-answer-auto-collapses-reasoning-once",
+        "reader-can-manually-reopen-reasoning",
+        "later-chunks-and-reconnect-keep-manually-reopened-reasoning",
+        "streaming-safe-markdown-preserves-selected-text",
+        "incremental-output-preserves-reader-position",
+        "incremental-reasoning-preserves-inner-reader-position",
+        "streaming-and-reconnect-preserve-next-question-draft",
+        "safe-markdown-keeps-model-html-inert",
+        "complete-markdown-keeps-allowed-format-and-local-link",
+        "reconnect-cumulative-reasoning-matches-exact-source-without-duplicates",
+        "terminal-flush-matches-exact-raw-answer-and-reasoning",
+        "real-dom-output-preserves-emoji-combining-hangul-and-flag-boundaries",
+        "completed-output-releases-every-frame-and-listener",
+        "real-raf-paints-multiple-prefixes-between-network-chunks",
+        "failed-output-flushes-and-releases-animation",
+        "failure-preserves-accepted-raw-answer-and-stops-progress",
+        "cancelled-output-releases-animation-and-listeners",
+        "cancel-only-addresses-the-own-fixture-job",
+        "conversation-switch-releases-old-request-and-message",
+        "abandoned-request-cannot-paint-into-new-conversation",
+        "conversation-switch-preserves-composer-draft",
+        "restored-snapshot-hydrates-full-reasoning-without-replay",
+        "restored-snapshot-hydrates-complete-final-answer",
+        "large-table-performance-scenario-has-real-horizontal-scroll",
+        "large-backlog-final-text-is-exact",
+        "large-markdown-backlog-is-painted-on-multiple-real-frames",
+        "wide-table-remains-measurable-after-every-markdown-rebuild",
+        "large-markdown-rebuilds-preserve-main-and-table-reader-position",
+        "large-markdown-snapshots-catch-up-without-prolonged-artificial-delay",
+        "streaming-table-fits-mobile-and-desktop-document-width",
+        "pagehide-leaves-no-live-presenter-frame-or-listener"
+      ],
+      "metrics": {
+        "normal": {
+          "response_utf16": 5040,
+          "reasoning_utf16": 3560,
+          "presenter_instances": 1,
+          "intermediate_raf_renders": 22,
+          "actual_dom_mutations": 27,
+          "min_frame_gap_ms": 32.10000038146973,
+          "median_frame_gap_ms": 33.5,
+          "max_renderer_ms": 25,
+          "p95_renderer_ms": 11.600000381469727,
+          "reconnects": 1,
+          "dom_mutation_samples_ms": [
+            19.6,
+            168.2,
+            194.7,
+            229.1,
+            262.9,
+            297.7,
+            330.9,
+            364.7,
+            399.3,
+            432.8,
+            461.5,
+            496.3,
+            532.8,
+            561.9,
+            599.8,
+            964.7,
+            1033.4,
+            1071.2,
+            1118.3,
+            1168.1,
+            1217.3,
+            1250.8,
+            1300.7,
+            1334.1,
+            1367.5,
+            4191.4
+          ],
+          "samples": [
+            {
+              "ms": 156.2,
+              "raf": 1068.5,
+              "reasoning_chars": 224,
+              "answer_chars": 0,
+              "pending": 1774,
+              "render_ms": 11.2
+            },
+            {
+              "ms": 190.6,
+              "raf": 1101.8,
+              "reasoning_chars": 455,
+              "answer_chars": 0,
+              "pending": 1622,
+              "render_ms": 3.6
+            },
+            {
+              "ms": 224.2,
+              "raf": 1135.1,
+              "reasoning_chars": 677,
+              "answer_chars": 0,
+              "pending": 1478,
+              "render_ms": 3.9
+            },
+            {
+              "ms": 257.5,
+              "raf": 1168.5,
+              "reasoning_chars": 899,
+              "answer_chars": 0,
+              "pending": 1334,
+              "render_ms": 4.4
+            },
+            {
+              "ms": 290.5,
+              "raf": 1201.8,
+              "reasoning_chars": 1119,
+              "answer_chars": 0,
+              "pending": 1192,
+              "render_ms": 6.3
+            },
+            {
+              "ms": 324.1,
+              "raf": 1235.1,
+              "reasoning_chars": 1341,
+              "answer_chars": 0,
+              "pending": 1048,
+              "render_ms": 5.9
+            },
+            {
+              "ms": 357.3,
+              "raf": 1268.5,
+              "reasoning_chars": 1562,
+              "answer_chars": 0,
+              "pending": 905,
+              "render_ms": 6.5
+            },
+            {
+              "ms": 390.6,
+              "raf": 1301.8,
+              "reasoning_chars": 1784,
+              "answer_chars": 0,
+              "pending": 761,
+              "render_ms": 7.8
+            },
+            {
+              "ms": 423.9,
+              "raf": 1335.2,
+              "reasoning_chars": 2005,
+              "answer_chars": 0,
+              "pending": 618,
+              "render_ms": 8
+            },
+            {
+              "ms": 457.2,
+              "raf": 1368.5,
+              "reasoning_chars": 2227,
+              "answer_chars": 0,
+              "pending": 474,
+              "render_ms": 3.9
+            },
+            {
+              "ms": 489.4,
+              "raf": 1401.8,
+              "reasoning_chars": 2442,
+              "answer_chars": 0,
+              "pending": 336,
+              "render_ms": 6.3
+            },
+            {
+              "ms": 525.3,
+              "raf": 1435.2,
+              "reasoning_chars": 2688,
+              "answer_chars": 0,
+              "pending": 175,
+              "render_ms": 7.1
+            },
+            {
+              "ms": 557.4,
+              "raf": 1468.4,
+              "reasoning_chars": 2892,
+              "answer_chars": 0,
+              "pending": 43,
+              "render_ms": 4.2
+            },
+            {
+              "ms": 938.8,
+              "raf": 1851.7,
+              "reasoning_chars": 3020,
+              "answer_chars": 58,
+              "pending": 1070,
+              "render_ms": 25
+            },
+            {
+              "ms": 1022.3,
+              "raf": 1935.1,
+              "reasoning_chars": 3148,
+              "answer_chars": 215,
+              "pending": 817,
+              "render_ms": 10.3
+            },
+            {
+              "ms": 1055.7,
+              "raf": 1968.5,
+              "reasoning_chars": 3191,
+              "answer_chars": 266,
+              "pending": 732,
+              "render_ms": 14.5
+            },
+            {
+              "ms": 1105.6,
+              "raf": 2018.4,
+              "reasoning_chars": 3260,
+              "answer_chars": 349,
+              "pending": 596,
+              "render_ms": 11.2
+            },
+            {
+              "ms": 1155.6,
+              "raf": 2068.4,
+              "reasoning_chars": 3329,
+              "answer_chars": 432,
+              "pending": 460,
+              "render_ms": 11.6
+            },
+            {
+              "ms": 1205.5,
+              "raf": 2118.4,
+              "reasoning_chars": 3397,
+              "answer_chars": 522,
+              "pending": 325,
+              "render_ms": 11
+            },
+            {
+              "ms": 1238.9,
+              "raf": 2151.8,
+              "reasoning_chars": 3438,
+              "answer_chars": 569,
+              "pending": 245,
+              "render_ms": 11.1
+            },
+            {
+              "ms": 1288.9,
+              "raf": 2201.8,
+              "reasoning_chars": 3509,
+              "answer_chars": 657,
+              "pending": 103,
+              "render_ms": 11
+            },
+            {
+              "ms": 1322.4,
+              "raf": 2235.1,
+              "reasoning_chars": 3542,
+              "answer_chars": 698,
+              "pending": 37,
+              "render_ms": 10.8
+            }
+          ]
+        },
+        "large_markdown": {
+          "rows": 120,
+          "renders": 21,
+          "real_raf_renders": 20,
+          "intermediate_positive_prefix_frames": 6,
+          "intermediate_large_prefix_frames": 2,
+          "before_scroll": {
+            "top": 65,
+            "left": 130,
+            "client_width": 318,
+            "scroll_width": 1800,
+            "table_min_width": "1800px"
+          },
+          "after_scroll": {
+            "top": 65,
+            "left": 130,
+            "client_width": 318,
+            "scroll_width": 1800,
+            "table_min_width": "1800px"
+          },
+          "max_renderer_ms": 44.5,
+          "p95_renderer_ms": 41.30000019073486,
+          "max_completed_snapshot_catch_up_ms": 459.5999994277954,
+          "receipt_samples": [
+            {
+              "ms": 181.4,
+              "reasoning_chars": 3560,
+              "answer_chars": 0,
+              "streaming": true
+            },
+            {
+              "ms": 447.2,
+              "reasoning_chars": 3560,
+              "answer_chars": 0,
+              "streaming": true
+            },
+            {
+              "ms": 705.8,
+              "reasoning_chars": 3560,
+              "answer_chars": 0,
+              "streaming": true
+            },
+            {
+              "ms": 967,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 1253.1,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 1514.6,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 1771.6,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 2026.6,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 2281.6,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 2539.3,
+              "reasoning_chars": 3560,
+              "answer_chars": 4968,
+              "streaming": true
+            },
+            {
+              "ms": 2793.1,
+              "reasoning_chars": 3560,
+              "answer_chars": 5040,
+              "streaming": false
+            }
+          ],
+          "samples": [
+            {
+              "ms": 224,
+              "answer_chars": 0,
+              "pending": 2282,
+              "render_ms": 3.3,
+              "pane_top": 15802,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 257.7,
+              "answer_chars": 0,
+              "pending": 2092,
+              "render_ms": 3.8,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 291.2,
+              "answer_chars": 0,
+              "pending": 1904,
+              "render_ms": 4.5,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 324.4,
+              "answer_chars": 0,
+              "pending": 1717,
+              "render_ms": 5.2,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 357.7,
+              "answer_chars": 0,
+              "pending": 1529,
+              "render_ms": 5.9,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 390.9,
+              "answer_chars": 0,
+              "pending": 1342,
+              "render_ms": 5,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 424.3,
+              "answer_chars": 0,
+              "pending": 1153,
+              "render_ms": 7.9,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 457.7,
+              "answer_chars": 0,
+              "pending": 964,
+              "render_ms": 8.1,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 491.1,
+              "answer_chars": 0,
+              "pending": 775,
+              "render_ms": 9.7,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 524.5,
+              "answer_chars": 0,
+              "pending": 586,
+              "render_ms": 12.3,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 574.4,
+              "answer_chars": 0,
+              "pending": 250,
+              "render_ms": 10.5,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 607.9,
+              "answer_chars": 0,
+              "pending": 94,
+              "render_ms": 10.8,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 641,
+              "answer_chars": 0,
+              "pending": 0,
+              "render_ms": 9.7,
+              "pane_top": 15936,
+              "table_left": null,
+              "table_client_width": null,
+              "table_scroll_width": null
+            },
+            {
+              "ms": 1007.8,
+              "answer_chars": 427,
+              "pending": 3654,
+              "render_ms": 9.4,
+              "pane_top": 16120,
+              "table_left": 0,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 1042.2,
+              "answer_chars": 815,
+              "pending": 3345,
+              "render_ms": 15.2,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 1091.5,
+              "answer_chars": 1391,
+              "pending": 2882,
+              "render_ms": 15.6,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 1140.9,
+              "answer_chars": 1977,
+              "pending": 2416,
+              "render_ms": 20.2,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 1207.7,
+              "answer_chars": 2818,
+              "pending": 1743,
+              "render_ms": 29.9,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 1307.8,
+              "answer_chars": 4383,
+              "pending": 489,
+              "render_ms": 41.3,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 1424.2,
+              "answer_chars": 4968,
+              "pending": 0,
+              "render_ms": 27.6,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            },
+            {
+              "ms": 2793.3,
+              "answer_chars": 5040,
+              "pending": 0,
+              "render_ms": 44.5,
+              "pane_top": 65,
+              "table_left": 130,
+              "table_client_width": 318,
+              "table_scroll_width": 1800
+            }
+          ]
+        },
+        "requests": 66,
+        "presenter_instances": 5,
+        "real_raf_callbacks": 148,
+        "max_renderer_ms": 44.5
+      },
+      "production_data_used": false,
+      "timing": "real requestAnimationFrame and performance.now; synthetic transport; no model generation benchmark",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/stream-smoke-05/screen-000.png"
+    }
+  ],
+  "fixture_digest": "0a2d0df7c29f1575b61b3b3f828a11b902e9e843a8640431f03f37ecc8dd621c"
+}

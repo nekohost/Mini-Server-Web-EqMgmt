@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.6]
+[EN rev.7]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
 [Impact] Keeps existing data and unknown-request locks; accepted output is never evicted to admit new input.
@@ -270,10 +270,10 @@ class Store(LifecycleStore):
 
     def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.4]
+        [EN rev.5]
         [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Current owner auth, idempotency, rate/admission limits and base plus extension budget.
-        [Impact] Crossing the base does not discard generated results; insufficient remaining budget rejects new input.
+        [Impact] Crossing the base does not discard generated results; insufficient remaining budget rejects new input, and durable manual-title markers prevent subsequent automatic title replacement.
         """
         with self.db(True) as db:
             conv=self.conversation(owner, cid, db, account_key)
@@ -338,7 +338,11 @@ class Store(LifecycleStore):
                 from .providers import LEGACY_GROUP
                 db.execute('UPDATE jobs SET resource_group=? WHERE id=?', (LEGACY_GROUP, jid))
             db.execute('UPDATE storage_accounts SET used_chars=used_chars+? WHERE owner=? AND account_key=?', (len(content), owner, account_key))
-            db.execute("UPDATE conversations SET updated=?,title=CASE WHEN title='새 대화' THEN ? ELSE title END WHERE id=?", (now, content[:50], cid))
+            # Durable, content-free rename receipts also protect a manually chosen literal '새 대화'.
+            db.execute("""UPDATE conversations SET updated=?,title=CASE WHEN title='새 대화'
+                AND NOT EXISTS(SELECT 1 FROM ai_lifecycle_operations op WHERE op.conversation=conversations.id
+                    AND op.owner=conversations.owner AND op.account_key=conversations.account_key AND op.action LIKE 'rename:%')
+                THEN ? ELSE title END WHERE id=?""", (now, content[:50], cid))
             return jid
 
     def expire(self, db):
@@ -680,4 +684,3 @@ class Store(LifecycleStore):
         old=db.execute('SELECT handoff_chars FROM jobs WHERE id=?',(job['id'],)).fetchone()[0]
         self._charge(db,job,size-old)
         db.execute('UPDATE jobs SET handoff_chars=? WHERE id=?',(size,job['id']))
-

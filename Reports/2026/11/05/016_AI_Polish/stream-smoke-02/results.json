@@ -1,0 +1,387 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "9ccfca8a3feb2a80508e0fca095d4fb78d2a6f4a0f73bcfac313ccecdbd18ea3",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "view": "stream-polish",
+      "width": 390,
+      "theme": "dark",
+      "error": "own cancellation drained timed out",
+      "checks": [
+        "candidate-loads-independent-presenter-before-first-user-turn",
+        "test-reader-is-away-from-follow-bottom",
+        "first-visible-answer-auto-collapses-reasoning-once",
+        "reader-can-manually-reopen-reasoning",
+        "later-chunks-and-reconnect-keep-manually-reopened-reasoning",
+        "streaming-safe-markdown-preserves-selected-text",
+        "incremental-output-preserves-reader-position",
+        "incremental-reasoning-preserves-inner-reader-position",
+        "streaming-and-reconnect-preserve-next-question-draft",
+        "safe-markdown-keeps-model-html-inert",
+        "complete-markdown-keeps-allowed-format-and-local-link",
+        "reconnect-cumulative-reasoning-matches-exact-source-without-duplicates",
+        "terminal-flush-matches-exact-raw-answer-and-reasoning",
+        "real-dom-output-preserves-emoji-combining-hangul-and-flag-boundaries",
+        "completed-output-releases-every-frame-and-listener",
+        "real-raf-paints-multiple-prefixes-between-network-chunks",
+        "failed-output-flushes-and-releases-animation",
+        "failure-preserves-accepted-raw-answer-and-stops-progress"
+      ],
+      "metrics": {
+        "normal": {
+          "response_utf16": 5040,
+          "reasoning_utf16": 3560,
+          "presenter_instances": 1,
+          "intermediate_raf_renders": 22,
+          "actual_dom_mutations": 27,
+          "min_frame_gap_ms": 32,
+          "median_frame_gap_ms": 33.39999961853027,
+          "max_renderer_ms": 28,
+          "p95_renderer_ms": 11,
+          "reconnects": 1,
+          "dom_mutation_samples_ms": [
+            19.5,
+            167.5,
+            198.5,
+            230.1,
+            262.9,
+            297.4,
+            331.9,
+            366.4,
+            401.5,
+            433.5,
+            468.4,
+            502,
+            536.9,
+            585.7,
+            954.3,
+            1033.6,
+            1068.6,
+            1102.1,
+            1135.2,
+            1169.5,
+            1219,
+            1252.6,
+            1285.5,
+            1319.3,
+            1369.2,
+            4190.8
+          ],
+          "samples": [
+            {
+              "ms": 157.6,
+              "raf": 1085.8,
+              "reasoning_chars": 249,
+              "answer_chars": 0,
+              "pending": 1757,
+              "render_ms": 9.5
+            },
+            {
+              "ms": 194.4,
+              "raf": 1119.1,
+              "reasoning_chars": 494,
+              "answer_chars": 0,
+              "pending": 1596,
+              "render_ms": 3.5
+            },
+            {
+              "ms": 226.4,
+              "raf": 1152.4,
+              "reasoning_chars": 709,
+              "answer_chars": 0,
+              "pending": 1459,
+              "render_ms": 3.2
+            },
+            {
+              "ms": 259.1,
+              "raf": 1185.8,
+              "reasoning_chars": 925,
+              "answer_chars": 0,
+              "pending": 1320,
+              "render_ms": 3.2
+            },
+            {
+              "ms": 292.4,
+              "raf": 1219.1,
+              "reasoning_chars": 1146,
+              "answer_chars": 0,
+              "pending": 1177,
+              "render_ms": 4.3
+            },
+            {
+              "ms": 325.7,
+              "raf": 1252.4,
+              "reasoning_chars": 1363,
+              "answer_chars": 0,
+              "pending": 1035,
+              "render_ms": 5.4
+            },
+            {
+              "ms": 359.2,
+              "raf": 1285.7,
+              "reasoning_chars": 1585,
+              "answer_chars": 0,
+              "pending": 891,
+              "render_ms": 6.5
+            },
+            {
+              "ms": 394.4,
+              "raf": 1319.1,
+              "reasoning_chars": 1820,
+              "answer_chars": 0,
+              "pending": 738,
+              "render_ms": 6.4
+            },
+            {
+              "ms": 426.5,
+              "raf": 1352.4,
+              "reasoning_chars": 2034,
+              "answer_chars": 0,
+              "pending": 601,
+              "render_ms": 6.2
+            },
+            {
+              "ms": 459.5,
+              "raf": 1385.8,
+              "reasoning_chars": 2251,
+              "answer_chars": 0,
+              "pending": 459,
+              "render_ms": 8.1
+            },
+            {
+              "ms": 492.4,
+              "raf": 1419.1,
+              "reasoning_chars": 2467,
+              "answer_chars": 0,
+              "pending": 318,
+              "render_ms": 8.9
+            },
+            {
+              "ms": 527.5,
+              "raf": 1452.5,
+              "reasoning_chars": 2707,
+              "answer_chars": 0,
+              "pending": 163,
+              "render_ms": 8.7
+            },
+            {
+              "ms": 925.7,
+              "raf": 1852.5,
+              "reasoning_chars": 3005,
+              "answer_chars": 44,
+              "pending": 1099,
+              "render_ms": 28
+            },
+            {
+              "ms": 1023.9,
+              "raf": 1952.4,
+              "reasoning_chars": 3162,
+              "answer_chars": 230,
+              "pending": 789,
+              "render_ms": 8.9
+            },
+            {
+              "ms": 1057.4,
+              "raf": 1985.8,
+              "reasoning_chars": 3204,
+              "answer_chars": 280,
+              "pending": 706,
+              "render_ms": 10.3
+            },
+            {
+              "ms": 1090.8,
+              "raf": 2019.1,
+              "reasoning_chars": 3247,
+              "answer_chars": 335,
+              "pending": 622,
+              "render_ms": 10.4
+            },
+            {
+              "ms": 1124.2,
+              "raf": 2052.4,
+              "reasoning_chars": 3289,
+              "answer_chars": 385,
+              "pending": 539,
+              "render_ms": 10.2
+            },
+            {
+              "ms": 1157.4,
+              "raf": 2085.8,
+              "reasoning_chars": 3331,
+              "answer_chars": 435,
+              "pending": 456,
+              "render_ms": 11.3
+            },
+            {
+              "ms": 1207.6,
+              "raf": 2135.7,
+              "reasoning_chars": 3401,
+              "answer_chars": 525,
+              "pending": 318,
+              "render_ms": 10.7
+            },
+            {
+              "ms": 1241,
+              "raf": 2169,
+              "reasoning_chars": 3441,
+              "answer_chars": 573,
+              "pending": 238,
+              "render_ms": 10.8
+            },
+            {
+              "ms": 1274.1,
+              "raf": 2202.4,
+              "reasoning_chars": 3481,
+              "answer_chars": 622,
+              "pending": 158,
+              "render_ms": 10.7
+            },
+            {
+              "ms": 1307.6,
+              "raf": 2235.7,
+              "reasoning_chars": 3522,
+              "answer_chars": 670,
+              "pending": 77,
+              "render_ms": 11
+            }
+          ]
+        }
+      },
+      "diagnostic": {
+        "title": "부드러운 출력 확인 대화",
+        "notice": "",
+        "progress": "",
+        "jobs": [
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb01",
+            "scenario": "normal",
+            "age": 20273.900000572205,
+            "state": "done"
+          },
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb02",
+            "scenario": "failure",
+            "age": 16001.900000572205,
+            "state": "failed"
+          },
+          {
+            "id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbb03",
+            "scenario": "normal",
+            "age": 15011.199999809265,
+            "state": "done"
+          }
+        ],
+        "runs": [
+          {
+            "renders": 25,
+            "updates": 5,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 3560,
+              "content": 5040,
+              "streaming": false
+            }
+          },
+          {
+            "renders": 15,
+            "updates": 4,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 2960,
+              "content": 700,
+              "streaming": false
+            }
+          },
+          {
+            "renders": 31,
+            "updates": 10,
+            "disposed": true,
+            "resources": 0,
+            "last": {
+              "reasoning": 3560,
+              "content": 5040,
+              "streaming": false
+            }
+          }
+        ],
+        "requests": [
+          {
+            "path": "/api/ai/conversations",
+            "search": "?view=active",
+            "method": "GET",
+            "time": 10822.29999923706,
+            "data": null
+          },
+          {
+            "path": "/api/ai/status",
+            "search": "?selection_id=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "method": "GET",
+            "time": 11313,
+            "data": null
+          },
+          {
+            "path": "/api/ai/status",
+            "search": "?selection_id=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "method": "GET",
+            "time": 13820.199999809265,
+            "data": null
+          },
+          {
+            "path": "/api/ai/status",
+            "search": "?selection_id=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "method": "GET",
+            "time": 16326.5,
+            "data": null
+          },
+          {
+            "path": "/api/ai/status",
+            "search": "?selection_id=eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+            "method": "GET",
+            "time": 18827.5,
+            "data": null
+          },
+          {
+            "path": "/api/ai/capabilities",
+            "search": "",
+            "method": "GET",
+            "time": 20817.79999923706,
+            "data": null
+          },
+          {
+            "path": "/api/ai/conversations/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/messages",
+            "search": "?view=active",
+            "method": "GET",
+            "time": 20819.099999427795,
+            "data": null
+          },
+          {
+            "path": "/api/ai/conversations",
+            "search": "?view=active",
+            "method": "GET",
+            "time": 20825.199999809265,
+            "data": null
+          }
+        ]
+      },
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/stream-smoke-02/screen-000.png"
+    }
+  ],
+  "fixture_digest": "9ccfca8a3feb2a80508e0fca095d4fb78d2a6f4a0f73bcfac313ccecdbd18ea3"
+}

@@ -1,6 +1,6 @@
 """[MINI-COMMENT: ASSISTANT.MODEL.DISCLOSURE.BROWSER.FIXTURE]
-[EN rev.1]
-[Role] Verifies native default-collapsed model controls, actual space savings and retained selection/refresh behavior.
+[EN rev.2]
+[Role] Verifies native default-collapsed model controls beside reasoning, separate expanded body space and retained selection/refresh behavior.
 [Dependencies] Existing synthetic transport and reviewed real-frame Linux Chromium capture; no production DB/account/model.
 [Impact] Records both disclosure geometries, errors outside the panel and the chosen screenshot state without weakening existing functional checks.
 """
@@ -26,7 +26,8 @@ DRIVER = r'''
             assert(panel.contains($('ai-model'))&&panel.contains($('ai-model-refresh'))&&!panel.contains($('ai-level'))&&!panel.contains($('ai-send')),'only-model-and-refresh-are-inside-disclosure');
             assert(Boolean($('ai-level').compareDocumentPosition(panel)&Node.DOCUMENT_POSITION_FOLLOWING)&&Boolean(panel.compareDocumentPosition($('ai-reasoning-support'))&Node.DOCUMENT_POSITION_FOLLOWING),'reasoning-disclosure-support-dom-order');
             layout.initial=capture();
-            assert(layout.initial.summary.top>=layout.initial.reasoning.bottom&&layout.initial.support.top>=layout.initial.panel.bottom,'collapsed-disclosure-is-visually-below-reasoning-and-above-support');
+            const actionRow=document.querySelector('.ai-composer-actions'),inlineGroup=document.querySelector('.ai-inline-disclosures');
+            assert($('equipment-ai').dataset.disclosureLayout==='stacked'?rect(inlineGroup).left>=layout.initial.reasoning.right-1&&rect(inlineGroup).bottom<=rect(actionRow).bottom+1:rect(inlineGroup).top>=layout.initial.reasoning.bottom-1,'collapsed-disclosures-use-measured-inline-two-lines-or-narrow-fallback');
             assert(!panel.contains($('ai-model-status'))&&$('ai-model-status').getAttribute('role')==='status','model-status-is-live-and-outside-collapsible-content');
             const answer=document.querySelector('.ai-answer');
             const extra=document.createElement('div');extra.textContent='대화 내용을 보존하는 화면 크기 확인용 문장입니다. '.repeat(350);answer.append(extra);
@@ -37,7 +38,7 @@ DRIVER = r'''
             assert(panel.open&&$('ai-model').checkVisibility()&&$('ai-model-refresh').checkVisibility(),'native-summary-click-reveals-existing-controls');
             assert(layout.expanded.composer.height>layout.collapsed.composer.height+30&&layout.collapsed.chat.height>layout.expanded.chat.height+30,'collapsing-removes-control-row-and-increases-chat-space');
             layout.savedHeight=layout.expanded.composer.height-layout.collapsed.composer.height;
-            assert(layout.expanded.model.top>layout.expanded.reasoning.bottom&&layout.expanded.support.top>=layout.expanded.panel.bottom,'expanded-model-row-stays-between-reasoning-and-support');
+            assert(layout.expanded.model.top>=rect(actionRow).bottom&&rect($('ai-model-panel')).right<=layout.expanded.composer.right+1&&rect(document.querySelector('.ai-disclosure-spacer')).bottom>=rect($('ai-model-panel')).bottom,'expanded-model-body-reserves-separate-full-width-space-below-actions');
             const controls=[$('ai-model'),$('ai-model-refresh'),$('ai-level')];
             assert(controls.every(x=>Math.abs(rect(x).height-rect(controls[0]).height)<.5)&&rect(controls[0]).height>=(innerWidth<=760?44:36)-.5&&controls.every(x=>getComputedStyle(x).fontSize==='12px'),'moved-model-select-and-refresh-retain-shared-control-size');
             assert(rect($('ai-model')).width>20&&rect($('ai-model')).width<=136.5&&layout.expanded.model.left>=layout.expanded.composer.left&&layout.expanded.refresh.right<=layout.expanded.composer.right+1,'expanded-controls-fit-composer-and-model-width-cap');

@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.UI.LIFECYCLE.REGRESSION]
- * [EN rev.6]
+ * [EN rev.7]
  * [Role] Drives the real candidate DOM against a deterministic in-memory transport, including a second live app frame.
  * [Dependencies] assistant_ui_browser_fixture.py injection before equipment_ai.js; synthetic IDs, data and CSRF only.
- * [Impact] Preserves table/lifecycle/stream regressions while checking the compact composer, scoped error recovery, conditional model/support feedback, measured 136px model cap, browser-measured native reasoning widths, 760/761 boundary and state-preserving reflow without touching real services. Focus checks here are programmatic; native keyboard and zoom probes remain separate.
+ * [Impact] Preserves table/lifecycle/stream regressions while checking the compact composer, scoped error recovery, conditional model/support feedback, measured 136px model cap, browser-measured native reasoning widths, 760/761 boundary and state-preserving reflow without touching real services. An opt-in synthetic completion gate separates live-state assertions from terminal rendering. Focus checks here are programmatic; native keyboard and zoom probes remain separate.
  */
 (function () {
     'use strict';
@@ -31,7 +31,7 @@
             { id: '8'.repeat(32), provider: '중지 연결', label: '보관 모델', available: false, tools: false, levels: [], reason: '관리자가 연결을 비활성화했습니다.' },
         ];
         const storage = { base_chars: 32000000, extension_chars: 32000000, total_chars: 64000000, used_chars: 32000001, reserved_chars: 0, above_base: true };
-        const server = { conversations, receipts, requests, models, mode: '', failReads: 0, failModelReads: 0, sent: 0, polls: 0, mutations: 0, proposalState: 'pending', now,
+        const server = { conversations, receipts, requests, models, mode: '', failReads: 0, failModelReads: 0, sent: 0, polls: 0, mutations: 0, proposalState: 'pending', holdStreamCompletion: false, now,
             respond(result, status = 200) { return new Response(JSON.stringify(result), { status, headers: { 'Content-Type': 'application/json', 'X-Assistant-Account': 'synthetic-ui-account' } }); },
             async fetch(path, options = {}) {
                 const url = new URL(path, location.origin), method = options.method || 'GET';
@@ -112,8 +112,10 @@
                     }
                 }
                 if (url.pathname.startsWith('/api/ai/jobs/')) {
-                    this.polls++;
-                    const count = this.polls;
+                    const count = this.polls + 1;
+                    // Shared-prefix suites complete immediately unless this driver explicitly installs a gate.
+                    if (count >= 3 && this.holdStreamCompletion) await this.holdStreamCompletion;
+                    this.polls = count;
                     const header = '| ' + Array.from({ length: 10 }, (_, index) => `긴 머리글 ${index}`).join(' | ') + ' |\n';
                     const separator = '| ' + Array(10).fill('---').join(' | ') + ' |\n';
                     const row = '| ' + Array(10).fill('장비 정보').join(' | ') + ' |\n';
@@ -139,6 +141,12 @@
         const $ = id => document.getElementById(id);
         const wait = async (test, label = 'condition') => { for (let i = 0; i < 1200; i++) { if (test()) return; await sleep(10); } throw new Error(label + ' timed out'); };
         const assert = (value, label) => { if (!value) throw new Error(label); checks.push(label); };
+        let releaseStreamCompletion = null;
+        const releaseCompletion = () => {
+            server.holdStreamCompletion = false;
+            const release = releaseStreamCompletion; releaseStreamCompletion = null;
+            release?.();
+        };
         const posts = action => server.requests.filter(entry => entry.method === 'POST' && entry.path.endsWith('/' + action));
         const modelReads = () => server.requests.filter(entry => entry.path === '/api/ai/models').length;
         const round = value => Math.round(value * 1000) / 1000;
@@ -210,16 +218,19 @@
             const measurement = { width: rect(reference).width, style: style(reference), labels };
             reference.remove(); return measurement;
         };
-        /** [Role] Crosses the actual media breakpoint without reconstructing controls or sending model/turn mutations.
+        /** [MINI-COMMENT: ASSISTANT.UI.REFLOW.EVIDENCE] [EN rev.1]
+         * [Role] Crosses the actual media breakpoint and records each preserved field/node independently before asserting equality.
          * [Dependencies] The same-origin viewport iframe created by assistant_ui_browser_fixture.py and existing real message/control nodes.
-         * [Impact] Checks resize state independently of refresh/hydration; scrolling may clamp only to the resized table's available range.
+         * [Impact] Unchanged transport cursors and before/after text distinguish unfinished display from unnecessary DOM replacement; original state/lock assertions remain unchanged and scrolling may clamp only to the resized table's available range.
          */
         const reflowAcrossBoundary = async (name, options = {}) => {
             const frame = window.frameElement, originalWidth = innerWidth, originalHeight = innerHeight;
             const targetWidth = options.width || (originalWidth <= 760 ? 761 : 760), targetHeight = options.height || originalHeight;
             const originalPageTop = scrollY, originalFlexShrink = frame?.style.flexShrink;
             const table = document.querySelector('.ai-answer table'), thought = document.querySelector('.ai-thought:not([hidden])'), region = document.querySelector('.ai-answer .ai-table-scroll');
-            const before = { model: $('ai-model').value, level: $('ai-level').value, draft: $('ai-input').value, title: $('ai-title').textContent, thoughtOpen: thought?.open, left: region?.scrollLeft, models: modelReads(), turns: posts('turns').length, selections: posts('selection').length, inputDisabled: $('ai-input').disabled, modelDisabled: $('ai-model').disabled };
+            const before = { model: $('ai-model').value, level: $('ai-level').value, draft: $('ai-input').value, title: $('ai-title').textContent, thoughtOpen: thought?.open, left: region?.scrollLeft, models: modelReads(), turns: posts('turns').length, selections: posts('selection').length, inputDisabled: $('ai-input').disabled, modelDisabled: $('ai-model').disabled,
+                sendDisabled: $('ai-send').disabled, tableConnected: table?.isConnected ?? null, thoughtConnected: thought?.isConnected ?? null, tableText: table?.textContent ?? null,
+                answerText: table?.closest('.ai-answer')?.textContent ?? null, reasoningText: thought?.querySelector('.ai-thought-text')?.textContent ?? null, completedPolls: server.polls, completionHeld: Boolean(server.holdStreamCompletion), sampledAt: performance.now() };
             assert(Boolean(frame), name + '-uses-real-child-viewport');
             frame.style.flexShrink = '0';
             frame.style.width = targetWidth + 'px';
@@ -228,6 +239,18 @@
             await sleep(20);
             const changed = measure(name);
             changed.emulation = options.height ? 'reduced-height-css-viewport' : options.width ? '200-percent-css-layout-equivalent' : '760-761-responsive-boundary';
+            const afterTable = document.querySelector('.ai-answer table'), afterThought = document.querySelector('.ai-thought:not([hidden])'), afterRegion = document.querySelector('.ai-answer .ai-table-scroll');
+            const after = { model: $('ai-model').value, level: $('ai-level').value, draft: $('ai-input').value, title: $('ai-title').textContent, thoughtOpen: afterThought?.open,
+                inputDisabled: $('ai-input').disabled, modelDisabled: $('ai-model').disabled, sendDisabled: $('ai-send').disabled, tableConnected: afterTable?.isConnected ?? null, thoughtConnected: afterThought?.isConnected ?? null,
+                tableText: afterTable?.textContent ?? null, answerText: afterTable?.closest('.ai-answer')?.textContent ?? null, reasoningText: afterThought?.querySelector('.ai-thought-text')?.textContent ?? null,
+                completedPolls: server.polls, completionHeld: Boolean(server.holdStreamCompletion), sampledAt: performance.now() };
+            const preserved = { model: after.model === before.model, level: after.level === before.level, draft: after.draft === before.draft,
+                tableNode: afterTable === table, thoughtNode: afterThought === thought, thoughtOpen: thought?.open === before.thoughtOpen,
+                inputDisabled: after.inputDisabled === before.inputDisabled, modelDisabled: after.modelDisabled === before.modelDisabled };
+            changed.preservation = { before, after, identities: { table: afterTable === table, thought: afterThought === thought, tableRegion: afterRegion === region,
+                capturedTableStillConnected: table?.isConnected ?? null, capturedThoughtStillConnected: thought?.isConnected ?? null },
+                unchangedData: { completedPolls: after.completedPolls === before.completedPolls, answerText: after.answerText === before.answerText, reasoningText: after.reasoningText === before.reasoningText },
+                preserved, failed: Object.entries(preserved).filter(([,same]) => !same).map(([name]) => name) };
             assert((targetWidth <= 760 ? changed.header.height > 0 : changed.header.height === 0) && titleIsAccessible(before.title), name + '-title-follows-current-responsive-width');
             assert($('ai-model').value === before.model && $('ai-level').value === before.level && $('ai-input').value === before.draft && document.querySelector('.ai-answer table') === table && document.querySelector('.ai-thought:not([hidden])') === thought && thought?.open === before.thoughtOpen && $('ai-input').disabled === before.inputDisabled && $('ai-model').disabled === before.modelDisabled, name + '-resize-preserves-nodes-selection-draft-and-locks');
             if (region) assert(Math.abs(region.scrollLeft - Math.min(before.left, Math.max(0, region.scrollWidth - region.clientWidth))) <= 1, name + '-resize-keeps-available-table-scroll');
@@ -397,7 +420,17 @@
             assert($('ai-model').disabled && !document.querySelector('.ai-confirm'), 'second-tab-cannot-keep-stale-write-controls');
             await move('restore'); await dismiss();
             const revision = server.conversations.get(cid).lifecycle_revision;
+            /* [MINI-COMMENT: ASSISTANT.UI.STALE.REVISION.PROBE] [EN rev.1]
+             * [Role] Deliberately submits metadata retained by an obsolete client after a cross-tab trash/restore.
+             * [Dependencies] open() disables old controls before list rerender detaches them; native click() ignores disabled buttons.
+             * [Impact] Re-enabling this detached fixture-only node reaches the stale-revision server guard without changing live UI locks or weakening rejection checks.
+             */
+            layout.staleControl = { connected: staleControl.isConnected, disabledBeforeProbe: staleControl.disabled, currentRevision: revision };
+            assert(!staleControl.isConnected, 'stale-revision-probe-uses-detached-fixture-control');
+            const stalePosts = posts('trash').length;
+            staleControl.disabled = false;
             staleControl.click(); await result('확인'); $('ai-dialog-confirm').click(); await result('처리하지 못'); await dismiss();
+            assert(posts('trash').length === stalePosts + 1 && posts('trash').at(-1).data.lifecycle_revision < revision && $('ai-dialog-message').textContent.includes('다른 탭에서'), 'stale-revision-request-reaches-server-and-is-rejected');
             assert(!server.conversations.get(cid).is_deleted && server.conversations.get(cid).lifecycle_revision === revision, 'stale-tab-revision-cannot-retrash-restored-chat');
             frame.contentWindow.dispatchEvent(new Event('pagehide')); frame.remove();
 
@@ -406,10 +439,20 @@
             await result('완료'); await dismiss(); assert(posts('trash').length === duplicates + 1, 'duplicate-clicks-submit-once');
             await move('restore'); await dismiss();
 
+            /* [MINI-COMMENT: ASSISTANT.UI.STREAM.COMPLETION.GATE] [EN rev.2]
+             * [Role] Keeps this synthetic request running until its live feedback, draft, focus and resize checks finish.
+             * [Dependencies] The opt-in third-response promise above and the second chunk's completed body row plus exact trailing incomplete row.
+             * [Impact] Faster production polling cannot complete the fixture before live-state assertions; releasing the gate still exercises the original final delta, scroll retention and terminal controls.
+             */
+            server.holdStreamCompletion = new Promise(resolve => { releaseStreamCompletion = resolve; });
             $('ai-input').value = '안전한 표 스트리밍'; $('ai-form').requestSubmit();
             await wait(() => document.querySelector('.ai-thought:not([hidden])')?.open, 'live-thought-opens');
             const thought = document.querySelector('.ai-thought:not([hidden])');
             await wait(() => document.querySelector('.ai-answer table') && !thought.open, 'answer-auto-collapses');
+            await wait(() => {
+                const answer = document.querySelector('.ai-message[data-role="assistant"] .ai-answer');
+                return answer?.querySelectorAll('tbody tr').length === 1 && answer.lastElementChild?.textContent === '| 장';
+            }, 'running-chunk-visible-before-live-geometry-checks');
             thought.querySelector('summary').click(); const liveRegion = document.querySelector('.ai-answer .ai-table-scroll'); liveRegion.scrollLeft = 80; const liveLeft = liveRegion.scrollLeft;
             $('ai-input').value = '진행 중 보존할 다음 초안';
             assert(!$('ai-model-status').hidden && $('ai-model-status').textContent.includes('다음 요청') && $('ai-model-status').textContent.includes('기존 모델'), 'active-request-feedback-remains-visible-near-composer');
@@ -418,7 +461,11 @@
             await reflowAcrossBoundary('liveStreamReducedHeight', { width: innerWidth, height: 500 });
             window.dispatchEvent(new Event('focus')); await sleep(25);
             assert(document.querySelector('.ai-thought:not([hidden])') === thought && thought.open && $('ai-input').value === '진행 중 보존할 다음 초안' && $('ai-send').disabled, 'unchanged-focus-check-keeps-live-stream-job-and-draft');
+            layout.streamCompletionGate = { heldAtPoll: server.polls, heldDuringLiveChecks: Boolean(server.holdStreamCompletion), feedback: $('ai-model-status').textContent, sendDisabledBeforeRelease: $('ai-send').disabled };
+            assert(server.polls === 2 && Boolean(server.holdStreamCompletion), 'synthetic-completion-waits-for-explicit-live-check-release');
+            releaseCompletion();
             await wait(() => server.polls >= 3 && !$('ai-send').disabled, 'stream-done');
+            layout.streamCompletionGate.releasedAtPoll = server.polls;
             assert(thought.open && thought.textContent.includes('표를 작성'), 'stream-keeps-reopened-thoughts');
             assert(document.querySelector('.ai-answer .ai-table-scroll').scrollLeft === liveLeft && document.querySelectorAll('.ai-answer tbody tr').length === 2, 'stream-keeps-table-scroll-and-final-row');
             assert(document.querySelector('.ai-source').textContent.includes('260Strata'), 'accepted-answer-source-preserved');
@@ -571,6 +618,8 @@
             report.textContent = JSON.stringify({ status: 'pass', checks, width: innerWidth, theme, requests: server.requests.length, layout, focusMethod: 'programmatic-focus', viewportEmulation: 'CSS layout/reduced height only; native zoom, Tab traversal and phone keyboard are not exercised here', selectedModel: { id: $('ai-model').value, text: $('ai-model').selectedOptions[0].textContent, level: $('ai-level').value } });
         } catch (error) {
             report.textContent = JSON.stringify({ status: 'fail', checks, error: error.message, width: innerWidth, theme, layout, dialog: $('ai-dialog-title')?.textContent, notice: $('ai-notice')?.textContent, requests: server.requests.slice(-8) });
+        } finally {
+            releaseCompletion();
         }
         if (window.parent !== window) window.parent.postMessage({ fixtureResult: report.textContent }, location.origin);
         window.dispatchEvent(new Event('pagehide'));

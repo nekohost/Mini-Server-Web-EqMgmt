@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.4]
+[EN rev.5]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
-[Impact] Preserves audit content, completion reservations and history while retaining all owner/worker boundaries.
+[Impact] Adds owner-bound rename and passive expiring status while preserving audit content, completion reservations and all worker boundaries.
 """
 from datetime import datetime
 import json
@@ -30,6 +30,7 @@ from .providers import Registry, PROTOCOL, public_source
 from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
+from .status import read_status
 
 
 def enabled(value):
@@ -68,8 +69,8 @@ class PassiveSessionInterface(SecureCookieSessionInterface):
 
 def install_assistant(app, services):
     """[MINI-COMMENT: ASSISTANT.INSTALL]
-    [EN rev.4]
-    [Role] Wires disabled-by-default assistant features with injected existing application contracts.
+    [EN rev.5]
+    [Role] Wires disabled-by-default assistant, owner-authorized rename and passive status routes with injected application contracts.
     [Dependencies] A stable strong app secret, independent worker secret and explicit public origin.
     [Impact] Enabling upgrades the AI store and reparents only the verified admin menu while preserving business data/grants.
     """
@@ -587,6 +588,22 @@ def install_assistant(app, services):
             ordinary_conversation(actor,opaque(cid),db,view=view)
         return jsonify(success=True,**store.snapshot(actor['UserId'],cid,actor['account_key'],before,view=view),storage=store.storage_status(actor['UserId'],actor['account_key']))
 
+    @bp.post('/api/ai/conversations/<cid>/rename')
+    @login
+    def conversation_rename(cid):
+        """[MINI-COMMENT: ASSISTANT.CONVERSATION.RENAME.HTTP]
+        [EN rev.1]
+        [Role] Accepts only a real user's explicit current-account conversation rename.
+        [Dependencies] Live identity/menu authorization, Origin/CSRF and strict title/revision/operation fields.
+        [Impact] Administrators cannot rename another owner's chat; receipt retries cannot overwrite a later title or bypass trash protection.
+        """
+        actor=browser(True)
+        fields=('title','expected_title','lifecycle_revision','operation_id')
+        data=object_only(body(),fields,fields)
+        result=store.rename_conversation(actor['UserId'],opaque(cid),actor['account_key'],data['title'],
+            data['expected_title'],data['lifecycle_revision'],opaque(data['operation_id']))
+        return jsonify(success=True,**result)
+
     @bp.post('/api/ai/conversations/<cid>/trash')
     @bp.post('/api/ai/conversations/<cid>/restore')
     @bp.post('/api/ai/conversations/<cid>/purge')
@@ -625,6 +642,24 @@ def install_assistant(app, services):
         route,level,conv=selected(actor,opaque(cid),opaque(data['selection_id']) if 'selection_id' in data else None,data['level'])
         jid=store.enqueue(actor['UserId'],opaque(cid),content,level,key,actor['binding'],time.time()+min(1800,app.permanent_session_lifetime.total_seconds()),actor['account_key'],route)
         return jsonify(success=True,job_id=jid),202
+
+    @bp.get('/api/ai/status')
+    @login
+    def assistant_status():
+        """[MINI-COMMENT: ASSISTANT.HTTP.STATUS]
+        [EN rev.1]
+        [Role] Supplies expiring app-local queue and selected-provider evidence to the title icon.
+        [Dependencies] Current signed actor/menu authorization and passive read-only observations.
+        [Impact] No model request, credential exposure or cross-service cancellation is introduced.
+        """
+        actor = browser()
+        if set(request.args) - {'selection_id', 'job_id'} or any(len(request.args.getlist(key)) != 1 for key in request.args):
+            raise AssistantError('AI 상태 요청을 확인해 주세요.')
+        mid = opaque(request.args['selection_id']) if request.args.get('selection_id') else None
+        jid = opaque(request.args['job_id']) if request.args.get('job_id') else None
+        if not mid and not jid:
+            mid = registry.choices()['default_model']
+        return jsonify(success=True, **read_status(store, actor, mid, jid))
 
     @bp.get('/api/ai/jobs/<jid>')
     @login
@@ -1158,4 +1193,3 @@ def install_assistant(app, services):
             db.close()
 
     app.register_blueprint(bp)
-

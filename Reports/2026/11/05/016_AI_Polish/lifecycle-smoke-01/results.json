@@ -1,0 +1,34 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "688c54bc52c69604878cda501a24bf7b6ce069d4baeb50b64d239039fe189875",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "rename-left-of-trash-with-exact-tooltip",
+        "invalid-title-blocked-before-network",
+        "rename-once-preserves-draft-message-and-model",
+        "renamed-title-is-inert-and-fully-accessible"
+      ],
+      "error": "Error: rename-success-restores-trigger-focus\n    at assert (http://127.0.0.1:41113/?theme=dark:280:61)\n    at HTMLDocument.<anonymous> (http://127.0.0.1:41113/?theme=dark:302:13)",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/016_AI_Polish/lifecycle-smoke-01/screen-000.png"
+    }
+  ],
+  "fixture_digest": "688c54bc52c69604878cda501a24bf7b6ce069d4baeb50b64d239039fe189875"
+}

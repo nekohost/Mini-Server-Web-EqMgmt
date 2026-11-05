@@ -1,0 +1,38 @@
+/* [MINI-COMMENT: FRAME.POLISH] [EN rev.1]
+ * [Role] Keeps two navigation rows on each side and shares semantic assistant colors between the status star and trash actions.
+ * [Dependencies] miniserver_frame.html's dedicated heading slot and the existing navigation/session/theme controls.
+ * [Impact] Visual wrapping never creates a third action row; long names retain complete accessible titles and focus targets.
+ */
+:root{--ai-semantic-ready:#087e78;--ai-semantic-waiting:#9b7300;--ai-semantic-danger:#b22f35;--ai-semantic-unknown:#64748b}
+.dark{--ai-semantic-ready:#66d3c2;--ai-semantic-waiting:#dec268;--ai-semantic-danger:#ffabb0;--ai-semantic-unknown:#97a5b6}
+.app-nav-polish .app-nav-heading{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;max-width:min(20rem,25vw);justify-self:center}
+.app-nav-polish .app-nav-title{max-width:100%;min-width:0}
+.app-nav-polish .app-nav-links{min-width:0;max-width:100%}
+.app-nav-polish .app-nav-history{min-width:0;max-width:100%}
+.app-nav-polish .app-nav-link{min-width:0;max-width:100%;white-space:normal;min-height:32px}
+.app-nav-polish .app-nav-link>span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;max-width:100%;white-space:normal;overflow-wrap:anywhere;line-height:1.4;text-overflow:ellipsis}
+.ai-header-status{display:inline-flex;align-items:center;justify-content:center;flex:0 0 22px;min-width:22px;min-height:32px;line-height:1;font-size:24px;color:var(--ai-semantic-unknown);cursor:help}
+.ai-header-status[data-state=ready]{color:var(--ai-semantic-ready)}
+.ai-header-status[data-state=waiting_other]{color:var(--ai-semantic-waiting)}
+.ai-header-status[data-state=unavailable]{color:var(--ai-semantic-danger)}
+.ai-header-status:focus-visible{outline:2px solid currentColor;outline-offset:3px;border-radius:4px}
+@media(max-width:599px){
+ .app-nav-polish .app-nav-row{column-gap:.25rem}
+ .app-nav-polish .app-nav-heading{width:100%;max-width:100%;gap:3px}
+ .app-nav-polish .app-nav-title{width:auto;max-width:100%;flex:1}
+ .app-nav-polish .app-nav-links{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:2px;width:100%}
+ .app-nav-polish .app-nav-links .app-nav-link{padding:.25rem .1rem;width:100%;justify-content:center;text-align:center;font-size:.6875rem}
+ .app-nav-polish .app-nav-history{display:grid;grid-template-rows:auto auto;align-items:center;width:100%}
+ .app-nav-polish .app-nav-controls{display:flex;flex-direction:column;align-items:stretch;gap:3px;width:100%}
+ .app-nav-polish .app-nav-tools,.app-nav-polish .app-nav-account{display:flex;flex-wrap:nowrap;align-items:stretch;gap:2px;width:100%;max-width:100%}
+ .app-nav-polish .app-nav-controls .app-nav-control{min-height:32px;min-width:0;padding:.25rem .15rem;font-size:.625rem;gap:2px}
+ .app-nav-polish .app-nav-tools #theme-toggle-btn{flex:1 1 0;min-height:32px;min-width:0;padding:.25rem .1rem}
+ .app-nav-polish .app-nav-tools #session-timer-badge{flex:1 1 0;min-height:32px;padding:.25rem .1rem;font-size:.625rem;white-space:nowrap;flex-wrap:nowrap;justify-content:center}
+ .app-nav-polish .app-nav-tools .app-nav-control>span{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .app-nav-polish .app-nav-user{flex:1 1 0;overflow:hidden}
+ .app-nav-polish .app-nav-logout{flex:0 1 auto;white-space:normal;overflow-wrap:anywhere}
+ .app-nav-polish .app-nav-logout>span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;line-height:1.4}
+ .app-nav-polish .app-nav-role{font-size:.5625rem;max-width:40%}
+ .app-nav-polish .ai-header-status{flex-basis:18px;min-width:18px;font-size:21px}
+}
+@media(forced-colors:active){.ai-header-status{color:CanvasText}.ai-header-status:focus-visible{outline-color:Highlight}}
