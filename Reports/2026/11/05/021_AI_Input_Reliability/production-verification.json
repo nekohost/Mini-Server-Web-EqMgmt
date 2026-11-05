@@ -1,0 +1,140 @@
+{
+  "account": "test05",
+  "preferences": {
+    "layout_skin": "standard",
+    "ai_enter_action": "newline"
+  },
+  "new_jobs": [
+    {
+      "id": "d692a6277d4a48cf8449206753c505ec",
+      "state": "done",
+      "steps": 2,
+      "error_code": null,
+      "reserved_chars": 0,
+      "elapsed_seconds": 12.288,
+      "output_lengths": [
+        {
+          "step": 0,
+          "reasoning_chars": 0,
+          "content_chars": 0
+        },
+        {
+          "step": 1,
+          "reasoning_chars": 0,
+          "content_chars": 24
+        }
+      ],
+      "searches": [],
+      "guard_states": [
+        "released"
+      ]
+    },
+    {
+      "id": "a790830de7bc433fa680fc8b1d8b6549",
+      "state": "done",
+      "steps": 2,
+      "error_code": null,
+      "reserved_chars": 0,
+      "elapsed_seconds": 16.247,
+      "output_lengths": [
+        {
+          "step": 0,
+          "reasoning_chars": 0,
+          "content_chars": 0
+        },
+        {
+          "step": 1,
+          "reasoning_chars": 0,
+          "content_chars": 69
+        }
+      ],
+      "searches": [
+        {
+          "engine": "GitHub",
+          "results": 3
+        }
+      ],
+      "guard_states": [
+        "released"
+      ]
+    },
+    {
+      "id": "28456a35779c481a8c9ad55bba145b37",
+      "state": "done",
+      "steps": 2,
+      "error_code": null,
+      "reserved_chars": 0,
+      "elapsed_seconds": 14.103,
+      "output_lengths": [
+        {
+          "step": 0,
+          "reasoning_chars": 0,
+          "content_chars": 0
+        },
+        {
+          "step": 1,
+          "reasoning_chars": 0,
+          "content_chars": 9
+        }
+      ],
+      "searches": [],
+      "guard_states": [
+        "released"
+      ]
+    }
+  ],
+  "ui_verification": {
+    "account": "test05",
+    "other_account_read_only": "test04",
+    "initial_default": "newline",
+    "send_mode_saved_and_reload_retained": true,
+    "send_mode_shift_enter_newline": true,
+    "send_mode_enter_single_submission": true,
+    "newline_mode_enter_newline": true,
+    "newline_mode_shift_enter_single_submission": true,
+    "relogin_preferences": {
+      "layout_skin": "standard",
+      "ai_enter_action": "newline"
+    },
+    "other_account_defaults": {
+      "layout_skin": "standard",
+      "ai_enter_action": "newline"
+    },
+    "mobile_compact": {
+      "width": 412,
+      "height": 540,
+      "scale": 1,
+      "skin": "edge",
+      "input_lines": 12,
+      "assistant_height": 439,
+      "input_height": 160,
+      "send_rect": {
+        "x": 328,
+        "y": 445.5,
+        "width": 44,
+        "height": 44,
+        "bottom": 489.5
+      },
+      "unobscured_points": 9,
+      "total_points": 9,
+      "native_bottom_click": {
+        "x": 350,
+        "y": 486,
+        "submitted_jobs": 1,
+        "completed": true
+      }
+    },
+    "screenshots": [
+      "production-mobile-compact.jpg",
+      "production-mobile.jpg",
+      "production-pc.jpg",
+      "production-personal-settings.jpg",
+      "production-personal-settings-final.jpg"
+    ],
+    "viewport_override_reset": true,
+    "test_draft_cleared": true,
+    "physical_phone_tested": false,
+    "hardware_korean_ime_tested": false
+  },
+  "scope": "Actual public synthetic prompts on production; no equipment mutation or user job retry."
+}

@@ -2,7 +2,7 @@
 artifact_id: REPORT-20261105-021
 work_id: RELEASE-20261105-AI-INPUT-RELIABILITY
 owner: Codex
-status: in-progress
+status: completed
 approval: explicit-end-to-end-and-subagents
 ---
 
@@ -42,3 +42,34 @@ GPT-6.1 Sol xHigh는 버튼/template/CSS, Max는 개인 설정/키보드, Max는
 개인 설정은 기존 현재 사용자 JSON에서 다른 키를 유지하며 고정 enum만 원자적으로 변경한다. 기본 Enter 줄바꿈/Shift+Enter 보내기와 반대 설정, IME 조합·반복·변경 중 잠금·접수 snapshot·뒤늦은 목록·새 대화 생성 경합을 회귀로 검사했다. 실제 한국어 하드웨어 IME 검증으로 확대하지 않는다. 최종 통합 영향 검사로 input412의118개, viewport142개, 기존UI642개, 회복144개를 통과했다. 일부는 마지막 pointer activation 수정 전 검사이며 최종 원문에서는 버튼184+582를 다시 확인했다.
 
 통합 원문18개를 reviewed-integration-source.zip(SHA256 6367fe9acf64b9e238c855e74e04b78a6d5a21dd5717cfc1b12fc565e17aa8a6)에, 구성요소33개를 별도 ZIP/manifest에 보존했다. root18개가 원문 hash와 모두 일치하고 Python AST/JS 문법 검사 및 Linux265개 전체 검사를50.152초·실패/오류/skip0으로 통과했다. 정확한 manifest 경로·SHA를 확인해 이번 후보 파일만 정리한다. 이 검사는 실제 운영 DB를 열지 않는다.
+
+## 운영 배포와 실제 검증
+
+런타임 commit715bc40fef7b849071ec8dbf2f7af3271478a187을2026-11-05 23:31:02 KST에 활성화했다. 장비관리 자체의 미종료 작업0을 두 번 확인한 뒤 web/worker만 전환했다. Strata·다른 서비스는 제어하지 않았다. [배포 결과](021_AI_Input_Reliability/deployment.json)의 web990847/worker990857, NORMAL·worker/retention active를 확인했다. 새 schema는 추가하지 않았고 AI v4를 유지했다.
+
+private release `20261105-ai-ux-input-021-20261105T142934-2718ff`에 이전 코드·환경/설정·세 단위·두 DB·프로세스 환경을 보존했다. 현재PC 사용자 전용 `C:/Users/nkhst/.codex/private-releases/`의 같은 이름 사본14개가 서버 원본 SHA와 전부 일치한다. private 내용은 Git에 넣지 않았다. 실제 두 DB 사본 기동에서 업무18개/AI17개 테이블과 기존 lifecycle3행·감사·모든 구 AI 행을 보존했고 접수 재개 전 원본도 다시 대조했다. [비공개 백업 대조](021_AI_Input_Reliability/private-backup-verification.json).
+
+test05의 일반 UI에서 Enter=send/Edge를 저장하고 reload 유지, Shift+Enter 줄바꿈과 Enter 전송을 확인했다. 이후 newline으로 저장해 Enter 줄바꿈/Shift+Enter 전송을 확인했다. 마지막 standard/newline으로 복원하고 재로그인 유지까지 확인했다. test04는 설정을 변경하지 않고 기본 standard/newline을 확인했다. API 합성 검사의 두 계정 권한·CSRF·고정 enum·다른 JSON 키 보존과 실제 UI 검증을 구분한다.
+
+| 실제 검증 요청 | 입력 방식/구성 | 결과 | 접수~완료 |
+|---|---|---|---:|
+| 공개 합성 인사 | Enter 보내기, Qwen3.8 Flash Next/off | 단일 job done, 검색0회 |12.288초|
+| 공개 Flask 저장소 검색 | 기본 모드 Shift+Enter, 같은 모델/off | 단일 job done, 실제 GitHub 출처3건·공식 저장소 답변 |16.247초|
+| 12줄 모바일 입력 | Edge·412×540·배율1, 보내기 하단350/486 클릭 | 단일 job done, 검색0회·확인 응답 |14.103초|
+
+위 시간은 자동 검색 판단을 포함한 두 모델 단계와 내부 접수 대기를 합한 요청 전체 시간이다. 실제 모델은 이번 세 요청에서 다중 검색 batch를 만들지 않았으므로 그 실패의 재현/수정 판정은 표적 회귀에 따른다. 실제3개 모두 error_code=null, reserved_chars=0, guard released이며 전체 미종료 작업도0이다. 구 사용자 job을 재실행하거나 실패 기록을 바꾸지 않았다. [실제 요청/입력 증거](021_AI_Input_Reliability/production-verification.json).
+
+운영의 긴 입력·412×540 화면은 가용439px에 assistant439px·입력160px, 보내기 y445.5~489.5/44px로 맞았다. 버튼 안9/9 지점이 가려지지 않았으며 실제 하단 클릭으로 한 번만 접수했다. 412×915 모바일·1440×900 PC·개인 설정을 눈으로 검토했다. 최종 보이는 축소 화면은 기본 Standard에서도 별도 저장했고 시험 초안과 임시 viewport를 해제했다. [축소 높이](021_AI_Input_Reliability/production-mobile-compact.jpg),[모바일](021_AI_Input_Reliability/production-mobile.jpg),[PC](021_AI_Input_Reliability/production-pc.jpg),[개인 설정](021_AI_Input_Reliability/production-personal-settings-final.jpg). 물리 단말·삼성 키보드를 직접 조작한 결과는 아니다.
+
+[운영 무결성](021_AI_Input_Reliability/production-integrity.json)은18개 소스와 공개 CSS/JS3개의 SHA 일치, private 설정/단위 불변, 구 업무/AI 행 유실0·감사 보존을 확인한다. 검증 후 바뀐 구 업무 값은 두 시험 계정 로그인 SessionToken, AI는 연결 확인 시각2개·정상 출력의 문자 사용량1행뿐이다. 장비 업무 행과 기존 대화/job/실패/출처는 그대로다. Google 미해결·공급자/모델의 불완전 응답 가능성과 과거 ValueError의 정확한 종료 형태 불명은 유지한다.
+
+## 구현 후 Validation1~8
+
+1. 거버넌스: 승인된 분담·Staging 우선·원문18/구성33개 ZIP·hash·정확한 후보33개 정리·root 검증을 완료했다. 기존9개 dirty 원문과 과거 untracked는 이번 commit에 넣지 않는다.
+2. 의도: 모바일 부분 클릭, 기본/선택 Enter 동작, 계정 실패 진단과 확인된 제어 결함을 구현·운영 검증했다. 다른 보류 기능은 확장하지 않았다.
+3. 논리: 한 번의 접수·IME/반복/상태 잠금·지연 목록/새 대화 경합, 실제 검색/미실행 구분·전체2회/단계1회·명시적 EOF 종료를 회귀로 검증했다. 실제3요청도 단일 접수/종료를 확인했다.
+4. 운영: Linux에서만 실제 앱을 실행하고 현재 DB 사본18/17개와 원본의 구 행을 보존했다. schema4·키/단위·같은 DB 경로·worker/retention active·NORMAL을 확인했다.
+5. 보안: 현재 사용자 설정 enum/CSRF·JSON 병합과 검색 권한/민감 값/취소/휴지통을 유지한다. 인증값·진단 사적 원문은 Git에 넣지 않고 감사 원문과 구 실패는 보존한다.
+6. 복구: 이전 source/설정/두 DB와 현재PC private 사본14개·SHA를 확보했다. 사용자 요청/외부 서비스는 취소하지 않았으며 롤백이 필요할 때 구 코드와 최신 데이터를 보존할 기준을 마련했다.
+7. UX: 최종 모바일184개·일반 버튼582개와 운영 PC/모바일/개인 설정·저장/reload/재로그인·기본/반대 키·하단 클릭/입력 복귀를 확인했다. 물리 폴드7와 실제 한국어 IME는 별도 미검증으로 둔다.
+8. 메타: 요청 모델/추론 override로 분담했으나 runtime profile 검증 실패를 모델 확정 증거로 사용하지 않는다. 모든 과거 실패가 제거됐다고 주장하지 않고 원인 불명 스트림/Google·외부 공급자 한계를 구분한다. 최종 문서 commit은 같은 런타임 hash를 유지하는 ff-only 동기화로 마무리한다.

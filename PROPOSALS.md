@@ -1058,6 +1058,6 @@
 
 ## AI-INPUT-RELIABILITY-20261105 — 보내기·개인 키보드·응답 실패
 
-- **상태:** Staging/root 구현·검증 완료, 운영 배포 진행 중. work_id `RELEASE-20261105-AI-INPUT-RELIABILITY`.
+- **상태:** Staging/root 구현·검증과 운영 배포·실제 일반 계정 검증 완료. work_id `RELEASE-20261105-AI-INPUT-RELIABILITY`.
 - 사용자 명시 승인으로 계획부터 운영 검증까지 진행한다. 모바일 축소 높이·터치 종료 click 경합, 계정별 Enter/Shift 동작, 확인된 다중 검색 실패와 명시적 종료 표식 호환을 보완한다. 기존 대화 실패 기록·정상 생성·업무/감사·다른 서비스는 보존한다.
 - [계획021](Plans/2026/11/05/021_AI_Input_Reliability_Plan.md),[검증021](Reports/2026/11/05/021_AI_Input_Reliability_Report.md),현재 명세 FEATURES24. Google 일반 검색과 다른 기존 미실현 범위는 그대로 둔다.

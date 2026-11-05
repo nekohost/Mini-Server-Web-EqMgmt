@@ -1,0 +1,52 @@
+{
+  "at_utc": "2026-11-05T14:37:10.785037+00:00",
+  "runtime_commit": "715bc40fef7b849071ec8dbf2f7af3271478a187",
+  "app_pid": 990847,
+  "worker_pid": 990857,
+  "worker": "active",
+  "timer": "active",
+  "maintenance": "NORMAL",
+  "active_jobs": {},
+  "source_files_match": 18,
+  "public_assets": {
+    "static/css/equipment_ai.css": {
+      "status": 200,
+      "sha256": "e8bfc9767a007959397e442728ad11f177470f515f319cfd8e463d928630c9d2",
+      "matches_source": true
+    },
+    "static/js/equipment_ai.js": {
+      "status": 200,
+      "sha256": "294d96996386c6a38cf3061cd7f6a68c6a8b3c6689edf759f843314d3681f382",
+      "matches_source": true
+    },
+    "static/js/roadmap_preferences.js": {
+      "status": 200,
+      "sha256": "65eb0054cd93243dbdc02eeb05907fdf603154e22d437aa2958f5ac2bcb0e80e",
+      "matches_source": true
+    }
+  },
+  "configuration_and_units_unchanged": true,
+  "business_preservation": {
+    "missing_old_rows": {},
+    "changed_old_columns": {
+      "users": {
+        "SessionToken": 2
+      }
+    }
+  },
+  "ai_preservation": {
+    "missing_old_rows": {},
+    "changed_old_columns": {
+      "ai_provider_models": {
+        "checked": 1
+      },
+      "ai_providers": {
+        "last_checked": 1
+      },
+      "storage_accounts": {
+        "used_chars": 1
+      }
+    }
+  },
+  "audit_rows_preserved": true
+}
