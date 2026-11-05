@@ -1,0 +1,13 @@
+{
+  "platform": "linux",
+  "python": "3.12.3",
+  "tests": 292,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "elapsed_seconds": 55.992,
+  "production_app_imported": false,
+  "production_database_opened": false,
+  "fixture_digest": "8da4e853519f0b8f8ef2eaad35ed95f8ed9d0448aa15743d3d6d08303958eb76",
+  "fixture_storage": "linux-tmpfs-functional-only"
+}

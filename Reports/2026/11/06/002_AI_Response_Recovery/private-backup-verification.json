@@ -1,0 +1,24 @@
+{
+  "at_utc": "2026-11-05T22:47:34.162145+00:00",
+  "release": "20261105-ai-ux-response-20261105T224642-21cad2",
+  "private_pc_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-response-20261105T224642-21cad2",
+  "files": {
+    "app-env.before": "22943c5d62c7591e4c44c901eddb374845d5651e762a80bda99572e701c3c2fc",
+    "assistant-quiesced.sqlite3": "0e99e2b8e6937239c0d642a21af938e899bab3df97bfc26eaf133a375a9f11a0",
+    "baseline.json": "f848b28e6532d2c0a09339e5c64c643a19b12edd313ccc2801a770d38c994a6f",
+    "equipment-ai-retention.service.before": "bcb13d2a0d50a98ff4521d641f3f52b6d00bef67c74125051b048a57fa5eba27",
+    "equipment-ai-retention.timer.before": "bd72116858a5398a00b9bb4cb7c4c9836522ea0a52d49dab7684ade2e63b30a4",
+    "equipment-ai-worker.service.before": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+    "equipment-quiesced.sqlite3": "78633f314a4d40250929ab808947d8a7074bd13ee910ecb231f7be7b60d9fb54",
+    "maintenance-before.json": "204d08aab729c0332c7a57234abeaf8676d88355f4611f1435dd5f53a97f24b0",
+    "maintenance.before": "204d08aab729c0332c7a57234abeaf8676d88355f4611f1435dd5f53a97f24b0",
+    "old-runtime-source.tar": "6aa362cc03242eb70ea1f015baf9d306d446b1634517cd6cefab9857a87e53b6",
+    "process-before.json": "5b6f5cc6a92a1e171235acb63cdd9eaf0dc4da0f2f4c31103483b0f4d4729511",
+    "process-environment-before.json": "aa676a49208e13c3ac38579cc6202321772d3bb6cf91d5c18be1fda9d0fd8e85",
+    "quiesced.json": "79d2c71aaa2f2e6e9fc1ad1e157c4aa33b13807ce7531f0ed3067efa2cfdcdf3",
+    "worker-env.before": "6dcfcaf64bfdc7deb1479dff17e93a3579ebdae9141ee0aff4ad3568d0ecd5ec"
+  },
+  "all_14_match": true,
+  "user_only_acl": true,
+  "private_contents_in_repository": false
+}

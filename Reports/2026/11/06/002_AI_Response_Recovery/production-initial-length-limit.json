@@ -1,0 +1,95 @@
+{
+  "at_utc": "2026-11-05T22:52:46.270339+00:00",
+  "account": "test05",
+  "new_jobs": [
+    {
+      "id": "5f02ff4518604a589a972c49e33136ad",
+      "state": "failed",
+      "steps": 3,
+      "level": "xhigh",
+      "error_code": "LENGTH_LIMIT",
+      "reserved_chars": 0,
+      "elapsed_seconds": 134.14,
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "reasoning_effort": "xhigh",
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 545
+        },
+        {
+          "step": 1,
+          "content_chars": 0,
+          "reasoning_chars": 882
+        },
+        {
+          "step": 2,
+          "content_chars": 1888,
+          "reasoning_chars": 9355
+        }
+      ],
+      "corrections_used": [],
+      "searches": [
+        {
+          "engine": "Yahoo",
+          "results": 5
+        },
+        {
+          "engine": "Yahoo",
+          "results": 5
+        }
+      ],
+      "guard_states": [
+        "released"
+      ],
+      "finish_reports": [
+        {
+          "audit_id": 194207,
+          "at_kst": "2026-11-06 07:48:57",
+          "outcome": "complete",
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 545,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 194332,
+          "at_kst": "2026-11-06 07:49:15",
+          "outcome": "complete",
+          "calls": [
+            "web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 882,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 195328,
+          "at_kst": "2026-11-06 07:51:02",
+          "outcome": "failed",
+          "calls": [],
+          "content_chars": 1888,
+          "reasoning_chars": 9355,
+          "state": "failed",
+          "response_correction": null,
+          "error_code": null
+        }
+      ]
+    }
+  ],
+  "active_jobs": 0,
+  "active_guards": 0,
+  "total_reserved_chars": 0,
+  "original_failed_job_unchanged": {
+    "state": "failed",
+    "error_code": "WEB_SEARCH_PLAN_REQUIRED",
+    "reserved_chars": 0
+  }
+}

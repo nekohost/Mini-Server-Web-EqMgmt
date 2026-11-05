@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.11]
+[EN rev.12]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
-[Impact] Completed missing decisions/answers receive bounded server-owned correction steps; immutable search consent, audit/storage and unknown-request guards are preserved.
+[Impact] Missing decisions/answers and explicitly terminated token-limit responses receive bounded corrections; immutable consent, storage and unknown-request guards are preserved.
 """
 from datetime import datetime
 import json
@@ -815,7 +815,7 @@ def install_assistant(app, services):
                 system+='\n현재 요청 웹 검색: 사용 불가. 외부 검색을 수행하거나 검색했다고 주장하지 말고 현재 접수/모델/서버에서 검색이 제공되지 않음을 알리세요. 검색 버튼을 켜라고 안내하지 마세요.'
             if not route['profile'].get('tools'):
                 system+='\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
-            output_tokens=min(4096,max(512,route['context_tokens']//4))
+            output_tokens=min(8192,max(512,route['context_tokens']//4))
             if job['purpose']=='probe':
                 db=connect()
                 try:
@@ -904,10 +904,10 @@ def install_assistant(app, services):
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.4]
-        [Role] Enforces automatic search decisions and permits one bounded correction for a known-completed missing decision or empty answer.
-        [Dependencies] Verified lease, server-owned correction context, lifecycle boundary and current actor/menu checks.
-        [Impact] Answer corrections admit no tools; real failures remain terminal, deleted dialogue stays absent and uncertain upstream work stays locked.
+        [EN rev.5]
+        [Role] Enforces search decisions and bounded correction for completed missing output or an explicitly terminated output-token limit.
+        [Dependencies] Verified lease, optional typed termination evidence, immutable route and server correction context.
+        [Impact] Answer corrections admit no tools; other failures remain terminal and unknown upstream work stays locked. Legacy completion reports keep their contract.
         """
         worker()
         data=body(2097152)
@@ -924,12 +924,17 @@ def install_assistant(app, services):
         known=outcome in ('complete','failed','cancelled')
         code='INVALID_RESPONSE'
         try:
-            object_only(data,('lease','calls','content','reasoning','outcome','error_code'),('lease','outcome'))
+            object_only(data,('lease','calls','content','reasoning','outcome','error_code','termination'),('lease','outcome'))
             if outcome not in ('complete','failed','recovery_required','cancelled'):
                 raise AssistantError('작업 완료 상태가 올바르지 않습니다.')
             supplied=data.get('error_code')
             if supplied is not None and (not isinstance(supplied,str) or supplied not in ERROR_REASONS):
                 raise AssistantError('작업 중단 사유 형식이 올바르지 않습니다.')
+            termination=data.get('termination')
+            if 'termination' in data:
+                object_only(termination,('done','finish_reason'),('done','finish_reason'))
+                if type(termination['done']) is not bool or termination['finish_reason'] not in (None,'stop','tool_calls','length','content_filter','unrecognized'):
+                    raise AssistantError('응답 종료 확인 정보 형식이 올바르지 않습니다.')
             # Display output is evidence, even if the completed structured tool response is invalid.
             store.reconcile(jid,data['lease'],
                 stream_text(data['reasoning'],MAX_REASONING) if 'reasoning' in data else None,
@@ -939,6 +944,23 @@ def install_assistant(app, services):
                 return jsonify(success=True,state=store.finish(jid,data['lease'],'failed' if known else 'recovery_required',error_code='PROCESSING_FAILED'))
             if not enabled(app.config.get('USER_AI_ENABLED')) and outcome!='recovery_required':
                 outcome='cancelled'
+            # A DONE+length report is a known-ended model response, unlike character overflow,
+            # timeout or an EOF without DONE. Discard incomplete calls; never execute them.
+            if outcome=='failed' and supplied=='LENGTH_LIMIT' and termination=={'done':True,'finish_reason':'length'} and data.get('calls',[])==[] and job['purpose']=='chat':
+                route=json.loads(job['route_snapshot'])
+                # Historical required-search jobs must not skip their still-unperformed search.
+                if search_mode(route)!='required' or public_searches(job['context']):
+                    try:
+                        job_actor(job)
+                    except AssistantError as error:
+                        return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
+                    phase='search_plan' if search_planning(job,route) else 'answer'
+                    corrected=correction_context(job,phase)
+                    if corrected is not None and len(canonical(corrected))<=120000:
+                        state=store.finish(jid,data['lease'],'queued',context=corrected)
+                        if state=='queued':
+                            app.logger.warning('assistant correction job=%s phase=%s trigger=token_limit step=%s',jid,phase,job['steps'])
+                        return jsonify(success=True,state=state,response_correction=phase if state=='queued' else None)
             if outcome in ('failed','recovery_required','cancelled'):
                 final_code=supplied or ('STREAM_INCOMPLETE' if outcome=='recovery_required' else 'USER_CANCELLED' if outcome=='cancelled' else 'PROCESSING_FAILED')
                 return jsonify(success=True,state=store.finish(jid,data['lease'],outcome,

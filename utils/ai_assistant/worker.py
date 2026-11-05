@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.9]
+[EN rev.10]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
 [Dependencies] requests, private loopback worker API and server-only environment credentials.
 [Impact] Delivers small SSE batches within 150ms when frames arrive, preserves monotonic offsets and drains only its own cancelled response; group occupancy remains server-controlled.
@@ -118,7 +118,7 @@ class Worker:
 
     def run_job(self, job):
         """[MINI-COMMENT: ASSISTANT.WORKER.STEP]
-        [EN rev.7]
+        [EN rev.8]
         [Role] Verifies dispatch admission, applies only the server's fixed required decision/search tool and submits completed live calls.
         [Dependencies] Strata Chat Completions SSE; an HTTP EOF without DONE is not a completed request.
         [Impact] Flushes display batches at 150ms or 4096 characters without changing final content, stop reasons or uncertain-request locks.
@@ -288,6 +288,7 @@ class Worker:
             LOG.info('model summary job=%s step=%s outcome=%s finish=%s done=%s calls=%s content_chars=%s reasoning_chars=%s',
                      job['id'],job.get('steps'),outcome,observed_finish,done,len(calls),total_c,total_r)
         report={'lease':job['lease'],'outcome':outcome,'error_code':error_code,
+                'termination':{'done':done,'finish_reason':observed_finish},
                 'content':'' if cancelled.is_set() else ''.join(total_content)[:MAX_CONTENT],
                 'reasoning':'' if cancelled.is_set() else ''.join(total_reasoning)[:MAX_REASONING],
                 'calls':[calls[k] for k in sorted(calls)] if outcome=='complete' else []}

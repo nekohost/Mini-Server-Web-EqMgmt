@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.INPUT.STREAM.TESTS] [EN rev.2]
+"""[MINI-COMMENT: ASSISTANT.INPUT.STREAM.TESTS] [EN rev.3]
 [Role] Exercises explicit upstream stream termination without a final empty separator.
 [Dependencies] Real worker SSE parser and inert byte-line response; no network or production state.
 [Impact] Exact DONE survives EOF while a truncated response cannot authorize completion.
@@ -68,3 +68,12 @@ class ResponseCorrectionStateTests(unittest.TestCase):
         self.assertIsNone(correction_context(self.job([],purpose='probe'),'search_plan'))
         with self.assertRaises(ValueError):correction_phase({'steps':1,'context':'{}'})
         with self.assertRaises(ValueError):correction_context(self.job([]),'unknown')
+
+    def test_previously_deployed_answer_marker_remains_consumed_after_upgrade(self):
+        """[Role] Keeps a frozen v1 durable record from resetting its correction allowance when wording changes."""
+        prior=('장비관리 서버의 답변 보정 단계입니다. 앞선 응답은 종료됐지만 사용자에게 보여 줄 답변 내용이 비어 있었습니다. '
+               '이번 단계에는 새 도구가 없습니다. 이미 제공된 대화와 실제 도구 결과/출처로 사용자에게 답변하세요. '
+               '추론만 보내고 끝내지 말고 최종 답변 내용을 제공하세요. 자료가 부족하거나 실행하지 못한 작업은 그 한계를 명확히 알리세요. '
+               '이미 처리한 검색이나 장비 작업을 다시 실행하거나 확인 전 변경을 완료했다고 말하지 마세요.')
+        job=self.job([{'role':'system','content':prior}])
+        self.assertEqual(correction_phase(job),'answer');self.assertIsNone(correction_context(job,'answer'))

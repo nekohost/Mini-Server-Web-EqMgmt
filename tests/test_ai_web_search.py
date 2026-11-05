@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.6]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.7]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -253,6 +253,61 @@ class WebSearchIntegrationTests(unittest.TestCase):
             self.assertEqual(self.store.job(jid,db)['reserved_chars'],0)
             self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'released')
 
+    def length_step(self,job,content='잘린 초안',termination=None,include_termination=True,outcome='failed'):
+        """[Role] Reports a token-limited synthetic response with optional explicit termination evidence through the actual private API."""
+        data={'lease':job['lease'],'outcome':outcome,'error_code':'LENGTH_LIMIT','content':content,'reasoning':'길어진 검토','calls':[]}
+        if include_termination:data['termination']={'done':True,'finish_reason':'length'} if termination is None else termination
+        response=self.client.post('/internal/ai/jobs/'+job['id']+'/finish',json=data,headers=self.worker_headers)
+        self.assertEqual(response.status_code,200,response.get_json());return response.get_json()
+
+    def test_explicit_token_limit_after_search_gets_one_answer_only_correction(self):
+        """[Role] Replays the newly observed DONE+length case without rerunning its completed search or losing the original partial step."""
+        jid=self.turn(allow=None,level='xhigh')['job_id'];first=self.claim();self.assertEqual(first['max_tokens'],8192)
+        self.plan_step(first,True,query='Flask docs');limited=self.claim()
+        self.assertEqual(self.length_step(limited)['state'],'queued');corrected=self.claim()
+        self.assertEqual(corrected['tools'],[]);self.assertEqual(corrected['reasoning_effort'],'xhigh')
+        self.assertEqual(self.finish(corrected,content='간결하고 완결된 답변입니다. [1]')['state'],'done');self.assertEqual(len(self.search.calls),1)
+        with self.store.db() as db:
+            self.assertEqual(db.execute('SELECT content FROM message_steps WHERE job=? AND step=?',(jid,limited['steps'])).fetchone()[0],'잘린 초안')
+            self.assertEqual(len(public_searches(self.store.job(jid,db)['context'])),1)
+        self.assert_correction_released(jid)
+
+    def test_explicit_token_limit_before_decision_still_requires_the_decision(self):
+        """[Role] Keeps a length-limited first planner from becoming an unsearched final answer."""
+        jid=self.turn(allow=None)['job_id'];result=self.length_step(self.claim(),content='')
+        self.assertEqual(result['response_correction'],'search_plan');corrected=self.claim()
+        self.assertEqual(corrected['required_tool'],'plan_web_search');self.assertEqual([t['function']['name'] for t in corrected['tools']],['plan_web_search'])
+        self.plan_step(corrected,False);self.assertEqual(self.finish(self.claim(),content='검색 없이 답변합니다.')['state'],'done')
+        self.assertEqual(self.search.calls,[]);self.assert_correction_released(jid)
+
+    def test_unconfirmed_or_historical_length_reports_keep_their_terminal_contract(self):
+        """[Role] Requires explicit DONE+length rather than inferring it from a generic length error or older worker report."""
+        for termination,include in ((None,False),({'done':False,'finish_reason':'length'},True),({'done':True,'finish_reason':'stop'},True)):
+            with self.subTest(termination=termination,include=include):
+                jid=self.turn(allow=False)['job_id'];result=self.length_step(self.claim(),termination=termination,include_termination=include)
+                self.assertEqual(result['state'],'failed');self.assertIsNone(self.claim());self.assert_correction_released(jid)
+
+    def test_a_second_token_limit_does_not_reset_the_answer_correction_limit(self):
+        """[Role] Shares the one-answer budget between empty output and truncated output instead of alternating them forever."""
+        jid=self.turn(allow=False)['job_id'];self.finish(self.claim(),content='')
+        result=self.length_step(self.claim());self.assertEqual(result['state'],'failed');self.assertIsNone(self.claim())
+        with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['error_code'],'LENGTH_LIMIT')
+        self.assert_correction_released(jid)
+
+    def test_required_search_without_evidence_cannot_use_length_repair_to_skip_search(self):
+        """[Role] Preserves pre-auto required-search consent even with a new explicit terminal signal."""
+        jid=self.turn(allow=True)['job_id'];result=self.length_step(self.claim())
+        self.assertEqual(result['state'],'failed');self.assertEqual(self.search.calls,[]);self.assert_correction_released(jid)
+
+    def test_uncertain_length_stays_occupied_and_typed_metadata_is_not_coerced(self):
+        """[Role] Distinguishes an uncertain character/network failure from a confirmed output-token ending."""
+        for metadata in ({'done':'true','finish_reason':'length'},{'done':True,'finish_reason':'private unbounded text'},{'done':True}):
+            jid=self.turn(allow=False)['job_id'];result=self.length_step(self.claim(),termination=metadata)
+            self.assertEqual((result['state'],result['error_code']),('failed','INVALID_RESPONSE'));self.assert_correction_released(jid)
+        jid=self.turn(allow=False)['job_id'];self.length_step(self.claim(),outcome='recovery_required',termination={'done':False,'finish_reason':None})
+        self.assertIsNone(self.claim())
+        with self.store.db() as db:self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'recovery_required')
+
     def test_missing_decision_is_corrected_once_and_real_search_still_runs(self):
         """[Role] Replays the observed741-character reasoning-only completion through the durable correction and real search boundary."""
         jid=self.turn(allow=None,level='xhigh')['job_id'];first=self.claim()
@@ -419,6 +474,26 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.assertEqual(payloads[1]['tool_choice'],{'type':'function','function':{'name':'plan_web_search'}});self.assertNotIn('tools',payloads[-1])
         self.assertTrue(any('finish=stop done=True calls=0 content_chars=0 reasoning_chars=741' in line for line in logs.output))
         self.assertFalse(any('R'*100 in line for line in logs.output));self.assertEqual(len(self.search.calls),1)
+        with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['state'],'done')
+        self.assert_correction_released(jid)
+
+    def test_worker_explicit_length_evidence_crosses_the_real_queue_into_answer_repair(self):
+        """[Role] Exercises the actual worker's new termination metadata through real API/Store correction, not a hand-waved failed response."""
+        from utils.ai_assistant.worker import Worker
+        def reply(delta,finish):
+            """[Role] Supplies a terminated synthetic SSE step with a genuine length/stop signal."""
+            return ProtocolTests.response(self,['data: '+canonical({'choices':[{'delta':delta,'finish_reason':finish}]}),'','data: [DONE]',''])
+        def post(path,data):
+            """[Role] Delivers the worker's unmodified report to the actual authenticated fixture API."""
+            response=self.client.post(path,json=data,headers=self.worker_headers)
+            self.assertEqual(response.status_code,200,response.get_json());return response.get_json()
+        responses=[reply({'tool_calls':[{'index':0,'id':'plan','function':{'name':'plan_web_search','arguments':canonical({'needed':True,'query':'Flask docs'})}}]},'tool_calls'),
+                   reply({'reasoning_content':'검토','content':'잘린 표'},'length'),reply({'content':'완결된 짧은 비교표입니다. [1]'},'stop')]
+        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model');worker.post=post
+        jid=self.turn(allow=None,level='xhigh')['job_id']
+        with patch('utils.ai_assistant.worker.model_request',side_effect=responses) as transport:
+            for _ in range(3):worker.run_job(self.claim())
+        self.assertEqual(transport.call_count,3);self.assertNotIn('tools',transport.call_args_list[-1].args[4]);self.assertEqual(len(self.search.calls),1)
         with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['state'],'done')
         self.assert_correction_released(jid)
 

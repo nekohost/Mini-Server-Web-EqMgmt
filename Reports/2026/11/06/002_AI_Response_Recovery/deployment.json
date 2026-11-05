@@ -1,0 +1,69 @@
+{
+  "pause": {
+    "status": "quiesced",
+    "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-response-20261105T224642-21cad2",
+    "old_head": "1d711824000c049586603ebc18285a412abf03fa",
+    "old_pid": 990847,
+    "private_backup_files": 14,
+    "active_jobs": {},
+    "shared_model_controlled": false
+  },
+  "actual_database_copy_check": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-response-20261105T224642-21cad2/copy-b26d9457f048",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 50,
+      "ai_lifecycle_operations": 19,
+      "ai_lifecycle_tombstones": 7,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 17,
+      "ai_task_drafts": 0,
+      "conversations": 9,
+      "jobs": 31,
+      "message_steps": 57,
+      "messages": 62,
+      "proposals": 0,
+      "revocations": 10,
+      "storage_accounts": 4
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 4,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activation": {
+    "status": "active",
+    "app_pid": 1027288,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-05T22:47:51.095410+00:00",
+    "runtime_commit": "65b125a4e55c8d0a15be80ee22586e68c4e52509",
+    "source_files_match": 8,
+    "configuration_and_units_unchanged": true,
+    "worker_pid": 1027298,
+    "active_jobs": {},
+    "maintenance": "NORMAL"
+  },
+  "scope": "Owned equipment app web/worker only; no Strata service/model control."
+}

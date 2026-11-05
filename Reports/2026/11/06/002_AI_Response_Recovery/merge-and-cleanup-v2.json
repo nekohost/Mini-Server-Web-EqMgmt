@@ -1,0 +1,9 @@
+{
+  "reviewed_files": 8,
+  "root_hashes_match_archive": true,
+  "root_ast_pass": true,
+  "root_linux_tests": 292,
+  "exact_candidate_files_removed": 8,
+  "candidate_remaining_files": 0,
+  "other_staging_deleted": false
+}
