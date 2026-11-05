@@ -1,0 +1,382 @@
+{
+  "at_utc": "2026-11-05T23:22:33.828642+00:00",
+  "account": "test05",
+  "new_jobs": [
+    {
+      "id": "e54a5d2544674ff2aa630ed1cb187d3e",
+      "state": "failed",
+      "steps": 3,
+      "level": "xhigh",
+      "error_code": "EMPTY_RESPONSE",
+      "reserved_chars": 0,
+      "elapsed_seconds": 29.143,
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "reasoning_effort": "xhigh",
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 777
+        },
+        {
+          "step": 1,
+          "content_chars": 0,
+          "reasoning_chars": 347
+        },
+        {
+          "step": 2,
+          "content_chars": 0,
+          "reasoning_chars": 1194
+        }
+      ],
+      "corrections_used": [
+        "answer"
+      ],
+      "searches": [],
+      "guard_states": [
+        "released"
+      ],
+      "finish_reports": [
+        {
+          "audit_id": 199052,
+          "at_kst": "2026-11-06 08:16:28",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 777,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 199111,
+          "at_kst": "2026-11-06 08:16:37",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 0,
+          "reasoning_chars": 347,
+          "state": "queued",
+          "response_correction": "answer",
+          "error_code": null
+        },
+        {
+          "audit_id": 199196,
+          "at_kst": "2026-11-06 08:16:47",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 0,
+          "reasoning_chars": 1194,
+          "state": "failed",
+          "response_correction": null,
+          "error_code": "EMPTY_RESPONSE"
+        }
+      ],
+      "claims": [
+        {
+          "audit_id": 198979,
+          "at_kst": "2026-11-06 08:16:18",
+          "step": 0,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": "plan_web_search",
+          "tools": [
+            "plan_web_search"
+          ],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [],
+          "durable_control_in_dialogue": false
+        },
+        {
+          "audit_id": 199054,
+          "at_kst": "2026-11-06 08:16:29",
+          "step": 1,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": null,
+          "tools": [
+            "get_equipment",
+            "list_my_requests",
+            "prepare_catalog_request",
+            "prepare_csv_export",
+            "prepare_equipment_create",
+            "prepare_equipment_status",
+            "prepare_equipment_update",
+            "prepare_option_request",
+            "prepare_preferences",
+            "search_catalog",
+            "search_equipment",
+            "save_equipment_draft",
+            "save_task_draft"
+          ],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [],
+          "durable_control_in_dialogue": false
+        },
+        {
+          "audit_id": 199113,
+          "at_kst": "2026-11-06 08:16:38",
+          "step": 2,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": null,
+          "tools": [],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [
+            "answer"
+          ],
+          "durable_control_in_dialogue": false
+        }
+      ]
+    },
+    {
+      "id": "5968852ecdd54597aa4500f3760a06f3",
+      "state": "done",
+      "steps": 2,
+      "level": "xhigh",
+      "error_code": null,
+      "reserved_chars": 0,
+      "elapsed_seconds": 15.555,
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "reasoning_effort": "xhigh",
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 123
+        },
+        {
+          "step": 1,
+          "content_chars": 24,
+          "reasoning_chars": 84
+        }
+      ],
+      "corrections_used": [],
+      "searches": [],
+      "guard_states": [
+        "released"
+      ],
+      "finish_reports": [
+        {
+          "audit_id": 199300,
+          "at_kst": "2026-11-06 08:17:26",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 123,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 199351,
+          "at_kst": "2026-11-06 08:17:34",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 24,
+          "reasoning_chars": 84,
+          "state": "done",
+          "response_correction": null,
+          "error_code": null
+        }
+      ],
+      "claims": [
+        {
+          "audit_id": 199258,
+          "at_kst": "2026-11-06 08:17:19",
+          "step": 0,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": "plan_web_search",
+          "tools": [
+            "plan_web_search"
+          ],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [],
+          "durable_control_in_dialogue": false
+        },
+        {
+          "audit_id": 199302,
+          "at_kst": "2026-11-06 08:17:26",
+          "step": 1,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": null,
+          "tools": [
+            "get_equipment",
+            "list_my_requests",
+            "prepare_catalog_request",
+            "prepare_csv_export",
+            "prepare_equipment_create",
+            "prepare_equipment_status",
+            "prepare_equipment_update",
+            "prepare_option_request",
+            "prepare_preferences",
+            "search_catalog",
+            "search_equipment",
+            "save_equipment_draft",
+            "save_task_draft"
+          ],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [],
+          "durable_control_in_dialogue": false
+        }
+      ]
+    },
+    {
+      "id": "3c29313ee6b74065870f2d816b1ae625",
+      "state": "done",
+      "steps": 2,
+      "level": "xhigh",
+      "error_code": null,
+      "reserved_chars": 0,
+      "elapsed_seconds": 191.293,
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "reasoning_effort": "xhigh",
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 9562
+        },
+        {
+          "step": 1,
+          "content_chars": 2415,
+          "reasoning_chars": 11012
+        }
+      ],
+      "corrections_used": [],
+      "searches": [
+        {
+          "engine": "Yahoo",
+          "results": 5
+        }
+      ],
+      "guard_states": [
+        "released"
+      ],
+      "finish_reports": [
+        {
+          "audit_id": 200146,
+          "at_kst": "2026-11-06 08:19:18",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "reasoning_chars": 9562,
+          "state": "queued",
+          "response_correction": null,
+          "error_code": null
+        },
+        {
+          "audit_id": 201063,
+          "at_kst": "2026-11-06 08:21:08",
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 2415,
+          "reasoning_chars": 11012,
+          "state": "done",
+          "response_correction": null,
+          "error_code": null
+        }
+      ],
+      "claims": [
+        {
+          "audit_id": 199401,
+          "at_kst": "2026-11-06 08:17:58",
+          "step": 0,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": "plan_web_search",
+          "tools": [
+            "plan_web_search"
+          ],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [],
+          "durable_control_in_dialogue": false
+        },
+        {
+          "audit_id": 200149,
+          "at_kst": "2026-11-06 08:19:18",
+          "step": 1,
+          "max_tokens": 8192,
+          "reasoning_effort": "xhigh",
+          "required_tool": null,
+          "tools": [
+            "get_equipment",
+            "list_my_requests",
+            "prepare_catalog_request",
+            "prepare_csv_export",
+            "prepare_equipment_create",
+            "prepare_equipment_status",
+            "prepare_equipment_update",
+            "prepare_option_request",
+            "prepare_preferences",
+            "search_catalog",
+            "search_equipment",
+            "web_search",
+            "save_equipment_draft",
+            "save_task_draft"
+          ],
+          "system_message_count": 1,
+          "active_correction_in_primary_system": [],
+          "durable_control_in_dialogue": false
+        }
+      ]
+    }
+  ],
+  "active_jobs": 0,
+  "active_guards": 0,
+  "total_reserved_chars": 0,
+  "original_failed_job_unchanged": {
+    "state": "failed",
+    "error_code": "WEB_SEARCH_PLAN_REQUIRED",
+    "reserved_chars": 0
+  },
+  "initial_length_limit_case_unchanged": {
+    "state": "failed",
+    "error_code": "LENGTH_LIMIT",
+    "reserved_chars": 0
+  },
+  "fixed_worker_completion_logs": [
+    "2026-11-06 08:16:28,387 INFO model summary job=e54a5d2544674ff2aa630ed1cb187d3e step=0 outcome=complete finish=tool_calls done=True calls=1 content_chars=0 reasoning_chars=777",
+    "2026-11-06 08:16:37,828 INFO model summary job=e54a5d2544674ff2aa630ed1cb187d3e step=1 outcome=complete finish=stop done=True calls=0 content_chars=0 reasoning_chars=347",
+    "2026-11-06 08:16:47,352 INFO model summary job=e54a5d2544674ff2aa630ed1cb187d3e step=2 outcome=complete finish=stop done=True calls=0 content_chars=0 reasoning_chars=1194",
+    "2026-11-06 08:17:26,187 INFO model summary job=5968852ecdd54597aa4500f3760a06f3 step=0 outcome=complete finish=tool_calls done=True calls=1 content_chars=0 reasoning_chars=123",
+    "2026-11-06 08:17:34,734 INFO model summary job=5968852ecdd54597aa4500f3760a06f3 step=1 outcome=complete finish=stop done=True calls=0 content_chars=24 reasoning_chars=84",
+    "2026-11-06 08:19:16,398 INFO model summary job=3c29313ee6b74065870f2d816b1ae625 step=0 outcome=complete finish=tool_calls done=True calls=1 content_chars=0 reasoning_chars=9562",
+    "2026-11-06 08:21:08,478 INFO model summary job=3c29313ee6b74065870f2d816b1ae625 step=1 outcome=complete finish=stop done=True calls=0 content_chars=2415 reasoning_chars=11012"
+  ]
+}

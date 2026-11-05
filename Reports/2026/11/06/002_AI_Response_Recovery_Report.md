@@ -2,7 +2,7 @@
 artifact_id: REPORT-20261106-002
 work_id: RELEASE-20261106-AI-RESPONSE-RECOVERY
 owner: Codex
-status: in-progress
+status: completed
 approval: explicit-remediation-through-production
 ---
 
@@ -54,3 +54,34 @@ V2의 동일 실제 xhigh 비교 질문은 job2852d2da9bd14843bf13b25012a65266�
 최종 교차 검토에서는 완료된 보정 system 지시가 같은 job의 다음 단계 모델 입력에 남을 위험을 발견했다. final Staging에서 영속 원장은 보존하되 모델용 context에서 정확한 현행/구 서버 제어 메시지만 제외하고, 활성 보정 지시만 첫 system 메시지에 합친다. 실제 API와4단계 SSE 회귀에서 단일 system 메시지·활성 지시 포함·완료된 검색 지시 제거를 검사하고, 순수 projection의 원문/복사된 user·assistant 문자열/구 버전 횟수 보존을 추가 검사한다.
 
 최종 Staging293개는56.045초, 병합 후 root293개는55.981초에 실패/오류/skip0으로 통과했다. 원문8개를 reviewed-source-final.zip(SHA256 9f91d5f48edd0697ca100e2d7a22dcd63c7e072fae76dd2c7106e26a4fd243cb)에 보존하고 root8개 SHA/AST를 확인했다. ZIP·원문·root가 일치하는 이번 후보8개만 정리했다. [Staging 검증](002_AI_Response_Recovery/stage-verification-final.json),[root 검증](002_AI_Response_Recovery/root-verification-final.json),[최종 원문 목록](002_AI_Response_Recovery/source-manifest-final.json),[후보 정리](002_AI_Response_Recovery/merge-and-cleanup-final.json).
+
+최종 runtime commitaac49e846c6daae6998977bfc951a32fe4ba50af를2026-11-06 08:15:48 KST에 활성화했다. private release `20261105-ai-ux-response-final-20261105T231429-8f61a4`의 현재 상태 백업14개를 현재PC 사용자 전용 사본과 SHA 대조했다. 실제 DB 사본과 접수 재개 전 원본에서 업무18개·AI17개 테이블, 기존33개 job/66개 메시지·lifecycle5행·감사 보존을 확인했다. web1034430/worker1034440·NORMAL·worker/retention active, 최종 원문8개·기존 환경/키/세 단위 불변을 확인했다. [최종 배포](002_AI_Response_Recovery/deployment-final.json),[최종 비공개 백업 대조](002_AI_Response_Recovery/private-backup-verification-final.json).
+
+## 최종 운영의 실제 보정 소진 시험
+
+일반 test05 계정에 별도 시험 대화를 만들고 “웹 검색과 장비 작업 없이 최종 답변을 비워 두라”는 의도적인 부정 시험을 xhigh로 보냈다. jobe54a5d2544674ff2aa630ed1cb187d3e는29.143초·3단계였다. 첫 판단은 검색 불필요(외부 검색0회), 다음 빈 응답에서 answer 보정1회를 실제로 접수했고 마지막 단계는 도구0개·단일 system·활성 answer 지시만 제공했다. 모델이 다시 빈 답변을 보내 failed/EMPTY_RESPONSE로 끝났다. 이는 의도한 소진 경계의 검증이며 성공 응답으로 집계하지 않는다.
+
+화면에는 “AI가 답변 보정 후에도 내용을 보내지 않아 작업을 완료하지 못했습니다”라는 구체적 사유가 남았고 보내기 버튼은 활성화됐다. guard released·예약0과3개 step의 추론 원문 보존을 확인했다. 서버가 답변을 임의 작성하거나 빈 성공으로 처리하지 않았으며 다른 검색/업무를 실행하지 않았다. [실제 시험 근거](002_AI_Response_Recovery/production-empty-response.json),[소진 후 화면](002_AI_Response_Recovery/production-empty-response.jpg).
+
+## 최종 운영의 정상 답변과 보존 검증
+
+동일한 부정 시험 대화에서 빈 답변 조건의 종료를 명시하고 정상 한 문장을 요청했다. job5968852ecdd54597aa4500f3760a06f3는15.555초·2단계·검색0회로 “정상 응답과 후속 질문 처리를 확인했습니다.”를 저장했다. 직전 실패의 보정 상태는 새 요청으로 전이되지 않았고 보내기 버튼도 다시 활성화됐다. [후속 질문 화면](002_AI_Response_Recovery/production-followup.jpg).
+
+원래 누락된 것과 같은 공개 비교 질문은 별도 test05 요청3c29313ee6b74065870f2d816b1ae625로 최종 코드에서 다시 검증했다. xhigh·max_tokens8,192를 유지하고 Yahoo 실검색1회/5건 뒤191.293초·2단계로 done 처리됐다. 최종 raw 답변2,415자·추론11,012자, DONE=true/stop을 확인했다. 화면에는 비교표2개/총20행·출처·확인 불가 항목이 표시됐고 추론 자동 접힘·진행 표시 종료·보내기 활성화를 확인했다. 일반 비교 응답의 완결성과 저장을 검증한 것이며 모델 비교 내용의 정확도·우위 평가까지 검증한 것은 아니다.
+
+1280×720 PC와412×915 모바일 viewport에서 본문 가로 넘침이 없고, 모바일 보내기44×44가 화면 안에 놓임을 확인했다. 모바일은 viewport 검증이며 실제 폴드7 물리 기기 시험으로 확대하지 않는다. 최종 활성화 이후 브라우저 error0, 기존 Tailwind CDN 사용 안내 warning2건을 구분해 기록했다. 임시 viewport는 원래 크기로 복원했다. [PC 화면](002_AI_Response_Recovery/production-final-pc.jpg),[모바일 화면](002_AI_Response_Recovery/production-final-mobile.jpg),[화면 측정](002_AI_Response_Recovery/production-ui-verification.json),[최종 실제 요청·worker 종료 로그](002_AI_Response_Recovery/production-final-requests.json).
+
+검증 종료 시 active jobs0·active guards0·예약0, web/worker/retention 정상·NORMAL이었다. 최종 source8개 SHA와 환경/키/세 단위는 일치했다. 최종 배포 직전 업무 행은 변경/누락0, AI 기존 행 누락0이었다. 기존 AI 행의 변경은 모델/프로바이더 확인 시각, 시험 대화 updated와 해당 계정 보관량뿐이며 기존 job/메시지/감사 행은 보존됐다. 최초 WEB_SEARCH_PLAN_REQUIRED 실패와1차 운영 LENGTH_LIMIT 실패는 그대로 남아 있다. [보존 검증](002_AI_Response_Recovery/production-preservation-final.json).
+
+## 구현 후 Validation1~8
+
+1. 거버넌스: legacy 선택 사유·검증되지 않은 런타임 표기를 보존했다. manifest1.8.1/44노드 validate 오류·경고0과 context29노드/필수 입력0 범위를 적용했고 EN 기준 주석을 갱신했다. 사용자 명시 승인 범위 안에서 Staging→병합→운영을 수행했다.
+2. 의도: 최초 누락 원인에 대응하는 필수 판단/빈 답변 보정을 구현했고 실제 발견한 토큰 종료를 추가 보완했다. 구 실패를 수정하지 않고 향후 요청을 처리하며 보정 소진과 정상 답변을 별도로 집계했다.
+3. 논리: 최종 Staging293개/56.045초·root293개/55.981초가 모두 통과했다. 실제 API/Store/SSE의4단계 보정, 현행/구 marker 횟수, 단일 system/완료 지시 제거, 구 완료 보고와 명시적 length 메타, stale lease·예약·총6단계를 확인했다.
+4. 운영: 세 차례의 실제 발견/보완 이력을 보존하고 최종 현재 백업14개·실제 DB 사본 보존을 확인한 뒤 idle 자체 서비스만 전환했다. schema/외부 라이브러리/키/단위·다른 서비스는 변경하지 않았다.
+5. 보안: 사용자 text를 권한으로 파싱하지 않고 현재 소유자/세션/CSRF/lease·민감 검색 거부·도구 schema·취소/휴지통 경계를 유지했다. 답변 보정 도구0을 실제 claim에서 확인했고 고정 종료 로그에는 본문/키를 추가하지 않았다. 기존 본문 감사는 보존했다.
+6. 복구: V1/V2/final 원문 ZIP·manifest·병합/후보 정리 근거와 서버/PC private 현재 사본을 남겼다. 구 실패2건·기존 업무/AI/감사 행·설정 SHA를 대조했고 원문 후보8개 외 다른 Staging을 정리하지 않았다.
+7. UX: 의도적인 빈 답변 소진 후 구체적 오류와 보내기 활성화, 같은 대화 후속 정상 응답15.555초, 원래 비교 질문 완결191.293초를 실제 일반 계정에서 확인했다. PC/모바일 표·추론 접힘·입력 복귀 화면을 보존했다.
+8. 메타: 새로운 하위 에이전트나 무제한 반복·미확인 실행 재전송을 도입하지 않았다. 자동화 회귀와 실제 모델 응답·부정 시험을 구분했고 기존9개 dirty/과거 untracked를 보존한다. 모델이 계속 빈 응답을 보내거나 공급자 연결이 종료되지 않은 모든 경우의 성공을 보장한다고 주장하지 않는다.
+
+최종 기록은 한정된 문서·증거 commit으로 업로드하고 서버에는 fast-forward로 동기화한다. 이 문서 동기화에서는 검증한 런타임8개와 두 프로세스를 재시작하지 않으며 마지막 동기화 영수증은 별도 보존한다.

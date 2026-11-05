@@ -1,0 +1,36 @@
+{
+  "at_utc": "2026-11-05T23:22:36.075753+00:00",
+  "runtime_commit": "aac49e846c6daae6998977bfc951a32fe4ba50af",
+  "app_pid": 1034430,
+  "worker_pid": 1034440,
+  "worker": "active",
+  "timer": "active",
+  "maintenance": "NORMAL",
+  "active_jobs": 0,
+  "active_guards": 0,
+  "reserved_chars": 0,
+  "source_hashes_match": 8,
+  "private_configuration_and_units_unchanged": true,
+  "business_preservation": {
+    "missing_old_rows": {},
+    "changed_old_columns": {}
+  },
+  "ai_preservation": {
+    "missing_old_rows": {},
+    "changed_old_columns": {
+      "ai_provider_models": {
+        "checked": 1
+      },
+      "ai_providers": {
+        "last_checked": 1
+      },
+      "conversations": {
+        "updated": 1
+      },
+      "storage_accounts": {
+        "used_chars": 1
+      }
+    }
+  },
+  "audit_rows_preserved": true
+}

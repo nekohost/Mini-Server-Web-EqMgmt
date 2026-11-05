@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261106-002
 work_id: RELEASE-20261106-AI-RESPONSE-RECOVERY
 owner: Codex
-status: implementation
+status: completed
 approval: explicit-remediation-through-production
 ---
 
@@ -27,3 +27,5 @@ approval: explicit-remediation-through-production
 1차 운영 시험의 xhigh 비교 요청은 필수 판단과 실제 검색2회를 통과했으나 마지막 단계가 DONE=true/finish=length, 추론9,355자·답변1,888자로 잘렸다. 이를 성공으로 집계하지 않고 V2 Staging으로 돌아가 보완한다. worker 완료 본문에 선택형 termination 메타를 추가해 서버가 명시적 토큰 종료와 미확인/다른 실패를 구분한다. 구 worker/구 완료 본문은 기존 경로를 유지한다. legacy required에서 아직 검색이 없을 때는 답변 보정으로 검색 의무를 우회하지 않는다. 답변 보정은 별도 단계에서 기존 자료로 간결한 최종 답변을 작성하며, 앞선 잘린 step과 실패 원인은 감사에 보존한다.
 
 Staging에서 순수 상태·실제 API/Store·worker fake SSE·취소/휴지통/세션 변경·late finish/예약·검색 privacy/한도·잘못된 도구·보정 소진과 실제 빈 답변을 검사한다. Linux 전체 회귀 후 원문/SHA 보존→root 병합/정적·전체 재검증→정확한 후보 정리→한정 commit/push를 수행한다. 현재 설정/source/두 DB의 서버·현재PC private 백업과 실제 DB 사본 보존 검사를 통과한 뒤 idle인 자체 web/worker만 전환한다. 실제 일반 계정의 xhigh 비교 질문과 인사/검색 응답·원장·화면을 검증하고 문서/서버를 동기화한다. 사용자에게 추가 승인을 요구하지 않는다.
+
+완료: 최종 Staging/root 각293개를 통과했고 원문8개·후보 정리·현재 백업14개·실제 DB 사본 보존 검사 후 운영에 반영했다. 최종 운영의 같은 비교 질문은191.293초·2단계·실검색1회로 완결됐다. 의도적 빈 답변 요구는 실제 보정1회 소진 후 구체적 오류/잠금 해제를 확인했고, 같은 대화의 다음 질문은15.555초에 정상 응답했다. PC/412×915 화면과 기존 행·감사·설정·구 실패 보존을 확인했다. 최종 근거는 보고서002에 연결한다.

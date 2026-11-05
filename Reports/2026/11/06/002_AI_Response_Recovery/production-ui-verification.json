@@ -1,0 +1,60 @@
+{
+  "account": "test05",
+  "url": "https://nekohost.org/assistant",
+  "pc": {
+    "bodyScrollWidth": 1265,
+    "lastAnswerLength": 2156,
+    "progressVisible": false,
+    "sendEnabled": true,
+    "tableRows": 20,
+    "tables": 2,
+    "thoughtOpen": false,
+    "viewport": {
+      "height": 720,
+      "width": 1280
+    }
+  },
+  "mobile": {
+    "bodyScrollWidth": 412,
+    "lastAnswerLength": 2156,
+    "progressVisible": false,
+    "sendEnabled": true,
+    "sendRect": {
+      "bottom": 864.5,
+      "height": 44,
+      "left": 332,
+      "right": 376,
+      "top": 820.5,
+      "width": 44,
+      "x": 332,
+      "y": 820.5
+    },
+    "tableRows": 20,
+    "tables": 2,
+    "thoughtOpen": false,
+    "viewport": {
+      "height": 915,
+      "width": 412
+    }
+  },
+  "viewport_override_reset": true,
+  "console_errors": 0,
+  "console_warnings": [
+    {
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T23:15:51.408Z"
+    },
+    {
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T23:15:55.420Z"
+    }
+  ],
+  "negative_test": {
+    "explicit_error_visible": true,
+    "send_enabled": true
+  },
+  "same_conversation_followup": {
+    "answer": "정상 응답과 후속 질문 처리를 확인했습니다.",
+    "send_enabled": true
+  }
+}
