@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261105-019
 work_id: FIX-20261105-AI-STOPPED-CONVERSATION
 owner: Codex
-status: implementation
+status: completed
 approval: reported-operational-defect
 ---
 
