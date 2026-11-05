@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261105-020
 work_id: RELEASE-20261105-AI-AUTO-SEARCH
 owner: Codex
-status: implementation
+status: core-completed-google-pending
 approval: requested-extension-of-authorized-ai-release
 ---
 

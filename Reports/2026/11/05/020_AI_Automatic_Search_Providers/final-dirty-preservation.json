@@ -1,0 +1,15 @@
+{
+  "all9_baseline_dirty_preserved": true,
+  "files": {
+    ".agent-governance/capabilities/chatgpt-remote.yaml": true,
+    "FEATURES.md": true,
+    "PROPOSALS.md": true,
+    "ROADMAP.md": true,
+    "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md": true,
+    "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md": true,
+    "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md": true,
+    "UNIMPLEMENTED_PROPOSALS.md": true,
+    "UNIMPLEMENTED_ROADMAP.md": true
+  },
+  "only_own_appended_sections_may_be_committed": true
+}

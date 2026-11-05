@@ -1,0 +1,178 @@
+{
+  "checkedAt": "2026-11-05T12:59:39.955Z",
+  "url": "https://nekohost.org/assistant",
+  "account": "test05",
+  "accountRole": "user",
+  "conversationTitle": "운영 검증 · 자동 검색과 GitHub",
+  "reloadPreservesSavedMessagesAndSources": true,
+  "desktop": {
+    "clientWidth": 1440,
+    "height": 900,
+    "oldSearchToggle": false,
+    "scrollHeight": 900,
+    "scrollWidth": 1440,
+    "sendEnabled": true,
+    "width": 1440,
+    "workspaceHeight": 772
+  },
+  "mobile": {
+    "clientWidth": 390,
+    "height": 844,
+    "oldSearchToggle": false,
+    "scrollHeight": 844,
+    "scrollWidth": 390,
+    "sendEnabled": true,
+    "title": "운영 검증 · 자동 검색과 GitHub",
+    "width": 390,
+    "workspaceHeight": 743
+  },
+  "belowMinimumViewport": {
+    "height": 720,
+    "oldSearchToggle": false,
+    "publicLinks": [
+      {
+        "href": "https://github.com/pallets/flask",
+        "rel": "noopener noreferrer",
+        "text": "pallets/flask"
+      },
+      {
+        "href": "https://github.com/railwayapp-templates/flask",
+        "rel": "noopener noreferrer",
+        "text": "railwayapp-templates/flask"
+      },
+      {
+        "href": "https://github.com/roytuts/flask",
+        "rel": "noopener noreferrer",
+        "text": "roytuts/flask"
+      },
+      {
+        "href": "https://github.com/GeekTrainer/Flask",
+        "rel": "noopener noreferrer",
+        "text": "GeekTrainer/Flask"
+      },
+      {
+        "href": "https://github.com/wikibook/flask",
+        "rel": "noopener noreferrer",
+        "text": "wikibook/flask"
+      },
+      {
+        "href": "https://github.com/pallets/flask",
+        "rel": "noopener noreferrer",
+        "text": "pallets/flask"
+      },
+      {
+        "href": "https://github.com/railwayapp-templates/flask",
+        "rel": "noopener noreferrer",
+        "text": "railwayapp-templates/flask"
+      },
+      {
+        "href": "https://github.com/roytuts/flask",
+        "rel": "noopener noreferrer",
+        "text": "roytuts/flask"
+      },
+      {
+        "href": "https://github.com/wikibook/flask",
+        "rel": "noopener noreferrer",
+        "text": "wikibook/flask"
+      },
+      {
+        "href": "https://github.com/GeekTrainer/Flask",
+        "rel": "noopener noreferrer",
+        "text": "GeekTrainer/Flask"
+      }
+    ],
+    "rootClientHeight": 720,
+    "rootClientWidth": 1265,
+    "rootScrollHeight": 747,
+    "rootScrollWidth": 1265,
+    "sendEnabled": true,
+    "sourcePanels": [
+      {
+        "open": false,
+        "summary": "웹 검색 출처 · GitHub · 0건"
+      },
+      {
+        "open": false,
+        "summary": "웹 검색 출처 · GitHub · 5건"
+      },
+      {
+        "open": false,
+        "summary": "웹 검색 출처 · Yahoo · 3건"
+      },
+      {
+        "open": true,
+        "summary": "웹 검색 출처 · GitHub · 5건"
+      }
+    ],
+    "width": 1280,
+    "expectedBoundary": "available workspace593px is below preserved620px minimum;27px document overflow is retained below minimum"
+  },
+  "screenshots": [
+    "production-desktop-search.jpg",
+    "production-mobile-search.jpg",
+    "production-below-minimum-1280x720.jpg"
+  ],
+  "consoleErrors": [],
+  "existingConsoleWarnings": [
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:07:34.875Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:20:03.647Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:43:23.916Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:44:51.165Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:47:36.545Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:54:41.922Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:54:54.429Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:55:08.201Z",
+      "url": "https://cdn.tailwindcss.com/"
+    },
+    {
+      "level": "warn",
+      "message": "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation",
+      "timestamp": "2026-11-05T12:58:15.016Z",
+      "url": "https://cdn.tailwindcss.com/"
+    }
+  ],
+  "notes": [
+    "No manual web-search control is present.",
+    "Provider names and safe source links survive reload.",
+    "The initial role locator for native summary did not match; visible text locator opened the same disclosure.",
+    "The preexisting Tailwind runtime warning remains outside this search change."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "status": "pass",
+  "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-auto-boolean-20261105T125344Z-6c634d/copy-08de1a3d8885",
+  "business_tables_preserved": 18,
+  "ai_tables_preserved": 17,
+  "old_ai_rows": {
+    "ai_execution_guards": 42,
+    "ai_lifecycle_operations": 17,
+    "ai_lifecycle_tombstones": 7,
+    "ai_provider_models": 1,
+    "ai_provider_revisions": 4,
+    "ai_provider_settings": 1,
+    "ai_providers": 1,
+    "ai_resource_groups": 1,
+    "ai_selection_events": 15,
+    "ai_task_drafts": 0,
+    "conversations": 8,
+    "jobs": 23,
+    "message_steps": 42,
+    "messages": 46,
+    "proposals": 0,
+    "revocations": 8,
+    "storage_accounts": 4
+  },
+  "ai_version": 4,
+  "menu_parent": "admin_center",
+  "anonymous_statuses": {
+    "/login": 200,
+    "/assistant": 302,
+    "/admin/ai/providers": 302,
+    "/api/ai/capabilities": 401,
+    "/internal/ai/claim": 403
+  },
+  "audit_rows_preserved": true,
+  "old_lifecycle_rows": 2,
+  "lifecycle_rows_preserved": true,
+  "real_model_called": false,
+  "production_databases_modified": false
+}

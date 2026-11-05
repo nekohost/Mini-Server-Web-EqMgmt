@@ -1,0 +1,43 @@
+{
+  "checked_at_utc": "2026-11-05T13:00:11.517147+00:00",
+  "head": "2ea2855f889c3c8ffac4b9521f0b0c53d87abfba",
+  "source_files_match": 15,
+  "secrets_and_units_unchanged": true,
+  "maintenance": "NORMAL",
+  "web_pid": 952942,
+  "worker_pid": "952960",
+  "worker": "active",
+  "retention": "active",
+  "active_jobs": {},
+  "active_guards": 0,
+  "providers": [
+    {
+      "id": "yahoo",
+      "name": "Yahoo",
+      "available": true,
+      "scopes": [
+        "web"
+      ]
+    },
+    {
+      "id": "github",
+      "name": "GitHub",
+      "available": true,
+      "scopes": [
+        "repositories",
+        "issues"
+      ],
+      "notice": "익명 공개 저장소·이슈 검색. 코드·비공개 저장소 검색은 제공하지 않습니다."
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "available": false,
+      "scopes": [
+        "web"
+      ],
+      "reason": "Google 일반 검색의 서버 접속이 보안 확인으로 차단됩니다. 이용 가능한 Google 검색 연결 설정이 필요합니다."
+    }
+  ],
+  "http_assets_match": 2
+}

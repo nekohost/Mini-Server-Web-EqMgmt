@@ -1,0 +1,53 @@
+{
+  "check-copy": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-auto-planning-20261105T124215Z-07934d/copy-ddc36cb782d4",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 40,
+      "ai_lifecycle_operations": 17,
+      "ai_lifecycle_tombstones": 7,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 15,
+      "ai_task_drafts": 0,
+      "conversations": 8,
+      "jobs": 21,
+      "message_steps": 39,
+      "messages": 42,
+      "proposals": 0,
+      "revocations": 8,
+      "storage_accounts": 4
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 2,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activate": {
+    "status": "active",
+    "app_pid": 950434,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-05T12:43:25.013626+00:00"
+  }
+}

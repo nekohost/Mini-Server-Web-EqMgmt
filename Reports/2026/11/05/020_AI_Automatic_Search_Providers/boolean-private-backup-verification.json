@@ -1,0 +1,8 @@
+{
+  "original_source_archive": "old-runtime-source.tar",
+  "local_private_path": "C:/Users/nkhst/.codex/private-releases/20261105-ai-ux-auto-boolean-20261105T125344Z-6c634d",
+  "remote_release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-auto-boolean-20261105T125344Z-6c634d",
+  "files_sha_matched": 14,
+  "credentials_and_database_contents_not_in_git": true,
+  "quiesced_databases": 2
+}

@@ -1,0 +1,14 @@
+{
+  "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-auto-planning-20261105T124215Z-07934d",
+  "pause": {
+    "status": "quiesced",
+    "old_pid": 946578,
+    "active_jobs": 0,
+    "shared_model_controlled": false
+  },
+  "old_web_pid": 946578,
+  "timer_before": {
+    "is-active": "active",
+    "is-enabled": "enabled"
+  }
+}

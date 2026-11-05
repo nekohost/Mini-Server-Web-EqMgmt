@@ -1052,6 +1052,6 @@
 
 ## AI-AUTO-SEARCH-PROVIDERS-20261105 — 문맥 검색·GitHub와 Google 상태
 
-- **상태:** 자동 검색·GitHub 구현/검증, 운영 반영 진행. Google API 없는 일반 검색은 외부 보안 확인/정상 연결 수단 부재로 미완료. work_id `RELEASE-20261105-AI-AUTO-SEARCH`.
+- **상태:** 자동 검색·GitHub 구현/검증과 운영 일반 계정 실제 검색·PC/모바일 확인 완료. Google API 없는 일반 검색은 외부 보안 확인/정상 연결 수단 부재로 미완료. work_id `RELEASE-20261105-AI-AUTO-SEARCH`.
 - 사용자 지시에 따라 Hermes 제공자 분리·키 없는 DDGS/subprocess 구조를 읽기 참고했다. 버튼 제거·질문 맥락의 도구 선택·실제 제공자/공개 범위 출처를 구현하며 기존 권한/저장/확인/019 복구는 유지한다.
 - [계획020](Plans/2026/11/05/020_AI_Automatic_Search_Providers_Plan.md),[검증020](Reports/2026/11/05/020_AI_Automatic_Search_Providers_Report.md),현재 명세 FEATURES23. Google 직접 일반 검색의 미해결 항목은 미구현 원장에 남기며 활성 성공으로 계산하지 않는다.

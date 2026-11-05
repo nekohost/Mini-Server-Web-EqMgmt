@@ -2,11 +2,13 @@
 artifact_id: REPORT-20261105-020
 work_id: RELEASE-20261105-AI-AUTO-SEARCH
 owner: Codex
-status: in-progress
+status: core-completed-google-pending
 approval: requested-extension-of-authorized-ai-release
 ---
 
 # 문맥 기반 검색·제공자 확장 검증
+
+자동 검색·GitHub 검색은 Staging/root 검증과 실제 운영 적용을 완료했다. 최종 실행 소스는2ea2855이며 문서/증거만 후속 동기화한다. Google 일반 검색은 정상적인 API 없는 연결 수단을 확보하지 못해 available=false로 남겼다. 이 보고서의 완료 범위는 버튼 제거·AI 검색 필요 판단과 실행·Yahoo/GitHub 실제 검색·운영 검증이며 Google까지 전부 완료한 것으로 해석하지 않는다.
 
 사전 확인: 현재 Yahoo 단독, DDGS9.6.1/primp0.15.0. Google/GitHub 설정 키는 없고 DDGS9.6.1 Google 구현은 비활성이다. GitHub 익명 공개 저장소 검색은 실제 HTTP200/3건(Flask 공식 저장소 포함)/0.492초로 확인했다. Google 기본 HTML GET은200이지만 JS 안내이고 실제 Flask 출처가 없어 성공으로 계산하지 않았다. Google 뉴스 RSS는 일반 웹 검색과 다르므로 Google 전체 검색의 대체 성공으로 사용하지 않는다.
 
@@ -62,3 +64,32 @@ merged-root도248개/45.830초(오류·실패·skip0)로 통과했다. 후속8�
 수정 전 범위 판단: 네 가지 정확한 boolean 철자만 검색 판단의 해당 필드에서 변환하면 모델의 직렬화 차이를 수용하면서 임의 문자열의 truthy 처리나 장비 변경 권한 완화를 피할 수 있다. 공통 validate_schema는 그대로 두고 원본 인수 감사도 유지한다. Staging에서 정규화·true/false 실제 검색 여부·숫자/불명확 값 거부·다른 업무 도구의 엄격성을 확인한 뒤 root·운영 재검증한다. Google 미활성 상태와 UI source는 변경하지 않는다.
 
 검색 경계32개/5.734초, Staging 전체251개/47.266초와 root 전체251개/47.245초가 오류·실패·skip0으로 통과했다. 첫 focus 명령이 모듈만 지정해 runner의 class 필터에서 제외된 호출 오류는 실행 대상을 두 TestCase로 정정했고 운영 코드/데이터에는 영향을 주지 않았다. 실제 boolean/네 문자열의 true·false 분기와 원본 보존, 숫자/공백/대문자 불명확 값·업무 boolean 문자열 거부를 검증했다. [보존 후보 원문](020_AI_Automatic_Search_Providers/reviewed-boolean-source.zip)과 SHA를 저장했고 root 바이트 일치15개를 확인했다. UI source가 그대로이므로 기존24화면1,018개 결과를 유지한다.
+
+2ea2855를2026-11-05 21:54:45 KST에 운영 적용했다. 장비 앱의 idle own web/worker만 전환했고 공유 Strata는 제어하지 않았다. [새 private 백업 확인](020_AI_Automatic_Search_Providers/boolean-private-backup-verification.json)은 source·설정/units·정지 시점 DB2개 등14개를 사용자 전용 현재PC 사본과 SHA 대조했다. [실제 DB 사본 검사](020_AI_Automatic_Search_Providers/boolean-production-copy-check.json)는 업무18/AI17 테이블, 기존 AI 행·감사·lifecycle2개를 보존했고 실제 모델/운영 DB는 수정하지 않았다. [활성화](020_AI_Automatic_Search_Providers/boolean-production-activation.json)는 실제 운영의 기존 행·비밀 보존·schema4·web952942·worker active·retention timer enabled를 확인했다. maintenance 동안 일반 계정 세션이 종료되는 기존 동작을 확인하고 정상 로그인으로 이어서 검증한다.
+
+## 최종 실제 운영 검증
+
+일반 권한 test05의 같은 대화를 `운영 검증 · 자동 검색과 GitHub`로 이름 변경하고260Strata/Qwen3.8 Flash Next/off로 다음을 실행했다. [실제 실행 원장](020_AI_Automatic_Search_Providers/final-actual-runs.json)은 원본 공개 인수·답변·실제 출처를 보존한다. 시간은 큐/검색/모델의 필요 판단과 최종 답변을 포함하는 해당 요청 전체이며 검색 서비스만의 속도가 아니다.
+
+| 요청 | 실제 판단·검색 | 결과 | 단계 | 전체 시간 |
+|---|---|---|---:|---:|
+| 갤럭시 S25 공식 사양/특징 | needed=true → Yahoo 일반 웹3건 | 삼성 공식 출처3개와 특징2개 반환 | 2 | 20.483초 |
+| Python Flask 공식 GitHub 저장소 | needed=`"True"` → 정확한 boolean 정규화 → GitHub5건 | pallets/flask 공식 링크와 출처 반환 | 2 | 18.243초 |
+| 웹 검색 없이 한 문장 인사 | needed=false → 외부 검색0건 | 정상 인사, 출처 생성0건 | 2 | 14.138초 |
+
+세 요청 모두 done/오류 없음, 예약 문자0·활성 guard0·장비 변경 제안0으로 끝났다. 검색 불필요 질문에도 첫 판단 모델 단계가 있어 종전1단계 인사보다 지연이 늘 수 있다. 이는 모든 요청의 성능/검색 정확도 보장이 아니며 검색 요약만 활용하고 결과 원문 전체를 읽지 않았다. 초기 오류/빈 결과·잘못된 무검색 주장은 앞의 별도 원장에 그대로 남겼다.
+
+운영 화면은 [PC1440×900](020_AI_Automatic_Search_Providers/production-desktop-search.jpg)과 [모바일390×844](020_AI_Automatic_Search_Providers/production-mobile-search.jpg)에서 직접 확인했다. 검색 선택 버튼 없음, 실제 Yahoo/GitHub 출처·안전 링크와 검색어/시각, 저장된 대화 재열기, 모바일 제목·하단 보내기를 확인했다. 두 화면의 document scrollHeight는 각각900/844, scrollWidth는1440/390으로 외부 스크롤이 없고 긴 출처/대화만 내부 스크롤을 사용한다. 캡처된 콘솔 오류0이며 기존 Tailwind runtime 사용 경고는 남았다.
+
+[1280×720 경계 화면](020_AI_Automatic_Search_Providers/production-below-minimum-1280x720.jpg)은 실제 작업 영역593px가 기존 최소620px보다 작아 document가747px/27px 넘치는 것을 기록했다. 최소 높이 미만에서 스크롤을 유지하는 기존 계약에 해당하며, 최소 조건을 만족하는 화면의 실패로 집계하지 않았다. [화면 측정 JSON](020_AI_Automatic_Search_Providers/production-browser-verification.json)에 기본/PC/모바일을 모두 구분하고 임시 viewport는 마지막에 해제했다. native summary의 AX button과 Playwright role 차이로 첫 출처 클릭 locator가 일치하지 않은 것은 화면에 보이는 실제 텍스트 locator로 열어 확인했다.
+
+## 구현 후 Validation1~8
+
+1. 거버넌스: Plan/Task/사전 검토·Staging/원문 SHA/root 검증·정확한 후보 정리 순서를 지켰다. 기존9개 dirty는 [최종 대조](020_AI_Automatic_Search_Providers/final-dirty-preservation.json)에서 전부 보존했고 공유 문서의 이번 추가 절만 commit 대상으로 삼는다.
+2. 의도: 수동 검색 버튼을 없애고 AI의 맥락상 결정을 실제 도구 실행에 연결했다. 일반 웹/Yahoo와 공개 GitHub는 운영 검증했고 Google 실제 연결 미완료는 별도 원장에 남겼다.
+3. 논리: 실제 모델에서 발견한 검색 생략·과도한 AND 검색어·문자열 boolean을 수정하고 초기 실패 원문을 보존했다. true/false 분기, false 뒤 위조 검색·첫 판단 생략, 구 required/off, 출처 correlation을 검증했다.
+4. 운영: [최종 상태](020_AI_Automatic_Search_Providers/final-production-source-and-services.json)는 source15개·공개 JS2개 SHA 일치, NORMAL, web952942/worker952960·retention active, 활성 작업/guard0이다. 다른 서비스/Strata의 큐나 생성 요청을 제어하지 않았다.
+5. 보안: 고정 공개 제공자/범위·민감정보·소유자/lease/취소·safe HTTPS 출처와32M/64K 예산을 유지했다. 인증/업무 변경 인수는 완화하지 않고 키·운영 DB/로그 원문은 private 경로에 보존했다. Google 보안 확인을 우회하지 않았다.
+6. 복구: 세 번의 각 코드 배포에서 현재 상태의 source/설정/DB를 private 백업하고 새 source의 실제 DB 사본 기동을 통과한 뒤 활성화했다. 최신 대화/감사·기존 행을 되돌리거나 오류 기록을 삭제하지 않았다. 롤백은 이전 코드/runtime과 새 현재 DB를 사용해야 한다.
+7. UX: Staging/root 각24화면1,018개와 최종 실제 PC/모바일 화면·reload/보내기 활성·실제 출처 표시를 확인했다. 최소 높이 미만 경계와 기존 콘솔 경고는 별도로 기록했다. 사진/합성/실모델 결과를 구분한다.
+8. 메타: 최종 Staging251개/47.266초와 root251개/47.245초는 실패·오류·skip0이다. 실제 모델3요청과 adapter 실제 검색은 서로 다른 검증이며 Google adapter 등록을 활성 성공으로, GitHub 공개 검색을 비공개/코드 전체 검색으로 확대하지 않는다.

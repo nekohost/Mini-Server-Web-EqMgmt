@@ -2,7 +2,7 @@
 artifact_id: TASK-20261105-020
 work_id: RELEASE-20261105-AI-AUTO-SEARCH
 owner: Codex
-status: in-progress
+status: core-completed-google-pending
 approval: requested-extension-of-authorized-ai-release
 ---
 
@@ -14,5 +14,6 @@ approval: requested-extension-of-authorized-ai-release
 - [x] Staging에 문맥 auto 정책·제공자 enum·동적 출처·버튼 제거와 호환성을 구현한다.
 - [x] 정적/권한/오류/보관/구 요청 회귀·실제 Linux 화면을 검사하고 수정한다.
 - [x] 원문/해시 보존→root 병합/재검증→정확한 후보 정리를 완료한다.
-- [ ] private 백업·idle own 전환·실제 DB 사본 보존과 운영 적용을 수행한다.
-- [ ] 실제 자동 검색/검색 불필요 응답·화면/원장·운영 명세를 확인하고 완료 보고한다.
+- [x] private 백업·idle own 전환·실제 DB 사본 보존과 운영 적용을 수행한다.
+- [x] 실제 자동 검색/검색 불필요 응답·화면/원장·운영 명세를 확인하고 자동 검색·GitHub 완료와 Google 미완료를 구분해 보고한다.
+- [ ] API 없는 Google 일반 검색의 정상 연결 수단을 확보한다. 현재 Google 보안 확인/지원 연결 부재로 미해결이며 별도 미구현 원장 `AI-SEARCH-GOOGLE-KEYLESS-20261105`에 남긴다.
