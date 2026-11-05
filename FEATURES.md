@@ -419,3 +419,10 @@ Linux 회귀99건, 추가 격리 HTTP19건, 실제 템플릿 브라우저26건 �
 - Yahoo 일반 웹 검색을 유지하고 GitHub 익명 공개 저장소·이슈 검색을 추가했다. 실제 제공자·공개 범위·일부 결과 여부를 출처에 표시한다. 비공개 저장소/전체 코드 검색·임의 endpoint/redirect·Git/Hermes 인증 재사용은 제공하지 않는다.
 - Google adapter와 사용 불가 사유를 구분했다. HTTP/표준 Chromium의 Google 일반 검색은 보안 확인으로 제한돼 활성화하지 못했으며 API 없는 Google 일반 검색은 미해결 항목이다. Yahoo나 Google 뉴스 결과를 Google 일반 검색으로 표시하지 않는다.
 - 구 UI의 명시적 required/off와 기존 접수 snapshot을 유지하고 auto의 불필요한 검색 의무를 없앴다. 검색 가능한 auto는 기존64K 출처 예약·민감 값/소유자/lease/취소·감사·휴지통/환급 경계를 그대로 적용한다. [계획020](Plans/2026/11/05/020_AI_Automatic_Search_Providers_Plan.md),[검증020](Reports/2026/11/05/020_AI_Automatic_Search_Providers_Report.md).
+
+## 24. AI 입력 신뢰성·개인 Enter 설정 (2026-11-05)
+
+- **상태:** Staging·root 검증 완료, 운영 배포 진행 중. [계획021](Plans/2026/11/05/021_AI_Input_Reliability_Plan.md),[검증021](Reports/2026/11/05/021_AI_Input_Reliability_Report.md).
+- 모바일 입력 중 높이가 줄면 보내기 전체를 보이는 영역에 두고 터치 활성화까지 레이아웃을 유지한다. 계정별 Enter 줄바꿈(기본)/보내기 설정과 Shift+Enter 반대 동작·현재 안내를 제공한다. IME/반복/진행 중·뒤늦은 목록/새 대화 생성의 중복 접수 방어를 유지한다.
+- 실제 실패의 다중 검색 요청은 잔여 횟수와 한 단계1회 I/O·미실행 제어 결과로 처리한다. 총2회/64K·소유자/민감 값/감사/업무 확인은 유지한다. 명시적 DONE의 EOF 경계를 보완하며 종료 미확인 응답을 성공 처리하지 않는다.
+- root265개, 최종 모바일 버튼184개와 일반 버튼582개를 통과했다. 물리 폴드7/한국어 키보드를 직접 조작한 결과로 확대하지 않고 축소된 모바일 viewport 검증과 구분한다.

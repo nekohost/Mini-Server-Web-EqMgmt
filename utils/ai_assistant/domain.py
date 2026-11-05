@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.7]
+[EN rev.8]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
 [Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
@@ -13,7 +13,7 @@ from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
 from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
-from .web_search import WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted
+from .web_search import WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted, validate_query
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -105,12 +105,12 @@ class Domain:
             names.add('web_search')
         return [dict(type='function',function=TOOL_MAP[n]) for n in sorted(names)]
 
-    def read_or_prepare(self, name, args, job, store):
+    def read_or_prepare(self, name, args, job, store, search_control=None):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.5]
+        [EN rev.6]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
-        [Impact] Empty optional read filters agree with HTTP validation without weakening writes or owner scope; one additive display policy separates answer fields from retained tool-linkage IDs without duplicating rows or rewriting source values.
+        [Impact] Existing read/write boundaries are preserved; bounded search-only batch feedback passes the same actor/consent/taint/privacy checks and never becomes executed evidence.
         """
         if name not in TOOL_MAP:
             raise AssistantError('허용되지 않은 작업입니다.',403)
@@ -149,6 +149,14 @@ class Domain:
                 if len(private)>1000:
                     raise WebSearchError('WEB_SEARCH_BLOCKED')
                 sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
+                if search_control is not None:
+                    if name!='web_search' or planning or type(search_control) is not int or not 0<=search_control<MAX_SEARCHES:
+                        raise AssistantError('검색 제어 상태를 확인해 주세요.')
+                    validate_query(args.get('query'),sensitive)
+                    return {'kind':'web_search_control','executed':False,
+                        'reason':'budget_exhausted' if search_control==0 else 'one_search_per_step',
+                        'remaining':search_control,
+                        'notice':'이 호출은 실행하지 않았습니다. '+('이번 요청의 검색2회가 끝났습니다. 추가 검색 없이 이미 받은 출처로 답하고 확인 한계를 알리세요.' if search_control==0 else '한 단계에서는 검색1회만 실행합니다. 이미 받은 결과를 먼저 사용하고 꼭 필요하면 다음 단계에 검색 하나만 요청하세요.')}
                 db.close();db=None
                 result=self.search_service.search(args.get('query'),args.get('max_results',5),sensitive,provider=args.get('provider','auto'),scope=args.get('scope'))
                 # Search I/O holds no business DB connection/transaction; revalidate the actor afterwards.

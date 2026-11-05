@@ -1,0 +1,37 @@
+{
+  "search_and_stream_initial": {
+    "tests": 38,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 6.516,
+    "digest": "0f16d1d016687db6fcc5f239b83914db800a83ef1cac9441d8813fb6e6b6e5c4"
+  },
+  "auto_and_cancel_cross_scenarios": {
+    "tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 7.034,
+    "digest": "a5a0a0fa5ca8fc9f7feca7cb1e1916b5127682a7ae4f5b1353b8d84ddd84d4aa"
+  },
+  "scope": "isolated Linux synthetic fixtures; no production app/database opened",
+  "stage_full": {
+    "tests": 265,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 58.613,
+    "digest": "d6bc2d567302522af415dd5483c5980f9ec7f7c4d2a82afe8bf04da87dceb528"
+  },
+  "merged_root": {
+    "tests": 265,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 50.152,
+    "digest": "9eeb229f3901c7a58c2b1b0a149ec97163988e16ca4d0269adaad54544b71a22",
+    "production_app_imported": false,
+    "production_database_opened": false
+  }
+}

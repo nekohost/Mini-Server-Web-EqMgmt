@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.9]
+[EN rev.10]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] New requests use context-selected search; immutable legacy required/off jobs, owner-bound audit/storage and worker boundaries are preserved.
@@ -31,7 +31,7 @@ from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
 from .status import read_status
-from .web_search import SearchService, WebSearchError, public_searches, search_mode, search_planning, search_permitted
+from .web_search import SearchService, WebSearchError, MAX_SEARCHES, public_searches, search_mode, search_planning, search_permitted
 
 
 def enabled(value):
@@ -789,16 +789,23 @@ def install_assistant(app, services):
             route.pop('credential',None)
             planning=search_planning(job,route)
             search_allowed=search_permitted(job,route)
-            tools=domain.tools(actor,search_allowed,planning) if route['profile'].get('tools') else []
+            searches_remaining=max(0,MAX_SEARCHES-len(public_searches(job['context'])))
+            tools=domain.tools(actor,search_allowed and searches_remaining>0,planning) if route['profile'].get('tools') else []
+            # Copy only the advertised function, never mutate shared TOOL_MAP descriptions.
+            tools=[{**t,'function':{**t['function'],'description':t['function']['description']+f' 현재 요청의 남은 검색은{searches_remaining}회입니다. 한 단계에 검색 하나만 요청하세요.'}}
+                   if t['function']['name'] in ('web_search','plan_web_search') else t for t in tools]
             if tools and not planning:
                 tools=[*tools,DRAFT_TOOL,TASK_DRAFT_TOOL]
             if not enabled(app.config['USER_AI_WRITE_TOOLS']):
                 tools=[t for t in tools if not t['function']['name'].startswith('prepare_')]
             system=SYSTEM+'\n서울 기준 오늘 날짜: '+datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
-            if route.get('web_search_allowed') is True and not search_allowed and search_mode(route)=='auto':
+            if search_allowed and searches_remaining==0:
+                system+='\n현재 요청의 남은 웹 검색 횟수:0/2. 이미 수행한 검색 출처로 답하고 확인 한계를 알리세요. 추가 검색 도구는 제공하지 않습니다.'
+            elif route.get('web_search_allowed') is True and not search_allowed and search_mode(route)=='auto':
                 system+='\n현재 요청은 AI가 외부 검색 없이 처리하기로 결정했습니다. 검색을 했다고 주장하지 말고 기존 대화/장비 업무 도구로 처리하세요.'
             elif search_allowed and domain.search_service.available:
-                system+='\n현재 요청 웹 검색: '+('허용됨. 반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요. 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route)=='required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
+                system+='\n현재 요청 웹 검색: '+('허용됨. '+('반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요.' if searches_remaining==MAX_SEARCHES else '이미 받은 실제 출처를 우선 사용하고 필요한 경우에만 추가 검색하세요.')+' 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route)=='required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
+                system+=f'\n현재 요청의 남은 웹 검색 횟수:{searches_remaining}/2. 한 단계에 검색 하나만 요청하세요. 미실행 제어 결과는 검색 근거가 아닙니다.'
                 providers=getattr(domain.search_service,'providers',[])
                 if providers:
                     system+='\n검색 제공자 상태: '+canonical(providers)+'. 사용 가능한 제공자만 선택하고 사용하지 않은 검색 엔진으로 검색했다고 주장하지 마세요.'
@@ -1010,11 +1017,22 @@ def install_assistant(app, services):
                 else:
                     validate_schema(args,allowed[name]['parameters'])
                 prepared.append((cid,name,arguments,args))
-            if sum(name in ('web_search','plan_web_search') for _,name,_,_ in prepared)>1:
+            search_count=sum(name in ('web_search','plan_web_search') for _,name,_,_ in prepared)
+            search_only=bool(prepared) and all(name=='web_search' for _,name,_,_ in prepared)
+            if search_count>1 and not search_only:
                 raise AssistantError('웹 검색은 한 단계에 한 번씩 요청해 주세요.')
             # Search failure must occur before even preparing an unrelated business confirmation card.
             prepared.sort(key=lambda item: item[1] not in ('web_search','plan_web_search'))
             context=json.loads(job['context'])
+            searches_used=len(public_searches(context))
+            searches_this_step=0
+            if search_only and searches_used>=MAX_SEARCHES:
+                raise WebSearchError('WEB_SEARCH_LIMIT')
+            if search_only and search_count>1:
+                # Validate every public query/actor boundary without I/O before the
+                # first child can run; a later private query must not discard an earlier search.
+                for _,name,_,args in prepared:
+                    domain.read_or_prepare(name,args,job,store,search_control=max(0,MAX_SEARCHES-searches_used-1))
             content=stream_text(data.get('content',''),MAX_CONTENT)
             code='PROCESSING_FAILED'
             if route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context) and not any(name=='web_search' for _,name,_,_ in prepared):
@@ -1048,6 +1066,10 @@ def install_assistant(app, services):
                                 finally:
                                     db.close()
                             result=store.save_draft(job,args)
+                        elif name=='web_search' and search_only and searches_this_step:
+                            # One eight-second child fits the finish HTTP timeout. Correlate every
+                            # remaining read call without executing it or fabricating source evidence.
+                            result=domain.read_or_prepare(name,args,job,store,search_control=max(0,MAX_SEARCHES-searches_used))
                         else:
                             result=domain.read_or_prepare(name,args,job,store)
                     except (AssistantError,InputError,LineupNodeError) as error:
@@ -1056,6 +1078,9 @@ def install_assistant(app, services):
                     assistant['tool_calls'].append({'id':cid,'type':'function','function':{'name':name,'arguments':arguments}})
                     result_text=canonical(result)
                     search_result=name in ('web_search','plan_web_search') and isinstance(result,dict) and result.get('kind')=='web_search'
+                    if search_result:
+                        searches_this_step+=1
+                        searches_used+=1
                     if search_result and len(result_text)>32000:
                         raise WebSearchError('WEB_SEARCH_UNAVAILABLE')
                     if not search_result and len(result_text)>16000:

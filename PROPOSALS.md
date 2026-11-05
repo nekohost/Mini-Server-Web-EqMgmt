@@ -1055,3 +1055,9 @@
 - **상태:** 자동 검색·GitHub 구현/검증과 운영 일반 계정 실제 검색·PC/모바일 확인 완료. Google API 없는 일반 검색은 외부 보안 확인/정상 연결 수단 부재로 미완료. work_id `RELEASE-20261105-AI-AUTO-SEARCH`.
 - 사용자 지시에 따라 Hermes 제공자 분리·키 없는 DDGS/subprocess 구조를 읽기 참고했다. 버튼 제거·질문 맥락의 도구 선택·실제 제공자/공개 범위 출처를 구현하며 기존 권한/저장/확인/019 복구는 유지한다.
 - [계획020](Plans/2026/11/05/020_AI_Automatic_Search_Providers_Plan.md),[검증020](Reports/2026/11/05/020_AI_Automatic_Search_Providers_Report.md),현재 명세 FEATURES23. Google 직접 일반 검색의 미해결 항목은 미구현 원장에 남기며 활성 성공으로 계산하지 않는다.
+
+## AI-INPUT-RELIABILITY-20261105 — 보내기·개인 키보드·응답 실패
+
+- **상태:** Staging/root 구현·검증 완료, 운영 배포 진행 중. work_id `RELEASE-20261105-AI-INPUT-RELIABILITY`.
+- 사용자 명시 승인으로 계획부터 운영 검증까지 진행한다. 모바일 축소 높이·터치 종료 click 경합, 계정별 Enter/Shift 동작, 확인된 다중 검색 실패와 명시적 종료 표식 호환을 보완한다. 기존 대화 실패 기록·정상 생성·업무/감사·다른 서비스는 보존한다.
+- [계획021](Plans/2026/11/05/021_AI_Input_Reliability_Plan.md),[검증021](Reports/2026/11/05/021_AI_Input_Reliability_Report.md),현재 명세 FEATURES24. Google 일반 검색과 다른 기존 미실현 범위는 그대로 둔다.

@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.4]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.5]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -299,12 +299,76 @@ class WebSearchIntegrationTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT COUNT(*) FROM proposals WHERE job=?',(jid,)).fetchone()[0],0)
             self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'released')
 
-    def test_two_search_limit_and_multiple_in_one_batch_are_checked_before_io(self):
-        """[Dependencies] Authoritative stored tool evidence and full response validation. [Impact] Search work stays bounded per job/finish HTTP request."""
-        self.turn(allow=True);self.search_step(self.claim());self.search_step(self.claim());result=self.search_step(self.claim())
+    def test_two_search_limit_removes_the_tool_and_still_rejects_forged_io(self):
+        """[Dependencies] Stored evidence, advertised tools and dispatch. [Impact] Exhaustion cannot add a third search or silently reset the quota."""
+        self.turn(allow=True);self.search_step(self.claim());self.search_step(self.claim());job=self.claim()
+        self.assertNotIn('web_search',[t['function']['name'] for t in job['tools']])
+        self.assertIn('현재 요청의 남은 웹 검색 횟수:0/2',job['messages'][0]['content'])
+        result=self.search_step(job)
         self.assertEqual(result['error_code'],'WEB_SEARCH_LIMIT');self.assertEqual(len(self.search.calls),2)
-        self.turn(allow=True);result=self.finish(self.claim(),[{'id':str(x),'name':'web_search','arguments':'{"query":"Flask docs"}'} for x in range(2)])
-        self.assertEqual(result['state'],'failed');self.assertEqual(len(self.search.calls),2)
+
+    def test_search_only_batch_executes_one_child_and_correlates_unexecuted_feedback(self):
+        """[Role] Replays the observed one-used plus two-requested batch without increasing quota or HTTP work.
+        [Dependencies] Genuine finish/domain/store/source projection. [Impact] Exactly one additional child runs; control data is never evidence or an extra source charge.
+        """
+        jid=self.turn(allow=None)['job_id'];self.plan_step(self.claim(),True,query='Flask first')
+        job=self.claim();self.assertIn('현재 요청의 남은 웹 검색 횟수:1/2',job['messages'][0]['content'])
+        calls=[{'id':str(x),'name':'web_search','arguments':canonical({'query':query})} for x,query in enumerate(('Flask second','Flask third'))]
+        result=self.finish(job,calls);self.assertEqual(result['state'],'queued');self.assertEqual(self.search.calls,['Flask first','Flask second'])
+        with self.store.db() as db:context=json.loads(self.store.job(jid,db)['context'])
+        controls=[json.loads(m['content']) for m in context if m.get('role')=='tool' and json.loads(m['content']).get('kind')=='web_search_control']
+        self.assertEqual(len(controls),1);self.assertIs(controls[0]['executed'],False);self.assertEqual(controls[0]['remaining'],0)
+        self.assertEqual(controls[0]['reason'],'budget_exhausted');self.assertNotIn('results',controls[0]);self.assertNotIn('engine',controls[0])
+        self.assertEqual(len(public_searches(context)),2)
+        self.assertEqual(evidence_chars(context),sum(len(m['content']) for m in context if m.get('role')=='tool' and json.loads(m['content']).get('kind')=='web_search'))
+        saved=[c for m in context if m.get('role')=='assistant' for c in m.get('tool_calls',[]) if c['id'] in ('0','1')]
+        self.assertEqual([c['function']['arguments'] for c in saved],[c['arguments'] for c in calls])
+        next_job=self.claim();self.assertNotIn('web_search',[t['function']['name'] for t in next_job['tools']])
+        self.assertEqual(self.finish(next_job,content='확인한 두 검색 출처로 답합니다. 추가 검색은 실행하지 않았습니다.')['state'],'done')
+        with self.store.db() as db:
+            self.assertEqual(self.store.job(jid,db)['reserved_chars'],0);self.assertEqual(db.execute('SELECT COUNT(*) FROM proposals WHERE job=?',(jid,)).fetchone()[0],0)
+
+    def test_fresh_search_batch_defers_the_second_until_a_new_step(self):
+        """[Role] Keeps one8s child inside each15s finish request even when two searches fit the total quota.
+        [Dependencies] Real admitted required turn. [Impact] The second search can run next step without pretending the deferred call ran.
+        """
+        self.turn(allow=True);job=self.claim()
+        self.assertEqual(self.finish(job,[{'id':str(x),'name':'web_search','arguments':canonical({'query':'Flask '+str(x)})} for x in range(2)])['state'],'queued')
+        self.assertEqual(len(self.search.calls),1)
+        next_job=self.claim();self.assertIn('web_search',[t['function']['name'] for t in next_job['tools']])
+        self.assertEqual(self.search_step(next_job,query='Flask retry deferred')['state'],'queued');self.assertEqual(len(self.search.calls),2)
+        self.assertEqual(self.finish(self.claim(),content='실제 검색 두 건을 확인했습니다.')['state'],'done')
+
+    def test_cancel_or_trash_during_batch_cannot_retain_late_sources_or_control(self):
+        """[Role] Crosses cancellation/lifecycle with the real one-child feedback boundary.
+        [Dependencies] Owner cancellation, trash writer, current lease and prior stored sources. [Impact] Late results never revive work or add a source charge.
+        """
+        for mode in ('cancel','trash'):
+            with self.subTest(mode=mode):
+                self.search.callback=None;cid=self.conversation();jid=self.turn(cid,None)['job_id']
+                self.plan_step(self.claim(),True,query='Flask prior evidence');job=self.claim()
+                with self.store.db() as db:
+                    row=self.store.job(jid,db);account=row['account_key'];before=evidence_chars(row['context'])
+                self.search.callback=(lambda:self.store.cancel(2,jid)) if mode=='cancel' else (lambda:self.store.lifecycle(2,cid,account,'trash',0,uuid.uuid4().hex))
+                result=self.finish(job,[{'id':str(x),'name':'web_search','arguments':canonical({'query':'Flask later '+str(x)})} for x in range(2)])
+                self.assertEqual(result['state'],'cancelled')
+                with self.store.db() as db:
+                    row=self.store.job(jid,db);self.assertEqual(row['reserved_chars'],0);self.assertEqual(evidence_chars(row['context']),before)
+                    self.assertNotIn('web_search_control',row['context']);self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'released')
+
+    def test_multi_search_privacy_schema_and_mixed_write_fail_before_any_child(self):
+        """[Role] Protects whole-batch validation before adding non-executed search feedback.
+        [Dependencies] Real owner privacy, schema and mixed-write guards. [Impact] Neither private skipped text nor an unverified business card bypasses the boundary.
+        """
+        cases=[([{'id':'a','name':'web_search','arguments':'{"query":"Flask docs"}'},{'id':'b','name':'web_search','arguments':'{"query":"SERIAL-2 specs"}'}],'WEB_SEARCH_BLOCKED'),
+            ([{'id':'a','name':'web_search','arguments':'{"query":"Flask docs"}'},{'id':'b','name':'web_search','arguments':'{"query":"Flask docs","max_results":"5"}'}],'INVALID_TOOL_CALL'),
+            ([{'id':'a','name':'web_search','arguments':'{"query":"Flask docs"}'},{'id':'b','name':'web_search','arguments':'{"query":"Flask other"}'},{'id':'c','name':'prepare_equipment_create','arguments':'{"name":"No card","option_id":1}'}],'INVALID_TOOL_CALL')]
+        for calls,code in cases:
+            with self.subTest(code=code):
+                jid=self.turn(allow=True)['job_id'];result=self.finish(self.claim(),calls)
+                self.assertEqual(result['state'],'failed');self.assertEqual(result['error_code'],code);self.assertEqual(self.search.calls,[])
+                with self.store.db() as db:self.assertEqual(db.execute('SELECT COUNT(*) FROM proposals WHERE job=?',(jid,)).fetchone()[0],0)
+        self.turn(allow=False);result=self.finish(self.claim(),cases[0][0]);self.assertEqual(result['error_code'],'WEB_SEARCH_DISABLED');self.assertEqual(self.search.calls,[])
 
     def test_business_connection_is_closed_during_search(self):
         """[Dependencies] The actual Domain connection lifecycle. [Impact] External latency holds no business connection/transaction."""

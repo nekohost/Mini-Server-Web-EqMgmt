@@ -1,0 +1,175 @@
+{
+  "desktop": {
+    "disabled": false,
+    "height": 720,
+    "points": [
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.1,
+        "y": 0.1
+      },
+      {
+        "classes": "",
+        "hit": "SPAN",
+        "id": "",
+        "onButton": true,
+        "x": 0.5,
+        "y": 0.1
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.9,
+        "y": 0.1
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.1,
+        "y": 0.5
+      },
+      {
+        "classes": "",
+        "hit": "SPAN",
+        "id": "",
+        "onButton": true,
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.9,
+        "y": 0.5
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.1,
+        "y": 0.9
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.5,
+        "y": 0.9
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.9,
+        "y": 0.9
+      }
+    ],
+    "rect": {
+      "height": 36,
+      "width": 36,
+      "x": 1128.5,
+      "y": 636
+    },
+    "width": 1280
+  },
+  "mobile": {
+    "disabled": false,
+    "height": 844,
+    "points": [
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.1,
+        "y": 0.1
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.5,
+        "y": 0.1
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.9,
+        "y": 0.1
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.1,
+        "y": 0.5
+      },
+      {
+        "classes": "",
+        "hit": "SPAN",
+        "id": "",
+        "onButton": true,
+        "x": 0.5,
+        "y": 0.5
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.9,
+        "y": 0.5
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.1,
+        "y": 0.9
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.5,
+        "y": 0.9
+      },
+      {
+        "classes": "ai-send",
+        "hit": "BUTTON",
+        "id": "ai-send",
+        "onButton": true,
+        "x": 0.9,
+        "y": 0.9
+      }
+    ],
+    "rect": {
+      "height": 44,
+      "width": 44,
+      "x": 310,
+      "y": 770
+    },
+    "width": 390
+  },
+  "submitted": false,
+  "scope": "test05 existing ordinary-account page, collapsed disclosures, standard skin",
+  "reportedPartialClickReproduced": false
+}

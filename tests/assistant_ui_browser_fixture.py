@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.UI.LIFECYCLE.BROWSER.FIXTURE]
-[EN rev.6]
+[EN rev.7]
 [Role] Runs the candidate chat UI in isolated Linux Chromium with synthetic transport and two same-origin tabs.
 [Dependencies] Flask/Jinja, Linux Chromium, candidate asset strings and test_equipment_ai_ui.js supplied by the caller.
-[Impact] Exercises 320/360/390/430/760/761/820/1440 CSS-pixel viewports in both themes, rejects requested/actual width mismatches and permits a 1425px baseline comparison without production authentication, model calls or real database writes.
+[Impact] Exercises narrow cover-screen384/412px and existing320/360/390/430/760/761/820/1440 CSS-pixel viewports in both themes, rejects requested/actual width mismatches and permits a1425px baseline comparison without production authentication, model calls or real database writes.
 """
 import base64
 import html
@@ -36,7 +36,7 @@ def run_browser(project, assets):
     return run_ui_browser(project, assets, script, capture=capture_real_frames)
 
 
-def run_ui_browser(project, assets, script, sizes=(320, 360, 390, 430, 760, 761, 820, 1440), themes=("light", "dark"), capture=None):
+def run_ui_browser(project, assets, script, sizes=(320, 360, 384, 390, 412, 430, 760, 761, 820, 1440), themes=("light", "dark"), capture=None):
     """[Role] Serves loopback candidate UI and supports a reviewed real-frame capture for geometry-sensitive checks."""
     selected_widths = json.loads(os.environ.get('EQ_FIXTURE_WIDTHS', '[]'))
     selected_themes = json.loads(os.environ.get('EQ_FIXTURE_THEMES', '[]'))
@@ -76,7 +76,7 @@ def run_ui_browser(project, assets, script, sizes=(320, 360, 390, 430, 760, 761,
     def viewport():
         """[Role] Creates an exact child viewport below Chromium's minimum top-window width."""
         width = int(request.args.get("width", "430"))
-        if width not in (320, 360, 390, 430, 760, 761, 820, 1425, 1440):
+        if width not in (320, 360, 384, 390, 412, 430, 760, 761, 820, 1425, 1440):
             return Response("unsupported fixture width", status=400)
         theme = "dark" if request.args.get("theme") == "dark" else "light"
         markup = '''<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#e9edf2;display:flex;justify-content:center"><iframe id="fixture-viewport" title="격리 UI 회귀" src="/?theme=THEME" style="width:WIDTHpx;height:1000px;flex:none;border:0;background:white"></iframe><pre id="browser-test-result" hidden></pre><script>addEventListener('message',event=>{if(event.origin===location.origin&&event.source===document.getElementById('fixture-viewport').contentWindow&&event.data.fixtureResult)document.getElementById('browser-test-result').textContent=event.data.fixtureResult;});</script></body></html>'''

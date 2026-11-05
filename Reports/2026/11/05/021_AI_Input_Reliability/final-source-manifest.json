@@ -1,0 +1,24 @@
+{
+  "files": {
+    "static/css/equipment_ai.css": "e8bfc9767a007959397e442728ad11f177470f515f319cfd8e463d928630c9d2",
+    "static/js/equipment_ai.js": "294d96996386c6a38cf3061cd7f6a68c6a8b3c6689edf759f843314d3681f382",
+    "static/js/roadmap_preferences.js": "65eb0054cd93243dbdc02eeb05907fdf603154e22d437aa2958f5ac2bcb0e80e",
+    "templates/equipment_ai.html": "30ee99c8062d3c3e81b243ad72cefd285de4db89b8a5ee8385ede368110671b6",
+    "templates/mypage.html": "e45fd295dea4295c976dbcdc5a9593215eef748277efd57f8d3d5254217cf445",
+    "tests/ai_input_preferences_browser_fixture.py": "f47240a646428caf98bd6b4745acceab3cefab75d1ddfe8526aa23e40ea32714",
+    "tests/assistant_ui_browser_fixture.py": "c5c84edd172eb05b37d64ce37d2425081ab19fb99f329913cb137bea22d2d0f3",
+    "tests/fold7_cover_browser_fixture.py": "287130dc819864a3014d93b3ce030a10e567cf836bfbb3f3ceabce7f064119b4",
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4",
+    "tests/send_hitbox_browser_fixture.py": "d47b259cccf2aedb72855457a2c9033b58b2ab5a66be0462bbeeab08b3885383",
+    "tests/test_ai_input_preferences.js": "9389eac5c8ce8cc5a35dbbfd763473ea9094961d5e22dc3cb140852dc45452ae",
+    "tests/test_ai_input_preferences.py": "1cbafe512b3d521b64a38764fdfc82e768144e084b52478334ba4dbb14f8e13c",
+    "tests/test_ai_input_reliability.py": "a40f1ec53adc0aad888305f9590a02d932a45b7b632f668bc476330f95acab6e",
+    "tests/test_ai_web_search.py": "863c10a177872e4c0490bbe399b25c04b93f14c492185db81f712b99dd04c2db",
+    "utils/ai_assistant/__init__.py": "133dc7ab4c928ced2e705e0891f71c7a0b7bca76a1c7e3c7bfb1015a09d74ef3",
+    "utils/ai_assistant/domain.py": "94147b0780e9a6cd6965c64475377bbf76a81cb0cc459f53c87f48ac9aa5ee8c",
+    "utils/ai_assistant/worker.py": "89b1d1ec14059e26fd897afac53c8036375d37b9427dafc9fe7b022955452a1c",
+    "utils/roadmap_routes.py": "d92b8b2c0bc1afd54d4d142ff70311ba96e3052b0b55608fae0bd91b83cb2690"
+  },
+  "archive_sha256": "6367fe9acf64b9e238c855e74e04b78a6d5a21dd5717cfc1b12fc565e17aa8a6",
+  "all_root_match": true
+}

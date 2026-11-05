@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.STYLES]
- * [EN rev.14]
+ * [EN rev.15]
  * [Role] Styles measured inline disclosures, synchronized input-adjacent status, themed lifecycle controls, viewport-fitted chat and requested file dialogs.
  * [Dependencies] Existing frame typography/theme, shared semantic colors and equipment_ai_polish.js's bounded layout measurement.
- * [Impact] Closed summaries share the reasoning row when they fit; status and open bodies reserve normal-flow space without covering input/chat controls, and lifecycle controls remain scoped to the assistant.
+ * [Impact] Closed summaries share the reasoning row when they fit; status, shortcut guidance and open bodies reserve normal-flow space, while the send action owns its complete pointer area above positioned disclosure bodies.
  */
 .assistant-container{max-width:1600px;margin:0 auto;padding:18px 22px 24px}
 #equipment-ai{--ai-bg:#fff;--ai-panel:#f7f8fa;--ai-text:#242d39;--ai-muted:#717b89;--ai-line:#e7ebef;--ai-accent:#087e78;--ai-soft:#e9f6f3;display:grid;grid-template-columns:244px minmax(0,1fr);--ai-min-height:620px;height:var(--ai-fitted-height,calc(100dvh - 116px));min-height:var(--ai-measured-min-height,var(--ai-min-height));box-sizing:border-box;max-height:1250px;background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-line);border-radius:18px;overflow:hidden;font-size:14px;line-height:1.65;box-shadow:0 10px 40px #23304406}
@@ -100,8 +100,17 @@
 #equipment-ai .ai-disclosure-spacer{height:var(--ai-disclosure-height,0px);pointer-events:none}
 #equipment-ai[data-disclosure-layout=flow] .ai-inline-disclosures{grid-column:1/-1;grid-row:2;display:flex;flex-wrap:wrap;gap:4px 14px}
 #equipment-ai[data-disclosure-layout=flow] .ai-inline-disclosures .ai-control-support{flex:0 1 auto}
-#equipment-ai .ai-send{grid-column:3;grid-row:1;border:0;border-radius:10px;color:white;background:#087e78;width:var(--ai-control-height);height:var(--ai-control-height);flex-shrink:0;margin-left:auto;font-size:21px;font-weight:500}
-#equipment-ai .ai-send-actions{grid-column:3;grid-row:1;display:flex;align-items:center;gap:6px;min-width:0}
+/* [MINI-COMMENT: ASSISTANT.STYLES.SEND.HITBOX] [EN rev.1]
+ * [Role] Gives the complete send control one stable native pointer target beside measured disclosures.
+ * [Dependencies] ai-send-actions remains the grid item; native button disabled/submit behavior and the existing shared control height are retained.
+ * [Impact] Positioned disclosure descendants cannot intercept send coordinates; the decorative arrow cannot expand or split the button's hit region, including when cached markup still places the button directly in the grid.
+ */
+#equipment-ai .ai-send{grid-column:3;grid-row:1;position:relative;z-index:1;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;padding:0;border:0;border-radius:10px;color:white;background:#087e78;width:var(--ai-control-height);height:var(--ai-control-height);flex-shrink:0;margin-left:auto;font-size:21px;font-weight:500;line-height:1}
+#equipment-ai .ai-send>span{pointer-events:none}
+#equipment-ai .ai-send-actions{grid-column:3;grid-row:1;position:relative;z-index:1;display:flex;align-items:center;gap:6px;min-width:0}
+#equipment-ai .ai-send-actions>.ai-send{grid-column:auto;grid-row:auto}
+#equipment-ai .ai-inline-disclosures details:not([open])>.ai-control-panel{display:none}
+#equipment-ai .ai-input-shortcut{margin:4px 0 0;color:var(--ai-muted);font-size:11px;line-height:1.5;overflow-wrap:anywhere}
 #equipment-ai .ai-web-toggle{width:var(--ai-control-height);height:var(--ai-control-height);padding:2px;font-size:11px;line-height:1.2;white-space:normal;text-align:center}
 #equipment-ai .ai-web-toggle[aria-pressed=true]{border-color:var(--ai-semantic-ready);background:var(--ai-soft);color:var(--ai-semantic-ready);font-weight:650}
 #equipment-ai .ai-web-sources{margin:14px 0 0;padding:10px 12px;border:1px solid var(--ai-line);border-radius:10px;color:var(--ai-text);font-size:12px;line-height:1.6;overflow-wrap:anywhere}

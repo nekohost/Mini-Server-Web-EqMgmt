@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.20]
- * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting and preserved conversation lifecycle actions.
+ * [EN rev.26]
+ * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting, preserved conversation lifecycle and account-specific input shortcuts.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
- * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request.
+ * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request. Input shortcuts retain native composition/newlines, pending submissions remain single, navigation stays on the accepted conversation and later drafts survive acceptance.
  */
 (function () {
     'use strict';
@@ -188,19 +188,21 @@
     }
 
     /** [MINI-COMMENT: ASSISTANT.CLIENT.VIEWPORT]
-     * [EN rev.2]
-     * [Role] Fits the assistant to measured document/visual viewport space without hiding short-screen content.
-     * [Dependencies] Existing CSS minimums, actual frame padding/nav, ResizeObserver and batched animation frames.
-     * [Impact] Only style/diagnostic attributes change; no scroll position, selected conversation, draft or network operation is reset. Minimum/zoom fallback retains page scrolling and teardown removes every observer/listener.
+     * [EN rev.6]
+     * [Role] Fits the assistant to measured viewport space and keeps a focused mobile composer above a reduced visible area.
+     * [Dependencies] Existing CSS minimums, composer focus, Send-only pointer/click lifecycle, bounded abandoned-activation recovery, actual frame geometry, ResizeObserver and batched animation frames.
+     * [Impact] Normal/zoom minimum fallback is preserved; focused mobile compact fitting bounds the textarea with native inner scrolling and reserves chat space. A Send gesture retains geometry through default click activation; cancellation/outside release/blur recover immediately, and teardown releases every listener/timer without changing drafts, selection, scroll or network state.
      */
     function fitViewport(root) {
         const pane = root.querySelector('#ai-scroll'), viewport = window.visualViewport;
-        let frame = null, stopped = false;
+        const composer = root.querySelector('#ai-form'), input = root.querySelector('#ai-input');
+        const originalInputMaximum = input?.style.maxHeight || '';
+        let frame = null, stopped = false, pointerHeld = false, heldPointerId = null, awaitingActivation = false, activationRecovery = null;
         const pixels = value => Number.parseFloat(value) || 0;
         const setStyle = (name, value) => { if (root.style.getPropertyValue(name) !== value) root.style.setProperty(name,value); };
         const setData = (name, value) => { if (root.dataset[name] !== String(value)) root.dataset[name] = String(value); };
         const measure = () => {
-            frame = null; if (stopped || !root.isConnected || !pane) return;
+            frame = null; if (stopped || !root.isConnected || !pane || pointerHeld) return;
             const style = getComputedStyle(root), box = root.getBoundingClientRect();
             let bottom = pixels(style.marginBottom);
             for (let ancestor = root.parentElement; ancestor; ancestor = ancestor.parentElement) {
@@ -210,30 +212,116 @@
             }
             const height = viewport?.height || window.innerHeight;
             const available = Math.floor(height - Math.max(0, box.top + window.scrollY) - bottom - 1);
-            const fixed = Math.max(0,box.height - pane.getBoundingClientRect().height);
-            const minimum = Math.ceil(Math.max(pixels(style.getPropertyValue('--ai-min-height')),fixed + 120));
+            const unzoomed = !viewport || Math.abs(viewport.scale - 1) < .01;
+            const mobileFocus = window.matchMedia('(max-width:760px)').matches && composer?.contains(document.activeElement) && unzoomed;
+            let fixed = Math.max(0,box.height - pane.getBoundingClientRect().height);
+            const baseMinimum = pixels(style.getPropertyValue('--ai-min-height'));
+            let minimum = Math.ceil(Math.max(baseMinimum,fixed + 120));
+            let fittedAvailable = available, compact = false;
+            if (mobileFocus && input && available < minimum) {
+                // The visual viewport can pan independently of the layout viewport while the keyboard is open.
+                const visibleAvailable = Math.floor((viewport?.offsetTop || 0) + height - box.top - bottom - 1);
+                const inputHeight = input.getBoundingClientRect().height;
+                const inputFloor = Math.max(52,pixels(getComputedStyle(input).minHeight));
+                const inputBudget = Math.floor(visibleAvailable - (fixed - inputHeight) - 48);
+                if (inputBudget >= inputFloor) {
+                    const maximumInput = Math.min(160,inputBudget) + 'px';
+                    if (input.style.maxHeight !== maximumInput) input.style.maxHeight = maximumInput;
+                    fixed = Math.max(0,root.getBoundingClientRect().height - pane.getBoundingClientRect().height);
+                    minimum = Math.ceil(fixed + 48);
+                    compact = visibleAvailable >= minimum;
+                    if (compact) fittedAvailable = visibleAvailable;
+                }
+            }
+            if (!compact && input && input.style.maxHeight !== originalInputMaximum) {
+                input.style.maxHeight = originalInputMaximum;
+                fixed = Math.max(0,root.getBoundingClientRect().height - pane.getBoundingClientRect().height);
+                minimum = Math.ceil(Math.max(baseMinimum,fixed + 120));
+            }
             const maximum = Number.parseFloat(style.maxHeight);
             setStyle('--ai-measured-min-height',minimum + 'px');
-            const fits = (!viewport || Math.abs(viewport.scale - 1) < .01) && available >= minimum;
-            if (fits) setStyle('--ai-fitted-height',Math.max(minimum,Math.min(available,Number.isFinite(maximum) ? maximum : available)) + 'px');
+            const fits = unzoomed && fittedAvailable >= minimum;
+            if (fits) setStyle('--ai-fitted-height',Math.max(minimum,Math.min(fittedAvailable,Number.isFinite(maximum) ? maximum : fittedAvailable)) + 'px');
             else if (root.style.getPropertyValue('--ai-fitted-height')) root.style.removeProperty('--ai-fitted-height');
-            setData('viewportFit',fits ? 'fit' : 'minimum'); setData('viewportAvailable',available); setData('viewportMinimum',minimum);
+            setData('viewportFit',fits ? 'fit' : 'minimum'); setData('viewportCompact',compact); setData('viewportBaseMinimum',Math.ceil(baseMinimum)); setData('viewportAvailable',fittedAvailable); setData('viewportMinimum',minimum);
         };
         const queue = () => { if (!stopped && frame === null) frame = requestAnimationFrame(measure); };
+        const sendTarget = target => target instanceof Element ? target.closest('#ai-send') : null;
+        const releasePointer = () => {
+            clearTimeout(activationRecovery); activationRecovery = null;
+            if (pointerHeld) { pointerHeld = false; heldPointerId = null; awaitingActivation = false; queue(); }
+        };
+        const holdPointer = event => {
+            const target = sendTarget(event.target);
+            if (!target || target.disabled || !composer?.contains(target) || event.isPrimary === false) return;
+            clearTimeout(activationRecovery); activationRecovery = null;
+            pointerHeld = true; heldPointerId = event.pointerId; awaitingActivation = false;
+        };
+        const finishPointer = event => {
+            if (!pointerHeld || event.pointerId !== heldPointerId) return;
+            const target = sendTarget(document.elementFromPoint(event.clientX,event.clientY));
+            if (!target || target.disabled || !composer?.contains(target)) { releasePointer(); return; }
+            // Touch compatibility clicks may run after pointerup/lostcapture in a later task.
+            // Keep layout fixed through default form activation; this UI-only bound releases an abandoned gesture.
+            awaitingActivation = true;
+            clearTimeout(activationRecovery); activationRecovery = setTimeout(releasePointer,600);
+        };
+        const cancelPointer = event => { if (pointerHeld && event.pointerId === heldPointerId) releasePointer(); };
+        const lostPointer = event => { if (!awaitingActivation) cancelPointer(event); };
+        const completeActivation = event => { if (pointerHeld && sendTarget(event.target)) releasePointer(); };
         const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(queue) : null;
         for (const element of [root,root.parentElement,pane,document.querySelector('nav[aria-label="전역 네비게이션"]')]) if (element) observer?.observe(element);
         window.addEventListener('resize',queue); window.addEventListener('orientationchange',queue);
+        root.addEventListener('focusin',queue); root.addEventListener('focusout',queue); root.addEventListener('pointerdown',holdPointer);
+        window.addEventListener('pointerup',finishPointer,true); window.addEventListener('pointercancel',cancelPointer,true); window.addEventListener('lostpointercapture',lostPointer,true); window.addEventListener('click',completeActivation,true); window.addEventListener('contextmenu',releasePointer,true); window.addEventListener('blur',releasePointer);
         viewport?.addEventListener('resize',queue); viewport?.addEventListener('scroll',queue);
         document.fonts?.addEventListener('loadingdone',queue); document.fonts?.ready.then(queue);
         queue();
         return () => {
             stopped = true; if (frame !== null) cancelAnimationFrame(frame); observer?.disconnect();
             window.removeEventListener('resize',queue); window.removeEventListener('orientationchange',queue);
+            root.removeEventListener('focusin',queue); root.removeEventListener('focusout',queue); root.removeEventListener('pointerdown',holdPointer);
+            window.removeEventListener('pointerup',finishPointer,true); window.removeEventListener('pointercancel',cancelPointer,true); window.removeEventListener('lostpointercapture',lostPointer,true); window.removeEventListener('click',completeActivation,true); window.removeEventListener('contextmenu',releasePointer,true); window.removeEventListener('blur',releasePointer);
+            clearTimeout(activationRecovery); activationRecovery = null; pointerHeld = false; heldPointerId = null; awaitingActivation = false;
+            if (input) input.style.maxHeight = originalInputMaximum;
             viewport?.removeEventListener('resize',queue); viewport?.removeEventListener('scroll',queue); document.fonts?.removeEventListener('loadingdone',queue);
         };
     }
 
-    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput };
+    /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SHORTCUTS] [EN rev.2]
+     * [Role] Sends only the selected Enter shortcut while leaving newlines, modifiers and IME confirmation to the browser.
+     * [Dependencies] Current account action, native composition/key events and the same guarded form submit path as the send button.
+     * [Impact] Held/repeated Enter never resends; immediate composition-end ordering is protected, and disabled or active requests cannot consume a draft.
+     */
+    function bindInputShortcuts(input, form, action, canSubmit) {
+        let composing = false, compositionEnded = false, resetComposition = null;
+        const clearCompositionEnd = () => { compositionEnded = false; clearTimeout(resetComposition); };
+        const start = () => { composing = true; clearCompositionEnd(); };
+        const end = () => {
+            composing = false; compositionEnded = true;
+            // Some IMEs finish composition before dispatching the same Enter keydown.
+            clearTimeout(resetComposition); resetComposition = setTimeout(clearCompositionEnd, 0);
+        };
+        const keyup = event => { if (event.key === 'Enter' || event.keyCode === 229) clearCompositionEnd(); };
+        const keydown = event => {
+            if (event.key !== 'Enter') { clearCompositionEnd(); return; }
+            if (event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || composing || compositionEnded || event.keyCode === 229) return;
+            const sends = (action() === 'send') !== Boolean(event.shiftKey);
+            if (!sends) return;
+            event.preventDefault();
+            if (event.repeat || input.disabled || !canSubmit()) return;
+            form.requestSubmit();
+        };
+        input.addEventListener('compositionstart', start); input.addEventListener('compositionend', end);
+        input.addEventListener('keydown', keydown); input.addEventListener('keyup', keyup);
+        return () => {
+            clearCompositionEnd();
+            input.removeEventListener('compositionstart', start); input.removeEventListener('compositionend', end);
+            input.removeEventListener('keydown', keydown); input.removeEventListener('keyup', keyup);
+        };
+    }
+
+    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts };
     if (typeof document === 'undefined') return;
 
     /** [Role] Initializes this standalone screen, preserving drafts/details/scroll across incremental polling. */
@@ -259,13 +347,34 @@
         const terminal = new Set(['done', 'failed', 'cancelled', 'waiting_confirmation']);
         let conversation = null, activeJob = null, timer = null, disposed = false, polling = null;
         let selection = 0, requestKey = null, csvToken = null, retryDelay = 1500, accountContext = null, identityTimer = null, checkingIdentity = false;
-        let historyView = 'active', conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
+        let historyView = 'active', historyViewEpoch = 0, conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
         let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
-        let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null;
+        let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null, submitting = false;
+        let enterAction = 'newline';
         let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
         let renameContext = null, renameBusy = false, renameFocus = null, bulkStopRequested = false;
         const controller = new AbortController();
+
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SETTINGS] [EN rev.3]
+         * [Role] Applies the current account's server setting to an accurate compact shortcut hint.
+         * [Dependencies] session_timer's account-local userSettings and roadmap_preferences' bounded settings event.
+         * [Impact] Initialization reads any early saved account value; missing/failed reads default to newline, and applying a mode changes no draft, selection or active job. Pending acceptance disables navigation and lifecycle actions while keeping the next draft editable.
+         */
+        function applyInputSettings(settings) {
+            if (disposed || !$('ai-input') || !$('ai-form')) return;
+            enterAction = settings?.ai_enter_action === 'send' ? 'send' : 'newline';
+            let hint = $('ai-input-shortcut');
+            if (!hint) {
+                hint = document.createElement('p'); hint.id = 'ai-input-shortcut'; hint.className = 'ai-input-shortcut';
+                root.querySelector('.ai-composer-actions').insertAdjacentElement('afterend', hint);
+            }
+            hint.textContent = enterAction === 'send' ? 'Enter 보내기 · Shift+Enter 줄바꿈' : 'Enter 줄바꿈 · Shift+Enter 보내기';
+            const describedBy = new Set(($('ai-input').getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
+            describedBy.add(hint.id); $('ai-input').setAttribute('aria-describedby', [...describedBy].join(' '));
+        }
+        applyInputSettings(window.userSettings || {});
+        window.addEventListener('user-settings-applied', event => applyInputSettings(event.detail), { signal: controller.signal });
         const labels = { equipment_create: '내 장비 등록', equipment_update: '내 장비 정보 수정', equipment_status: '내 장비 상태 변경',
             catalog_request: '카탈로그 등록 신청', option_request: '옵션 등록 신청', preferences: '내 설정 변경', csv_export: 'CSV 내보내기' };
         const fields = { equipment_id: '장비 번호', name: '장비 이름', option_id: '옵션 번호', serial_number: '시리얼 번호', purchase_date: '구입일',
@@ -330,7 +439,7 @@
             for (const id of trashSelection) if (!history.trash.items.has(id)) trashSelection.delete(id);
             const items = selectableTrash(), selected = items.filter(item => trashSelection.has(item.id)).length;
             const unresolved = [...trashSelection].filter(id => uncertainLifecycle.has(id)).length;
-            const locked = lifecycleBusy || lifecycleIntent || openingConversation || changingModel;
+            const locked = submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel;
             $('ai-trash-selection-controls').hidden = historyView !== 'trash';
             $('ai-trash-select-all-label').textContent = `불러온 ${history.trash.items.size}개 전체 선택`;
             $('ai-trash-select-all').checked = Boolean(items.length) && selected === items.length;
@@ -355,6 +464,7 @@
         /** [Role] Updates the selected-conversation lock and exposes only actions valid for its current view. */
         function lifecycleControls() {
             const locked = readOnly() || lifecycleBusy || creatingConversation;
+            const navigationLocked = submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel;
             $('ai-input').disabled = locked;
             $('ai-form').hidden = readOnly();
             if (readOnly() && (filePanel || $('ai-file-dialog').open)) resetFileWorkspace();
@@ -365,20 +475,21 @@
             $('ai-trash-current').hidden = conversationView !== 'active';
             $('ai-rename-current').hidden = conversationView !== 'active';
             $('ai-restore-current').hidden = $('ai-purge-current').hidden = conversationView !== 'trash';
-            for (const id of ['ai-rename-current', 'ai-trash-current', 'ai-restore-current', 'ai-purge-current']) $(id).disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || uncertainLifecycle.has(conversation);
-            for (const id of ['ai-active-tab', 'ai-trash-tab']) $(id).disabled = lifecycleBusy || lifecycleIntent || openingConversation;
-            $('ai-new').disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || creatingConversation;
+            for (const id of ['ai-rename-current', 'ai-trash-current', 'ai-restore-current', 'ai-purge-current']) $(id).disabled = navigationLocked || uncertainLifecycle.has(conversation);
+            for (const id of ['ai-active-tab', 'ai-trash-tab']) $(id).disabled = navigationLocked;
+            $('ai-new').disabled = navigationLocked || creatingConversation;
+            root.querySelectorAll('.ai-conversation').forEach(button => { button.disabled = navigationLocked; });
             root.querySelectorAll('[data-lifecycle-action]').forEach(button => {
-                button.disabled = lifecycleBusy || lifecycleIntent || openingConversation || changingModel || uncertainLifecycle.has(button.dataset.conversationId);
+                button.disabled = navigationLocked || uncertainLifecycle.has(button.dataset.conversationId);
             });
             $('ai-cancel').disabled = locked;
-            $('ai-refresh-state').disabled = locked || syncingLifecycle || openingConversation;
+            $('ai-refresh-state').disabled = submitting || locked || syncingLifecycle || openingConversation;
             $('ai-lifecycle-reconcile').hidden = !uncertainLifecycle.size;
-            $('ai-lifecycle-reconcile').disabled = lifecycleBusy || syncingLifecycle;
+            $('ai-lifecycle-reconcile').disabled = submitting || lifecycleBusy || syncingLifecycle;
             const trashText = conversationView === 'trash' && conversationMeta ? `휴지통의 대화입니다. 읽기 전용이며 ${lifecycleDate(conversationMeta.purge_after)}에 보관이 만료됩니다. 이동한 시각부터 30일 동안 보관하며, 만료 시점부터 열람과 복구가 제한됩니다. 취소된 요청과 작업은 복구해도 다시 실행되지 않습니다.` : '';
             $('ai-lifecycle-text').textContent = uncertainLifecycle.size ? '대화 조작의 처리 결과를 확인하지 못했습니다. 자동으로 다시 보내지 않습니다. 처리 결과를 확인해 주세요.' : trashText;
             $('ai-lifecycle-notice').hidden = !uncertainLifecycle.size && !trashText;
-            root.setAttribute('aria-busy', String(lifecycleBusy || openingConversation));
+            root.setAttribute('aria-busy', String(submitting || lifecycleBusy || openingConversation));
             trashSelectionControls();
         }
 
@@ -412,10 +523,10 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.FILE.WORKSPACE]
-         * [EN rev.2]
+         * [EN rev.4]
          * [Role] Opens one user-requested native dialog while retaining the existing file/CSV API boundary.
          * [Dependencies] Current capabilities, owner conversation lifecycle, native dialog focus and a separate operation epoch.
-         * [Impact] Closing never resends work; boundaries discard selected files/tokens and reject late previews. A completed write may report its outcome to the same account after a conversation switch, without populating that conversation's file panel.
+         * [Impact] Closing never resends work; boundaries discard selected files/tokens and reject late previews. A completed write may report its outcome to the same account after a conversation switch, without populating that conversation's file panel. Model/control refreshes retain the pending composer submission lock.
          */
         function openFileWorkspace(panel, scope, trigger) {
             if (disposed || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || creatingConversation || dialogResolve) {
@@ -561,7 +672,7 @@
             if (capabilities) root.querySelectorAll('[data-tool]').forEach(button => {
                 button.hidden = !model || !model.tools || !(capabilities.tools || []).includes(button.dataset.tool) || button.dataset.write && !capabilities.writes || button.dataset.own === 'true' && !(capabilities.scopes || []).includes('my');
             });
-            $('ai-send').disabled = modelUnavailable || changingModel || openingConversation || Boolean(activeJob) || readOnly() || lifecycleBusy || creatingConversation;
+            $('ai-send').disabled = submitting || modelUnavailable || changingModel || openingConversation || Boolean(activeJob) || readOnly() || lifecycleBusy || creatingConversation;
             lifecycleControls();
         }
 
@@ -811,7 +922,7 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.UI.PROPOSAL.CARD]
-         * [EN rev.2]
+         * [EN rev.3]
          * [Role] Renders server proposals with operation-specific field labels; confirms only an opaque ID.
          * [Dependencies] Frozen payload kind and the server-owned operation, never model HTML.
          * [Impact] Catalog names retain their meaning; trash/unknown lifecycle views cannot execute pending cards and restoration never replays cancelled work.
@@ -899,7 +1010,7 @@
                     const checkbox = document.createElement('input'); checkbox.type = 'checkbox'; checkbox.className = 'ai-trash-select';
                     checkbox.dataset.conversationId = item.id; checkbox.setAttribute('aria-label', `${item.title} · 선택`);
                     checkbox.addEventListener('change', () => {
-                        if (checkbox.disabled || lifecycleBusy || lifecycleIntent) return;
+                        if (submitting || checkbox.disabled || lifecycleBusy || lifecycleIntent) return;
                         if (checkbox.checked) trashSelection.add(item.id); else trashSelection.delete(item.id);
                         trashSelectionControls();
                     }); row.append(checkbox);
@@ -908,7 +1019,7 @@
                 button.textContent = item.title; button.title = item.title; button.setAttribute('aria-current', String(item.id === conversation));
                 button.dataset.conversationId = item.id;
                 const view = historyView;
-                button.addEventListener('click', () => { if (!lifecycleBusy && !lifecycleIntent && !changingModel) open(item.id, view).catch(error => notice(error.message)); }); row.append(button);
+                button.addEventListener('click', () => { if (!submitting && !lifecycleBusy && !lifecycleIntent && !openingConversation && !changingModel) open(item.id, view).catch(error => notice(error.message)); }); row.append(button);
                 if (historyView === 'trash') {
                     const dates = document.createElement('p'); dates.className = 'ai-conversation-dates';
                     const remaining = typeof item.purge_after === 'number' ? Math.max(0, Math.ceil((item.purge_after * 1000 - Date.now()) / 86400000)) : null;
@@ -937,7 +1048,7 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.HISTORY]
-         * [EN rev.3]
+         * [EN rev.5]
          * [Role] Serializes each active/trash cursor chain and replaces stale entries on refresh.
          * [Dependencies] Owner/account-scoped list API, per-view request queues and retained loaded-ID boundaries.
          * [Impact] A background refresh cannot discard an in-flight explicit older-page load; deletion/restore refreshes still remove stale entries, failed refreshes retain the last known list, and a missing selected title clears through the accessible-heading path.
@@ -977,7 +1088,8 @@
 
         /** [Role] Changes only the sidebar view; a selected trash conversation stays read-only until explicitly restored. */
         async function changeHistoryView(view) {
-            if (lifecycleBusy || lifecycleIntent || openingConversation) return;
+            if (submitting || lifecycleBusy || lifecycleIntent || openingConversation) return;
+            ++historyViewEpoch;
             if (view !== historyView) trashSelection.clear();
             historyView = view; renderConversations();
             try { await conversations(); } catch (error) { notice(error.message); }
@@ -1002,12 +1114,13 @@
             modelControls();
         }
 
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.RECOVERY] [EN rev.1]
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.RECOVERY] [EN rev.2]
          * [Role] Reconciles lifecycle and a confirmed terminal state of the exact locally active job.
          * [Dependencies] Fresh owner-authenticated snapshot, current selection and existing full-message hydration.
-         * [Impact] Unknown/missing jobs stay locked; no cancellation, execution ACK or inference replay is performed.
+         * [Impact] Unknown/missing jobs stay locked; pending turn acceptance defers lifecycle reconciliation until its snapshot settles, and no cancellation, execution ACK or inference replay is performed.
          */
         async function refreshLifecycle() {
+            if (submitting) { invalidationPending = true; return; }
             if (disposed || syncingLifecycle || lifecycleBusy || openingConversation) return;
             syncingLifecycle = true; lifecycleControls();
             const cid = conversation, selected = selection;
@@ -1015,6 +1128,7 @@
                 if (cid) {
                     const current = await readLifecycle(cid);
                     if (selected !== selection || disposed) return;
+                    if (submitting) { invalidationPending = true; return; }
                     const confirmedJob = current?.result.jobs.find(job => job.id === activeJob && terminal.has(job.state));
                     if (!current) { clearConversation(); notice('이 대화는 현재 열 수 없습니다. 목록을 갱신했습니다.'); }
                     else if (confirmedJob && current.view === conversationView && current.result.conversation.lifecycle_revision === conversationMeta?.lifecycle_revision) {
@@ -1054,7 +1168,7 @@
 
         /** [Role] Opens a native naming form with an exact original-title snapshot for automatic-title and concurrent-edit checks. */
         function openRename() {
-            if (!conversationMeta || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
+            if (submitting || !conversationMeta || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
             // The trigger remains the return target even when pointer activation does not focus a button.
             renameFocus = $('ai-rename-current');
             renameContext = { id: conversation, title: conversationMeta.title, expected_title: conversationMeta.title, lifecycle_revision: conversationMeta.lifecycle_revision, account: accountContext };
@@ -1076,13 +1190,13 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.RENAME]
-         * [EN rev.2]
+         * [EN rev.3]
          * [Role] Sends an explicit bounded title edit with a stable request identity and both title/lifecycle CAS snapshots.
          * [Dependencies] Owner/CSRF API, content-free server receipts and the same uncertain-operation map as lifecycle writes.
          * [Impact] ACK loss locks fresh edits until reconciliation; receipt replay displays current server metadata without replacing live message nodes or replaying model turns, while an expired receipt clears the unavailable chat without fetching its title.
          */
         async function commitRename(operation, retry = false) {
-            if (lifecycleBusy || disposed || operation.account !== accountContext) return;
+            if (submitting || lifecycleBusy || disposed || operation.account !== accountContext) return;
             renameBusy = true; lifecycleBusy = true; lifecycleControls();
             for (const id of ['ai-rename-input', 'ai-rename-cancel', 'ai-rename-save']) $(id).disabled = true;
             $('ai-rename-dialog').setAttribute('aria-busy', 'true');
@@ -1176,13 +1290,13 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.TRASH.BULK]
-         * [EN rev.1]
+         * [EN rev.2]
          * [Role] Confirms a loaded-ID snapshot and calls the existing owner/revision/operation-bound API strictly sequentially.
          * [Dependencies] Native destructive confirmation, per-item durable receipts, a fifty-request/sixty-one-second pacing window and the existing uncertain-write reconciliation.
          * [Impact] Newly loaded rows stay unselected; partial success, known failure, unknown results and unsubmitted work remain distinct. Stop affects only remaining items, and ambiguous operations are never resent automatically or with new IDs.
          */
         async function mutateSelectedTrash(action) {
-            if (!['restore', 'purge'].includes(action) || historyView !== 'trash' || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
+            if (submitting || !['restore', 'purge'].includes(action) || historyView !== 'trash' || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
             const items = selectableTrash().filter(item => trashSelection.has(item.id)).map(item => ({ ...item }));
             if (!items.length) return;
             const account = accountContext, name = action === 'restore' ? '복구' : '영구삭제';
@@ -1252,13 +1366,13 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.LIFECYCLE]
-         * [EN rev.3]
+         * [EN rev.4]
          * [Role] Submits one explicitly intended trash/restore/purge operation with a server revision and stable operation ID.
          * [Dependencies] Existing same-origin CSRF/account boundary, native dialogs and server-owned lifecycle timestamps.
          * [Impact] Duplicate clicks lock; cancelled confirmation releases controls immediately, state changes dispose display queues even if a later snapshot fails, and restoration never replays turns/proposals.
          */
         async function mutateLifecycle(action, item, retry = null) {
-            if (lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
+            if (submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || dialogResolve || disposed) return;
             if (item && uncertainLifecycle.has(item.id) && !retry) { notice('이 대화의 이전 처리 결과를 먼저 확인해 주세요.'); return; }
             if (!item || !Number.isSafeInteger(item.lifecycle_revision) || item.lifecycle_revision < 0) { notice('대화 상태를 먼저 새로 확인해 주세요.'); await refreshLifecycle(); return; }
             const title = String(item.title || '제목 없는 대화');
@@ -1328,7 +1442,7 @@
 
         /** [Role] Reconciles ambiguous writes using GET first; only a second explicit confirmation can resend the same operation. */
         async function reconcileLifecycle() {
-            if (lifecycleBusy || lifecycleIntent || syncingLifecycle || dialogResolve || !uncertainLifecycle.size) return;
+            if (submitting || lifecycleBusy || lifecycleIntent || syncingLifecycle || dialogResolve || !uncertainLifecycle.size) return;
             const operation = uncertainLifecycle.values().next().value;
             syncingLifecycle = true; lifecycleControls();
             let current;
@@ -1432,10 +1546,10 @@
         function schedule(delay = 1500) { clearTimeout(timer); if (!disposed && activeJob && !readOnly()) timer = setTimeout(poll, document.hidden ? Math.max(5000, delay) : delay); }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.STREAM]
-         * [EN rev.7]
+         * [EN rev.10]
          * [Role] Accepts original deltas immediately and paces only the visible prefixes.
          * [Dependencies] Server generation/code-point cursors, selection/job-owned poll tokens and disposable snapshot presenters.
-         * [Impact] Automatic close occurs once per turn; selected text, table scroll and manual reopening survive updates, remotely trashed chats stop polling, and a completed explicit new-chat action releases every composer/model lock. Model-setting/inventory errors own their notices so unrelated successful work cannot erase them.
+         * [Impact] Automatic close occurs once per turn; selected text, table scroll and manual reopening survive updates, remotely trashed chats stop polling, and a completed explicit new-chat action releases every composer/model lock. Model-setting/inventory errors own their notices so unrelated successful work cannot erase them. Explicit new-chat actions also respect a still-pending composer submission.
          */
         async function poll() {
             if (polling?.job === activeJob && polling.selected === selection || !activeJob || disposed || readOnly()) { schedule(); return; }
@@ -1466,11 +1580,15 @@
             } finally { if (polling === token) polling = null; }
         }
 
-        /** [Role] Creates a new account-local conversation only on explicit user intent. */
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.NEW.CONVERSATION] [EN rev.1]
+         * [Role] Creates a new account-local conversation only on explicit user intent.
+         * [Dependencies] The shared creatingConversation lock, current model/lifecycle controls and acknowledged internal open.
+         * [Impact] Composer controls lock before the creation request yields; direct or stale-enabled submits cannot target the previous conversation while creation is pending.
+         */
         async function newConversation() {
-            if (lifecycleBusy || lifecycleIntent || openingConversation || changingModel || creatingConversation) return;
+            if (submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || creatingConversation) return;
             creatingConversation = true;
-            $('ai-new').disabled = true;
+            modelControls();
             try { const result = await api('/api/ai/conversations', { method: 'POST', data: {} }); historyView = 'active'; await open(result.id, 'active'); $('ai-input').focus(); }
             finally { creatingConversation = false; if (!disposed) modelControls(); }
         }
@@ -1492,7 +1610,7 @@
         $('ai-rename-dialog').addEventListener('cancel', event => { event.preventDefault(); closeRename(); });
         $('ai-rename-form').addEventListener('submit', async event => {
             event.preventDefault();
-            if (!renameContext || renameBusy || lifecycleBusy || disposed) return;
+            if (submitting || !renameContext || renameBusy || lifecycleBusy || disposed) return;
             const input = conversationTitleInput($('ai-rename-input').value);
             if (input.error) { $('ai-rename-error').textContent = input.error; $('ai-rename-input').focus(); return; }
             if (renameContext.id !== conversation || readOnly()) { $('ai-rename-error').textContent = '정상 대화의 현재 상태를 다시 확인해 주세요.'; return; }
@@ -1500,7 +1618,7 @@
             await commitRename({ ...renameContext, action: 'rename', new_title: input.title, operation_id: crypto.randomUUID().replaceAll('-', '') });
         });
         $('ai-trash-select-all').addEventListener('change', () => {
-            if (lifecycleBusy || lifecycleIntent || openingConversation || changingModel || $('ai-trash-select-all').disabled) return;
+            if (submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || $('ai-trash-select-all').disabled) return;
             for (const item of selectableTrash()) { if ($('ai-trash-select-all').checked) trashSelection.add(item.id); else trashSelection.delete(item.id); }
             trashSelectionControls();
         });
@@ -1525,18 +1643,34 @@
         $('ai-level').addEventListener('change', () => { if (readOnly() || lifecycleBusy || openingConversation || changingModel) return; requestKey = null; $('ai-level-help').textContent = reasoningHelp[$('ai-level').value] || ''; saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model').addEventListener('change', () => { if (openingConversation || changingModel || readOnly() || lifecycleBusy) return; modelId = $('ai-model').value; const model = modelChoices.find(item => item.id === modelId); modelControls(initialLevel(model)); saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model-refresh').addEventListener('click', () => loadModels().catch(error => notice(error.message, 'inventory')));
-        $('ai-input').addEventListener('keydown', event => { if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) { event.preventDefault(); if (!$('ai-send').disabled) $('ai-form').requestSubmit(); } });
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.COMPOSER] [EN rev.3]
+         * [Role] Shares keyboard/button submission guards and keeps any draft entered after the accepted snapshot.
+         * [Dependencies] Current owner/model/lifecycle state, a synchronous submission latch and the idempotent turns endpoint.
+         * [Impact] A control refresh, history switch, lifecycle action or repeated shortcut cannot redirect or duplicate a pending request; accepted snapshots reload their immutable conversation, rejected requests keep their draft and accepted requests clear only the submitted text.
+         */
+        const disposeInputShortcuts = bindInputShortcuts($('ai-input'), $('ai-form'), () => enterAction,
+            () => !disposed && !submitting && !activeJob && !creatingConversation && !changingModel && !$('ai-send').disabled && !readOnly() && !lifecycleBusy && !lifecycleIntent && !openingConversation);
         root.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { if (readOnly() || lifecycleBusy) return; $('ai-input').value = button.dataset.prompt; requestKey = null; $('ai-input').focus(); }));
         $('ai-form').addEventListener('submit', async event => {
-            event.preventDefault(); if ($('ai-send').disabled || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation) return;
-            const content = $('ai-input').value.trim(); if (!content) return;
-            $('ai-send').disabled = true; notice();
+            event.preventDefault(); if (disposed || submitting || activeJob || creatingConversation || changingModel || $('ai-input').disabled || $('ai-send').disabled || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation) return;
+            const submittedDraft = $('ai-input').value, content = submittedDraft.trim(); if (!content) return;
+            submitting = true; modelControls(); notice();
             try {
                 if (!conversation) { const result = await api('/api/ai/conversations', { method: 'POST', data: {} }); conversation = result.id; modelRevision = result.selection_revision || 1; await saveSelection(); }
+                const acceptedConversation = conversation;
                 requestKey ||= crypto.randomUUID().replaceAll('-', '');
-                await api(`/api/ai/conversations/${conversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2 } });
-                $('ai-input').value = ''; requestKey = null; await open(conversation, 'active');
-            } catch (error) { notice(error.message); modelControls(); if ([404,409,410].includes(error.status)) await refreshLifecycle(); }
+                await api(`/api/ai/conversations/${acceptedConversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2 } });
+                if (disposed) return;
+                if ($('ai-input').value === submittedDraft) $('ai-input').value = '';
+                requestKey = null; await open(acceptedConversation, 'active');
+            } catch (error) { if (disposed) return; notice(error.message); if ([404,409,410].includes(error.status)) await refreshLifecycle(); }
+            finally {
+                submitting = false;
+                if (!disposed) {
+                    modelControls();
+                    if (invalidationPending) { invalidationPending = false; refreshLifecycle().catch(error => notice(error.message)); }
+                }
+            }
         });
         $('ai-cancel').addEventListener('click', async () => { if (!activeJob || readOnly() || lifecycleBusy) return; try { await api(`/api/ai/jobs/${activeJob}/cancel`, { method: 'POST', data: {} }); schedule(50); } catch (error) { notice(error.message); } });
         $('ai-refresh-state').addEventListener('click', async () => {
@@ -1603,7 +1737,7 @@
         /** [Role] Treats cross-tab storage/channel data only as a hint to authenticated rereads. */
         function lifecycleHint(hint) {
             if (!hint || !accountContext || hint.account !== accountContext || disposed) return;
-            if (lifecycleBusy || openingConversation || syncingLifecycle) { invalidationPending = true; return; }
+            if (submitting || lifecycleBusy || openingConversation || syncingLifecycle) { invalidationPending = true; return; }
             refreshLifecycle().catch(error => notice(error.message));
         }
         if (typeof BroadcastChannel !== 'undefined') {
@@ -1611,10 +1745,16 @@
             lifecycleChannel.addEventListener('message', event => lifecycleHint(event.data));
         }
         window.addEventListener('storage', event => { if (event.key === 'eqmgmt.ai.lifecycle') { try { lifecycleHint(JSON.parse(event.newValue)); } catch (_) { /* Malformed hints have no authority. */ } } });
-        window.addEventListener('pagehide', () => { disposed = true; disposePresenters(); trashSelection.clear(); disposeViewport(); clearTimeout(timer); clearInterval(identityTimer); lifecycleChannel?.close(); controller.abort(); }, { once: true });
+        window.addEventListener('pagehide', () => { disposed = true; disposeInputShortcuts(); disposePresenters(); trashSelection.clear(); disposeViewport(); clearTimeout(timer); clearInterval(identityTimer); lifecycleChannel?.close(); controller.abort(); }, { once: true });
         window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });
         window.addEventListener('focus', checkIdentity);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIdentity(); });
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.STARTUP] [EN rev.1]
+         * [Role] Opens the initial history result only while initialization still owns an untouched empty selection.
+         * [Dependencies] Selection and explicit history-view epochs plus current submit/create/open state.
+         * [Impact] Delayed history cannot replace a user-created or accepted conversation or undo sidebar steering; acknowledged internal opens retain their normal path.
+         */
+        const initialView = { selection, view: historyView, epoch: historyViewEpoch };
         try {
             capabilities = await api('/api/ai/capabilities');
             if (capabilities.reasoning_version !== 2) throw Error('AI 서버와 화면의 추론 설정 버전이 다릅니다. 화면과 서버를 함께 갱신해 주세요.');
@@ -1625,7 +1765,9 @@
             });
             if (!capabilities.writes) notice('현재 조회와 대화 기능을 사용할 수 있습니다. 변경 제안은 운영 설정에서 비활성 상태입니다.');
             await loadModels();
-            const list = await conversations(); if (list.length) await open(list[0].id);
+            const list = await conversations();
+            if (list.length && !disposed && !submitting && !conversation && !creatingConversation && !openingConversation &&
+                selection === initialView.selection && historyView === initialView.view && historyViewEpoch === initialView.epoch) await open(list[0].id, initialView.view);
             identityTimer = setInterval(checkIdentity, 10000);
         } catch (error) { notice(error.message); $('ai-send').disabled = true; }
     }

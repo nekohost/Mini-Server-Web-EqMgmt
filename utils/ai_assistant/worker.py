@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.7]
+[EN rev.8]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
 [Dependencies] requests, private loopback worker API and server-only environment credentials.
 [Impact] Delivers small SSE batches within 150ms when frames arrive, preserves monotonic offsets and drains only its own cancelled response; group occupancy remains server-controlled.
@@ -30,9 +30,9 @@ class DispatchCancelled(Exception):
 
 
 def sse(response):
-    """[Role] Parses bounded SSE data frames, preserving Unicode/line boundaries and keepalives.
+    """[Role] Parses bounded SSE frames, including an exact terminal marker at EOF without a final blank separator.
     [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
-    [Impact] Preserves the module's owner/validation/transaction boundary described above.
+    [Impact] Only an explicit [DONE] can end a stream; a stop frame or EOF alone still fails closed.
     """
     response.encoding='utf-8'
     data=[]
@@ -59,6 +59,9 @@ def sse(response):
             data.append(value)
         elif line.startswith(':'):
             yield None
+    if data==['[DONE]']:
+        yield '[DONE]'
+        return
     raise ValueError('incomplete SSE response')
 
 

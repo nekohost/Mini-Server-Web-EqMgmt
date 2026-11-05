@@ -1,0 +1,426 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "9bcbabb7dd672656dc07d6a334e3ec5fe74f17aa835bbdb0ea05c7d69b59760b",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "width": 320,
+      "theme": "light",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 320,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "template_mode": "current",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "width": 320,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 320,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "template_mode": "current",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "template_mode": "current",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "width": 1440,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "template_mode": "current",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-003.png"
+    },
+    {
+      "status": "pass",
+      "width": 320,
+      "theme": "light",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 320,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "template_mode": "cached-before-recovery",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-004.png"
+    },
+    {
+      "status": "pass",
+      "width": 320,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 320,
+          "height": 844,
+          "pageWidth": 320,
+          "pageHeight": 844,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 320,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "template_mode": "cached-before-recovery",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-005.png"
+    },
+    {
+      "status": "pass",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "template_mode": "cached-before-recovery",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-006.png"
+    },
+    {
+      "status": "pass",
+      "width": 1440,
+      "theme": "dark",
+      "checks": [
+        "failed-original-thought-and-supported-model-retained",
+        "opening-failed-chat-does-not-repeat-request",
+        "automatic-search-has-no-stale-toggle",
+        "unknown-server-state-is-never-unlocked-or-replayed",
+        "missing-job-is-not-treated-as-confirmed-completion",
+        "terminal-refresh-preserves-draft-and-automatic-search-ui",
+        "terminal-refresh-retains-entire-thought-and-reader-choice",
+        "original-failure-cause-and-current-recovery-guidance-both-visible",
+        "terminal-refresh-only-reads-does-not-send-an-inference",
+        "read-only-state-retry-is-available",
+        "failed-read-retains-lock-and-draft",
+        "only-one-explicit-new-turn-is-submitted",
+        "late-previous-job-result-cannot-relock-new-request",
+        "next-request-result-renders-after-stopped-history",
+        "late-snapshot-cannot-replace-another-selected-chat",
+        "state-confirmation-never-posts-cancel-ack-or-guard-release",
+        "recovery-ui-fits-narrow-and-desktop-viewport",
+        "state-retry-remains-readable-and-clickable-without-stacked-label"
+      ],
+      "layout": {
+        "recovered": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        },
+        "final": {
+          "width": 1440,
+          "height": 1000,
+          "pageWidth": 1440,
+          "pageHeight": 1000,
+          "sendDisabled": false,
+          "progress": "작업 중단됨 · 응답을 완료하지 못했습니다. AI 응답 연결이 끝까지 확인되지 않아 작업을 중단했습니다. 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다."
+        }
+      },
+      "postCount": 1,
+      "oldPolls": 1,
+      "nextPolls": 1,
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "template_mode": "cached-before-recovery",
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/staging-regression-recovery/screen-007.png"
+    }
+  ],
+  "fixture_digest": "9bcbabb7dd672656dc07d6a334e3ec5fe74f17aa835bbdb0ea05c7d69b59760b"
+}

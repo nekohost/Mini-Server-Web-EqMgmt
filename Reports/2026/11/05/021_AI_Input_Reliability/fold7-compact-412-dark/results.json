@@ -1,0 +1,4561 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "6fc2d584f0535c94d7ab33762d958857705902c47c6b514e6a84ee86cd27793f",
+    "fixture_storage": "disk-temp"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "view": "fold7-cover-mobile-probe",
+      "checks": [
+        "direct-top-level-mobile-touch-emulation",
+        "no-page-zoom",
+        "standard-collapsed-all-nine-points-unobstructed-without-scroll",
+        "standard-collapsed-center-one-trusted-send-retains-draft",
+        "standard-collapsed-top-one-trusted-send-retains-draft",
+        "standard-collapsed-bottom-one-trusted-send-retains-draft",
+        "standard-collapsed-left-one-trusted-send-retains-draft",
+        "standard-collapsed-right-one-trusted-send-retains-draft",
+        "standard-native-touch-focuses-input",
+        "standard-focused-multiline-input-grows",
+        "standard-compact-540-keeps-bounded-native-textarea-scroll",
+        "standard-compact-540-all-nine-points-unobstructed-without-scroll",
+        "standard-compact-540-center-one-trusted-send-retains-draft",
+        "standard-compact-540-top-one-trusted-send-retains-draft",
+        "standard-compact-540-bottom-one-trusted-send-retains-draft",
+        "standard-compact-540-left-one-trusted-send-retains-draft",
+        "standard-compact-540-right-one-trusted-send-retains-draft",
+        "standard-compact-576-whole-send-visible-without-scroll",
+        "standard-compact-576-all-nine-points-unobstructed-without-scroll",
+        "standard-compact-576-center-one-trusted-send-retains-draft",
+        "standard-compact-576-top-one-trusted-send-retains-draft",
+        "standard-compact-576-bottom-one-trusted-send-retains-draft",
+        "standard-compact-576-left-one-trusted-send-retains-draft",
+        "standard-compact-576-right-one-trusted-send-retains-draft",
+        "standard-pointer-held-focus-change-cannot-move-send"
+      ],
+      "width": 412,
+      "theme": "dark",
+      "layout": {
+        "mobile-baseline": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 213.34,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 493.56
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-collapsed-before-touch": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 213.34,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 493.56
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-collapsed-center": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 213.34,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 493.56
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-collapsed-top": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 452.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-collapsed-bottom": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 452.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-collapsed-left": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 452.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-collapsed-right": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 719.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 52
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 52,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 706.91,
+            "width": 394,
+            "height": 452.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 706.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 183.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 550,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-focused-multiline": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 900,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 611.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 160
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 598.91,
+            "width": 394,
+            "height": 344.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 598.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 291.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 575,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-addressbar-svh-override": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 820,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 611.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 160
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 598.91,
+            "width": 394,
+            "height": 344.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 598.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 291.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 575,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-keyboard-geometry-only": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 820,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 611.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 160
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 598.91,
+            "width": 394,
+            "height": 344.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 598.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 291.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 575,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-visible-viewport-crop": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 820,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 611.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 160
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 598.91,
+            "width": 394,
+            "height": 344.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 598.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 291.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 575,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-visible-size-only": {
+          "innerWidth": 412,
+          "innerHeight": 900,
+          "clientHeight": 820,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 900,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 891,
+            "width": 396,
+            "height": 799
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 611.91,
+            "bottom": 771.91,
+            "width": 340,
+            "height": 160
+          },
+          "inputMaximum": "",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 598.91,
+            "width": 394,
+            "height": 344.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 779.91,
+            "bottom": 823.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 598.91,
+            "bottom": 890,
+            "width": 394,
+            "height": 291.09
+          },
+          "fit": "fit",
+          "compact": "false",
+          "available": 799,
+          "minimum": 575,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 783.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 820.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 801.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 788.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 815.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-layout-resize-540-before-scroll": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-layout-resize-540-after-native-scroll": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540-before-touch": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540-center": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-input",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540-top": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540-bottom": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540-left": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-540-right": {
+          "innerWidth": 412,
+          "innerHeight": 540,
+          "clientHeight": 540,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 540,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 531,
+            "width": 396,
+            "height": 439
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 411.91,
+            "width": 340,
+            "height": 96
+          },
+          "inputMaximum": "96px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 419.91,
+            "bottom": 463.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 530,
+            "width": 394,
+            "height": 227.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 439,
+          "minimum": 439,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 423.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 460.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 441.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 428.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 455.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-partial-button-before-scroll": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-576-before-touch": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-576-center": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-576-top": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-576-bottom": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-576-left": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-compact-576-right": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "standard-before-held-pointer": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        },
+        "failure": {
+          "innerWidth": 412,
+          "innerHeight": 576,
+          "clientHeight": 576,
+          "scrollY": 0,
+          "visual": {
+            "top": 0,
+            "left": 0,
+            "height": 576,
+            "width": 412,
+            "scale": 1,
+            "pageTop": 0,
+            "pageLeft": 0
+          },
+          "keyboard": {
+            "overlaysContent": false,
+            "rect": {
+              "x": 0,
+              "y": 0,
+              "width": 0,
+              "height": 0,
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            }
+          },
+          "skin": "standard",
+          "focused": "ai-send",
+          "root": {
+            "left": 8,
+            "right": 404,
+            "top": 92,
+            "bottom": 567,
+            "width": 396,
+            "height": 475
+          },
+          "input": {
+            "left": 36,
+            "right": 376,
+            "top": 315.91,
+            "bottom": 447.91,
+            "width": 340,
+            "height": 132
+          },
+          "inputMaximum": "132px",
+          "inputScrollHeight": 271,
+          "pane": {
+            "left": 9,
+            "right": 403,
+            "top": 254.14,
+            "bottom": 302.91,
+            "width": 394,
+            "height": 48.77
+          },
+          "send": {
+            "left": 332,
+            "right": 376,
+            "top": 455.91,
+            "bottom": 499.91,
+            "width": 44,
+            "height": 44
+          },
+          "bottom": {
+            "left": 9,
+            "right": 403,
+            "top": 302.91,
+            "bottom": 566,
+            "width": 394,
+            "height": 263.09
+          },
+          "fit": "fit",
+          "compact": "true",
+          "available": 475,
+          "minimum": 475,
+          "map": [
+            {
+              "name": "center",
+              "x": 354,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "top",
+              "x": 354,
+              "y": 459.42625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "bottom",
+              "x": 354,
+              "y": 496.38625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "left",
+              "x": 335.52,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "right",
+              "x": 372.48,
+              "y": 477.90625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-left",
+              "x": 340.8,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "upper-right",
+              "x": 367.2,
+              "y": 464.70625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-left",
+              "x": 340.8,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            },
+            {
+              "name": "lower-right",
+              "x": 367.2,
+              "y": 491.10625,
+              "hit": "ai-send",
+              "sendHit": true,
+              "withinVisual": true
+            }
+          ]
+        }
+      },
+      "error": "standard-blur-restores-normal-minimum-after-touch-completes",
+      "trusted_send_clicks": 16,
+      "turn_requests": 16,
+      "physical_handset_test": false,
+      "requested_width": 412,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/05/021_AI_Input_Reliability/fold7-compact-412-dark/screen-000.png"
+    }
+  ],
+  "fixture_digest": "6fc2d584f0535c94d7ab33762d958857705902c47c6b514e6a84ee86cd27793f"
+}

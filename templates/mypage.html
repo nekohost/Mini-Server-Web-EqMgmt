@@ -9,7 +9,7 @@
 {% block content %}
 <header class="app-page-heading app-content-header">
     <h1 class="app-content-title">내 정보</h1>
-    <p class="app-content-description">사용자 정보와 보안 설정, 화면 및 알림 환경을 관리합니다.</p>
+    <p class="app-content-description">사용자 정보와 보안 설정, 화면·AI 입력·알림 환경을 관리합니다.</p>
 </header>
 <!-- Independent panels preserve account/security actions; settings share one coherent area. -->
 <div class="account-layout">
@@ -57,7 +57,7 @@
             <label class="flex items-center gap-3 cursor-pointer"><input type="radio" name="theme_setting" value="dark" onchange="applyThemeSetting(this.value)" class="text-brand-500 h-4 w-4"><span class="text-sm">다크</span></label>
             <label class="flex items-center gap-3 cursor-pointer"><input type="radio" name="theme_setting" value="system" onchange="applyThemeSetting(this.value)" class="text-brand-500 h-4 w-4"><span class="text-sm">시스템 설정 따름</span></label>
         </div>
-        <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">테마는 선택하면 바로 저장됩니다. 레이아웃과 기한 알림은 아래 버튼으로 저장해 주세요.</p>
+        <p class="mt-3 text-xs text-slate-500 dark:text-slate-400">테마는 선택하면 바로 저장됩니다. 레이아웃·AI 입력·기한 알림은 아래 버튼으로 저장해 주세요.</p>
     </fieldset>
     <div class="account-preference-group">
         <label for="roadmap-skin" class="block text-sm font-semibold mb-2">화면 레이아웃</label>
@@ -66,6 +66,19 @@
             <option value="edge">Edge · 가변 카드 배치와 넓은 표</option>
         </select>
         <p id="roadmap-skin-help" class="mt-2 text-sm text-slate-500 dark:text-slate-400">Edge는 카드·입력란의 읽기 좋은 크기를 유지하고, 화면 너비에 맞춰 카드 수와 배치를 조절합니다. 장비·로그 등의 표는 화면을 넓게 사용합니다.</p>
+    </div>
+    <!-- [MINI-COMMENT: USER.PREFERENCES.INPUT.VIEW] [EN rev.1]
+    [Role] Offers the two inverse Enter/Shift+Enter actions in the existing account settings panel.
+    [Dependencies] roadmap_preferences.js and the current user's ai_enter_action JSON setting.
+    [Impact] New or unset accounts default to newline; choosing an option requires the shared settings save action.
+    -->
+    <div class="account-preference-group">
+        <label for="ai-enter-action" class="block text-sm font-semibold mb-2">AI 입력의 Enter 동작</label>
+        <select id="ai-enter-action" aria-describedby="ai-enter-action-help" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
+            <option value="newline">Enter 줄바꿈 · Shift+Enter 보내기 (기본)</option>
+            <option value="send">Enter 보내기 · Shift+Enter 줄바꿈</option>
+        </select>
+        <p id="ai-enter-action-help" class="mt-2 text-sm text-slate-500 dark:text-slate-400">AI 도우미에 계정별로 적용합니다. 한글 조합을 확정하는 Enter는 보내지 않습니다.</p>
     </div>
     <div class="account-preference-group">
         <h3 class="text-sm font-semibold mb-3">장비 기한 알림</h3>
@@ -76,7 +89,7 @@
         <p id="roadmap-opt-in-help" class="mt-3 text-sm text-slate-500 dark:text-slate-400">인증된 본인 이메일로 기한 30일·7일·1일 전과 당일 안내합니다. 기본값은 미동의이며 언제든 해제할 수 있습니다. 기존 이메일의 인증이 필요하면 이메일 변경에서 같은 주소를 다시 인증해 주세요.</p>
     </div>
     <div class="mt-6 flex flex-wrap items-center gap-3">
-        <button id="roadmap-preferences-save" type="button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg transition">레이아웃·알림 저장</button>
+        <button id="roadmap-preferences-save" type="button" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg transition">환경 설정 저장</button>
         <p id="roadmap-preferences-message" class="text-sm" role="status" aria-live="polite"></p>
     </div>
 

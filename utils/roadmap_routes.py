@@ -306,7 +306,13 @@ def install_roadmap(app, services):
     @csrf_required
     @transaction(write=True)
     def settings_route(connection, user):
-        """[역할] 기존 설정에 스킨/명시 수신 동의 병합. [의존성 관계] PreferencesJSON. [변경 시 영향도] 다른 설정 보존."""
+        """[MINI-COMMENT: USER.PREFERENCES.API] [EN rev.1]
+        [Role] Reads and merges only the authenticated actor's settings with fixed UI/AI-input choices.
+        [Dependencies] Existing PreferencesJSON storage, login/CSRF decorators and the transactional actor check.
+        [Impact] Missing or legacy input actions read as newline; rejected values never modify saved or unrelated settings, and no schema change is required.
+        [KO rev.0]
+        [역할] 기존 설정에 스킨/명시 수신 동의 병합. [의존성 관계] PreferencesJSON. [변경 시 영향도] 다른 설정 보존.
+        """
         row = connection.execute('SELECT PreferencesJSON FROM user_settings WHERE UserId=?', (user['UserId'],)).fetchone()
         try:
             settings = json.loads(row[0] or '{}') if row else {}
@@ -320,6 +326,8 @@ def install_roadmap(app, services):
                 raise InputError('레이아웃은 standard 또는 edge만 선택할 수 있습니다.')
             if 'theme' in data and data['theme'] not in ('light', 'dark', 'system'):
                 raise InputError('올바른 테마를 선택해 주세요.')
+            if 'ai_enter_action' in data and (not isinstance(data['ai_enter_action'], str) or data['ai_enter_action'] not in ('newline', 'send')):
+                raise InputError('AI 입력의 Enter 동작은 newline 또는 send만 선택할 수 있습니다.')
             if 'deadline_email_opt_in' in data:
                 if type(data['deadline_email_opt_in']) is not bool:
                     raise InputError('이메일 수신 동의는 true/false여야 합니다.')
@@ -331,6 +339,7 @@ def install_roadmap(app, services):
                                (user['UserId'], json.dumps(settings, ensure_ascii=False), equipment.utc_now()))
         settings['layout_skin'] = settings.get('layout_skin') if settings.get('layout_skin') in ('standard', 'edge') else 'standard'
         settings['deadline_email_opt_in'] = settings.get('deadline_email_opt_in') is True
+        settings['ai_enter_action'] = 'send' if settings.get('ai_enter_action') == 'send' else 'newline'
         return jsonify(success=True, settings=settings)
 
     app.view_functions['api_user_settings'] = settings_route

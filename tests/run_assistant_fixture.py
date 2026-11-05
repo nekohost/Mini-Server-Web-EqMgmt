@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.LINUX.FIXTURE.RUNNER]
-[EN rev.18]
+[EN rev.20]
 [Role] Transfers audited candidate source in memory to the authorized Linux fixture host over SSH.
 [Dependencies] Root source plus staged overlays, subprocess SSH and Python stdlib; never imports the app on Windows.
 [Impact] Sparse overlays retain unchanged baseline tests/assets; full generated browser evidence is saved beside screenshots with compact stdout, and no remote source/config or production DB is modified.
@@ -25,17 +25,17 @@ def main():
     parser.add_argument('--artifact-dir',help='Create new screenshot artifacts under this project Reports directory.')
     parser.add_argument('--summary-only',action='store_true',help='Keep check names and failures while suppressing routine fixture logs.')
     parser.add_argument('--tmpfs-fixtures',action='store_true',help='Use private Linux tmpfs for disposable functional fixtures; never changes SQLite durability settings.')
-    parser.add_argument('--browser-width',type=int,action='append',default=[],choices=[320,360,390,430,760,761,820,1425,1440])
+    parser.add_argument('--browser-width',type=int,action='append',default=[],choices=[320,360,384,390,412,430,760,761,820,1425,1440])
     parser.add_argument('--browser-theme',action='append',default=[],choices=['light','dark'])
-    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner','web-search','recovery'],default='all')
+    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner','web-search','recovery','input-preferences','hitbox','fold7'],default='all')
     args=parser.parse_args()
     overlay=Path(__file__).resolve().parents[1]
     project=next((parent for parent in (overlay,*overlay.parents) if (parent/'AGENTS.md').is_file()), None)
     if project is None:
         raise ValueError('fixture project root was not found')
     fixture_roots=(overlay/'tests',) if overlay==project else (project/'tests',overlay.parent/'tests',overlay/'tests')
-    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py','test_ai_search_providers.py'}
-    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py','web_search_browser_fixture.py','recovery_browser_fixture.py'}
+    extra_test_names={'test_admin_release.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py','test_ai_search_providers.py','test_ai_input_preferences.py','test_ai_input_reliability.py'}
+    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py','web_search_browser_fixture.py','recovery_browser_fixture.py','ai_input_preferences_browser_fixture.py','send_hitbox_browser_fixture.py','fold7_cover_browser_fixture.py'}
     def candidate_file(relative):
         """[Role] Selects a changed overlay source or the unchanged reviewed project baseline. [Impact] No production app import occurs on Windows."""
         staged=overlay/relative
@@ -46,7 +46,7 @@ def main():
             relative=file.relative_to(source_root).with_suffix('')
             parts=relative.parts[:-1] if file.stem=='__init__' else relative.parts
             sources['.'.join(parts)]={'source':file.read_text(encoding='utf-8-sig'),'package':file.stem=='__init__'}
-    candidate_paths=('templates/equipment_ai.html','templates/equipment_ai_providers.html',
+    candidate_paths=('templates/equipment_ai.html','templates/equipment_ai_providers.html','templates/mypage.html',
         'static/css/equipment_ai.css','static/css/equipment_ai_providers.css',
         'static/js/equipment_ai.js','static/js/equipment_ai_providers.js','static/js/session_timer.js')
     assets={relative:((overlay/relative) if (overlay/relative).is_file() else project/relative).read_text(encoding='utf-8-sig') for relative in candidate_paths}
@@ -199,6 +199,18 @@ if payload['browser'] and result.wasSuccessful():
             continue
         if payload['browser_target']=='disclosure':
             if name=='model_disclosure_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='input-preferences':
+            if name=='ai_input_preferences_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='hitbox':
+            if name=='send_hitbox_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='fold7':
+            if name=='fold7_cover_browser_fixture.py':
                 results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
             continue
         if payload['browser_target']=='viewport':
