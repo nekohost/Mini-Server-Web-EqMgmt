@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """[MINI-COMMENT: ASSISTANT.UPGRADE.RELEASE]
-[EN rev.3]
+[EN rev.4]
 [Role] Upgrades the installed equipment assistant using private snapshots and an exact Git release.
 [Dependencies] The fixed Linux host/user/project, existing private settings and the reviewed v4 candidate.
 [Impact] Stops only an idle local web/worker pair; preserves secrets, business rows and every pre-existing AI row.
@@ -145,10 +145,10 @@ def maintenance(state):
 
 def check_copy(release):
     """[MINI-COMMENT: ASSISTANT.UPGRADE.COPY]
-    [EN rev.1]
-    [Role] Starts the complete approved app against copies of both real databases.
+    [EN rev.2]
+    [Role] Starts the complete approved app against copies of both real databases, including legitimate existing lifecycle history.
     [Dependencies] Preserved secrets for encrypted provider records; isolated instance/DB/maintenance/file paths and disabled model discovery.
-    [Impact] Asserts every old AI column/row and all business rows, permitting only the intended menu-parent metadata update.
+    [Impact] Compares every old AI column/row and lifecycle state with its own baseline; pre-existing trash/restores are preserved rather than assumed absent.
     """
     test = release / ('copy-' + secrets.token_hex(6))
     test.mkdir(mode=0o700)
@@ -158,6 +158,9 @@ def check_copy(release):
     snapshot(source_equipment, equipment)
     snapshot(source_ai, assistant)
     business_before, ai_before = fingerprints(equipment, business=True), fingerprints(assistant)
+    lifecycle_query = 'SELECT COUNT(*) FROM conversations WHERE is_deleted<>0 OR deleted_at IS NOT NULL OR purge_after IS NOT NULL OR lifecycle_revision<>0'
+    with sqlite3.connect(assistant) as db:
+        lifecycle_before = db.execute(lifecycle_query).fetchone()[0]
     settings = values(ROOT / '.env')
     settings.update(values(CONFIG))
     os.environ.update(settings)
@@ -183,9 +186,9 @@ def check_copy(release):
         with sqlite3.connect(assistant) as db:
             if db.execute('SELECT version FROM ai_meta').fetchall() != [(4,)]:
                 raise ValueError('copy did not activate v4')
-            active = db.execute('SELECT COUNT(*) FROM conversations WHERE is_deleted<>0 OR deleted_at IS NOT NULL OR purge_after IS NOT NULL OR lifecycle_revision<>0').fetchone()[0]
-            if active:
-                raise ValueError('migration unexpectedly trashed an existing conversation')
+            lifecycle_after = db.execute(lifecycle_query).fetchone()[0]
+            if lifecycle_after != lifecycle_before:
+                raise ValueError('existing conversation lifecycle history changed during isolated upgrade')
         with sqlite3.connect(equipment) as db:
             if db.execute("SELECT ParentMenuCode FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone() != ('admin_center',):
                 raise ValueError('admin menu reparent missing')
@@ -197,7 +200,8 @@ def check_copy(release):
         result = {'status': 'pass', 'copy': str(test), 'business_tables_preserved': len(business_before),
                   'ai_tables_preserved': len(ai_before), 'old_ai_rows': {k: v['rows'] for k, v in ai_before.items()},
                   'ai_version': 4, 'menu_parent': 'admin_center', 'anonymous_statuses': statuses,
-                  'audit_rows_preserved': True, 'real_model_called': False, 'production_databases_modified': False}
+                  'audit_rows_preserved': True, 'old_lifecycle_rows': lifecycle_before, 'lifecycle_rows_preserved': True,
+                  'real_model_called': False, 'production_databases_modified': False}
         record(test / 'result.json', result)
         return result
     finally:

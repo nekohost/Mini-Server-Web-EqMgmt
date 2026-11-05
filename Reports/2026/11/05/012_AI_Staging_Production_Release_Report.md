@@ -21,3 +21,15 @@ status: in-progress
 6. 복구: 현행 commit/설정/일관 DB 백업을 먼저 보존한다. 무스키마 변경이므로 코드별 복귀가 가능하나 최신 AI 기록/삭제 원장을 과거 DB로 덮지 않는다. 백업·원문·해시를 확인한 뒤만 Staging을 정리한다.
 7. UX: 실제 운영 브라우저에서 접힘/펼침·새로고침·모바일/PC 높이를 검증하고 원인이 보이는 오류/팝업을 확인한다. 필요한 로그인은 권한 있는 기존 계정의 정상 흐름으로만 진행한다.
 8. 메타: 기존55개 화면/3543개와 이번 운영 검증을 분리한다. PC 요약 행 추가로 약26px 높아지는 기존010 측정도 숨기지 않는다. 실제 확인 전 배포 성공으로 표시하지 않으며 남은 한계를 최종 기록한다.
+
+## 병합·보존 및 배포 helper 보완
+
+검토 원문13개 ZIP/해시를 대조하고 원래 후보11개 파일이 root와 바이트 단위로 일치함을 확인했다. Python AST7개/JS 문법2개 통과 후 해당 Staging13개만 구조화 정리했다. 기존 다른 dirty9개는 보존하고 원장4개에는 이번 단락만 index에 분리했다. 기존 원장의 삽입 지점이 EOF가 아니었던 한 곳은 원래 본문 SHA 복구 대조로 확인했으며 기존 본문을 commit에 섞지 않았다.
+
+기능 commit은 `bb48ac586b61e75331a256d007b39728743d5eba`이며 GitHub main에 push했다. Git 작성자 기본 설정이 없어 기존 nekohost noreply 식별자를 commit 한 번에만 지정했고 전역 설정은 바꾸지 않았다. 서버는 아직 이전 commit/정상 서비스 상태에서 백업·사전 검증했다.
+
+서버 private release는 `instance/releases/20261105-ai-ux-csv-layout-20261105T055225Z-121eb6`(0700)이며 업무/AI 일관 DB와 환경·worker/retention 설정은0600으로 보존했다. 현재PC의 사용자 전용 ACL `.codex/private-releases/20261105-ai-ux-csv-layout-20261105T055225Z-121eb6`에도7개 핵심 파일을 받아 해시를 확인했다. 비밀은 출력/Git에 포함하지 않았다.
+
+사전 읽기 점검에서 기존 대화5개에 정상 lifecycle/휴지통·복구 이력이 확인됐다. 기존 helper의 초기 이전용 '이력0' 조건을 그대로 쓰면 정상 데이터를 오류로 보게 된다. 서비스 정지 전에 별도 Staging에서 기존 lifecycle count를 전후 비교하도록 최소 수정했다. 기존 모든 AI 원본 행/열 fingerprint 비교는 유지하여 count만 같게 조작한 상태도 통과하지 못한다.
+
+수정 helper를 Linux에서 메모리로 실행한 실제 DB 사본 `copy-8d0255f331cf/result.json`은 업무18개/AI17개 테이블, 기존 대화8/메시지34/job17 및 lifecycle5개·감사/익명 경계 보존을 통과했다. 실제 모델 호출/운영 DB 수정은 없었다. [helper 검토 원문](012_AI_Staging_Production_Release/reviewed-release-helper.zip)을 보존한 뒤 root에 반영하고 해당 임시 파일1개도 구조화 정리했다. 이 수정은011 계획의 구현과 관계없다.
