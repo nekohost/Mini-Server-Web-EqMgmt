@@ -1070,6 +1070,6 @@
 
 ## AI-COMPOSER-INPUT-20261106 — 안내 공간·기본 Enter·입력 경계
 
-- **상태:** Staging/root 검증 완료·운영 반영 준비 중. work_id `RELEASE-20261106-AI-COMPOSER-INPUT`.
+- **상태:** [개발 완료 (FEATURES.md 이관)] 운영 반영·두 일반 계정과 PC/모바일 검증 완료. work_id `RELEASE-20261106-AI-COMPOSER-INPUT`.
 - 불필요한 하단 안내2종을 제거하고 미설정 기본만 Enter 보내기로 바꾼다. 기존 두 모드와 JSON을 보존하고 최초 키의 설정 로딩 경합, 모바일 편집 이벤트, 조합 중 포커스 이탈을 보완한다.
 - [계획003](Plans/2026/11/06/003_AI_Composer_Input_Plan.md),[검증003](Reports/2026/11/06/003_AI_Composer_Input_Report.md),현재 명세 FEATURES26. 기존 큐·답변 보정·권한/업무 확인 경계는 유지한다.

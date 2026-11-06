@@ -1,0 +1,68 @@
+{
+  "pause": {
+    "status": "quiesced",
+    "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-composer-20261106T023737-db6c85",
+    "old_head": "8aa22036a59965aff44506b3cfa982f81a8667a1",
+    "old_pid": 1034430,
+    "shared_model_controlled": false,
+    "active_jobs": {}
+  },
+  "actual_database_copy_check": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-composer-20261106T023737-db6c85/copy-2340b2724bac",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 62,
+      "ai_lifecycle_operations": 23,
+      "ai_lifecycle_tombstones": 8,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 24,
+      "ai_task_drafts": 0,
+      "conversations": 12,
+      "jobs": 41,
+      "message_steps": 79,
+      "messages": 82,
+      "proposals": 0,
+      "revocations": 10,
+      "storage_accounts": 4
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 6,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activation": {
+    "status": "active",
+    "app_pid": 1066547,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-06T02:39:43.918441+00:00",
+    "runtime_commit": "06d6cc9a9c1d00da017c58d7ecc2c8a170fb7afe",
+    "source_files_match": 11,
+    "configuration_and_units_unchanged": true,
+    "worker_pid": 1066557,
+    "active_jobs": {},
+    "maintenance": "NORMAL"
+  },
+  "scope": "Idle owned equipment app upgrade; existing account input settings remain unchanged; no shared model service control."
+}

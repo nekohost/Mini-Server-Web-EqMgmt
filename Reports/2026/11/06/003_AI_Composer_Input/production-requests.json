@@ -1,0 +1,212 @@
+{
+  "at_utc": "2026-11-06T02:49:44.559374+00:00",
+  "test_jobs": [
+    {
+      "id": "f10d4ac9c5e64bb4ac812f150641a822",
+      "state": "done",
+      "steps": 2,
+      "level": "medium",
+      "error_code": null,
+      "reserved_chars": 0,
+      "conversation": "5cb12c0e29c548c1a814e7a4ea4bbe57",
+      "account": "test04",
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "medium",
+      "elapsed_seconds": 18.491,
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 930
+        },
+        {
+          "step": 1,
+          "content_chars": 14,
+          "reasoning_chars": 70
+        }
+      ],
+      "guard_states": [
+        "released"
+      ],
+      "actual_searches": 0,
+      "turn_reports": [
+        {
+          "chars": 40,
+          "newlines": 1,
+          "accepted": true,
+          "job_id": "f10d4ac9c5e64bb4ac812f150641a822",
+          "client_key_present": true
+        }
+      ],
+      "finish_reports": [
+        {
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "state": "queued",
+          "error_code": null
+        },
+        {
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 14,
+          "state": "done",
+          "error_code": null
+        }
+      ]
+    },
+    {
+      "id": "a90d648506ad4dedbc2b36eeddfc77e9",
+      "state": "done",
+      "steps": 2,
+      "level": "medium",
+      "error_code": null,
+      "reserved_chars": 0,
+      "conversation": "23db97b0963f41689bc2d39457050f12",
+      "account": "test05",
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "medium",
+      "elapsed_seconds": 21.19,
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 247
+        },
+        {
+          "step": 1,
+          "content_chars": 178,
+          "reasoning_chars": 1065
+        }
+      ],
+      "guard_states": [
+        "released"
+      ],
+      "actual_searches": 0,
+      "turn_reports": [
+        {
+          "chars": 61,
+          "newlines": 1,
+          "accepted": true,
+          "job_id": "a90d648506ad4dedbc2b36eeddfc77e9",
+          "client_key_present": true
+        }
+      ],
+      "finish_reports": [
+        {
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "state": "queued",
+          "error_code": null
+        },
+        {
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 178,
+          "state": "done",
+          "error_code": null
+        }
+      ]
+    },
+    {
+      "id": "9384880148a5494d9c27b4f8cc429ecd",
+      "state": "done",
+      "steps": 2,
+      "level": "medium",
+      "error_code": null,
+      "reserved_chars": 0,
+      "conversation": "23db97b0963f41689bc2d39457050f12",
+      "account": "test05",
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "medium",
+      "elapsed_seconds": 14.756,
+      "step_lengths": [
+        {
+          "step": 0,
+          "content_chars": 0,
+          "reasoning_chars": 157
+        },
+        {
+          "step": 1,
+          "content_chars": 40,
+          "reasoning_chars": 95
+        }
+      ],
+      "guard_states": [
+        "released"
+      ],
+      "actual_searches": 0,
+      "turn_reports": [
+        {
+          "chars": 40,
+          "newlines": 1,
+          "accepted": true,
+          "job_id": "9384880148a5494d9c27b4f8cc429ecd",
+          "client_key_present": true
+        }
+      ],
+      "finish_reports": [
+        {
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "tool_calls"
+          },
+          "calls": [
+            "plan_web_search"
+          ],
+          "content_chars": 0,
+          "state": "queued",
+          "error_code": null
+        },
+        {
+          "outcome": "complete",
+          "termination": {
+            "done": true,
+            "finish_reason": "stop"
+          },
+          "calls": [],
+          "content_chars": 40,
+          "state": "done",
+          "error_code": null
+        }
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "account": "test04",
+      "saved_enter_action": null,
+      "effective_enter_action": "send"
+    },
+    {
+      "account": "test05",
+      "saved_enter_action": "newline",
+      "effective_enter_action": "newline"
+    }
+  ],
+  "active_jobs": 0,
+  "active_guards": 0,
+  "reserved_chars": 0
+}

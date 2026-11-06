@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261106-003
 work_id: RELEASE-20261106-AI-COMPOSER-INPUT
 owner: Codex
-status: implementation
+status: completed
 approval: current-ui-changes-and-continuing-production-remediation
 ---
 
@@ -19,3 +19,5 @@ enterkeyhint와 aria-keyshortcuts에 실제 설정을 반영하고 화면 아래
 추가 조사에서 설정 fetch 전에는 기본값으로 먼저 바인딩되는 초기 경합도 확인했다. 서버가 현재 인증 계정의 저장된 두 모드 중 하나를 HTML에 함께 전달하고, 초기 클라이언트는 해당 값을 사용한다. 이후 정상 설정 응답은 기존 이벤트로 반영한다. 설정이 늦어도 첫 키에 기존 사용자 모드가 적용되며, 저장 행은 읽기만 한다. 이 범위 확장 전에 __init__.py를 실제 대상으로 context에 추가해 같은32노드·필수 입력0을 확인했다.
 
 Staging 원본 재현과 수정 후 Linux 격리의 설정 API/네이티브 Chromium/이벤트 교차 검사를 수행한다. 모바일·PC/테마와 버튼 회귀·스크린샷을 확인한 뒤 원문 ZIP/SHA를 보존하고 root 병합·정적/관련 재검증·정확한 후보 정리·한정 commit/push를 수행한다. 연속 작업의 운영 반영 승인 범위에서 현재 백업·실제 DB 사본 보존·idle 자체 서비스 전환 후 일반 계정의 저장 설정 유지와 실제 Enter/Shift+Enter를 검증한다. 실제 폴드7 물리 입력기 시험과 합성 IME/viewport 시험은 구분한다.
+
+완료: Staging/root 각296개, 입력 각24화면·712개 검사/128개 이벤트 교차, 버튼 각4화면·388개 및 모바일 probe92개를 통과했다. 원문11개·정확한 후보 정리·현재 백업14개·실제 DB 사본 보존 후 운영에 반영했다. 기존 newline 계정은 Enter 줄바꿈/Shift+Enter 전송으로14.756초, 미설정 계정은 Shift+Enter 줄바꿈/Enter 전송으로18.491초에 실제 인사 응답을 받았다. 최초 모호한 시험 문구에 대한 모델 거절도 별도 기록했다. 모든 계정의 설정 JSON/UpdatedAt이 배포 직전과 정확히 같고, 운영 source·기존 행·감사·설정·서비스 상태와 PC/모바일 화면을 확인했다. 최종 근거는 보고서003에 연결한다.

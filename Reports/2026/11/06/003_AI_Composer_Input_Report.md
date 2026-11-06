@@ -2,7 +2,7 @@
 artifact_id: REPORT-20261106-003
 work_id: RELEASE-20261106-AI-COMPOSER-INPUT
 owner: Codex
-status: in-progress
+status: completed
 ---
 
 # AI 입력 공간·Enter 처리 정밀 검토
@@ -43,3 +43,34 @@ status: in-progress
 root 백엔드296개도85.656초·실패/오류/skip0으로 통과했다. root의 입력24화면·712개 검사/128개 이벤트 교차 및 버튼4화면·388개 검사가 모두 통과했다. ZIP/후보/root11개 SHA를 대조한 뒤 정확한 후보11개만 정리했고 다른 Staging은 건드리지 않았다. [root 백엔드](003_AI_Composer_Input/root-backend-verification.json),[root 입력](003_AI_Composer_Input/root-input-browser/results.json),[root 버튼](003_AI_Composer_Input/root-hitbox-browser/results.json),[정리 증거](003_AI_Composer_Input/merge-and-cleanup.json).
 
 운영 반영 전 조회에서 test05는 기존 newline을 저장했고 test04는 설정 값이 없음을 확인했다. 운영 검증 때 두 계정의 설정을 수정하지 않고 각각 기존 동작과 새 기본 동작을 확인한다. 이 시점의 서버는8aa22036a59965aff44506b3cfa982f81a8667a1·web1034430/worker1034440·active jobs0이었다. [사전 상태](003_AI_Composer_Input/production-before.json).
+
+## 운영 반영
+
+runtime commit06d6cc9a9c1d00da017c58d7ecc2c8a170fb7afe를2026-11-06 11:39:43 KST에 활성화했다. 현재 source·설정·환경·세 단위·프로세스·두 DB를 private release `20261105-ai-ux-composer-20261106T023737-db6c85`와 현재PC 사용자 전용 사본14개로 보존하고 SHA를 대조했다. 고정 접두사는 기존 검증 helper의 경로 계약을 유지하며 실제 시각은 Linux UTC/KST 기록을 따른다.
+
+실제 DB 사본과 접수 재개 전 원본에서 업무18개·AI17개 테이블, 기존41개 job/82개 메시지·lifecycle6행·감사를 보존했다. 보관된 기존 대화 상태를 임의로 초기화하지 않았고 공유 모델 서비스는 제어하지 않았다. 최종 source11개 SHA·환경/키/세 단위 불변, AI v4·web1066547/worker1066557·NORMAL·worker/retention active·active jobs0을 확인했다. [배포 근거](003_AI_Composer_Input/deployment.json),[현재PC private 백업 대조](003_AI_Composer_Input/private-backup-verification.json).
+
+## 실제 운영의 두 모드 검증
+
+test05의 개인 설정은 기존 newline 그대로였다. AI HTML 초기 값도 newline, enterkeyhint=enter/aria-keyshortcuts=Shift+Enter였다.412×915에서 입력칸 좌상·우하·중앙의 실제 클릭3회가 모두 ai-input에 focus를 두었다. Enter는 줄바꿈만 만들고, Shift+Enter는 하나의 요청으로 접수됐다. 최초 “운영 키 입력 검증”과 완료 문장 요청은 모델이 인증 키 검증 완료의 허위 확인으로 해석해 거절했다. a90d648506ad4dedbc2b36eeddfc77e9는21.190초·done/실제 응답178자였으며 프런트 전송 실패로 바꾸거나 응답을 수정하지 않았다. 이 시험 문구를 모호하지 않은 인사로 바꿨다. [최초 응답 화면](003_AI_Composer_Input/production-test05-initial.jpg).
+
+같은 대화의 인사9384880148a5494d9c27b4f8cc429ecd는14.756초·2단계·실검색0회로40자 인사를 정상 완료했다. 요청 원문에 줄바꿈1개, 접수 영수증1건, DONE/stop·guard released·예약0·다음 입력 가능을 확인했다. 계정 설정은 바꾸지 않았다. [기존 설정 모바일 화면](003_AI_Composer_Input/production-existing-newline-mobile.jpg).
+
+test04는 저장된 입력 설정이 없었고 개인 설정 화면에서 Enter 보내기·Shift+Enter 줄바꿈(기본)이 선택됐다. AI HTML은 send, enterkeyhint=send/aria-keyshortcuts=Enter였다. 실제 Shift+Enter는 줄바꿈만 만들었고 Enter는 질문을 전송했다. f10d4ac9c5e64bb4ac812f150641a822는18.491초·2단계·실검색0회로 인사를 정상 완료했다. 줄바꿈1개/접수 영수증1건·DONE/stop·guard released·예약0과 입력 복귀를 확인했다. 미설정 값은 DB에 추가 저장하지 않았다. [실제 요청 근거](003_AI_Composer_Input/production-requests.json).
+
+운영에서도 하단 두 안내가 없고, 모바일 입력 영역25/25개 hit 지점이 textarea에 도달했다.412×915 모바일과1280×720 PC에서 가로 넘침 없이 입력/추론/보내기를 확인했다. 브라우저 관측 error0, 기존 Tailwind CDN 안내 warning7건을 구분했다. 첫 모바일 캡처는 뷰포트 전환 직후 실제 레이아웃 측정과 렌더가 맞지 않아 별도로 보존하고, 안정된 뷰포트에서 입력 영역을 포함해 다시 촬영했다. 최종 viewport는 원래 PC 크기로 복원했다. [모바일](003_AI_Composer_Input/production-default-send-mobile.jpg),[PC](003_AI_Composer_Input/production-default-send-pc.jpg),[UI 측정](003_AI_Composer_Input/production-ui-verification.json).
+
+검증 종료 시 source11개·private 설정/세 단위 SHA 일치, web/worker PID 유지·NORMAL·worker/retention active, active jobs0·active guards0·예약0이었다. 기존 업무/AI/감사 행 누락0을 확인했다. 업무 기존 행의 변경은 두 시험 계정 로그인 SessionToken뿐이며, AI 기존 행의 변경은 모델/프로바이더 확인 시각·최근 자원 사용자·시험 계정 보관량이었다. 모든 계정의 PreferencesJSON/UpdatedAt 전체 행이 배포 직전과 정확히 같고 시험 계정 두 행도 별도 일치했다. [보존 근거](003_AI_Composer_Input/production-preservation.json).
+
+## 구현 후 Validation1~8
+
+1. 거버넌스: Recorder/profile 사유·legacy verified=false를 보존했고1.8.1/44노드 validate 오류·경고0과32노드/3pack·필수 입력0을 적용했다. 최초 잘못된 intent 입력은 catalog 근거로 정정했고 전체 pack 확인 후 재개했다. Staging/원문/병합/정리와 EN 주석 계약을 따랐다.
+2. 의도: 불필요한 안내2종만 없애고 미설정 기본만 send로 바꿨다. 유효한 두 저장 값·개인 설정 선택 기능과 기존 모든 JSON을 보존했다. 모바일 이벤트·조합 focus 이탈·설정 초기 경합을 보완하고 실제 두 모드를 확인했다.
+3. 논리: Staging296개/64.408초와 root296개/85.656초가 통과했다. 원본16개 이벤트 검사 중7개 실패를 보존했고 보완 후128개 교차, 네이티브 Enter/Shift+Enter·중복/접수/초안·초기 목록/대화 생성 경합을 검사했다. 해제 함수가 이벤트·타이머를 정리하는 것도 확인했다.
+4. 운영: source11개·실제 DB 사본과 현재 백업14개를 대조한 뒤 idle 자체 web/worker만 전환했다. schema/외부 라이브러리/추론 엔진/큐/도구 권한 변경 없이 기존 원장을 보존했다. 코드/Git/서버 commit을 확인하고 최종 문서 동기화에서 런타임은 재시작하지 않는다.
+5. 보안: owner/세션/CSRF/enum 검증을 유지한다. page bootstrap은 현재 계정의 고정 두 값만 노출한다.229 키·조합/붙여넣기·수정키·불명확 편집은 전송 근거가 아니며 비취소 편집은 정확한 스냅샷만 복원한다. 비밀은 Git/증거에 포함하지 않았다.
+6. 복구: 원문 ZIP/SHA와 기존 source·두 DB·private 환경/단위를 서버/PC에 보존했다. schema와 저장 enum이 같아 이전 코드와 현재 DB로 복귀할 수 있으며 기본값 변경을 이유로 DB 복원이나 일괄 갱신이 필요하지 않다. 정확한 후보11개 외 다른 Staging/기존 사용자 변경을 보존했다.
+7. UX: 최종 입력24화면·712개 검사/textarea200지점과 버튼388개·모바일92개를 통과했다. 실제 포커스3지점/모바일25지점과 두 계정 키 동작·응답/입력 복귀를 확인했다. 모호한 시험 문구의 모델 거절과 프런트 성공을 구분하고 물리 폴드7을 시험했다고 주장하지 않는다.
+8. 메타: 새 하위 에이전트·무제한 재요청·모델 출력 조작을 도입하지 않았다. 다른 작업의9개 dirty·과거 untracked와 기존 계획/원문/실패를 보존한다. 원본 재현·합성 IME·실제 브라우저/모델 검증과 캡처 교체 사유를 구분해 기록했다.
+
+최종 문서·증거를 한정 commit/push하고 서버에 fast-forward로 동기화한다. source11개와 web/worker를 그대로 유지하는 마지막 동기화 확인 영수증은 private release에 별도 보존한다.

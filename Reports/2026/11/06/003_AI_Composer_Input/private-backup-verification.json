@@ -1,0 +1,24 @@
+{
+  "at_utc": "2026-11-06T02:38:37.174550+00:00",
+  "release": "20261105-ai-ux-composer-20261106T023737-db6c85",
+  "private_pc_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-composer-20261106T023737-db6c85",
+  "files": {
+    "app-env.before": "22943c5d62c7591e4c44c901eddb374845d5651e762a80bda99572e701c3c2fc",
+    "assistant-quiesced.sqlite3": "e19c655c521a4ba3fb0d51370a4f7bc252fc13e7b31dff0756eb2d646ba8d010",
+    "baseline.json": "ba5112db761a0c3a6fdee0e2f93371d9cd06193454ee99c502b60a346d4453ec",
+    "equipment-ai-retention.service.before": "bcb13d2a0d50a98ff4521d641f3f52b6d00bef67c74125051b048a57fa5eba27",
+    "equipment-ai-retention.timer.before": "bd72116858a5398a00b9bb4cb7c4c9836522ea0a52d49dab7684ade2e63b30a4",
+    "equipment-ai-worker.service.before": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+    "equipment-quiesced.sqlite3": "c0fbfb0891dc797627cc5e4ddaaa5e78bfe76a101ad545fa355323b46d3a8444",
+    "maintenance-before.json": "376b98202f6de0f6b47101e5360ff34d99972ecd5d5a502a6bd675eb83dfc372",
+    "maintenance.before": "376b98202f6de0f6b47101e5360ff34d99972ecd5d5a502a6bd675eb83dfc372",
+    "old-runtime-source.tar": "988c8514dd03d0b2414fe5e063d1f5fdfb5871e24f9f5373416aa0b5e834d5ca",
+    "process-before.json": "7b8ce2e822347f00cfcd1b7461595fe95df39121924f72d80dadc8736a26b959",
+    "process-environment-before.json": "aa676a49208e13c3ac38579cc6202321772d3bb6cf91d5c18be1fda9d0fd8e85",
+    "quiesced.json": "e1546530a6bf8251d4b03d2fbed72cbb13e66a28e5b4bf1175698f2439bcd4ac",
+    "worker-env.before": "6dcfcaf64bfdc7deb1479dff17e93a3579ebdae9141ee0aff4ad3568d0ecd5ec"
+  },
+  "all_14_match": true,
+  "user_only_acl": true,
+  "private_contents_in_repository": false
+}

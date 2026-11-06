@@ -1,0 +1,164 @@
+{
+  "existing_account": {
+    "account": "test05",
+    "personal_setting": {
+      "choices": [
+        {
+          "label": "Enter 보내기 · Shift+Enter 줄바꿈 (기본)",
+          "value": "send"
+        },
+        {
+          "label": "Enter 줄바꿈 · Shift+Enter 보내기",
+          "value": "newline"
+        }
+      ],
+      "page": "내 정보 - 장비 관리 시스템",
+      "value": "newline"
+    },
+    "input_hits": [
+      {
+        "point": [
+          45,
+          790
+        ],
+        "focused": "ai-input"
+      },
+      {
+        "point": [
+          367,
+          823
+        ],
+        "focused": "ai-input"
+      },
+      {
+        "point": [
+          206,
+          807
+        ],
+        "focused": "ai-input"
+      }
+    ],
+    "native_enter_newline": {
+      "enterkeyhint": "enter",
+      "progressVisible": false,
+      "sendDisabled": false,
+      "value": "운영 키 입력 검증입니다.\n"
+    },
+    "shift_enter_submission": {
+      "draftLength": 0,
+      "modelChangeFooter": false,
+      "progressVisible": false,
+      "sendDisabled": true,
+      "shortcutFooter": false
+    },
+    "initial_fixed_phrase_response": {
+      "answer": "\"기존 키 설정 확인 완료.\"이라는 문장을 출력할 수 없습니다. 저는 운영 키나 인증 설정을 검증할 수 있는 도구나 권한이 없으며, 실제로 수행하지 않은 검증 절차의 완료를 확인하는 문장을 생성하는 것은 사실과 다르기 때문입니다.\n\n장비 조회·등록·수정·승인 신청 등 실제 장비 관리 업무가 필요하시면 도와드리겠습니다.",
+      "footerPresent": false,
+      "mode": "enter",
+      "progressVisible": false,
+      "sendEnabled": true
+    },
+    "initial_response_note": "The model interpreted operational-key wording as an unsupported authentication-key attestation; retained as a completed refusal, then verified a simple greeting.",
+    "final_greeting": {
+      "answer": "안녕하세요! 장비 관리 관련해서 도움이 필요하시면 편하게 말씀해 주세요.",
+      "bodyScrollWidth": 412,
+      "enterkeyhint": "enter",
+      "footerPresent": false,
+      "modelChangeFooter": false,
+      "progressVisible": false,
+      "sendEnabled": true,
+      "serverMode": "newline",
+      "shortcut": "Shift+Enter",
+      "viewport": {
+        "height": 915,
+        "width": 412
+      }
+    }
+  },
+  "default_account": {
+    "account": "test04",
+    "personal_setting": {
+      "page": "내 정보 - 장비 관리 시스템",
+      "selectedLabel": "Enter 보내기 · Shift+Enter 줄바꿈 (기본)",
+      "value": "send"
+    },
+    "native_shift_enter_newline": {
+      "mode": "send",
+      "progressVisible": false,
+      "sendEnabled": true,
+      "value": "안녕하세요.\n"
+    },
+    "enter_submission": {
+      "footerPresent": false,
+      "modelChangeFooter": false,
+      "progressVisible": false,
+      "sendDisabled": true
+    },
+    "final_greeting": {
+      "answer": "안녕하세요! 반갑습니다 😊",
+      "enterkeyhint": "send",
+      "footerPresent": false,
+      "modelChangeFooter": false,
+      "progressVisible": false,
+      "sendEnabled": true,
+      "serverMode": "send"
+    },
+    "mobile": {
+      "answer": "안녕하세요! 반갑습니다 😊",
+      "bodyScrollWidth": 412,
+      "enterkeyhint": "send",
+      "inputRect": {
+        "bottom": 833,
+        "height": 52,
+        "left": 36,
+        "right": 376,
+        "top": 781,
+        "width": 340,
+        "x": 36,
+        "y": 781
+      },
+      "modelChangeNotice": "",
+      "progressVisible": false,
+      "sendEnabled": true,
+      "sendRect": {
+        "bottom": 885,
+        "height": 44,
+        "left": 332,
+        "right": 376,
+        "top": 841,
+        "width": 44,
+        "x": 332,
+        "y": 841
+      },
+      "serverMode": "send",
+      "shortcut": "Enter",
+      "shortcutFooter": false,
+      "textareaHits": 25,
+      "textareaSamples": 25,
+      "viewport": {
+        "height": 915,
+        "width": 412
+      }
+    },
+    "pc": {
+      "bodyScrollWidth": 1265,
+      "enterkeyhint": "send",
+      "footerPresent": false,
+      "modelChangeFooter": false,
+      "progressVisible": false,
+      "sendEnabled": true,
+      "viewport": {
+        "height": 720,
+        "width": 1280
+      }
+    }
+  },
+  "viewport_override_reset": true,
+  "first_mobile_capture_superseded_after_stable_viewport": true,
+  "console_errors": [],
+  "console_warning_count": 7,
+  "console_warning_messages": [
+    "cdn.tailwindcss.com should not be used in production. To use Tailwind CSS in production, install it as a PostCSS plugin or use the Tailwind CLI: https://tailwindcss.com/docs/installation"
+  ],
+  "physical_handset_test": false
+}
