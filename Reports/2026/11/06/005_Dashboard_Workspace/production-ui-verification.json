@@ -1,0 +1,175 @@
+{
+  "portalBefore": {
+    "bodyTitles": [
+      "메인 포털"
+    ],
+    "firstContentGap": 95,
+    "navTitle": "메인 포털",
+    "pageOverflowsX": false,
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "portalPC": {
+    "bodyTitles": [],
+    "firstContentGap": 16,
+    "navTitle": "메인 포털",
+    "pageOverflowsX": false,
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "portalMobile": {
+    "bodyTitles": [],
+    "firstContentGap": 16,
+    "navTitle": "메인 포털",
+    "pageOverflowsX": false,
+    "viewport": [
+      412,
+      915
+    ]
+  },
+  "ownedMobile": {
+    "bodyTitles": [],
+    "firstContentGap": 16,
+    "navTitle": "나의 장비",
+    "pageOverflowsX": false,
+    "viewport": [
+      412,
+      915
+    ]
+  },
+  "draftMobile": {
+    "bodyTitles": [],
+    "firstContentGap": 16,
+    "navTitle": "나의\n임시저장 목록",
+    "pageOverflowsX": false,
+    "viewport": [
+      412,
+      915
+    ]
+  },
+  "form": {
+    "title": "신규 장비 등록",
+    "saveDisabled": true
+  },
+  "csv": true,
+  "ownedPC": {
+    "bodyTitles": [],
+    "firstContentGap": 16,
+    "navTitle": "나의 장비",
+    "pageOverflowsX": false,
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "detailCount": 2,
+  "dashboardPC": {
+    "card": {
+      "height": 716,
+      "left": 89,
+      "top": -28,
+      "width": 1088
+    },
+    "chart": {
+      "height": 384,
+      "left": 175,
+      "top": 210,
+      "width": 384
+    },
+    "detailsExpanded": false,
+    "pageOverflowsX": false,
+    "physicalCanvas": [
+      384,
+      384
+    ],
+    "rows": [
+      "정상\t2대"
+    ],
+    "summary": "스마트폰 · 삼성 · 총 2대",
+    "table": {
+      "height": 85,
+      "left": 645,
+      "top": 360,
+      "width": 507
+    },
+    "title": "복합 조건 검색 분포",
+    "viewport": [
+      1280,
+      720
+    ]
+  },
+  "dashboardWide": {
+    "card": {
+      "height": 716,
+      "left": 169,
+      "top": 152,
+      "width": 1088
+    },
+    "chart": {
+      "height": 384,
+      "left": 255,
+      "top": 390,
+      "width": 384
+    },
+    "detailsExpanded": false,
+    "pageOverflowsX": false,
+    "physicalCanvas": [
+      384,
+      384
+    ],
+    "rows": [
+      "정상\t2대"
+    ],
+    "summary": "스마트폰 · 삼성 · 총 2대",
+    "table": {
+      "height": 85,
+      "left": 725,
+      "top": 540,
+      "width": 507
+    },
+    "title": "복합 조건 검색 분포",
+    "viewport": [
+      1440,
+      900
+    ]
+  },
+  "dashboardMobile": {
+    "card": {
+      "height": 893,
+      "left": 16,
+      "top": -10,
+      "width": 365
+    },
+    "chart": {
+      "height": 315,
+      "left": 41,
+      "top": 365,
+      "width": 315
+    },
+    "detailsExpanded": false,
+    "pageOverflowsX": false,
+    "physicalCanvas": [
+      315,
+      315
+    ],
+    "rows": [
+      "정상\t2대"
+    ],
+    "summary": "스마트폰 · 삼성 · 총 2대",
+    "table": {
+      "height": 85,
+      "left": 41,
+      "top": 704,
+      "width": 315
+    },
+    "title": "복합 조건 검색 분포",
+    "viewport": [
+      412,
+      915
+    ]
+  }
+}

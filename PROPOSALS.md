@@ -1079,3 +1079,8 @@
 - **상태:** [개발 완료 (FEATURES.md 이관)] 운영 반영·실제 로그인과 PC/모바일 검증 완료. work_id `RELEASE-20261106-LOGIN-PORTAL-COPY`.
 - 로그인 표시/브라우저 제목을 장비관리 시스템으로 맞추고 메인 포털의 지정 안내 문단을 제거한다.
 - [계획004](Plans/2026/11/06/004_Login_Portal_Copy_Plan.md),[검증004](Reports/2026/11/06/004_Login_Portal_Copy_Report.md),현재 명세 FEATURES27.
+
+## DASHBOARD-WORKSPACE-20261106 — 통계 복합 분포·장비 화면 배치
+
+- **상태:** [개발 완료 (FEATURES.md 이관)] 운영 반영 및 데이터·실제 화면 검증 완료. work_id `RELEASE-20261106-DASHBOARD-WORKSPACE`.
+- 상태별 도넛과 수량표, 포털·나의 장비 제목·하위 동선의 공간 정리. [계획005](Plans/2026/11/06/005_Dashboard_Workspace_Plan.md), [검증005](Reports/2026/11/06/005_Dashboard_Workspace_Report.md), 현재 명세 FEATURES 28.

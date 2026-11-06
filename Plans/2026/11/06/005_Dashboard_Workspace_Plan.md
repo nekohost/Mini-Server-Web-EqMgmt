@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261106-005
 work_id: RELEASE-20261106-DASHBOARD-WORKSPACE
 owner: Codex
-status: implementation
+status: completed
 ---
 
 # 통계 복합 분포와 장비 화면 배치 시범

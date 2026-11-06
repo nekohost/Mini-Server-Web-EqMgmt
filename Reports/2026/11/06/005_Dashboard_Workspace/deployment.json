@@ -1,0 +1,95 @@
+{
+  "previous": {
+    "web_pids": [
+      1086976
+    ],
+    "worker_pid": "1086986",
+    "maintenance": "NORMAL",
+    "jobs": {},
+    "head": "a1ac1603de64238dba0e96f113bb189ca8d079ce"
+  },
+  "release": "20261105-ai-ux-workspace-20261106T080718-73d471",
+  "code": "817ca2e0c5d036c940da6967350d72453619edf6",
+  "quiesced": {
+    "status": "quiesced",
+    "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-workspace-20261106T080718-73d471",
+    "old_head": "a1ac1603de64238dba0e96f113bb189ca8d079ce",
+    "old_pid": 1086976,
+    "shared_model_controlled": false,
+    "active_jobs": {}
+  },
+  "check_copy": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-workspace-20261106T080718-73d471/copy-35070271ca9f",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 72,
+      "ai_lifecycle_operations": 26,
+      "ai_lifecycle_tombstones": 9,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 32,
+      "ai_task_drafts": 0,
+      "conversations": 17,
+      "jobs": 51,
+      "message_steps": 102,
+      "messages": 102,
+      "proposals": 0,
+      "revocations": 14,
+      "storage_accounts": 5
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 7,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "active": {
+    "status": "pass",
+    "activation": {
+      "status": "active",
+      "app_pid": 1100953,
+      "worker": "active",
+      "ai_version": 4,
+      "old_business_rows_preserved": true,
+      "old_ai_rows_preserved": true,
+      "secrets_preserved": true,
+      "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+      "retention_timer_enabled": true,
+      "activated_at_utc": "2026-11-06T08:07:49.217791+00:00"
+    },
+    "worker_pid": 1100963,
+    "source_hashes_match": 10,
+    "git_blob_sha256": {
+      "templates/dashboard.html": "6dc80a2aacfcd2b4f91aceeec49f0b3737e36a353fd64e5c3bd8df44c15362b5",
+      "templates/portal.html": "ce669089e8dee86e3a8e22eeb9029f90243904c20fb066ca121f62ee5c8a3066",
+      "templates/index.html": "bbdd31401e30f74f8a89b7627c6c54dabfb43b204d64d49f00b9ee5aa05616e7",
+      "static/css/layout.css": "5c77747d48da2f83c86afee272a19aabc3856b7747dea6654f60301e90f461f6",
+      "tests/test_portal_polish_ui.js": "4a5dd382dd96c6963947aa00283862c7d8475ec87454d66994bd7926415c0661",
+      "tests/test_unified_ui.mjs": "029e2d2f9ba746c395fa37acd5dcb1118e3d15d72db8eb247de0e52ac3cd3b5c",
+      "tests/test_edge_layout_browser.mjs": "34d24540a2adf3a1450f0495751008da5d00ccd0618a732ba2576eb3a847bf6c",
+      "tests/helpers/responsive_shell.mjs": "33eb36caa47bc52f33e7e02f83a2de1e44ccd2bc3708b56984bd548ffd691426",
+      "tests/run_dashboard_workspace_fixture.py": "c5753aed4f1c3badca10f0142ea5741bd00dc06674756d793be47bbebf423c93",
+      "tests/dashboard_workspace_driver.js": "7122866774bd20e92465ec4892968c4e2631673a347a28e2771c646bce62fcc1"
+    },
+    "windows_archive_normalization": "CRLF to LF only; archive content equals Git blob after normalization",
+    "private_configuration_and_units_unchanged": true,
+    "process_identity_confirmed": true,
+    "maintenance": "NORMAL",
+    "active_jobs": 0,
+    "shared_model_controlled": false
+  }
+}
