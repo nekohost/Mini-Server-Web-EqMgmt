@@ -1,7 +1,7 @@
-/* [MINI-COMMENT: USER.PREFERENCES.CLIENT] [EN rev.1]
+/* [MINI-COMMENT: USER.PREFERENCES.CLIENT] [EN rev.2]
  * [Role] Restores and saves account layout, reminder consent and the AI Enter action through the existing settings API.
  * [Dependencies] session_timer applySettings, current account userSettings and the authenticated CSRF-protected merge endpoint.
- * [Impact] Settings never use an account-shared local cache; a bounded event updates the shortcut hint without changing any draft.
+ * [Impact] Exact saved input choices remain; unset/invalid values default to send. A bounded event updates keyboard behavior without composer text, account-shared caching or draft changes.
  * [KO rev.0]
  * [역할] 제안 019/008 설정 UI. [의존성 관계] session_timer applySettings. [변경 시 영향도] 계정별 서버 설정만 사용합니다.
  */
@@ -13,7 +13,7 @@
         document.documentElement.dataset.layoutSkin = skin;
         const select = document.getElementById('roadmap-skin'), optIn = document.getElementById('roadmap-opt-in');
         const inputAction = document.getElementById('ai-enter-action');
-        const enterAction = settings.ai_enter_action === 'send' ? 'send' : 'newline';
+        const enterAction = settings.ai_enter_action === 'newline' ? 'newline' : 'send';
         if (select) select.value = skin;
         if (optIn) optIn.checked = settings.deadline_email_opt_in === true;
         if (inputAction) inputAction.value = enterAction;

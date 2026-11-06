@@ -1,0 +1,18 @@
+{
+  "server_head": "8aa22036a59965aff44506b3cfa982f81a8667a1",
+  "app_pid": 1034430,
+  "worker_pid": 1034440,
+  "active_jobs": {},
+  "test_accounts": [
+    {
+      "account": "test04",
+      "saved_enter_action": null,
+      "has_saved_input_choice": false
+    },
+    {
+      "account": "test05",
+      "saved_enter_action": "newline",
+      "has_saved_input_choice": true
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.13]
+[EN rev.14]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] Missing decisions/answers and explicitly terminated token-limit responses receive bounded corrections; immutable consent, storage and unknown-request guards are preserved.
@@ -381,14 +381,21 @@ def install_assistant(app, services):
     @bp.get('/assistant')
     @login
     def page():
-        """[Role] Renders the independent assistant, never the existing Strata iframe/console.
-        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
-        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """[MINI-COMMENT: ASSISTANT.HTTP.PAGE] [EN rev.1]
+        [Role] Renders the independent assistant with this authenticated account's initial input action.
+        [Dependencies] The current browser actor, an owner-scoped read of existing PreferencesJSON and a fixed newline/send mapping.
+        [Impact] The first keystroke preserves a saved mode before asynchronous settings load; reads never migrate rows and malformed/missing settings default to send.
         """
         actor=browser()
         if not session.get('csrf_token'):
             session['csrf_token']=secrets.token_hex(32)
-        return render_template('equipment_ai.html',user=session['user'],assistant_csrf=session['csrf_token'])
+        db=connect()
+        try: row=db.execute('SELECT PreferencesJSON FROM user_settings WHERE UserId=?',(actor['UserId'],)).fetchone()
+        finally: db.close()
+        try: preferences=json.loads(row[0] or '{}') if row else {}
+        except (ValueError,TypeError): preferences={}
+        enter_action='newline' if isinstance(preferences,dict) and preferences.get('ai_enter_action')=='newline' else 'send'
+        return render_template('equipment_ai.html',user=session['user'],assistant_csrf=session['csrf_token'],assistant_enter_action=enter_action)
 
     @bp.get('/api/ai/capabilities')
     @login

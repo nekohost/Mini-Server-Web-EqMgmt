@@ -67,16 +67,16 @@
         </select>
         <p id="roadmap-skin-help" class="mt-2 text-sm text-slate-500 dark:text-slate-400">Edge는 카드·입력란의 읽기 좋은 크기를 유지하고, 화면 너비에 맞춰 카드 수와 배치를 조절합니다. 장비·로그 등의 표는 화면을 넓게 사용합니다.</p>
     </div>
-    <!-- [MINI-COMMENT: USER.PREFERENCES.INPUT.VIEW] [EN rev.1]
+    <!-- [MINI-COMMENT: USER.PREFERENCES.INPUT.VIEW] [EN rev.2]
     [Role] Offers the two inverse Enter/Shift+Enter actions in the existing account settings panel.
     [Dependencies] roadmap_preferences.js and the current user's ai_enter_action JSON setting.
-    [Impact] New or unset accounts default to newline; choosing an option requires the shared settings save action.
+    [Impact] New or unset accounts default to send; exact saved newline/send values are restored and choosing an option still requires the shared settings save action.
     -->
     <div class="account-preference-group">
         <label for="ai-enter-action" class="block text-sm font-semibold mb-2">AI 입력의 Enter 동작</label>
         <select id="ai-enter-action" aria-describedby="ai-enter-action-help" class="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-2.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white">
-            <option value="newline">Enter 줄바꿈 · Shift+Enter 보내기 (기본)</option>
-            <option value="send">Enter 보내기 · Shift+Enter 줄바꿈</option>
+            <option value="send">Enter 보내기 · Shift+Enter 줄바꿈 (기본)</option>
+            <option value="newline">Enter 줄바꿈 · Shift+Enter 보내기</option>
         </select>
         <p id="ai-enter-action-help" class="mt-2 text-sm text-slate-500 dark:text-slate-400">AI 도우미에 계정별로 적용합니다. 한글 조합을 확정하는 Enter는 보내지 않습니다.</p>
     </div>

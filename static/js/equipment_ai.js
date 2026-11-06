@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.26]
+ * [EN rev.28]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting, preserved conversation lifecycle and account-specific input shortcuts.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
  * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request. Input shortcuts retain native composition/newlines, pending submissions remain single, navigation stays on the accepted conversation and later drafts survive acceptance.
@@ -288,36 +288,75 @@
         };
     }
 
-    /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SHORTCUTS] [EN rev.2]
-     * [Role] Sends only the selected Enter shortcut while leaving newlines, modifiers and IME confirmation to the browser.
-     * [Dependencies] Current account action, native composition/key events and the same guarded form submit path as the send button.
-     * [Impact] Held/repeated Enter never resends; immediate composition-end ordering is protected, and disabled or active requests cannot consume a draft.
+    /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SHORTCUTS] [EN rev.3]
+     * [Role] Resolves physical Enter and explicit mobile line-break intents through the same guarded form while retaining native newlines/IME confirmation.
+     * [Dependencies] Account action, composition/focus/keyboard/editing events, exact pre-edit snapshots and the existing submit latch.
+     * [Impact] Paired events never duplicate a send; focus loss releases stale IME state, and only an exact noncancelable newline edit may be restored before submission. Unrecognized edits remain untouched.
      */
     function bindInputShortcuts(input, form, action, canSubmit) {
-        let composing = false, compositionEnded = false, resetComposition = null;
+        let composing = false, compositionEnded = false, resetComposition = null, keyIntent = null, resetIntent = null, pendingEdit = null;
         const clearCompositionEnd = () => { compositionEnded = false; clearTimeout(resetComposition); };
-        const start = () => { composing = true; clearCompositionEnd(); };
+        const clearIntent = () => { keyIntent = null; clearTimeout(resetIntent); };
+        const releaseIntent = () => { clearTimeout(resetIntent); resetIntent = setTimeout(clearIntent, 0); };
+        const reset = () => { composing = false; clearCompositionEnd(); clearIntent(); pendingEdit = null; };
+        const mode = () => action() === 'newline' ? 'newline' : 'send';
+        const sends = shift => (mode() === 'send') !== Boolean(shift);
+        const send = () => { if (!input.disabled && !input.readOnly && canSubmit()) form.requestSubmit(); };
+        const start = () => { composing = true; clearCompositionEnd(); clearIntent(); pendingEdit = null; };
         const end = () => {
             composing = false; compositionEnded = true;
             // Some IMEs finish composition before dispatching the same Enter keydown.
             clearTimeout(resetComposition); resetComposition = setTimeout(clearCompositionEnd, 0);
         };
-        const keyup = event => { if (event.key === 'Enter' || event.keyCode === 229) clearCompositionEnd(); };
+        const keyup = event => { if (event.key === 'Enter' || event.keyCode === 229) { clearCompositionEnd(); clearIntent(); } };
         const keydown = event => {
-            if (event.key !== 'Enter') { clearCompositionEnd(); return; }
-            if (event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || composing || compositionEnded || event.keyCode === 229) return;
-            const sends = (action() === 'send') !== Boolean(event.shiftKey);
-            if (!sends) return;
+            pendingEdit = null; clearIntent();
+            if (event.key !== 'Enter' && event.keyCode !== 229 && event.key !== 'Unidentified') { clearCompositionEnd(); return; }
+            keyIntent = { shift: event.shiftKey, repeat: event.repeat, handled: false,
+                suppressed: event.defaultPrevented || event.ctrlKey || event.altKey || event.metaKey || event.isComposing || composing || compositionEnded };
+            // IME/legacy229 keys alone cannot authorize sending. A later plain editing intent may do so.
+            if (keyIntent.suppressed || event.key !== 'Enter' || event.keyCode === 229) return;
+            keyIntent.handled = true; keyIntent.sends = sends(event.shiftKey);
+            if (!keyIntent.sends) return;
             event.preventDefault();
-            if (event.repeat || input.disabled || !canSubmit()) return;
-            form.requestSubmit();
+            releaseIntent();
+            if (!event.repeat) send();
+        };
+        /** [Role] Captures the exact native newline replacement without inferring intent from user text. [Dependencies] Textarea UTF-16 selection. [Impact] Any intervening or different edit invalidates restoration and submission. */
+        const captureEdit = (event, submit) => {
+            const value = input.value, start = input.selectionStart, end = input.selectionEnd;
+            pendingEdit = { value, start, end, direction: input.selectionDirection, type: event.inputType, mode: mode(), submit,
+                expected: value.slice(0, start) + '\n' + value.slice(end), cursor: start + 1 };
+        };
+        const beforeinput = event => {
+            pendingEdit = null;
+            if (!['insertLineBreak', 'insertParagraph'].includes(event.inputType)) { clearIntent(); return; }
+            const intent = keyIntent;
+            if (event.defaultPrevented || event.isComposing || composing || compositionEnded || intent?.suppressed) return;
+            const shouldSend = intent?.handled ? intent.sends : sends(intent?.shift);
+            if (!shouldSend) return;
+            const submit = !intent?.handled && !intent?.repeat;
+            if (intent) { intent.handled = true; intent.sends = true; releaseIntent(); }
+            if (event.cancelable) { event.preventDefault(); if (submit) send(); }
+            else captureEdit(event, submit);
+        };
+        const edited = event => {
+            const pending = pendingEdit; pendingEdit = null; clearIntent();
+            if (!pending || event.isComposing || composing || compositionEnded || event.inputType !== pending.type || mode() !== pending.mode ||
+                input.value !== pending.expected || input.selectionStart !== pending.cursor || input.selectionEnd !== pending.cursor) return;
+            input.value = pending.value; input.setSelectionRange(pending.start, pending.end, pending.direction);
+            if (pending.submit) send();
         };
         input.addEventListener('compositionstart', start); input.addEventListener('compositionend', end);
         input.addEventListener('keydown', keydown); input.addEventListener('keyup', keyup);
+        input.addEventListener('beforeinput', beforeinput); input.addEventListener('input', edited); input.addEventListener('blur', reset);
+        const view = input.ownerDocument?.defaultView; view?.addEventListener('blur', reset);
         return () => {
-            clearCompositionEnd();
+            reset();
             input.removeEventListener('compositionstart', start); input.removeEventListener('compositionend', end);
             input.removeEventListener('keydown', keydown); input.removeEventListener('keyup', keyup);
+            input.removeEventListener('beforeinput', beforeinput); input.removeEventListener('input', edited); input.removeEventListener('blur', reset);
+            view?.removeEventListener('blur', reset);
         };
     }
 
@@ -351,29 +390,27 @@
         let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
         let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null, submitting = false;
-        let enterAction = 'newline';
+        let enterAction = 'send';
         let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
         let renameContext = null, renameBusy = false, renameFocus = null, bulkStopRequested = false;
         const controller = new AbortController();
 
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SETTINGS] [EN rev.3]
-         * [Role] Applies the current account's server setting to an accurate compact shortcut hint.
-         * [Dependencies] session_timer's account-local userSettings and roadmap_preferences' bounded settings event.
-         * [Impact] Initialization reads any early saved account value; missing/failed reads default to newline, and applying a mode changes no draft, selection or active job. Pending acceptance disables navigation and lifecycle actions while keeping the next draft editable.
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SETTINGS] [EN rev.5]
+         * [Role] Applies the current account's server setting without allocating composer guidance space.
+         * [Dependencies] Owner-scoped HTML bootstrap, session_timer's account-local userSettings and roadmap_preferences' bounded settings event.
+         * [Impact] The initial keystroke honors a saved mode even before settings fetch completes; unset modes default to send. Keyboard metadata uses no visible footer and cached guidance is removed without changing drafts or active requests.
          */
         function applyInputSettings(settings) {
             if (disposed || !$('ai-input') || !$('ai-form')) return;
-            enterAction = settings?.ai_enter_action === 'send' ? 'send' : 'newline';
-            let hint = $('ai-input-shortcut');
-            if (!hint) {
-                hint = document.createElement('p'); hint.id = 'ai-input-shortcut'; hint.className = 'ai-input-shortcut';
-                root.querySelector('.ai-composer-actions').insertAdjacentElement('afterend', hint);
-            }
-            hint.textContent = enterAction === 'send' ? 'Enter 보내기 · Shift+Enter 줄바꿈' : 'Enter 줄바꿈 · Shift+Enter 보내기';
+            enterAction = settings?.ai_enter_action === 'newline' ? 'newline' : 'send';
+            $('ai-input-shortcut')?.remove();
             const describedBy = new Set(($('ai-input').getAttribute('aria-describedby') || '').split(/\s+/).filter(Boolean));
-            describedBy.add(hint.id); $('ai-input').setAttribute('aria-describedby', [...describedBy].join(' '));
+            describedBy.delete('ai-input-shortcut'); $('ai-input').setAttribute('aria-describedby', [...describedBy].join(' '));
+            $('ai-input').setAttribute('enterkeyhint', enterAction === 'send' ? 'send' : 'enter');
+            $('ai-input').setAttribute('aria-keyshortcuts', enterAction === 'send' ? 'Enter' : 'Shift+Enter');
         }
-        applyInputSettings(window.userSettings || {});
+        const earlyInputAction = window.userSettings?.ai_enter_action;
+        applyInputSettings({ ai_enter_action: ['newline', 'send'].includes(earlyInputAction) ? earlyInputAction : root.dataset.enterAction });
         window.addEventListener('user-settings-applied', event => applyInputSettings(event.detail), { signal: controller.signal });
         const labels = { equipment_create: '내 장비 등록', equipment_update: '내 장비 정보 수정', equipment_status: '내 장비 상태 변경',
             catalog_request: '카탈로그 등록 신청', option_request: '옵션 등록 신청', preferences: '내 설정 변경', csv_export: 'CSV 내보내기' };
@@ -659,7 +696,6 @@
             if (modelUnavailable) {
                 if (!loadingModels || modelId) status.push(model && model.reason || '이 대화의 모델/추론 설정을 복원할 수 없습니다. 모델과 지원 추론을 다시 선택해 주세요.');
             } else if (!model.tools) status.push('대화 전용 · 장비 업무는 지원 모델 또는 수동 화면을 이용해 주세요.');
-            if (activeJob) status.push('변경은 다음 요청부터 적용됩니다. 접수된 요청은 기존 모델을 사용합니다.');
             if (unattributedSelection) status.push('이전 모델 기록이 없습니다. 표시한 기본 모델은 다음 요청에 적용됩니다.');
             $('ai-model-status').textContent = status.join(' · ');
             $('ai-model-status').hidden = !status.length;

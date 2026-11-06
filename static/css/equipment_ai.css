@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.STYLES]
- * [EN rev.15]
+ * [EN rev.16]
  * [Role] Styles measured inline disclosures, synchronized input-adjacent status, themed lifecycle controls, viewport-fitted chat and requested file dialogs.
  * [Dependencies] Existing frame typography/theme, shared semantic colors and equipment_ai_polish.js's bounded layout measurement.
- * [Impact] Closed summaries share the reasoning row when they fit; status, shortcut guidance and open bodies reserve normal-flow space, while the send action owns its complete pointer area above positioned disclosure bodies.
+ * [Impact] Closed summaries share the reasoning row when they fit; useful status/open bodies reserve normal-flow space without a shortcut footer, while the send action owns its complete pointer area above positioned disclosure bodies.
  */
 .assistant-container{max-width:1600px;margin:0 auto;padding:18px 22px 24px}
 #equipment-ai{--ai-bg:#fff;--ai-panel:#f7f8fa;--ai-text:#242d39;--ai-muted:#717b89;--ai-line:#e7ebef;--ai-accent:#087e78;--ai-soft:#e9f6f3;display:grid;grid-template-columns:244px minmax(0,1fr);--ai-min-height:620px;height:var(--ai-fitted-height,calc(100dvh - 116px));min-height:var(--ai-measured-min-height,var(--ai-min-height));box-sizing:border-box;max-height:1250px;background:var(--ai-bg);color:var(--ai-text);border:1px solid var(--ai-line);border-radius:18px;overflow:hidden;font-size:14px;line-height:1.65;box-shadow:0 10px 40px #23304406}
@@ -110,7 +110,6 @@
 #equipment-ai .ai-send-actions{grid-column:3;grid-row:1;position:relative;z-index:1;display:flex;align-items:center;gap:6px;min-width:0}
 #equipment-ai .ai-send-actions>.ai-send{grid-column:auto;grid-row:auto}
 #equipment-ai .ai-inline-disclosures details:not([open])>.ai-control-panel{display:none}
-#equipment-ai .ai-input-shortcut{margin:4px 0 0;color:var(--ai-muted);font-size:11px;line-height:1.5;overflow-wrap:anywhere}
 #equipment-ai .ai-web-toggle{width:var(--ai-control-height);height:var(--ai-control-height);padding:2px;font-size:11px;line-height:1.2;white-space:normal;text-align:center}
 #equipment-ai .ai-web-toggle[aria-pressed=true]{border-color:var(--ai-semantic-ready);background:var(--ai-soft);color:var(--ai-semantic-ready);font-weight:650}
 #equipment-ai .ai-web-sources{margin:14px 0 0;padding:10px 12px;border:1px solid var(--ai-line);border-radius:10px;color:var(--ai-text);font-size:12px;line-height:1.6;overflow-wrap:anywhere}

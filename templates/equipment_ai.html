@@ -5,13 +5,13 @@
 {% block container_class %}assistant-container{% endblock %}
 {% block content %}
 <!-- [MINI-COMMENT: ASSISTANT.VIEW]
-[EN rev.15]
+[EN rev.17]
 [Role] Independent equipment chat with measured disclosures beside reasoning, synchronized header/input connection status, safe tables and request-only file/CSV dialogs.
 [Dependencies] equipment_ai.js/css, equipment_ai_polish.js and the authenticated frame/status API; no Strata iframe/vendor UI.
-[Impact] Native details preserve selection/refresh state; the input describes the user's selected Enter shortcut beside the composer, and stopped requests retain their original failure cause with a read-only state check.
+[Impact] Native details preserve selection/refresh state; compact input uses account-specific keyboard metadata without a visible shortcut/model-change footer, and stopped requests retain their original failure cause with a read-only state check.
 -->
 <link rel="stylesheet" href="{{ url_for('static',filename='css/equipment_ai.css') }}">
-<section id="equipment-ai" data-csrf="{{ assistant_csrf }}" aria-label="장비관리 AI 도우미">
+<section id="equipment-ai" data-csrf="{{ assistant_csrf }}" data-enter-action="{{ assistant_enter_action|default('send') }}" aria-label="장비관리 AI 도우미">
   <aside class="ai-sidebar" id="ai-sidebar" aria-label="나의 대화">
     <div class="ai-sidebar-heading"><span class="ai-brand-mark" aria-hidden="true">✦</span><strong>AI 도우미</strong><span class="ai-private">개인 대화</span></div>
     <button type="button" id="ai-new" class="ai-button ai-new"><span aria-hidden="true">＋</span> 새 대화</button>
@@ -51,7 +51,7 @@
       <div id="ai-connection-status" class="ai-connection-status" data-state="checking" role="status" aria-live="polite" aria-atomic="true" hidden><span id="ai-connection-status-mark" class="ai-connection-status-mark" data-state="checking" aria-hidden="true">✦</span><div class="ai-connection-status-copy"><strong id="ai-connection-status-summary"></strong><span id="ai-connection-status-reason"></span></div></div>
       <form id="ai-form" class="ai-composer">
         <label for="ai-input" class="ai-sr-only">AI 도우미에게 보낼 내용</label>
-        <textarea id="ai-input" name="content" rows="2" maxlength="8000" aria-describedby="ai-connection-status ai-input-shortcut" placeholder="내 장비에 대해 물어보거나, 필요한 일을 요청해 보세요." required></textarea>
+        <textarea id="ai-input" name="content" rows="2" maxlength="8000" aria-describedby="ai-connection-status" enterkeyhint="send" aria-keyshortcuts="Enter" placeholder="내 장비에 대해 물어보거나, 필요한 일을 요청해 보세요." required></textarea>
         <div class="ai-composer-actions">
           <div class="ai-level-control"><label for="ai-level">추론</label><select id="ai-level" aria-label="추론 수준" aria-describedby="ai-level-help ai-reasoning-support" disabled><option value="off" disabled>off</option><option value="low" disabled>low</option><option value="medium" selected disabled>medium</option><option value="high" disabled>high</option><option value="xhigh" disabled>xhigh</option><option value="max" disabled>max</option></select><span id="ai-level-help" class="ai-sr-only">모델별 지원과 관리자 허용 단계를 확인합니다.</span></div>
           <div class="ai-inline-disclosures">
@@ -61,7 +61,6 @@
           <div class="ai-send-actions"><button id="ai-send" type="submit" class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button></div>
         </div>
         <div class="ai-disclosure-spacer" aria-hidden="true"></div>
-        <p id="ai-input-shortcut" class="ai-input-shortcut">Enter 줄바꿈 · Shift+Enter 보내기</p>
         <p id="ai-model-status" class="ai-control-status" role="status" hidden></p>
         <details id="ai-unavailable-models" class="ai-control-support" hidden><summary>사용할 수 없는 모델 안내</summary><ul id="ai-unavailable-model-reasons"></ul></details>
       </form>

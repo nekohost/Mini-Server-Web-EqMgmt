@@ -1,0 +1,13 @@
+{
+  "reviewed_files": 11,
+  "root_hashes_match_archive": true,
+  "root_static_pass": true,
+  "root_linux_tests": 296,
+  "root_input_views": 24,
+  "root_input_checks": 712,
+  "root_hitbox_views": 4,
+  "root_hitbox_checks": 388,
+  "exact_candidate_files_removed": 11,
+  "candidate_remaining_files": 0,
+  "other_staging_deleted": false
+}

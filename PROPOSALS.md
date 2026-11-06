@@ -1067,3 +1067,9 @@
 - **상태:** [개발 완료 (FEATURES.md 이관)] 운영 배포·Staging/root 각293개·실제 일반 계정과 PC/모바일 검증 완료. work_id `RELEASE-20261106-AI-RESPONSE-RECOVERY`.
 - 최신 실패 진단001을 근거로 정상 종료된 응답의 필수 판단 누락과 빈 답변에만 각각1회 보정 단계를 둔다. 기존 큐/guard·검색/업무 확인·기록/예약을 유지하며 미확인 연결이나 다른 실제 오류를 재전송하지 않는다.
 - [계획002](Plans/2026/11/06/002_AI_Response_Recovery_Plan.md),[검증002](Reports/2026/11/06/002_AI_Response_Recovery_Report.md),현재 명세 FEATURES25. 기존 실패 요청을 성공으로 바꾸거나 다른 미실현 범위를 완료 처리하지 않는다.
+
+## AI-COMPOSER-INPUT-20261106 — 안내 공간·기본 Enter·입력 경계
+
+- **상태:** Staging/root 검증 완료·운영 반영 준비 중. work_id `RELEASE-20261106-AI-COMPOSER-INPUT`.
+- 불필요한 하단 안내2종을 제거하고 미설정 기본만 Enter 보내기로 바꾼다. 기존 두 모드와 JSON을 보존하고 최초 키의 설정 로딩 경합, 모바일 편집 이벤트, 조합 중 포커스 이탈을 보완한다.
+- [계획003](Plans/2026/11/06/003_AI_Composer_Input_Plan.md),[검증003](Reports/2026/11/06/003_AI_Composer_Input_Report.md),현재 명세 FEATURES26. 기존 큐·답변 보정·권한/업무 확인 경계는 유지한다.

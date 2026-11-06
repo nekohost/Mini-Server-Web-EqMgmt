@@ -306,10 +306,10 @@ def install_roadmap(app, services):
     @csrf_required
     @transaction(write=True)
     def settings_route(connection, user):
-        """[MINI-COMMENT: USER.PREFERENCES.API] [EN rev.1]
+        """[MINI-COMMENT: USER.PREFERENCES.API] [EN rev.2]
         [Role] Reads and merges only the authenticated actor's settings with fixed UI/AI-input choices.
         [Dependencies] Existing PreferencesJSON storage, login/CSRF decorators and the transactional actor check.
-        [Impact] Missing or legacy input actions read as newline; rejected values never modify saved or unrelated settings, and no schema change is required.
+        [Impact] Exact saved newline/send choices survive; missing/invalid actions read as send without persisting a default. Rejected values never modify any saved setting and no schema change is required.
         [KO rev.0]
         [역할] 기존 설정에 스킨/명시 수신 동의 병합. [의존성 관계] PreferencesJSON. [변경 시 영향도] 다른 설정 보존.
         """
@@ -339,7 +339,7 @@ def install_roadmap(app, services):
                                (user['UserId'], json.dumps(settings, ensure_ascii=False), equipment.utc_now()))
         settings['layout_skin'] = settings.get('layout_skin') if settings.get('layout_skin') in ('standard', 'edge') else 'standard'
         settings['deadline_email_opt_in'] = settings.get('deadline_email_opt_in') is True
-        settings['ai_enter_action'] = 'send' if settings.get('ai_enter_action') == 'send' else 'newline'
+        settings['ai_enter_action'] = 'newline' if settings.get('ai_enter_action') == 'newline' else 'send'
         return jsonify(success=True, settings=settings)
 
     app.view_functions['api_user_settings'] = settings_route

@@ -1,23 +1,98 @@
-/* [MINI-COMMENT: USER.PREFERENCES.KEYBOARD.BROWSER] [EN rev.3]
+/* [MINI-COMMENT: USER.PREFERENCES.KEYBOARD.BROWSER] [EN rev.4]
  * [Role] Drives both Enter modes in actual candidate DOM with native Chromium key input and synthetic IME edge orders.
  * [Dependencies] The reviewed in-memory chat transport, candidate settings/client assets and the private keyboard CDP capture.
  * [Impact] Verifies single acceptance, pending navigation/lifecycle guards, disabled/active-job guards and later-draft preservation without real accounts, model calls or production writes.
  */
+async function auditAiComposerKeyboard(bind, sleep) {
+    /* [MINI-COMMENT: USER.PREFERENCES.KEYBOARD.EVENT.AUDIT] [EN rev.1]
+     * [Role] Checks observable send/edit outcomes for mobile editing events and interrupted IME focus independently of network fixtures.
+     * [Dependencies] Actual Chromium textarea/validation/focus and the candidate shortcut binding; synthetic beforeinput sequences explicitly emulate only the browser's single newline edit.
+     * [Impact] Baseline failures remain visible together; ambiguous edits must retain text and never invent a submission.
+     */
+    const checks = [], failures = [];
+    const test = async (name, run, action = 'send') => {
+        const form = document.createElement('form'), input = document.createElement('textarea'), other = document.createElement('button');
+        form.style.cssText = 'position:fixed;left:-12000px;top:0'; other.type = 'button'; form.append(input, other); document.body.append(form);
+        const submitted = []; let ready = true;
+        input.value = 'alpha'; input.setSelectionRange(5, 5);
+        form.addEventListener('submit', event => { event.preventDefault(); if (input.value.trim()) submitted.push(input.value); });
+        const dispose = bind(input, form, () => action, () => ready);
+        const key = options => { const event = new KeyboardEvent('keydown', { key: 'Enter', code: 'Enter', bubbles: true, cancelable: true, ...options }); input.dispatchEvent(event); return event; };
+        const before = options => { const event = new InputEvent('beforeinput', { inputType: 'insertLineBreak', bubbles: true, cancelable: true, ...options }); input.dispatchEvent(event); return event; };
+        const edit = options => {
+            const event = before(options);
+            if (!event.defaultPrevented) { input.setRangeText('\n', input.selectionStart, input.selectionEnd, 'end'); input.dispatchEvent(new InputEvent('input', { inputType: event.inputType, bubbles: true, isComposing: event.isComposing })); }
+            return event;
+        };
+        const assert = (value, detail) => { if (!value) throw Error(detail); };
+        try { await run({ input, other, submitted, key, before, edit, assert, ready: value => { ready = value; } }); checks.push(name); }
+        catch (error) { failures.push({ name, error: error.message, submissions: submitted.length, draft: input.value }); }
+        finally { dispose(); form.remove(); }
+    };
+    await test('mobile-beforeinput-only-send', ({ edit, submitted, input, assert }) => {
+        const event = edit({ inputType: 'insertParagraph' }); assert(event.defaultPrevented && submitted.length === 1 && submitted[0] === 'alpha' && input.value === 'alpha', 'plain paragraph must send once without inserting a newline');
+    });
+    await test('mobile-legacy229-then-linebreak', ({ key, edit, submitted, input, assert }) => {
+        key({ key: 'Unidentified', keyCode: 229 }); edit(); assert(submitted.length === 1 && submitted[0] === 'alpha' && input.value === 'alpha', 'an explicit noncomposing edit intent must cover a missing Enter key');
+    });
+    await test('interrupted-composition-focus-return', ({ input, other, key, submitted, assert }) => {
+        input.focus(); input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: '한' })); other.focus(); input.focus(); key();
+        assert(submitted.length === 1, 'a composition with no end event must not poison the next focus session');
+    });
+    await test('keydown-and-beforeinput-single-send', ({ key, edit, submitted, input, assert }) => {
+        key(); edit(); assert(submitted.length === 1 && input.value === 'alpha', 'paired events must neither duplicate a request nor append a newline');
+    });
+    await test('newline-mode-native-edit-intent', ({ key, edit, submitted, input, assert }) => {
+        key(); const event = edit(); assert(!event.defaultPrevented && submitted.length === 0 && input.value === 'alpha\n', 'newline mode must leave the native edit intact');
+    }, 'newline');
+    await test('newline-mode-shift-mobile-intent', ({ key, edit, submitted, assert }) => {
+        key({ key: 'Unidentified', keyCode: 229, shiftKey: true }); edit(); assert(submitted.length === 1 && submitted[0] === 'alpha', 'mobile Shift must follow the saved inverse mode');
+    }, 'newline');
+    await test('composition-input-never-sends', ({ input, key, edit, submitted, assert }) => {
+        input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: '한' })); key({ keyCode: 229, isComposing: true }); edit({ isComposing: true });
+        assert(submitted.length === 0, 'composing edits cannot authorize a send');
+    });
+    await test('same-composition-end-key-never-sends', ({ input, key, edit, submitted, assert }) => {
+        input.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true })); input.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true })); key(); edit();
+        assert(submitted.length === 0, 'the IME confirmation gesture must remain suppressed');
+    });
+    for (const modifier of ['ctrlKey', 'altKey', 'metaKey']) await test('modified-enter-' + modifier, ({ key, edit, submitted, assert }) => {
+        key({ [modifier]: true }); edit(); assert(submitted.length === 0, 'unassigned modified shortcuts cannot send through the fallback');
+    });
+    await test('repeated-key-and-edit-never-resends', ({ key, edit, submitted, assert }) => { key({ repeat: true }); edit(); assert(submitted.length === 0, 'held keys must remain single'); });
+    await test('busy-mobile-intent-keeps-draft', ({ ready, edit, submitted, input, assert }) => {
+        ready(false); edit(); assert(submitted.length === 0 && input.value === 'alpha', 'a selected send gesture during a busy request must preserve the next draft');
+    });
+    await test('uncancelable-exact-selection-edit', ({ input, edit, submitted, assert }) => {
+        input.setSelectionRange(1, 3); edit({ cancelable: false }); assert(submitted.length === 1 && submitted[0] === 'alpha' && input.value === 'alpha', 'the exact newline edit must restore the original selected text before sending');
+    });
+    await test('uncancelable-mismatched-edit-is-preserved', ({ input, before, submitted, assert }) => {
+        before({ cancelable: false }); input.value = 'a different draft\n'; input.dispatchEvent(new InputEvent('input', { inputType: 'insertLineBreak', bubbles: true }));
+        assert(submitted.length === 0 && input.value === 'a different draft\n', 'an unrecognized edit cannot be rewritten or sent');
+    });
+    await test('paste-with-newlines-never-sends', ({ input, before, submitted, assert }) => {
+        before({ inputType: 'insertFromPaste', data: 'one\ntwo' }); input.value = 'one\ntwo'; input.dispatchEvent(new InputEvent('input', { inputType: 'insertFromPaste', bubbles: true, data: 'one\ntwo' }));
+        assert(submitted.length === 0 && input.value === 'one\ntwo', 'clipboard text is not a send gesture');
+    });
+    await sleep(0); return { checks, failures, transport: 'isolated real Chromium DOM; synthetic mobile/IME editing sequences' };
+}
+
 function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
     'use strict';
-    window.userSettings = { ai_enter_action: 'send' };
+    window.userSettings = {};
+    document.getElementById('equipment-ai').dataset.enterAction = 'newline';
     let sawEarlySavedMode = false;
     const earlyMode = new MutationObserver(() => {
-        if (document.getElementById('ai-input-shortcut')?.textContent === 'Enter 보내기 · Shift+Enter 줄바꿈') sawEarlySavedMode = true;
+        if (document.getElementById('ai-input')?.getAttribute('enterkeyhint') === 'enter') sawEarlySavedMode = true;
     });
-    earlyMode.observe(document.getElementById('ai-form'), { childList: true, subtree: true, characterData: true });
+    earlyMode.observe(document.getElementById('ai-form'), { attributes: true, attributeFilter: ['enterkeyhint'], subtree: true });
     document.addEventListener('DOMContentLoaded', async () => {
         const checks = [], report = document.createElement('pre'); report.id = 'browser-test-result'; report.hidden = true; document.body.append(report);
         const $ = id => document.getElementById(id);
         const wait = async (test, label = 'condition') => { for (let index = 0; index < 1200; index++) { if (test()) return; await sleep(10); } throw Error(label + ' timed out'); };
         const assert = (value, label) => { if (!value) throw Error(label); checks.push(label); };
         let nativeSequence = 0, nativeObserved = null, attemptedTurns = 0, holdTurn = null, releaseTurn = null, releaseCompletion = null;
-        let holdCreation = null, releaseCreation = null, attemptedCreations = 0;
+        let holdCreation = null, releaseCreation = null, attemptedCreations = 0, keyboardAudit = null;
         const originalFetch = server.fetch.bind(server);
         server.fetch = async (path, options = {}) => {
             if ((options.method || 'GET') === 'POST' && new URL(path, location.origin).pathname === '/api/ai/conversations') {
@@ -51,17 +126,27 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
         };
         try {
             await wait(() => window.module.exports.bindInputShortcuts && !$('ai-send').disabled && !$('ai-model').disabled && $('equipment-ai').getAttribute('aria-busy') === 'false', 'candidate ready');
+            keyboardAudit = await auditAiComposerKeyboard(window.module.exports.bindInputShortcuts, sleep);
+            assert(!keyboardAudit.failures.length, 'editing-event-audit:' + keyboardAudit.failures.map(item => item.name).join(','));
+            const inputRect = $('ai-input').getBoundingClientRect();
+            for (const x of [.03, .25, .5, .75, .97]) for (const y of [.05, .25, .5, .75, .95]) {
+                const target = document.elementFromPoint(inputRect.left + inputRect.width * x, inputRect.top + inputRect.height * y);
+                assert(target === $('ai-input'), 'textarea-hit-target-' + x + '-' + y);
+            }
             $('ai-input').addEventListener('keydown', event => { if (event.isTrusted) nativeObserved = { isTrusted: true, shiftKey: event.shiftKey }; });
-            assert(sawEarlySavedMode, 'saved-mode-before-settings-event-restored-on-initialize');
+            assert(sawEarlySavedMode, 'server-saved-mode-before-asynchronous-settings-restored-on-initialize');
             earlyMode.disconnect();
             window.applyRoadmapSettings({});
-            assert($('ai-input-shortcut').textContent === 'Enter 줄바꿈 · Shift+Enter 보내기', 'absent-or-failed-settings-default-to-newline');
-            assert($('ai-input').getAttribute('aria-describedby').split(/\s+/).includes('ai-input-shortcut'), 'accessible-hint-associated-with-input');
-            draft('첫 줄'); await nativeEnter(false);
-            assert($('ai-input').value === '첫 줄\n' && attemptedTurns === 0, 'default-native-enter-inserts-newline-without-request');
+            assert($('ai-input').getAttribute('enterkeyhint') === 'send' && $('ai-input').getAttribute('aria-keyshortcuts') === 'Enter', 'absent-or-failed-settings-default-to-send');
+            assert(!$('ai-input-shortcut') && !$('ai-input').getAttribute('aria-describedby').split(/\s+/).includes('ai-input-shortcut'), 'no-visible-or-dangling-shortcut-footer');
+            const legacyHint = document.createElement('p'); legacyHint.id = 'ai-input-shortcut'; legacyHint.textContent = 'cached shortcut footer'; $('ai-form').append(legacyHint);
+            $('ai-input').setAttribute('aria-describedby', $('ai-input').getAttribute('aria-describedby') + ' ai-input-shortcut'); window.applyRoadmapSettings({});
+            assert(!$('ai-input-shortcut') && !$('ai-input').getAttribute('aria-describedby').includes('ai-input-shortcut'), 'cached-template-footer-is-removed');
+            draft('첫 줄'); await nativeEnter(true);
+            assert($('ai-input').value === '첫 줄\n' && attemptedTurns === 0, 'default-native-shift-enter-inserts-newline-without-request');
 
             holdAcceptance(); holdCompletion();
-            const submitted = '기본 설정으로 전송'; draft(submitted); await nativeEnter(true);
+            const submitted = '기본 설정으로 전송'; draft(submitted); await nativeEnter(false);
             await wait(() => attemptedTurns === 1, 'first acceptance pending');
             assert($('ai-send').disabled, 'pending-submit-disables-send');
             draft('접수 중에 입력한 다음 초안');
@@ -78,15 +163,16 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
             assert(!$('ai-lifecycle-dialog').open && !$('ai-rename-dialog').open && $('ai-active-tab').getAttribute('aria-pressed') === 'true' && $('ai-conversations').querySelector('.ai-conversation[aria-current="true"]').dataset.conversationId === cid && server.conversations.size === conversationCount && !server.requests.some(entry => entry.method === 'POST' && /\/(?:trash|restore|purge)$/.test(entry.path)), 'forced-enabled-history-and-lifecycle-actions-cannot-redirect-pending-turn');
             $('ai-model-refresh').click(); await wait(() => !$('ai-model-refresh').disabled, 'pending model refresh');
             assert($('ai-send').disabled, 'model-refresh-keeps-submit-latch');
-            $('ai-send').disabled = false; key({ shiftKey: true }); $('ai-form').requestSubmit();
+            $('ai-send').disabled = false; key({ shiftKey: false }); $('ai-form').requestSubmit();
             assert(attemptedTurns === 1 && $('ai-input').value === '접수 중에 입력한 다음 초안', 'pending-shortcut-and-form-submit-remain-single');
             releaseTurn(); releaseTurn = null;
             await wait(() => server.sent === 1 && server.polls >= 2, 'accepted active request');
             assert($('ai-input').value === '접수 중에 입력한 다음 초안', 'accepted-snapshot-preserves-later-draft');
             assert(server.requests.find(entry => entry.path.endsWith('/turns')).data.content === submitted, 'request-uses-original-submitted-snapshot');
             assert(server.requests.find(entry => entry.path.endsWith('/turns')).path === '/api/ai/conversations/' + cid + '/turns' && $('ai-conversations').querySelector('.ai-conversation[aria-current="true"]').dataset.conversationId === cid, 'accepted-turn-reloads-original-conversation');
+            assert(!$('ai-model-status').textContent.includes('변경은 다음 요청부터') && !$('ai-model-status').textContent.includes('접수된 요청은 기존 모델'), 'active-request-has-no-model-change-footer');
             mode('send');
-            assert($('ai-input-shortcut').textContent === 'Enter 보내기 · Shift+Enter 줄바꿈' && $('ai-input').value === '접수 중에 입력한 다음 초안', 'settings-update-changes-hint-without-changing-draft');
+            assert(!$('ai-input-shortcut') && $('ai-input').getAttribute('enterkeyhint') === 'send' && $('ai-input').value === '접수 중에 입력한 다음 초안', 'settings-update-changes-keyboard-metadata-without-changing-draft');
             $('ai-send').disabled = false; await nativeEnter(false); $('ai-form').requestSubmit();
             assert(attemptedTurns === 1 && $('ai-input').value === '접수 중에 입력한 다음 초안', 'active-job-guards-survive-stale-button-state');
             await finish();
@@ -95,6 +181,7 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
             assert($('ai-input').value === '전송 설정의 첫 줄\n' && attemptedTurns === 1, 'send-mode-native-shift-enter-inserts-newline');
             for (const action of ['newline', 'send']) {
                 mode(action); const shiftKey = action === 'newline'; draft('한글 조합 중인 초안');
+                assert($('ai-input').getAttribute('enterkeyhint') === (action === 'send' ? 'send' : 'enter') && $('ai-input').getAttribute('aria-keyshortcuts') === (action === 'send' ? 'Enter' : 'Shift+Enter') && !$('ai-input-shortcut'), action + '-saved-mode-restores-without-footer');
                 const before = attemptedTurns;
                 assert(!key({ shiftKey, isComposing: true }).defaultPrevented && attemptedTurns === before, action + '-isComposing-enter-never-sends');
                 $('ai-input').dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true, data: '한' }));
@@ -136,10 +223,10 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
             assert(document.documentElement.scrollWidth <= innerWidth + 1, 'hint-and-composer-have-no-horizontal-overflow');
             report.textContent = JSON.stringify({ status: 'pass', view: 'input-preferences', checks, width: innerWidth, theme,
                 keyboard: 'trusted native Enter/Shift+Enter via private CDP; IME composition event orders are synthetic', attempted_turns: attemptedTurns, accepted_turns: server.sent,
-                production_data_used: false, schema_migration_required: false });
+                keyboard_audit: keyboardAudit, production_data_used: false, schema_migration_required: false });
         } catch (error) {
             report.textContent = JSON.stringify({ status: 'fail', view: 'input-preferences', checks, width: innerWidth, theme, error: error.message,
-                attempted_turns: attemptedTurns, accepted_turns: server.sent, polls: server.polls, send_disabled: $('ai-send')?.disabled, input_disabled: $('ai-input')?.disabled, hint: $('ai-input-shortcut')?.textContent, notice: $('ai-notice')?.textContent, draft: $('ai-input')?.value });
+                keyboard_audit: keyboardAudit, attempted_turns: attemptedTurns, accepted_turns: server.sent, polls: server.polls, send_disabled: $('ai-send')?.disabled, input_disabled: $('ai-input')?.disabled, hint: $('ai-input-shortcut')?.textContent, notice: $('ai-notice')?.textContent, draft: $('ai-input')?.value });
         } finally {
             earlyMode.disconnect(); releaseTurn?.(); releaseCreation?.(); server.holdStreamCompletion = false; releaseCompletion?.();
         }

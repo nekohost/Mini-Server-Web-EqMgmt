@@ -1,0 +1,133 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "a2a150d94e7ebbcad7e4653ac1524e8720eb15888c8a963ddbd0fb591d2a984d",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "browser": [
+    {
+      "status": "fail",
+      "view": "input-preferences",
+      "checks": [],
+      "width": 412,
+      "theme": "dark",
+      "error": "editing-event-audit:mobile-beforeinput-only-send,mobile-legacy229-then-linebreak,interrupted-composition-focus-return,keydown-and-beforeinput-single-send,newline-mode-shift-mobile-intent,busy-mobile-intent-keeps-draft,uncancelable-exact-selection-edit",
+      "keyboard_audit": {
+        "checks": [
+          "newline-mode-native-edit-intent",
+          "composition-input-never-sends",
+          "same-composition-end-key-never-sends",
+          "modified-enter-ctrlKey",
+          "modified-enter-altKey",
+          "modified-enter-metaKey",
+          "repeated-key-and-edit-never-resends",
+          "uncancelable-mismatched-edit-is-preserved",
+          "paste-with-newlines-never-sends"
+        ],
+        "failures": [
+          {
+            "name": "mobile-beforeinput-only-send",
+            "error": "plain paragraph must send once without inserting a newline",
+            "submissions": 0,
+            "draft": "alpha\n"
+          },
+          {
+            "name": "mobile-legacy229-then-linebreak",
+            "error": "an explicit noncomposing edit intent must cover a missing Enter key",
+            "submissions": 0,
+            "draft": "alpha\n"
+          },
+          {
+            "name": "interrupted-composition-focus-return",
+            "error": "a composition with no end event must not poison the next focus session",
+            "submissions": 0,
+            "draft": "alpha"
+          },
+          {
+            "name": "keydown-and-beforeinput-single-send",
+            "error": "paired events must neither duplicate a request nor append a newline",
+            "submissions": 1,
+            "draft": "alpha\n"
+          },
+          {
+            "name": "newline-mode-shift-mobile-intent",
+            "error": "mobile Shift must follow the saved inverse mode",
+            "submissions": 0,
+            "draft": "alpha\n"
+          },
+          {
+            "name": "busy-mobile-intent-keeps-draft",
+            "error": "a selected send gesture during a busy request must preserve the next draft",
+            "submissions": 0,
+            "draft": "alpha\n"
+          },
+          {
+            "name": "uncancelable-exact-selection-edit",
+            "error": "the exact newline edit must restore the original selected text before sending",
+            "submissions": 0,
+            "draft": "a\nha"
+          }
+        ],
+        "transport": "isolated real Chromium DOM; synthetic mobile/IME editing sequences"
+      },
+      "attempted_turns": 0,
+      "accepted_turns": 0,
+      "polls": 0,
+      "send_disabled": false,
+      "input_disabled": false,
+      "hint": "Enter 줄바꿈 · Shift+Enter 보내기",
+      "notice": "",
+      "draft": "",
+      "requested_width": 412,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/06/003_AI_Composer_Input/baseline-browser/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "view": "input-preferences-startup",
+      "scenario": "early-submit",
+      "checks": [
+        "initial-history-response-is-held-before-any-auto-open",
+        "early-submit-uses-trusted-native-enter",
+        "early-turn-targets-its-newly-created-conversation",
+        "late-initial-history-cannot-replace-accepted-new-conversation"
+      ],
+      "width": 412,
+      "theme": "dark",
+      "keyboard": "trusted native Enter via private CDP",
+      "production_data_used": false,
+      "requested_width": 412,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/06/003_AI_Composer_Input/baseline-browser/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "view": "input-preferences-startup",
+      "scenario": "history-view",
+      "checks": [
+        "initial-history-response-is-held-before-any-auto-open",
+        "late-initial-history-respects-explicit-history-view-steering",
+        "history-steering-creates-no-model-or-business-request"
+      ],
+      "width": 412,
+      "theme": "dark",
+      "keyboard": "programmatic explicit history button",
+      "production_data_used": false,
+      "requested_width": 412,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/06/003_AI_Composer_Input/baseline-browser/screen-002.png"
+    }
+  ],
+  "fixture_digest": "a2a150d94e7ebbcad7e4653ac1524e8720eb15888c8a963ddbd0fb591d2a984d"
+}

@@ -1,0 +1,18 @@
+{
+  "at_utc": "2026-11-06T02:32:47.080249+00:00",
+  "files": {
+    "static/css/equipment_ai.css": "da799afb99eb8d78e46384d9de8e2bf5a8249c6bd72b13915d95928d55bf2f6f",
+    "static/js/equipment_ai.js": "972bd8a941aa90e30ce20356e9482d8b94c3a31880f0abb07f8626583a5e438f",
+    "static/js/roadmap_preferences.js": "df6fa37096bee9a12260cc21412c1f79f9d9765a0a85fe2131cd7b60af19768e",
+    "templates/equipment_ai.html": "2716f01b10cf83264b970d9c01cfec09c7324a3fe941ce709e4123db0252168a",
+    "templates/mypage.html": "e97ac570ddbe0fd4d7d75379fe65e574a6f3e1502d95873ea64af9a4f99d10dd",
+    "tests/ai_input_preferences_browser_fixture.py": "f47240a646428caf98bd6b4745acceab3cefab75d1ddfe8526aa23e40ea32714",
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4",
+    "tests/test_ai_input_preferences.js": "8f53ef79c917298e364039635d2265fe67bb26475b21da21bf0a263becde187e",
+    "tests/test_ai_input_preferences.py": "cb68fe564b046f6305439ae9a5e0fb210fe7dacaeb397f45e6c1f8b4d3537cb9",
+    "utils/ai_assistant/__init__.py": "11532c0b4b524679f9713a408b0ee670b4bc2b778393257c6ebb6af33cb6d005",
+    "utils/roadmap_routes.py": "b1136b48c1c74cf64e803e0eba68ee7fa822b8b716aa32e9772507924d09c1ea"
+  },
+  "archive_sha256": "8d44ab0f1ea19459cee04407ff8d039a2bdcc2d3efa0fc969b585bd83c01e5c8",
+  "all_root_match": true
+}

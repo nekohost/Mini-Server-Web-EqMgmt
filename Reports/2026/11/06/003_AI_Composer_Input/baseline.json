@@ -1,0 +1,63 @@
+{
+  "at_utc": "2026-11-06T02:16:41.586819+00:00",
+  "head": "8aa22036a59965aff44506b3cfa982f81a8667a1",
+  "dirty": {
+    ".agent-governance/capabilities/chatgpt-remote.yaml": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+    "FEATURES.md": "7c0ccb3cbfc5a71fd5257461997f317f192f9f5d4b20a794f525be5237f8c0fc",
+    "PROPOSALS.md": "00c0cd48301b8b454c81a97ca31766475c40c410c4f6cbe8d2fab9923031e2a1",
+    "ROADMAP.md": "4bd1005035ad16cd41ae3681163c8e95c0cda99ee154c2a3ff5147de478dda52",
+    "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+    "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+    "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+    "UNIMPLEMENTED_PROPOSALS.md": "76f68e45965434f8de6923d7b3f9d2bac60559ad2f794fbe7f8fdc9341fa5de0",
+    "UNIMPLEMENTED_ROADMAP.md": "d325ea67ec2dc4f3d21ec21bff97b7bbe54239cf9cd659a26ab2f9eba930f41c"
+  },
+  "status": [
+    " M .agent-governance/capabilities/chatgpt-remote.yaml",
+    " M FEATURES.md",
+    " M PROPOSALS.md",
+    " M ROADMAP.md",
+    " M Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+    " M Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+    " M Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+    " M UNIMPLEMENTED_PROPOSALS.md",
+    " M UNIMPLEMENTED_ROADMAP.md",
+    "?? 5650U-COPY-NOTES.txt",
+    "?? Plans/2026/09/28/",
+    "?? Plans/2026/09/29/",
+    "?? Plans/2026/11/06/003_AI_Composer_Input_Plan.md",
+    "?? Reports/2026/09/29/001_Optional_Real_Name_and_Next_Roadmap_Review.md",
+    "?? Reports/2026/09/29/003_Service_Role_Separation_Feasibility_Report.md",
+    "?? Reports/2026/09/29/index.md",
+    "?? Reports/2026/10/30/003_Backup_Server_SSH_Connection_Report.md",
+    "?? Reports/2026/11/05/006_Test_User_Accounts_Report.md",
+    "?? Reports/2026/11/05/008_Test_User_Accounts_03_05_Report.md",
+    "?? Reports/2026/11/06/003_AI_Composer_Input_Report.md",
+    "?? Run-Local-5650U.cmd",
+    "?? Tasks/2026/10/30/003_Backup_Server_SSH_Connection_Task.md",
+    "?? Tasks/2026/11/05/006_Test_User_Accounts_Task.md",
+    "?? Tasks/2026/11/05/008_Test_User_Accounts_03_05_Task.md",
+    "?? Tasks/2026/11/06/003_AI_Composer_Input_Task.md",
+    "?? docs/service-operations-handoff.md"
+  ],
+  "source_sha256": {
+    "static/js/equipment_ai.js": "294d96996386c6a38cf3061cd7f6a68c6a8b3c6689edf759f843314d3681f382",
+    "static/js/roadmap_preferences.js": "65eb0054cd93243dbdc02eeb05907fdf603154e22d437aa2958f5ac2bcb0e80e",
+    "templates/equipment_ai.html": "30ee99c8062d3c3e81b243ad72cefd285de4db89b8a5ee8385ede368110671b6",
+    "templates/mypage.html": "e45fd295dea4295c976dbcdc5a9593215eef748277efd57f8d3d5254217cf445",
+    "static/css/equipment_ai.css": "e8bfc9767a007959397e442728ad11f177470f515f319cfd8e463d928630c9d2",
+    "utils/roadmap_routes.py": "d92b8b2c0bc1afd54d4d142ff70311ba96e3052b0b55608fae0bd91b83cb2690",
+    "tests/test_ai_input_preferences.py": "1cbafe512b3d521b64a38764fdfc82e768144e084b52478334ba4dbb14f8e13c",
+    "tests/test_ai_input_preferences.js": "9389eac5c8ce8cc5a35dbbfd763473ea9094961d5e22dc3cb140852dc45452ae",
+    "tests/ai_input_preferences_browser_fixture.py": "f47240a646428caf98bd6b4745acceab3cefab75d1ddfe8526aa23e40ea32714",
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4",
+    "utils/ai_assistant/__init__.py": "03491a4ee5f97ea1cb3018aac2cc8ecbb33ccf7447f92dc380de47443b77ddaf"
+  },
+  "scope_extensions": [
+    {
+      "at_utc": "2026-11-06T02:25:51.960760+00:00",
+      "path": "utils/ai_assistant/__init__.py",
+      "reason": "Render the current account input mode before asynchronous settings reads; preserve saved modes on the first keystroke."
+    }
+  ]
+}
