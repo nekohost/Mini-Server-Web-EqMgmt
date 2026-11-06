@@ -1,0 +1,26 @@
+{
+  "status": "pass",
+  "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-copy-20261106T052608-27a684",
+  "private_pc_path": "C:\\Users\\nkhst\\.codex\\private-releases\\20261105-ai-ux-copy-20261106T052608-27a684",
+  "files": {
+    "app-env.before": "22943c5d62c7591e4c44c901eddb374845d5651e762a80bda99572e701c3c2fc",
+    "assistant-quiesced.sqlite3": "9b61dc4190b40b60766a8ce7d98dec0326fe35a09eddbe562a6c8f4a857898da",
+    "baseline.json": "12b3d90ce8ef9c47135f322a3276782f9e45bfc9a1bed82db33ed82aa7867e89",
+    "equipment-ai-retention.service.before": "bcb13d2a0d50a98ff4521d641f3f52b6d00bef67c74125051b048a57fa5eba27",
+    "equipment-ai-retention.timer.before": "bd72116858a5398a00b9bb4cb7c4c9836522ea0a52d49dab7684ade2e63b30a4",
+    "equipment-ai-worker.service.before": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+    "equipment-quiesced.sqlite3": "17a08bd76c7f68f8f4b9dfaba0a3fa22d81c90e77bd2d7d9ed8859a058d7a321",
+    "maintenance-before.json": "a2a9085acceae7c128bf99c83feb99c6083def4cb6d44f780a0045670f33aa95",
+    "maintenance.before": "a2a9085acceae7c128bf99c83feb99c6083def4cb6d44f780a0045670f33aa95",
+    "old-runtime-source.tar": "f96d9df862a57a4fdcc6027993de1f2ca8f2f5a69011fef27b8206efb2bdc36b",
+    "process-before.json": "b276629f748df064310134a2378a339f80fa6c9b0bb896d652c6475c0471f765",
+    "process-environment-before.json": "aa676a49208e13c3ac38579cc6202321772d3bb6cf91d5c18be1fda9d0fd8e85",
+    "quiesced.json": "04577498db81b48e49453425141b286ab3fc684cbafca5f2f30432f2c505c516",
+    "worker-env.before": "6dcfcaf64bfdc7deb1479dff17e93a3579ebdae9141ee0aff4ad3568d0ecd5ec"
+  },
+  "files_verified": 14,
+  "all_sha256_match": true,
+  "server_owner_only": true,
+  "pc_user_only_acl": true,
+  "secret_contents_reported": false
+}

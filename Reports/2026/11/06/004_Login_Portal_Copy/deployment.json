@@ -1,0 +1,76 @@
+{
+  "status": "pass",
+  "runtime_commit": "982b9ff100713d509fdbf75452a406209325ff22",
+  "pause": {
+    "status": "quiesced",
+    "release": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-copy-20261106T052608-27a684",
+    "old_head": "2652d4a58312595394fffda3bb999118900023ec",
+    "old_pid": 1066547,
+    "shared_model_controlled": false,
+    "active_jobs": {}
+  },
+  "copy_check": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-copy-20261106T052608-27a684/copy-0ea1a4e7f8b6",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 71,
+      "ai_lifecycle_operations": 24,
+      "ai_lifecycle_tombstones": 8,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 31,
+      "ai_task_drafts": 0,
+      "conversations": 16,
+      "jobs": 50,
+      "message_steps": 100,
+      "messages": 100,
+      "proposals": 0,
+      "revocations": 12,
+      "storage_accounts": 5
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 7,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "activation": {
+    "status": "active",
+    "app_pid": 1086976,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-06T05:29:37.136344+00:00"
+  },
+  "worker_pid": 1086986,
+  "source_hashes_match": 3,
+  "git_blob_sha256": {
+    "templates/login.html": "412a056de38bf2b45eb2d7676b414cf60fe611981ce4006279c3f94886f35019",
+    "templates/portal.html": "57fc69d0744d3c714cdfda6679771f593e8cc8fecae088a37875173606729e76",
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4"
+  },
+  "windows_archive_normalization": "CRLF to LF only; archive content equals Git blob after normalization",
+  "private_configuration_and_units_unchanged": true,
+  "process_identity_confirmed": true,
+  "maintenance": "NORMAL",
+  "active_jobs": 0,
+  "shared_model_controlled": false
+}

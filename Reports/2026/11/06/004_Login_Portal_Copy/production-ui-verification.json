@@ -1,0 +1,48 @@
+{
+  "status": "pass",
+  "site": "https://nekohost.org",
+  "runtime_commit": "982b9ff100713d509fdbf75452a406209325ff22",
+  "login": {
+    "title": "로그인 - 장비관리 시스템",
+    "heading": "장비관리 시스템",
+    "old_heading_present": false,
+    "pc": {
+      "width": 1280,
+      "height": 720,
+      "overflow_x": false,
+      "screenshot": "production-login-pc.jpg"
+    },
+    "mobile": {
+      "width": 412,
+      "height": 915,
+      "overflow_x": false,
+      "screenshot": "production-login-mobile.jpg"
+    },
+    "real_login": "normal test account; authenticated portal reached"
+  },
+  "portal": {
+    "heading": "메인 포털",
+    "removed_guidance_present": false,
+    "menu_count": 5,
+    "dashboard_widget_present": true,
+    "pc": {
+      "width": 1280,
+      "height": 720,
+      "overflow_x": false,
+      "screenshot": "production-portal-pc.jpg"
+    },
+    "mobile": {
+      "width": 412,
+      "height": 915,
+      "overflow_x": false,
+      "screenshot": "production-portal-mobile.jpg"
+    }
+  },
+  "console_errors": [],
+  "viewport_restored": {
+    "width": 1280,
+    "height": 720
+  },
+  "settings_changed": false,
+  "model_requests_sent": 0
+}
