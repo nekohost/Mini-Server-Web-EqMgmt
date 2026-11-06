@@ -1,0 +1,10 @@
+{
+  "at_utc": "2026-11-06T05:24:53.435079+00:00",
+  "files": {
+    "templates/login.html": "a119f85584227ea792c65f5a45784b18aebaf84494c7c31ede2da3d28c1d6323",
+    "templates/portal.html": "57fc69d0744d3c714cdfda6679771f593e8cc8fecae088a37875173606729e76",
+    "tests/run_assistant_fixture.py": "1aeba659073f0054d9129f4e1526ff6cc4418b1cca15bad1a38fc1f95030d6c4"
+  },
+  "archive_sha256": "a164248286006a7b6783f304d83298121e1da960afad9eeb79f1b9e15aa18f15",
+  "all_root_match": true
+}

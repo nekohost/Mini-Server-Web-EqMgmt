@@ -1,0 +1,11 @@
+{
+  "status": "pass",
+  "platform": "linux",
+  "login_title": "로그인 - 장비관리 시스템",
+  "login_heading": "장비관리 시스템",
+  "login_fields_preserved": true,
+  "portal_guidance_absent": true,
+  "portal_menu_and_widget_preserved": true,
+  "production_app_imported": false,
+  "production_databases_opened": false
+}
