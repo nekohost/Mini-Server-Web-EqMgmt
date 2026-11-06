@@ -1,0 +1,56 @@
+{
+  "time_utc": "2026-11-06T07:50:28.086792+00:00",
+  "head": "a1ac1603de64238dba0e96f113bb189ca8d079ce",
+  "dirty": {
+    ".agent-governance/capabilities/chatgpt-remote.yaml": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+    "FEATURES.md": "4bc137746e90d224516823378de4025cb84590719d6bda7c3b9d4004b6ec7265",
+    "PROPOSALS.md": "1e767a9ae5060782263d45110ce2b195a3ad7ef8d92a3c4c1ecdbb7cc89e6ca1",
+    "ROADMAP.md": "4bd1005035ad16cd41ae3681163c8e95c0cda99ee154c2a3ff5147de478dda52",
+    "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+    "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+    "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+    "UNIMPLEMENTED_PROPOSALS.md": "76f68e45965434f8de6923d7b3f9d2bac60559ad2f794fbe7f8fdc9341fa5de0",
+    "UNIMPLEMENTED_ROADMAP.md": "d325ea67ec2dc4f3d21ec21bff97b7bbe54239cf9cd659a26ab2f9eba930f41c"
+  },
+  "old_untracked": [
+    "5650U-COPY-NOTES.txt",
+    "Plans/2026/09/28/",
+    "Plans/2026/09/29/",
+    "Reports/2026/09/29/001_Optional_Real_Name_and_Next_Roadmap_Review.md",
+    "Reports/2026/09/29/003_Service_Role_Separation_Feasibility_Report.md",
+    "Reports/2026/09/29/index.md",
+    "Reports/2026/10/30/003_Backup_Server_SSH_Connection_Report.md",
+    "Reports/2026/11/05/006_Test_User_Accounts_Report.md",
+    "Reports/2026/11/05/008_Test_User_Accounts_03_05_Report.md",
+    "Run-Local-5650U.cmd",
+    "Tasks/2026/10/30/003_Backup_Server_SSH_Connection_Task.md",
+    "Tasks/2026/11/05/006_Test_User_Accounts_Task.md",
+    "Tasks/2026/11/05/008_Test_User_Accounts_03_05_Task.md",
+    "docs/service-operations-handoff.md"
+  ],
+  "source": {
+    "templates/dashboard.html": "470521cecccc7d816edcfb24ea254541157141b8491447bbc4e88f69aebf71cd",
+    "templates/portal.html": "57fc69d0744d3c714cdfda6679771f593e8cc8fecae088a37875173606729e76",
+    "templates/index.html": "98bfa63b313c9fcd04e4bce0f2a6ebaca2942f9ca8849eacf620d34ae8d8fff2",
+    "static/css/layout.css": "aa8dab6e10aa1272047de089e680dad24f33ad815c7a5f17791ff8d555d8860c",
+    "tests/test_portal_polish_ui.js": "ae313316d54310db5c14a7fe4006cdb71f1989ff990ad57fa58059111eeaa633",
+    "tests/test_unified_ui.mjs": "15dc3ecff3135a527dac88d9f85756000a5fe5c8a295c6daaf71a056a40f88c6",
+    "tests/test_edge_layout_browser.mjs": "cc8855495620c230ab7f2d97d03c218d926df9665e06143826286f9a91159e4d"
+  },
+  "server": {
+    "head": "a1ac1603de64238dba0e96f113bb189ca8d079ce",
+    "tracked_clean": true,
+    "menu_tree": [
+      [
+        "my_equipment",
+        "나의 장비",
+        "/my_equipment"
+      ]
+    ],
+    "chromium": "/usr/bin/chromium",
+    "playwright": false,
+    "selenium": false,
+    "flask": true,
+    "worker": "1086986"
+  }
+}

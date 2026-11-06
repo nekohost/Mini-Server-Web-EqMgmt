@@ -1,6 +1,6 @@
 /* [MINI-COMMENT: PORTAL.POLISH.UI.REGRESSION]
- * [EN rev.1]
- * [Role] Drives the actual portal API loaders and records stable ordering, full-frame geometry and natural focus semantics.
+ * [EN rev.2]
+ * [Role] Drives the actual portal API loaders and checks its single navigation heading, stable ordering, geometry and focus.
  * [Dependencies] Candidate portal/frame/MenuCards, synthetic GET responses and real Chromium animation frames.
  * [Impact] Reloaded permission-filtered menus keep their relative order and never acquire an unauthorized admin card; no navigation, production account, database or model service is used.
  */
@@ -72,7 +72,7 @@
         try {
             await wait(() => cards().length === initial.length && !document.getElementById('dashboardWidget').classList.contains('hidden'), 'actual portal menus and dashboard');
             await document.fonts.ready; await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-            assert(document.title.includes('메인 포털') && document.querySelector('.app-content-title')?.textContent.trim() === '메인 포털', 'actual-portal-document-and-content-heading');
+            assert(document.title.includes('메인 포털') && document.querySelector('.app-nav-title')?.textContent.trim() === '메인 포털' && !document.querySelector('main h1'), 'portal-title-in-navigation-only');
             assert(document.querySelector('nav[aria-label="전역 네비게이션"]') && document.querySelector('.app-nav-role')?.textContent.trim() === '(admin)', 'actual-frame-renders-synthetic-admin-account');
             assert(!document.getElementById('parent-menu-link'), 'portal-root-has-no-parent-menu-link');
             assert(document.getElementById('dashboardWidget').textContent.includes('12대') && document.getElementById('dashboardWidget').textContent.includes('34대'), 'actual-dashboard-loader-uses-synthetic-numeric-stats');

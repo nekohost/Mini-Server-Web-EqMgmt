@@ -1,0 +1,18 @@
+{
+  "raw_matches": true,
+  "archive_sha256": "4b1c25ef0e3243b836efa022e3f28ef560c9472d0328b1edbff71a1ba29be94a",
+  "exact_candidates_removed": [
+    "templates/dashboard.html",
+    "templates/portal.html",
+    "templates/index.html",
+    "static/css/layout.css",
+    "tests/test_portal_polish_ui.js",
+    "tests/test_unified_ui.mjs",
+    "tests/test_edge_layout_browser.mjs",
+    "tests/helpers/responsive_shell.mjs",
+    "tests/run_dashboard_workspace_fixture.py",
+    "tests/dashboard_workspace_driver.js"
+  ],
+  "remaining_candidate_files": 0,
+  "root_static_pass": 19
+}

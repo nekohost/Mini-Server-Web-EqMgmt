@@ -11,6 +11,24 @@
 
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
+{# All three distributions use the same chart/table layout and table-first data contract. #}
+{% macro distribution(chart, body, column, title) %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center" data-distribution-grid>
+    <div class="w-full max-w-sm mx-auto min-w-0">
+        <canvas id="{{ chart }}" aria-hidden="true"></canvas>
+    </div>
+    <div class="min-w-0 overflow-x-auto">
+        <table class="w-full divide-y divide-slate-200 dark:divide-slate-700" aria-label="{{ title }} 수량">
+            <thead class="bg-slate-50 dark:bg-slate-800/50"><tr>
+                <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400">{{ column }}</th>
+                <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400">수량</th>
+            </tr></thead>
+            <tbody id="{{ body }}" class="divide-y divide-slate-200 dark:divide-slate-700"></tbody>
+        </table>
+    </div>
+</div>
+{% endmacro %}
+
 {% block content %}
 <header class="app-page-heading app-content-header">
     <h1 class="app-content-title">통계 대시보드</h1>
@@ -39,78 +57,45 @@
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 border border-slate-200 dark:border-slate-700 transition-colors mb-8">
     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">카테고리별 장비 분포</h2>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div class="w-full max-w-sm mx-auto">
-            <canvas id="categoryChart"></canvas>
-        </div>
-        <div class="min-w-0 overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead class="bg-slate-50 dark:bg-slate-800/50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">카테고리명</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">수량</th>
-                    </tr>
-                </thead>
-                <tbody id="categoryTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
-                    <!-- JS 렌더링 -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+    {{ distribution('categoryChart', 'categoryTableBody', '카테고리명', '카테고리별 장비 분포') }}
 </div>
 
 <!-- 신규 제조사별 분포 -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 border border-slate-200 dark:border-slate-700 transition-colors mb-8">
     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">제조사별 장비 분포</h2>
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        <div class="w-full max-w-sm mx-auto">
-            <canvas id="manufacturerChart"></canvas>
-        </div>
-        <div class="min-w-0 overflow-x-auto">
-            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
-                <thead class="bg-slate-50 dark:bg-slate-800/50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">제조사명</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">수량</th>
-                    </tr>
-                </thead>
-                <tbody id="manufacturerTableBody" class="divide-y divide-slate-200 dark:divide-slate-700">
-                    <!-- JS 렌더링 -->
-                </tbody>
-            </table>
-        </div>
-    </div>
+    {{ distribution('manufacturerChart', 'manufacturerTableBody', '제조사명', '제조사별 장비 분포') }}
 </div>
 
-</div>
 <!-- 신규 복합 조건 검색 분포 -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 border border-slate-200 dark:border-slate-700 transition-colors">
-    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">복합 조건 검색 분포 (카테고리 + 제조사)</h2>
+    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">복합 조건 검색 분포</h2>
     
-    <div class="edge-filter-region edge-filter-compact flex flex-col sm:flex-row gap-4 mb-6">
+    <form id="combinedSearchForm" class="edge-filter-region edge-filter-compact flex flex-col sm:flex-row gap-4">
         <div class="flex-1">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리 선택</label>
-            <select id="filterCategory" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
+            <label for="filterCategory" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리 선택</label>
+            <select required id="filterCategory" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
                 <option value="">카테고리 선택...</option>
             </select>
         </div>
         <div class="flex-1">
-            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">제조사 선택</label>
-            <select id="filterManufacturer" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
+            <label for="filterManufacturer" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">제조사 선택</label>
+            <select required id="filterManufacturer" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
                 <option value="">제조사 선택...</option>
             </select>
         </div>
         <div class="flex-none flex items-end">
-            <button onclick="fetchCombinedStats()" class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+            <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
                 검색
             </button>
         </div>
-    </div>
-
-    <!-- 결과 표출 영역 -->
-    <div id="combinedResultArea" class="hidden">
-        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">조회된 장비 목록 <span id="combinedCount" class="text-blue-600 ml-2">0</span>건</h3>
+    </form>
+    <p id="combinedNotice" class="text-sm text-slate-600 dark:text-slate-300 empty:hidden mt-4" role="status" aria-live="polite"></p>
+    <div id="combinedResultArea" hidden>
+        <h3 class="text-lg font-semibold text-slate-800 dark:text-slate-200 my-4">상태별 장비 분포</h3>
+        {{ distribution('combinedChart', 'combinedStatusBody', '장비 상태', '선택 조건의 상태별 장비 분포') }}
+        <details id="combinedDetails" class="mt-5 border-t border-slate-200 dark:border-slate-700 pt-3">
+            <summary class="cursor-pointer text-sm font-semibold text-slate-800 dark:text-slate-200 py-2">조회된 장비 목록 (<span id="combinedCount">0</span>대)</summary>
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">
                 <thead class="bg-slate-50 dark:bg-slate-800/50">
@@ -126,15 +111,18 @@
                 </tbody>
             </table>
         </div>
+        </details>
     </div>
+</div>
 </div>
 
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-    let catChartInstance = null;
-    let manChartInstance = null;
+    const palette = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#64748b','#ec4899','#14b8a6','#f97316','#06b6d4'];
+    const charts = new Map();
+    let currentSearch = null;
 
     async function loadMasterOptions() {
         try {
@@ -175,29 +163,56 @@
         }
     }
 
-    async function fetchCombinedStats() {
-        const catId = document.getElementById('filterCategory').value;
-        const manufacturerSelect = document.getElementById('filterManufacturer'); // 현재 제조사 선택 요소를 한 번만 조회합니다.
-        const manId = manufacturerSelect.value; // API 조회에 사용할 제조사 ID를 유지합니다.
-        const manufacturerName = manufacturerSelect.options[manufacturerSelect.selectedIndex]?.textContent?.trim() || ''; // 응답에 없는 제조사 표시명을 선택 옵션에서 안전하게 얻습니다.
-        
-        if (!catId || !manId) {
-            alert('카테고리와 제조사를 모두 선택해주세요.');
-            return;
-        }
+    /** [Role] Invalidates the displayed intersection as soon as a filter or request changes.
+     * [Dependencies] One active GET and the shared chart registry. [Impact] Late data or errors cannot replace a newer selection. */
+    function resetCombined() {
+        currentSearch?.abort();
+        currentSearch = null;
+        destroyChart('combinedChart');
+        document.getElementById('combinedResultArea').hidden = true;
+        document.getElementById('combinedDetails').open = false;
+        for (const id of ['combinedNotice','combinedCount','combinedStatusBody','combinedTableBody']) document.getElementById(id).replaceChildren();
+        document.getElementById('combinedSearchForm').removeAttribute('aria-busy');
+    }
 
+    /** [Role] Fetches the server's permission-filtered status distribution and optional drill-down.
+     * [Dependencies] Both select values and /api/dashboard/stats. [Impact] Normal, empty and failed searches have distinct results. */
+    async function fetchCombinedStats(event) {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const category = document.getElementById('filterCategory');
+        const manufacturer = document.getElementById('filterManufacturer');
+        resetCombined();
+        if (!form.reportValidity()) return;
+        const controller = new AbortController();
+        currentSearch = controller;
+        const label = category.selectedOptions[0].textContent + ' · ' + manufacturer.selectedOptions[0].textContent;
+        const manufacturerName = manufacturer.selectedOptions[0].textContent.trim();
+        const notice = document.getElementById('combinedNotice');
+        form.setAttribute('aria-busy', 'true');
+        notice.textContent = '장비 분포를 조회하고 있습니다.';
         try {
-            showGlobalLoading();
-            const res = await fetch(`/api/dashboard/stats?category_id=${catId}&manufacturer_id=${manId}`);
-            const json = await res.json();
-            if (json.success && json.data.combined_stats) {
-                renderCombinedStats(json.data.combined_stats, manufacturerName);
+            const query = new URLSearchParams({category_id: category.value, manufacturer_id: manufacturer.value});
+            const res = await fetch('/api/dashboard/stats?' + query, {signal: controller.signal});
+            if (!res.ok) throw new Error('stats');
+            const json = await res.json(), stats = json.data?.combined_stats;
+            if (currentSearch !== controller) return;
+            if (!json.success || !Array.isArray(stats?.equipment_list) || !Array.isArray(stats?.status_distribution)) throw new Error('stats');
+            if (!stats.equipment_list.length) {
+                notice.textContent = label + ': 조건에 일치하는 장비가 없습니다.';
+                return;
             }
-        } catch (err) {
-            console.error(err);
-            alert('데이터 조회 중 오류가 발생했습니다.');
+            renderCombinedStats(stats, manufacturerName);
+            notice.textContent = label + ' · 총 ' + stats.equipment_list.length + '대';
+        } catch (error) {
+            if (currentSearch !== controller) return;
+            resetCombined();
+            notice.textContent = '장비 분포를 불러오지 못했습니다. 다시 검색해 주세요.';
         } finally {
-            hideGlobalLoading();
+            if (currentSearch === controller) {
+                currentSearch = null;
+                form.removeAttribute('aria-busy');
+            }
         }
     }
 
@@ -240,20 +255,14 @@
     }
     // [manufacturer-model-display:end]
 
-    function renderCombinedStats(stats, manufacturerName = '') {
-        document.getElementById('combinedResultArea').classList.remove('hidden');
-        document.getElementById('combinedCount').innerText = stats.equipment_list.length;
-        
-        const tbody = document.getElementById('combinedTableBody');
-        tbody.innerHTML = '';
-        
-        if (stats.equipment_list.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" class="px-4 py-8 text-center text-slate-500">조건에 일치하는 장비가 없습니다.</td></tr>`;
-            return;
-        }
-
-        stats.equipment_list.forEach(eq => {
-            const row = `
+    /** [Role] Shows status counts first and keeps the original equipment rows in a disclosure.
+     * [Dependencies] Both arrays come from the same category/manufacturer API response. [Impact] No extra records or requests are introduced. */
+    function renderCombinedStats(stats, manufacturerName) {
+        document.getElementById('combinedResultArea').hidden = false;
+        document.getElementById('combinedCount').textContent = stats.equipment_list.length;
+        renderDistribution('combinedChart', 'combinedStatusBody', stats.status_distribution, 'status', '상태 미지정');
+        document.getElementById('combinedTableBody').innerHTML = stats.equipment_list.map(eq => {
+            return `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${escapeDashboardText(eq.Name || '-')}</td>
                     <td class="px-4 py-3 whitespace-normal break-words text-sm text-slate-600 dark:text-slate-400">
@@ -268,92 +277,92 @@
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-600 dark:text-slate-400">${escapeDashboardText(eq.PurchaseDate || '-')}</td>
                 </tr>
             `;
-            tbody.innerHTML += row;
-        });
+        }).join('');
     }
 
+    /** [Role] Shows the two existing dashboard summaries with the same renderer used by the filtered result.
+     * [Dependencies] The existing GET response. [Impact] Category, manufacturer and status counts all have an accessible table. */
     function renderDashboard(data) {
-        document.getElementById('statMyEq').innerText = data.my_equipments;
-        document.getElementById('statTotalEq').innerText = data.total_equipments;
-        document.getElementById('statCategoryCount').innerText = data.categories.length;
-
-        // 카테고리 렌더링
-        const catTbody = document.getElementById('categoryTableBody');
-        catTbody.innerHTML = '';
-        const catLabels = [];
-        const catCounts = [];
-        data.categories.forEach(item => {
-            catLabels.push(item.category);
-            catCounts.push(item.count);
-            catTbody.innerHTML += `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${item.category}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600 dark:text-slate-400">${item.count}대</td>
-                </tr>
-            `;
-        });
-        catChartInstance = renderChart('categoryChart', catChartInstance, catLabels, catCounts);
-
-        // 제조사 렌더링
-        const manTbody = document.getElementById('manufacturerTableBody');
-        manTbody.innerHTML = '';
-        const manLabels = [];
-        const manCounts = [];
-        data.manufacturers.forEach(item => {
-            manLabels.push(item.manufacturer);
-            manCounts.push(item.count);
-            manTbody.innerHTML += `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-slate-800 dark:text-slate-200">${item.manufacturer}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-slate-600 dark:text-slate-400">${item.count}대</td>
-                </tr>
-            `;
-        });
-        manChartInstance = renderChart('manufacturerChart', manChartInstance, manLabels, manCounts);
+        document.getElementById('statMyEq').textContent = data.my_equipments;
+        document.getElementById('statTotalEq').textContent = data.total_equipments;
+        document.getElementById('statCategoryCount').textContent = data.categories.length;
+        renderDistribution('categoryChart', 'categoryTableBody', data.categories, 'category', '미분류');
+        renderDistribution('manufacturerChart', 'manufacturerTableBody', data.manufacturers, 'manufacturer', '미분류');
     }
 
-    function renderChart(canvasId, instance, labels, data) {
-        const ctx = document.getElementById(canvasId).getContext('2d');
-        const isDark = document.documentElement.classList.contains('dark');
-        const textColor = isDark ? '#e2e8f0' : '#475569';
+    /** [Role] Releases a previous canvas before reusing or hiding it. [Dependencies] Chart.js and the chart map. [Impact] Repeat searches retain no stale instances. */
+    function destroyChart(id) {
+        charts.get(id)?.destroy();
+        charts.delete(id);
+    }
 
-        if (instance) {
-            instance.destroy();
+    /** [Role] Draws the same ring when the existing chart CDN is unavailable.
+     * [Dependencies] Canvas 2D, positive counts and the table's palette. [Impact] Offline rendering needs no new library. */
+    function drawLocalRing(canvas, values, colors) {
+        canvas.width = canvas.height = 384;
+        canvas.style.width = '100%';
+        canvas.style.height = 'auto';
+        const ctx = canvas.getContext('2d'), sum = values.reduce((a,b) => a+b, 0);
+        let angle = -Math.PI / 2;
+        for (let i = 0; i < values.length; i++) {
+            const next = angle + 2 * Math.PI * values[i] / sum;
+            ctx.beginPath(); ctx.arc(192,192,182,angle,next); ctx.arc(192,192,91,next,angle,true);
+            ctx.closePath(); ctx.fillStyle = colors[i]; ctx.fill();
+            angle = next;
         }
-
-        return new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: labels,
-                datasets: [{
-                    data: data,
-                    backgroundColor: [
-                        '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b', '#ec4899', '#14b8a6', '#f97316', '#06b6d4'
-                    ],
-                    borderWidth: 1,
-                    borderColor: isDark ? '#1e293b' : '#ffffff'
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            color: textColor
-                        }
-                    }
-                }
-            }
-        });
     }
 
-    const observer = new MutationObserver(() => {
-        if (catChartInstance) fetchDashboard();
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    /** [MINI-COMMENT: DASHBOARD.DISTRIBUTION.VIEW]
+     * [EN rev.1] [Role] Renders one set of distribution counts as a table and matching doughnut.
+     * [Dependencies] Server-provided counts, text-only DOM labels, Chart.js or the local canvas fallback.
+     * [Impact] All three cards share colors and geometry; zero totals show no fabricated slice. */
+    function renderDistribution(chartId, bodyId, items, labelKey, emptyLabel) {
+        const totals = new Map();
+        for (const item of items) {
+            const count = Number(item.count), label = String(item[labelKey] ?? '').trim() || emptyLabel;
+            if (Number.isSafeInteger(count) && count > 0) totals.set(label, (totals.get(label) || 0) + count);
+        }
+        const canvas = document.getElementById(chartId), body = document.getElementById(bodyId);
+        destroyChart(chartId);
+        body.replaceChildren();
+        canvas.parentElement.hidden = !totals.size;
+        body.closest('table').parentElement.classList.toggle('md:col-span-2', !totals.size);
+        if (!totals.size) {
+            const cell = body.insertRow().insertCell();
+            cell.colSpan = 2; cell.className = 'px-4 py-4 text-sm text-slate-500 dark:text-slate-400';
+            cell.textContent = '표시할 장비가 없습니다.';
+            return;
+        }
+        const labels = [...totals.keys()], values = [...totals.values()], colors = labels.map((_,i) => palette[i % palette.length]);
+        labels.forEach((label,i) => {
+            const row = body.insertRow(), name = row.insertCell(), count = row.insertCell(), swatch = document.createElement('span');
+            name.className = 'px-4 py-3 text-sm font-medium text-slate-800 dark:text-slate-200 break-words';
+            count.className = 'px-4 py-3 text-right whitespace-nowrap text-sm text-slate-600 dark:text-slate-400';
+            swatch.className = 'inline-block w-2.5 h-2.5 rounded-full mr-2'; swatch.style.backgroundColor = colors[i];
+            swatch.setAttribute('aria-hidden','true'); name.append(swatch, label); count.textContent = values[i] + '대';
+        });
+        if (typeof window.Chart !== 'function') { drawLocalRing(canvas, values, colors); return; }
+        const dark = document.documentElement.classList.contains('dark');
+        charts.set(chartId, new Chart(canvas, {
+            type: 'doughnut',
+            data: {labels, datasets: [{data: values, backgroundColor: colors, borderWidth: 1, borderColor: dark ? '#1e293b' : '#fff'}]},
+            options: {responsive: true, plugins: {legend: {position: 'bottom', labels: {color: dark ? '#e2e8f0' : '#475569'}}}}
+        }));
+    }
+
+    // Theme changes affect the existing canvases only; they never refetch or reopen a search.
+    new MutationObserver(() => {
+        const dark = document.documentElement.classList.contains('dark');
+        for (const chart of charts.values()) {
+            chart.data.datasets[0].borderColor = dark ? '#1e293b' : '#fff';
+            chart.options.plugins.legend.labels.color = dark ? '#e2e8f0' : '#475569';
+            chart.update('none');
+        }
+    }).observe(document.documentElement, {attributes:true, attributeFilter:['class']});
 
     document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('combinedSearchForm').addEventListener('submit', fetchCombinedStats);
+        for (const id of ['filterCategory','filterManufacturer']) document.getElementById(id).addEventListener('change', resetCombined);
         fetchDashboard();
         loadMasterOptions();
     });

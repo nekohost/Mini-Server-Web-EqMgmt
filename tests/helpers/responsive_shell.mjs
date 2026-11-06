@@ -14,6 +14,7 @@ export function responsiveShellSnapshot() {
         role:{...rect(one('.app-nav-role')),...style(one('.app-nav-role')),text:one('.app-nav-role').textContent},
         rightChildren:[...document.querySelectorAll('.app-nav-tools > *, .app-nav-account > *')].filter(visible).map(rect),
         rightCards:[...document.querySelectorAll('.app-nav-controls .app-nav-control')].map(el=>({...rect(el),...style(el)})),
+        barOnly:Boolean(one('#menuContainer') || one('main.equipment-owned-view')),
         headingCount:document.querySelectorAll('.app-content-header').length,
         heading:heading&&{box:rect(heading),title:rect(heading.querySelector('.app-content-title')),description:rect(heading.querySelector('.app-content-description')),
             titleStyle:style(heading.querySelector('.app-content-title')),descriptionStyle:style(heading.querySelector('.app-content-description'))},
@@ -47,13 +48,17 @@ export function assertResponsiveShell(assert,m,label='shell') {
     assert.ok(m.role.width>0&&m.role.height>0,label+': original role remains visible');
     assert.equal(m.rightCards.length,4,label+': four consistently styled controls');
     assert.ok(m.rightCards.every(c=>c.border==='1px'&&c.radius==='12px'),label+': common card border/radius');
-    assert.equal(m.headingCount,1,label+': one menu heading');
+    assert.equal(m.headingCount,m.barOnly?0:1,label+': scoped menu heading');
     const h=m.heading;
-    assert.equal(h.titleStyle.fontSize,m.width<768?24:30,label+': unified menu title size');
-    assert.equal(h.titleStyle.fontWeight,'700',label+': unified title weight');
-    assert.equal(h.descriptionStyle.fontSize,14,label+': unified description');
-    assert.ok(h.description.y>=h.title.bottom-1,label+': description below title');
-    assert.ok(m.actionRegions.every(r=>r.y>=h.box.bottom-1),label+': functions below menu heading');
+    if(!m.barOnly){
+        assert.equal(h.titleStyle.fontSize,m.width<768?24:30,label+': unified menu title size');
+        assert.equal(h.titleStyle.fontWeight,'700',label+': unified title weight');
+        assert.equal(h.descriptionStyle.fontSize,14,label+': unified description');
+        assert.ok(h.description.y>=h.title.bottom-1,label+': description below title');
+        assert.ok(m.actionRegions.every(r=>r.y>=h.box.bottom-1),label+': functions below menu heading');
+    }else{
+        assert.ok(m.titleText.length>0,label+': navigation names the page');
+    }
     const e=m.equipment;
     if(e){
         if(m.width<1024)assert.ok(e.search.bottom<=e.actions.y+1,label+': mobile search before actions');

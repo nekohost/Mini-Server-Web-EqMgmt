@@ -2,12 +2,16 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 const read=n=>readFileSync(new URL('../'+n,import.meta.url),'utf8');
-test('all authenticated menus declare a shared title and description without embedded functions',()=>{
-    for(const name of ['portal','admin_center','index','mypage','dashboard','users_management','permissions','master_management','lineup_management','approvals','my_approvals','audit_logs','access_logs','access_logs_error_ips','maintenance_admin','backup_restore']) {
+test('non-pilot menus retain their body title and description without embedded functions',()=>{
+    for(const name of ['admin_center','mypage','dashboard','users_management','permissions','master_management','lineup_management','approvals','my_approvals','audit_logs','access_logs','access_logs_error_ips','maintenance_admin','backup_restore']) {
         const html=read('templates/'+name+'.html'),header=html.match(/<header class="app-page-heading app-content-header">[\s\S]*?<\/header>/)?.[0];
         assert.ok(header,name);assert.ok(header.includes('app-content-title'));assert.ok(header.includes('app-content-description'));
         assert.ok(!/<button|<input|<form/.test(header),name+': heading is not a toolbar');
     }
+});
+test('the portal starts at its summary and only the public equipment list keeps its body title',()=>{
+    assert.doesNotMatch(read('templates/portal.html'),/<h1\b/);
+    assert.match(read('templates/index.html'),/\{% if mode == 'public' %\}\s*<header[^>]*>[\s\S]*?<h1[^>]*>공개 장비<\/h1>[\s\S]*?<\/header>\s*\{% endif %\}/);
 });
 test('my/public share one search/action region without duplicating IDs or submitting CSV toggle',()=>{
     const html=read('templates/roadmap_equipment.html'), index=read('templates/index.html');

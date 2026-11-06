@@ -1,0 +1,28 @@
+{
+  "files": {
+    "templates/dashboard.html": "6dc80a2aacfcd2b4f91aceeec49f0b3737e36a353fd64e5c3bd8df44c15362b5",
+    "templates/portal.html": "ce669089e8dee86e3a8e22eeb9029f90243904c20fb066ca121f62ee5c8a3066",
+    "templates/index.html": "bbdd31401e30f74f8a89b7627c6c54dabfb43b204d64d49f00b9ee5aa05616e7",
+    "static/css/layout.css": "5c77747d48da2f83c86afee272a19aabc3856b7747dea6654f60301e90f461f6",
+    "tests/test_portal_polish_ui.js": "4a5dd382dd96c6963947aa00283862c7d8475ec87454d66994bd7926415c0661",
+    "tests/test_unified_ui.mjs": "029e2d2f9ba746c395fa37acd5dcb1118e3d15d72db8eb247de0e52ac3cd3b5c",
+    "tests/test_edge_layout_browser.mjs": "34d24540a2adf3a1450f0495751008da5d00ccd0618a732ba2576eb3a847bf6c",
+    "tests/helpers/responsive_shell.mjs": "33eb36caa47bc52f33e7e02f83a2de1e44ccd2bc3708b56984bd548ffd691426",
+    "tests/run_dashboard_workspace_fixture.py": "c5753aed4f1c3badca10f0142ea5741bd00dc06674756d793be47bbebf423c93",
+    "tests/dashboard_workspace_driver.js": "7122866774bd20e92465ec4892968c4e2631673a347a28e2771c646bce62fcc1"
+  },
+  "git_lf_sha256": {
+    "templates/dashboard.html": "6dc80a2aacfcd2b4f91aceeec49f0b3737e36a353fd64e5c3bd8df44c15362b5",
+    "templates/portal.html": "ce669089e8dee86e3a8e22eeb9029f90243904c20fb066ca121f62ee5c8a3066",
+    "templates/index.html": "bbdd31401e30f74f8a89b7627c6c54dabfb43b204d64d49f00b9ee5aa05616e7",
+    "static/css/layout.css": "5c77747d48da2f83c86afee272a19aabc3856b7747dea6654f60301e90f461f6",
+    "tests/test_portal_polish_ui.js": "4a5dd382dd96c6963947aa00283862c7d8475ec87454d66994bd7926415c0661",
+    "tests/test_unified_ui.mjs": "029e2d2f9ba746c395fa37acd5dcb1118e3d15d72db8eb247de0e52ac3cd3b5c",
+    "tests/test_edge_layout_browser.mjs": "34d24540a2adf3a1450f0495751008da5d00ccd0618a732ba2576eb3a847bf6c",
+    "tests/helpers/responsive_shell.mjs": "33eb36caa47bc52f33e7e02f83a2de1e44ccd2bc3708b56984bd548ffd691426",
+    "tests/run_dashboard_workspace_fixture.py": "c5753aed4f1c3badca10f0142ea5741bd00dc06674756d793be47bbebf423c93",
+    "tests/dashboard_workspace_driver.js": "7122866774bd20e92465ec4892968c4e2631673a347a28e2771c646bce62fcc1"
+  },
+  "archive_sha256": "4b1c25ef0e3243b836efa022e3f28ef560c9472d0328b1edbff71a1ba29be94a",
+  "base": "a1ac1603de64238dba0e96f113bb189ca8d079ce"
+}

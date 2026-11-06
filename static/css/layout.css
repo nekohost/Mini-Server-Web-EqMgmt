@@ -242,6 +242,14 @@ html[data-layout-skin="edge"] .account-layout { max-width: 38rem; margin-inline:
 .equipment-csv-panel { grid-area: csv; margin: 0; }
 .equipment-list-status { grid-area: status; margin: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
 .equipment-list-status .roadmap-actions { margin: 0; }
+/* Compact only the owned workspace and its nested tasks; public equipment shares these components. */
+.equipment-owned-view .equipment-workspace { gap: .5rem; margin-bottom: .75rem; }
+.equipment-owned-view .equipment-search-region { padding: .65rem .75rem; }
+.equipment-owned-view .equipment-list-status { padding: .45rem .75rem; }
+.equipment-owned-view .roadmap-dialog > .roadmap-actions:first-child { margin-top: 0; }
+.equipment-owned-view .roadmap-dialog > .roadmap-actions:first-child [data-roadmap-close] { flex: 0 0 auto; }
+.equipment-owned-view :is(#equipmentModalHeader, #equipmentModalFooter) { padding-block: .75rem; }
+.equipment-owned-view #equipmentModalBody { padding: clamp(.85rem, 2vw, 1.25rem); }
 @media (min-width: 1024px) {
     .equipment-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "actions search" "csv csv" "status status"; align-items: start; }
 }

@@ -1,0 +1,64 @@
+[
+  {
+    "status": "pass",
+    "view": "dashboard",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "both filters are required",
+      "labels are text",
+      "filtered status 2+1",
+      "three actual painted doughnuts",
+      "list starts folded and total matches",
+      "equipment drill-down retained",
+      "theme preserves selection without GET",
+      "changing a filter clears old results",
+      "empty result",
+      "failure is retryable",
+      "late response cannot replace latest selection",
+      "responsive chart and count-table geometry",
+      "no horizontal page overflow",
+      "only expected reads and no JS exceptions"
+    ],
+    "geometry": {
+      "chartWidth": 384
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "dashboard-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "dashboard",
+    "width": 412,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "both filters are required",
+      "labels are text",
+      "filtered status 2+1",
+      "three actual painted doughnuts",
+      "list starts folded and total matches",
+      "equipment drill-down retained",
+      "theme preserves selection without GET",
+      "changing a filter clears old results",
+      "empty result",
+      "failure is retryable",
+      "late response cannot replace latest selection",
+      "responsive chart and count-table geometry",
+      "no horizontal page overflow",
+      "only expected reads and no JS exceptions"
+    ],
+    "geometry": {
+      "chartWidth": 315
+    },
+    "requested_width": 412,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "dashboard-412-light.png"
+  }
+]

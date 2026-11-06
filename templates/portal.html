@@ -8,14 +8,11 @@
 {% block parent_menu_link %}{% endblock %}
 
 {# 관리자 센터와 같은 80rem 컨테이너를 사용합니다. #}
-{% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
+{% block container_class %}max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 pb-8{% endblock %}
 
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">메인 포털</h1>
-</header>
 <!-- 대시보드 요약 위젯 영역 -->
-<div id="dashboardWidget" class="edge-metric-grid mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 hidden">
+<div id="dashboardWidget" class="edge-metric-grid mb-4 grid grid-cols-2 gap-3 hidden" role="group" aria-label="장비 현황">
     <!-- JS 동적 렌더링 -->
 </div>
 
@@ -50,13 +47,13 @@
                 const widget = document.getElementById('dashboardWidget');
                 widget.classList.remove('hidden');
                 widget.innerHTML = `
-                    <div class="bg-blue-50 dark:bg-slate-800 rounded-xl p-4 border border-blue-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+                    <div class="bg-blue-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-blue-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center sm:justify-between gap-1">
                         <span class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mb-1">나의 장비</span>
-                        <span class="text-3xl font-black text-slate-800 dark:text-slate-100">${data.my_equipments}대</span>
+                        <span class="text-2xl font-bold text-slate-800 dark:text-slate-100">${data.my_equipments}대</span>
                     </div>
-                    <div class="bg-indigo-50 dark:bg-slate-800 rounded-xl p-4 border border-indigo-100 dark:border-slate-700 shadow-sm flex flex-col items-center justify-center">
+                    <div class="bg-indigo-50 dark:bg-slate-800 rounded-xl px-4 py-3 border border-indigo-100 dark:border-slate-700 shadow-sm flex flex-col sm:flex-row items-center sm:justify-between gap-1">
                         <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-1">총 관리 장비</span>
-                        <span class="text-3xl font-black text-slate-800 dark:text-slate-100">${data.total_equipments}대</span>
+                        <span class="text-2xl font-bold text-slate-800 dark:text-slate-100">${data.total_equipments}대</span>
                     </div>
                 `;
             }

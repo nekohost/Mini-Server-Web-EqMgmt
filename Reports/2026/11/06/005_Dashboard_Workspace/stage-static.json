@@ -1,0 +1,19 @@
+{
+  "tests": [
+    "tests/test_unified_ui.mjs",
+    "tests/test_responsive_shell.mjs",
+    "tests/test_release_frontend.mjs"
+  ],
+  "exit_code": 1,
+  "summary": [
+    "      at Test.processPendingSubtests (node:internal/test_runner/test:974:18)",
+    "      at Test.postRun (node:internal/test_runner/test:1542:19)",
+    "      at Test.run (node:internal/test_runner/test:1467:12)",
+    "      at async Test.processPendingSubtests (node:internal/test_runner/test:974:7) {",
+    "    errno: -4058,",
+    "    code: 'ENOENT',",
+    "    syscall: 'open',",
+    "    path: 'C:\\\\Users\\\\nkhst\\\\AppData\\\\Local\\\\Temp\\\\eq-layout-static-o0ejgter\\\\Resources\\\\metadata\\\\.well-known\\\\webmcp.json'",
+    "  }"
+  ]
+}

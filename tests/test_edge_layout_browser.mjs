@@ -380,7 +380,7 @@ test('Edge/Standard real-template responsive browser matrix (opt-in)', {
                 await page.setViewportSize({width,height:844});await load('index',skin);
                 await page.locator('#btnOpenAddModal').evaluate(el=>el.classList.add('hidden'));
                 await page.locator('#btnToggleDrafts').evaluate(el=>el.textContent='🔙 나의 장비 목록으로 돌아가기');
-                await page.locator('#pageMainHeader').evaluate(el=>el.textContent='나의 임시저장 목록');
+                await page.locator('.app-nav-title').evaluate(el=>el.textContent='나의 임시저장 목록');
                 const m=await measure();assert.ok(m.overflow<=1,'draft toolbar overflow '+skin+width);
                 assertResponsiveShell(assert,m.shell,'draft '+skin+width);
                 assertReadability(assert,await page.evaluate(readabilitySnapshot),'draft '+skin+width);
