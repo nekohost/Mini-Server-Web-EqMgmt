@@ -1,0 +1,282 @@
+{
+  "status": "pass",
+  "rows": [
+    {
+      "role": "admin",
+      "route": "/portal",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/my_equipment",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/public_equipment",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/dashboard",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/my_approvals",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/mypage",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/assistant",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/admin_center",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/users_management",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/permissions",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/master_management",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/lineup_management",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/approvals",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/audit_logs",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/access_logs",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/access_logs/error_ips",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/maintenance_admin",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/backup_restore",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "admin",
+      "route": "/admin/ai/providers",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/portal",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/my_equipment",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/public_equipment",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/dashboard",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/my_approvals",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/mypage",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/assistant",
+      "status": 200,
+      "single_heading": true,
+      "main_named": true
+    },
+    {
+      "role": "user",
+      "route": "/admin_center",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/users_management",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/permissions",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/master_management",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/lineup_management",
+      "status": 302,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/approvals",
+      "status": 302,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/audit_logs",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/access_logs",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/access_logs/error_ips",
+      "status": 200,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/maintenance_admin",
+      "status": 302,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/backup_restore",
+      "status": 302,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/admin/ai/providers",
+      "status": 403,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/api/users",
+      "status": 403,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/api/permissions",
+      "status": 403,
+      "administrative_access_denied": true
+    },
+    {
+      "role": "user",
+      "route": "/api/admin/ai/providers",
+      "status": 403,
+      "administrative_access_denied": true
+    }
+  ],
+  "checks": 41,
+  "actual_database_copy": true,
+  "production_databases_modified": false,
+  "real_provider_or_model_called": false,
+  "copy_business_and_ai_rows_preserved": true
+}

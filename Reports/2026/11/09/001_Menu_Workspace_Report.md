@@ -2,7 +2,7 @@
 artifact_id: REPORT-20261109-001
 work_id: RELEASE-20261109-MENU-WORKSPACE
 owner: Codex
-status: in_progress
+status: completed
 ---
 
 # 메뉴 작업 공간 확대 검증
@@ -39,3 +39,22 @@ Staging 구현: 중복 본문 제목 15곳을 제거하고 공통 상단 h1을 `
 6. [검토 원문 ZIP](001_Menu_Workspace/reviewed-source.zip)과 [SHA 목록](001_Menu_Workspace/source-manifest.json)에 23개 후보를 보존했다. 병합 및 정리는 이 원문과 일치하는 후보만 대상으로 한다.
 7. 메뉴별 스크린샷을 직접 검토했다. 테마 중간 프레임을 제외한 최종 캡처에서 경고·검색·처리 동선과 텍스트 대비, 좁은 화면의 내부 스크롤을 확인했다.
 8. 남은 단계는 승인된 서버 백업·적용과 실제 운영/데이터 검증이다. 완료로 선기록하지 않으며 초기 실패 기록과 최종 판정을 구분한다.
+
+운영 반영 후 Validation 1–8:
+
+1. 23개 검증 원문의 LF SHA가 운영 소스·Git·Linux와 일치한다. 기존 변경 9개는 해당 작업에 포함하지 않았다. [후보 병합/정리](001_Menu_Workspace/merge-and-cleanup.json). 기본 Git 작성자 설정이 없어 직전 승인 commit의 작성자 정체성을 해당 commit 실행에만 재사용했으며 전역 설정을 변경하지 않았다.
+2. 2026-11-09 08:51:56 KST에 소스 commit `84ebe7f54abdfeb88a8f62df62673a791080b38f`를 활성화했다. [배포·DB 사본 검사](001_Menu_Workspace/deployment.json). 새 파일의 교체 전 SHA를 읽으려던 최초 백업 준비 시도는 서비스 중지 전에 종료됐으며, 기존/신규 경로를 구분해 재시도했다. 해당 부분 사본도 삭제하지 않았다.
+3. 병합 후 정적 검사 25개 통과(별도 Linux 브라우저 대상으로 대체한 opt-in 1개 제외). [최종 화면 취합](001_Menu_Workspace/stage-verification.json): 36개 메뉴 화면·348개 판정, AI 대화/연결관리 공통 프레임 10개 화면·346개 판정. 초기 검사 문제와 제품 수정은 위에서 구분했다.
+4. 실제 운영 DB의 별도 사본에서 관리자 19개·일반 사용자 7개 화면의 정상 응답과 공통 단일 제목을 확인했다. 일반 사용자의 관리자 화면/API 접근 제한 15건을 포함한 [41개 역할별 확인](001_Menu_Workspace/role-pages-verification.json)을 통과했다. 일부 기존 메뉴는 HTTP 200의 접근 거부/포털 이동 스크립트를 사용하는 기존 계약이며 이를 403 응답으로 오기하지 않는다. 운영 관리자 자격 증명은 사용하지 않았고 관리자 화면의 동적 동작·스크린샷은 합성 Linux 브라우저에서 검증했다.
+5. 실제 운영 `test04`에서 PC 1280×720·모바일 384×915의 8개 화면을 확인했다. 프로필 수정/카탈로그 신청의 열기·취소, 결재함 필터, 공개 장비 조건 검색·읽기 전용 상세, 통계 교집합 정상 2대와 안내 펼침/접힘을 확인했다. 장비·계정 정보·권한·연결 저장이나 모델 생성은 하지 않았다. [브라우저 실측](001_Menu_Workspace/production-ui-verification.json).
+6. 교체 전 코드·설정·업무/AI DB 등 14개 파일을 서버와 PC의 사용자 전용 경로에 보관하고 SHA를 대조했다. [개인 백업 검증](001_Menu_Workspace/private-backup-verification.json). 실제 DB·키·환경 값은 Git과 보고서에 포함하지 않는다.
+7. 실제 화면의 제목은 상단 한 번, 업무 시작 간격은 8개 화면 모두 16px이고 페이지 전체 가로 넘침이 없다. 내 정보 PC의 간격은 121px → 16px(105px 절감). 모달과 필요한 안내는 유지되며 폼은 제출하지 않았다. 뷰포트 override는 해제하고 운영 내 정보 탭을 결과로 남겼다.
+8. [데이터/서비스 보존](001_Menu_Workspace/production-preservation.json): 기존 업무·AI 행의 누락 0, AI 기존 열 변경 0, 감사 이력·모든 계정 PreferencesJSON/UpdatedAt 및 비밀 설정·서비스 유닛 유지. 유일한 업무 DB 열 변화는 점검 후 검증용 `test04` 재로그인의 SessionToken 1건이며 [별도 확인](001_Menu_Workspace/production-auth-check.json)했다. 웹 PID 1385434·워커 1385452·보존 타이머 정상, maintenance NORMAL, 활성 요청/가드·예약 문자 0, HTTPS 로그인 200. 장비관리 외 다른 서비스를 제어하지 않았다.
+
+| 화면 | PC 증거 | 모바일 증거 |
+|---|---|---|
+| 내 정보 | [개선 전](001_Menu_Workspace/before-mypage-pc.jpg) / [개선 후](001_Menu_Workspace/production-mypage-pc.png) | [프로필/환경 설정](001_Menu_Workspace/production-mypage-mobile.png) / [프로필 창](001_Menu_Workspace/production-profile-dialog-mobile.png) |
+| 나의 결재함 | [목록](001_Menu_Workspace/production-my-approvals-pc.png) / [안내 펼침](001_Menu_Workspace/production-help-expanded-pc.png) | [목록](001_Menu_Workspace/production-my-approvals-mobile.png) / [신청 창](001_Menu_Workspace/production-catalog-dialog-mobile.png) |
+| 공개 장비 | [목록](001_Menu_Workspace/production-public-pc.png) | [목록](001_Menu_Workspace/production-public-mobile.png) / [상세](001_Menu_Workspace/production-public-detail-mobile.png) |
+| 통계 | [현황](001_Menu_Workspace/production-dashboard-pc.png) | [현황](001_Menu_Workspace/production-dashboard-mobile.png) |
+| 관리자 메뉴(합성 격리 검사) | [권한 표](001_Menu_Workspace/stage-browser-4/permissions-1440-dark.png) / [감사 로그](001_Menu_Workspace/stage-browser-4/audit_logs-1440-dark.png) | [권한 표](001_Menu_Workspace/permission-320-final/permissions-320-dark.png) / [관리자 센터](001_Menu_Workspace/stage-browser-3/admin_center-384-light.png) / [백업 안전 안내](001_Menu_Workspace/stage-browser-3/backup_restore-384-light.png) |

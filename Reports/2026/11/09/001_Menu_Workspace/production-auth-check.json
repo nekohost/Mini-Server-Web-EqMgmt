@@ -1,0 +1,7 @@
+{
+  "status": "pass",
+  "only_changed_session_token_account": "test04",
+  "change_reason": "authorized browser test account sign-in after release maintenance",
+  "https_login_status": 200,
+  "at_utc": "2026-11-08T23:56:47.178595+00:00"
+}

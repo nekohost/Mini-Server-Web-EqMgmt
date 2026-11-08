@@ -1,0 +1,118 @@
+{
+  "before": {
+    "firstWorkGap": 121,
+    "titleCount": 2,
+    "view": "/mypage",
+    "width": 1280
+  },
+  "cases": [
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 720,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": -15,
+      "pageTitles": 1,
+      "title": "내 정보",
+      "view": "/mypage",
+      "width": 1280
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 915,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": -15,
+      "pageTitles": 1,
+      "title": "내 정보",
+      "view": "/mypage",
+      "width": 384
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 915,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": 0,
+      "pageTitles": 1,
+      "title": "나의 결재함",
+      "view": "/my_approvals",
+      "width": 384
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 915,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": 0,
+      "pageTitles": 1,
+      "title": "공개 장비",
+      "view": "/public_equipment",
+      "width": 384
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 915,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": -15,
+      "pageTitles": 1,
+      "title": "통계 대시보드",
+      "view": "/dashboard",
+      "width": 384
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 720,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": 0,
+      "pageTitles": 1,
+      "title": "나의 결재함",
+      "view": "/my_approvals",
+      "width": 1280
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 720,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": 0,
+      "pageTitles": 1,
+      "title": "공개 장비",
+      "view": "/public_equipment",
+      "width": 1280
+    },
+    {
+      "bodyTitles": 0,
+      "firstWorkGap": 16,
+      "height": 720,
+      "help": true,
+      "helpOpen": false,
+      "horizontalOverflow": -15,
+      "pageTitles": 1,
+      "title": "통계 대시보드",
+      "view": "/dashboard",
+      "width": 1280
+    }
+  ],
+  "read_only_actions": [
+    "profile editor open/close",
+    "personal approval status filter",
+    "catalog application open/cancel",
+    "public advanced-search toggle",
+    "public equipment details open/close",
+    "combined distribution smartphone/Samsung 2 normal",
+    "reference help expand/collapse"
+  ],
+  "settings_saved": false,
+  "business_mutations": false,
+  "viewport_reset": true
+}

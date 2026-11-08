@@ -1084,3 +1084,9 @@
 
 - **상태:** [개발 완료 (FEATURES.md 이관)] 운영 반영 및 데이터·실제 화면 검증 완료. work_id `RELEASE-20261106-DASHBOARD-WORKSPACE`.
 - 상태별 도넛과 수량표, 포털·나의 장비 제목·하위 동선의 공간 정리. [계획005](Plans/2026/11/06/005_Dashboard_Workspace_Plan.md), [검증005](Reports/2026/11/06/005_Dashboard_Workspace_Report.md), 현재 명세 FEATURES 28.
+
+## MENU-WORKSPACE-20261109 — 나머지 메뉴의 제목·공간 기준 확대
+
+- **상태:** [개발 완료 (FEATURES.md 이관)] 운영 반영과 기존 기능·데이터·실제 화면 검증 완료. work_id `RELEASE-20261109-MENU-WORKSPACE`.
+- 본문 중복 제목 15곳을 정리하고 업무 영역 상단 간격을 16px로 통일한다. 기존 설명은 접힘 안내로 보존하고 작업별 제목·경고는 유지한다. 감사 로그의 공통 설정 함수 충돌과 좁은 권한 표의 읽기 폭을 보완했다.
+- [계획001](Plans/2026/11/09/001_Menu_Workspace_Plan.md), [검증·운영 스크린샷001](Reports/2026/11/09/001_Menu_Workspace_Report.md), 현재 명세 FEATURES 29.

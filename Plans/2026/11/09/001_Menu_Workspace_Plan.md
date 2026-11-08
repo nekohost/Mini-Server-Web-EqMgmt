@@ -2,7 +2,7 @@
 artifact_id: PLAN-20261109-001
 work_id: RELEASE-20261109-MENU-WORKSPACE
 owner: Codex
-status: in_progress
+status: completed
 ---
 
 # 나머지 메뉴의 중복 제목과 공간 정리

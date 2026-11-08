@@ -1,0 +1,29 @@
+{
+  "test_account_settings_unchanged": true,
+  "all_account_settings_unchanged": true,
+  "at_utc": "2026-11-08T23:56:45.929651+00:00",
+  "runtime_commit": "84ebe7f54abdfeb88a8f62df62673a791080b38f",
+  "app_pid": 1385434,
+  "worker_pid": 1385452,
+  "worker": "active",
+  "timer": "active",
+  "maintenance": "NORMAL",
+  "active_jobs": 0,
+  "active_guards": 0,
+  "reserved_chars": 0,
+  "source_hashes_match": 23,
+  "private_configuration_and_units_unchanged": true,
+  "business_preservation": {
+    "missing_old_rows": {},
+    "changed_old_columns": {
+      "users": {
+        "SessionToken": 1
+      }
+    }
+  },
+  "ai_preservation": {
+    "missing_old_rows": {},
+    "changed_old_columns": {}
+  },
+  "audit_rows_preserved": true
+}

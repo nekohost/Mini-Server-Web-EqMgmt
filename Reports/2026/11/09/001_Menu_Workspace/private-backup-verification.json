@@ -1,0 +1,22 @@
+{
+  "status": "pass",
+  "artifact_count": 14,
+  "private_acl": "current Windows user only",
+  "sha256": {
+    "app-env.before": "22943c5d62c7591e4c44c901eddb374845d5651e762a80bda99572e701c3c2fc",
+    "assistant-quiesced.sqlite3": "fbeaf688a04b9ae0a216597ab3ebd2db158d2293daf31baeaf7754dec6938398",
+    "baseline.json": "a19ba1661f9b79a7bcd9ade67daa6b6da1ee0948c0d36335b7cf05c9d5d7ac2f",
+    "equipment-ai-retention.service.before": "bcb13d2a0d50a98ff4521d641f3f52b6d00bef67c74125051b048a57fa5eba27",
+    "equipment-ai-retention.timer.before": "bd72116858a5398a00b9bb4cb7c4c9836522ea0a52d49dab7684ade2e63b30a4",
+    "equipment-ai-worker.service.before": "a31e6d9726f8cbe43ce8573253a76cb33c6f2a4cf41eb784b0b21c3b67fbee71",
+    "equipment-quiesced.sqlite3": "ec16bdb1290a9a741c3d880fad8fcfc8c0af8efdb441d94ed44bc90b4babe3d8",
+    "maintenance-before.json": "89703b0c4b6569601716f212de273660d7956ebfb72c36897b3c7d2bc006d42e",
+    "maintenance.before": "89703b0c4b6569601716f212de273660d7956ebfb72c36897b3c7d2bc006d42e",
+    "old-runtime-source.tar": "a32b502764130736ce10d5fb60c365be1fb181db903d9fd9ba0f22c6b9be0048",
+    "process-before.json": "fe60d1fbc11975f50e7b6689363f3389ba2a9a1569c933cd3d16365b914f4fa5",
+    "process-environment-before.json": "aa676a49208e13c3ac38579cc6202321772d3bb6cf91d5c18be1fda9d0fd8e85",
+    "quiesced.json": "4a8ff2c5a8f28b324e5411e7aa0ba68da2896118229614e061f067fc9296248d",
+    "worker-env.before": "6dcfcaf64bfdc7deb1479dff17e93a3579ebdae9141ee0aff4ad3568d0ecd5ec"
+  },
+  "release": "20261105-ai-ux-menus-20261108T235111-3b422b"
+}
