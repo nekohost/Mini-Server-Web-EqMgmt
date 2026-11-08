@@ -1,0 +1,116 @@
+[
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "audit_logs-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "audit_logs-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "permissions-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "permissions-384-light.png"
+  }
+]

@@ -10,10 +10,6 @@
 
 {% block content %}
 <!-- 헤더 섹션 -->
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">에러 유발 IP 분석</h1>
-    <p class="app-content-description">4xx(클라이언트 오류) 및 5xx(서버 오류) HTTP 에러를 발생시킨 고유 IP 주소들을 중복 없이 집계하여 비정상 공격 트래픽 및 봇 스캐너를 식별합니다.</p>
-</header>
 <div class="app-breadcrumb app-page-controls">
             <a href="/access_logs" class="inline-flex items-center text-xs font-semibold text-brand-600 dark:text-brand-400 hover:underline gap-1">
                 <i class="fa-solid fa-arrow-left"></i> 웹 접근 로그로 돌아가기
@@ -360,3 +356,5 @@ function escapeHtml(str) {
 }
 </script>
 {% endblock %}
+
+{% block workspace_help %}4xx(클라이언트 오류) 및 5xx(서버 오류) HTTP 에러를 발생시킨 고유 IP 주소들을 중복 없이 집계하여 비정상 공격 트래픽 및 봇 스캐너를 식별합니다.{% endblock %}

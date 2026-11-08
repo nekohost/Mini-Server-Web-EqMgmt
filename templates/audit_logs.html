@@ -10,10 +10,6 @@
 
 {% block content %}
 <!-- 헤더 섹션 -->
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">보안 감사 로그</h1>
-    <p class="app-content-description">시스템 내 모든 사용자 행위(로그인, 자산 변경, 권한 수정 등)의 상세 이력을 검색하고 추적합니다.</p>
-</header>
 
 <!-- 🔍 검색 및 필터 패널 -->
 <div class="edge-filter-region bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
@@ -235,7 +231,7 @@
     let hiddenColumns = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-        loadUserSettings();
+        loadAuditLogSettings();
 
         // 바깥 클릭 시 컬럼 메뉴 닫기
         document.addEventListener('click', (e) => {
@@ -247,7 +243,9 @@
         });
     });
 
-    async function loadUserSettings() {
+    // [Role] Loads audit-specific column/page settings without replacing the frame's theme/layout loader.
+    // [Dependencies] The shared window.loadUserSettings remains owned by session_timer.js. [Impact] Audit and global preferences both initialize.
+    async function loadAuditLogSettings() {
         try {
             const res = await fetch('/api/user_settings');
             const data = await res.json();
@@ -301,7 +299,7 @@
             hiddenColumns = hiddenColumns.filter(c => c !== colClass);
         }
         applyColumnVisibility();
-        saveUserSettings({ audit_log_hidden_columns: hiddenColumns });
+        saveAuditLogSettings({ audit_log_hidden_columns: hiddenColumns });
     }
 
     function applyColumnVisibility() {
@@ -477,7 +475,7 @@
         } else {
             customContainer.classList.add('hidden');
             perPage = parseInt(val);
-            saveUserSettings({ audit_log_page_size: perPage });
+            saveAuditLogSettings({ audit_log_page_size: perPage });
             fetchAuditLogs(1);
         }
     }
@@ -490,11 +488,11 @@
         input.value = num;
 
         perPage = num;
-        saveUserSettings({ audit_log_page_size: perPage });
+        saveAuditLogSettings({ audit_log_page_size: perPage });
         fetchAuditLogs(1);
     }
 
-    async function saveUserSettings(payload) {
+    async function saveAuditLogSettings(payload) {
         try {
             await fetch('/api/user_settings', {
                 method: 'POST',
@@ -510,3 +508,5 @@
     }
 </script>
 {% endblock %}
+
+{% block workspace_help %}시스템 내 모든 사용자 행위(로그인, 자산 변경, 권한 수정 등)의 상세 이력을 검색하고 추적합니다.{% endblock %}

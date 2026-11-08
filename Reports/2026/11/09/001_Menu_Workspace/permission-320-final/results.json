@@ -1,0 +1,31 @@
+[
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "permissions-320-dark.png"
+  }
+]

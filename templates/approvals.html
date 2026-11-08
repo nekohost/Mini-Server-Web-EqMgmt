@@ -7,10 +7,6 @@
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">전자결재함</h1>
-    <p class="app-content-description">신규 카테고리/제조사/라인업/옵션 마스터 등록 요청 목록 및 승인 관리</p>
-</header>
 
 <!-- 결재 목록 테이블 -->
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 transition-colors">
@@ -251,3 +247,5 @@
     initPage();
 </script>
 {% endblock %}
+
+{% block workspace_help %}신규 카테고리/제조사/라인업/옵션 마스터 등록 요청 목록 및 승인 관리{% endblock %}

@@ -1,0 +1,121 @@
+[
+  {
+    "template": "access_logs.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "access_logs_error_ips.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "admin_center.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "approvals.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "audit_logs.html",
+    "inline_scripts_identical": false,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": [],
+    "reviewed_exception": "loadUserSettings/saveUserSettings renamed to loadAuditLogSettings/saveAuditLogSettings; shared frame functions no longer overwritten. Endpoint, payload and CSRF unchanged; regression test passes."
+  },
+  {
+    "template": "backup_restore.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "dashboard.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "index.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [
+      "pageMainHeader"
+    ],
+    "added_ids": []
+  },
+  {
+    "template": "lineup_management.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [
+      "lineup-page-title"
+    ],
+    "added_ids": []
+  },
+  {
+    "template": "maintenance_admin.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "master_management.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "miniserver_frame.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": [
+      "app-page-title"
+    ]
+  },
+  {
+    "template": "my_approvals.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "mypage.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "permissions.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  },
+  {
+    "template": "users_management.html",
+    "inline_scripts_identical": true,
+    "form_control_tags_identical": true,
+    "removed_title_ids": [],
+    "added_ids": []
+  }
+]

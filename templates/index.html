@@ -4,15 +4,9 @@
 
 {% block page_title %}{% if mode == 'public' %}공개 장비{% else %}나의 장비{% endif %}{% endblock %}
 
-{% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 {% if mode == 'my' %}equipment-owned-view pt-4 pb-8{% else %}py-8{% endif %}{% endblock %}
+{% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 equipment-compact-view {% if mode == 'my' %}equipment-owned-view {% endif %}pt-4 pb-8{% endblock %}
 
 {% block content %}
-{% if mode == 'public' %}
-<header class="app-page-heading app-content-header">
-    <h1 id="pageMainHeader" class="app-content-title">공개 장비</h1>
-    <p class="app-content-description">공개된 장비를 검색하고 상세 정보를 확인합니다.</p>
-</header>
-{% endif %}
 {% include 'roadmap_equipment.html' %}
 
 <!-- [UI 모듈 1] 장비 목록 테이블 -->
@@ -1087,3 +1081,5 @@
 </script>
 <script src="{{ url_for('static', filename='js/webmcp.js') }}" defer></script>
 {% endblock %}
+
+{% block workspace_help %}{% if mode == 'public' %}공개된 장비를 검색하고 상세 정보를 확인합니다.{% endif %}{% endblock %}

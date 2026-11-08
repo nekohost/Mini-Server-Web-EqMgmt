@@ -4,10 +4,6 @@
 {% block title %}메뉴 권한 관리 - 미니서버{% endblock %}
 {% block page_title %}메뉴 권한 관리{% endblock %}
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">메뉴 권한 관리</h1>
-    <p class="app-content-description">역할을 선택하면 해당 역할의 메뉴 권한을 확인하고 수정할 수 있습니다.</p>
-</header>
 <div class="permission-workspace">
     <section class="permission-role-panel" aria-labelledby="permission-roles-title">
         <h2 id="permission-roles-title" class="text-lg font-bold mb-3">사용자 역할</h2>
@@ -34,3 +30,5 @@
 </div>
 {% endblock %}
 {% block extra_scripts %}<script src="/static/js/permissions.js"></script>{% endblock %}
+
+{% block workspace_help %}역할을 선택하면 해당 역할의 메뉴 권한을 확인하고 수정할 수 있습니다.{% endblock %}

@@ -10,10 +10,6 @@
 
 {% block content %}
 <!-- 헤더 섹션 -->
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">웹 접근 로그</h1>
-    <p class="app-content-description">미니서버로 유입되는 모든 HTTP 트래픽(API, 웹 페이지, 정적 리소스, 외부 스캐너)을 실시간으로 수집하고 모니터링합니다.</p>
-</header>
     <!-- 우측 상단 액션 바 (에러 IP 분석, 자동 새로고침 & 수동 관리 드롭다운) -->
     <div class="app-page-controls app-header-actions">
         <!-- 🔍 에러 유발 IP 심층 분석 바로가기 버튼 [제안-039] -->
@@ -926,3 +922,5 @@ function closePayloadModal() {
 }
 </script>
 {% endblock %}
+
+{% block workspace_help %}미니서버로 유입되는 모든 HTTP 트래픽(API, 웹 페이지, 정적 리소스, 외부 스캐너)을 실시간으로 수집하고 모니터링합니다.{% endblock %}

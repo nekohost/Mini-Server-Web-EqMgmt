@@ -9,10 +9,6 @@
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">사용자 관리</h1>
-    <p class="app-content-description">사용자 계정과 역할을 확인하고 선택한 사용자의 세션 및 계정 상태를 관리합니다.</p>
-</header>
 <div class="app-page-controls app-header-actions">
         <button onclick="forceLogoutSelected()" id="btnForceSelected" data-selection-action disabled title="사용자를 먼저 선택하세요." class="px-3.5 py-2 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
             ✓ 선택 세션 파기
@@ -450,3 +446,5 @@
     }
 </script>
 {% endblock %}
+
+{% block workspace_help %}사용자 계정과 역할을 확인하고 선택한 사용자의 세션 및 계정 상태를 관리합니다.{% endblock %}

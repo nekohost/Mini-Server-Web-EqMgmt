@@ -7,10 +7,6 @@
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">마스터 데이터 관리</h1>
-    <p class="app-content-description">카테고리 및 제조사 마스터 표준화, 다국어 명칭 등록 및 통폐합 관리</p>
-</header>
 
 <!-- 탭 컨트롤 및 액션 버튼 -->
 <div class="app-page-controls mb-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -497,3 +493,5 @@
     fetchMasterData();
 </script>
 {% endblock %}
+
+{% block workspace_help %}카테고리 및 제조사 마스터 표준화, 다국어 명칭 등록 및 통폐합 관리{% endblock %}

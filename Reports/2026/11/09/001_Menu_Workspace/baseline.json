@@ -1,0 +1,40 @@
+{
+  "head": "1fbdf524616bb821bfc8c69814c2bc3e36a8bddf",
+  "dirty": {
+    ".agent-governance/capabilities/chatgpt-remote.yaml": "b65a789ce0591ae2027c7351fb77ad5bac2d5aa6dc21163926abd3bf39674cb4",
+    "FEATURES.md": "72f06b47dfecf6c7d817838995d003a644df0632b9c778b7e8efb751388c54b6",
+    "PROPOSALS.md": "80f1d77ec836a278036d8894f7a454fa9d722039b9395c72754bc07f8e314e96",
+    "ROADMAP.md": "4bd1005035ad16cd41ae3681163c8e95c0cda99ee154c2a3ff5147de478dda52",
+    "Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md": "3bcf109ab1ffb4f1d568d60e360ae5fc6c2317d384e41a317221b61a887072e3",
+    "Reports/2026/10/30/002_Strata_Admin_Integration_Report.md": "9f9cdb9d291dcdbcdff97835e3c54a5f653665f5ab354d610a2d0b1a307f81b0",
+    "Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md": "c1f609212e9fc077268d41be6f94cce11d14c2e3c77fe9c7d99e6b419e416fea",
+    "UNIMPLEMENTED_PROPOSALS.md": "76f68e45965434f8de6923d7b3f9d2bac60559ad2f794fbe7f8fdc9341fa5de0",
+    "UNIMPLEMENTED_ROADMAP.md": "d325ea67ec2dc4f3d21ec21bff97b7bbe54239cf9cd659a26ab2f9eba930f41c"
+  },
+  "untracked_normal": [
+    " M .agent-governance/capabilities/chatgpt-remote.yaml",
+    " M FEATURES.md",
+    " M PROPOSALS.md",
+    " M ROADMAP.md",
+    " M Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+    " M Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+    " M Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+    " M UNIMPLEMENTED_PROPOSALS.md",
+    " M UNIMPLEMENTED_ROADMAP.md",
+    "?? 5650U-COPY-NOTES.txt",
+    "?? Plans/2026/09/28/",
+    "?? Plans/2026/09/29/",
+    "?? Reports/2026/09/29/001_Optional_Real_Name_and_Next_Roadmap_Review.md",
+    "?? Reports/2026/09/29/003_Service_Role_Separation_Feasibility_Report.md",
+    "?? Reports/2026/09/29/index.md",
+    "?? Reports/2026/10/30/003_Backup_Server_SSH_Connection_Report.md",
+    "?? Reports/2026/11/05/006_Test_User_Accounts_Report.md",
+    "?? Reports/2026/11/05/008_Test_User_Accounts_03_05_Report.md",
+    "?? Run-Local-5650U.cmd",
+    "?? Tasks/2026/10/30/003_Backup_Server_SSH_Connection_Task.md",
+    "?? Tasks/2026/11/05/006_Test_User_Accounts_Task.md",
+    "?? Tasks/2026/11/05/008_Test_User_Accounts_03_05_Task.md",
+    "?? docs/service-operations-handoff.md"
+  ],
+  "date_kst": "2026-11-09"
+}

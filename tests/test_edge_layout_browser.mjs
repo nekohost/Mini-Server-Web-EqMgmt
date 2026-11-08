@@ -126,7 +126,7 @@ test('Edge/Standard real-template responsive browser matrix (opt-in)', {
         // Generic table/layout cases exercise the selected-role state. Dedicated workflow
         // tests separately verify the real editor starts with only the role selector.
         if (name === 'permissions') await page.locator('#permission-detail').evaluate(el => el.hidden = false);
-        await page.waitForFunction(() => getComputedStyle(document.querySelector('.app-main')).paddingTop === '32px');
+        await page.waitForFunction(() => getComputedStyle(document.querySelector('.app-main')).paddingTop === '16px');
         await page.addScriptTag({content: read('static/js/navigation.js')});
         await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     }

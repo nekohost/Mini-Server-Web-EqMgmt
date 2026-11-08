@@ -1,0 +1,33 @@
+{
+  "status": "pass",
+  "merged_files": 23,
+  "archive_verified": true,
+  "root_equals_reviewed_lf": true,
+  "staging_cleanup_targets": [
+    "static/css/layout.css",
+    "templates/access_logs.html",
+    "templates/access_logs_error_ips.html",
+    "templates/admin_center.html",
+    "templates/approvals.html",
+    "templates/audit_logs.html",
+    "templates/backup_restore.html",
+    "templates/dashboard.html",
+    "templates/index.html",
+    "templates/lineup_management.html",
+    "templates/maintenance_admin.html",
+    "templates/master_management.html",
+    "templates/miniserver_frame.html",
+    "templates/my_approvals.html",
+    "templates/mypage.html",
+    "templates/permissions.html",
+    "templates/users_management.html",
+    "tests/dashboard_workspace_driver.js",
+    "tests/helpers/responsive_shell.mjs",
+    "tests/menu_workspace_driver.js",
+    "tests/run_menu_workspace_fixture.py",
+    "tests/test_edge_layout_browser.mjs",
+    "tests/test_unified_ui.mjs"
+  ],
+  "static_pass": 25,
+  "static_skip": 1
+}

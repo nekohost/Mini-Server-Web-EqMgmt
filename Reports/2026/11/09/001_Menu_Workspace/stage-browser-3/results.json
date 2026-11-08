@@ -1,0 +1,431 @@
+[
+  {
+    "status": "pass",
+    "view": "admin_center",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "admin_center-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "dashboard",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "dashboard-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "public",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "public scope controls remain",
+      "advanced search opens",
+      "CSV tools open",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "public-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "my_approvals",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "request detail retains its unique title and data",
+      "catalog application opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "my_approvals-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "mypage",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "profile editor opens",
+      "security dialog has its own heading",
+      "security dialog has its own heading",
+      "existing input preferences remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "mypage-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "users_management",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "selection enables existing actions",
+      "deselection prevents accidental delete",
+      "existing user dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "users_management-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "permissions-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "master_management",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "master editor preserves task title",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "master_management-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "lineup_management",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "node editor opens with unique task title",
+      "node editor closes without saving",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "lineup_management-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "approvals",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "approval process dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "approvals-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "audit_logs-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "destructive confirmation retained without submit",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "access_logs-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs_error_ips",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "error IP filter handles zero result",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "access_logs_error_ips-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "maintenance_admin",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "maintenance status and activation form remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "maintenance_admin-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "backup_restore",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "restore guard and navigation remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "backup_restore-384-light.png"
+  }
+]

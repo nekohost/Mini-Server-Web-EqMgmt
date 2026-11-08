@@ -46,17 +46,13 @@ html[data-layout-skin="edge"] .app-page-heading {
     max-width: calc(min(100vw, var(--standard-main-width)) - 2 * var(--standard-inline));
     margin-inline: auto;
 }
-html[data-layout-skin="edge"] .app-content-header {
-    border-left: 4px solid #0284c7;
-    padding-left: 1rem;
-}
-/* One menu heading contract; functional controls are a separate region below it. */
-.app-content-header { display: block; margin-bottom: 1.5rem; min-width: 0; }
-.app-content-title { font-size: 1.5rem; line-height: 1.3; font-weight: 700; color: #0f172a; word-break: keep-all; overflow-wrap: break-word; text-wrap: balance; }
+/* The navigation h1 names each menu. Work starts immediately below it; AI keeps its measured viewport padding. */
+.app-main:not(.assistant-container) { padding-top: 1rem; }
+.app-workspace-help { min-width: 0; margin-top: 1rem; font-size: .8125rem; color: #64748b; }
+.app-workspace-help summary { width: fit-content; max-width: 100%; cursor: pointer; padding-block: .35rem; }
+.app-workspace-help summary:focus-visible { outline: 2px solid #0284c7; outline-offset: 3px; border-radius: .25rem; }
 .app-content-description { margin-top: .25rem; font-size: .875rem; line-height: 1.6; color: #64748b; word-break: keep-all; overflow-wrap: break-word; }
-.dark .app-content-title { color: #f1f5f9; }
-.dark .app-content-description { color: #94a3b8; }
-@media (min-width: 768px) { .app-content-title { font-size: 1.875rem; } }
+.dark :is(.app-workspace-help, .app-content-description) { color: #94a3b8; }
 .app-page-controls { width: 100%; min-width: 0; margin-bottom: 1.5rem; }
 html[data-layout-skin="edge"] .app-page-controls {
     max-width: calc(min(100vw, var(--standard-main-width)) - 2 * var(--standard-inline)); margin-inline: auto;
@@ -191,6 +187,8 @@ html[data-layout-skin="edge"] .account-layout { max-width: 38rem; margin-inline:
 .permission-role[aria-pressed="true"] { background: #eff6ff; border-color: #2563eb; color: #1d4ed8; }
 .dark .permission-role[aria-pressed="true"] { background: #172554; color: #93c5fd; }
 #permission-detail[hidden] { display: none; }
+/* Preserve readable menu names on narrow screens; the existing table wrapper owns horizontal scrolling. */
+.permission-detail-panel :is(th, td):first-child { min-width: 10rem; word-break: keep-all; }
 @media (min-width: 1024px) { .permission-workspace { grid-template-columns: minmax(12rem, 16rem) minmax(0, 1fr); align-items: start; } }
 .node-breadcrumb { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
 .node-breadcrumb button { max-width: 100%; overflow-wrap: anywhere; }
@@ -242,14 +240,14 @@ html[data-layout-skin="edge"] .account-layout { max-width: 38rem; margin-inline:
 .equipment-csv-panel { grid-area: csv; margin: 0; }
 .equipment-list-status { grid-area: status; margin: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
 .equipment-list-status .roadmap-actions { margin: 0; }
-/* Compact only the owned workspace and its nested tasks; public equipment shares these components. */
-.equipment-owned-view .equipment-workspace { gap: .5rem; margin-bottom: .75rem; }
-.equipment-owned-view .equipment-search-region { padding: .65rem .75rem; }
-.equipment-owned-view .equipment-list-status { padding: .45rem .75rem; }
-.equipment-owned-view .roadmap-dialog > .roadmap-actions:first-child { margin-top: 0; }
-.equipment-owned-view .roadmap-dialog > .roadmap-actions:first-child [data-roadmap-close] { flex: 0 0 auto; }
-.equipment-owned-view :is(#equipmentModalHeader, #equipmentModalFooter) { padding-block: .75rem; }
-.equipment-owned-view #equipmentModalBody { padding: clamp(.85rem, 2vw, 1.25rem); }
+/* Compact the shared equipment workspace and its nested tasks in both owned and public mode. */
+.equipment-compact-view .equipment-workspace { gap: .5rem; margin-bottom: .75rem; }
+.equipment-compact-view .equipment-search-region { padding: .65rem .75rem; }
+.equipment-compact-view .equipment-list-status { padding: .45rem .75rem; }
+.equipment-compact-view .roadmap-dialog > .roadmap-actions:first-child { margin-top: 0; }
+.equipment-compact-view .roadmap-dialog > .roadmap-actions:first-child [data-roadmap-close] { flex: 0 0 auto; }
+.equipment-compact-view :is(#equipmentModalHeader, #equipmentModalFooter) { padding-block: .75rem; }
+.equipment-compact-view #equipmentModalBody { padding: clamp(.85rem, 2vw, 1.25rem); }
 @media (min-width: 1024px) {
     .equipment-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "actions search" "csv csv" "status status"; align-items: start; }
 }

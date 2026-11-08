@@ -7,10 +7,6 @@
 {% block container_class %}max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">내 정보</h1>
-    <p class="app-content-description">사용자 정보와 보안 설정, 화면·AI 입력·알림 환경을 관리합니다.</p>
-</header>
 <!-- Independent panels preserve account/security actions; settings share one coherent area. -->
 <div class="account-layout">
 <section id="account-profile" class="account-panel bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 md:p-8 border border-slate-200 dark:border-slate-700 transition-colors" aria-labelledby="account-profile-title">
@@ -540,3 +536,5 @@
     }
 </script>
 {% endblock %}
+
+{% block workspace_help %}사용자 정보와 보안 설정, 화면·AI 입력·알림 환경을 관리합니다.{% endblock %}

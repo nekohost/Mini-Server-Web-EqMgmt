@@ -10,11 +10,7 @@
   [의존성 관계] /api/admin/lineup_nodes, /api/lineup_node CRUD, miniserver_frame.html을 사용합니다.
   [변경 시 영향도] 관리자 센터의 카탈로그 계층 관리 UX에 영향을 줍니다.
 -->
-<section class="edge-wide-region mx-auto max-w-7xl space-y-5" aria-labelledby="lineup-page-title">
-<header class="app-page-heading app-content-header">
-    <h1 id="lineup-page-title" class="app-content-title">라인업 노드 관리</h1>
-    <p class="app-content-description">모델 트리와 옵션을 관리합니다. 장비를 삭제해도 옵션은 남으며, 미사용 옵션만 별도로 삭제할 수 있습니다.</p>
-</header>
+<section class="edge-wide-region mx-auto max-w-7xl space-y-5" aria-labelledby="app-page-title">
     <div class="app-page-controls app-header-actions">
         <button id="addRootButton" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
             + 최상위 노드 추가
@@ -516,3 +512,5 @@
 })();
 </script>
 {% endblock %}
+
+{% block workspace_help %}모델 트리와 옵션을 관리합니다. 장비를 삭제해도 옵션은 남으며, 미사용 옵션만 별도로 삭제할 수 있습니다.{% endblock %}

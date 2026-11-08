@@ -14,7 +14,7 @@ export function responsiveShellSnapshot() {
         role:{...rect(one('.app-nav-role')),...style(one('.app-nav-role')),text:one('.app-nav-role').textContent},
         rightChildren:[...document.querySelectorAll('.app-nav-tools > *, .app-nav-account > *')].filter(visible).map(rect),
         rightCards:[...document.querySelectorAll('.app-nav-controls .app-nav-control')].map(el=>({...rect(el),...style(el)})),
-        barOnly:Boolean(one('#menuContainer') || one('main.equipment-owned-view')),
+        barOnly:Boolean(one('main[aria-labelledby="app-page-title"]')),
         headingCount:document.querySelectorAll('.app-content-header').length,
         heading:heading&&{box:rect(heading),title:rect(heading.querySelector('.app-content-title')),description:rect(heading.querySelector('.app-content-description')),
             titleStyle:style(heading.querySelector('.app-content-title')),descriptionStyle:style(heading.querySelector('.app-content-description'))},

@@ -77,7 +77,7 @@
                 await wait(()=>$('roadmap-page')?.textContent.includes('1건'),'equipment loaded');
                 geometry.firstControlGap=gap(document.querySelector('.equipment-workspace'));
                 if(view==='public'){
-                    ok(document.querySelector('main h1')?.textContent==='공개 장비' && title()==='공개 장비' && !!$('includeMineCheckbox') && !$('btnToggleDrafts'),'public mode is isolated');
+                    ok(!document.querySelector('main h1') && title()==='공개 장비' && !!$('includeMineCheckbox') && !$('btnToggleDrafts'),'public title is only in navigation and filters remain scoped');
                 }else{
                     ok(!document.querySelector('main h1') && title()==='나의 장비','single page title');
                     ok(geometry.firstControlGap>=0 && geometry.firstControlGap<=20,'owned controls start alongside nav');

@@ -30,10 +30,6 @@
 {% endmacro %}
 
 {% block content %}
-<header class="app-page-heading app-content-header">
-    <h1 class="app-content-title">통계 대시보드</h1>
-    <p class="app-content-description">장비 현황과 카테고리·제조사별 분포를 확인합니다.</p>
-</header>
 <div class="edge-metric-grid dashboard-metrics grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
     <!-- 요약 카드 1 -->
     <div class="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col justify-center items-center transition-colors">
@@ -368,3 +364,5 @@
     });
 </script>
 {% endblock %}
+
+{% block workspace_help %}장비 현황과 카테고리·제조사별 분포를 확인합니다.{% endblock %}
