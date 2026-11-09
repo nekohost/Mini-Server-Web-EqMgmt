@@ -580,7 +580,7 @@ def install_assistant(app, services):
                 initial=registry.resolve(choice)['profile']['default_level']
                 store.select_model(actor['UserId'],cid,actor['account_key'],choice,initial,0)
             return jsonify(success=True,id=cid,selection_revision=1 if choice else 0),201
-        return jsonify(success=True,**store.conversations(actor['UserId'],actor['account_key'],request.args.get('cursor'),view=request.args.get('view','active')))
+        return jsonify(success=True,**store.conversations(actor['UserId'],actor['account_key'],request.args.get('cursor'),view=request.args.get('view','active'), resume=request.args.get('resume') == '1'))
 
     @bp.get('/api/ai/conversations/<cid>/messages')
     @login
@@ -635,10 +635,11 @@ def install_assistant(app, services):
         result=store.lifecycle(actor['UserId'],opaque(cid),actor['account_key'],action,revision,opaque(data['operation_id']))
         return jsonify(success=True,**result,storage=store.storage_status(actor['UserId'],actor['account_key']))
 
+    @bp.post('/api/ai/conversations/first-turn', defaults={'cid': None})
     @bp.post('/api/ai/conversations/<cid>/turns')
     @login
     def submit(cid):
-        """[Role] Accepts plain user text and one allowed UI level; clients cannot submit model roles/tools.
+        """[Role] Authenticates first and subsequent turns with the same content, model, CSRF and search policy.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
@@ -650,16 +651,29 @@ def install_assistant(app, services):
         if type(data.get('reasoning_version')) is not int or data['reasoning_version'] != REASONING_VERSION:
             raise AssistantError('추론 설정 형식이 변경되었습니다. 화면을 새로고침해 주세요.',409)
         key=opaque(data['client_key'])
-        route,level,conv=selected(actor,opaque(cid),opaque(data['selection_id']) if 'selection_id' in data else None,data['level'])
+        model = opaque(data['selection_id']) if 'selection_id' in data else None
         legacy_search=data.get('web_search')
         if 'web_search' in data and type(legacy_search) is not bool:
             raise AssistantError('웹 검색 사용 여부는 true/false여야 합니다.')
+        owner, account = actor['UserId'], actor['account_key']
+        if cid is None:
+            # Bind retries to the submitted settings, even if the live model is later retired.
+            fingerprint = digest(['first-turn-v1', content, data['level'], model, legacy_search, REASONING_VERSION])
+            with store.db() as db:
+                receipt = store.first_turn_receipt(db, owner, account, key, fingerprint)
+            if receipt:
+                return jsonify(success=True, conversation_id=receipt[0], job_id=receipt[1]), 202
+        route, level, _ = selected(actor, opaque(cid) if cid is not None else None, model, data['level'])
         available=domain.search_service.available and bool(route['profile'].get('tools'))
         if legacy_search is True and not available:
             raise AssistantError('현재 서버 또는 선택한 모델에서 웹 검색을 사용할 수 없습니다.')
         route['web_search_mode']='required' if legacy_search is True else 'off' if legacy_search is False else 'auto'
         route['web_search_allowed']=available and legacy_search is not False
-        jid=store.enqueue(actor['UserId'],opaque(cid),content,level,key,actor['binding'],time.time()+min(1800,app.permanent_session_lifetime.total_seconds()),actor['account_key'],route)
+        expires = time.time() + min(1800, app.permanent_session_lifetime.total_seconds())
+        if cid is None:
+            new_cid, jid = store.enqueue_first(owner, account, content, level, key, actor['binding'], expires, route, fingerprint)
+            return jsonify(success=True, conversation_id=new_cid, job_id=jid), 202
+        jid=store.enqueue(owner,opaque(cid),content,level,key,actor['binding'],expires,account,route)
         return jsonify(success=True,job_id=jid),202
 
     @bp.get('/api/ai/status')

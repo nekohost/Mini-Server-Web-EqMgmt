@@ -151,12 +151,12 @@ class Store(LifecycleStore):
             raise AssistantError('보관 기간이 끝난 대화입니다.', 410)
         return dict(row, read_only=view == 'trash')
 
-    def conversations(self, owner, account_key, cursor=None, view='active'):
+    def conversations(self, owner, account_key, cursor=None, view='active', resume=False):
         """[MINI-COMMENT: ASSISTANT.HISTORY.PAGE]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Pages state-bound owner-local history while excluding pure diagnostic conversations.
         [Dependencies] Owner/account/state predicates, server time and a cursor bound to the same view.
-        [Impact] Mixed chat/probe history remains reachable; active cursors never authorize trash pagination.
+        [Impact] An initial active read can also select the latest real user turn across all pages in the same snapshot.
         """
         self._view(view)
         anchor = None
@@ -173,10 +173,11 @@ class Store(LifecycleStore):
         with self.db() as db:
             now = time.time()
             order = 'deleted_at' if view == 'trash' else 'updated'
-            sql = '''SELECT id,title,created,updated,is_deleted,deleted_at,purge_after,lifecycle_revision
-                FROM conversations c WHERE owner=? AND account_key=? AND is_deleted=?
-                AND (NOT EXISTS(SELECT 1 FROM jobs j WHERE j.conversation=c.id)
-                OR EXISTS(SELECT 1 FROM jobs j WHERE j.conversation=c.id AND j.purpose='chat'))'''
+            scope = '''SELECT id,title,created,updated,is_deleted,deleted_at,purge_after,lifecycle_revision
+                FROM conversations c WHERE owner=? AND account_key=? AND is_deleted=?'''
+            ordinary = """(NOT EXISTS(SELECT 1 FROM jobs h WHERE h.owner=c.owner AND h.conversation=c.id)
+                OR EXISTS(SELECT 1 FROM jobs h WHERE h.owner=c.owner AND h.conversation=c.id AND h.purpose='chat'))"""
+            sql = scope + ' AND ' + ordinary
             args = [owner, account_key, int(view == 'trash')]
             if view == 'trash':
                 sql += ' AND purge_after>?'
@@ -187,20 +188,32 @@ class Store(LifecycleStore):
             rows = [dict(r, read_only=view == 'trash') for r in db.execute(sql + ' ORDER BY '+order+' DESC,id DESC LIMIT 51', args)]
             page = rows[:50]
             next_cursor = base64.urlsafe_b64encode(canonical([view, page[-1][order], page[-1]['id']]).encode()).decode().rstrip('=') if len(rows) > 50 else None
-            return {'conversations': page, 'next_cursor': next_cursor, 'view': view, 'server_time': now}
+            result = {'conversations': page, 'next_cursor': next_cursor, 'view': view, 'server_time': now}
+            if resume and view == 'active' and not anchor:
+                # Check message presence before considering the legacy empty/probe visibility rule.
+                candidate = db.execute(scope + f""" AND EXISTS (
+                    SELECT 1 FROM messages m LEFT JOIN jobs j ON j.id=m.job
+                    WHERE m.conversation=c.id AND m.role='user'
+                    AND (j.purpose='chat' OR (m.job IS NULL AND {ordinary}))
+                    ) ORDER BY updated DESC,id DESC LIMIT 1""", args).fetchone()
+                result['resume_conversation'] = dict(candidate, read_only=False) if candidate else None
+            return result
 
     def create_conversation(self, owner, account_key):
         """[Role] Creates only a bounded owner-local conversation on user intent.
         [Dependencies] Private storage quota identity and the unchanged 200-conversation count.
         [Impact] Existing records are never deleted to admit a new title.
         """
-        cid = uuid.uuid4().hex
         with self.db(True) as db:
-            if db.execute('SELECT COUNT(*) FROM conversations WHERE owner=? AND account_key=?', (owner, account_key)).fetchone()[0] >= 200:
-                raise AssistantError('대화 보관 한도에 도달했습니다. 관리자에게 문의해 주세요.', 429)
-            now = time.time()
-            db.execute('INSERT INTO conversations(id,owner,account_key,title,next_level,created,updated) VALUES(?,?,?,?,?,?,?)', (cid, owner, account_key, '새 대화', 'default', now, now))
-            self._account(db, owner, account_key)
+            return self._insert_conversation(db, owner, account_key, uuid.uuid4().hex)
+
+    def _insert_conversation(self, db, owner, account_key, cid):
+        """Creates a quota-checked account-local row in the caller's write transaction."""
+        if db.execute('SELECT COUNT(*) FROM conversations WHERE owner=? AND account_key=?', (owner, account_key)).fetchone()[0] >= 200:
+            raise AssistantError('대화 보관 한도에 도달했습니다. 관리자에게 문의해 주세요.', 429)
+        now = time.time()
+        db.execute('INSERT INTO conversations(id,owner,account_key,title,next_level,created,updated) VALUES(?,?,?,?,?,?,?)', (cid, owner, account_key, '새 대화', 'default', now, now))
+        self._account(db, owner, account_key)
         return cid
 
     def _account(self, db, owner, account_key):
@@ -269,17 +282,52 @@ class Store(LifecycleStore):
         self._charge(db, job, len(record))
         db.execute("INSERT INTO messages(conversation,role,content,created) VALUES(?,'assistant',?,?)", (job['conversation'], record, time.time()))
 
-    def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
-        """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.9]
-        [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
-        [Dependencies] Current owner auth, idempotency, rate/admission limits and base plus extension budget.
-        [Impact] Search-capable auto/required requests reserve 64K including JSON escaping and retain distinct immutable retry fingerprints; the 32M base, insufficient-budget rejection and durable manual titles are preserved.
+    def first_turn_receipt(self, db, owner, account_key, key, fingerprint):
+        """Returns a matching active first-turn receipt before evaluating current model or quotas."""
+        prior = db.execute("""SELECT j.conversation,j.id,j.input_hash,j.purpose,c.account_key,c.is_deleted
+            FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=?""",
+            (owner, key)).fetchone()
+        if prior is None:
+            return None
+        if prior['account_key'] != account_key or prior['purpose'] != 'chat' or prior['input_hash'] != fingerprint:
+            raise AssistantError('같은 접수 키에 다른 요청이 전달되었습니다.', 409)
+        if prior['is_deleted']:
+            raise AssistantError('이미 접수된 대화가 휴지통에 있습니다.', 409)
+        return prior['conversation'], prior['id']
+
+    def enqueue_first(self, owner, account_key, content, level, key, binding, expires, route, fingerprint):
+        """[MINI-COMMENT: ASSISTANT.QUEUE.FIRST] [EN rev.1]
+        [Role] Commits the first question, selected model, new chat and queue job together.
+        [Dependencies] Serialized private DB admission and the owner's existing job-key uniqueness.
+        [Impact] Rejections roll back the empty chat; retries after a lost response cannot resurrect purged chats.
         """
         with self.db(True) as db:
-            conv=self.conversation(owner, cid, db, account_key)
-            if purpose == 'chat' and db.execute("SELECT 1 FROM jobs WHERE conversation=?", (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
-                raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
+            prior = self.first_turn_receipt(db, owner, account_key, key, fingerprint)
+            if prior:
+                return prior
+            cid = digest(['first-conversation-v1', owner, account_key, key])[:32]
+            if db.execute('SELECT 1 FROM ai_lifecycle_tombstones WHERE conversation=?', (cid,)).fetchone():
+                raise AssistantError('이미 접수 후 삭제한 대화입니다.', 410)
+            self._insert_conversation(db, owner, account_key, cid)
+            jid = self._enqueue(db, owner, cid, content, level, key, binding, expires, account_key, route, 'chat', None, fingerprint)
+            return cid, jid
+
+    def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
+        """Admits an existing-conversation turn or administrator probe in its own transaction."""
+        with self.db(True) as db:
+            return self._enqueue(db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan)
+
+    def _enqueue(self, db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan, fingerprint=None):
+        """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
+        [EN rev.10]
+        [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
+        [Dependencies] Caller-owned transaction, idempotency, rate/admission limits and base plus extension budget.
+        [Impact] First turns reuse all normal admission checks and reservations. Legacy fingerprints and durable manual titles remain valid.
+        """
+        conv=self.conversation(owner, cid, db, account_key)
+        if purpose == 'chat' and db.execute("SELECT 1 FROM jobs WHERE conversation=?", (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
+            raise AssistantError('기능 시험 기록입니다. 새 대화에서 질문해 주세요.', 409)
+        if fingerprint is None:
             fingerprint = digest([cid, content, level, route['selection_id'], route['revision'], route.get('profile_revision'), purpose]) if route else digest([cid, content, level])
             if route and search_mode(route)=='auto':
                 fingerprint=digest([fingerprint,'web-search-auto-v1',route.get('web_search_allowed') is True])
@@ -292,64 +340,64 @@ class Store(LifecycleStore):
                 if old['input_hash'] != fingerprint:
                     raise AssistantError('같은 접수 키에 다른 내용이 전달되었습니다.', 409)
                 return old['id']
-            if route:
-                model=db.execute('SELECT p.revision,p.enabled,p.retired,m.profile_revision,m.verified_revision,m.present,m.published FROM ai_provider_models m JOIN ai_providers p ON p.id=m.provider WHERE m.id=?',(route['selection_id'],)).fetchone()
-                if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose=='chat' and (not model['published'] or model['verified_revision']!=model['revision'])):
-                    raise AssistantError('접수 중 모델 설정이 변경되었습니다. 모델을 다시 확인해 주세요.',409)
-            now = time.time()
-            output_reservation=self.output_reservation+(SEARCH_RESERVATION if route and route.get('web_search_allowed') is True else 0)
-            minute, day = db.execute('SELECT SUM(created>=?),COUNT(*) FROM jobs WHERE owner=? AND created>=?',
-                                     (now-60, owner, now-86400)).fetchone()
-            if (minute or 0) >= self.turn_limit_minute or day >= self.turn_limit_day:
-                raise AssistantError('요청 한도에 도달했습니다. 잠시 후 다시 이용해 주세요.', 429)
-            self.expire(db)
-            used = self._account(db, owner, account_key)
-            reserved = db.execute("""SELECT COALESCE(SUM(j.reserved_chars),0) FROM jobs j JOIN conversations c ON c.id=j.conversation
-                WHERE j.owner=? AND c.account_key=?""", (owner, account_key)).fetchone()[0]
-            if used + reserved + len(content) + output_reservation > self.history_limit + self.completion_reserve:
-                raise AssistantError('보관 예산에서 답변을 끝까지 저장할 공간을 확보하지 못했습니다. 기존 기록은 보존됩니다. 관리자에게 추가 예산을 문의해 주세요.', 429)
-            if shutil.disk_usage(self.path.parent).free < 128*1024*1024:
-                raise AssistantError('대화 저장 공간이 부족합니다. 기존 기록은 보존됩니다. 관리자에게 문의해 주세요.', 507)
-            if db.execute("""SELECT (SELECT COUNT(*) FROM jobs WHERE state NOT IN ('done','failed','cancelled'))+
-                (SELECT COUNT(*) FROM ai_execution_guards g WHERE state IN ('running','draining','recovery_required')
-                AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job))""").fetchone()[0] >= 20:
-                raise AssistantError('요청이 많습니다. 잠시 후 다시 보내 주세요.', 429)
-            if db.execute("""SELECT (SELECT COUNT(*) FROM jobs WHERE owner=? AND state NOT IN ('done','failed','cancelled'))+
-                (SELECT COUNT(*) FROM ai_execution_guards g WHERE owner=? AND state IN ('running','draining','recovery_required')
-                AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job))""", (owner, owner)).fetchone()[0] >= 2:
-                raise AssistantError('진행 중인 요청을 먼저 확인해 주세요.', 429)
-            if db.execute("SELECT 1 FROM jobs WHERE conversation=? AND state IN ('queued','running','draining','recovery_required')", (cid,)).fetchone():
-                raise AssistantError('이 대화의 이전 응답을 기다려 주세요.', 409)
-            jid = uuid.uuid4().hex
-            order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]
-            history = [dict(r) for r in db.execute("""SELECT role,content FROM messages WHERE conversation=? AND content<>''
-                AND (job IS NULL OR job IN (SELECT id FROM jobs WHERE purpose='chat' AND state IN ('done','waiting_confirmation')))
-                ORDER BY id DESC LIMIT 12""", (cid,))][::-1][-8:]
-            history.append({'role': 'user', 'content': content})
-            db.execute("""INSERT INTO jobs(id,conversation,owner,client_key,input_hash,binding,expires,level,state,queue_order,
-                context,reserved_chars,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-                (jid, cid, owner, client_key, fingerprint, binding, expires, level, 'queued', order,
-                 canonical(history), output_reservation, now, now))
-            db.execute('INSERT INTO messages(conversation,job,role,content,created) VALUES(?,?,?,?,?)', (cid, jid, 'user', content, now))
-            db.execute('INSERT INTO messages(conversation,job,role,created) VALUES(?,?,?,?)', (cid, jid, 'assistant', now))
-            if route:
-                db.execute('UPDATE jobs SET selection_id=?,route_snapshot=?,resource_group=?,purpose=?,probe_plan=? WHERE id=?',
-                    (route['selection_id'], canonical(route), route['resource_group'], purpose, canonical(probe_plan or []), jid))
-                if purpose=='chat' and conv['selection_id']==route['selection_id']:
-                    db.execute('UPDATE conversations SET next_level=? WHERE id=?',(level,cid))
-                elif purpose=='chat' and conv['selection_id'] is None:
-                    db.execute('UPDATE conversations SET selection_id=?,next_level=?,selection_revision=selection_revision+1 WHERE id=?',(route['selection_id'],level,cid))
-                    db.execute('INSERT INTO ai_selection_events(conversation,selection,level,revision,created) VALUES(?,?,?,?,?)',(cid,route['selection_id'],level,conv['selection_revision']+1,now))
-            else:
-                from .providers import LEGACY_GROUP
-                db.execute('UPDATE jobs SET resource_group=? WHERE id=?', (LEGACY_GROUP, jid))
-            db.execute('UPDATE storage_accounts SET used_chars=used_chars+? WHERE owner=? AND account_key=?', (len(content), owner, account_key))
-            # Durable, content-free rename receipts also protect a manually chosen literal '새 대화'.
-            db.execute("""UPDATE conversations SET updated=?,title=CASE WHEN title='새 대화'
-                AND NOT EXISTS(SELECT 1 FROM ai_lifecycle_operations op WHERE op.conversation=conversations.id
-                    AND op.owner=conversations.owner AND op.account_key=conversations.account_key AND op.action LIKE 'rename:%')
-                THEN ? ELSE title END WHERE id=?""", (now, content[:50], cid))
-            return jid
+        if route:
+            model=db.execute('SELECT p.revision,p.enabled,p.retired,m.profile_revision,m.verified_revision,m.present,m.published FROM ai_provider_models m JOIN ai_providers p ON p.id=m.provider WHERE m.id=?',(route['selection_id'],)).fetchone()
+            if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose=='chat' and (not model['published'] or model['verified_revision']!=model['revision'])):
+                raise AssistantError('접수 중 모델 설정이 변경되었습니다. 모델을 다시 확인해 주세요.',409)
+        now = time.time()
+        output_reservation=self.output_reservation+(SEARCH_RESERVATION if route and route.get('web_search_allowed') is True else 0)
+        minute, day = db.execute('SELECT SUM(created>=?),COUNT(*) FROM jobs WHERE owner=? AND created>=?',
+                                 (now-60, owner, now-86400)).fetchone()
+        if (minute or 0) >= self.turn_limit_minute or day >= self.turn_limit_day:
+            raise AssistantError('요청 한도에 도달했습니다. 잠시 후 다시 이용해 주세요.', 429)
+        self.expire(db)
+        used = self._account(db, owner, account_key)
+        reserved = db.execute("""SELECT COALESCE(SUM(j.reserved_chars),0) FROM jobs j JOIN conversations c ON c.id=j.conversation
+            WHERE j.owner=? AND c.account_key=?""", (owner, account_key)).fetchone()[0]
+        if used + reserved + len(content) + output_reservation > self.history_limit + self.completion_reserve:
+            raise AssistantError('보관 예산에서 답변을 끝까지 저장할 공간을 확보하지 못했습니다. 기존 기록은 보존됩니다. 관리자에게 추가 예산을 문의해 주세요.', 429)
+        if shutil.disk_usage(self.path.parent).free < 128*1024*1024:
+            raise AssistantError('대화 저장 공간이 부족합니다. 기존 기록은 보존됩니다. 관리자에게 문의해 주세요.', 507)
+        if db.execute("""SELECT (SELECT COUNT(*) FROM jobs WHERE state NOT IN ('done','failed','cancelled'))+
+            (SELECT COUNT(*) FROM ai_execution_guards g WHERE state IN ('running','draining','recovery_required')
+            AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job))""").fetchone()[0] >= 20:
+            raise AssistantError('요청이 많습니다. 잠시 후 다시 보내 주세요.', 429)
+        if db.execute("""SELECT (SELECT COUNT(*) FROM jobs WHERE owner=? AND state NOT IN ('done','failed','cancelled'))+
+            (SELECT COUNT(*) FROM ai_execution_guards g WHERE owner=? AND state IN ('running','draining','recovery_required')
+            AND NOT EXISTS(SELECT 1 FROM jobs j WHERE j.id=g.job))""", (owner, owner)).fetchone()[0] >= 2:
+            raise AssistantError('진행 중인 요청을 먼저 확인해 주세요.', 429)
+        if db.execute("SELECT 1 FROM jobs WHERE conversation=? AND state IN ('queued','running','draining','recovery_required')", (cid,)).fetchone():
+            raise AssistantError('이 대화의 이전 응답을 기다려 주세요.', 409)
+        jid = uuid.uuid4().hex
+        order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]
+        history = [dict(r) for r in db.execute("""SELECT role,content FROM messages WHERE conversation=? AND content<>''
+            AND (job IS NULL OR job IN (SELECT id FROM jobs WHERE purpose='chat' AND state IN ('done','waiting_confirmation')))
+            ORDER BY id DESC LIMIT 12""", (cid,))][::-1][-8:]
+        history.append({'role': 'user', 'content': content})
+        db.execute("""INSERT INTO jobs(id,conversation,owner,client_key,input_hash,binding,expires,level,state,queue_order,
+            context,reserved_chars,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (jid, cid, owner, client_key, fingerprint, binding, expires, level, 'queued', order,
+             canonical(history), output_reservation, now, now))
+        db.execute('INSERT INTO messages(conversation,job,role,content,created) VALUES(?,?,?,?,?)', (cid, jid, 'user', content, now))
+        db.execute('INSERT INTO messages(conversation,job,role,created) VALUES(?,?,?,?)', (cid, jid, 'assistant', now))
+        if route:
+            db.execute('UPDATE jobs SET selection_id=?,route_snapshot=?,resource_group=?,purpose=?,probe_plan=? WHERE id=?',
+                (route['selection_id'], canonical(route), route['resource_group'], purpose, canonical(probe_plan or []), jid))
+            if purpose=='chat' and conv['selection_id']==route['selection_id']:
+                db.execute('UPDATE conversations SET next_level=? WHERE id=?',(level,cid))
+            elif purpose=='chat' and conv['selection_id'] is None:
+                db.execute('UPDATE conversations SET selection_id=?,next_level=?,selection_revision=selection_revision+1 WHERE id=?',(route['selection_id'],level,cid))
+                db.execute('INSERT INTO ai_selection_events(conversation,selection,level,revision,created) VALUES(?,?,?,?,?)',(cid,route['selection_id'],level,conv['selection_revision']+1,now))
+        else:
+            from .providers import LEGACY_GROUP
+            db.execute('UPDATE jobs SET resource_group=? WHERE id=?', (LEGACY_GROUP, jid))
+        db.execute('UPDATE storage_accounts SET used_chars=used_chars+? WHERE owner=? AND account_key=?', (len(content), owner, account_key))
+        # Durable, content-free rename receipts also protect a manually chosen literal '새 대화'.
+        db.execute("""UPDATE conversations SET updated=?,title=CASE WHEN title='새 대화'
+            AND NOT EXISTS(SELECT 1 FROM ai_lifecycle_operations op WHERE op.conversation=conversations.id
+                AND op.owner=conversations.owner AND op.account_key=conversations.account_key AND op.action LIKE 'rename:%')
+            THEN ? ELSE title END WHERE id=?""", (now, content[:50], cid))
+        return jid
 
     def expire(self, db):
         """[Role] Expires closed waits and releases unused completion reservations.

@@ -44,6 +44,14 @@
                     if (this.failModelReads) { this.failModelReads--; return this.respond({ success: false, message: '시험용 모델 목록 오류: 현재 선택을 유지합니다.' }, 503); }
                     return this.respond({ success: true, models: this.omitSelectedModel ? models.filter(item => item.id !== modelId) : models, default_model: modelId });
                 }
+                if (url.pathname === '/api/ai/conversations/first-turn' && method === 'POST') {
+                    const stored = conversations.get(newCid);
+                    if (!stored) {
+                        conversations.set(newCid, { id: newCid, title: data.content.slice(0, 50), updated: 4, is_deleted: 0, lifecycle_revision: 0, selection_id: data.selection_id, selection_revision: 1, next_level: data.level, first: data.content });
+                        this.sent++;
+                    }
+                    return this.respond({ success: true, conversation_id: newCid, job_id: jid }, 202);
+                }
                 if (url.pathname === '/api/ai/conversations' && method === 'POST') {
                     conversations.set(newCid, { id: newCid, title: '새로운 대화', updated: 4, is_deleted: 0, deleted_at: null, purge_after: null, lifecycle_revision: 0, selection_id: modelId, selection_revision: 1, next_level: 'medium', empty: true });
                     return this.respond({ success: true, id: newCid });
@@ -55,7 +63,7 @@
                     if (cursor && !new RegExp('^' + view + '-next(?:-\\d+)?$').test(cursor)) return this.respond({ success: false, message: '다른 보관함 커서입니다.' }, 422);
                     const items = [...conversations.values()].filter(item => Boolean(item.is_deleted) === (view === 'trash') && (!item.purge_after || item.purge_after > Date.now() / 1000)).sort((a,b) => b.updated - a.updated);
                     const offset = cursor ? Number(cursor.split('-')[2] || 1) : 0;
-                    return this.respond({ success: true, conversations: items.slice(offset, offset + 1), next_cursor: items.length > offset + 1 ? view + '-next' + (offset ? '-' + (offset + 1) : '') : null });
+                    return this.respond({ success: true, resume_conversation: view === 'active' ? items.find(item => !item.empty) || null : null, conversations: items.slice(offset, offset + 1), next_cursor: items.length > offset + 1 ? view + '-next' + (offset ? '-' + (offset + 1) : '') : null });
                 }
                 const route = /^\/api\/ai\/conversations\/([a-f0-9]{32})\/(messages|selection|turns|trash|restore|purge)$/.exec(url.pathname);
                 if (route) {
@@ -93,7 +101,7 @@
                         const view = url.searchParams.get('view') || 'active';
                         if (Boolean(item.is_deleted) !== (view === 'trash') || item.purge_after && item.purge_after <= Date.now() / 1000) return this.respond({ success: false, message: '이 보관함에서 열 수 없는 대화입니다.' }, 404);
                         const before = url.searchParams.has('before');
-                        const messages = item.empty ? [] : before ? [{ id: 1, role: 'user', content: '이전 질문', reasoning: '', job: null }] : id === cid ? this.sent ? [
+                        const messages = item.first ? [{ id: 301, role: 'user', content: item.first, reasoning: '', job: jid }] : item.empty ? [] : before ? [{ id: 1, role: 'user', content: '이전 질문', reasoning: '', job: null }] : id === cid ? this.sent ? [
                             { id: 101, role: 'user', content: '표로 정리해 줘', reasoning: '', job: jid },
                             { id: 102, role: 'assistant', content: '', reasoning: '', job: jid },
                         ] : [{ id: 101, role: 'user', content: '내 장비 표를 보여 줘', reasoning: '', job: null }, { id: 102, role: 'assistant', content: plainTable, reasoning: '조회 범위와 권한을 확인했습니다.', job: null }] : [{ id: 201, role: 'assistant', content: id === oldCid ? plainTable : '보관한 대화 내용입니다.', reasoning: '보관한 추론입니다.', job: null }];
@@ -455,7 +463,7 @@
             }, 'running-chunk-visible-before-live-geometry-checks');
             thought.querySelector('summary').click(); const liveRegion = document.querySelector('.ai-answer .ai-table-scroll'); liveRegion.scrollLeft = 80; const liveLeft = liveRegion.scrollLeft;
             $('ai-input').value = '진행 중 보존할 다음 초안';
-            assert(!$('ai-model-status').hidden && $('ai-model-status').textContent.includes('다음 요청') && $('ai-model-status').textContent.includes('기존 모델'), 'active-request-feedback-remains-visible-near-composer');
+            assert(!$('ai-progress').hidden && $('ai-progress-text').textContent.includes('생성') && $('ai-send').disabled && !$('ai-model-status').textContent.includes('다음 요청'), 'active-request-progress-visible-without-obsolete-model-footer');
             await reflowAcrossBoundary('liveStreamReflow');
             if (innerWidth === 1440) await reflowAcrossBoundary('liveStream200PercentEquivalent', { width: 720 });
             await reflowAcrossBoundary('liveStreamReducedHeight', { width: innerWidth, height: 500 });
@@ -604,9 +612,16 @@
             for (const id of ['ai-model', 'ai-model-refresh', 'ai-level', 'ai-send']) {
                 $(id).focus(); assert(document.activeElement === $(id) && rect($(id)).width > 0 && rect($(id)).height > 0, id + '-enabled-control-programmatic-focus-reachable');
             }
-            $('ai-new').click(); await wait(() => titleIsAccessible('새로운 대화') && !$('ai-model').disabled && document.querySelector(`#ai-conversations .ai-conversation[data-conversation-id="${newCid}"]`), 'new conversation current title');
+            const beforeNew = server.requests.filter(entry => entry.method === 'POST').length;
+            $('ai-new').click(); await wait(() => titleIsAccessible('새로운 대화') && !$('ai-model').disabled && $('equipment-ai').dataset.entry === 'draft', 'unsaved new conversation current title');
+            assert(!server.conversations.has(newCid) && beforeNew === server.requests.filter(entry => entry.method === 'POST').length, 'new-draft-is-local-only');
             assert($('ai-model').value === modelId && $('ai-level').value === 'medium' && $('ai-welcome').hidden === false && !$('ai-model-status').textContent.trim(), 'new-conversation-title-and-default-selection-are-current');
             measure('newConversation');
+            $('ai-model').value = 'f'.repeat(32); $('ai-model').dispatchEvent(new Event('change'));
+            assert($('ai-model').value === 'f'.repeat(32) && $('ai-level').disabled, 'draft-can-select-chat-only-model');
+            $('ai-model').value = modelId; $('ai-model').dispatchEvent(new Event('change'));
+            $('ai-level').value = 'off'; $('ai-level').dispatchEvent(new Event('change'));
+            assert($('ai-level').value === 'off' && !server.conversations.has(newCid) && beforeNew === server.requests.filter(entry => entry.method === 'POST').length, 'draft-model-and-reasoning-changes-never-create-or-write-a-conversation');
             if (!currentOld()) { $('ai-more-conversations').click(); await wait(() => currentOld(), 'return to older conversation after new chat'); }
             currentOld().click(); await wait(() => titleIsAccessible(originalTitle) && document.querySelector('.ai-answer table') && !$('ai-model').disabled, 'final Qwen table view');
             assert($('ai-model').value === modelId && $('ai-level').value === 'medium' && $('ai-model').selectedOptions[0].textContent === '260Strata / Qwen3.8 Flash Next', 'final-measurement-uses-Qwen-medium-and-real-stored-table');

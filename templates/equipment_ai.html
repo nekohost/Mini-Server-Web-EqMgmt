@@ -5,13 +5,13 @@
 {% block container_class %}assistant-container{% endblock %}
 {% block content %}
 <!-- [MINI-COMMENT: ASSISTANT.VIEW]
-[EN rev.17]
+[EN rev.18]
 [Role] Independent equipment chat with measured disclosures beside reasoning, synchronized header/input connection status, safe tables and request-only file/CSV dialogs.
 [Dependencies] equipment_ai.js/css, equipment_ai_polish.js and the authenticated frame/status API; no Strata iframe/vendor UI.
-[Impact] Native details preserve selection/refresh state; compact input uses account-specific keyboard metadata without a visible shortcut/model-change footer, and stopped requests retain their original failure cause with a read-only state check.
+[Impact] The neutral first paint omits the title and welcome until history is known. Native details preserve selection/refresh state; compact input uses account-specific keyboard metadata without a visible shortcut/model-change footer, and stopped requests retain their original failure cause with a read-only state check.
 -->
 <link rel="stylesheet" href="{{ url_for('static',filename='css/equipment_ai.css') }}">
-<section id="equipment-ai" data-csrf="{{ assistant_csrf }}" data-enter-action="{{ assistant_enter_action|default('send') }}" aria-label="장비관리 AI 도우미">
+<section id="equipment-ai" data-entry="loading" aria-busy="true" data-csrf="{{ assistant_csrf }}" data-enter-action="{{ assistant_enter_action|default('send') }}" aria-label="장비관리 AI 도우미">
   <aside class="ai-sidebar" id="ai-sidebar" aria-label="나의 대화">
     <div class="ai-sidebar-heading"><span class="ai-brand-mark" aria-hidden="true">✦</span><strong>AI 도우미</strong><span class="ai-private">개인 대화</span></div>
     <button type="button" id="ai-new" class="ai-button ai-new"><span aria-hidden="true">＋</span> 새 대화</button>
@@ -25,7 +25,7 @@
   <div class="ai-workspace">
     <header class="ai-header">
       <button type="button" class="ai-button ai-mobile-toggle" id="ai-menu-toggle" aria-expanded="false" aria-controls="ai-sidebar">대화 목록</button>
-      <h2 id="ai-title" title="새로운 대화" aria-label="새로운 대화">새로운 대화</h2>
+      <h2 id="ai-title" hidden></h2>
     </header>
     <div class="ai-workspace-body">
     <div id="ai-notice" class="ai-notice" role="status" aria-live="polite" hidden></div>
@@ -33,13 +33,14 @@
     <div id="ai-lifecycle-notice" class="ai-notice ai-lifecycle-notice" role="status" aria-live="polite" hidden><p id="ai-lifecycle-text"></p><button type="button" class="ai-button" id="ai-lifecycle-reconcile" hidden>처리 결과 확인</button></div>
     <div id="ai-conversation-actions" class="ai-conversation-toolbar" hidden><button type="button" id="ai-trash-current" class="ai-button ai-trash-action" title="휴지통으로 이동" aria-label="휴지통으로 이동"></button><button type="button" id="ai-restore-current" class="ai-button" hidden>복구</button><button type="button" id="ai-purge-current" class="ai-button ai-danger" hidden>영구삭제</button></div>
     <div class="ai-scroll" id="ai-scroll" tabindex="0" aria-label="대화 내용">
-      <div id="ai-welcome" class="ai-welcome">
+      <div id="ai-entry" class="ai-entry"><span id="ai-entry-text" role="status">대화를 불러오는 중입니다.</span><button type="button" class="ai-button" id="ai-entry-retry" hidden>다시 불러오기</button></div>
+      <div id="ai-welcome" class="ai-welcome" hidden>
         <span class="ai-welcome-mark" aria-hidden="true">✦</span><p class="ai-eyebrow">장비관리 AI 도우미</p>
         <h3>어떤 일을 도와드릴까요?</h3><p class="ai-welcome-description">내 장비를 찾아보고, 정보를 정리하고, 필요한 신청을 준비하세요.<br>궁금한 점을 편하게 물어보셔도 됩니다.</p>
         <div class="ai-suggestions">
-          <button type="button" data-prompt="내 장비 중 보증 기한이 가까운 장비를 찾아줘." data-tool="search_equipment" data-own="true"><span>내 장비 살펴보기</span><small>보유 장비와 관리 기한 확인</small><b aria-hidden="true">↗</b></button>
-          <button type="button" data-prompt="내 장비를 새로 등록하려고 해. 필요한 정보를 하나씩 물어봐 줘." data-write="true" data-tool="prepare_equipment_create"><span>장비 등록 도와주기</span><small>정보를 모아 등록 내용 준비</small><b aria-hidden="true">↗</b></button>
-          <button type="button" data-prompt="새 제조사 등록 신청을 도와줘. 필요한 정보를 물어봐 줘." data-write="true" data-tool="prepare_catalog_request"><span>카탈로그 신청하기</span><small>카테고리·제조사·옵션 신청</small><b aria-hidden="true">↗</b></button>
+          <button type="button" hidden data-prompt="내 장비 중 보증 기한이 가까운 장비를 찾아줘." data-tool="search_equipment" data-own="true"><span>내 장비 살펴보기</span><small>보유 장비와 관리 기한 확인</small><b aria-hidden="true">↗</b></button>
+          <button type="button" hidden data-prompt="내 장비를 새로 등록하려고 해. 필요한 정보를 하나씩 물어봐 줘." data-write="true" data-tool="prepare_equipment_create"><span>장비 등록 도와주기</span><small>정보를 모아 등록 내용 준비</small><b aria-hidden="true">↗</b></button>
+          <button type="button" hidden data-prompt="새 제조사 등록 신청을 도와줘. 필요한 정보를 물어봐 줘." data-write="true" data-tool="prepare_catalog_request"><span>카탈로그 신청하기</span><small>카테고리·제조사·옵션 신청</small><b aria-hidden="true">↗</b></button>
         </div>
       </div>
       <button type="button" id="ai-more-messages" class="ai-button ai-more-history" hidden>이전 내용 불러오기</button>
@@ -49,6 +50,7 @@
     <div class="ai-bottom">
       <div id="ai-progress" class="ai-progress" role="status" aria-live="polite" hidden><span class="ai-pulse" aria-hidden="true"></span><span id="ai-progress-text"></span><button type="button" id="ai-cancel">요청 취소</button><button type="button" id="ai-refresh-state" class="ai-button" title="이 대화의 현재 요청 상태를 다시 확인합니다. 요청을 다시 보내거나 종료하지 않습니다." hidden>상태 다시 확인</button></div>
       <div id="ai-connection-status" class="ai-connection-status" data-state="checking" role="status" aria-live="polite" aria-atomic="true" hidden><span id="ai-connection-status-mark" class="ai-connection-status-mark" data-state="checking" aria-hidden="true">✦</span><div class="ai-connection-status-copy"><strong id="ai-connection-status-summary"></strong><span id="ai-connection-status-reason"></span></div></div>
+      <div id="ai-first-uncertain" class="ai-entry-recovery" hidden><span role="status">첫 메시지 접수 결과를 확인하지 못했습니다.</span><button class="ai-button" id="ai-first-retry" type="button">같은 요청 다시 확인</button></div>
       <form id="ai-form" class="ai-composer">
         <label for="ai-input" class="ai-sr-only">AI 도우미에게 보낼 내용</label>
         <textarea id="ai-input" name="content" rows="2" maxlength="8000" aria-describedby="ai-connection-status" enterkeyhint="send" aria-keyshortcuts="Enter" placeholder="내 장비에 대해 물어보거나, 필요한 일을 요청해 보세요." required></textarea>
@@ -58,7 +60,7 @@
             <details id="ai-model-settings" class="ai-control-support ai-model-settings"><summary title="AI 모델 선택"><span>AI 모델 선택</span></summary><div id="ai-model-panel" class="ai-control-panel"><div class="ai-model-control"><div class="ai-model-field"><label for="ai-model">AI 모델</label><select id="ai-model" aria-describedby="ai-model-status ai-unavailable-models"></select></div><button id="ai-model-refresh" class="ai-button" type="button">목록 새로고침</button></div></div></details>
             <details id="ai-reasoning-support" class="ai-control-support" hidden><summary title="추론 단계 지원 안내"><span>추론 단계 지원 안내</span></summary><div id="ai-reasoning-panel" class="ai-control-panel"><ul id="ai-reasoning-reasons"></ul></div></details>
           </div>
-          <div class="ai-send-actions"><button id="ai-send" type="submit" class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button></div>
+          <div class="ai-send-actions"><button id="ai-send" type="submit" disabled class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button></div>
         </div>
         <div class="ai-disclosure-spacer" aria-hidden="true"></div>
         <p id="ai-model-status" class="ai-control-status" role="status" hidden></p>

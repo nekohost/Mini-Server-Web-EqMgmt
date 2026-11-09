@@ -92,12 +92,11 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
         const wait = async (test, label = 'condition') => { for (let index = 0; index < 1200; index++) { if (test()) return; await sleep(10); } throw Error(label + ' timed out'); };
         const assert = (value, label) => { if (!value) throw Error(label); checks.push(label); };
         let nativeSequence = 0, nativeObserved = null, attemptedTurns = 0, holdTurn = null, releaseTurn = null, releaseCompletion = null;
-        let holdCreation = null, releaseCreation = null, attemptedCreations = 0, keyboardAudit = null;
+        let attemptedCreations = 0, keyboardAudit = null;
         const originalFetch = server.fetch.bind(server);
         server.fetch = async (path, options = {}) => {
             if ((options.method || 'GET') === 'POST' && new URL(path, location.origin).pathname === '/api/ai/conversations') {
                 attemptedCreations++;
-                if (holdCreation) { const pending = holdCreation; holdCreation = null; await pending; }
             }
             if ((options.method || 'GET') === 'POST' && /\/turns$/.test(new URL(path, location.origin).pathname)) {
                 attemptedTurns++;
@@ -209,17 +208,11 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
             await wait(() => attemptedTurns === 3 && server.sent === 2 && server.polls >= 2, 'send-mode acceptance');
             assert($('ai-input').value === '', 'send-mode-native-enter-submits-once-and-clears-submitted-draft');
             await finish();
-            const pendingNewDraft = '명시 새 대화 생성 중에 보존할 초안'; draft(pendingNewDraft);
-            holdCreation = new Promise(resolve => { releaseCreation = resolve; });
-            $('ai-new').click(); await wait(() => attemptedCreations === 1, 'explicit new conversation pending');
-            assert($('ai-new').disabled && $('ai-send').disabled && $('ai-model').disabled && $('ai-level').disabled, 'explicit-new-conversation-locks-composer-before-request-yields');
-            $('ai-input').disabled = false; $('ai-send').disabled = false;
-            await nativeEnter(false); $('ai-form').requestSubmit();
-            $('ai-new').disabled = false; $('ai-new').click();
-            assert(attemptedTurns === 3 && attemptedCreations === 1 && $('ai-input').value === pendingNewDraft, 'explicit-new-pending-rejects-forced-enabled-keyboard-form-and-duplicate-create');
-            releaseCreation(); releaseCreation = null;
-            await wait(() => !$('ai-send').disabled && !$('ai-model').disabled && $('ai-conversations').querySelector('.ai-conversation[aria-current="true"]')?.dataset.conversationId === '7'.repeat(32), 'acknowledged explicit new conversation');
-            assert($('ai-input').value === pendingNewDraft && attemptedTurns === 3, 'acknowledged-new-conversation-opens-normally-and-preserves-draft');
+            const pendingNewDraft = '새 대화에서 이어 쓸 초안'; draft(pendingNewDraft);
+            const rowsBeforeNew = server.conversations.size;
+            $('ai-new').click(); $('ai-new').click();
+            assert($('equipment-ai').dataset.entry === 'draft' && !$('ai-send').disabled && attemptedCreations === 0 && server.conversations.size === rowsBeforeNew, 'explicit-new-remains-editable-and-creates-zero-chats');
+            assert($('ai-input').value === pendingNewDraft && attemptedTurns === 3 && !$('ai-welcome').hidden, 'explicit-new-preserves-draft-without-sending');
             assert(document.documentElement.scrollWidth <= innerWidth + 1, 'hint-and-composer-have-no-horizontal-overflow');
             report.textContent = JSON.stringify({ status: 'pass', view: 'input-preferences', checks, width: innerWidth, theme,
                 keyboard: 'trusted native Enter/Shift+Enter via private CDP; IME composition event orders are synthetic', attempted_turns: attemptedTurns, accepted_turns: server.sent,
@@ -228,14 +221,14 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
             report.textContent = JSON.stringify({ status: 'fail', view: 'input-preferences', checks, width: innerWidth, theme, error: error.message,
                 keyboard_audit: keyboardAudit, attempted_turns: attemptedTurns, accepted_turns: server.sent, polls: server.polls, send_disabled: $('ai-send')?.disabled, input_disabled: $('ai-input')?.disabled, hint: $('ai-input-shortcut')?.textContent, notice: $('ai-notice')?.textContent, draft: $('ai-input')?.value });
         } finally {
-            earlyMode.disconnect(); releaseTurn?.(); releaseCreation?.(); server.holdStreamCompletion = false; releaseCompletion?.();
+            earlyMode.disconnect(); releaseTurn?.();  server.holdStreamCompletion = false; releaseCompletion?.();
         }
         if (window.parent !== window) window.parent.postMessage({ fixtureResult: report.textContent }, location.origin);
         window.dispatchEvent(new Event('pagehide'));
     });
 }
 
-/* [MINI-COMMENT: USER.PREFERENCES.STARTUP.BROWSER] [EN rev.1]
+/* [MINI-COMMENT: USER.PREFERENCES.STARTUP.BROWSER] [EN rev.2]
  * [Role] Holds the original initial-history snapshot while the user sends an early native-key turn or chooses another history view.
  * [Dependencies] The same candidate DOM, reviewed synthetic owner transport and private trusted-key bridge.
  * [Impact] A late initial list must not hydrate the old conversation over an acknowledged new one or undo explicit sidebar steering.
@@ -261,9 +254,11 @@ function runAiStartupRaceFixture(server, cid, modelId, sleep, theme, scenario) {
         const assert = (value, label) => { if (!value) throw Error(label); checks.push(label); };
         const messageReads = () => server.requests.filter(entry => entry.method === 'GET' && /\/messages$/.test(entry.path));
         try {
-            await wait(() => initialWaiting && !$('ai-send').disabled && !$('ai-model').disabled && window.userSettings?.theme, 'delayed initial history with ready composer');
+            await wait(() => initialWaiting && $('ai-send').disabled && !$('ai-model').disabled && window.userSettings?.theme, 'delayed initial history without a destination');
+            assert($('ai-welcome').hidden, 'no-welcome-during-initial-history');
             assert(messageReads().length === 0, 'initial-history-response-is-held-before-any-auto-open');
             if (scenario === 'early-submit') {
+                $('ai-new').click(); await wait(() => !$('ai-send').disabled, 'explicit draft ready before history');
                 const submitted = '초기 목록 도착 전에 보낼 질문';
                 window.userSettings = { ...window.userSettings, ai_enter_action: 'send' }; window.applyRoadmapSettings(window.userSettings);
                 $('ai-input').value = submitted; $('ai-input').dispatchEvent(new Event('input', { bubbles: true })); $('ai-input').focus();
@@ -273,8 +268,8 @@ function runAiStartupRaceFixture(server, cid, modelId, sleep, theme, scenario) {
                 await wait(() => window.parent.__aiInputKeyDone === 1, 'early trusted Enter');
                 await wait(() => server.sent === 1 && messageReads().some(entry => entry.path.includes('/' + '7'.repeat(32) + '/')), 'early accepted conversation hydration');
                 assert(trusted, 'early-submit-uses-trusted-native-enter');
-                const turn = server.requests.find(entry => entry.method === 'POST' && entry.path.endsWith('/turns'));
-                assert(turn.path === '/api/ai/conversations/' + '7'.repeat(32) + '/turns' && turn.data.content === submitted, 'early-turn-targets-its-newly-created-conversation');
+                const turn = server.requests.find(entry => entry.method === 'POST' && entry.path.endsWith('/first-turn'));
+                assert(turn && turn.data.content === submitted, 'early-turn-targets-its-newly-created-conversation');
                 releaseInitial();
                 await wait(() => initialReleased && !$('ai-send').disabled && $('equipment-ai').getAttribute('aria-busy') === 'false', 'late initial history settlement');
                 await sleep(100);

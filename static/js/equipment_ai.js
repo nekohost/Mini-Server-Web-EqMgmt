@@ -1,8 +1,8 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.28]
+ * [EN rev.29]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting, preserved conversation lifecycle and account-specific input shortcuts.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
- * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request. Input shortcuts retain native composition/newlines, pending submissions remain single, navigation stays on the accepted conversation and later drafts survive acceptance.
+ * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request. Input shortcuts retain native composition/newlines, pending submissions remain single, navigation stays on the accepted conversation and later drafts survive acceptance. Startup resolves the owner’s actual history, and unsaved drafts use atomic first-turn acceptance.
  */
 (function () {
     'use strict';
@@ -386,10 +386,13 @@
         const terminal = new Set(['done', 'failed', 'cancelled', 'waiting_confirmation']);
         let conversation = null, activeJob = null, timer = null, disposed = false, polling = null;
         let selection = 0, requestKey = null, csvToken = null, retryDelay = 1500, accountContext = null, identityTimer = null, checkingIdentity = false;
-        let historyView = 'active', historyViewEpoch = 0, conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
-        let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false, creatingConversation = false;
+        let historyView = 'active', conversationView = 'active', conversationMeta = null, nextBefore = null, loadingHistory = false;
+        let lifecycleBusy = false, lifecycleIntent = false, syncingLifecycle = false, dialogResolve = null, dialogFocus = null, lifecycleChannel = null, invalidationPending = false;
         let modelChoices = [], modelId = null, defaultModel = null, modelRevision = 0, modelUnavailable = false, changingModel = false, openingConversation = false, unattributedSelection = false, capabilities = null;
-        let loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null, submitting = false;
+        let inventoryReady = false, loadingModels = false, modelsPromise = null, inventoryError = '', currentNoticeSource = null, submitting = false;
+        let entryState = 'loading', entryGeneration = 0, entryRetry = null, uncertainFirst = null;
+        const hasDestination = () => entryState === 'draft' || entryState === 'ready';
+        const canSteer = () => !openingConversation || !hasDestination();
         let enterAction = 'send';
         let fileEpoch = 0, fileBusy = false, filePanel = null, fileFocus = null, csvFileVersion = 0;
         let renameContext = null, renameBusy = false, renameFocus = null, bulkStopRequested = false;
@@ -431,7 +434,16 @@
             const heading = $('ai-title'), fullTitle = String(title ?? '');
             heading.textContent = fullTitle; heading.title = fullTitle; heading.setAttribute('aria-label', fullTitle);
         }
-        setConversationTitle($('ai-title').textContent);
+        /** Shows only the resolved reader, an unsaved draft, or an actionable loading/error state. */
+        function showEntry(state, message = '', retry = null) {
+            entryState = state; entryRetry = retry; root.dataset.entry = state;
+            $('ai-title').hidden = !hasDestination();
+            $('ai-entry').hidden = hasDestination();
+            $('ai-entry-text').textContent = message;
+            $('ai-entry-retry').hidden = !retry;
+            if (!hasDestination()) $('ai-welcome').hidden = true;
+        }
+        $('ai-entry-retry').addEventListener('click', () => entryRetry?.());
 
         /** [Role] Adds lifecycle UI with DOM-only text so this module owns its controls without parsing user titles as HTML. */
         function installConversationControls() {
@@ -500,8 +512,8 @@
 
         /** [Role] Updates the selected-conversation lock and exposes only actions valid for its current view. */
         function lifecycleControls() {
-            const locked = readOnly() || lifecycleBusy || creatingConversation;
-            const navigationLocked = submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel;
+            const locked = readOnly() || lifecycleBusy;
+            const navigationLocked = submitting || lifecycleBusy || lifecycleIntent || !canSteer() || changingModel;
             $('ai-input').disabled = locked;
             $('ai-form').hidden = readOnly();
             if (readOnly() && (filePanel || $('ai-file-dialog').open)) resetFileWorkspace();
@@ -514,7 +526,9 @@
             $('ai-restore-current').hidden = $('ai-purge-current').hidden = conversationView !== 'trash';
             for (const id of ['ai-rename-current', 'ai-trash-current', 'ai-restore-current', 'ai-purge-current']) $(id).disabled = navigationLocked || uncertainLifecycle.has(conversation);
             for (const id of ['ai-active-tab', 'ai-trash-tab']) $(id).disabled = navigationLocked;
-            $('ai-new').disabled = navigationLocked || creatingConversation;
+            $('ai-new').disabled = navigationLocked;
+            $('ai-first-uncertain').hidden = entryState !== 'draft' || !uncertainFirst;
+            $('ai-first-retry').disabled = submitting;
             root.querySelectorAll('.ai-conversation').forEach(button => { button.disabled = navigationLocked; });
             root.querySelectorAll('[data-lifecycle-action]').forEach(button => {
                 button.disabled = navigationLocked || uncertainLifecycle.has(button.dataset.conversationId);
@@ -526,7 +540,7 @@
             const trashText = conversationView === 'trash' && conversationMeta ? `휴지통의 대화입니다. 읽기 전용이며 ${lifecycleDate(conversationMeta.purge_after)}에 보관이 만료됩니다. 이동한 시각부터 30일 동안 보관하며, 만료 시점부터 열람과 복구가 제한됩니다. 취소된 요청과 작업은 복구해도 다시 실행되지 않습니다.` : '';
             $('ai-lifecycle-text').textContent = uncertainLifecycle.size ? '대화 조작의 처리 결과를 확인하지 못했습니다. 자동으로 다시 보내지 않습니다. 처리 결과를 확인해 주세요.' : trashText;
             $('ai-lifecycle-notice').hidden = !uncertainLifecycle.size && !trashText;
-            root.setAttribute('aria-busy', String(submitting || lifecycleBusy || openingConversation));
+            root.setAttribute('aria-busy', String(submitting || lifecycleBusy || openingConversation || entryState === 'loading'));
             trashSelectionControls();
         }
 
@@ -566,7 +580,7 @@
          * [Impact] Closing never resends work; boundaries discard selected files/tokens and reject late previews. A completed write may report its outcome to the same account after a conversation switch, without populating that conversation's file panel. Model/control refreshes retain the pending composer submission lock.
          */
         function openFileWorkspace(panel, scope, trigger) {
-            if (disposed || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || creatingConversation || dialogResolve) {
+            if (disposed || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || dialogResolve) {
                 notice('현재 대화 상태에서는 파일 작업을 열 수 없습니다. 정상 대화에서 다시 요청해 주세요.'); return;
             }
             const exported = panel === 'csv-export' && ['my','public'].includes(scope);
@@ -685,16 +699,16 @@
             $('ai-reasoning-reasons').replaceChildren(unsupported);
             $('ai-level').replaceChildren(options); $('ai-level').value = restoredLevel;
             modelUnavailable = !model || !model.available || (levels.length ? !levels.includes($('ai-level').value) : $('ai-level').value !== 'default');
-            $('ai-level').disabled = !levels.length || changingModel || openingConversation || readOnly() || lifecycleBusy || creatingConversation;
+            $('ai-level').disabled = !levels.length || changingModel || openingConversation || readOnly() || lifecycleBusy;
             $('ai-level-help').textContent = reasoningHelp[$('ai-level').value] || '지원하며 허용된 추론 수준을 선택해 주세요.';
-            $('ai-model').disabled = changingModel || openingConversation || readOnly() || lifecycleBusy || creatingConversation;
+            $('ai-model').disabled = changingModel || openingConversation || readOnly() || lifecycleBusy;
             $('ai-model-refresh').disabled = loadingModels || changingModel || openingConversation || lifecycleBusy;
             $('ai-model-refresh').setAttribute('aria-busy', String(loadingModels));
             const status = [];
             if (loadingModels) status.push('모델 목록을 확인하고 있습니다.');
             if (inventoryError) status.push(`모델 목록 새로고침 실패: ${inventoryError}`);
             if (modelUnavailable) {
-                if (!loadingModels || modelId) status.push(model && model.reason || '이 대화의 모델/추론 설정을 복원할 수 없습니다. 모델과 지원 추론을 다시 선택해 주세요.');
+                if (inventoryReady && (!loadingModels || modelId)) status.push(model && model.reason || '이 대화의 모델/추론 설정을 복원할 수 없습니다. 모델과 지원 추론을 다시 선택해 주세요.');
             } else if (!model.tools) status.push('대화 전용 · 장비 업무는 지원 모델 또는 수동 화면을 이용해 주세요.');
             if (unattributedSelection) status.push('이전 모델 기록이 없습니다. 표시한 기본 모델은 다음 요청에 적용됩니다.');
             $('ai-model-status').textContent = status.join(' · ');
@@ -708,7 +722,7 @@
             if (capabilities) root.querySelectorAll('[data-tool]').forEach(button => {
                 button.hidden = !model || !model.tools || !(capabilities.tools || []).includes(button.dataset.tool) || button.dataset.write && !capabilities.writes || button.dataset.own === 'true' && !(capabilities.scopes || []).includes('my');
             });
-            $('ai-send').disabled = submitting || modelUnavailable || changingModel || openingConversation || Boolean(activeJob) || readOnly() || lifecycleBusy || creatingConversation;
+            $('ai-send').disabled = !hasDestination() || !capabilities || (entryState === 'draft' && Boolean(uncertainFirst)) || submitting || modelUnavailable || changingModel || openingConversation || Boolean(activeJob) || readOnly() || lifecycleBusy;
             lifecycleControls();
         }
 
@@ -724,9 +738,10 @@
                 try {
                     const result = await api('/api/ai/models');
                     if (disposed) return;
-                    modelChoices = result.models; defaultModel = result.default_model;
+                    const firstInventory = !inventoryReady;
+                    inventoryReady = true; modelChoices = result.models; defaultModel = result.default_model;
                     if (!modelId) { modelId = result.default_model; const model = modelChoices.find(item => item.id === modelId); modelControls(initialLevel(model)); }
-                    else modelControls();
+                    else modelControls(firstInventory && conversationMeta ? conversationMeta.next_level : undefined);
                     notice('', 'inventory');
                 } catch (error) {
                     inventoryError = error.message;
@@ -798,7 +813,7 @@
             let result;
             try { result = await response.json(); } catch (_) { throw Object.assign(new Error('응답을 읽을 수 없습니다. 연결 상태를 확인해 주세요.'), { outcomeUnknown: method !== 'GET', status: response.status }); }
             if (!result || typeof result !== 'object' || Array.isArray(result)) throw Object.assign(new Error('올바른 서버 응답을 확인하지 못했습니다.'), { outcomeUnknown: method !== 'GET', status: response.status });
-            if (!response.ok || result.success === false || result.error && result.success !== true) throw Object.assign(new Error(typeof result.message === 'string' ? result.message : typeof result.error === 'string' ? result.error : '요청을 처리하지 못했습니다.'), { status: response.status, code: result.code || result.error_code, outcomeUnknown: method !== 'GET' && response.status >= 500 });
+            if (!response.ok || result.success === false || result.error && result.success !== true) throw Object.assign(new Error(typeof result.message === 'string' ? result.message : typeof result.error === 'string' ? result.error : '요청을 처리하지 못했습니다.'), { status: response.status, code: result.code || result.error_code, outcomeUnknown: method !== 'GET' && response.status >= 500 && !(path === '/api/ai/conversations/first-turn' && result.success === false && [503,507].includes(response.status)) });
             return result;
         }
 
@@ -1031,7 +1046,7 @@
             const busy = !terminal.has(job.state);
             $('ai-cancel').hidden = !['queued','running'].includes(job.state);
             $('ai-refresh-state').hidden = !['draining','recovery_required','failed'].includes(job.state);
-            $('ai-send').disabled = busy || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy;
+            $('ai-send').disabled = submitting || !hasDestination() || busy || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy;
             $('ai-input').disabled = readOnly() || lifecycleBusy;
             $('ai-progress').querySelector('.ai-pulse').hidden = !['queued','running'].includes(job.state);
         }
@@ -1039,7 +1054,10 @@
         /** [Role] Renders separate owner list views and names every lifecycle action for keyboard/screen-reader use. */
         function renderConversations() {
             const fragment = document.createDocumentFragment();
-            const items = [...history[historyView].items.values()].sort((a,b) => (historyView === 'trash' ? (b.deleted_at || 0) - (a.deleted_at || 0) : (b.updated || 0) - (a.updated || 0)) || b.id.localeCompare(a.id));
+            const displayed = new Map(history[historyView].items);
+            if (conversationMeta && conversationView === historyView && history[historyView].cursor && !displayed.has(conversation))
+                displayed.set(conversation, conversationMeta);
+            const items = [...displayed.values()].sort((a,b) => (historyView === 'trash' ? (b.deleted_at || 0) - (a.deleted_at || 0) : (b.updated || 0) - (a.updated || 0)) || b.id.localeCompare(a.id));
             for (const item of items) {
                 const row = document.createElement('div'); row.className = 'ai-conversation-row';
                 if (historyView === 'trash') {
@@ -1055,7 +1073,7 @@
                 button.textContent = item.title; button.title = item.title; button.setAttribute('aria-current', String(item.id === conversation));
                 button.dataset.conversationId = item.id;
                 const view = historyView;
-                button.addEventListener('click', () => { if (!submitting && !lifecycleBusy && !lifecycleIntent && !openingConversation && !changingModel) open(item.id, view).catch(error => notice(error.message)); }); row.append(button);
+                button.addEventListener('click', () => { if (!submitting && !lifecycleBusy && !lifecycleIntent && canSteer() && !changingModel) open(item.id, view).catch(error => notice(error.message)); }); row.append(button);
                 if (historyView === 'trash') {
                     const dates = document.createElement('p'); dates.className = 'ai-conversation-dates';
                     const remaining = typeof item.purge_after === 'number' ? Math.max(0, Math.ceil((item.purge_after * 1000 - Date.now()) / 86400000)) : null;
@@ -1078,54 +1096,62 @@
             $('ai-history-title').textContent = historyView === 'trash' ? '휴지통' : '최근 대화';
             $('ai-conversations').setAttribute('aria-label', historyView === 'trash' ? '휴지통 대화 목록' : '대화 목록');
             $('ai-trash-help').hidden = historyView !== 'trash';
-            $('ai-list-empty').hidden = Boolean(items.length); $('ai-list-empty').textContent = historyView === 'trash' ? '휴지통이 비어 있습니다.' : '저장된 대화가 없습니다.';
+            $('ai-list-empty').hidden = !history[historyView].loaded || Boolean(items.length); $('ai-list-empty').textContent = historyView === 'trash' ? '휴지통이 비어 있습니다.' : '저장된 대화가 없습니다.';
             $('ai-more-conversations').hidden = !history[historyView].cursor;
             lifecycleControls();
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.HISTORY]
-         * [EN rev.5]
+         * [EN rev.6]
          * [Role] Serializes each active/trash cursor chain and replaces stale entries on refresh.
          * [Dependencies] Owner/account-scoped list API, per-view request queues and retained loaded-ID boundaries.
          * [Impact] A background refresh cannot discard an in-flight explicit older-page load; deletion/restore refreshes still remove stale entries, failed refreshes retain the last known list, and a missing selected title clears through the accessible-heading path.
          */
-        function conversations(more = false) {
+        function conversations(more = false, resume = false) {
             const view = historyView, state = history[view];
-            const next = (state.pending || Promise.resolve()).catch(() => {}).then(() => loadConversationPages(view, more));
+            const next = (state.pending || Promise.resolve()).catch(() => {}).then(() => loadConversationPages(view, more, resume));
             state.pending = next;
             return next.finally(() => { if (state.pending === next) state.pending = null; });
         }
 
         /** [Role] Reads one serialized view request using the latest completed cursor/depth, never an older in-flight snapshot. */
-        async function loadConversationPages(view, more) {
+        async function loadConversationPages(view, more, resume) {
             if (disposed) return [];
             const state = history[view], request = ++state.request;
             let cursor = more ? state.cursor : null;
             if (more && !cursor) return [];
             const entries = more ? new Map(state.items) : new Map();
-            let first = [], pages = 0;
+            let candidate = null, pages = 0;
             const depth = more ? 1 : state.depth;
             const retained = new Set(more ? [] : state.items.keys()), seenCursors = new Set();
             for (let index = 0; index < depth || retained.size; index++) {
                 if (cursor && seenCursors.has(cursor)) throw new Error('대화 목록을 갱신하지 못했습니다. 잠시 뒤 다시 확인해 주세요.');
                 if (cursor) seenCursors.add(cursor);
-                const result = await api(`/api/ai/conversations?view=${view}${cursor ? '&cursor=' + encodeURIComponent(cursor) : ''}`);
+                const result = await api(`/api/ai/conversations?view=${view}${cursor ? '&cursor=' + encodeURIComponent(cursor) : resume ? '&resume=1' : ''}`);
                 if (request !== state.request || disposed) return [];
-                if (!index) first = result.conversations;
+                if (!index && resume) {
+                    candidate = result.resume_conversation;
+                    if (candidate !== null && !/^[a-f0-9]{32}$/.test(candidate?.id || ''))
+                        throw new Error('이어갈 대화 정보를 확인하지 못했습니다. 다시 불러와 주세요.');
+                }
                 for (const item of result.conversations) { entries.set(item.id, item); retained.delete(item.id); }
                 cursor = result.next_cursor || null; pages++;
                 if (!cursor) break;
             }
             const changed = JSON.stringify([...state.items]) !== JSON.stringify([...entries]) || state.cursor !== cursor;
-            state.items = entries; state.cursor = cursor; state.depth = more ? state.depth + pages : pages;
+            state.loaded = true; state.items = entries; state.cursor = cursor; state.depth = more ? state.depth + pages : pages;
             if (view === historyView && (changed || !$('ai-conversations').childElementCount)) renderConversations();
-            return first;
+            return candidate;
         }
 
         /** [Role] Changes only the sidebar view; a selected trash conversation stays read-only until explicitly restored. */
         async function changeHistoryView(view) {
-            if (submitting || lifecycleBusy || lifecycleIntent || openingConversation) return;
-            ++historyViewEpoch;
+            if (submitting || lifecycleBusy || lifecycleIntent || !canSteer()) return;
+            if (!hasDestination()) {
+                ++entryGeneration; ++selection; openingConversation = false;
+                showEntry('choose', '목록에서 대화를 선택하거나 새 대화를 시작하세요.');
+                modelControls();
+            }
             if (view !== historyView) trashSelection.clear();
             historyView = view; renderConversations();
             try { await conversations(); } catch (error) { notice(error.message); }
@@ -1145,9 +1171,11 @@
             resetFileWorkspace();
             ++selection; clearTimeout(timer); conversation = null; conversationMeta = null; conversationView = 'active'; activeJob = null; nextBefore = null;
             disposePresenters(); nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
-            $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle('대화를 선택해 주세요.');
+            openingConversation = false; modelId = defaultModel; modelRevision = 0; unattributedSelection = false;
+            $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle('새로운 대화');
+            showEntry('draft');
             $('ai-welcome').hidden = false; $('ai-progress').hidden = true; $('ai-more-messages').hidden = true;
-            modelControls();
+            modelControls(initialLevel(modelChoices.find(item => item.id === modelId)));
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.RECOVERY] [EN rev.2]
@@ -1157,7 +1185,7 @@
          */
         async function refreshLifecycle() {
             if (submitting) { invalidationPending = true; return; }
-            if (disposed || syncingLifecycle || lifecycleBusy || openingConversation) return;
+            if (disposed || !capabilities || syncingLifecycle || lifecycleBusy || openingConversation) return;
             syncingLifecycle = true; lifecycleControls();
             const cid = conversation, selected = selection;
             try {
@@ -1523,12 +1551,15 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.OPEN]
-         * [EN rev.3]
+         * [EN rev.4]
          * [Role] Hydrates a selected conversation before enabling its composer; the sidebar refresh runs independently.
          * [Dependencies] Owner snapshot, selection generation, disposable presentation queues and serialized history reads.
          * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs and message nodes, while the compact heading exposes the complete selected title.
          */
-        async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true } = {}) {
+        async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true, automatic = false } = {}) {
+            if (!automatic) ++entryGeneration;
+            if (entryState === 'draft' || entryState === 'choose' || entryState === 'error')
+                showEntry('loading', '대화를 불러오는 중입니다.');
             if (conversation !== cid || conversationView !== view) resetFileWorkspace();
             const pane = $('ai-scroll');
             const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
@@ -1539,6 +1570,7 @@
             $('ai-more-messages').hidden = true;
             const result = loaded || await api(`/api/ai/conversations/${cid}/messages?view=${view}`);
             if (selected !== selection || disposed) return;
+            showEntry('ready');
             conversationMeta = result.conversation; conversationView = result.conversation.is_deleted ? 'trash' : view;
             conversation = cid; nodes.clear(); streams.clear(); cards.clear(); requestKey = null;
             unattributedSelection = !result.conversation.selection_id;
@@ -1569,10 +1601,16 @@
                 pane.scrollTop = reader.top;
             } else pane.scrollTop = pane.scrollHeight;
             $('ai-sidebar').classList.remove('is-open'); $('ai-menu-toggle').setAttribute('aria-expanded', 'false');
+            if (automatic || refreshList) renderConversations();
             if (refreshList) {
-                renderConversations();
                 conversations().catch(error => { if (!disposed && selected === selection) notice(error.message); });
             }
+            } catch (error) {
+                if (selected !== selection || disposed) return;
+                if (!automatic && !hasDestination()) {
+                    showEntry('error', error.message, () => open(cid, view).catch(error => notice(error.message)));
+                }
+                throw error;
             } finally {
                 if (selected === selection) { openingConversation = false; modelControls(); }
             }
@@ -1616,17 +1654,21 @@
             } finally { if (polling === token) polling = null; }
         }
 
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.NEW.CONVERSATION] [EN rev.1]
-         * [Role] Creates a new account-local conversation only on explicit user intent.
-         * [Dependencies] The shared creatingConversation lock, current model/lifecycle controls and acknowledged internal open.
-         * [Impact] Composer controls lock before the creation request yields; direct or stale-enabled submits cannot target the previous conversation while creation is pending.
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.NEW.CONVERSATION] [EN rev.2]
+         * [Role] Enters a local draft without a server row or a queue job.
+         * [Dependencies] Shared selection generation, current user capabilities and model defaults.
+         * [Impact] An old read/poll cannot overwrite the chosen draft or cancel its previous server job.
          */
-        async function newConversation() {
-            if (submitting || lifecycleBusy || lifecycleIntent || openingConversation || changingModel || creatingConversation) return;
-            creatingConversation = true;
-            modelControls();
-            try { const result = await api('/api/ai/conversations', { method: 'POST', data: {} }); historyView = 'active'; await open(result.id, 'active'); $('ai-input').focus(); }
-            finally { creatingConversation = false; if (!disposed) modelControls(); }
+        function newConversation(focus = true) {
+            if (submitting || lifecycleBusy || lifecycleIntent || !canSteer() || changingModel) return;
+            ++entryGeneration;
+            if (entryState !== 'draft' || conversation || historyView !== 'active') {
+                historyView = 'active'; trashSelection.clear();
+                clearConversation();
+                renderConversations();
+            }
+            $('ai-sidebar').classList.remove('is-open'); $('ai-menu-toggle').setAttribute('aria-expanded', 'false');
+            if (focus) $('ai-input').focus();
         }
 
         /** [Role] Revalidates idle/returning screens too, so a different login cannot retain a prior account's DOM. */
@@ -1667,7 +1709,7 @@
         $('ai-restore-current').addEventListener('click', () => mutateLifecycle('restore', conversationMeta).catch(error => notice(error.message)));
         $('ai-purge-current').addEventListener('click', () => mutateLifecycle('purge', conversationMeta).catch(error => notice(error.message)));
         $('ai-lifecycle-reconcile').addEventListener('click', () => reconcileLifecycle().catch(error => notice(error.message)));
-        $('ai-new').addEventListener('click', () => newConversation().catch(error => notice(error.message)));
+        $('ai-new').addEventListener('click', () => newConversation());
         $('ai-more-conversations').addEventListener('click', async () => {
             $('ai-more-conversations').disabled = true;
             try { await conversations(true); } catch (error) { notice(error.message); }
@@ -1679,35 +1721,66 @@
         $('ai-level').addEventListener('change', () => { if (readOnly() || lifecycleBusy || openingConversation || changingModel) return; requestKey = null; $('ai-level-help').textContent = reasoningHelp[$('ai-level').value] || ''; saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model').addEventListener('change', () => { if (openingConversation || changingModel || readOnly() || lifecycleBusy) return; modelId = $('ai-model').value; const model = modelChoices.find(item => item.id === modelId); modelControls(initialLevel(model)); saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model-refresh').addEventListener('click', () => loadModels().catch(error => notice(error.message, 'inventory')));
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.COMPOSER] [EN rev.3]
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.COMPOSER] [EN rev.4]
          * [Role] Shares keyboard/button submission guards and keeps any draft entered after the accepted snapshot.
          * [Dependencies] Current owner/model/lifecycle state, a synchronous submission latch and the idempotent turns endpoint.
          * [Impact] A control refresh, history switch, lifecycle action or repeated shortcut cannot redirect or duplicate a pending request; accepted snapshots reload their immutable conversation, rejected requests keep their draft and accepted requests clear only the submitted text.
          */
         const disposeInputShortcuts = bindInputShortcuts($('ai-input'), $('ai-form'), () => enterAction,
-            () => !disposed && !submitting && !activeJob && !creatingConversation && !changingModel && !$('ai-send').disabled && !readOnly() && !lifecycleBusy && !lifecycleIntent && !openingConversation);
+            () => !disposed && !submitting && !activeJob && !changingModel && !$('ai-send').disabled && !readOnly() && !lifecycleBusy && !lifecycleIntent && !openingConversation);
         root.querySelectorAll('[data-prompt]').forEach(button => button.addEventListener('click', () => { if (readOnly() || lifecycleBusy) return; $('ai-input').value = button.dataset.prompt; requestKey = null; $('ai-input').focus(); }));
-        $('ai-form').addEventListener('submit', async event => {
-            event.preventDefault(); if (disposed || submitting || activeJob || creatingConversation || changingModel || $('ai-input').disabled || $('ai-send').disabled || readOnly() || lifecycleBusy || lifecycleIntent || openingConversation) return;
-            const submittedDraft = $('ai-input').value, content = submittedDraft.trim(); if (!content) return;
+        /** Sends one immutable composer snapshot. Unknown first receipts remain available by the same key. */
+        async function submitTurn(retry = false) {
+            const recovering = retry && entryState === 'draft' && uncertainFirst;
+            if (disposed || submitting || !capabilities || !hasDestination() || activeJob || changingModel ||
+                readOnly() || lifecycleBusy || lifecycleIntent || openingConversation || (!recovering && ($('ai-input').disabled || $('ai-send').disabled || modelUnavailable ||
+                (entryState === 'draft' && uncertainFirst)))) return;
+            const raw = recovering ? uncertainFirst.raw : $('ai-input').value;
+            const content = raw.trim();
+            if (!content) return;
+            const first = !conversation;
+            const payload = recovering ? uncertainFirst.payload : { content, level: $('ai-level').value, client_key: requestKey ||= crypto.randomUUID().replaceAll('-', ''), selection_id: modelId, reasoning_version: 2 };
             submitting = true; modelControls(); notice();
             try {
-                if (!conversation) { const result = await api('/api/ai/conversations', { method: 'POST', data: {} }); conversation = result.id; modelRevision = result.selection_revision || 1; await saveSelection(); }
-                const acceptedConversation = conversation;
-                requestKey ||= crypto.randomUUID().replaceAll('-', '');
-                await api(`/api/ai/conversations/${acceptedConversation}/turns`, { method: 'POST', data: { content, level: $('ai-level').value, client_key: requestKey, selection_id: modelId, reasoning_version: 2 } });
+                let cid = conversation;
+                if (first) {
+                    let result;
+                    try {
+                        result = await api('/api/ai/conversations/first-turn', { method: 'POST', data: payload });
+                    } catch (error) {
+                        uncertainFirst = error.outcomeUnknown ? { raw, payload } : null;
+                        if (!uncertainFirst) requestKey = null;
+                        throw error;
+                    }
+                    if (disposed) return;
+                    cid = result.conversation_id;
+                    if (!/^[a-f0-9]{32}$/.test(cid || '') || !result.job_id) {
+                        uncertainFirst = { raw, payload };
+                        throw new Error('첫 메시지의 접수 결과를 확인해 주세요.');
+                    }
+                    uncertainFirst = null; conversation = cid; activeJob = result.job_id;
+                    historyView = 'active'; trashSelection.clear();
+                    showEntry('loading', '접수한 대화를 불러오는 중입니다.');
+                } else {
+                    await api('/api/ai/conversations/' + cid + '/turns', { method: 'POST', data: payload });
+                }
                 if (disposed) return;
-                if ($('ai-input').value === submittedDraft) $('ai-input').value = '';
-                requestKey = null; await open(acceptedConversation, 'active');
-            } catch (error) { if (disposed) return; notice(error.message); if ([404,409,410].includes(error.status)) await refreshLifecycle(); }
-            finally {
+                if ($('ai-input').value === raw) $('ai-input').value = '';
+                requestKey = null; await open(cid, 'active');
+            } catch (error) {
+                if (disposed) return;
+                if (entryState !== 'error') notice(error.message);
+                if (!first && [404,409,410].includes(error.status)) await refreshLifecycle();
+            } finally {
                 submitting = false;
                 if (!disposed) {
                     modelControls();
                     if (invalidationPending) { invalidationPending = false; refreshLifecycle().catch(error => notice(error.message)); }
                 }
             }
-        });
+        }
+        $('ai-form').addEventListener('submit', event => { event.preventDefault(); submitTurn(); });
+        $('ai-first-retry').addEventListener('click', () => { if (uncertainFirst) submitTurn(true); });
         $('ai-cancel').addEventListener('click', async () => { if (!activeJob || readOnly() || lifecycleBusy) return; try { await api(`/api/ai/jobs/${activeJob}/cancel`, { method: 'POST', data: {} }); schedule(50); } catch (error) { notice(error.message); } });
         $('ai-refresh-state').addEventListener('click', async () => {
             if ($('ai-refresh-state').disabled || disposed) return;
@@ -1785,27 +1858,47 @@
         window.addEventListener('pageshow', event => { if (event.persisted) window.location.reload(); });
         window.addEventListener('focus', checkIdentity);
         document.addEventListener('visibilitychange', () => { if (!document.hidden) checkIdentity(); });
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.STARTUP] [EN rev.1]
-         * [Role] Opens the initial history result only while initialization still owns an untouched empty selection.
-         * [Dependencies] Selection and explicit history-view epochs plus current submit/create/open state.
-         * [Impact] Delayed history cannot replace a user-created or accepted conversation or undo sidebar steering; acknowledged internal opens retain their normal path.
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.STARTUP] [EN rev.2]
+         * [Role] Resolves a real saved chat or the first-use draft before revealing the reader.
+         * [Dependencies] Owner-authenticated history, independent inventory and explicit navigation generations.
+         * [Impact] A slow model cannot hide saved history and a late restore cannot replace an explicit choice.
          */
-        const initialView = { selection, view: historyView, epoch: historyViewEpoch };
-        try {
-            capabilities = await api('/api/ai/capabilities');
-            if (capabilities.reasoning_version !== 2) throw Error('AI 서버와 화면의 추론 설정 버전이 다릅니다. 화면과 서버를 함께 갱신해 주세요.');
-            storageNotice(capabilities.storage);
-            root.querySelectorAll('[data-write]').forEach(button => { button.hidden = !capabilities.writes; });
-            root.querySelectorAll('[data-tool]').forEach(button => {
-                button.hidden = !(capabilities.tools || []).includes(button.dataset.tool) || button.dataset.own === 'true' && !(capabilities.scopes || []).includes('my');
-            });
-            if (!capabilities.writes) notice('현재 조회와 대화 기능을 사용할 수 있습니다. 변경 제안은 운영 설정에서 비활성 상태입니다.');
-            await loadModels();
-            const list = await conversations();
-            if (list.length && !disposed && !submitting && !conversation && !creatingConversation && !openingConversation &&
-                selection === initialView.selection && historyView === initialView.view && historyViewEpoch === initialView.epoch) await open(list[0].id, initialView.view);
-            identityTimer = setInterval(checkIdentity, 10000);
-        } catch (error) { notice(error.message); $('ai-send').disabled = true; }
+        async function startEntry() {
+            const generation = ++entryGeneration;
+            const current = () => !disposed && generation === entryGeneration;
+            showEntry('loading', '대화를 불러오는 중입니다.'); modelControls();
+            try {
+                if (!capabilities) {
+                    const result = await api('/api/ai/capabilities');
+                    if (disposed) return;
+                    if (result.reasoning_version !== 2) throw Error('AI 서버와 화면의 추론 설정 버전이 다릅니다. 화면을 갱신해 주세요.');
+                    capabilities = result; storageNotice(result.storage);
+                    if (!result.writes) notice('현재 조회와 대화 기능을 사용할 수 있습니다. 변경 제안은 운영 설정에서 비활성 상태입니다.');
+                }
+                if (!identityTimer) identityTimer = setInterval(checkIdentity, 10000);
+                if (!modelChoices.length) loadModels().catch(error => { if (!disposed) notice(error.message, 'inventory'); });
+                if (!current()) { conversations().catch(error => { if (!disposed) notice(error.message); }); return; }
+                for (let attempt = 0; attempt < 2; attempt++) {
+                    const candidate = await conversations(false, true);
+                    if (!current()) return;
+                    if (!candidate) { newConversation(false); return; }
+                    try {
+                        await open(candidate.id, 'active', { automatic: true, refreshList: false });
+                        return;
+                    } catch (error) {
+                        if (!current()) return;
+                        if (attempt || ![404,409,410].includes(error.status)) throw error;
+                    }
+                }
+            } catch (error) {
+                if (!current()) {
+                    if (!disposed && !capabilities) showEntry('error', error.message, startEntry);
+                    return;
+                }
+                showEntry('error', error.message, startEntry); modelControls();
+            }
+        }
+        await startEntry();
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });
     else initialize();
