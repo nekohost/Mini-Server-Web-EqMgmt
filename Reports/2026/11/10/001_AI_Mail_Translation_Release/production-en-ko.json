@@ -1,0 +1,26 @@
+{
+  "direction": "en-ko",
+  "job": "d911c561e64a40f3812070243058163b",
+  "conversation": "b0b58ec551b0961b3d756e1ff60cb77b",
+  "owner_login": "test04",
+  "state": "done",
+  "error": null,
+  "source": "Subject: Inspection form 06b6ca\n\nDear Lee,\n\nFacilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received. Keep the pass in the cabinet until both are recorded.\n\nRegards,\nRobin",
+  "raw": "제목: 점검 양식 06b6ca\n\nLee 님, 안녕하십니까.\n\nFacilities 팀은 이메일로 승인할 수 있습니다. 다만, Security 팀만 원본 종이 양식에 서명해야 합니다. 아직 두 승인이 모두 접수되지 않았습니다. 패스는 두 건이 모두 기록될 때까지 캐비닛에 보관해 주십시오.\n\nRobin 드림",
+  "stored": "제목: 점검 양식 06b6ca\n\nLee 님, 안녕하십니까.\n\nFacilities 팀은 이메일로 승인할 수 있습니다. 다만, Security 팀만 원본 종이 양식에 서명해야 합니다. 아직 두 승인이 모두 접수되지 않았습니다. 패스는 두 건이 모두 기록될 때까지 캐비닛에 보관해 주십시오.\n\nRobin 드림",
+  "settings": {
+    "provider_name": "260Strata",
+    "revision": 6,
+    "adapter": "strata",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "reasoning_effort": "xhigh",
+    "mail_translation": "en-ko",
+    "mail_prompt_revision": "mail-20261109-r2"
+  },
+  "steps": 1,
+  "proposals": 0,
+  "context_contains_only_this_mail": true,
+  "elapsed_s": 101.18,
+  "display": "제목: 점검 양식 06b6ca\n\nLee 님, 안녕하십니까.\n\nFacilities 팀은 이메일로 승인할 수 있습니다. 다만, Security 팀만 원본 종이 양식에 서명해야 합니다. 아직 두 승인이 모두 접수되지 않았습니다. 패스는 두 건이 모두 기록될 때까지 캐비닛에 보관해 주십시오.\n\nRobin 드림",
+  "restored_same": true
+}

@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "site": "https://nekohost.org",
+  "account": "test04",
+  "conversation": "b0b58ec551b0961b3d756e1ff60cb77b",
+  "directions": [
+    "en-ko",
+    "ko-en"
+  ],
+  "chromium": "Chrome/152.0.7977.82",
+  "reopened": true
+}

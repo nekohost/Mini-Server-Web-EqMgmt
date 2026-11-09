@@ -1,0 +1,253 @@
+{
+  "provenance": [
+    {
+      "file": "Reports/2026/11/09/016_Qwen_Translation_Improvement/release-reviewed.json",
+      "sha256": "7a2f0c39628558d2d0950f5da8f589d7d86a45806ba407dbfd876fae46820afa"
+    },
+    {
+      "file": "Reports/2026/11/09/016_Qwen_Translation_Improvement_Report.md",
+      "sha256": "6dd1832f54d2dd8fb3ce228841d32c644c7529967b4101e715783bcfa9b5a784"
+    }
+  ],
+  "grading": {
+    "A": "필수 수정 없이 발송 가능",
+    "B": "필수 수정 필요",
+    "C": "중대한 의미 오류 또는 전달 실패"
+  },
+  "comparison": [
+    {
+      "split": "all",
+      "direction": "all",
+      "n": 66,
+      "baseline": {
+        "grades": {
+          "A": 45,
+          "B": 14,
+          "C": 7
+        },
+        "states": {
+          "done": 63,
+          "failed": 3
+        },
+        "median_s": 17.01,
+        "total_s": 1314.27
+      },
+      "final": {
+        "grades": {
+          "A": 53,
+          "B": 12,
+          "C": 1
+        },
+        "states": {
+          "done": 66
+        },
+        "median_s": 18.63,
+        "total_s": 1508.87
+      }
+    },
+    {
+      "split": "all",
+      "direction": "en-ko",
+      "n": 31,
+      "baseline": {
+        "grades": {
+          "A": 22,
+          "B": 4,
+          "C": 5
+        },
+        "states": {
+          "done": 28,
+          "failed": 3
+        },
+        "median_s": 18.43,
+        "total_s": 689.71
+      },
+      "final": {
+        "grades": {
+          "A": 27,
+          "B": 3,
+          "C": 1
+        },
+        "states": {
+          "done": 31
+        },
+        "median_s": 26.74,
+        "total_s": 884.51
+      }
+    },
+    {
+      "split": "all",
+      "direction": "ko-en",
+      "n": 35,
+      "baseline": {
+        "grades": {
+          "A": 23,
+          "B": 10,
+          "C": 2
+        },
+        "states": {
+          "done": 35
+        },
+        "median_s": 16.75,
+        "total_s": 624.56
+      },
+      "final": {
+        "grades": {
+          "A": 26,
+          "B": 9,
+          "C": 0
+        },
+        "states": {
+          "done": 35
+        },
+        "median_s": 17.75,
+        "total_s": 624.37
+      }
+    },
+    {
+      "split": "regression",
+      "direction": "all",
+      "n": 26,
+      "baseline": {
+        "grades": {
+          "A": 19,
+          "B": 5,
+          "C": 2
+        },
+        "states": {
+          "done": 26
+        },
+        "median_s": 23.05,
+        "total_s": 619.83
+      },
+      "final": {
+        "grades": {
+          "A": 21,
+          "B": 5,
+          "C": 0
+        },
+        "states": {
+          "done": 26
+        },
+        "median_s": 23.28,
+        "total_s": 616.02
+      }
+    },
+    {
+      "split": "holdout",
+      "direction": "all",
+      "n": 24,
+      "baseline": {
+        "grades": {
+          "A": 18,
+          "B": 3,
+          "C": 3
+        },
+        "states": {
+          "done": 23,
+          "failed": 1
+        },
+        "median_s": 16.18,
+        "total_s": 418.48
+      },
+      "final": {
+        "grades": {
+          "A": 21,
+          "B": 2,
+          "C": 1
+        },
+        "states": {
+          "done": 24
+        },
+        "median_s": 16.54,
+        "total_s": 461.33
+      }
+    },
+    {
+      "split": "reserve",
+      "direction": "all",
+      "n": 12,
+      "baseline": {
+        "grades": {
+          "A": 6,
+          "B": 4,
+          "C": 2
+        },
+        "states": {
+          "done": 10,
+          "failed": 2
+        },
+        "median_s": 15.52,
+        "total_s": 207.03
+      },
+      "final": {
+        "grades": {
+          "A": 9,
+          "B": 3,
+          "C": 0
+        },
+        "states": {
+          "done": 12
+        },
+        "median_s": 22.97,
+        "total_s": 360.59
+      }
+    },
+    {
+      "split": "contact",
+      "direction": "all",
+      "n": 4,
+      "baseline": {
+        "grades": {
+          "A": 2,
+          "B": 2,
+          "C": 0
+        },
+        "states": {
+          "done": 4
+        },
+        "median_s": 16.25,
+        "total_s": 68.92
+      },
+      "final": {
+        "grades": {
+          "A": 2,
+          "B": 2,
+          "C": 0
+        },
+        "states": {
+          "done": 4
+        },
+        "median_s": 17.76,
+        "total_s": 70.94
+      }
+    }
+  ],
+  "additional_first_responses_excluded_from_comparison": [
+    {
+      "id": "F-E",
+      "direction": "en-ko",
+      "grade": "A",
+      "seconds": 96.75
+    },
+    {
+      "id": "F-K",
+      "direction": "ko-en",
+      "grade": "C",
+      "seconds": 16.18,
+      "reason": "서명 예린을 Yerim으로 출력하고 확인 주체를 흐림"
+    },
+    {
+      "id": "F2-E",
+      "direction": "en-ko",
+      "grade": "A",
+      "seconds": 22.71
+    },
+    {
+      "id": "F2-K",
+      "direction": "ko-en",
+      "grade": "A",
+      "seconds": 24.58
+    }
+  ]
+}

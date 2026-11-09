@@ -1,0 +1,128 @@
+{
+  "checked_utc": "2026-11-09T16:00:54.068393+00:00",
+  "code_commit": "8f382e0fe2260b9b1defcec40a6565571aa9a071",
+  "maintenance": "NORMAL",
+  "worker": "active",
+  "retention_timer": "active",
+  "active_jobs_and_guards": {},
+  "all_job_states": {
+    "done": 33,
+    "failed": 4
+  },
+  "test_role": "user",
+  "audit_and_access_history_preserved": true,
+  "test_conversation_retained": true,
+  "existing_rows_preserved": {
+    "business": {
+      "approval_requests": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "categories": {
+        "prior": 1,
+        "prior_missing_or_changed": 0
+      },
+      "email_verifications": {
+        "prior": 2,
+        "prior_missing_or_changed": 0
+      },
+      "equipment": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "equipment_files": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "equipment_imports": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "equipment_notification_log": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "equipment_options": {
+        "prior": 2,
+        "prior_missing_or_changed": 0
+      },
+      "equipments": {
+        "prior": 2,
+        "prior_missing_or_changed": 0
+      },
+      "equipments_audit_log": {
+        "prior": 6,
+        "prior_missing_or_changed": 0
+      },
+      "lineup_nodes": {
+        "prior": 13,
+        "prior_missing_or_changed": 0
+      },
+      "manufacturers": {
+        "prior": 1,
+        "prior_missing_or_changed": 0
+      },
+      "menus": {
+        "prior": 17,
+        "prior_missing_or_changed": 0
+      },
+      "password_resets": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "role_menu_permissions": {
+        "prior": 32,
+        "prior_missing_or_changed": 0
+      },
+      "sys_migrations": {
+        "prior": 17,
+        "prior_missing_or_changed": 0
+      },
+      "user_settings": {
+        "prior": 3,
+        "prior_missing_or_changed": 0
+      },
+      "users": {
+        "prior": 8,
+        "prior_missing_or_changed": 0
+      }
+    },
+    "ai_history": {
+      "conversations": {
+        "prior": 20,
+        "prior_missing_or_changed": 0
+      },
+      "jobs": {
+        "prior": 35,
+        "prior_missing_or_changed": 0
+      },
+      "message_steps": {
+        "prior": 79,
+        "prior_missing_or_changed": 0
+      },
+      "messages": {
+        "prior": 70,
+        "prior_missing_or_changed": 0
+      },
+      "proposals": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "ai_task_drafts": {
+        "prior": 0,
+        "prior_missing_or_changed": 0
+      },
+      "ai_lifecycle_operations": {
+        "prior": 38,
+        "prior_missing_or_changed": 0
+      },
+      "ai_lifecycle_tombstones": {
+        "prior": 14,
+        "prior_missing_or_changed": 0
+      }
+    }
+  },
+  "user_comparison_excludes": [
+    "SessionToken"
+  ]
+}

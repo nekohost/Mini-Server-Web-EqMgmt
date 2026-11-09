@@ -1,0 +1,26 @@
+{
+  "direction": "ko-en",
+  "job": "4a4493f9af854909bb00c96e5e2087f6",
+  "conversation": "b0b58ec551b0961b3d756e1ff60cb77b",
+  "owner_login": "test04",
+  "state": "done",
+  "error": null,
+  "source": "제목: 반납 안내 06b6ca\n\n민지님, 안녕하세요.\n\n담당자는 그대로이고 담당자의 연락처 중 내선 번호만 변경되었습니다. 안내문에서 내선 번호만 수정해 주세요. 담당자 이름과 접수 날짜는 바꾸지 마세요.\n\n감사합니다.\n유진 드림",
+  "raw": "Subject: Return Notice 06b6ca\n\nHello Minji,\n\nThe assigned person remains the same; only the extension number in their contact details has been changed. Please update only the extension number in the notice. Do not change the assigned person's name or the date received.\n\nThank you.\nRegards,\nYujin",
+  "stored": "Subject: Return Notice 06b6ca\n\nHello Minji,\n\nThe assigned person remains the same; only the extension number in their contact details has been changed. Please update only the extension number in the notice. Do not change the assigned person's name or the date received.\n\nThank you.\nRegards,\nYujin",
+  "settings": {
+    "provider_name": "260Strata",
+    "revision": 6,
+    "adapter": "strata",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "reasoning_effort": "low",
+    "mail_translation": "ko-en",
+    "mail_prompt_revision": "mail-20261110-contact-r4"
+  },
+  "steps": 1,
+  "proposals": 0,
+  "context_contains_only_this_mail": true,
+  "elapsed_s": 13.4,
+  "display": "Subject: Return Notice 06b6ca\n\nHello Minji,\n\nThe assigned person remains the same; only the extension number in their contact details has been changed. Please update only the extension number in the notice. Do not change the assigned person's name or the date received.\n\nThank you.\nRegards,\nYujin",
+  "restored_same": true
+}

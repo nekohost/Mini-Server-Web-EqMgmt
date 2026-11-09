@@ -1,0 +1,18 @@
+{
+  "base_commit": "b2271fd1b7829eb16ee9485f616dc7f78b7c5040",
+  "reviewed_package": "e9b2076186da95dbb5d5cfdf5df1c7bd6811f811de92ced313786d834b36d114",
+  "translation_only_zip": "c116708490b363677325365168180983a83af9b94ea51419f822ce272f7aee7f",
+  "files": {
+    "static/js/equipment_ai.js": "950ce8c2dec3fcf0df25c2f1d56b47462fbc622067cbbb970eeee973952278c8",
+    "tests/mail_fixture.py": "9277cd180cf9ab9d8afae5c6934cfc9da45a49ce3e636a0152ef5ac5ed0eb6ba",
+    "tests/mail_inputs/regression.json": "9918aa076ad16d4d84e8b740bbfb8818e6d45741682a941e56739271ee50709c",
+    "tests/mail_inputs/unused.json": "ff77ac8d869fe5485c2d68b31744f3d9abe27b4459000ebb8e7c2019ad3c40e3",
+    "tests/mail_replay.py": "6da89fe8af0020e07e893f250b7dd49f6e6d962ca03cc8ac4cb680e14c3728a7",
+    "tests/test_mail_translation.py": "1c9cbdc94f7910a508e8d02fce6916780a9885ff107c703ee72c119b4824915f",
+    "tests/test_mail_translation_ui.js": "9ce4ca3469760543150cd8c30f0486de6b33a23d43c07bf3fa9264635b53c29c",
+    "utils/ai_assistant/__init__.py": "49326da31036e64d596b58062fb31de19550c2d099d62fc56b27a6d126c12f02",
+    "utils/ai_assistant/providers.py": "d4f2b611f70dd40d43968823ddbb7fda3dd72ede43a347455c3cc2f9d71d276a",
+    "utils/ai_assistant/store.py": "b9d03fcdc64f380953678307bc5c389e78f309ca3876e46fc9dd6cd8cb371eb1",
+    "utils/ai_assistant/translation.py": "d1ea77eef004bcf43873a2da0a9f1cd8a8592202e6e943961e334db4b871e305"
+  }
+}

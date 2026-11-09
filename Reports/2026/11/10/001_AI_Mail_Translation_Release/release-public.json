@@ -1,0 +1,17 @@
+{
+  "status": "pass",
+  "before": "b2271fd1b7829eb16ee9485f616dc7f78b7c5040",
+  "code_commit": "8f382e0fe2260b9b1defcec40a6565571aa9a071",
+  "host": "nkhst-pentium",
+  "start": "2026-11-09T15:56:12.119101+00:00",
+  "activated": "2026-11-09T15:56:30.927996+00:00",
+  "window_s": 18.84,
+  "files_verified": 11,
+  "settings_and_units_unchanged": true,
+  "maintenance": "NORMAL",
+  "old_business_rows_preserved": true,
+  "old_ai_rows_preserved": true,
+  "worker": "active",
+  "retention": true,
+  "backup": "20261105-ai-ux-mail-20261109T154815Z-06b6ca"
+}

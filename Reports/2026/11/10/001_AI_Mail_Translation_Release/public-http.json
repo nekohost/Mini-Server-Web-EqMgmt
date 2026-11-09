@@ -1,0 +1,9 @@
+{
+  "status": {
+    "/login": 200,
+    "/assistant": 302,
+    "/api/ai/capabilities": 401,
+    "/static/js/equipment_ai.js": 200
+  },
+  "public_js_sha256": "950ce8c2dec3fcf0df25c2f1d56b47462fbc622067cbbb970eeee973952278c8"
+}

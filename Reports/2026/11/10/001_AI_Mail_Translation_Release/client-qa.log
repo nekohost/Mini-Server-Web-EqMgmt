@@ -1,0 +1,35 @@
+✔ splits one chunky reasoning/answer snapshot into bounded, independently exact frames (80.944273ms)
+ℹ {"scenario":"chunk","renders":14,"first_ms":32,"catch_up_ms":448,"max_queued_frames":1}
+✔ uses elapsed time at different display refresh rates (23.658356ms)
+✔ handles maximum policy-sized text without segmenting on animation frames (96.129352ms)
+ℹ {"scenario":"100k-reasoning-64k-answer","renders":14,"catch_up_ms":448,"segmentation_passes":2,"segmented_utf16":164000}
+✔ segments only appended suffixes, with one previous cluster replayed at each boundary (41.899905ms)
+✔ preserves full emoji/mark/Hangul/flag clusters with native and dependency-free segmentation (5.788828ms)
+✔ completes a cluster that arrives as a later combining/ZWJ suffix (1.623977ms)
+✔ duplicate/reconnected snapshots neither duplicate text nor postpone the original catch-up deadline (1.633409ms)
+✔ a large late append gets its own window without extending old text or re-segmenting duplicate snapshots (11.644423ms)
+✔ same-generation authoritative replacements flush exactly once and cancel stale work (1.618197ms)
+✔ new generation replaces the provisional answer while preserving cumulative reasoning (1.752978ms)
+✔ completion synchronously flushes the exact final text and releases frames/listeners (4.676048ms)
+✔ failure/cancellation can flush accepted text, while conversation disposal discards detached UI (1.919573ms)
+✔ hidden/visible transitions flush immediately and never replay a background backlog (3.182872ms)
+✔ reduced motion is immediate initially and when enabled during a running batch (1.553998ms)
+✔ removes legacy media-query listeners symmetrically (0.901734ms)
+✔ adapts callback frequency to expensive Markdown without leaving a long tail (7.894258ms)
+ℹ {"scenario":"22ms-renderer","renders":7,"final_start_ms":452,"final_end_ms":474}
+✔ a renderer exception cannot leave a live frame or preference/page listener (2.064869ms)
+✔ final hydration and malformed snapshots do not create leaked requests (1.151147ms)
+✔ renders literal mail text during streaming and history hydration (4.080366ms)
+✔ keeps interrupted mail visibly separate from a completed mail and ordinary chat (1.025155ms)
+✔ removes only the bold subject label or its whole-line wrapper from a completed mail (2.961487ms)
+✔ leaves literal, ambiguous, quoted, non-leading and incomplete headings untouched (1.240207ms)
+✔ preserves every stream prefix and partial record, including a closed-looking header (0.842988ms)
+✔ ordinary chat still creates its Markdown emphasis and code nodes (3.804338ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 540.725645
