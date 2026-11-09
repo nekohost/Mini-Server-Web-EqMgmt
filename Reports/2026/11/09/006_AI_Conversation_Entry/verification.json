@@ -1,0 +1,65 @@
+{
+  "regression-ui": {
+    "conditions": 4,
+    "assertions": 654
+  },
+  "regression-keyboard": {
+    "conditions": 12,
+    "assertions": 356
+  },
+  "backend-tests": {
+    "tests": 74,
+    "passed": 74
+  },
+  "related-regression": {
+    "tests": 10,
+    "passed": 10
+  },
+  "first_render": [
+    {
+      "viewport": "1440x900",
+      "theme": "light",
+      "frames": 58,
+      "loading_frames": 40,
+      "welcome_frames": 0,
+      "new_title_frames": 0,
+      "false_empty_frames": 0
+    },
+    {
+      "viewport": "1440x900",
+      "theme": "dark",
+      "frames": 70,
+      "loading_frames": 54,
+      "welcome_frames": 0,
+      "new_title_frames": 0,
+      "false_empty_frames": 0
+    },
+    {
+      "viewport": "384x860",
+      "theme": "light",
+      "frames": 53,
+      "loading_frames": 41,
+      "welcome_frames": 0,
+      "new_title_frames": 0,
+      "false_empty_frames": 0
+    },
+    {
+      "viewport": "384x860",
+      "theme": "dark",
+      "frames": 54,
+      "loading_frames": 40,
+      "welcome_frames": 0,
+      "new_title_frames": 0,
+      "false_empty_frames": 0
+    }
+  ],
+  "screenshots": 20,
+  "browser": "Chromium 152.0.7977.82, mobile touch emulation",
+  "data": "temporary authenticated Flask and SQLite fixtures; synthetic model",
+  "deployment": "staging",
+  "static_checks": {
+    "javascript_syntax": 3,
+    "python_ast": 4,
+    "unique_template_ids": 77
+  }
+}

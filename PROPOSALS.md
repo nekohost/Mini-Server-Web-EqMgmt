@@ -1095,3 +1095,7 @@
 
 - [개발 완료 (FEATURES.md 이관)] 장비 등록·검색·페이징을 먼저 통합하고 결재함, 로그, 사용자·마스터·라인업 관리 등에는 메뉴별 조작 단위로 확장했다. 운영 서버 검증을 완료했다.
 - [장비 계획](Plans/2026/11/09/002_Equipment_Toolbar_Plan.md) · [메뉴별 계획](Plans/2026/11/09/003_Menu_Toolbars_Plan.md) · [운영 보고서](Reports/2026/11/09/004_Menu_Toolbars_Release_Report.md)
+
+## AI-ENTRY-20261109 · AI 도우미 첫 화면과 새 대화
+
+[개발 완료 (FEATURES.md 이관)] 기존 대화 복원과 미저장 초안을 분리하고 첫 질문의 중복 접수를 방지했다. [계획](Plans/2026/11/09/005_AI_Conversation_Entry_Plan.md) · [운영 검증](Reports/2026/11/09/007_AI_Conversation_Entry_Release_Report.md)

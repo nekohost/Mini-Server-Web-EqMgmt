@@ -1,0 +1,21 @@
+{
+  "status": "pass",
+  "authenticated_entry_checked_separately": true,
+  "public_gets": {
+    "/login": 200,
+    "/assistant": 302,
+    "/api/ai/conversations?view=active&resume=1": 401
+  },
+  "public_assets": {
+    "static/js/equipment_ai.js": {
+      "status": 200,
+      "sha256": "4a505e2aefc5e6e245a094ac0451b58032562dc7b9a9dfd7561cda2a8c64adde",
+      "etag": "\"1794193878.6194897-157207-3671399207\""
+    },
+    "static/css/equipment_ai.css": {
+      "status": 200,
+      "sha256": "b6748a86233e3af7ee2eb723c664145e92866afd0a9253b44a938fabaadabc54",
+      "etag": "\"1794193878.6184897-31518-316611583\""
+    }
+  }
+}

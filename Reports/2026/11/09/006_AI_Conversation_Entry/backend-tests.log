@@ -1,0 +1,165 @@
+test_concurrent_calls_and_receipt_after_inventory_change (test_ai_conversation_entry.EntryTests.test_concurrent_calls_and_receipt_after_inventory_change) ... ok
+test_deletion_replay_and_account_isolation (test_ai_conversation_entry.EntryTests.test_deletion_replay_and_account_isolation) ... ok
+test_probe_only_legacy_history_and_queue_limit (test_ai_conversation_entry.EntryTests.test_probe_only_legacy_history_and_queue_limit)
+Empty/probe sessions can't displace real history; a full owner queue admits no phantom chat. ... ok
+test_reads_repeated_acceptance_followup_and_model_error (test_ai_conversation_entry.EntryTests.test_reads_repeated_acceptance_followup_and_model_error) ... ok
+test_rejections_and_rollback (test_ai_conversation_entry.EntryTests.test_rejections_and_rollback) ... [2026-11-09 11:50:35,008] ERROR in __init__: assistant failure type=IntegrityError
+ok
+test_resume_beyond_page_and_conversation_quota (test_ai_conversation_entry.EntryTests.test_resume_beyond_page_and_conversation_quota) ... ok
+test_admin_uses_only_own_equipment_and_pending_requests (test_equipment_ai.AssistantTests.test_admin_uses_only_own_equipment_and_pending_requests)
+[Role] Verifies admin uses only own equipment and pending requests. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_all_two_hundred_conversations_reachable_without_foreign_leak (test_equipment_ai.AssistantTests.test_all_two_hundred_conversations_reachable_without_foreign_leak)
+[Role] Traverses the full retained title limit and hostile foreign cursors. [Dependencies] Owner/account key predicates on each stable page. [Impact] The old recent-100 cutoff is removed without expanding visibility. ... ok
+test_anonymous_and_tampered_cookie (test_equipment_ai.AssistantTests.test_anonymous_and_tampered_cookie)
+[Role] Verifies anonymous and tampered cookie. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_audit_csv_token_and_html_csrf_fingerprint_keep_content (test_equipment_ai.AssistantTests.test_audit_csv_token_and_html_csrf_fingerprint_keep_content)
+[Role] Checks browser tokens and malformed JSON fallback. [Dependencies] Global hook and pure formatter with a stable synthetic key. [Impact] Token protection does not suppress audit events or ordinary token discussion. ... ok
+test_bad_completed_calls_fail_release_queue_and_save_reason (test_equipment_ai.AssistantTests.test_bad_completed_calls_fail_release_queue_and_save_reason)
+[Role] Stops duplicate/missing tool IDs before preparing any proposal. [Dependencies] Valid worker completion and a second owner's queued job. [Impact] Bad responses cannot poison the shared application queue or leave executable cards. ... [2026-11-09 11:50:54,557] WARNING in __init__: assistant stopped job=d374ec392f584203978c05f7751d6f4b code=INVALID_TOOL_CALL type=AssistantError
+ok
+test_browser_cannot_acknowledge_or_confirm_with_worker_only (test_equipment_ai.AssistantTests.test_browser_cannot_acknowledge_or_confirm_with_worker_only)
+[Role] Verifies browser cannot acknowledge or confirm with worker only. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_cancelled_proposal_cannot_be_confirmed (test_equipment_ai.AssistantTests.test_cancelled_proposal_cannot_be_confirmed)
+[Role] Verifies cancelled proposal cannot be confirmed. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_changed_database_token_cancels_queued_job (test_equipment_ai.AssistantTests.test_changed_database_token_cancels_queued_job)
+[Role] Verifies changed database token cancels queued job. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... [2026-11-09 11:51:05,228] WARNING in __init__: assistant pre-dispatch failure job=dbbd49245c724a2d88301d982f81d1a8 type=AssistantError
+ok
+test_client_cannot_supply_roles_or_owner (test_equipment_ai.AssistantTests.test_client_cannot_supply_roles_or_owner)
+[Role] Verifies client cannot supply roles or owner. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_confirmation_wait_does_not_hold_model_request (test_equipment_ai.AssistantTests.test_confirmation_wait_does_not_hold_model_request)
+[Role] Verifies confirmation wait does not hold model request. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_confirmed_receipt_counted_once_and_survives_budget_reduction (test_equipment_ai.AssistantTests.test_confirmed_receipt_counted_once_and_survives_budget_reduction)
+[Role] Counts a real confirmation receipt once even after a policy reduction. [Dependencies] Atomic equipment receipt and AI reservation ledger. [Impact] Completed business evidence is preserved; new work alone is blocked. ... ok
+test_cross_user_confirmation_is_404 (test_equipment_ai.AssistantTests.test_cross_user_confirmation_is_404)
+[Role] Verifies cross user confirmation is 404. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_cross_user_conversation_job_proposal (test_equipment_ai.AssistantTests.test_cross_user_conversation_job_proposal)
+[Role] Verifies cross user conversation job proposal. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_csrf_and_origin_required (test_equipment_ai.AssistantTests.test_csrf_and_origin_required)
+[Role] Verifies csrf and origin required. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_csv_token_is_owner_bound_and_idempotent (test_equipment_ai.AssistantTests.test_csv_token_is_owner_bound_and_idempotent)
+[Role] Verifies csv token is owner bound and idempotent. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_delete_and_privilege_arguments_never_create_proposal (test_equipment_ai.AssistantTests.test_delete_and_privilege_arguments_never_create_proposal)
+[Role] Verifies delete and privilege arguments never create proposal. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... [2026-11-09 11:51:32,602] WARNING in __init__: assistant stopped job=213da994be7d4ab6afc88e89232a93d7 code=INVALID_TOOL_CALL type=AssistantError
+[2026-11-09 11:51:33,197] WARNING in __init__: assistant stopped job=3bfc2f78101c438aa8b4208c7d8485cb code=INVALID_TOOL_CALL type=AssistantError
+ok
+test_expiry_does_not_replay (test_equipment_ai.AssistantTests.test_expiry_does_not_replay)
+[Role] Verifies expiry does not replay. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_extended_storage_reserves_completion_and_retains_output_over_base (test_equipment_ai.AssistantTests.test_extended_storage_reserves_completion_and_retains_output_over_base)
+[Role] Admits a completion beyond the base using explicit extra budget. [Dependencies] Small synthetic limits and the real character ledger. [Impact] Input, reasoning and final answer remain stored and reported above the baseline. ... ok
+test_file_owner_and_signature_checks (test_equipment_ai.AssistantTests.test_file_owner_and_signature_checks)
+[Role] Verifies file owner and signature checks. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_frozen_proposal_tampering (test_equipment_ai.AssistantTests.test_frozen_proposal_tampering)
+[Role] Verifies frozen proposal tampering. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_global_audit_preserves_ai_content_and_protects_lease (test_equipment_ai.AssistantTests.test_global_audit_preserves_ai_content_and_protects_lease)
+[Role] Tests the actual global hook, not a separate logging mock. [Dependencies] AST-extracted hook and synthetic private lease. [Impact] Business content remains auditable without reusable worker grants. ... ok
+test_invalid_levels_and_message_size (test_equipment_ai.AssistantTests.test_invalid_levels_and_message_size)
+[Role] Verifies invalid levels and message size. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_invalid_tool_protocol_stops_for_each_malformed_shape (test_equipment_ai.AssistantTests.test_invalid_tool_protocol_stops_for_each_malformed_shape)
+[Role] Rejects blank IDs, unknown tools, malformed argument JSON and unknown fields. [Dependencies] Real completion finalizer. [Impact] Protocol errors end the job with a persisted safe reason. ... [2026-11-09 11:51:56,441] WARNING in __init__: assistant stopped job=e225edc02a394eed80413a38194332a2 code=INVALID_TOOL_CALL type=AssistantError
+[2026-11-09 11:51:57,121] WARNING in __init__: assistant stopped job=020c06d0169b47708cc4e13a5e7ead35 code=INVALID_TOOL_CALL type=AssistantError
+[2026-11-09 11:51:57,788] WARNING in __init__: assistant stopped job=285fe8a7f2c249bf8157dde380eb0583 code=INVALID_TOOL_CALL type=JSONDecodeError
+[2026-11-09 11:51:58,390] WARNING in __init__: assistant stopped job=73f6a51afb4e48c0920e9fb70c38d366 code=INVALID_TOOL_CALL type=AssistantError
+ok
+test_known_failed_outcome_keeps_length_reason_and_partial_output (test_equipment_ai.AssistantTests.test_known_failed_outcome_keeps_length_reason_and_partial_output)
+[Role] Persists a model length-stop reason and accepted text. [Dependencies] Known finished worker report. [Impact] The queue becomes available without presenting a failed answer as success. ... ok
+test_login_name_change_keeps_account_chat (test_equipment_ai.AssistantTests.test_login_name_change_keeps_account_chat)
+[Role] Keeps the original account's history through a profile rename. [Dependencies] Stable source CreatedAt. [Impact] Does not confuse mutable login names with a new person. ... ok
+test_logout_revokes_queued_job (test_equipment_ai.AssistantTests.test_logout_revokes_queued_job)
+[Role] Verifies logout revokes queued job. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_lost_ai_state_recovers_equipment_receipt (test_equipment_ai.AssistantTests.test_lost_ai_state_recovers_equipment_receipt)
+[Role] Verifies lost ai state recovers equipment receipt. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_maintenance_revision_invalidates_old_delegation (test_equipment_ai.AssistantTests.test_maintenance_revision_invalidates_old_delegation)
+[Role] Verifies maintenance revision invalidates old delegation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... [2026-11-09 11:52:15,673] WARNING in __init__: assistant pre-dispatch failure job=65f1a0eb852746d1a29d9517874837df type=AssistantError
+ok
+test_menu_revocation_disables_existing_proposal (test_equipment_ai.AssistantTests.test_menu_revocation_disables_existing_proposal)
+[Role] Verifies menu revocation disables existing proposal. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_more_than_sixty_messages_reachable_and_owner_guarded (test_equipment_ai.AssistantTests.test_more_than_sixty_messages_reachable_and_owner_guarded)
+[Role] Reads every retained message across before pages. [Dependencies] Synthetic older rows and owner-scoped conversation access. [Impact] No saved message is hidden behind the old sixty-message cutoff. ... ok
+test_multistep_reasoning_and_repeated_offset_do_not_duplicate (test_equipment_ai.AssistantTests.test_multistep_reasoning_and_repeated_offset_do_not_duplicate)
+[Role] Retains both reasoning steps and acknowledges a lost-ack retry. [Dependencies] Actual event offsets and final snapshot reconciliation. [Impact] Cursors stay monotonic and storage is charged once. ... ok
+test_node_request_has_pending_receipt_number (test_equipment_ai.AssistantTests.test_node_request_has_pending_receipt_number)
+[Role] Verifies node request has pending receipt number. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_normalized_equipment_proposal_and_stored_values_match (test_equipment_ai.AssistantTests.test_normalized_equipment_proposal_and_stored_values_match)
+[Role] Freezes normalized dates/serial and uses the same values at commit. [Dependencies] Shared validator return and real domain confirmation. [Impact] Padded valid dates no longer fail and canonical serial duplicates are caught. ... ok
+test_option_request_has_pending_receipt_number (test_equipment_ai.AssistantTests.test_option_request_has_pending_receipt_number)
+[Role] Verifies option request has pending receipt number. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_passive_reads_do_not_refresh_cookie (test_equipment_ai.AssistantTests.test_passive_reads_do_not_refresh_cookie)
+[Role] Verifies passive reads do not refresh cookie. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_preferences_preserve_existing_keys_and_actual_result_in_history (test_equipment_ai.AssistantTests.test_preferences_preserve_existing_keys_and_actual_result_in_history)
+[Role] Verifies preferences preserve existing keys and actual result in history. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_preview_does_not_write_and_confirm_is_idempotent (test_equipment_ai.AssistantTests.test_preview_does_not_write_and_confirm_is_idempotent)
+[Role] Verifies preview does not write and confirm is idempotent. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_private_account_context_changes_without_exposing_token (test_equipment_ai.AssistantTests.test_private_account_context_changes_without_exposing_token)
+[Role] Verifies private account context changes without exposing token. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_queue_claim_race_only_one_application_request (test_equipment_ai.AssistantTests.test_queue_claim_race_only_one_application_request)
+[Role] Verifies queue claim race only one application request. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_reasoning_spacing_and_no_tool_execution (test_equipment_ai.AssistantTests.test_reasoning_spacing_and_no_tool_execution)
+[Role] Verifies reasoning spacing and no tool execution. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_receipt_failure_rolls_back_business_write (test_equipment_ai.AssistantTests.test_receipt_failure_rolls_back_business_write)
+[Role] Verifies receipt failure rolls back business write. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... [2026-11-09 11:53:14,349] ERROR in __init__: assistant failure type=OperationalError
+ok
+test_replay_key_content_bound (test_equipment_ai.AssistantTests.test_replay_key_content_bound)
+[Role] Verifies replay key content bound. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_reused_user_number_cannot_rebind_previous_chat_or_proposal (test_equipment_ai.AssistantTests.test_reused_user_number_cannot_rebind_previous_chat_or_proposal)
+[Role] Simulates restored/reused IDs with even the same token. [Dependencies] Synthetic account birth identity. [Impact] Old conversations/results remain private and preserved. ... [2026-11-09 11:53:25,794] WARNING in __init__: assistant pre-dispatch failure job=e5311dcc85334da6902b590f3cf596fc type=AssistantError
+ok
+test_reviewed_option_change_blocks_confirmation (test_equipment_ai.AssistantTests.test_reviewed_option_change_blocks_confirmation)
+[Role] Verifies reviewed option change blocks confirmation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_revision_conflict (test_equipment_ai.AssistantTests.test_revision_conflict)
+[Role] Verifies revision conflict. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_saved_reasoning_not_in_later_model_context (test_equipment_ai.AssistantTests.test_saved_reasoning_not_in_later_model_context)
+[Role] Verifies saved reasoning not in later model context. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_search_only_own_matches_and_reports_total (test_equipment_ai.AssistantTests.test_search_only_own_matches_and_reports_total)
+[Role] Verifies search only own matches and reports total. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_simultaneous_confirmations_create_only_once (test_equipment_ai.AssistantTests.test_simultaneous_confirmations_create_only_once)
+[Role] Verifies simultaneous confirmations create only once. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_six_standard_ui_levels (test_equipment_ai.AssistantTests.test_six_standard_ui_levels)
+[Role] Verifies six standard ui levels and the explicit off wire mapping. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_status_change_uses_revision_and_audit (test_equipment_ai.AssistantTests.test_status_change_uses_revision_and_audit)
+[Role] Verifies status change uses revision and audit. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_step_continuation_goes_behind_other_user (test_equipment_ai.AssistantTests.test_step_continuation_goes_behind_other_user)
+[Role] Verifies step continuation goes behind other user. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_storage_quota_preserves_existing_input (test_equipment_ai.AssistantTests.test_storage_quota_preserves_existing_input)
+[Role] Verifies storage quota preserves existing input. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_storage_reservations_prevent_oversubscription_and_release_on_cancel (test_equipment_ai.AssistantTests.test_storage_reservations_prevent_oversubscription_and_release_on_cancel)
+[Role] Reserves future completion before admitting another conversation. [Dependencies] Small fixture allowance and normal cancellation. [Impact] Concurrent accepted jobs cannot spend the same completion space. ... ok
+test_turn_rate_limit_does_not_charge_idempotent_retries (test_equipment_ai.AssistantTests.test_turn_rate_limit_does_not_charge_idempotent_retries)
+[Role] Verifies turn rate limit does not charge idempotent retries. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_unexpected_domain_error_finalizes_and_cancels_earlier_card (test_equipment_ai.AssistantTests.test_unexpected_domain_error_finalizes_and_cancels_earlier_card)
+[Role] Stops a later processing exception after a valid earlier proposal. [Dependencies] Injected fixture exception and real proposal cancellation. [Impact] Failed answers leave no pending action for the user to execute. ... [2026-11-09 11:54:14,875] WARNING in __init__: assistant stopped job=6dce48f4a41e40c9926a98809bc3486f code=PROCESSING_FAILED type=RuntimeError
+ok
+test_unknown_request_blocks_replay_and_cancellation_drains (test_equipment_ai.AssistantTests.test_unknown_request_blocks_replay_and_cancellation_drains)
+[Role] Verifies unknown request blocks replay and cancellation drains. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_unknown_response_stopped_reason_and_explicit_own_recovery (test_equipment_ai.AssistantTests.test_unknown_response_stopped_reason_and_explicit_own_recovery)
+[Role] Keeps an uncertain request locked while showing a saved interruption reason. [Dependencies] Private own-request acknowledgement. [Impact] No inference replay or other-service control occurs; confirmed shutdown releases reservation. ... ok
+test_user_queue_admission_limit (test_equipment_ai.AssistantTests.test_user_queue_admission_limit)
+[Role] Verifies user queue admission limit. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_v1_additive_migration_preserves_history_and_uncertain_lock (test_equipment_ai.AssistantTests.test_v1_additive_migration_preserves_history_and_uncertain_lock)
+[Role] Reopens a genuine v1 table layout with a live uncertain job. [Dependencies] Synthetic prior schema columns and retained rows, never production DB. [Impact] Migration is additive/idempotent and never steals the old request lock. ... ok
+test_worker_secret_and_local_peer_required (test_equipment_ai.AssistantTests.test_worker_secret_and_local_peer_required)
+[Role] Verifies worker secret and local peer required. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_writes_flag_checked_again_at_confirmation (test_equipment_ai.AssistantTests.test_writes_flag_checked_again_at_confirmation)
+[Role] Verifies writes flag checked again at confirmation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_sse_whitespace_unicode_and_done (test_equipment_ai.ProtocolTests.test_sse_whitespace_unicode_and_done)
+[Role] Verifies sse whitespace unicode and done. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_sse_without_done_is_failure (test_equipment_ai.ProtocolTests.test_sse_without_done_is_failure)
+[Role] Verifies sse without done is failure. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+test_worker_flushes_explicit_step_offsets (test_equipment_ai.ProtocolTests.test_worker_flushes_explicit_step_offsets)
+[Role] Attaches monotonic per-step offsets to separate text batches. [Dependencies] Synthetic multi-frame response and real flush boundary. [Impact] A retried event is distinguishable from new text and cannot duplicate reasoning. ... ok
+test_worker_known_rejection_and_length_stop_have_safe_reasons (test_equipment_ai.ProtocolTests.test_worker_known_rejection_and_length_stop_have_safe_reasons)
+[Role] Classifies definitive HTTP rejection and length termination. [Dependencies] Real worker with synthetic SSE. [Impact] Known failures are reported as stopped, never as successful tool continuation. ... model step job=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa type=ValueError outcome=failed
+ok
+test_worker_retries_finish_delivery_without_replaying_inference (test_equipment_ai.ProtocolTests.test_worker_retries_finish_delivery_without_replaying_inference)
+[Role] Retries only a fixed completion report after delivery loss. [Dependencies] One synthetic model response. [Impact] A transient local API failure cannot silently leave a known job running or repeat a model/tool request. ... finish report job=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa type=ConnectionError attempt=1
+ok
+test_worker_timeout_and_broken_stream_hold_only_uncertain_own_lock (test_equipment_ai.ProtocolTests.test_worker_timeout_and_broken_stream_hold_only_uncertain_own_lock)
+[Role] Classifies timeout and missing DONE without replay. [Dependencies] Real worker and failed synthetic transport. [Impact] User receives safe stop codes while unknown upstream completion remains reserved. ... model step job=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa type=ReadTimeout outcome=recovery_required
+model step job=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa type=ValueError outcome=recovery_required
+ok
+test_worker_uses_separate_reasoning_and_no_shared_control (test_equipment_ai.ProtocolTests.test_worker_uses_separate_reasoning_and_no_shared_control)
+[Role] Verifies worker uses separate reasoning and no shared control. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access. ... ok
+
+----------------------------------------------------------------------
+Ran 74 tests in 257.116s
+
+OK

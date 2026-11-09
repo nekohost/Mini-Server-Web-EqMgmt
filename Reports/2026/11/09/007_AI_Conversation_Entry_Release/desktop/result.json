@@ -1,0 +1,49 @@
+{
+  "viewport": [
+    1440,
+    900
+  ],
+  "touch_emulation": false,
+  "natural": {
+    "errors": 0,
+    "false_empty": 0,
+    "frames": 12,
+    "height": 900,
+    "loading": 9,
+    "new_title": 0,
+    "overflow": 0,
+    "welcome": 0,
+    "width": 1440
+  },
+  "held": {
+    "errors": 0,
+    "false_empty": 0,
+    "frames": 30,
+    "height": 900,
+    "loading": 27,
+    "new_title": 0,
+    "overflow": 0,
+    "welcome": 0,
+    "width": 1440
+  },
+  "before_first_delta": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "saved_delta": [
+    1,
+    1,
+    1,
+    1
+  ],
+  "rapid_submit_actions": 3,
+  "ui_first_post_before_retry": 1,
+  "http_202_receipts": 2,
+  "same_conversation_and_job": true,
+  "lost_first_reply_recovered": false,
+  "next_draft_preserved": false,
+  "worker_state": "done",
+  "nonempty_model_reply": true
+}

@@ -393,3 +393,7 @@
 
 - [개발 완료 (FEATURES.md 이관)] 장비 시범과 14개 메뉴의 개선을 병합했다. 운영 화면 세 가지를 폭 세 단계에서 검사하고 관리자·일반 사용자 권한 및 기존 데이터 보존을 대조했다.
 - [기능 30](FEATURES.md) · [staging 검증](Reports/2026/11/09/003_Menu_Toolbars_Report.md) · [운영 검증](Reports/2026/11/09/004_Menu_Toolbars_Release_Report.md)
+
+## AI-ENTRY-20261109 · 대화 복원 및 첫 메시지 접수
+
+[개발 완료 (FEATURES.md 이관)] 기존 대화의 첫 화면, 새 대화의 저장 시점과 재시도를 운영 서버에 적용했다. [기능 31](FEATURES.md) · [검증 기록](Reports/2026/11/09/007_AI_Conversation_Entry_Release_Report.md)

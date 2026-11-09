@@ -1,0 +1,30 @@
+{
+  "status": "pass",
+  "previous_commit": "dee0300aedcf5c39efc0c3c1ff409af1bc8313ab",
+  "source_commit": "ba6ec691a12cd0b00b8668a4e99f56b9bb078a00",
+  "start_utc": "2026-11-09T03:11:11.538196+00:00",
+  "activation": {
+    "status": "active",
+    "app_pid": 1442539,
+    "worker": "active",
+    "ai_version": 4,
+    "old_business_rows_preserved": true,
+    "old_ai_rows_preserved": true,
+    "secrets_preserved": true,
+    "explicit_ai_database": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/ai/assistant.sqlite3",
+    "retention_timer_enabled": true,
+    "activated_at_utc": "2026-11-09T03:11:46.244306+00:00"
+  },
+  "release_window_seconds": 34.71,
+  "private_backup_files_sha256_matched": 9,
+  "production_files_sha256_matched": 9,
+  "settings_and_units_verified": 5,
+  "copy_checks": {
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "audit_rows_preserved": true,
+    "lifecycle_rows_preserved": true,
+    "ai_version": 4
+  },
+  "maintenance": "NORMAL"
+}

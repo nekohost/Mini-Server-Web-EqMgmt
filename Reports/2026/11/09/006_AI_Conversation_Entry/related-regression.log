@@ -1,0 +1,25 @@
+test_selection_owner_revision_unsupported_level_and_idempotency (test_multi_provider_ai.ProviderTests.test_selection_owner_revision_unsupported_level_and_idempotency)
+[Role] Verifies selection owner revision unsupported level and idempotency on synthetic fixtures. ... ok
+test_same_session_switch_restores_selection_and_frozen_turn_source (test_multi_provider_ai.ProviderTests.test_same_session_switch_restores_selection_and_frozen_turn_source)
+[Role] Verifies same session switch restores selection and frozen turn source on synthetic fixtures. ... ok
+test_first_new_turn_records_choice_for_an_unattributed_old_conversation (test_multi_provider_ai.ProviderTests.test_first_new_turn_records_choice_for_an_unattributed_old_conversation)
+[Role] Persists the first explicit new choice without inventing a source for old answers. ... ok
+test_real_adapter_capability_probe_then_user_turn_openai_excludes_strata_flag (test_multi_provider_ai.ProviderTests.test_real_adapter_capability_probe_then_user_turn_openai_excludes_strata_flag)
+[Role] Verifies real adapter capability probe then user turn openai excludes strata flag on synthetic fixtures. ... ok
+test_active_trash_pagination_and_view_cursor_binding (test_ai_conversation_lifecycle.ConversationLifecycleTests.test_active_trash_pagination_and_view_cursor_binding)
+[Role] Keeps history cursors bound to one view. [Dependencies] 51 synthetic titles. [Impact] No state crossing. ... ok
+test_pure_probe_hidden_and_mixed_chat_history_preserved_without_probe_rows (test_ai_conversation_lifecycle.ConversationLifecycleTests.test_pure_probe_hidden_and_mixed_chat_history_preserved_without_probe_rows)
+[Role] Separates diagnostic rows by purpose. [Dependencies] Real jobs purpose field. [Impact] Titles never decide visibility. ... ok
+test_normal_plus_trash_count_keeps_the_200_conversation_limit (test_ai_conversation_lifecycle.ConversationLifecycleTests.test_normal_plus_trash_count_keeps_the_200_conversation_limit)
+[Role] Keeps trash in the existing retention count. [Dependencies] Explicit purge. [Impact] Moving alone frees no quota. ... ok
+test_trash_queued_cancels_proposals_and_restore_does_not_restart (test_ai_conversation_lifecycle.ConversationLifecycleTests.test_trash_queued_cancels_proposals_and_restore_does_not_restart)
+[Role] Cancels queued work and pending cards at movement. [Dependencies] Same writer. [Impact] Restore is read-only history recovery. ... ok
+test_lifecycle_owner_account_and_operation_validation (test_ai_conversation_lifecycle.ConversationLifecycleTests.test_lifecycle_owner_account_and_operation_validation)
+[Role] Verifies account reuse and malformed input rejection. [Dependencies] Store auth predicates. [Impact] Foreign state hidden. ... ok
+test_purge_active_request_keeps_guard_until_known_finish (test_ai_conversation_lifecycle.ConversationLifecycleTests.test_purge_active_request_keeps_guard_until_known_finish)
+[Role] Purges live content without releasing its group. [Dependencies] Detached finish lease. [Impact] No concurrent upstream replay. ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 38.454s
+
+OK

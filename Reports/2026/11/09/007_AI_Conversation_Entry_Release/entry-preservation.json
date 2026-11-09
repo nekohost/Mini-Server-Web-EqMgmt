@@ -1,0 +1,197 @@
+{
+  "status": "pass",
+  "business_tables": {
+    "approval_requests": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "categories": {
+      "old": 1,
+      "new": 1,
+      "old_rows_missing_or_changed": 0
+    },
+    "email_verifications": {
+      "old": 2,
+      "new": 2,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipment": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipment_files": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipment_imports": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipment_notification_log": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipment_options": {
+      "old": 2,
+      "new": 2,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipments": {
+      "old": 2,
+      "new": 2,
+      "old_rows_missing_or_changed": 0
+    },
+    "equipments_audit_log": {
+      "old": 6,
+      "new": 6,
+      "old_rows_missing_or_changed": 0
+    },
+    "lineup_nodes": {
+      "old": 13,
+      "new": 13,
+      "old_rows_missing_or_changed": 0
+    },
+    "manufacturers": {
+      "old": 1,
+      "new": 1,
+      "old_rows_missing_or_changed": 0
+    },
+    "menus": {
+      "old": 17,
+      "new": 17,
+      "old_rows_missing_or_changed": 0
+    },
+    "password_resets": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "role_menu_permissions": {
+      "old": 32,
+      "new": 32,
+      "old_rows_missing_or_changed": 0
+    },
+    "sys_migrations": {
+      "old": 17,
+      "new": 17,
+      "old_rows_missing_or_changed": 0
+    },
+    "user_settings": {
+      "old": 3,
+      "new": 3,
+      "old_rows_missing_or_changed": 0
+    },
+    "users": {
+      "old": 8,
+      "new": 8,
+      "old_rows_missing_or_changed": 0
+    }
+  },
+  "existing_ai_rows_by_table": {
+    "conversations": {
+      "old": 13,
+      "new": 15,
+      "old_rows_missing_or_changed": 0
+    },
+    "jobs": {
+      "old": 28,
+      "new": 30,
+      "old_rows_missing_or_changed": 0
+    },
+    "messages": {
+      "old": 56,
+      "new": 60,
+      "old_rows_missing_or_changed": 0
+    },
+    "message_steps": {
+      "old": 56,
+      "new": 60,
+      "old_rows_missing_or_changed": 0
+    },
+    "proposals": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_selection_events": {
+      "old": 24,
+      "new": 26,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_provider_models": {
+      "old": 1,
+      "new": 1,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_providers": {
+      "old": 1,
+      "new": 1,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_provider_revisions": {
+      "old": 4,
+      "new": 4,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_provider_settings": {
+      "old": 1,
+      "new": 1,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_lifecycle_operations": {
+      "old": 36,
+      "new": 38,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_lifecycle_tombstones": {
+      "old": 14,
+      "new": 14,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_task_drafts": {
+      "old": 0,
+      "new": 0,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_resource_groups": {
+      "old": 1,
+      "new": 1,
+      "old_rows_missing_or_changed": 0
+    },
+    "storage_accounts": {
+      "old": 5,
+      "new": 5,
+      "old_rows_missing_or_changed": 0
+    },
+    "revocations": {
+      "old": 17,
+      "new": 17,
+      "old_rows_missing_or_changed": 0
+    },
+    "ai_execution_guards": {
+      "old": 73,
+      "new": 75,
+      "old_rows_missing_or_changed": 0
+    }
+  },
+  "previous_access_and_audit_rows_preserved": true,
+  "login_session_changes": [
+    "test04"
+  ],
+  "verified_model_discovery_timestamps": true,
+  "queue_rotation_to_test_owner": true,
+  "storage_delta_matches_test_chats": 759,
+  "test_conversations_in_trash": 2,
+  "test_model_replies_done": 2,
+  "exact_requested_short_replies": 2,
+  "web_process_verified": true,
+  "worker": "active",
+  "retention_timer": "active",
+  "maintenance": "NORMAL",
+  "unfinished_jobs": {}
+}

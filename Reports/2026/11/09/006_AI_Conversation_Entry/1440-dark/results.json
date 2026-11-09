@@ -1,0 +1,38 @@
+{
+  "status": "pass",
+  "width": 1440,
+  "height": 900,
+  "theme": "dark",
+  "frames": {
+    "dark": true,
+    "detailsReturned": 1,
+    "errors": [],
+    "falseEmptyFrames": 0,
+    "frames": 70,
+    "height": 900,
+    "loadingFrames": 54,
+    "newTitleFrames": 0,
+    "observe": false,
+    "overflow": 0,
+    "welcomeFrames": 0,
+    "width": 1440
+  },
+  "before_send": {
+    "new_conversations": 0,
+    "new_user_messages": 0,
+    "new_jobs": 0,
+    "writes": 0
+  },
+  "after_duplicate_and_lost_ack": {
+    "new_conversations": 1,
+    "new_user_messages": 1,
+    "new_assistant_placeholders": 1,
+    "new_jobs": 1,
+    "first_requests": 2
+  },
+  "list_retry": true,
+  "detail_retry_without_resend": true,
+  "history_with_failed_inventory": true,
+  "next_draft_preserved": true,
+  "queued_work_survived_navigation": true
+}
