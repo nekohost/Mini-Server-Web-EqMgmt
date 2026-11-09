@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.10]
+[EN rev.12]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
-[Impact] Keeps existing data and unknown-request locks; accepted output is never evicted to admit new input.
+[Impact] Keeps existing data and execution guards. A mail translation retains the original chat record and queues only its own source.
 """
 import base64
 from contextlib import contextmanager
@@ -19,6 +19,7 @@ import uuid
 from .policy import (AssistantError, ERROR_REASONS, MAX_CONTENT, MAX_PROPOSALS, MAX_REASONING,
                      MAX_RECEIPT, OUTPUT_RESERVATION, TERMINAL, canonical, digest, mac, opaque)
 from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION, search_mode
+from .translation import format_verified_signoff, revised_korean_display, translation_route, translation_source
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_meta(version INTEGER NOT NULL);
@@ -295,8 +296,8 @@ class Store(LifecycleStore):
             raise AssistantError('이미 접수된 대화가 휴지통에 있습니다.', 409)
         return prior['conversation'], prior['id']
 
-    def enqueue_first(self, owner, account_key, content, level, key, binding, expires, route, fingerprint):
-        """[MINI-COMMENT: ASSISTANT.QUEUE.FIRST] [EN rev.1]
+    def enqueue_first(self, owner, account_key, content, level, key, binding, expires, route, fingerprint, mail=None):
+        """[MINI-COMMENT: ASSISTANT.QUEUE.FIRST] [EN rev.2]
         [Role] Commits the first question, selected model, new chat and queue job together.
         [Dependencies] Serialized private DB admission and the owner's existing job-key uniqueness.
         [Impact] Rejections roll back the empty chat; retries after a lost response cannot resurrect purged chats.
@@ -309,20 +310,20 @@ class Store(LifecycleStore):
             if db.execute('SELECT 1 FROM ai_lifecycle_tombstones WHERE conversation=?', (cid,)).fetchone():
                 raise AssistantError('이미 접수 후 삭제한 대화입니다.', 410)
             self._insert_conversation(db, owner, account_key, cid)
-            jid = self._enqueue(db, owner, cid, content, level, key, binding, expires, account_key, route, 'chat', None, fingerprint)
+            jid = self._enqueue(db, owner, cid, content, level, key, binding, expires, account_key, route, 'chat', None, fingerprint, mail)
             return cid, jid
 
-    def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None):
+    def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None, mail=None):
         """Admits an existing-conversation turn or administrator probe in its own transaction."""
         with self.db(True) as db:
-            return self._enqueue(db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan)
+            return self._enqueue(db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan, mail=mail)
 
-    def _enqueue(self, db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan, fingerprint=None):
+    def _enqueue(self, db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan, fingerprint=None, mail=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.10]
+        [EN rev.12]
         [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Caller-owned transaction, idempotency, rate/admission limits and base plus extension budget.
-        [Impact] First turns reuse all normal admission checks and reservations. Legacy fingerprints and durable manual titles remain valid.
+        [Impact] Mail jobs retain UI-level semantics including default/off. Only the targeted 260Strata job overrides its effort, and the next conversation setting remains user-selected.
         """
         conv=self.conversation(owner, cid, db, account_key)
         if purpose == 'chat' and db.execute("SELECT 1 FROM jobs WHERE conversation=?", (cid,)).fetchone() and not db.execute("SELECT 1 FROM jobs WHERE conversation=? AND purpose='chat'", (cid,)).fetchone():
@@ -344,6 +345,9 @@ class Store(LifecycleStore):
             model=db.execute('SELECT p.revision,p.enabled,p.retired,m.profile_revision,m.verified_revision,m.present,m.published FROM ai_provider_models m JOIN ai_providers p ON p.id=m.provider WHERE m.id=?',(route['selection_id'],)).fetchone()
             if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose=='chat' and (not model['published'] or model['verified_revision']!=model['revision'])):
                 raise AssistantError('접수 중 모델 설정이 변경되었습니다. 모델을 다시 확인해 주세요.',409)
+        job_level = level
+        if mail:
+            route, job_level = translation_route(route, mail.direction, level, mail.source)
         now = time.time()
         output_reservation=self.output_reservation+(SEARCH_RESERVATION if route and route.get('web_search_allowed') is True else 0)
         minute, day = db.execute('SELECT SUM(created>=?),COUNT(*) FROM jobs WHERE owner=? AND created>=?',
@@ -370,13 +374,16 @@ class Store(LifecycleStore):
             raise AssistantError('이 대화의 이전 응답을 기다려 주세요.', 409)
         jid = uuid.uuid4().hex
         order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]
-        history = [dict(r) for r in db.execute("""SELECT role,content FROM messages WHERE conversation=? AND content<>''
-            AND (job IS NULL OR job IN (SELECT id FROM jobs WHERE purpose='chat' AND state IN ('done','waiting_confirmation')))
-            ORDER BY id DESC LIMIT 12""", (cid,))][::-1][-8:]
-        history.append({'role': 'user', 'content': content})
+        if mail:
+            history = [{'role': 'user', 'content': mail.source}]
+        else:
+            history = [dict(r) for r in db.execute("""SELECT role,content FROM messages WHERE conversation=? AND content<>''
+                AND (job IS NULL OR job IN (SELECT id FROM jobs WHERE purpose='chat' AND state IN ('done','waiting_confirmation')))
+                ORDER BY id DESC LIMIT 12""", (cid,))][::-1][-8:]
+            history.append({'role': 'user', 'content': content})
         db.execute("""INSERT INTO jobs(id,conversation,owner,client_key,input_hash,binding,expires,level,state,queue_order,
             context,reserved_chars,created,updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            (jid, cid, owner, client_key, fingerprint, binding, expires, level, 'queued', order,
+            (jid, cid, owner, client_key, fingerprint, binding, expires, job_level, 'queued', order,
              canonical(history), output_reservation, now, now))
         db.execute('INSERT INTO messages(conversation,job,role,content,created) VALUES(?,?,?,?,?)', (cid, jid, 'user', content, now))
         db.execute('INSERT INTO messages(conversation,job,role,created) VALUES(?,?,?,?)', (cid, jid, 'assistant', now))
@@ -645,6 +652,13 @@ class Store(LifecycleStore):
                 db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'", (jid,))
             if state == 'done' and db.execute("SELECT 1 FROM proposals WHERE job=? AND state='pending'", (jid,)).fetchone():
                 state = 'waiting_confirmation'
+            if (state == 'done' and row['purpose'] == 'chat' and not row['is_deleted']
+                    and revised_korean_display(json.loads(row['route_snapshot'] or '{}'))):
+                # Keep the exact streamed signal in message_steps; charge only the completed display delta.
+                message = db.execute("SELECT reasoning,content FROM messages WHERE job=? AND role='assistant'", (jid,)).fetchone()
+                display = format_verified_signoff(translation_source(row), message['content'])
+                if display != message['content']:
+                    self._message_text(db, row, message['reasoning'], display)
             order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]
             db.execute('UPDATE jobs SET state=?,error=COALESCE(error,?),error_code=COALESCE(error_code,?),context=?,steps=steps+1,queue_order=?,updated=? WHERE id=?',
                        (state, error, error_code, canonical(context) if context is not None else row['context'], order, time.time(), jid))

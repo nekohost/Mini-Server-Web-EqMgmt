@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.14]
+[EN rev.15]
 [Role] Installs independent user chat routes and an authenticated worker boundary.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
-[Impact] Missing decisions/answers and explicitly terminated token-limit responses receive bounded corrections; immutable consent, storage and unknown-request guards are preserved.
+[Impact] Explicit single-mail translations use an isolated, tool-free step and a checked terminal report. Ordinary chat corrections, immutable consent and execution guards are preserved.
 """
 from datetime import datetime
 import json
@@ -33,6 +33,7 @@ from .audit import preserve_export
 from .status import read_status
 from .web_search import SearchService, WebSearchError, MAX_SEARCHES, public_searches, search_mode, search_planning, search_permitted
 from .recovery import CORRECTIONS, correction_context, correction_phase, model_context
+from .translation import explicit_mail, translation_completion, translation_packet
 
 
 def enabled(value):
@@ -664,16 +665,17 @@ def install_assistant(app, services):
             if receipt:
                 return jsonify(success=True, conversation_id=receipt[0], job_id=receipt[1]), 202
         route, level, _ = selected(actor, opaque(cid) if cid is not None else None, model, data['level'])
+        mail = explicit_mail(content)
         available=domain.search_service.available and bool(route['profile'].get('tools'))
-        if legacy_search is True and not available:
+        if not mail and legacy_search is True and not available:
             raise AssistantError('현재 서버 또는 선택한 모델에서 웹 검색을 사용할 수 없습니다.')
         route['web_search_mode']='required' if legacy_search is True else 'off' if legacy_search is False else 'auto'
         route['web_search_allowed']=available and legacy_search is not False
         expires = time.time() + min(1800, app.permanent_session_lifetime.total_seconds())
         if cid is None:
-            new_cid, jid = store.enqueue_first(owner, account, content, level, key, actor['binding'], expires, route, fingerprint)
+            new_cid, jid = store.enqueue_first(owner, account, content, level, key, actor['binding'], expires, route, fingerprint, mail=mail)
             return jsonify(success=True, conversation_id=new_cid, job_id=jid), 202
-        jid=store.enqueue(owner,opaque(cid),content,level,key,actor['binding'],expires,account,route)
+        jid=store.enqueue(owner,opaque(cid),content,level,key,actor['binding'],expires,account,route,mail=mail)
         return jsonify(success=True,job_id=jid),202
 
     @bp.get('/api/ai/status')
@@ -809,6 +811,8 @@ def install_assistant(app, services):
             route['api_key']=registry.secret(route['credential'])
             route['legacy_worker_key']=route['credential']=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
+            if 'mail_translation' in route:
+                return jsonify(success=True, job=translation_packet(job, route, PROTOCOL))
             planning=search_planning(job,route)
             correcting=correction_phase(job)
             search_allowed=search_permitted(job,route)
@@ -927,10 +931,10 @@ def install_assistant(app, services):
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.5]
+        [EN rev.6]
         [Role] Enforces search decisions and bounded correction for completed missing output or an explicitly terminated output-token limit.
         [Dependencies] Verified lease, optional typed termination evidence, immutable route and server correction context.
-        [Impact] Answer corrections admit no tools; other failures remain terminal and unknown upstream work stays locked. Legacy completion reports keep their contract.
+        [Impact] Mail translations have a single tool-free attempt and require DONE, stop and a complete-looking email. Ordinary correction and historical completion contracts are preserved.
         """
         worker()
         data=body(2097152)
@@ -947,13 +951,19 @@ def install_assistant(app, services):
         known=outcome in ('complete','failed','cancelled')
         code='INVALID_RESPONSE'
         try:
+            route=json.loads(job['route_snapshot'])
+            termination=data.get('termination')
+            if ('mail_translation' in route and outcome == 'complete'
+                    and (not isinstance(termination, dict) or termination.get('done') is not True)):
+                outcome, known, code = 'recovery_required', False, 'STREAM_INCOMPLETE'
             object_only(data,('lease','calls','content','reasoning','outcome','error_code','termination'),('lease','outcome'))
             if outcome not in ('complete','failed','recovery_required','cancelled'):
                 raise AssistantError('작업 완료 상태가 올바르지 않습니다.')
             supplied=data.get('error_code')
             if supplied is not None and (not isinstance(supplied,str) or supplied not in ERROR_REASONS):
                 raise AssistantError('작업 중단 사유 형식이 올바르지 않습니다.')
-            termination=data.get('termination')
+            if code == 'STREAM_INCOMPLETE':
+                supplied = code
             if 'termination' in data:
                 object_only(termination,('done','finish_reason'),('done','finish_reason'))
                 if type(termination['done']) is not bool or termination['finish_reason'] not in (None,'stop','tool_calls','length','content_filter','unrecognized'):
@@ -969,8 +979,7 @@ def install_assistant(app, services):
                 outcome='cancelled'
             # A DONE+length report is a known-ended model response, unlike character overflow,
             # timeout or an EOF without DONE. Discard incomplete calls; never execute them.
-            if outcome=='failed' and supplied=='LENGTH_LIMIT' and termination=={'done':True,'finish_reason':'length'} and data.get('calls',[])==[] and job['purpose']=='chat':
-                route=json.loads(job['route_snapshot'])
+            if 'mail_translation' not in route and outcome=='failed' and supplied=='LENGTH_LIMIT' and termination=={'done':True,'finish_reason':'length'} and data.get('calls',[])==[] and job['purpose']=='chat':
                 # Historical required-search jobs must not skip their still-unperformed search.
                 if search_mode(route)!='required' or public_searches(job['context']):
                     try:
@@ -996,7 +1005,10 @@ def install_assistant(app, services):
                 current=store.lease(db,jid,data['lease'])
             if current['cancel']:
                 return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled'))
-            route=json.loads(job['route_snapshot'])
+            if 'mail_translation' in route:
+                state, error_code, reason = translation_completion(job, route['mail_translation'], data)
+                state = store.finish(jid, data['lease'], state, reason, error_code=error_code)
+                return jsonify(success=True, state=state)
             if job['purpose']=='probe':
                 stage=json.loads(job['probe_plan'])[job['steps']]
                 calls=data.get('calls',[])

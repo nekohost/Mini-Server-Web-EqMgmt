@@ -20,13 +20,18 @@ LEGACY_GROUP = '0' * 31 + '3'
 
 def public_source(snapshot):
     """[MINI-COMMENT: ASSISTANT.PROVIDERS.PUBLIC_SOURCE]
-    [EN rev.1]
+    [EN rev.2]
     [Role] Projects immutable answer provenance without disclosing API addresses, IDs or credentials.
     [Dependencies] Server-owned route JSON; historical unattributed jobs remain explicitly unattributed.
-    [Impact] Renaming a provider/model cannot relabel earlier accepted responses.
+    [Impact] An isolated mail turn is identifiable in live and restored history using its accepted route.
     """
     route=json.loads(snapshot)
-    return {k:route.get(k) for k in ('provider_name','model_label','revision','reasoning_effort')} if route else None
+    if not route:
+        return None
+    source = {k:route.get(k) for k in ('provider_name','model_label','revision','reasoning_effort')}
+    if 'mail_translation' in route:
+        source['mail_translation'] = route['mail_translation']
+    return source
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_resource_groups(id TEXT PRIMARY KEY,name TEXT NOT NULL UNIQUE);

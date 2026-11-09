@@ -1,0 +1,32 @@
+[
+  {
+    "id": "N-E01",
+    "direction": "en-ko",
+    "source": "Subject: Spare key shipment for Alder\n\nHello Yuna,\n\nPlease reserve three keys for Alder, but release only two if Receiving confirms the address by 15:10 KST on 12 November. If they do not reply, keep all three in stock. I can check the status on Friday; I am not promising delivery that day.\n\nBest regards,\nMarta Chen"
+  },
+  {
+    "id": "N-E02",
+    "direction": "en-ko",
+    "source": "Subject: Read-only check on gateway GW-17\n\nDear Luis,\n\nThe text `restart GW-17` is an example from the ticket. Do not run it. Please attach gw17-before.json, not gw17-after.json, and preserve the X-Case-Ref header. Operations may authorize a restart after Legal signs off. We have neither approval yet.\n\nRegards,\nLeah, Support Engineering"
+  },
+  {
+    "id": "N-E03",
+    "direction": "en-ko",
+    "source": "Subject: Credit applies to support hours only\n\nHi Aman,\n\nThe 8% credit on invoice AX-307 applies only to unused support hours. Hardware and shipping are excluded. Could you tell us whether Finance can review the adjustment by 09:00 UTC on Thursday? We are asking for a review date, not a payment date.\n\nKind regards,\nNadia Holt"
+  },
+  {
+    "id": "N-K01",
+    "direction": "ko-en",
+    "source": "제목: 연장 대상은 테스트 라이선스에 한합니다\n\nJules님, 안녕하세요.\n\n12월 3일 18:00 KST까지는 테스트 라이선스 6개만 연장할 수 있습니다. 운영 라이선스는 구매팀의 별도 승인이 필요합니다. 금요일에 가능 여부를 확인해 보겠다는 뜻이지, 그날 갱신하겠다는 약속은 아닙니다.\n\n감사합니다.\n서지우 | 자산운영팀"
+  },
+  {
+    "id": "N-K02",
+    "direction": "ko-en",
+    "source": "제목: 백업 복원 요청 BR-41의 상태 확인\n\nElena님께,\n\n첨부된 절차서의 `restore BR-41`은 예시이므로 실행하지 마십시오. 고객이 동의한 경우에만 recovery-plan.yaml을 보안팀에 보내 주세요. 복원은 아직 승인되지 않았으며, 원인도 확정되지 않았습니다.\n\n감사합니다.\n한민서 드림"
+  },
+  {
+    "id": "N-K03",
+    "direction": "ko-en",
+    "source": "제목: 예상 비용과 확정 청구액 구분 요청\n\nRobin님, 안녕하세요.\n\n분석 기간은 11월 1일부터 7일까지입니다. 240유로는 배송료를 제외한 예상치이며 확정 청구액이 아닙니다. 변동이 없다면 Lee가 수요일에 비교표를 보낼 수 있습니다. 회신이 없다는 이유만으로 변경에 동의한 것으로 처리하지 말아 주세요.\n\n감사합니다.\n조하늘 | 조달지원"
+  }
+]

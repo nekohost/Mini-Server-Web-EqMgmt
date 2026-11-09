@@ -1,5 +1,5 @@
 /* [MINI-COMMENT: ASSISTANT.CLIENT]
- * [EN rev.29]
+ * [EN rev.31]
  * [Role] Renders owner chat and requested file/CSV workspaces with measured viewport fitting, preserved conversation lifecycle and account-specific input shortcuts.
  * [Dependencies] Vanilla DOM/fetch, the disposable cumulative-snapshot presenter and /api/ai; file/CSV authorization remains independent.
  * [Impact] Viewport/reader state survives reflow; owner snapshots also reconcile confirmed terminal jobs without replaying requests, while unknown execution stays locked and old polls cannot block a newly selected request. Input shortcuts retain native composition/newlines, pending submissions remain single, navigation stays on the accepted conversation and later drafts survive acceptance. Startup resolves the owner’s actual history, and unsaved drafts use atomic first-turn acceptance.
@@ -360,7 +360,60 @@
         };
     }
 
-    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts };
+    /** Remove only an unambiguous bold wrapper around the leading mail header or its label. */
+    function plainMailSubject(content) {
+        const header = /^([ \t\r\n]*)\*\*(Subject|제목)(\*\*[ \t]*[:：]|[ \t]*[:：](?:\*\*)?)([^\r\n\u2028\u2029]*)/iu;
+        return content.replace(header, (line, prefix, label, colon, title) => {
+            const indent = prefix.slice(Math.max(prefix.lastIndexOf('\r'), prefix.lastIndexOf('\n')) + 1);
+            if (indent.includes('\t') || indent.length >= 4 || !title.trim()) return line;
+            if (colon.includes('**')) {
+                if (colon.endsWith('**') && title.startsWith('*')) return line;
+                return prefix + label + colon.replace('**', '') + title;
+            }
+
+            const close = /(?<=[^\s*\\])\*\*[ \t]*$/.exec(title);
+            if (!close) return line;
+            const value = title.slice(0, close.index);
+            // A second possible closing mark makes the outer pair ambiguous. Backtick
+            // spans, escaped stars and directory wildcards can contain literal pairs.
+            let codeWidth = 0;
+            for (const token of value.matchAll(/`+|\*{2,}/g)) {
+                const mark = token[0];
+                if (codeWidth) {
+                    if (mark[0] === '`' && mark.length === codeWidth) codeWidth = 0;
+                    continue;
+                }
+                let start = token.index;
+                while (value[start - 1] === '\\') start--;
+                const width = mark.length - (token.index - start) % 2;
+                if (mark[0] === '`') codeWidth = width;
+                else if (width >= 2) {
+                    const glob = mark === '**' && value[token.index + 2] === '/' &&
+                        (token.index === 0 || /[\s/]/.test(value[token.index - 1]));
+                    if (!glob) return line;
+                }
+            }
+            return codeWidth ? line : prefix + label + colon + value + title.slice(close.index + 2);
+        });
+    }
+
+    function renderAnswer(element, content, source, options) {
+        if (source?.mail_translation) {
+            element.style.whiteSpace = 'pre-wrap';
+            element.textContent = options?.streaming || options?.complete === false ? content : plainMailSubject(content);
+        } else {
+            markdown(element, content, options);
+        }
+    }
+
+    function mailStatus(job) {
+        if (!job?.source?.mail_translation) return '';
+        if (job.state === 'done') return ' · 메일 번역';
+        if (job.state === 'queued' || job.state === 'running') return ' · 번역 대기/생성 중';
+        return ' · 번역 미완료' + (job.error ? ' · ' + job.error : '');
+    }
+
+    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts, renderAnswer, mailStatus };
     if (typeof document === 'undefined') return;
 
     /** [Role] Initializes this standalone screen, preserving drafts/details/scroll across incremental polling. */
@@ -772,12 +825,12 @@
          * [Dependencies] Server provenance projection and an existing owner message node.
          * [Impact] Provider renames and next-turn choices cannot relabel older answers.
          */
-        function sourceLabel(messageId, source) {
+        function sourceLabel(messageId, source, job) {
             if (!source || !nodes.has(messageId)) return;
             const node = nodes.get(messageId);
             let label = node.article.querySelector('.ai-source');
             if (!label) { label = document.createElement('p'); label.className = 'ai-source'; node.article.append(label); }
-            label.textContent = `${source.provider_name} / ${source.model_label} · ${source.reasoning_effort === 'none' ? 'off' : source.reasoning_effort || '모델 기본값'}`;
+            label.textContent = `${source.provider_name} / ${source.model_label} · ${source.reasoning_effort === 'none' ? 'off' : source.reasoning_effort || '모델 기본값'}` + mailStatus(job);
         }
 
         /** [Role] Explains the baseline and extra storage separately from errors.
@@ -845,14 +898,15 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.PRESENT]
-         * [EN rev.1]
-         * [Role] Renders paced prefixes while raw snapshots/cursors and job controls update immediately.
+         * [EN rev.3]
+         * [Role] Renders paced prefixes and displays a translated mail literally, including commands and hyperlinks.
          * [Dependencies] One disposable presenter per request and the existing safe Markdown/reader guard.
          * [Impact] First visible answer closes thoughts once; terminal/error text flushes synchronously and no stale frame enters a different conversation.
          */
         function presentStream(jid, previous, next, result) {
             const selected = selection;
             const node = messageNode({ id: result.message_id, role: 'assistant' });
+            const mailComplete = Boolean(result.source?.mail_translation && result.state === 'done' && next.c === result.content_length);
             node.displayAnswerStarted ??= Boolean(previous.answerStarted);
             const render = frame => {
                 if (disposed || selected !== selection || nodes.get(result.message_id) !== node) return;
@@ -863,9 +917,9 @@
                     if (firstThought && !node.displayAnswerStarted && !frame.content) node.details.open = true;
                     if (frame.content && !node.displayAnswerStarted) { node.details.open = false; node.displayAnswerStarted = true; }
                     node.summary.textContent = frame.streaming && !node.displayAnswerStarted ? '추론 중 · 접기/펼치기' : '추론 과정 · 다시 보기';
-                    if (frame.content !== node.content || node.streaming !== frame.streaming) {
-                        markdown(node.answer, frame.content, { streaming: frame.streaming });
-                        node.content = frame.content; node.streaming = frame.streaming;
+                    if (frame.content !== node.content || node.streaming !== frame.streaming || node.mailComplete !== mailComplete) {
+                        renderAnswer(node.answer, frame.content, result.source, { streaming: frame.streaming, complete: mailComplete });
+                        node.content = frame.content; node.streaming = frame.streaming; node.mailComplete = mailComplete;
                     }
                 });
             };
@@ -923,7 +977,7 @@
         }
 
         /** [Role] Hydrates stored user/assistant text safely and keeps raw reasoning out of the answer block. */
-        function hydrate(message) {
+        function hydrate(message, job) {
             const node = messageNode(message);
             if (message.role === 'user') node.answer.textContent = message.content;
             else {
@@ -934,7 +988,8 @@
                     try { visible = '장비관리 서버 확인 완료\n' + resultText(JSON.parse(visible.slice(visible.indexOf(']: ') + 3))); }
                     catch (_) { visible = '처리 결과를 불러오지 못했습니다. 확인 카드를 다시 열어 주세요.'; }
                 }
-                markdown(node.answer, visible);
+                node.mailComplete = Boolean(job?.source?.mail_translation && job.state === 'done');
+                renderAnswer(node.answer, visible, job?.source, { complete: node.mailComplete });
                 node.content = visible; node.streaming = false; node.displayAnswerStarted = Boolean(message.content);
                 if (message.job) streams.set(message.job, { messageId: message.id, reasoning: message.reasoning, content: message.content,
                     r: Array.from(message.reasoning).length, c: Array.from(message.content).length, generation: null,
@@ -1540,8 +1595,12 @@
                 if (selected !== selection || disposed) return;
                 const pane = $('ai-scroll'), height = pane.scrollHeight, position = pane.scrollTop;
                 const anchor = $('ai-messages').firstChild;
+                const jobs = new Map(result.jobs.map(job => [job.id, job]));
                 for (const message of result.messages) if (!nodes.has(message.id)) {
-                    hydrate(message); $('ai-messages').insertBefore(nodes.get(message.id).article, anchor);
+                    const job = jobs.get(message.job);
+                    hydrate(message, job);
+                    if (message.role === 'assistant' && job?.source?.mail_translation) sourceLabel(message.id, job.source, job);
+                    $('ai-messages').insertBefore(nodes.get(message.id).article, anchor);
                 }
                 for (const item of result.proposals) proposalCard(item);
                 searchEvidence(result.jobs);
@@ -1580,7 +1639,8 @@
             nextBefore = result.next_before; $('ai-more-messages').hidden = !nextBefore; storageNotice(result.storage);
             $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle(result.conversation.title);
             $('ai-welcome').hidden = Boolean(result.messages.length) || readOnly(); $('ai-progress').hidden = true;
-            for (const message of result.messages) hydrate(message);
+            const jobs = new Map(result.jobs.map(job => [job.id, job]));
+            for (const message of result.messages) hydrate(message, jobs.get(message.job));
             for (const item of result.proposals) proposalCard(item);
             const job = !readOnly() && result.jobs.find(item => !terminal.has(item.state));
             for (const item of result.jobs) {
@@ -1588,7 +1648,7 @@
                 if (stream) stream.generation = item.steps + (['running','draining','recovery_required'].includes(item.state) ? 1 : 0);
                 if (stream) stream.answerStarted ||= Boolean(item.answer_started);
                 if (stream && nodes.has(stream.messageId)) nodes.get(stream.messageId).displayAnswerStarted ||= stream.answerStarted;
-                if (stream) sourceLabel(stream.messageId, item.source);
+                if (stream) sourceLabel(stream.messageId, item.source, item);
                 if (stream && stream.reasoning && !stream.answerStarted && ['running','draining'].includes(item.state)) nodes.get(stream.messageId).details.open = true;
             }
             searchEvidence(result.jobs);
@@ -1638,7 +1698,7 @@
                 streams.set(jid, next);
                 presentStream(jid, previous, next, result);
                 follow(() => {
-                    sourceLabel(result.message_id, result.source);
+                    sourceLabel(result.message_id, result.source, result);
                     window.EquipmentAiWebSearch?.render(nodes.get(result.message_id)?.article,result.web_searches);
                     for (const item of result.proposals) proposalCard(item);
                 });
