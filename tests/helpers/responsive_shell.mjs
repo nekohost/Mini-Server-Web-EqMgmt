@@ -19,7 +19,7 @@ export function responsiveShellSnapshot() {
         heading:heading&&{box:rect(heading),title:rect(heading.querySelector('.app-content-title')),description:rect(heading.querySelector('.app-content-description')),
             titleStyle:style(heading.querySelector('.app-content-title')),descriptionStyle:style(heading.querySelector('.app-content-description'))},
         actionRegions:[...document.querySelectorAll('.app-page-controls')].map(rect),
-        equipment:workspace&&{box:rect(workspace),search:rect(one('.equipment-search-region')),actions:rect(one('.equipment-action-region')),
+        equipment:workspace&&{box:rect(workspace),toolbar:one('.equipment-toolbar')&&rect(one('.equipment-toolbar')),search:rect(one('.equipment-search-region')),actions:rect(one('.equipment-action-region')),
             status:rect(one('.equipment-list-status')),table:rect(one('#equipmentTableBody').closest('table'))}};
 }
 export function assertResponsiveShell(assert,m,label='shell') {
@@ -61,9 +61,12 @@ export function assertResponsiveShell(assert,m,label='shell') {
     }
     const e=m.equipment;
     if(e){
-        if(m.width<1024)assert.ok(e.search.bottom<=e.actions.y+1,label+': mobile search before actions');
-        else assert.ok(e.actions.right<=e.search.x+1&&Math.abs(e.actions.y-e.search.y)<1,label+': desktop actions left/search right');
-        assert.ok(e.status.y>=Math.max(e.actions.bottom,e.search.bottom)-1,label+': feedback below controls');
+        if(e.toolbar) {
+            assert.ok(e.search.y>=e.actions.y-1&&e.status.y>=e.search.y-1,label+': controls wrap in logical order');
+            if(m.width>=1280)assert.ok(Math.abs(e.actions.y-e.search.y)<1&&Math.abs(e.search.y-e.status.y)<1,label+': default controls share one desktop row');
+        } else {
+            assert.ok(e.status.y>=Math.max(e.actions.bottom,e.search.bottom)-1,label+': legacy feedback below controls');
+        }
         assert.ok(e.table.y>=e.box.bottom-1,label+': table follows search/actions');
     }
 }

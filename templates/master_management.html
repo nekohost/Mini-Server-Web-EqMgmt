@@ -9,8 +9,8 @@
 {% block content %}
 
 <!-- 탭 컨트롤 및 액션 버튼 -->
-<div class="app-page-controls mb-6 border-b border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-    <div class="flex gap-4">
+<div class="app-page-controls app-toolbar border-b border-slate-200 dark:border-slate-700 pb-2">
+    <div class="app-toolbar-group app-toolbar-buttons" role="group" aria-label="마스터 종류">
         <button id="tabCategories" onclick="switchTab('categories')"
             class="py-3 px-6 font-bold text-sm border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 transition-colors">
             🏷️ 카테고리 관리
@@ -20,7 +20,7 @@
             🏭 제조사 관리
         </button>
     </div>
-    <div class="flex gap-2 pb-2 sm:pb-0">
+    <div class="app-toolbar-group app-toolbar-buttons" role="group" aria-label="선택한 목록 작업">
         <button onclick="bulkDelete()" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-sm shadow-md transition-colors flex items-center gap-1">
             🗑️ 선택 일괄 삭제
         </button>

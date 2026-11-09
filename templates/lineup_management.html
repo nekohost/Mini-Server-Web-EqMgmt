@@ -11,24 +11,20 @@
   [변경 시 영향도] 관리자 센터의 카탈로그 계층 관리 UX에 영향을 줍니다.
 -->
 <section class="edge-wide-region mx-auto max-w-7xl space-y-5" aria-labelledby="app-page-title">
-    <div class="app-page-controls app-header-actions">
-        <button id="addRootButton" type="button" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+    <div class="app-page-controls app-toolbar" role="group" aria-label="라인업 선택 및 추가">
+        <label class="app-toolbar-field text-sm font-semibold text-slate-700 dark:text-slate-200">
+            카테고리
+            <select id="categoryFilter" class="app-toolbar-control mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
+        </label>
+        <label class="app-toolbar-field text-sm font-semibold text-slate-700 dark:text-slate-200">
+            제조사
+            <select id="manufacturerFilter" class="app-toolbar-control mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
+        </label>
+        <button id="addRootButton" type="button" class="app-toolbar-control rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
             + 최상위 노드 추가
         </button>
     </div>
-
     <div id="pageMessage" class="hidden rounded-lg border px-4 py-3 text-sm" role="status" aria-live="polite"></div>
-
-    <div class="edge-filter-region grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800 md:grid-cols-2">
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            카테고리
-            <select id="categoryFilter" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
-        </label>
-        <label class="text-sm font-semibold text-slate-700 dark:text-slate-200">
-            제조사
-            <select id="manufacturerFilter" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-2.5 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-white"></select>
-        </label>
-    </div>
 
     <div class="edge-metric-grid grid grid-cols-2 gap-3 sm:grid-cols-4" aria-label="노드 상태 요약">
         <div class="rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800"><p class="text-xs text-slate-500">전체</p><p id="totalCount" class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">0</p></div>

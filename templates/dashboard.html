@@ -67,21 +67,21 @@
 <div class="bg-white dark:bg-slate-800 rounded-xl shadow-md overflow-hidden p-6 border border-slate-200 dark:border-slate-700 transition-colors">
     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">복합 조건 검색 분포</h2>
     
-    <form id="combinedSearchForm" class="edge-filter-region edge-filter-compact flex flex-col sm:flex-row gap-4">
-        <div class="flex-1">
+    <form id="combinedSearchForm" class="edge-filter-region edge-filter-compact app-toolbar">
+        <div class="app-toolbar-field">
             <label for="filterCategory" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">카테고리 선택</label>
-            <select required id="filterCategory" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
+            <select required id="filterCategory" class="app-toolbar-control w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
                 <option value="">카테고리 선택...</option>
             </select>
         </div>
-        <div class="flex-1">
+        <div class="app-toolbar-field">
             <label for="filterManufacturer" class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">제조사 선택</label>
-            <select required id="filterManufacturer" class="w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
+            <select required id="filterManufacturer" class="app-toolbar-control w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white p-2 border">
                 <option value="">제조사 선택...</option>
             </select>
         </div>
         <div class="flex-none flex items-end">
-            <button type="submit" class="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+            <button type="submit" class="app-toolbar-control px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
                 검색
             </button>
         </div>

@@ -221,36 +221,58 @@ html[data-layout-skin="edge"] .account-layout { max-width: 38rem; margin-inline:
 .roadmap-search-basic .roadmap-keyword-label { flex: 1 1 10rem; min-width: 0; margin-bottom: 0; }
 .roadmap-search-basic button { white-space: nowrap; }
 .equipment-page-actions button, .account-profile-heading > * { white-space: nowrap; }
-@media (max-width: 639px) {
-    /* Keep search/toggle adjacent; the keyword occupies its own full-width row. */
-    .roadmap-search-basic .roadmap-keyword-label { flex-basis: 100%; }
-}
 .roadmap-search-advanced { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #cbd5e1; }
 .roadmap-search-advanced[hidden] { display: none; }
 #roadmap-csv-actions[hidden] { display: none; }
 .roadmap-search-help { grid-column: 1 / -1; }
 
-/* Small screens read search first; roomy screens place actions left of search. */
-.equipment-workspace { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-areas: "search" "actions" "csv" "status"; gap: .75rem; }
-.equipment-search-region { grid-area: search; min-width: 0; margin: 0; }
-.equipment-action-region { grid-area: actions; min-width: 0; align-self: start; }
-.equipment-page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
-.equipment-include-mine { display: flex; align-items: flex-start; gap: .5rem; margin-top: .75rem; }
+/* [Role] One expandable equipment toolbar wraps by its actual available width.
+   [Dependencies] Native search form and existing button IDs; no viewport/device detection or JavaScript positioning.
+   [Impact] Controls keep a common height and reading order, including future actions; auxiliary panels stay full width. */
+.app-main {
+    --toolbar-control-height: 2.75rem;
+    --toolbar-control-font: .8125rem;
+    --toolbar-radius: .5rem;
+    --toolbar-gap: .5rem;
+}
+.equipment-workspace { --equipment-control-height: var(--toolbar-control-height); --equipment-control-font: var(--toolbar-control-font); --equipment-control-bg: #fff; --equipment-control-text: #334155; --equipment-control-border: #94a3b8; min-width: 0; }
+.dark .equipment-workspace { --equipment-control-bg: #1e293b; --equipment-control-text: #e2e8f0; --equipment-control-border: #64748b; }
+.equipment-toolbar-form { margin: 0; min-width: 0; }
+.equipment-toolbar { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .5rem; min-width: 0; }
+.equipment-action-region { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.equipment-page-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; }
+.equipment-search-region { flex: 1 1 17rem; display: flex; flex-wrap: nowrap; align-items: center; gap: .375rem; min-width: min(100%, 16rem); max-width: 100%; margin: 0; padding: 0; }
+.equipment-toolbar .roadmap-keyword-label { display: block; flex: 1 1 9rem; min-width: 5rem; margin: 0; }
+.equipment-toolbar :is(button, input[type="search"], .equipment-page-count) {
+    box-sizing: border-box; min-height: var(--equipment-control-height); height: var(--equipment-control-height);
+    border: 1px solid var(--equipment-control-border); border-radius: .5rem; padding: 0 .4375rem;
+    font-family: inherit; font-size: var(--equipment-control-font); line-height: 1.35; font-weight: 500;
+}
+.equipment-toolbar button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; white-space: nowrap; cursor: pointer; }
+.equipment-toolbar [hidden], .equipment-toolbar .hidden { display: none !important; }
+.equipment-toolbar button:not(.equipment-primary-action):not(.equipment-draft-action),
+.equipment-toolbar input[type="search"], .equipment-toolbar .equipment-page-count { background: var(--equipment-control-bg); color: var(--equipment-control-text); }
+.equipment-toolbar input[type="search"] { display: block; width: 100%; min-width: 0; }
+.equipment-toolbar button:disabled { opacity: .45; cursor: not-allowed; }
+.equipment-toolbar button:not(.equipment-primary-action):not(.equipment-draft-action):hover:not(:disabled) { background: #e2e8f0; }
+.dark .equipment-toolbar button:not(.equipment-primary-action):not(.equipment-draft-action):hover:not(:disabled) { background: #334155; }
+.equipment-toolbar :focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.equipment-list-status { flex: 0 1 auto; min-width: 0; max-width: 100%; }
+.equipment-list-status .roadmap-actions { display: flex; flex-wrap: nowrap; align-items: stretch; gap: .375rem; min-width: 0; max-width: 100%; margin: 0; }
+.equipment-list-status button { min-width: var(--equipment-control-height); }
+.equipment-toolbar .equipment-page-count { display: inline-flex; align-items: center; justify-content: center; min-width: 0; height: auto; padding-block: .25rem; text-align: center; overflow-wrap: anywhere; }
+.equipment-include-mine { display: flex; align-items: flex-start; gap: .5rem; margin-top: .5rem; }
 .equipment-include-mine input { flex-shrink: 0; margin-top: .2rem; }
-.equipment-csv-panel { grid-area: csv; margin: 0; }
-.equipment-list-status { grid-area: status; margin: 0; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
-.equipment-list-status .roadmap-actions { margin: 0; }
-/* Compact the shared equipment workspace and its nested tasks in both owned and public mode. */
-.equipment-compact-view .equipment-workspace { gap: .5rem; margin-bottom: .75rem; }
-.equipment-compact-view .equipment-search-region { padding: .65rem .75rem; }
-.equipment-compact-view .equipment-list-status { padding: .45rem .75rem; }
+.equipment-workspace .roadmap-search-advanced { margin: .5rem 0 0; padding: 1rem; }
+.equipment-csv-panel { width: 100%; margin: .5rem 0 0; }
+#roadmap-message { margin: 0; overflow-wrap: anywhere; }
+#roadmap-message:not(:empty) { margin-top: .5rem; border: 1px solid var(--equipment-control-border); border-radius: .5rem; padding: .5rem .75rem; color: var(--equipment-control-text); }
+/* Keep nested tasks compact without changing their independent form contracts. */
+.equipment-compact-view .equipment-workspace { margin-bottom: .75rem; }
 .equipment-compact-view .roadmap-dialog > .roadmap-actions:first-child { margin-top: 0; }
 .equipment-compact-view .roadmap-dialog > .roadmap-actions:first-child [data-roadmap-close] { flex: 0 0 auto; }
 .equipment-compact-view :is(#equipmentModalHeader, #equipmentModalFooter) { padding-block: .75rem; }
 .equipment-compact-view #equipmentModalBody { padding: clamp(.85rem, 2vw, 1.25rem); }
-@media (min-width: 1024px) {
-    .equipment-workspace { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-areas: "actions search" "csv csv" "status status"; align-items: start; }
-}
 
 .menu-card { display: flex; flex-direction: column; align-self: stretch; min-width: 0; }
 .menu-card-description {
@@ -259,3 +281,81 @@ html[data-layout-skin="edge"] .account-layout { max-width: 38rem; margin-inline:
     overflow: hidden; overflow-wrap: anywhere; white-space: normal;
 }
 .menu-card-action { display: block; }
+
+/* The list, filter or workflow owns its controls. Only marked elements share dimensions. */
+.app-main .app-toolbar,
+.app-main .app-toolbar-group,
+.app-main .app-toolbar-pages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--toolbar-gap);
+    min-width: 0;
+    max-width: 100%;
+}
+.app-main .app-toolbar { align-items: flex-end; }
+.app-main .app-page-controls.app-toolbar { margin-bottom: .75rem; }
+.app-main .app-toolbar-group, .app-main .app-toolbar-pages { column-gap: .375rem; }
+.app-toolbar > *, .app-toolbar-group > * { min-width: 0; max-width: 100%; }
+.app-toolbar .app-toolbar-field {
+    flex: 1 1 10rem;
+    min-width: min(100%, 8rem);
+}
+.app-toolbar-field :is(input, select) { max-width: 100%; min-width: 0; }
+.app-toolbar-inline-field { display: inline-flex; align-items: center; gap: .375rem; font-size: var(--toolbar-control-font); }
+.app-toolbar-results.app-toolbar { align-items: center; }
+.app-main .app-toolbar-pages { flex: 0 1 max-content; margin-inline-start: auto; }
+.app-main :is(.app-toolbar-control, .app-toolbar-buttons > button, .app-toolbar-pages > button,
+              .app-toolbar-pages > [aria-current="page"], .app-toolbar .catalog-request-toolbar > button) {
+    box-sizing: border-box;
+    min-height: var(--toolbar-control-height);
+    min-width: var(--toolbar-control-height);
+    max-width: 100%;
+    padding-block: .375rem;
+    border-radius: var(--toolbar-radius);
+    font-size: var(--toolbar-control-font);
+    line-height: 1.35;
+}
+.app-main :is(a.app-toolbar-control, .app-toolbar-pages > [aria-current="page"], .app-toolbar-count) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.app-main .app-toolbar-pages > button { margin: 0; }
+.app-main .app-toolbar-count {
+    min-height: var(--toolbar-control-height);
+    padding-inline: .375rem;
+    font-size: var(--toolbar-control-font);
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+.app-main .app-toolbar .catalog-request-toolbar { margin: 0; gap: .375rem; }
+.app-toolbar .app-refresh-controls { padding: 0 .25rem; border: 0; box-shadow: none; }
+.app-toolbar :focus-visible, .app-toolbar-control:focus-visible {
+    outline: 2px solid #0284c7;
+    outline-offset: 2px;
+}
+/* Keep both radio options keyboard-operable. Only the clear button occupies the input's reserved end padding. */
+.app-toolbar .app-toolbar-field:has(.audit-match-options) { flex-basis: 12.5rem; }
+.app-toolbar .audit-match-options { padding: 0; min-height: var(--toolbar-control-height); }
+.audit-match-options label { min-width: 0; }
+.audit-match-options label > span { display: grid; place-content: center; min-height: calc(var(--toolbar-control-height) - 2px); }
+.audit-match-options input:focus-visible + span { outline: 2px solid #0284c7; outline-offset: -2px; }
+.app-toolbar .audit-clear { width: var(--toolbar-control-height); font-size: 1.25rem; }
+.app-toolbar #keyword { padding-inline-end: var(--toolbar-control-height); }
+.app-toolbar #columnMenu { max-width: calc(100vw - 2rem); }
+@media (max-width: 40rem) {
+    .app-header-actions .access-cleanup:has(> #cleanupDropdown:not(.hidden)) { flex-basis: 100%; }
+    .app-header-actions .access-cleanup #cleanupDropdown { position: static; max-width: 100%; }
+}
+
+/* Longer tables keep a keyboard link back to the single set of paging controls. */
+.app-toolbar-pages[tabindex] { scroll-margin-block-start: 7rem; }
+.app-pagination-return { display: none; }
+.app-main:has(:is(#my-approvals-body, #logsTableBody, #auditLogTbody) > tr:nth-child(11)) .app-pagination-return {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--toolbar-control-height);
+    font-size: var(--toolbar-control-font);
+    text-decoration: underline;
+}

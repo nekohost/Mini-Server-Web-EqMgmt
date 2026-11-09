@@ -64,7 +64,7 @@
             <label class="block text-sm font-medium">확인 문구 ('점검시작' 입력)
                 <input id="enable-confirmation" required placeholder="점검시작" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
             </label>
-            <button type="submit" class="rounded-lg bg-amber-600 px-4 py-2.5 font-bold text-white hover:bg-amber-700 transition">점검 모드 활성화</button>
+            <button type="submit" class="app-toolbar-control rounded-lg bg-amber-600 px-4 py-2.5 font-bold text-white hover:bg-amber-700 transition">점검 모드 활성화</button>
         </form>
     </section>
     {% elif maintenance.state in ['DRAINING', 'RECOVERY'] %}
@@ -78,7 +78,7 @@
             <label class="block text-sm font-medium">확인 문구 ('점검종료' 입력)
                 <input id="disable-confirmation" required placeholder="점검종료" class="mt-1 w-full rounded-lg border border-slate-300 bg-white p-3 dark:border-slate-600 dark:bg-slate-900">
             </label>
-            <button type="submit" class="rounded-lg bg-emerald-600 px-4 py-2.5 font-bold text-white hover:bg-emerald-700 transition">점검 모드 해제</button>
+            <button type="submit" class="app-toolbar-control rounded-lg bg-emerald-600 px-4 py-2.5 font-bold text-white hover:bg-emerald-700 transition">점검 모드 해제</button>
         </form>
     </section>
     {% elif maintenance.state == 'RESTORING' %}

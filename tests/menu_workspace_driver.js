@@ -21,21 +21,38 @@
         if(route==='/api/check_session')return response({valid:true});
         if(route==='/api/user_settings')return response({success:true,settings:{theme,layout_skin:skin}});
         if(route==='/api/me')return response(user);
+        if(route==='/api/admin/ai/providers')return response({
+            success:true, encryption_configured:true, default_model:null,
+            groups:[{id:'fixture-gpu',name:'검증 GPU'}],
+            providers:[{id:'fixture-provider',name:'검증 연결',base_url:'http://127.0.0.1:8000/v1',
+                adapter:'openai',resource_group:'fixture-gpu',sort_order:1,enabled:true,manual:false,revision:1,models:[]}]
+        });
+        if(route==='/api/portal/menus')return response([{MenuCode:'my_equipment',MenuName:'나의 장비',Url:'/my_equipment'},{MenuCode:'admin_center',MenuName:'관리자 센터',Url:'/admin_center'}]);
         if(route==='/api/menus/children/admin_center')return response(menus);
         if(route==='/api/dashboard/master_options')return response({success:true,categories:cats,manufacturers:mans});
         if(route==='/api/dashboard/stats')return response({success:true,data:{my_equipments:2,total_equipments:3,categories:[{category:'미니 PC',count:3}],manufacturers:[{manufacturer:'합성 제조사',count:3}],combined_stats:null}});
         if(route==='/api/master_data')return response({categories:cats,manufacturers:mans});
         if(route==='/api/lineup_tree_all')return response(snapshot);
         if(route==='/api/equipment')return response({items:[item],page:1,pages:1,total:1});
-        if(route==='/api/my_approvals')return response({success:true,data:[approval],page:1,pages:1,total:1});
+        const page = Number(url.searchParams.get('page') || 1);
+        if (route === '/api/my_approvals') {
+            const data = Array.from({length:25}, (_, i) => ({...approval, RequestId:(page - 1) * 25 + i + 1}));
+            return response({success:true, data, page, pages:7, total:175});
+        }
         if(route==='/api/approvals')return response({success:true,data:[approval]});
         if(route==='/api/users')return response({success:true,data:[{...user,UserId:901,LoginId:'sample01',Status:'ACTIVE',IsDeactivated:'N',CreatedAt:'2026-11-09'}]});
         if(route==='/api/permissions')return response(['admin','user'].flatMap(Role=>menus.map(m=>({...m,Role,IsAllowed:Role==='admin'?1:0,ParentMenuCode:'admin_center'}))));
         if(route.startsWith('/api/master/manage/'))return response({success:true,data:route.endsWith('categories')?cats:mans});
         if(route==='/api/admin/lineup_nodes')return response(snapshot);
-        if(route==='/api/audit_logs')return response({status:'success',data:[{AuditId:1,CreatedAt:'2026-11-09',ActorName:'합성 사용자',ActorLoginId:'fixture',Action:'LOGIN',TargetId:901,IpAddress:'192.0.2.1',Details:'검증 조회'}],pagination:{total_count:1,page:1,per_page:25,total_pages:1}});
+        if (route === '/api/audit_logs') {
+            const data = Array.from({length:200}, (_, i) => ({AuditId:(page - 1) * 200 + i + 1, CreatedAt:'2026-11-09', ActorName:'합성 사용자', ActorLoginId:'fixture', Action:'LOGIN', TargetId:901, IpAddress:'192.0.2.1', Details:'검증 조회'}));
+            return response({status:'success', data, pagination:{total_count:1390, page, per_page:200, total_pages:7}});
+        }
         if(route==='/api/access_logs/stats')return response({total:1,api_count:1,static_count:0,error_rate:0});
-        if(route==='/api/access_logs')return response({logs:[{LogId:1,CreatedAt:'2026-11-09',IpAddress:'192.0.2.1',Method:'GET',Path:'/portal',StatusCode:200,ResponseTimeMs:12,UserAgent:'합성 브라우저',RequestPayload:'{}',ResponsePayload:'{}'}],total:1,page:1,per_page:25});
+        if (route === '/api/access_logs') {
+            const logs = Array.from({length:50}, (_, i) => ({LogId:(page - 1) * 50 + i + 1, CreatedAt:'2026-11-09', IpAddress:'192.0.2.1', HttpMethod:'GET', RequestPath:'/portal', StatusCode:200, DurationMs:12, UserAgent:'합성 브라우저', RequestPayload:'{}', ResponsePayload:'{}'}));
+            return response({logs, total:350, page, per_page:50});
+        }
         if(route==='/api/access_logs/error_ips')return response({error_ips:[{IpAddress:'192.0.2.2',TotalErrorCount:3,ClientErrorCount:2,ServerErrorCount:1,LastErrorAt:'2026-11-09'}]});
         unexpected.push(['GET',route]);return response({},404);
     };
@@ -103,6 +120,11 @@
                 input($('searchInput'),'not-found');ok($('filteredCountBadge').textContent==='0','error IP filter handles zero result');input($('searchInput'),'');
             }
             if(view==='maintenance_admin')ok($('maintenance-state').textContent==='NORMAL'&&!!$('enable-form'),'maintenance status and activation form remain');
+            if(view==='equipment_ai_providers'){
+                await wait(()=>$('provider-list').querySelector('button'),'provider registry loaded');
+                $('provider-list').querySelector('button').click();
+                ok(!$('provider-models-panel').hidden&&$('provider-form').elements.name.value==='검증 연결','selected connection opens its own model list');
+            }
             if(view==='backup_restore')ok(document.querySelector('main').textContent.includes('먼저 서버 점검 모드를 활성화하십시오')&&!!document.querySelector('main a[href="/maintenance_admin"]'),'restore guard and navigation remain');
             await frame();
             const main=document.querySelector('main'),title=$('app-page-title'),nav=document.querySelector('nav.app-nav-polish');
@@ -115,8 +137,10 @@
             const first=[...main.children].find(el=>!['LINK','SCRIPT','STYLE'].includes(el.tagName)&&el.getBoundingClientRect().height>0);
             geometry.firstContentGap=Math.round(first.getBoundingClientRect().top-nav.getBoundingClientRect().bottom);
             ok(geometry.firstContentGap>=15&&geometry.firstContentGap<=17,'work starts 16px after navigation');
-            const guide=main.querySelector('.app-workspace-help');ok(!!guide&&!guide.open&&guide.textContent.trim().length>6,'reference help is preserved and collapsed');
-            guide.querySelector('summary').click();ok(guide.open&&guide.querySelector('p').getBoundingClientRect().height>0,'reference help expands');guide.querySelector('summary').click();
+            const guide=main.querySelector('.app-workspace-help');
+            if(!['portal','equipment_ai_providers'].includes(view)) { ok(!!guide&&!guide.open&&guide.textContent.trim().length>6,'reference help is preserved and collapsed');
+            guide.querySelector('summary').click();ok(guide.open&&guide.querySelector('p').getBoundingClientRect().height>0,'reference help expands');guide.querySelector('summary').click(); }
+            await checkMenuToolbars({view, ok, wait, frame, geometry, reads});
             ok(document.documentElement.scrollWidth<=innerWidth+1,'no horizontal page overflow');
             ok(unexpected.length===0&&errors.length===0,'only expected GET requests and no JS errors');
             window.scrollTo(0,0);await frame();

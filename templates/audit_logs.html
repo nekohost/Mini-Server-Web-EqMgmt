@@ -13,112 +13,106 @@
 
 <!-- 🔍 검색 및 필터 패널 -->
 <div class="edge-filter-region bg-white dark:bg-slate-800 rounded-xl p-5 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-all">
-    <form id="searchForm" class="space-y-4" onsubmit="handleSearch(event)">
-        <!-- 1행: 기본 키워드 검색 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-end">
-            
-            <!-- 검색 컬럼 선택 -->
-            <div class="md:col-span-3">
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-filter text-brand-500 mr-1"></i> 검색 대상 컬럼
-                </label>
-                <select id="searchField" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    <option value="all">🔍 전체 (통합 검색)</option>
-                    <option value="ActorLoginId">👤 행위자 ID (ActorLoginId)</option>
-                    <option value="ActorName">🏷️ 행위자 이름 (ActorName)</option>
-                    <option value="Action">⚡ 행위 유형 (Action)</option>
-                    <option value="IpAddress">🌐 IP 주소 (IpAddress)</option>
-                    <option value="TargetId">🎯 대상 ID (TargetId)</option>
-                    <option value="Details">📝 상세 내용 (Details)</option>
-                </select>
-            </div>
+    <form id="searchForm" class="app-toolbar" onsubmit="handleSearch(event)">
+        
+        <!-- 검색 컬럼 선택 -->
+        <div class="app-toolbar-field">
+            <label for="searchField" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <i class="fa-solid fa-filter text-brand-500 mr-1"></i> 검색 대상 컬럼
+            </label>
+            <select id="searchField" class="app-toolbar-control w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                <option value="all">🔍 전체 (통합 검색)</option>
+                <option value="ActorLoginId">👤 행위자 ID (ActorLoginId)</option>
+                <option value="ActorName">🏷️ 행위자 이름 (ActorName)</option>
+                <option value="Action">⚡ 행위 유형 (Action)</option>
+                <option value="IpAddress">🌐 IP 주소 (IpAddress)</option>
+                <option value="TargetId">🎯 대상 ID (TargetId)</option>
+                <option value="Details">📝 상세 내용 (Details)</option>
+            </select>
+        </div>
 
-            <!-- Match Mode (일치 / LIKE 선택) -->
-            <div class="md:col-span-3">
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-magnifying-glass-chart text-brand-500 mr-1"></i> 일치 조건 옵션
+        <!-- Match Mode (일치 / LIKE 선택) -->
+        <div class="app-toolbar-field">
+            <span id="audit-match-title" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <i class="fa-solid fa-magnifying-glass-chart text-brand-500 mr-1"></i> 일치 조건 옵션
+            </span>
+            <div role="group" aria-labelledby="audit-match-title" class="audit-match-options flex items-center bg-slate-50 dark:bg-slate-700/50 p-1.5 border border-slate-300 dark:border-slate-600 rounded-lg">
+                <label class="flex-1 text-center cursor-pointer">
+                    <input type="radio" name="matchType" value="like" checked class="peer sr-only" onchange="triggerSearch()">
+                    <span class="block py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-300 peer-checked:bg-brand-500 peer-checked:text-white transition-colors">
+                        LIKE (부분 검색)
+                    </span>
                 </label>
-                <div class="flex items-center space-x-2 bg-slate-50 dark:bg-slate-700/50 p-1.5 border border-slate-300 dark:border-slate-600 rounded-lg">
-                    <label class="flex-1 text-center cursor-pointer">
-                        <input type="radio" name="matchType" value="like" checked class="peer hidden" onchange="triggerSearch()">
-                        <span class="block py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-300 peer-checked:bg-brand-500 peer-checked:text-white transition-colors">
-                            LIKE (부분 검색)
-                        </span>
-                    </label>
-                    <label class="flex-1 text-center cursor-pointer">
-                        <input type="radio" name="matchType" value="exact" class="peer hidden" onchange="triggerSearch()">
-                        <span class="block py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-300 peer-checked:bg-brand-500 peer-checked:text-white transition-colors">
-                            Exact (완전 일치)
-                        </span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- 검색어 입력창 -->
-            <div class="md:col-span-4">
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-keyboard text-brand-500 mr-1"></i> 검색어 키워드
+                <label class="flex-1 text-center cursor-pointer">
+                    <input type="radio" name="matchType" value="exact" class="peer sr-only" onchange="triggerSearch()">
+                    <span class="block py-1 text-xs font-medium rounded-md text-slate-600 dark:text-slate-300 peer-checked:bg-brand-500 peer-checked:text-white transition-colors">
+                        Exact (완전 일치)
+                    </span>
                 </label>
-                <div class="relative">
-                    <input type="text" id="keyword" placeholder="검색할 키워드를 입력하세요..." 
-                        class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg p-2.5 pl-3 pr-8 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
-                    <button type="button" onclick="clearKeyword()" class="absolute right-2 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </button>
-                </div>
             </div>
+        </div>
 
-            <!-- 검색 & 초기화 버튼 -->
-            <div class="md:col-span-2 flex space-x-2">
-                <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-magnifying-glass"></i> 검색
-                </button>
-                <button type="button" onclick="resetFilters()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm p-2.5 rounded-lg transition-colors" title="초기화">
-                    <i class="fa-solid fa-rotate-left"></i>
+        <!-- 검색어 입력창 -->
+        <div class="app-toolbar-field">
+            <label for="keyword" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <i class="fa-solid fa-keyboard text-brand-500 mr-1"></i> 검색어 키워드
+            </label>
+            <div class="relative">
+                <input type="text" id="keyword" placeholder="검색할 키워드를 입력하세요..." 
+                    class="app-toolbar-control w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-sm rounded-lg p-2.5 pl-3 pr-12 focus:ring-2 focus:ring-brand-500 focus:border-brand-500">
+                <button type="button" onclick="clearKeyword()" aria-label="검색어 지우기" class="audit-clear absolute inset-y-0 right-0 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <span aria-hidden="true">×</span>
                 </button>
             </div>
         </div>
 
-        <!-- 2행: 🛠️ 상세 필터 (Action 유형, 시작일/종료일 동시 필터링) -->
-        <div class="pt-3 border-t border-slate-200 dark:border-slate-700/60 grid grid-cols-1 sm:grid-cols-3 md:grid-cols-12 gap-3 items-end">
-            <!-- Action 필터 -->
-            <div class="md:col-span-4">
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-bolt text-brand-500 mr-1"></i> 행위 유형(Action) 필터
-                </label>
-                <select id="actionFilter" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
-                    <option value="">⚡ 전체 Action 보기</option>
-                    <option value="LOGIN">🔑 LOGIN (로그인 성공/실패)</option>
-                    <option value="CREATE">➕ CREATE (자산/유저 생성)</option>
-                    <option value="UPDATE">✏️ UPDATE (수정/권한변경)</option>
-                    <option value="DELETE">🗑️ DELETE (삭제/강제파기)</option>
-                </select>
-            </div>
 
-            <!-- 시작일 필터 -->
-            <div class="md:col-span-4">
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-calendar-day text-brand-500 mr-1"></i> 시작 일시 (From)
-                </label>
-                <input type="date" id="startDate" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
-            </div>
+        <!-- Action 필터 -->
+        <div class="app-toolbar-field">
+            <label for="actionFilter" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <i class="fa-solid fa-bolt text-brand-500 mr-1"></i> 행위 유형(Action) 필터
+            </label>
+            <select id="actionFilter" onchange="triggerSearch()" class="app-toolbar-control w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
+                <option value="">⚡ 전체 Action 보기</option>
+                <option value="LOGIN">🔑 LOGIN (로그인 성공/실패)</option>
+                <option value="CREATE">➕ CREATE (자산/유저 생성)</option>
+                <option value="UPDATE">✏️ UPDATE (수정/권한변경)</option>
+                <option value="DELETE">🗑️ DELETE (삭제/강제파기)</option>
+            </select>
+        </div>
 
-            <!-- 종료일 필터 -->
-            <div class="md:col-span-4">
-                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                    <i class="fa-solid fa-calendar-check text-brand-500 mr-1"></i> 종료 일시 (To)
-                </label>
-                <input type="date" id="endDate" onchange="triggerSearch()" class="w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
-            </div>
+        <!-- 시작일 필터 -->
+        <div class="app-toolbar-field">
+            <label for="startDate" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <i class="fa-solid fa-calendar-day text-brand-500 mr-1"></i> 시작 일시 (From)
+            </label>
+            <input type="date" id="startDate" onchange="triggerSearch()" class="app-toolbar-control w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
+        </div>
+
+        <!-- 종료일 필터 -->
+        <div class="app-toolbar-field">
+            <label for="endDate" class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">
+                <i class="fa-solid fa-calendar-check text-brand-500 mr-1"></i> 종료 일시 (To)
+            </label>
+            <input type="date" id="endDate" onchange="triggerSearch()" class="app-toolbar-control w-full bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg p-2 focus:ring-2 focus:ring-brand-500">
+        </div>
+        <!-- 검색 & 초기화 버튼 -->
+        <div class="app-toolbar-group app-toolbar-buttons">
+            <button type="submit" class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-medium text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1.5">
+                <i class="fa-solid fa-magnifying-glass"></i> 검색
+            </button>
+            <button type="button" onclick="resetFilters()" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-sm p-2.5 rounded-lg transition-colors" title="초기화">
+                초기화
+            </button>
         </div>
     </form>
 </div>
 
 <!-- 📊 컨트롤 바: 표출 개수 설정 & 컬럼 커스텀 & 페이징 요약 -->
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-t-xl border border-slate-200 dark:border-slate-700 gap-3">
+<div class="app-toolbar app-toolbar-results bg-slate-100 dark:bg-slate-800/60 p-3.5 rounded-t-xl border border-slate-200 dark:border-slate-700 gap-3">
     
     <!-- 데이터 건수 정보 -->
-    <div class="text-sm font-medium text-slate-600 dark:text-slate-300 flex items-center gap-2">
+    <div class="text-sm font-medium text-slate-600 dark:text-slate-300 app-toolbar-group">
         <span class="bg-slate-200 dark:bg-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold text-slate-800 dark:text-slate-200" id="totalCountBadge">
             총 0 건
         </span>
@@ -128,15 +122,15 @@
     </div>
 
     <!-- 우측 컨트롤 옵션들: 컬럼 선택 + 페이지 크기 -->
-    <div class="flex flex-wrap items-center gap-2">
+    <div class="app-toolbar-group">
         <!-- 👁️ 컬럼 표시/숨김 커스터마이징 드롭다운 -->
         <div class="relative">
-            <button type="button" onclick="toggleColumnMenu()" class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1 font-medium shadow-sm">
+            <button type="button" onclick="toggleColumnMenu()" class="app-toolbar-control bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-xs rounded-lg px-2.5 py-1.5 hover:bg-slate-50 dark:hover:bg-slate-600 flex items-center gap-1 font-medium shadow-sm">
                 <i class="fa-solid fa-table-columns text-brand-500"></i> 컬럼 표시/숨김
                 <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </button>
             
-            <div id="columnMenu" class="hidden absolute right-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-30 text-xs space-y-1">
+            <div id="columnMenu" class="hidden absolute left-0 mt-1 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 p-2 z-30 text-xs space-y-1">
                 <div class="font-bold text-slate-500 dark:text-slate-400 px-2 py-1 border-b border-slate-100 dark:border-slate-700">표시할 열 선택</div>
                 <label class="flex items-center px-2 py-1 hover:bg-slate-50 dark:hover:bg-slate-700/50 rounded cursor-pointer text-slate-700 dark:text-slate-200">
                     <input type="checkbox" class="col-toggle mr-2" value="col-id" checked onchange="handleColumnToggle(this)"> ID
@@ -163,9 +157,9 @@
         </div>
 
         <!-- 한 페이지당 표출 개수 선택 -->
-        <div class="flex items-center space-x-1">
-            <select id="pageSizeSelect" onchange="handlePageSizeChange(this.value)" 
-                class="bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 font-medium">
+        <div class="app-toolbar-group">
+            <select id="pageSizeSelect" aria-label="페이지당 표시 개수" onchange="handlePageSizeChange(this.value)" 
+                class="app-toolbar-control bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-brand-500 font-medium">
                 <option value="50">50개씩</option>
                 <option value="100">100개씩</option>
                 <option value="150">150개씩</option>
@@ -176,14 +170,15 @@
             </select>
 
             <div id="customPageSizeContainer" class="hidden flex items-center space-x-1">
-                <input type="number" id="customPageSizeInput" min="10" max="10000" placeholder="개수 입력" 
-                    class="w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-500">
-                <button type="button" onclick="applyCustomPageSize()" class="bg-brand-500 hover:bg-brand-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors font-medium">
+                <input type="number" id="customPageSizeInput" aria-label="직접 입력할 페이지당 표시 개수" min="10" max="10000" placeholder="개수 입력" 
+                    class="app-toolbar-control w-20 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 text-slate-900 dark:text-white text-xs rounded-lg px-2 py-1.5 focus:ring-2 focus:ring-brand-500">
+                <button type="button" onclick="applyCustomPageSize()" class="app-toolbar-control bg-brand-500 hover:bg-brand-600 text-white text-xs px-2 py-1.5 rounded-lg transition-colors font-medium">
                     적용
                 </button>
             </div>
         </div>
     </div>
+    <nav id="paginationNav" class="app-toolbar-pages" aria-label="감사 로그 페이지" tabindex="-1"></nav>
 </div>
 
 <!-- 📋 감사 로그 데이터 테이블 -->
@@ -211,16 +206,8 @@
     </table>
 </div>
 
-<!-- 📄 전역 페이징 네비게이션 컨트롤 -->
-<div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-    <div class="text-xs text-slate-500 dark:text-slate-400">
-        개인 설정(보기 개수 및 컬럼 숨김)이 <span class="text-brand-500 font-semibold">user_settings</span> DB 테이블에 자동 저장됩니다.
-    </div>
-    
-    <div id="paginationNav" class="flex items-center space-x-1">
-        <!-- Page Navigation Buttons (Generated by JS) -->
-    </div>
-</div>
+<a class="app-pagination-return" href="#paginationNav">페이지 이동으로 돌아가기 ↑</a>
+<p class="mt-3 text-xs text-slate-500 dark:text-slate-400">페이지당 표시 개수와 표시할 열은 개인 설정에 자동 저장됩니다.</p>
 {% endblock %}
 
 {% block extra_scripts %}

@@ -7,7 +7,7 @@
 <div class="permission-workspace">
     <section class="permission-role-panel" aria-labelledby="permission-roles-title">
         <h2 id="permission-roles-title" class="text-lg font-bold mb-3">사용자 역할</h2>
-        <label class="block text-sm mb-3">역할 검색<input id="permission-role-search" type="search" class="mt-1 w-full rounded border p-2 dark:bg-slate-700"></label>
+        <label class="block text-sm mb-3">역할 검색<input id="permission-role-search" type="search" class="app-toolbar-control mt-1 w-full rounded border p-2 dark:bg-slate-700"></label>
         <div id="permission-role-list" class="permission-role-list" aria-label="역할 선택"></div>
     </section>
     <section class="permission-detail-panel" aria-labelledby="permission-selected-title">
@@ -15,9 +15,9 @@
         <p id="permission-message" class="my-3 text-sm" role="status" aria-live="polite"></p>
         <div id="permission-detail" hidden>
             <p class="text-sm text-slate-500 my-3">하위 메뉴를 허용하면 상위 메뉴도 함께 허용됩니다. 변경 내용은 역할별로 저장하며, 역할을 전환해도 저장 전 변경은 유지됩니다.</p>
-            <div class="flex flex-wrap gap-3 items-end mb-4">
-                <label class="min-w-0 flex-1 text-sm">메뉴 검색<input id="permission-menu-search" type="search" class="mt-1 w-full rounded border p-2 dark:bg-slate-700"></label>
-                <button id="permission-save" type="button" disabled class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">선택 역할 저장</button>
+            <div class="app-toolbar mb-4">
+                <label class="app-toolbar-field text-sm">메뉴 검색<input id="permission-menu-search" type="search" class="app-toolbar-control mt-1 w-full rounded border p-2 dark:bg-slate-700"></label>
+                <button id="permission-save" type="button" disabled class="app-toolbar-control rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white disabled:opacity-40">선택 역할 저장</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700">

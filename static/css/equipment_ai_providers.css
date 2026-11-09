@@ -10,6 +10,8 @@
 #ai-providers-admin button{border:1px solid var(--border-color,#ccd4e0);border-radius:7px;padding:9px 13px;margin:4px;background:var(--card-bg,#fff);color:inherit;cursor:pointer}
 #ai-providers-admin button:disabled{opacity:.55;cursor:default}
 #ai-providers-admin .provider-toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:15px 0}
+/* Toolbar buttons use the shared size; fields and dialogs retain their own layout. */
+#ai-providers-admin .provider-toolbar > button { margin: 0; padding-block: .375rem; border-radius: var(--toolbar-radius); }
 #ai-providers-admin .provider-workspace{display:grid;grid-template-columns:230px minmax(0,1fr);gap:22px}
 #ai-providers-admin nav{display:flex;flex-direction:column;align-items:stretch}
 #ai-providers-admin nav button{text-align:left;overflow-wrap:anywhere}#ai-providers-admin nav button[aria-current=true]{border-color:#3674bd;background:#3674bd18}

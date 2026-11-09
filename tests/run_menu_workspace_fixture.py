@@ -13,7 +13,8 @@ import zlib
 
 VIEWS = ['admin_center', 'dashboard', 'public', 'my_approvals', 'mypage', 'users_management',
          'permissions', 'master_management', 'lineup_management', 'approvals', 'audit_logs',
-         'access_logs', 'access_logs_error_ips', 'maintenance_admin', 'backup_restore']
+         'access_logs', 'access_logs_error_ips', 'maintenance_admin', 'backup_restore', 'backup_active',
+         'equipment_ai_providers', 'portal']
 
 
 def linux_cases(package):
@@ -29,13 +30,14 @@ def linux_cases(package):
         os.environ['EQ_FIXTURE_WIDTHS'] = json.dumps([width])
         os.environ['EQ_FIXTURE_THEMES'] = json.dumps([theme])
         assets = dict(package['assets'])
-        source = 'index' if view == 'public' else view
+        source = {'public': 'index', 'backup_active': 'backup_restore'}.get(view, view)
+        maintenance_state = 'MAINTENANCE' if view == 'backup_active' else 'NORMAL'
         assets['templates/equipment_ai.html'] = (
             "{% extends '" + source + ".html' %}{% set mode = 'public' %}"
             "{% set user = {'UserId':900,'LoginId':'fixture','Name':'검증','NickName':'검증 사용자','Role':'admin','Email':''} %}"
-            "{% set maintenance = {'state':'NORMAL','message':''} %}{% set restore_confirmation = '복원 확인' %}"
+            "{% set maintenance = {'state':'" + maintenance_state + "','message':''} %}{% set restore_confirmation = '복원 확인' %}"
             "{% block extra_head %}{{ super() }}<script src=\"/static/js/equipment_ai.js\" defer></script>{% endblock %}")
-        driver = assets['tests/menu_workspace_driver.js'].replace('__FIXTURE_VIEW__', view)
+        driver = assets['tests/menu_toolbar_checks.js'] + '\n' + assets['tests/menu_workspace_driver.js'].replace('__FIXTURE_VIEW__', view)
         rows.extend(dict(row, view=view) for row in run_ui_browser(project, assets, driver,
                     sizes=(width,), themes=(theme,), capture=capture_real_frames))
     return rows
@@ -54,8 +56,9 @@ def main():
     overlay = Path(__file__).resolve().parents[1]
     project = next(p for p in (overlay, *overlay.parents) if (p / 'AGENTS.md').is_file())
     paths = {p.relative_to(project).as_posix() for p in (project / 'templates').glob('*.html')}
-    paths |= {'static/css/' + n + '.css' for n in ('layout', 'components', 'roadmap', 'ai_polish_frame')}
-    paths.add('tests/menu_workspace_driver.js')
+    paths |= {'static/css/' + n + '.css' for n in ('layout', 'components', 'roadmap', 'ai_polish_frame', 'equipment_ai_providers')}
+    paths.add('static/js/equipment_ai_providers.js')
+    paths.update(('tests/menu_workspace_driver.js', 'tests/menu_toolbar_checks.js'))
     assets = {}
     for name in sorted(paths):
         candidate = overlay / name
@@ -63,8 +66,8 @@ def main():
     views = args.view or VIEWS
     cases = [(v, w, theme) for v in views for w, theme in ((1440, 'dark'), (384, 'light'))]
     if not args.view:
-        cases += [(v, 320, 'dark') for v in ('master_management', 'permissions', 'my_approvals')]
-        cases += [(v, 820, 'light') for v in ('dashboard', 'mypage', 'users_management')]
+        cases += [(v, 320, 'dark') for v in ('master_management', 'permissions', 'my_approvals', 'lineup_management', 'audit_logs', 'access_logs')]
+        cases += [(v, 820, 'light') for v in ('dashboard', 'mypage', 'users_management', 'my_approvals', 'lineup_management', 'audit_logs', 'access_logs')]
     if args.width:
         cases = [(v, args.width, t) for v in views for t in ((args.theme,) if args.theme else ('light', 'dark'))]
     elif args.theme:

@@ -38,5 +38,5 @@ html[data-layout-skin="edge"] .menu-grid { --edge-card-width: 18rem; } /* 관리
 .dark .catalog-request-fields :is(input, select) { background: #0f172a; color: #f1f5f9; border-color: #64748b; } /* 다크 입력입니다. */
 .dark .catalog-request-dialog [data-state="error"] { color: #fca5a5; } /* 오류 대비를 보존합니다. */
 .dark .catalog-request-dialog [data-state="success"] { color: #86efac; } /* 접수 대비를 보존합니다. */
-/* [역할] 기존 조작 버튼의 규격 통합. [의존성 관계] 실제 장비/결재함 ID. [변경 시 영향도] 색상·동작은 유지하고 클릭 치수만 공유합니다. */
-:is(#equipmentForm, #equipmentTableBody, #my-approvals-filter) button { box-sizing: border-box; min-height: var(--ui-control-height); padding: .5rem 1rem; border-radius: var(--ui-control-radius); font-size: .875rem; line-height: 1.25rem; font-weight: 600; } /* 배지보다 큰 터치 영역을 일관되게 유지합니다. */
+/* [역할] 기존 조작 버튼의 규격 통합. [의존성 관계] 실제 장비 ID. [변경 시 영향도] 색상·동작은 유지하고 클릭 치수만 공유합니다. */
+:is(#equipmentForm, #equipmentTableBody) button { box-sizing: border-box; min-height: var(--ui-control-height); padding: .5rem 1rem; border-radius: var(--ui-control-radius); font-size: .875rem; line-height: 1.25rem; font-weight: 600; } /* 배지보다 큰 터치 영역을 일관되게 유지합니다. */

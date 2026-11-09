@@ -29,13 +29,22 @@ test('every fixed DOM id used by new equipment module is present', () => {
     for (const [,id] of read('static/js/roadmap_equipment.js').matchAll(/byId\('([^']+)'\)/g)) assert.ok(html.includes(`id="${id}"`), id);
 });
 test('skins are allowlisted and invalid preference uses standard', () => {
-    const html = {dataset: {}}, skin = {}, checkbox = {};
-    const context = {window: {}, document: {documentElement: html, addEventListener() {}, getElementById(id) {return id === 'roadmap-skin' ? skin : checkbox;}}};
+    const html = {dataset: {}}, skin = {}, checkbox = {}, inputAction = {};
+    const controls = {'roadmap-skin': skin, 'roadmap-opt-in': checkbox, 'ai-enter-action': inputAction};
+    const context = {
+        window: new EventTarget(),
+        CustomEvent,
+        document: {documentElement: html, addEventListener() {}, getElementById(id) { return controls[id]; }}
+    };
+    const events = [];
+    context.window.addEventListener('user-settings-applied', event => events.push(event.detail.ai_enter_action));
     vm.runInNewContext(read('static/js/roadmap_preferences.js'), context);
-    context.window.applyRoadmapSettings({layout_skin: 'edge', deadline_email_opt_in: true});
+    context.window.applyRoadmapSettings({layout_skin: 'edge', deadline_email_opt_in: true, ai_enter_action: 'newline'});
     assert.equal(html.dataset.layoutSkin, 'edge'); assert.equal(checkbox.checked, true);
     context.window.applyRoadmapSettings({layout_skin: '<script>', deadline_email_opt_in: 'true'});
     assert.equal(html.dataset.layoutSkin, 'standard'); assert.equal(checkbox.checked, false);
+    assert.equal(inputAction.value, 'send');
+    assert.deepEqual(events, ['newline', 'send']);
 });
 test('API/template integration preserves manufacturer and edit-selection contracts', () => {
     const html = read('templates/index.html'), app = read('app.py');

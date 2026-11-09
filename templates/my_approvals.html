@@ -4,15 +4,22 @@
 {% block container_class %}max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8{% endblock %}
 {% block content %}
 <!-- 개인 이력 조회/관리자 처리는 분리한 채 독립 신청만 제공합니다. -->
-<section class="app-page-controls" aria-label="카탈로그 등록 신청"><p class="text-sm">장비 등록 없이 카테고리·제조사·노드를 신청할 수 있습니다.</p><div data-catalog-request-toolbar></div></section>
-<form id="my-approvals-filter" class="app-page-controls flex flex-wrap items-end gap-3">
-    <label class="text-sm">처리 상태
-        <select id="my-approvals-status" class="block mt-1 rounded border p-2 dark:bg-slate-700">
-            <option value="">전체 이력</option><option value="PENDING">처리 중</option><option value="APPROVED">승인 완료</option><option value="REJECTED">반려</option>
-        </select>
-    </label>
-    <button type="submit" class="rounded-lg bg-blue-600 px-4 py-2 text-sm font-bold text-white">조회</button>
-</form>
+<section class="app-page-controls app-toolbar" aria-label="결재함 도구">
+    <div data-catalog-request-toolbar role="group" aria-label="카탈로그 등록 신청"></div>
+    <form id="my-approvals-filter" class="app-toolbar-group">
+        <label class="app-toolbar-inline-field">처리 상태
+            <select id="my-approvals-status" class="app-toolbar-control rounded border px-2 dark:bg-slate-700">
+                <option value="">전체 이력</option><option value="PENDING">처리 중</option><option value="APPROVED">승인 완료</option><option value="REJECTED">반려</option>
+            </select>
+        </label>
+        <button type="submit" class="app-toolbar-control rounded-lg bg-blue-600 px-4 font-bold text-white">조회</button>
+    </form>
+    <nav id="my-approvals-pagination" class="app-toolbar-pages" aria-label="나의 결재함 페이지" tabindex="-1">
+        <button id="my-approvals-prev" type="button" disabled class="rounded border px-3 disabled:opacity-40">이전</button>
+        <span id="my-approvals-page" class="app-toolbar-count"></span>
+        <button id="my-approvals-next" type="button" disabled class="rounded border px-3 disabled:opacity-40">다음</button>
+    </nav>
+</section>
 <p id="my-approvals-message" role="status" aria-live="polite" class="my-3 text-sm"></p>
 <div class="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-800 overflow-hidden">
     <div class="overflow-x-auto">
@@ -26,11 +33,7 @@
         </table>
     </div>
 </div>
-<nav class="mt-4 flex flex-wrap items-center justify-end gap-3" aria-label="나의 결재함 페이지">
-    <button id="my-approvals-prev" type="button" disabled class="rounded border px-3 py-2 text-sm disabled:opacity-40">이전</button>
-    <span id="my-approvals-page" class="text-sm"></span>
-    <button id="my-approvals-next" type="button" disabled class="rounded border px-3 py-2 text-sm disabled:opacity-40">다음</button>
-</nav>
+<a class="app-pagination-return" href="#my-approvals-pagination">페이지 이동으로 돌아가기 ↑</a>
 <dialog id="my-approval-detail" class="account-dialog" aria-labelledby="my-approval-detail-title">
     <div class="p-5 space-y-4">
         <h2 id="my-approval-detail-title" class="text-xl font-bold">상신 상세</h2>
@@ -43,4 +46,4 @@
 {% endblock %}
 {% block extra_scripts %}<script src="/static/js/my_approvals.js"></script>{% endblock %}
 
-{% block workspace_help %}내가 상신한 요청의 진행 상태와 승인·반려 이력을 확인합니다.{% endblock %}
+{% block workspace_help %}내가 상신한 요청의 진행 상태와 승인·반려 이력을 확인합니다. 장비 등록 없이 카테고리·제조사·노드를 신청할 수 있습니다.{% endblock %}

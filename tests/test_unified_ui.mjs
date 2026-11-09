@@ -46,7 +46,9 @@ test('my/public share one search/action region without duplicating IDs or submit
     for(const id of ['roadmap-filter','roadmap-csv-toggle','includeMineCheckbox','btnToggleDrafts'])assert.equal(html.split('id="'+id+'"').length-1,1,id);
     assert.ok(!index.includes('id="includeMineCheckbox"'));
     assert.match(html,/<button type="button" id="roadmap-csv-toggle"/);
-    assert.ok(html.indexOf('equipment-search-region')<html.indexOf('equipment-action-region'));
+    assert.ok(html.indexOf('equipment-action-region')<html.indexOf('equipment-search-region'));
+    assert.ok(html.indexOf('equipment-search-region')<html.indexOf('equipment-list-status'));
+    assert.ok(html.indexOf('equipment-toolbar')<html.indexOf('id="roadmap-advanced"'));
 });
 test('card sequence has no forced row groups; nickname is retained and timer preserves styling',()=>{
     const css=read('static/css/layout.css'),nav=read('templates/miniserver_frame.html'),timer=read('static/js/session_timer.js');

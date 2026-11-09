@@ -19,7 +19,7 @@
     <button id="provider-dismiss-pending" type="button" hidden>확인 상태 해제</button>
   </div>
   <div id="provider-controls">
-  <div class="provider-toolbar"><button id="provider-new" type="button">연결 추가</button><button id="provider-reload" type="button">새로고침</button><span id="provider-encryption"></span></div>
+  <div class="provider-toolbar app-toolbar app-toolbar-buttons"><button id="provider-new" type="button">연결 추가</button><button id="provider-reload" type="button">새로고침</button><span id="provider-encryption"></span></div>
   <div class="provider-workspace">
     <nav id="provider-list" aria-label="AI 연결 목록"></nav>
     <div>
@@ -41,7 +41,7 @@
         <div class="provider-actions"><button type="submit" id="provider-save" data-mutation="true">연결 저장</button><button type="button" id="provider-retire" data-mutation="true" hidden>연결 폐기</button></div>
       </form>
       <section id="provider-models-panel" hidden>
-        <div class="provider-toolbar"><h2>공개 모델</h2><button type="button" id="provider-discover">모델 자동 조회</button></div>
+        <div class="provider-toolbar app-toolbar app-toolbar-buttons"><h2>공개 모델</h2><button type="button" id="provider-discover">모델 자동 조회</button></div>
         <p id="provider-status"></p><p>목록에 있다는 사실이 현재 메모리 적재나 기능 호환을 보장하지 않습니다. 검증한 컨텍스트 한도와 허용할 추론 수준·기본값을 설정하세요. 기능 계약 변경 후 시험을 통과한 모델만 사용자가 호출할 수 있습니다. Qwen3.8 Flash Next는 알려진 지원 단계가 사전 설정됩니다.</p>
         <div id="provider-models"></div>
         <form id="provider-manual" hidden><h3>수동 모델 등록(선택사항)</h3><label>호출 모델 ID<input name="upstream" maxlength="200" required></label><label>표시 이름<input name="label" maxlength="80" required></label><button type="submit" data-mutation="true">모델 추가</button></form>
