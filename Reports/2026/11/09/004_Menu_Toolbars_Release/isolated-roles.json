@@ -1,0 +1,293 @@
+{
+  "candidate_commit": "3a348ffc24af68393d309f30baa0fee57b9a4a61",
+  "source_count": 26,
+  "status": "pass",
+  "isolated": true,
+  "copy_check": {
+    "status": "pass",
+    "copy": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-toolbar-20261109T013937-c37e78/copy-5ec78eb89cd8",
+    "business_tables_preserved": 18,
+    "ai_tables_preserved": 17,
+    "old_ai_rows": {
+      "ai_execution_guards": 73,
+      "ai_lifecycle_operations": 36,
+      "ai_lifecycle_tombstones": 14,
+      "ai_provider_models": 1,
+      "ai_provider_revisions": 4,
+      "ai_provider_settings": 1,
+      "ai_providers": 1,
+      "ai_resource_groups": 1,
+      "ai_selection_events": 24,
+      "ai_task_drafts": 0,
+      "conversations": 13,
+      "jobs": 28,
+      "message_steps": 56,
+      "messages": 56,
+      "proposals": 0,
+      "revocations": 17,
+      "storage_accounts": 5
+    },
+    "ai_version": 4,
+    "menu_parent": "admin_center",
+    "anonymous_statuses": {
+      "/login": 200,
+      "/assistant": 302,
+      "/admin/ai/providers": 302,
+      "/api/ai/capabilities": 401,
+      "/internal/ai/claim": 403
+    },
+    "audit_rows_preserved": true,
+    "old_lifecycle_rows": 7,
+    "lifecycle_rows_preserved": true,
+    "real_model_called": false,
+    "production_databases_modified": false
+  },
+  "cases": [
+    {
+      "role": "admin",
+      "path": "/portal",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/my_equipment",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/public_equipment",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/dashboard",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/my_approvals",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/mypage",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/assistant",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/admin_center",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/users_management",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/permissions",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/master_management",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/lineup_management",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/approvals",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/audit_logs",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/access_logs",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/access_logs/error_ips",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/maintenance_admin",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/backup_restore",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "admin",
+      "path": "/admin/ai/providers",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/portal",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/my_equipment",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/public_equipment",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/dashboard",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/my_approvals",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/mypage",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/assistant",
+      "http": 200,
+      "result": "rendered"
+    },
+    {
+      "role": "user",
+      "path": "/admin_center",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/users_management",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/permissions",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/master_management",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/lineup_management",
+      "http": 302,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/approvals",
+      "http": 302,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/audit_logs",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/access_logs",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/access_logs/error_ips",
+      "http": 200,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/maintenance_admin",
+      "http": 302,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/backup_restore",
+      "http": 302,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/admin/ai/providers",
+      "http": 403,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/api/users",
+      "http": 403,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/api/permissions",
+      "http": 403,
+      "result": "denied"
+    },
+    {
+      "role": "user",
+      "path": "/api/admin/ai/providers",
+      "http": 403,
+      "result": "denied"
+    }
+  ]
+}

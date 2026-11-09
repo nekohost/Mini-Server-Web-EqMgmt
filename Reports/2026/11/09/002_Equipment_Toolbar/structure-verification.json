@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "ids_preserved": 30,
+  "original_event_type_name_aria_attributes_preserved": 52,
+  "dialogs_byte_identical_after_eol_normalization": true,
+  "dom_action_search_paging_order": true,
+  "root_reference_files_unchanged": 8,
+  "production_js_api_db_changes": false
+}

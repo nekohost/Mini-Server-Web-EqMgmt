@@ -1,0 +1,33 @@
+{
+  "checked_at_utc": "2026-11-09T01:50:29.758628+00:00",
+  "code": "3a348ffc24af68393d309f30baa0fee57b9a4a61",
+  "head": "3a348ffc24af68393d309f30baa0fee57b9a4a61",
+  "business": {
+    "checked_tables": 18,
+    "missing": {},
+    "changed_old_columns": {
+      "users": {
+        "SessionToken": 1
+      }
+    },
+    "new_rows": {}
+  },
+  "ai": {
+    "checked_tables": 17,
+    "missing": {},
+    "changed_old_columns": {},
+    "new_rows": {}
+  },
+  "audit_and_access_history_preserved": true,
+  "test05_session_tokens_rotated": 1,
+  "other_session_tokens_rotated": 0,
+  "preferences_changed": 0,
+  "config_and_units_unchanged": true,
+  "chat_assets_unchanged": true,
+  "source_match": true,
+  "worker": "active",
+  "timer": "active",
+  "maintenance": "NORMAL",
+  "active_work": {},
+  "status": "pass"
+}

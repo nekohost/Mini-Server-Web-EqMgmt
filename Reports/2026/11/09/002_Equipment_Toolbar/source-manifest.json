@@ -1,0 +1,12 @@
+{
+  "files": {
+    "static/css/layout.css": "b4f19bd77522224f61e334fb9a728a11ea7d5068504ccd28865f955302bcb37d",
+    "templates/roadmap_equipment.html": "d9ff623e5e12ed8da9d8d3fc5fe2f2c83c384dec841e1f40932939318ddb9afe",
+    "tests/equipment_toolbar_driver.js": "6a03b1126dcd73bfbbda6618229ef19f930d88e5b7e4c915e8ba6c90be95b523",
+    "tests/helpers/responsive_shell.mjs": "b97c2bdca1ca76c94b20da6fa216e9e172108d7eddf3903e6f85bd974704661b",
+    "tests/run_equipment_toolbar_fixture.py": "e90be72cb191c28e23e52111e96f3d70cf2f238569b783bdf0fd97a8e3dcee57",
+    "tests/test_unified_ui.mjs": "af3fff7097d7da7c04690fceb17e7d0a1ee76a793fe68ee74925fb87f240ac31"
+  },
+  "zip_sha256": "f175c6863092353b3e9a67b52a56c78802451f90d592a5d6853b6b61781ab7b0",
+  "stage_only": true
+}

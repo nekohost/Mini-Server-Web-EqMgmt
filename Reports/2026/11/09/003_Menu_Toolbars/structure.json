@@ -1,0 +1,140 @@
+{
+  "templates": {
+    "access_logs.html": {
+      "old_controls": 46,
+      "new_controls": 47,
+      "old_ids": 34,
+      "new_ids": 34,
+      "forms": 1,
+      "duplicate_link_consolidated": false
+    },
+    "access_logs_error_ips.html": {
+      "old_controls": 4,
+      "new_controls": 3,
+      "old_ids": 9,
+      "new_ids": 9,
+      "forms": 0,
+      "duplicate_link_consolidated": true
+    },
+    "approvals.html": {
+      "old_controls": 7,
+      "new_controls": 7,
+      "old_ids": 10,
+      "new_ids": 10,
+      "forms": 0,
+      "duplicate_link_consolidated": false
+    },
+    "audit_logs.html": {
+      "old_controls": 40,
+      "new_controls": 41,
+      "old_ids": 14,
+      "new_ids": 15,
+      "forms": 1,
+      "duplicate_link_consolidated": false
+    },
+    "backup_restore.html": {
+      "old_controls": 10,
+      "new_controls": 10,
+      "old_ids": 14,
+      "new_ids": 14,
+      "forms": 2,
+      "duplicate_link_consolidated": false
+    },
+    "dashboard.html": {
+      "old_controls": 5,
+      "new_controls": 5,
+      "old_ids": 13,
+      "new_ids": 13,
+      "forms": 1,
+      "duplicate_link_consolidated": false
+    },
+    "equipment_ai_providers.html": {
+      "old_controls": 27,
+      "new_controls": 27,
+      "old_ids": 30,
+      "new_ids": 30,
+      "forms": 3,
+      "duplicate_link_consolidated": false
+    },
+    "lineup_management.html": {
+      "old_controls": 15,
+      "new_controls": 15,
+      "old_ids": 31,
+      "new_ids": 31,
+      "forms": 2,
+      "duplicate_link_consolidated": false
+    },
+    "maintenance_admin.html": {
+      "old_controls": 57,
+      "new_controls": 57,
+      "old_ids": 14,
+      "new_ids": 14,
+      "forms": 2,
+      "duplicate_link_consolidated": false
+    },
+    "master_management.html": {
+      "old_controls": 16,
+      "new_controls": 16,
+      "old_ids": 16,
+      "new_ids": 16,
+      "forms": 0,
+      "duplicate_link_consolidated": false
+    },
+    "my_approvals.html": {
+      "old_controls": 9,
+      "new_controls": 10,
+      "old_ids": 11,
+      "new_ids": 12,
+      "forms": 2,
+      "duplicate_link_consolidated": false
+    },
+    "mypage.html": {
+      "old_controls": 35,
+      "new_controls": 35,
+      "old_ids": 46,
+      "new_ids": 46,
+      "forms": 3,
+      "duplicate_link_consolidated": false
+    },
+    "permissions.html": {
+      "old_controls": 3,
+      "new_controls": 3,
+      "old_ids": 9,
+      "new_ids": 9,
+      "forms": 0,
+      "duplicate_link_consolidated": false
+    },
+    "roadmap_equipment.html": {
+      "old_controls": 51,
+      "new_controls": 51,
+      "old_ids": 29,
+      "new_ids": 29,
+      "forms": 4,
+      "duplicate_link_consolidated": false
+    },
+    "users_management.html": {
+      "old_controls": 11,
+      "new_controls": 11,
+      "old_ids": 9,
+      "new_ids": 9,
+      "forms": 0,
+      "duplicate_link_consolidated": false
+    }
+  },
+  "controls": 338,
+  "forms": 21,
+  "original_root_hashes": 50,
+  "original_stage_hashes": 6,
+  "inherited_unchanged": [
+    "templates/roadmap_equipment.html",
+    "tests/equipment_toolbar_driver.js",
+    "tests/helpers/responsive_shell.mjs",
+    "tests/run_equipment_toolbar_fixture.py",
+    "tests/test_unified_ui.mjs"
+  ],
+  "chat_assets_unchanged": [
+    "templates/equipment_ai.html",
+    "static/css/equipment_ai.css",
+    "static/js/equipment_ai.js"
+  ]
+}

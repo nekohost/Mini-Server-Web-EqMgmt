@@ -1,0 +1,32 @@
+{
+  "status": "pass",
+  "origin": "https://nekohost.org",
+  "stylesheet_checks": [
+    {
+      "path": "/static/css/layout.css",
+      "status_for_previous_etag": 200,
+      "sha256": "512d8a48957cfa1d080188a62936d17c23b97bb6e8062b7569043e96f7355ceb",
+      "cache_control": "no-cache"
+    },
+    {
+      "path": "/static/css/components.css",
+      "status_for_previous_etag": 200,
+      "sha256": "679d9342986762b292bd7e71b62aae1f397ecdea0239385c37fc5086df346199",
+      "cache_control": "no-cache"
+    },
+    {
+      "path": "/static/css/equipment_ai_providers.css",
+      "status_for_previous_etag": 200,
+      "sha256": "6213819594e9773ad836ddb101041c5e17dd2ed143cc192b6ab81c2301e7998b",
+      "cache_control": "no-cache"
+    }
+  ],
+  "anonymous_statuses": {
+    "/login": 200,
+    "/my_equipment": 302,
+    "/my_approvals": 302,
+    "/admin/ai/providers": 302,
+    "/api/users": 401,
+    "/api/ai/capabilities": 401
+  }
+}

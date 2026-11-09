@@ -1,0 +1,41 @@
+{
+  "head": "16c34d902cebc87422a01359864a9ffef49f7e46",
+  "hashes": {
+    "templates/roadmap_equipment.html": "87e36e185642ca391a1440813791bbb06a7305729410b80c1d5406b744176470",
+    "templates/index.html": "d9f7376b284c38ffef9d81053c7ca6c94652152a1ba711738156c08c1dd486cf",
+    "static/css/layout.css": "9ad57dfbe6dcd3947e3de7eba5be14f2b20035fa092d612da320c4b79e579df6",
+    "static/css/roadmap.css": "a88eeac20ea0cc03ca8c4574c111cfc7046124c62faad0a7372149980a82a071",
+    "static/js/roadmap_equipment.js": "2a6befb23c384c7355b021e3ecb06fe5e4ff7e81ee336c03db033cfd315c3134",
+    "tests/test_unified_ui.mjs": "8b97e1fa477cc2f3dc298a0c4c004d4ebb23a70c2d409d670b64ba02fe410a0b",
+    "tests/helpers/responsive_shell.mjs": "86e4edcbaac25ef46e443ec4354da435de26caf8c80632d3c588972a091b420d",
+    "tests/dashboard_workspace_driver.js": "29663a880ab8ad5c0235199a9791aa2a9cb793473f8c8dc8d3afeb0cc58b7a96"
+  },
+  "status": [
+    " M .agent-governance/capabilities/chatgpt-remote.yaml",
+    " M FEATURES.md",
+    " M PROPOSALS.md",
+    " M ROADMAP.md",
+    " M Reports/2026/09/10/016_Lineup_Registration_UX_Followup_Review_Report.md",
+    " M Reports/2026/10/30/002_Strata_Admin_Integration_Report.md",
+    " M Tasks/2026/10/30/002_Strata_Admin_Integration_Task.md",
+    " M UNIMPLEMENTED_PROPOSALS.md",
+    " M UNIMPLEMENTED_ROADMAP.md",
+    "?? 5650U-COPY-NOTES.txt",
+    "?? Plans/2026/09/28/",
+    "?? Plans/2026/09/29/",
+    "?? Plans/2026/11/09/002_Equipment_Toolbar_Plan.md",
+    "?? Reports/2026/09/29/001_Optional_Real_Name_and_Next_Roadmap_Review.md",
+    "?? Reports/2026/09/29/003_Service_Role_Separation_Feasibility_Report.md",
+    "?? Reports/2026/09/29/index.md",
+    "?? Reports/2026/10/30/003_Backup_Server_SSH_Connection_Report.md",
+    "?? Reports/2026/11/05/006_Test_User_Accounts_Report.md",
+    "?? Reports/2026/11/05/008_Test_User_Accounts_03_05_Report.md",
+    "?? Reports/2026/11/09/002_Equipment_Toolbar_Report.md",
+    "?? Run-Local-5650U.cmd",
+    "?? Tasks/2026/10/30/003_Backup_Server_SSH_Connection_Task.md",
+    "?? Tasks/2026/11/05/006_Test_User_Accounts_Task.md",
+    "?? Tasks/2026/11/05/008_Test_User_Accounts_03_05_Task.md",
+    "?? Tasks/2026/11/09/002_Equipment_Toolbar_Task.md",
+    "?? docs/service-operations-handoff.md"
+  ]
+}

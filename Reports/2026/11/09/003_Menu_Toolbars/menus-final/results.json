@@ -1,0 +1,2163 @@
+[
+  {
+    "status": "pass",
+    "view": "admin_center",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 0,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "admin_center-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "admin_center",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 0,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "admin_center-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "dashboard",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 1
+        },
+        {
+          "width": 640,
+          "rows": 1
+        },
+        {
+          "width": 412,
+          "rows": 2
+        },
+        {
+          "width": 384,
+          "rows": 2
+        },
+        {
+          "width": 320,
+          "rows": 3
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "dashboard-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "dashboard",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "dashboard-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "public",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "public scope controls remain",
+      "advanced search opens",
+      "CSV tools open",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 0,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "public-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "public",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "public scope controls remain",
+      "advanced search opens",
+      "CSV tools open",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 0,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "public-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "my_approvals",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "request detail retains its unique title and data",
+      "catalog application opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "125% root text scales the controls and preserves page fit",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 2
+        },
+        {
+          "width": 412,
+          "rows": 3
+        },
+        {
+          "width": 384,
+          "rows": 3
+        },
+        {
+          "width": 320,
+          "rows": 4
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "my_approvals-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "my_approvals",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "request detail retains its unique title and data",
+      "catalog application opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 4
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "my_approvals-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "mypage",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "profile editor opens",
+      "security dialog has its own heading",
+      "security dialog has its own heading",
+      "existing input preferences remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "mypage-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "mypage",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "profile editor opens",
+      "security dialog has its own heading",
+      "security dialog has its own heading",
+      "existing input preferences remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "mypage-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "users_management",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "selection enables existing actions",
+      "deselection prevents accidental delete",
+      "existing user dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "additional actions inherit the control size and wrap without new layout rules",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 6,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 2
+        },
+        {
+          "width": 412,
+          "rows": 3
+        },
+        {
+          "width": 384,
+          "rows": 3
+        },
+        {
+          "width": 320,
+          "rows": 4
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "users_management-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "users_management",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "selection enables existing actions",
+      "deselection prevents accidental delete",
+      "existing user dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "additional actions inherit the control size and wrap without new layout rules",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 6,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 3
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "users_management-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "permissions-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "permissions-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "master_management",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "master editor preserves task title",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 4,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 1
+        },
+        {
+          "width": 640,
+          "rows": 1
+        },
+        {
+          "width": 412,
+          "rows": 2
+        },
+        {
+          "width": 384,
+          "rows": 2
+        },
+        {
+          "width": 320,
+          "rows": 2
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "master_management-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "master_management",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "master editor preserves task title",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 4,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "master_management-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "lineup_management",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "node editor opens with unique task title",
+      "node editor closes without saving",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 1
+        },
+        {
+          "width": 640,
+          "rows": 1
+        },
+        {
+          "width": 412,
+          "rows": 2
+        },
+        {
+          "width": 384,
+          "rows": 2
+        },
+        {
+          "width": 320,
+          "rows": 3
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "lineup_management-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "lineup_management",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "node editor opens with unique task title",
+      "node editor closes without saving",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "lineup_management-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "approvals",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "approval process dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 2,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "approvals-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "approvals",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "approval process dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 2,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "approvals-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "match controls accept keyboard focus",
+      "column menu fits when opened",
+      "custom page size fits and opens",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 16,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 2
+        },
+        {
+          "width": 412,
+          "rows": 3
+        },
+        {
+          "width": 384,
+          "rows": 3
+        },
+        {
+          "width": 320,
+          "rows": 4
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "audit_logs-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "match controls accept keyboard focus",
+      "column menu fits when opened",
+      "custom page size fits and opens",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 16,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 3
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "audit_logs-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "existing log search works",
+      "destructive confirmation retained without submit",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "opened cleanup menu fits viewport",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "toolbar and document fit at 1024",
+      "toolbar and document fit at 820",
+      "toolbar and document fit at 640",
+      "toolbar and document fit at 412",
+      "toolbar and document fit at 384",
+      "toolbar and document fit at 320",
+      "toolbar and document fit at 1440",
+      "related controls share one desktop row",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 19,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 2
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 3
+        },
+        {
+          "width": 412,
+          "rows": 4
+        },
+        {
+          "width": 384,
+          "rows": 5
+        },
+        {
+          "width": 320,
+          "rows": 6
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "access_logs-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "destructive confirmation retained without submit",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "opened cleanup menu fits viewport",
+      "toolbar and document fit at 384",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 19,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 384,
+          "rows": 5
+        }
+      ]
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "access_logs-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs_error_ips",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "error IP filter handles zero result",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "access_logs_error_ips-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs_error_ips",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "error IP filter handles zero result",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "access_logs_error_ips-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "maintenance_admin",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "maintenance status and activation form remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 1,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "maintenance_admin-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "maintenance_admin",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "maintenance status and activation form remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 1,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "maintenance_admin-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "backup_restore",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "restore guard and navigation remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 1,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "backup_restore-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "backup_restore",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "restore guard and navigation remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 1,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "backup_restore-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "backup_active",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "backup alternatives share their own group",
+      "verification and protected restore remain separate",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "backup_active-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "backup_active",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "backup alternatives share their own group",
+      "verification and protected restore remain separate",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "backup_active-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "equipment_ai_providers",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "selected connection opens its own model list",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "equipment_ai_providers-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "equipment_ai_providers",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "selected connection opens its own model list",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "equipment_ai_providers-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "portal",
+    "width": 1440,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "44px minimum height and 13px type on visible controls",
+      "admin card is last",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 0,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 1440,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "portal-1440-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "portal",
+    "width": 384,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "44px minimum height and 13px type on visible controls",
+      "admin card is last",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 0,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 384,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "portal-384-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "master_management",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "master editor preserves task title",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 320",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 4,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 320,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "master_management-320-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "permissions",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "role selection opens its own permissions",
+      "role filter applies",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "permissions-320-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "my_approvals",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "request detail retains its unique title and data",
+      "catalog application opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "toolbar and document fit at 320",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 320,
+          "rows": 4
+        }
+      ]
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "my_approvals-320-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "lineup_management",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "node editor opens with unique task title",
+      "node editor closes without saving",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 320",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 320,
+          "rows": 3
+        }
+      ]
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "lineup_management-320-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "match controls accept keyboard focus",
+      "column menu fits when opened",
+      "custom page size fits and opens",
+      "toolbar and document fit at 320",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 16,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 320,
+          "rows": 4
+        }
+      ]
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "audit_logs-320-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs",
+    "width": 320,
+    "height": 1000,
+    "theme": "dark",
+    "skin": "edge",
+    "checks": [
+      "existing log search works",
+      "destructive confirmation retained without submit",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "opened cleanup menu fits viewport",
+      "toolbar and document fit at 320",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 19,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 320,
+          "rows": 6
+        }
+      ]
+    },
+    "requested_width": 320,
+    "requested_theme": "dark",
+    "exit_code": 0,
+    "image": "access_logs-320-dark.png"
+  },
+  {
+    "status": "pass",
+    "view": "dashboard",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 820",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 820,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "dashboard-820-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "mypage",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "profile editor opens",
+      "security dialog has its own heading",
+      "security dialog has its own heading",
+      "existing input preferences remain",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": []
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "mypage-820-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "users_management",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "selection enables existing actions",
+      "deselection prevents accidental delete",
+      "existing user dialog opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "additional actions inherit the control size and wrap without new layout rules",
+      "toolbar and document fit at 820",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 6,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 820,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "users_management-820-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "my_approvals",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "request detail retains its unique title and data",
+      "catalog application opens",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "toolbar and document fit at 820",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 7,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 820,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "my_approvals-820-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "lineup_management",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "node editor opens with unique task title",
+      "node editor closes without saving",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "toolbar and document fit at 820",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 3,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 820,
+          "rows": 1
+        }
+      ]
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "lineup_management-820-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "audit_logs",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "match controls accept keyboard focus",
+      "column menu fits when opened",
+      "custom page size fits and opens",
+      "toolbar and document fit at 820",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 16,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 820,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "audit_logs-820-light.png"
+  },
+  {
+    "status": "pass",
+    "view": "access_logs",
+    "width": 820,
+    "height": 1000,
+    "theme": "light",
+    "skin": "standard",
+    "checks": [
+      "existing log search works",
+      "destructive confirmation retained without submit",
+      "single navigation page heading",
+      "main has the surviving title as its accessible name",
+      "all heading references resolve",
+      "work starts 16px after navigation",
+      "reference help is preserved and collapsed",
+      "reference help expands",
+      "visible scoped controls exist",
+      "44px minimum height and 13px type on visible controls",
+      "long result list links to the live pager",
+      "return link focuses the pager below the sticky header",
+      "pagination precedes its own result table",
+      "previous page becomes available",
+      "opened cleanup menu fits viewport",
+      "toolbar and document fit at 820",
+      "resizing preserves focus and selection without loading data",
+      "no horizontal page overflow",
+      "only expected GET requests and no JS errors"
+    ],
+    "geometry": {
+      "mainGap": 0,
+      "paddingTop": "16px",
+      "firstContentGap": 16,
+      "controlCount": 19,
+      "smallHeights": [],
+      "wrongFonts": [],
+      "rows": [
+        {
+          "width": 820,
+          "rows": 2
+        }
+      ]
+    },
+    "requested_width": 820,
+    "requested_theme": "light",
+    "exit_code": 0,
+    "image": "access_logs-820-light.png"
+  }
+]

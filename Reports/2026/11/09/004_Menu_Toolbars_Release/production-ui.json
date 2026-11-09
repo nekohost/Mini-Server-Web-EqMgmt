@@ -1,0 +1,184 @@
+{
+  "status": "pass",
+  "origin": "https://nekohost.org",
+  "role": "user",
+  "verification_account": "test05",
+  "screenshot_mode": "Linux Chromium, actual production HTTPS, CSS viewports",
+  "business_writes": false,
+  "model_generation": false,
+  "admin_denials": {
+    "/api/users": 403,
+    "/api/permissions": 403,
+    "/api/admin/ai/providers": 403,
+    "/admin/ai/providers": 403
+  },
+  "cases": [
+    {
+      "view": "equipment",
+      "variant": "desktop",
+      "path": "/my_equipment",
+      "control_count": 9,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 1,
+      "titles": 1,
+      "width": 1440,
+      "within_viewport": true,
+      "image": "production/equipment-desktop.png"
+    },
+    {
+      "view": "inbox",
+      "variant": "desktop",
+      "path": "/my_approvals",
+      "control_count": 8,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 1,
+      "titles": 1,
+      "width": 1440,
+      "within_viewport": true,
+      "image": "production/inbox-desktop.png"
+    },
+    {
+      "view": "dashboard",
+      "variant": "desktop",
+      "path": "/dashboard",
+      "control_count": 3,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 1,
+      "titles": 1,
+      "width": 1440,
+      "within_viewport": true,
+      "image": "production/dashboard-desktop.png"
+    },
+    {
+      "view": "equipment",
+      "variant": "tablet",
+      "path": "/my_equipment",
+      "control_count": 9,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 2,
+      "titles": 1,
+      "width": 820,
+      "within_viewport": true,
+      "image": "production/equipment-tablet.png"
+    },
+    {
+      "view": "inbox",
+      "variant": "tablet",
+      "path": "/my_approvals",
+      "control_count": 8,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 2,
+      "titles": 1,
+      "width": 820,
+      "within_viewport": true,
+      "image": "production/inbox-tablet.png"
+    },
+    {
+      "view": "dashboard",
+      "variant": "tablet",
+      "path": "/dashboard",
+      "control_count": 3,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 1,
+      "titles": 1,
+      "width": 820,
+      "within_viewport": true,
+      "image": "production/dashboard-tablet.png"
+    },
+    {
+      "view": "equipment",
+      "variant": "mobile",
+      "path": "/my_equipment",
+      "control_count": 9,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 3,
+      "titles": 1,
+      "width": 384,
+      "within_viewport": true,
+      "image": "production/equipment-mobile.png"
+    },
+    {
+      "view": "inbox",
+      "variant": "mobile",
+      "path": "/my_approvals",
+      "control_count": 8,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 3,
+      "titles": 1,
+      "width": 384,
+      "within_viewport": true,
+      "image": "production/inbox-mobile.png"
+    },
+    {
+      "view": "dashboard",
+      "variant": "mobile",
+      "path": "/dashboard",
+      "control_count": 3,
+      "fonts": [
+        "13px"
+      ],
+      "labelled": true,
+      "min_height": 44,
+      "page_overflow": 0,
+      "rows": 2,
+      "titles": 1,
+      "width": 384,
+      "within_viewport": true,
+      "image": "production/dashboard-mobile.png"
+    }
+  ],
+  "actions": [
+    "desktop equipment advanced open/close",
+    "desktop CSV open/close",
+    "desktop draft list round trip",
+    "desktop inbox filter GET",
+    "desktop catalog dialog open/close",
+    "desktop combined search GET and result",
+    "mobile equipment advanced open/close",
+    "mobile CSV open/close",
+    "mobile draft list round trip",
+    "mobile inbox filter GET",
+    "mobile catalog dialog open/close",
+    "mobile combined search GET and result"
+  ]
+}

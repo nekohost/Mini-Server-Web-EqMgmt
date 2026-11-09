@@ -1,0 +1,23 @@
+{
+  "tests": [
+    "test_unified_ui.mjs",
+    "test_responsive_shell.mjs",
+    "test_release_frontend.mjs",
+    "test_menu_workflows_static.mjs",
+    "test_edge_layout_browser.mjs",
+    "test_catalog_requests_static.mjs",
+    "test_roadmap_static.mjs"
+  ],
+  "exit": 0,
+  "node": "✔ portal and admin use the same menu-grid contract (6.405ms)\n✔ equipment badges share one row below the equipment name (3.4168ms)\n✔ catalog request UI is shared and does not gain approval actions (8.3657ms)\n✔ catalog request route keeps session actor, csrf and atomic audit before commit (1.6806ms)\n✔ root frame loads the shared component assets after existing base assets (1.6314ms)\n✔ layout hooks and account control IDs stay explicit and unique (offline) (12.1155ms)\n✔ previous navigation requires a same-origin, non-authentication history entry (33.7659ms)\n﹣ Edge/Standard real-template responsive browser matrix (opt-in) (0.5453ms) # SKIP\n✔ menu labels strip annotations and decorative prefixes without rewriting data (15.5019ms)\n✔ account safety actions are profile buttons and native closed dialogs (3.2557ms)\n✔ role editor and personal inbox keep mutation surfaces separate (2.6983ms)\n✔ all changed inline scripts parse without an app/server (11.5292ms)\n✔ unsupported and insecure browsers retain UI without registering (4.7637ms)\n✔ read tools search full paths, bound output and retain current scope (5.4552ms)\n✔ caller cannot change scope, send invalid pages or exceed limits (2.7492ms)\n✔ session errors and malformed API output are not exposed as tool results (3.2332ms)\n✔ lifecycle cancellation unregisters and forwards request abort (1.9505ms)\n✔ declarative registration is add-only with manual submit, no dangerous tools (3.5729ms)\n✔ full model and option UI use escaped text and show draft usage (7.9596ms)\n✔ official model search retains classification search and does not expose private fields (3.5048ms)\n✔ official name form and list contracts preserve escaping and optional clearing (7.3484ms)\n✔ equipment screens show a missing manufacturer and avoid existing aliases (7.758ms)\n✔ title unit counts use graphemes and half-width whitespace, not page names (3.9705ms)\n✔ long titles balance whole words at the 10-unit threshold and actual width (4.5587ms)\n✔ admin order groups related menus, preserves unknown entries and never adds access (4.5723ms)\n✔ selection actions start visible/disabled; native timer button retains extension listener (5.6259ms)\n✔ all candidate JavaScript and inline template scripts parse (92.8228ms)\n✔ equipment module escapes labels and marks due state (2.8134ms)\n✔ every fixed DOM id used by new equipment module is present (3.2434ms)\n✔ skins are allowlisted and invalid preference uses standard (3.3004ms)\n✔ API/template integration preserves manufacturer and edit-selection contracts (3.2735ms)\n✔ all expected new APIs are present behind shared login/CSRF (1.2387ms)\n✔ all workspace menus use the navigation h1 and retain reference help (31.8472ms)\n✔ the portal and both equipment modes start at their actual work (4.1856ms)\n✔ audit-specific settings preserve both shared frame preference functions (3.1369ms)\n✔ my/public share one search/action region without duplicating IDs or submitting CSV toggle (2.7751ms)\n✔ card sequence has no forced row groups; nickname is retained and timer preserves styling (3.7545ms)\nℹ tests 37\nℹ suites 0\nℹ pass 36\nℹ fail 0\nℹ cancelled 0\nℹ skipped 1\nℹ todo 0\nℹ duration_ms 313.856\n",
+  "syntax": [
+    "tests/equipment_toolbar_driver.js",
+    "tests/menu_toolbar_checks.js",
+    "tests/menu_workspace_driver.js",
+    "tests/run_equipment_toolbar_fixture.py",
+    "tests/run_menu_workspace_fixture.py",
+    "tests/test_roadmap_static.mjs",
+    "tests/test_unified_ui.mjs",
+    "tests/helpers/responsive_shell.mjs"
+  ]
+}

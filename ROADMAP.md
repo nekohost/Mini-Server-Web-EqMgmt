@@ -388,3 +388,8 @@
 - **상태:** 개발 완료(FEATURES21 이관)·운영 일반 사용자 실제 검증 완료. 017 당시 보류했던 web_search는 이번 사용자 명시 승인으로 별도 수행했다.
 - opt-in·실제 검색 선행/검색 없는 완료 차단·격리 검색·출처 번호/보관·모델 인계·검색 오류/64K 예약과 기존 업무 권한을 검증했다. Staging/root backend234개,검색/기존 UI12화면810개와 실제 Qwen 검색2건·PC/모바일을 확인했다.
 - [계획018](Plans/2026/11/05/018_AI_Web_Search_Plan.md),[배포·실제 결과018](Reports/2026/11/05/018_AI_Web_Search_Report.md). 기존037·AI-TECHDEBT-001과 고급 연결 설정 등 별도 미구현/보류는 유지한다.
+
+## MENU-TOOLBARS-20261109 — 장비 시범과 메뉴별 도구줄 운영 반영
+
+- [개발 완료 (FEATURES.md 이관)] 장비 시범과 14개 메뉴의 개선을 병합했다. 운영 화면 세 가지를 폭 세 단계에서 검사하고 관리자·일반 사용자 권한 및 기존 데이터 보존을 대조했다.
+- [기능 30](FEATURES.md) · [staging 검증](Reports/2026/11/09/003_Menu_Toolbars_Report.md) · [운영 검증](Reports/2026/11/09/004_Menu_Toolbars_Release_Report.md)

@@ -1,0 +1,12 @@
+{
+  "status": "pass",
+  "artifact_count": 14,
+  "current_windows_user_only": true,
+  "verified_sha256": true,
+  "contents": [
+    "pre-release source",
+    "business and AI SQLite snapshots",
+    "private service configuration and rollback context"
+  ],
+  "release_id": "20261105-ai-ux-toolbar-20261109T013937-c37e78"
+}

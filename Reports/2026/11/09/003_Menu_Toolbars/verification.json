@@ -1,0 +1,1633 @@
+{
+  "status": "pass",
+  "checked_at": "2026-11-09T10:02:20+09:00",
+  "stage_only": true,
+  "baseline_head": "16c34d902cebc87422a01359864a9ffef49f7e46",
+  "source_files": 26,
+  "static": {
+    "pass": 36,
+    "fail": 0,
+    "skipped": 1
+  },
+  "compatible_templates": 15,
+  "controls": 338,
+  "forms": 21,
+  "original_root_hashes": 50,
+  "original_equipment_stage_hashes": 6,
+  "preexisting_git_status_unchanged": true,
+  "distinct_browser_cases": 83,
+  "browser_assertions": 1811,
+  "groups": {
+    "menus-final": {
+      "cases": 49,
+      "assertions": 737,
+      "entries": [
+        {
+          "view": "admin_center",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 9,
+          "screenshot": "menus-final/admin_center-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "admin_center",
+          "width": 384,
+          "theme": "light",
+          "checks": 9,
+          "screenshot": "menus-final/admin_center-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "dashboard",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 21,
+          "screenshot": "menus-final/dashboard-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "dashboard",
+          "width": 384,
+          "theme": "light",
+          "checks": 12,
+          "screenshot": "menus-final/dashboard-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "public",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 12,
+          "screenshot": "menus-final/public-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "public",
+          "width": 384,
+          "theme": "light",
+          "checks": 12,
+          "screenshot": "menus-final/public-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my_approvals",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 28,
+          "screenshot": "menus-final/my_approvals-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "my_approvals",
+          "width": 384,
+          "theme": "light",
+          "checks": 18,
+          "screenshot": "menus-final/my_approvals-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "mypage",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 14,
+          "screenshot": "menus-final/mypage-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "mypage",
+          "width": 384,
+          "theme": "light",
+          "checks": 14,
+          "screenshot": "menus-final/mypage-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "users_management",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 25,
+          "screenshot": "menus-final/users_management-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "users_management",
+          "width": 384,
+          "theme": "light",
+          "checks": 16,
+          "screenshot": "menus-final/users_management-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "permissions",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 12,
+          "screenshot": "menus-final/permissions-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "permissions",
+          "width": 384,
+          "theme": "light",
+          "checks": 12,
+          "screenshot": "menus-final/permissions-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "master_management",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 22,
+          "screenshot": "menus-final/master_management-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "master_management",
+          "width": 384,
+          "theme": "light",
+          "checks": 13,
+          "screenshot": "menus-final/master_management-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "lineup_management",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 23,
+          "screenshot": "menus-final/lineup_management-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "lineup_management",
+          "width": 384,
+          "theme": "light",
+          "checks": 14,
+          "screenshot": "menus-final/lineup_management-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "approvals",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 11,
+          "screenshot": "menus-final/approvals-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "approvals",
+          "width": 384,
+          "theme": "light",
+          "checks": 11,
+          "screenshot": "menus-final/approvals-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "audit_logs",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 29,
+          "screenshot": "menus-final/audit_logs-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "audit_logs",
+          "width": 384,
+          "theme": "light",
+          "checks": 20,
+          "screenshot": "menus-final/audit_logs-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "access_logs",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 28,
+          "screenshot": "menus-final/access_logs-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "access_logs",
+          "width": 384,
+          "theme": "light",
+          "checks": 19,
+          "screenshot": "menus-final/access_logs-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "access_logs_error_ips",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 11,
+          "screenshot": "menus-final/access_logs_error_ips-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "access_logs_error_ips",
+          "width": 384,
+          "theme": "light",
+          "checks": 11,
+          "screenshot": "menus-final/access_logs_error_ips-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "maintenance_admin",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 11,
+          "screenshot": "menus-final/maintenance_admin-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "maintenance_admin",
+          "width": 384,
+          "theme": "light",
+          "checks": 11,
+          "screenshot": "menus-final/maintenance_admin-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "backup_restore",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 11,
+          "screenshot": "menus-final/backup_restore-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "backup_restore",
+          "width": 384,
+          "theme": "light",
+          "checks": 11,
+          "screenshot": "menus-final/backup_restore-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "backup_active",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 12,
+          "screenshot": "menus-final/backup_active-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "backup_active",
+          "width": 384,
+          "theme": "light",
+          "checks": 12,
+          "screenshot": "menus-final/backup_active-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "equipment_ai_providers",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 9,
+          "screenshot": "menus-final/equipment_ai_providers-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "equipment_ai_providers",
+          "width": 384,
+          "theme": "light",
+          "checks": 9,
+          "screenshot": "menus-final/equipment_ai_providers-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "portal",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 8,
+          "screenshot": "menus-final/portal-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "portal",
+          "width": 384,
+          "theme": "light",
+          "checks": 8,
+          "screenshot": "menus-final/portal-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "master_management",
+          "width": 320,
+          "theme": "dark",
+          "checks": 13,
+          "screenshot": "menus-final/master_management-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "permissions",
+          "width": 320,
+          "theme": "dark",
+          "checks": 12,
+          "screenshot": "menus-final/permissions-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my_approvals",
+          "width": 320,
+          "theme": "dark",
+          "checks": 18,
+          "screenshot": "menus-final/my_approvals-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "lineup_management",
+          "width": 320,
+          "theme": "dark",
+          "checks": 14,
+          "screenshot": "menus-final/lineup_management-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "audit_logs",
+          "width": 320,
+          "theme": "dark",
+          "checks": 20,
+          "screenshot": "menus-final/audit_logs-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "access_logs",
+          "width": 320,
+          "theme": "dark",
+          "checks": 19,
+          "screenshot": "menus-final/access_logs-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "dashboard",
+          "width": 820,
+          "theme": "light",
+          "checks": 12,
+          "screenshot": "menus-final/dashboard-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "mypage",
+          "width": 820,
+          "theme": "light",
+          "checks": 14,
+          "screenshot": "menus-final/mypage-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "users_management",
+          "width": 820,
+          "theme": "light",
+          "checks": 16,
+          "screenshot": "menus-final/users_management-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "my_approvals",
+          "width": 820,
+          "theme": "light",
+          "checks": 18,
+          "screenshot": "menus-final/my_approvals-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "lineup_management",
+          "width": 820,
+          "theme": "light",
+          "checks": 14,
+          "screenshot": "menus-final/lineup_management-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "audit_logs",
+          "width": 820,
+          "theme": "light",
+          "checks": 20,
+          "screenshot": "menus-final/audit_logs-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "access_logs",
+          "width": 820,
+          "theme": "light",
+          "checks": 19,
+          "screenshot": "menus-final/access_logs-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        }
+      ]
+    },
+    "equipment": {
+      "cases": 26,
+      "assertions": 686,
+      "entries": [
+        {
+          "view": "my",
+          "width": 320,
+          "theme": "light",
+          "checks": 23,
+          "screenshot": "equipment/my-320-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 320,
+          "theme": "dark",
+          "checks": 23,
+          "screenshot": "equipment/my-320-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 384,
+          "theme": "light",
+          "checks": 24,
+          "screenshot": "equipment/my-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 384,
+          "theme": "dark",
+          "checks": 24,
+          "screenshot": "equipment/my-384-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 412,
+          "theme": "light",
+          "checks": 24,
+          "screenshot": "equipment/my-412-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 412,
+          "theme": "dark",
+          "checks": 24,
+          "screenshot": "equipment/my-412-dark.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 820,
+          "theme": "light",
+          "checks": 23,
+          "screenshot": "equipment/my-820-light.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 820,
+          "theme": "dark",
+          "checks": 23,
+          "screenshot": "equipment/my-820-dark.png",
+          "size": [
+            860,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 1440,
+          "theme": "light",
+          "checks": 56,
+          "screenshot": "equipment/my-1440-light.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "my",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 56,
+          "screenshot": "equipment/my-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "public",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 21,
+          "screenshot": "equipment/public-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "public",
+          "width": 384,
+          "theme": "light",
+          "checks": 22,
+          "screenshot": "equipment/public-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "draft",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 23,
+          "screenshot": "equipment/draft-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "draft",
+          "width": 384,
+          "theme": "light",
+          "checks": 24,
+          "screenshot": "equipment/draft-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "advanced",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 23,
+          "screenshot": "equipment/advanced-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "advanced",
+          "width": 384,
+          "theme": "light",
+          "checks": 24,
+          "screenshot": "equipment/advanced-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "csv",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 23,
+          "screenshot": "equipment/csv-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "csv",
+          "width": 384,
+          "theme": "light",
+          "checks": 24,
+          "screenshot": "equipment/csv-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "long",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 24,
+          "screenshot": "equipment/long-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "long",
+          "width": 384,
+          "theme": "light",
+          "checks": 25,
+          "screenshot": "equipment/long-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "future",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 26,
+          "screenshot": "equipment/future-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "future",
+          "width": 384,
+          "theme": "light",
+          "checks": 27,
+          "screenshot": "equipment/future-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "edit",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 24,
+          "screenshot": "equipment/edit-1440-dark.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "edit",
+          "width": 384,
+          "theme": "light",
+          "checks": 25,
+          "screenshot": "equipment/edit-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "error",
+          "width": 384,
+          "theme": "light",
+          "checks": 26,
+          "screenshot": "equipment/error-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        },
+        {
+          "view": "empty",
+          "width": 384,
+          "theme": "light",
+          "checks": 25,
+          "screenshot": "equipment/empty-384-light.png",
+          "size": [
+            500,
+            1013
+          ]
+        }
+      ]
+    },
+    "regression-provider": {
+      "cases": 4,
+      "assertions": 132,
+      "entries": [
+        {
+          "view": "admin",
+          "width": 390,
+          "theme": {
+            "requested_dark": false,
+            "applied_dark": false,
+            "body_background": "rgb(241, 245, 249)",
+            "body_text": "rgb(30, 41, 59)",
+            "system_dark": true,
+            "tailwind": {
+              "dark_mode": "class",
+              "config_keys": [
+                "darkMode",
+                "theme"
+              ],
+              "config_script_count": 1,
+              "matching_rules": [
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-100",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-900\\/60",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "rgba(15, 23, 42, 0.6)",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".text-slate-800",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "",
+                  "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:bg-slate-900:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:text-slate-100:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "",
+                  "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+                }
+              ],
+              "media_conditions": [],
+              "unreadable_sheets": [
+                {
+                  "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+                  "error": "SecurityError"
+                }
+              ]
+            },
+            "settled_body_transitions": [],
+            "dialog_contrast": 5.895006920356563
+          },
+          "checks": 33,
+          "screenshot": "regression-provider/screen-000.png",
+          "size": [
+            500,
+            1000
+          ]
+        },
+        {
+          "view": "admin",
+          "width": 430,
+          "theme": {
+            "requested_dark": true,
+            "applied_dark": true,
+            "body_background": "rgb(15, 23, 42)",
+            "body_text": "rgb(241, 245, 249)",
+            "system_dark": true,
+            "tailwind": {
+              "dark_mode": "class",
+              "config_keys": [
+                "darkMode",
+                "theme"
+              ],
+              "config_script_count": 1,
+              "matching_rules": [
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-100",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-900\\/60",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "rgba(15, 23, 42, 0.6)",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".text-slate-800",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "",
+                  "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:bg-slate-900:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:text-slate-100:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "",
+                  "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+                }
+              ],
+              "media_conditions": [],
+              "unreadable_sheets": [
+                {
+                  "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+                  "error": "SecurityError"
+                }
+              ]
+            },
+            "settled_body_transitions": [],
+            "dialog_contrast": 5.895006920356563
+          },
+          "checks": 33,
+          "screenshot": "regression-provider/screen-001.png",
+          "size": [
+            500,
+            1000
+          ]
+        },
+        {
+          "view": "admin",
+          "width": 768,
+          "theme": {
+            "requested_dark": false,
+            "applied_dark": false,
+            "body_background": "rgb(241, 245, 249)",
+            "body_text": "rgb(30, 41, 59)",
+            "system_dark": true,
+            "tailwind": {
+              "dark_mode": "class",
+              "config_keys": [
+                "darkMode",
+                "theme"
+              ],
+              "config_script_count": 1,
+              "matching_rules": [
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-100",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-900\\/60",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "rgba(15, 23, 42, 0.6)",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".text-slate-800",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "",
+                  "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:bg-slate-900:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:text-slate-100:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "",
+                  "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+                }
+              ],
+              "media_conditions": [],
+              "unreadable_sheets": [
+                {
+                  "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+                  "error": "SecurityError"
+                }
+              ]
+            },
+            "settled_body_transitions": [],
+            "dialog_contrast": 5.895006920356563
+          },
+          "checks": 33,
+          "screenshot": "regression-provider/screen-002.png",
+          "size": [
+            768,
+            1000
+          ]
+        },
+        {
+          "view": "admin",
+          "width": 1440,
+          "theme": {
+            "requested_dark": true,
+            "applied_dark": true,
+            "body_background": "rgb(15, 23, 42)",
+            "body_text": "rgb(241, 245, 249)",
+            "system_dark": true,
+            "tailwind": {
+              "dark_mode": "class",
+              "config_keys": [
+                "darkMode",
+                "theme"
+              ],
+              "config_script_count": 1,
+              "matching_rules": [
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-100",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "rgb(241 245 249 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".bg-slate-900\\/60",
+                  "conditions": [],
+                  "matches_body": false,
+                  "background": "rgba(15, 23, 42, 0.6)",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".text-slate-800",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "",
+                  "color": "rgb(30 41 59 / var(--tw-text-opacity, 1))"
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:bg-slate-900:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "rgb(15 23 42 / var(--tw-bg-opacity, 1))",
+                  "color": ""
+                },
+                {
+                  "sheet": "inline-5",
+                  "selector": ".dark\\:text-slate-100:is(.dark *)",
+                  "conditions": [],
+                  "matches_body": true,
+                  "background": "",
+                  "color": "rgb(241 245 249 / var(--tw-text-opacity, 1))"
+                }
+              ],
+              "media_conditions": [],
+              "unreadable_sheets": [
+                {
+                  "sheet": "/ajax/libs/font-awesome/6.4.0/css/all.min.css",
+                  "error": "SecurityError"
+                }
+              ]
+            },
+            "settled_body_transitions": [],
+            "dialog_contrast": 5.895006920356563
+          },
+          "checks": 33,
+          "screenshot": "regression-provider/screen-003.png",
+          "size": [
+            1440,
+            1000
+          ]
+        }
+      ]
+    },
+    "regression-ai": {
+      "cases": 2,
+      "assertions": 72,
+      "entries": [
+        {
+          "view": "viewport-and-scrollbars",
+          "width": 1440,
+          "theme": "light",
+          "checks": 36,
+          "screenshot": "regression-ai/screen-000.png",
+          "size": [
+            1480,
+            1013
+          ]
+        },
+        {
+          "view": "viewport-and-scrollbars",
+          "width": 1440,
+          "theme": "dark",
+          "checks": 36,
+          "screenshot": "regression-ai/screen-001.png",
+          "size": [
+            1480,
+            1013
+          ]
+        }
+      ]
+    },
+    "regression-cover": {
+      "cases": 2,
+      "assertions": 184,
+      "entries": [
+        {
+          "view": "fold7-cover-mobile-probe",
+          "width": 384,
+          "theme": "light",
+          "checks": 92,
+          "screenshot": "regression-cover/screen-000.png",
+          "size": [
+            1152,
+            1740
+          ]
+        },
+        {
+          "view": "fold7-cover-mobile-probe",
+          "width": 384,
+          "theme": "dark",
+          "checks": 92,
+          "screenshot": "regression-cover/screen-001.png",
+          "size": [
+            1152,
+            1740
+          ]
+        }
+      ]
+    }
+  },
+  "menu_rows": [
+    {
+      "view": "dashboard",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 1
+        },
+        {
+          "width": 640,
+          "rows": 1
+        },
+        {
+          "width": 412,
+          "rows": 2
+        },
+        {
+          "width": 384,
+          "rows": 2
+        },
+        {
+          "width": 320,
+          "rows": 3
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "dashboard",
+      "width": 384,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "my_approvals",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 2
+        },
+        {
+          "width": 412,
+          "rows": 3
+        },
+        {
+          "width": 384,
+          "rows": 3
+        },
+        {
+          "width": 320,
+          "rows": 4
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "my_approvals",
+      "width": 384,
+      "theme": "light",
+      "rows": 4,
+      "resize": []
+    },
+    {
+      "view": "users_management",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 2
+        },
+        {
+          "width": 412,
+          "rows": 3
+        },
+        {
+          "width": 384,
+          "rows": 3
+        },
+        {
+          "width": 320,
+          "rows": 4
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "users_management",
+      "width": 384,
+      "theme": "light",
+      "rows": 3,
+      "resize": []
+    },
+    {
+      "view": "master_management",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 1
+        },
+        {
+          "width": 640,
+          "rows": 1
+        },
+        {
+          "width": 412,
+          "rows": 2
+        },
+        {
+          "width": 384,
+          "rows": 2
+        },
+        {
+          "width": 320,
+          "rows": 2
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "master_management",
+      "width": 384,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "lineup_management",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 1
+        },
+        {
+          "width": 640,
+          "rows": 1
+        },
+        {
+          "width": 412,
+          "rows": 2
+        },
+        {
+          "width": 384,
+          "rows": 2
+        },
+        {
+          "width": 320,
+          "rows": 3
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "lineup_management",
+      "width": 384,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "audit_logs",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 1
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 2
+        },
+        {
+          "width": 412,
+          "rows": 3
+        },
+        {
+          "width": 384,
+          "rows": 3
+        },
+        {
+          "width": 320,
+          "rows": 4
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "audit_logs",
+      "width": 384,
+      "theme": "light",
+      "rows": 3,
+      "resize": []
+    },
+    {
+      "view": "access_logs",
+      "width": 1440,
+      "theme": "dark",
+      "rows": 1,
+      "resize": [
+        {
+          "width": 1440,
+          "rows": 1
+        },
+        {
+          "width": 1024,
+          "rows": 2
+        },
+        {
+          "width": 820,
+          "rows": 2
+        },
+        {
+          "width": 640,
+          "rows": 3
+        },
+        {
+          "width": 412,
+          "rows": 4
+        },
+        {
+          "width": 384,
+          "rows": 5
+        },
+        {
+          "width": 320,
+          "rows": 6
+        },
+        {
+          "width": 1440,
+          "rows": 1
+        }
+      ]
+    },
+    {
+      "view": "access_logs",
+      "width": 384,
+      "theme": "light",
+      "rows": 5,
+      "resize": []
+    },
+    {
+      "view": "master_management",
+      "width": 320,
+      "theme": "dark",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "my_approvals",
+      "width": 320,
+      "theme": "dark",
+      "rows": 4,
+      "resize": []
+    },
+    {
+      "view": "lineup_management",
+      "width": 320,
+      "theme": "dark",
+      "rows": 3,
+      "resize": []
+    },
+    {
+      "view": "audit_logs",
+      "width": 320,
+      "theme": "dark",
+      "rows": 4,
+      "resize": []
+    },
+    {
+      "view": "access_logs",
+      "width": 320,
+      "theme": "dark",
+      "rows": 6,
+      "resize": []
+    },
+    {
+      "view": "dashboard",
+      "width": 820,
+      "theme": "light",
+      "rows": 1,
+      "resize": []
+    },
+    {
+      "view": "users_management",
+      "width": 820,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "my_approvals",
+      "width": 820,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "lineup_management",
+      "width": 820,
+      "theme": "light",
+      "rows": 1,
+      "resize": []
+    },
+    {
+      "view": "audit_logs",
+      "width": 820,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    },
+    {
+      "view": "access_logs",
+      "width": 820,
+      "theme": "light",
+      "rows": 2,
+      "resize": []
+    }
+  ]
+}
