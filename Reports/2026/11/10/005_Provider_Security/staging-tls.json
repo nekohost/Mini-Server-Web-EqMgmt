@@ -1,0 +1,11 @@
+{
+  "source": "staging",
+  "fixture_database": true,
+  "actual_upstream": true,
+  "public_ca_uploaded": true,
+  "fingerprint": "e3ffd864d9e80538139956a6d15e02c51ae62b61d1b0d9e042b5c4958adfbde9",
+  "discovery": true,
+  "proof": "done",
+  "seconds": 4.0,
+  "production_provider_modified": false
+}

@@ -1,0 +1,8 @@
+{
+  "browser": "Chromium",
+  "network": "intercepted local UI fixture",
+  "results": {
+    "390": "PASS: HTTP, default TLS, CA upload, fingerprint, discovery/probe and revocation (390px).",
+    "1440": "PASS: HTTP, default TLS, CA upload, fingerprint, discovery/probe and revocation (1440px)."
+  }
+}

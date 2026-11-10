@@ -1,0 +1,36 @@
+{
+  "batches": {
+    "v2-core": {
+      "run": 133,
+      "failures": [],
+      "errors": [],
+      "skipped": 0
+    },
+    "v2-provider": {
+      "run": 65,
+      "failures": [],
+      "errors": [],
+      "skipped": 0
+    },
+    "v2-ai": {
+      "run": 282,
+      "failures": [
+        "test_ai_polish_status.StatusTests.test_status_auth_and_input_boundaries"
+      ],
+      "errors": [],
+      "skipped": 0
+    },
+    "v3-auth": {
+      "run": 18,
+      "failures": [],
+      "errors": [],
+      "skipped": 0
+    }
+  },
+  "final_rerun_modules": [
+    "test_ai_polish_status",
+    "test_menu_workflows"
+  ],
+  "new_test": "test_historical_login_payload_is_hidden_from_admin_and_preserved_in_storage",
+  "unique_tests_after_rerun": 481
+}

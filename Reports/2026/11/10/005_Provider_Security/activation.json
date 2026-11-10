@@ -1,0 +1,12 @@
+{
+  "status": "active",
+  "commit": "1a34211292a26ab862167791272582c007de7aee",
+  "baseline": "dc60ed88a30274b22f1b752849bdd1b7e37db36d",
+  "activated_at_utc": "2026-11-10T13:15:00.913295+00:00",
+  "window_seconds": 24.17,
+  "worker": "active",
+  "retention_timer_enabled": true,
+  "old_business_rows_preserved": true,
+  "old_ai_rows_preserved": true,
+  "secrets_preserved": true
+}

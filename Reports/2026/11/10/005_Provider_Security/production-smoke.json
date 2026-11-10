@@ -1,0 +1,14 @@
+{
+  "ordinary_user_http_chat": "done",
+  "peer_scheme": "http",
+  "revision": 6,
+  "model": "qwen3.8-flash-next-iq3_xxs",
+  "answer_characters": 5,
+  "elapsed_seconds": 16.59,
+  "admin_api_status": 403,
+  "stale_cookie_status": 401,
+  "ordinary_audit_payload_status": 403,
+  "login_audited_without_password": true,
+  "https_public_entry": true,
+  "client_certificate_used": false
+}

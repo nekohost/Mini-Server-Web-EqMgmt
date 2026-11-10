@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "business_tables_preserved": 18,
+  "ai_tables_preserved": 17,
+  "audit_rows_preserved": true,
+  "lifecycle_rows_preserved": true,
+  "old_lifecycle_rows": 9,
+  "production_databases_modified": false
+}

@@ -1,0 +1,7 @@
+{
+  "deployed_handler_readonly_backup": true,
+  "explicit_access_log_view_permission": true,
+  "matched_historical_post_login_with_password_field": true,
+  "request_hidden": true,
+  "response_hidden": true
+}
