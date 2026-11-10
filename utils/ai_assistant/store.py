@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.12]
+[EN rev.13]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
-[Impact] Keeps existing data and execution guards. A mail translation retains the original chat record and queues only its own source.
+[Impact] Keeps existing data and execution guards. Versioned mail display preserves raw model steps and stores only the verified source envelope.
 """
 import base64
 from contextlib import contextmanager
@@ -19,7 +19,8 @@ import uuid
 from .policy import (AssistantError, ERROR_REASONS, MAX_CONTENT, MAX_PROPOSALS, MAX_REASONING,
                      MAX_RECEIPT, OUTPUT_RESERVATION, TERMINAL, canonical, digest, mac, opaque)
 from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION, search_mode
-from .translation import NEGATION_SCOPE, SOURCE_SENDER, final_mail_text, revised_korean_display, translation_route, translation_source
+from .translation import (BUSINESS_WRITING, NEGATION_SCOPE, SOURCE_SENDER, final_mail_text,
+                          revised_korean_display, translation_route, translation_source)
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_meta(version INTEGER NOT NULL);
@@ -653,7 +654,8 @@ class Store(LifecycleStore):
             if state == 'done' and db.execute("SELECT 1 FROM proposals WHERE job=? AND state='pending'", (jid,)).fetchone():
                 state = 'waiting_confirmation'
             route = json.loads(row['route_snapshot'] or '{}') if state == 'done' and row['purpose'] == 'chat' and not row['is_deleted'] else {}
-            if revised_korean_display(route) or route.get('mail_fidelity_revision') in (SOURCE_SENDER, NEGATION_SCOPE):
+            if (route.get('mail_writing_revision') == BUSINESS_WRITING or revised_korean_display(route)
+                    or route.get('mail_fidelity_revision') in (SOURCE_SENDER, NEGATION_SCOPE)):
                 # Keep the exact streamed signal in message_steps; charge only the completed display delta.
                 message = db.execute("SELECT reasoning,content FROM messages WHERE job=? AND role='assistant'", (jid,)).fetchone()
                 display, problem = final_mail_text(route, translation_source(row), message['content'])

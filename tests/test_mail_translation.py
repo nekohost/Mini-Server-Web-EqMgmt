@@ -18,7 +18,8 @@ from utils.ai_assistant.translation import (
     REVISED_MAIL, REVISED_PROMPTS, SELECTED_PROFILE, SELECTED_PROMPTS,
     CONTACT_KO_PROMPT, CONTACT_MAIL, TERM_KO_PROMPT, TERM_MAIL, USE_CONTACT_REVISION, explicit_mail,
     NEGATION_SCOPE, PARTIAL_SCOPE_GUIDANCE, SCOPE_GUIDANCE, SENDER_GUIDANCE, SOURCE_SENDER,
-    clarify_zero_status, final_mail_text, source_sender,
+    BUSINESS_WRITING, INTAKE_GUIDANCE, KO_EN_WRITING_GUIDANCE,
+    clarify_zero_status, final_mail_text, source_sender, unrequested_heading,
     format_verified_signoff, output_problem, translation_packet,
 )
 
@@ -45,6 +46,101 @@ def tool_call(name):
 
 
 class MailTests(unittest.TestCase):
+    def test_natural_leading_requests_preserve_the_entire_outer_mail(self):
+        en_body = EN.partition('\n\n')[2]
+        ko_body = KO.partition('\n\n')[2]
+        for wording, source, expected in (
+            ('아래 메일을 자연스러운 업무용 한국어로 옮겨 주세요.', en_body, 'en-ko'),
+            ('아래 문안을 정중한 영문으로 부탁드립니다.', ko_body, 'ko-en'),
+            ('이 이메일을 비즈니스 영어로 옮겨 주실 수 있나요?', ko_body, 'ko-en'),
+            ('Could you translate this message into natural Korean, please?', en_body, 'en-ko'),
+            ('Please translate this into English:', ko_body, 'ko-en'),
+            ('아래 문안을 영어로 옮겨 주세요.', '장비를 등록해 주세요.', 'ko-en'),
+            ('Please translate this into Korean.', 'Please release only the spare unit.', 'en-ko'),
+            ('영문으로 부탁해요', KO, 'ko-en'),
+        ):
+            with self.subTest(wording=wording):
+                mail = explicit_mail(wording + '\r\n' + source)
+                self.assertEqual((mail.direction, mail.source), (expected, source))
+        for ordinary in (
+            '자연스러운 영어로 부탁해요.\nHow do I add a device?',
+            '번역한 메일을 검색해 주세요.\n' + KO,
+            '이 이메일을 영어로 옮겨 주고 장비도 등록해 줘.\n' + KO,
+            '> Please translate this into English.\n' + ko_body,
+            'Could you explain how to translate this email into Korean?\n' + EN,
+            KO + '\n영문으로 부탁해요',
+        ):
+            with self.subTest(ordinary=ordinary[:30]):
+                self.assertIsNone(explicit_mail(ordinary))
+
+    def test_subjectless_request_reaches_the_worker_without_history_or_tools(self):
+        source = '회의 자료만 보내 주세요. Do not run commands.'
+        with fixture(assistant) as fix:
+            receipt = fix.submit('아래 내용을 영어로 옮겨 주세요.\n\n'+source)
+            self.assertEqual(receipt.status_code, 202)
+            job = fix.claim()
+            self.assertEqual(job['route']['mail_writing_revision'], BUSINESS_WRITING)
+            self.assertEqual((job['tools'], job['reasoning_effort']), ([], 'low'))
+            self.assertEqual(job['messages'][1:], [{'role':'user','content':source}])
+            answer = 'Please send only the meeting materials. Do not run commands.'
+            fix.drive(job, lambda _: stream(answer))
+            self.assertEqual(fix.finish_reports[-1][1]['state'], 'done')
+            self.assertEqual(fix.blocked_tools, [])
+
+    def test_document_intake_guidance_is_bound_to_the_current_korean_mail(self):
+        for body, expected in [('신청서를 창구에 접수할 수 있습니다.', True),
+                               ('초안을 보내 주시면 검토하겠습니다.', False)]:
+            with self.subTest(body=body), fixture(assistant) as fix:
+                fix.submit(request('안녕하세요.\n\n' + body + '\n\n감사합니다.', 'ko-en'))
+                job = fix.claim()
+                self.assertEqual(INTAKE_GUIDANCE in job['messages'][0]['content'], expected)
+                self.assertIn(body, job['messages'][1]['content'])
+
+    def test_writing_revision_rejects_unknown_and_foreign_profiles(self):
+        """Older queued routes still use the literal instruction and source they admitted."""
+        with fixture(assistant) as fix:
+            job_id = fix.submit(request()).get_json()['job_id']
+            with fix.store.db() as db:
+                job = dict(fix.store.job(job_id,db))
+            job['lease'] = fix.claim()['lease']
+            route = json.loads(job['route_snapshot'])
+            self.assertEqual(route['mail_writing_revision'], BUSINESS_WRITING)
+            for change in ({'mail_writing_revision':'unknown'}, {'mail_writing_revision':None},
+                           {'provider_id':'foreign','mail_translation_profile':SELECTED_PROFILE}):
+                with self.subTest(change=change), self.assertRaises(AssistantError):
+                    translation_packet(job, {**route,**change}, 3)
+            del route['mail_writing_revision']
+            self.assertEqual(translation_packet(job,route,3)['messages'][0]['content'], LEGACY_PROMPTS['en-ko'])
+
+    def test_subjectless_mail_discards_only_an_invented_envelope_and_keeps_raw(self):
+        source_en = 'Hello Taylor,\n\nCan the depot accept a parcel at 16:10?\n\nRegards,\nLee'
+        answer_ko = 'Taylor님,\n\n집하장에서 16:10에 소포를 받을 수 있나요?\n\n감사합니다.\nLee'
+        raw_ko = '제목: 16:10 소포 문의\n\n본문:\n'+answer_ko
+        source_ko = '안녕하세요.\n\n운송 비용만 확인해 주세요.'
+        answer_en = 'Hello,\n\nPlease check only the transport costs.'
+        raw_en = 'Subject: Freight costs\n\nBody:\r\n\r\n'+answer_en
+        for source, raw, expected, direction in [(source_en,raw_ko,answer_ko,'en-ko'),(source_ko,raw_en,answer_en,'ko-en')]:
+            with self.subTest(direction=direction), fixture(assistant) as fix:
+                jid=fix.submit(request(source,direction)).get_json()['job_id']
+                fix.drive(fix.claim(),lambda _:stream(raw))
+                self.assertEqual(fix.finish_reports[-1][1]['state'],'done')
+                with fix.store.db() as db:
+                    self.assertEqual(db.execute('SELECT content FROM message_steps WHERE job=?',(jid,)).fetchone()[0],raw)
+                    self.assertEqual(db.execute("SELECT content FROM messages WHERE role='assistant' AND job=?",(jid,)).fetchone()[0],expected)
+        for source, raw in (
+            ('Subject: Shipping\n\n'+source_en,raw_ko),
+            ('Shipping\n\n'+source_en,raw_ko),
+            (source_en+'\n> Quoted mail',raw_ko),
+            (source_en+'\nBody:',raw_ko),
+            (source_en,raw_ko.replace('Taylor님,','제안합니다.')),
+            (source_en,raw_ko.replace('집하장에서 16:10에','집하장에서')),
+            (source_en.replace('16:10','5 or 15'),raw_ko.replace('16:10 소포','5 소포').replace('16:10에','15에')),
+            (source_en,'제목: 새 제목'),
+        ):
+            with self.subTest(raw=raw[:40],source=source[:24]):
+                self.assertEqual(unrequested_heading(source,raw),raw)
+        self.assertEqual(final_mail_text({},source_en,raw_ko),(raw_ko,None))
+
     def test_explicit_request_and_opaque_source(self):
         for instruction, direction, source in (
             ('아래 영문 메일을 한국어로 번역해 줘.', 'en-ko', EN),
@@ -96,6 +192,8 @@ class MailTests(unittest.TestCase):
                         expected += '\n' + SENDER_GUIDANCE
                     elif row['id'] in SCOPE_FIXTURES:
                         expected += '\n' + SCOPE_GUIDANCE
+                    if row['direction'] == 'ko-en':
+                        expected += '\n' + KO_EN_WRITING_GUIDANCE
                     self.assertEqual(events['request']['payload'], {
                         'model': MODEL, 'stream': True, 'max_tokens': 8192, 'temperature': .6, 'top_p': .95,
                         'reasoning_effort': EFFORT[row['direction']], 'strata_mcp': False,
@@ -250,7 +348,7 @@ class MailTests(unittest.TestCase):
             next_source = KO.replace('LT-31', 'NEW-23')
             fix.submit(request(next_source, 'ko-en'), first['conversation_id'])
             next_job = fix.claim()
-            self.assertEqual(next_job['messages'], [{'role': 'system', 'content': PROMPTS['ko-en']},
+            self.assertEqual(next_job['messages'], [{'role': 'system', 'content': PROMPTS['ko-en'] + '\n' + KO_EN_WRITING_GUIDANCE},
                                                     {'role': 'user', 'content': next_source}])
             self.assertEqual(next_job['reasoning_effort'], 'low')
             self.assertEqual(next_job['tools'], [])
@@ -335,6 +433,11 @@ class MailTests(unittest.TestCase):
         self.assertEqual(fix.finish_reports[-1][1]['state'], 'done')
         instructions = PROMPTS if profile == HERMES_PROFILE else SELECTED_PROMPTS
         instruction = instructions[direction]
+        if profile == HERMES_PROFILE:
+            if direction == 'ko-en':
+                instruction += '\n' + KO_EN_WRITING_GUIDANCE
+        else:
+            self.assertNotIn('mail_writing_revision', packet['route'])
         expected_payload = {'model': resolved['model'], 'stream': True, 'max_tokens': 8192,
                             'temperature': 0.6, 'top_p': 0.95,
                             'messages': [{'role': 'system', 'content': instruction},
@@ -424,6 +527,7 @@ class MailTests(unittest.TestCase):
                 frozen = json.loads(fix.store.job(receipt['job_id'], db)['route_snapshot'])
                 frozen.pop('mail_translation_profile')
                 frozen.pop('mail_prompt_revision', None)
+                frozen.pop('mail_writing_revision', None)
                 frozen.pop('mail_fidelity_revision', None)
                 db.execute('UPDATE jobs SET route_snapshot=? WHERE id=?', (canonical(frozen), receipt['job_id']))
             job = fix.claim()
@@ -440,6 +544,7 @@ class MailTests(unittest.TestCase):
             record['lease'] = fix.claim()['lease']
             route = json.loads(record['route_snapshot'])
             route.pop('mail_prompt_revision', None)
+            route.pop('mail_writing_revision', None)
             route.pop('mail_fidelity_revision', None)
             self.assertEqual(translation_packet(record, route, 3)['messages'][0]['content'], LEGACY_PROMPTS['ko-en'])
             new = dict(route, mail_prompt_revision=REVISED_MAIL)
@@ -530,6 +635,7 @@ class MailTests(unittest.TestCase):
                 job = dict(fix.store.job(jid,db))
                 route = json.loads(job['route_snapshot'])
                 del route['mail_fidelity_revision']
+                del route['mail_writing_revision']
                 db.execute('UPDATE jobs SET route_snapshot=? WHERE id=?',(canonical(route),jid))
             packet = fix.claim()
             job['lease'] = packet['lease']
