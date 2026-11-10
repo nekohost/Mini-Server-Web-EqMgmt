@@ -1,0 +1,162 @@
+[
+  {
+    "case": "T1",
+    "arm": "control",
+    "start": 1794279494.7372901,
+    "end": 1794279506.3983529,
+    "server_id_sha256": "8f44ae26ac68c287067fb2977968dbc3d855464b81a9a84a395e94fa2f5296b9",
+    "state": "done"
+  },
+  {
+    "case": "T2",
+    "arm": "control",
+    "start": 1794279509.9321647,
+    "end": 1794279522.8798275,
+    "server_id_sha256": "77bce5c1c9c02fb2b3bf9d83b5d9f7b000be399dc29110b0b80b04011c3c176e",
+    "state": "done"
+  },
+  {
+    "case": "T3",
+    "arm": "control",
+    "start": 1794279526.3965435,
+    "end": 1794279551.598607,
+    "server_id_sha256": "4d659146f1b48f1d15adc2c8e333dfc90cfc15f6daf3fd276c695d7b15e6ecfe",
+    "state": "done"
+  },
+  {
+    "case": "T4",
+    "arm": "control",
+    "start": 1794279555.03391,
+    "end": 1794279571.8730857,
+    "server_id_sha256": "daadeb473cc8bd881d1cca4418ce7b8c358837ac617a61069971d017d32e9e02",
+    "state": "done"
+  },
+  {
+    "case": "T5",
+    "arm": "control",
+    "start": 1794279575.4651728,
+    "end": 1794279591.197428,
+    "server_id_sha256": "eb6229b8c873c669e46fbd29880b5173c504b3ec84bd637693dc194fe50edd04",
+    "state": "done"
+  },
+  {
+    "case": "T6",
+    "arm": "control",
+    "start": 1794279594.686742,
+    "end": 1794279608.9349043,
+    "server_id_sha256": "461aeae4c50dcd7c486a78e0270e9a6790e55d5d2678867b81da7af84cffcb8f",
+    "state": "done"
+  },
+  {
+    "case": "X1",
+    "arm": "control",
+    "start": 1794279811.666639,
+    "end": 1794279845.934332,
+    "server_id_sha256": "2084534db08bacffdb70bd059930d4cfc1b74300dbe7234e03732325bd4848dc",
+    "state": "done"
+  },
+  {
+    "case": "X2",
+    "arm": "control",
+    "start": 1794279849.3714173,
+    "end": 1794279866.017063,
+    "server_id_sha256": "38b070408dd615bd186b0787a7930f115e452eb547fb9bd7e4374130ffad8da4",
+    "state": "done"
+  },
+  {
+    "case": "X3",
+    "arm": "control",
+    "start": 1794279869.485575,
+    "end": 1794279875.3001695,
+    "server_id_sha256": "c006b229304e538a34a610ef9ebc20e535fd9a4f08bfdf132d34f25330c151ab",
+    "state": "done"
+  },
+  {
+    "case": "X4",
+    "arm": "control",
+    "start": 1794279878.7966506,
+    "end": 1794279887.6846383,
+    "server_id_sha256": "7f9ff32e248bd769384f38f05fee673d656ba1ab1aaceedbef2ae25a88d2ffcf",
+    "state": "done"
+  },
+  {
+    "case": "T1",
+    "arm": "selected",
+    "start": 1794280723.0656705,
+    "end": 1794280791.5653908,
+    "server_id_sha256": "a1bd32838a4c9e5560dc920174a5c40482301e560314ee6f2343c234ed7aac21",
+    "state": "done"
+  },
+  {
+    "case": "T2",
+    "arm": "selected",
+    "start": 1794280797.3424459,
+    "end": 1794280820.729216,
+    "server_id_sha256": "30589fd4eb4cc5d79d267a79c9dc8933896de62429a900625e59518e9b2871da",
+    "state": "done"
+  },
+  {
+    "case": "T3",
+    "arm": "selected",
+    "start": 1794280826.679634,
+    "end": 1794280852.5829701,
+    "server_id_sha256": "c600cf621d0489e68c81fd8bae99108d31d90dde025bab3408135f14a98ff049",
+    "state": "done"
+  },
+  {
+    "case": "T4",
+    "arm": "selected",
+    "start": 1794280858.4746478,
+    "end": 1794280869.4202094,
+    "server_id_sha256": "749f5f0bbbb2c2c581ad0772c1ea09d41a2dbdaf6c8c30e21486359c85e6a8b3",
+    "state": "done"
+  },
+  {
+    "case": "T5",
+    "arm": "selected",
+    "start": 1794280875.2091956,
+    "end": 1794280899.1251853,
+    "server_id_sha256": "0f40de69863b069a4db1d5e087a544bc4351238a5a4c711159bd5041fddadeb8",
+    "state": "failed"
+  },
+  {
+    "case": "T6",
+    "arm": "selected",
+    "start": 1794280904.821621,
+    "end": 1794280922.8060443,
+    "server_id_sha256": "d8ec4c8e5bdf07f29187b887e6ba9464456be0655e511d62a4d1e846ddb03b2e",
+    "state": "done"
+  },
+  {
+    "case": "X1",
+    "arm": "selected",
+    "start": 1794280929.5893283,
+    "end": 1794280950.4491358,
+    "server_id_sha256": "ccbde1a0db6d0c11d101ba80bf9cc6bfec34bffa089eea8d8e92a8ab2ae56c98",
+    "state": "done"
+  },
+  {
+    "case": "X2",
+    "arm": "selected",
+    "start": 1794280956.14164,
+    "end": 1794280974.7065213,
+    "server_id_sha256": "79232ff621c3d9b65f0f9df0aa0bcb13c7d2c7023eaeb8131333d7f1eba51efd",
+    "state": "done"
+  },
+  {
+    "case": "X3",
+    "arm": "selected",
+    "start": 1794280980.5148797,
+    "end": 1794280994.3747828,
+    "server_id_sha256": "8e17b687bcc59515f7adf8eacdabdd07399a05808b685a2ce39f9226be829bd4",
+    "state": "done"
+  },
+  {
+    "case": "X4",
+    "arm": "selected",
+    "start": 1794281000.4631274,
+    "end": 1794281013.4971395,
+    "server_id_sha256": "30c7bba328318c5370f4f09cb8c028156c025049c1764de4955b5228018c5f3f",
+    "state": "done"
+  }
+]

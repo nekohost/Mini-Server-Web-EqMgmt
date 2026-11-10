@@ -1,0 +1,358 @@
+{
+  "matrix": {
+    "X1": {
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "T6": {
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "X2": {
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "selected": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      }
+    },
+    "T2": {
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "X3": {
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "T3": {
+      "selected": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 2 carries 저희 across the missing subject of 반납하지 않았습니다, obscuring who still holds the camera."
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          2
+        ],
+        "reason": "Time, personal check-in and notice-only request survive. Option 1 avoids inventing a singular sender for a team email."
+      },
+      "m3": {
+        "grades": "BB",
+        "best": [
+          1
+        ],
+        "reason": "Both can instruct storage inside the box. Source locates the enclosed note to retain; sheet is more specific in 2."
+      },
+      "m4": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both distinguish the return form and the only signed delivery receipt."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Bank financing remains tentative, transfer not authorized, draft schedule only."
+      },
+      "m6": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "신용 요청 reads as a creditworthiness request in a refund email. Both bodies preserve neither and the conditional payment."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 omits they/them, obscuring who does what."
+      },
+      "m2": {
+        "grades": "AB",
+        "best": [
+          1
+        ],
+        "reason": "Option 2 adds subject markdown and vague passive."
+      },
+      "m3": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both ready; style and preserved signature are harmless."
+      },
+      "m4": {
+        "grades": "AB",
+        "best": [
+          1
+        ],
+        "reason": "Option 2 passive obscures who must confirm damage."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both are accurate with only harmless style differences."
+      },
+      "m6": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 mistranslates credit subject and drops closing."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "AB",
+        "best": [
+          1
+        ],
+        "reason": "Option 1 phrases the discount instruction more naturally."
+      },
+      "m2": {
+        "grades": "AB",
+        "best": [
+          1
+        ],
+        "reason": "Option 2 obscures who is requesting the notice."
+      },
+      "m3": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "Option 1 uses standard greeting comma punctuation."
+      },
+      "m4": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "Option 1 uses standard capitalization and active voice."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both options are accurate and ready to send."
+      },
+      "m6": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 mistranslates credit request as loan request."
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 \"아직 반납하지 않았습니다\" reads as \"we haven't returned\""
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "Both accurate; option 2 has stray \"**\" markdown"
+      },
+      "m3": {
+        "grades": "BB",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "\"keep … inside the box\" suggests leaving it there"
+      },
+      "m4": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "Both accurate; option 1 keeps \"we\" as checker"
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both say only the draft schedule; transfer unauthorized"
+      },
+      "m6": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 subject \"신용 요청\" means loan/creditworthiness, not refund credit"
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "1’s omitted subject can make the lender seem responsible."
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve 14:00 KST check-in and the notice-only request."
+      },
+      "m3": {
+        "grades": "BB",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both can imply the note must stay boxed."
+      },
+      "m4": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve three boxes, receipt-only signature, and unconfirmed damage."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve the unapproved transfer and draft-only request."
+      },
+      "m6": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "신용 suggests borrowing, while 크레딧 fits the refund context."
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "149102cc-a435-4d42-8fdc-48efa5cc2fbf",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "6b3a30f8-f4b4-456f-94ed-9b6301e2b2fa",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "531491fc-bea9-42fc-b304-20564ce45831",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c389-10c4-7971-a824-cc9c4037027c",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}

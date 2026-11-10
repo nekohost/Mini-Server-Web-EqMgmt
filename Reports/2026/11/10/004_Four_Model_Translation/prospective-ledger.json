@@ -1,0 +1,34 @@
+[
+  {
+    "case": "Y1",
+    "arm": "control",
+    "start": 1794282136.0373025,
+    "end": 1794282148.9741492,
+    "server_id_sha256": "a4070ae56f5286928cc89873ad28a51154ceba83f85cf6af84340937b38c1a31",
+    "state": "failed"
+  },
+  {
+    "case": "Y2",
+    "arm": "control",
+    "start": 1794282154.6687338,
+    "end": 1794282178.600046,
+    "server_id_sha256": "dafb30c72554409f49283eb1446b50b3492af5a22d1cbe2b9a116e2a8ab9e859",
+    "state": "done"
+  },
+  {
+    "case": "Y1",
+    "arm": "selected",
+    "start": 1794282185.2083514,
+    "end": 1794282218.119563,
+    "server_id_sha256": "60251097d62305d07786841a2ec5671a689ae84a6fb652b2e33968824f40d729",
+    "state": "done"
+  },
+  {
+    "case": "Y2",
+    "arm": "selected",
+    "start": 1794282223.9455938,
+    "end": 1794282242.0845299,
+    "server_id_sha256": "667e48ae5053ec8d9b29c420bdae1360c2ccf804eabbb50c6dd913530cdce2ae",
+    "state": "done"
+  }
+]

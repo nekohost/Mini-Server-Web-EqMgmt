@@ -1,0 +1,13 @@
+{
+  "model": "gemini-3.8-flash-high",
+  "effort": "high",
+  "phase": "judge",
+  "thread": "61ce235a-06a7-41a9-89e1-e55c27369b8c",
+  "started": "2026-11-10T02:58:13.787665+00:00",
+  "seconds": 12.61,
+  "status": "SUCCESS",
+  "code": 0,
+  "messages": [],
+  "errors": [],
+  "prompt_sha256": "551db7c30ace479244d98f70a1247f5131313be5f608ac38632aba4f114b972c"
+}

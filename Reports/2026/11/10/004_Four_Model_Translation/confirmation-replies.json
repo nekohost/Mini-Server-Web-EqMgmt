@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "confirmation",
+    "thread": "36cdeea4-404b-4be4-9eca-5ee83c2e6561",
+    "started": "2026-11-10T03:32:32.776845+00:00",
+    "seconds": 257.3,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A A | 1, 2 | Both preserve ownership, scope, and shipping refusal.\nm2 | A A | 1 | Both preserve document identity, scope, and uncertainty.\nm3 | B B | 2 | Option 1 mistranslates credit; Option 2 keeps Subject.\nm4 | B A | 2 | Option 1 omits \"only\" on inquiry scope.\nm5 | A A | 1, 2 | Both preserve estimate status, authority, and row scope.\nm6 | B B | 1 | Untranslated team name; Option 2 misuses \"I\".\nm7 | B A | 2 | Option 1 uses awkward pronoun and passive voice.\nm8 | B A | 2 | Option 2 preserves specification sheet document identity.\nm9 | B A | 2 | Option 1 adds \"yet\" to unauthorized transfer.\nm10 | A A | 1, 2 | Both preserve voltage scope and invoice uncertainty.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "871412621d5165913d06867436a38aecd57a945cfd5dac2752c2333c54349892"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "confirmation",
+    "thread": "fd036676-93d1-42f9-a5aa-5b69e0aed064",
+    "started": "2026-11-10T03:32:32.775846+00:00",
+    "seconds": 279.64,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A, A | 1, 2 | Both accurately convey ownership and terms\nm2 | B, A | 2 | Misattributed agency and inaccurate document term\nm3 | C, B | 2 | Mistranslated credit request and omitted closing\nm4 | B, A | 2 | Omitted scope restriction only in option 1\nm5 | A, A | 1, 2 | Both accurately convey all instructions\nm6 | A, B | 1 | Incorrect first-person pronoun for team sender\nm7 | B, A | 2 | Awkward pronoun calque and passive shift\nm8 | A, A | 1, 2 | Both accurately translate enclosed document types\nm9 | B, A | 2 | Unwarranted addition of yet alters certainty\nm10 | A, A | 1, 2 | Check and confirm are synonymous here\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "871412621d5165913d06867436a38aecd57a945cfd5dac2752c2333c54349892"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "confirmation",
+    "thread": "0c6644ca-440b-4ea4-a4a8-1d35ba4c7d62",
+    "started": "2026-11-10T03:32:32.776845+00:00",
+    "seconds": 47.53,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A, A | 2 | 2: clearer \"측정기\"; consistent name scripts\n\nm2 | A, A | 1 | 2: passive voice drops who checked damage\n\nm3 | B, A | 2 | 1: \"신용 요청\" mistranslates credit (refund) request\n\nm4 | B, A | 2 | 1 drops \"only\", widening the inquiry's scope\n\nm5 | A, A | 2 | 1: \"서로 다르더라도\" narrows \"differ\" slightly\n\nm6 | A, A | 1 | 2: \"I\" conflicts with team signature\n\nm7 | A, A | 1, 2 | Both keep ownership, no-discount instruction intact\n\nm8 | A, A | 1, 2 | Equivalent; both share \"inside the box\" ambiguity\n\nm9 | A, A | 2 | 1: \"아직\" hints transfer approval is expected\n\nm10 | A, A | 1 | 2: \"confirm\" slightly shifts \"check\" toward approval\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "871412621d5165913d06867436a38aecd57a945cfd5dac2752c2333c54349892"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "confirmation",
+    "thread": "01a1c383-bc7c-7ca1-90a4-0a12e2a273c8",
+    "started": "2026-11-10T03:32:32.776845+00:00",
+    "seconds": 367.05,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A, A | 1, 2 | Both preserve ownership, free use, and shipping terms.  \nm2 | A, A | 2 | “Acknowledgment of Receipt” avoids implying completed delivery.  \nm3 | B, B | 2 | 신용 suggests borrowing. Both obscure refund disbursement.  \nm4 | B, A | 2 | First omits the limit on the vendor inquiry.  \nm5 | A, A | 1, 2 | Both preserve estimates, editing rights, and row seven.  \nm6 | B, B | 1 | Both leave 현장지원팀 untranslated. Second adds “I.”  \nm7 | B, B | 1 | Both leave ownership implicit. Second blurs return responsibility.  \nm8 | B, B | 2 | Both imply box storage. Second identifies specification sheet.  \nm9 | A, A | 2 | Second preserves authorization status without adding “yet.”  \nm10 | A, A | 1, 2 | Both limit review to voltage. Invoice date undetermined."
+    ],
+    "errors": [],
+    "prompt_sha256": "871412621d5165913d06867436a38aecd57a945cfd5dac2752c2333c54349892"
+  }
+}

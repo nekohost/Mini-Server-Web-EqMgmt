@@ -1,0 +1,11 @@
+{
+  "en-ko": {
+    "mail_writing_revision": "business-writing-20261110-v2",
+    "mail_correspondence_revision": "correspondence-20261110-v1",
+    "mail_display_revision": "ko-envelope-20261110-v2"
+  },
+  "ko-en": {
+    "mail_writing_revision": "business-writing-20261110-v2",
+    "mail_correspondence_revision": "correspondence-20261110-v1"
+  }
+}

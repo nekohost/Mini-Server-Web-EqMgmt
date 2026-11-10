@@ -1,0 +1,26 @@
+{
+  "gemini-4-argon-high": {
+    "status": "SUCCESS",
+    "messages": [
+      "m1 | A | 1 | Preserves ownership, collection request, freight refusal, and signer.\nm2 | A | 1 | Preserves packing slip, six boxes, copy restriction, and signer.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "b9d59718d3d9064580a910bdde7d3ae4a68e7470b728389d4a8dd462091dacbf"
+  },
+  "claude-opus-5-5-high": {
+    "status": "ERROR",
+    "messages": [],
+    "errors": [
+      "Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 2h0m8s."
+    ],
+    "prompt_sha256": "b9d59718d3d9064580a910bdde7d3ae4a68e7470b728389d4a8dd462091dacbf"
+  },
+  "gpt-6-astra": {
+    "status": "SUCCESS",
+    "messages": [
+      "m1 | A | 1 | Distributor’s loan, our stand, pickup window inquiry, no freight agreement.  \nm2 | A | 1 | Six boxes listed, count pending, slip copy only upon discrepancy."
+    ],
+    "errors": [],
+    "prompt_sha256": "b9d59718d3d9064580a910bdde7d3ae4a68e7470b728389d4a8dd462091dacbf"
+  }
+}

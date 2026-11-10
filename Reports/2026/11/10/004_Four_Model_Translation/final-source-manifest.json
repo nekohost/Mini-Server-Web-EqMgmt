@@ -1,0 +1,7 @@
+{
+  "base": "4e9ab17992ab1288d2846b00af211cd2318a2765",
+  "files": {
+    "utils/ai_assistant/translation.py": "b7ba6c910d4d7ffecd5bd716ccca72d69815e1dfeb1babdbe6b9e8e9d8bc1f84",
+    "tests/test_mail_translation.py": "4a66f904c79122a93d165883c65d2541f5f38a67ca61497a4dd7a9c9cde56c51"
+  }
+}

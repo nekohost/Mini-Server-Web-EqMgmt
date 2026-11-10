@@ -1,0 +1,21 @@
+{
+  "direction": "en-ko",
+  "instruction": "Could you translate this message into natural Korean?",
+  "source": "Hello Riley,\n\nThe spare sensor is on loan from the distributor. We still own the test stand. Please ask for a collection window; we have not agreed to cover the freight.\n\nRegards,\nLuca",
+  "model": "qwen3.8-flash-next-iq3_xxs",
+  "provider": "260Strata",
+  "reasoning_effort": "xhigh",
+  "writing_revision": "business-writing-20261110-v2",
+  "correspondence_revision": "correspondence-20261110-v1",
+  "fidelity_revision": null,
+  "state": "done",
+  "error": null,
+  "seconds": 53.01,
+  "model_steps": 1,
+  "proposals": 0,
+  "raw": "제목: 예비 센서 대여 상태 및 수거 시간대 요청\n\n안녕하세요, Riley님,\n\n예비 센서는 유통업체에서 빌려온 상태입니다. 시험대는 여전히 저희가 소유하고 있습니다. 수거 시간대를 문의해 주세요. 저희는 운송비 부담에 합의하지 않았습니다.\n\n감사합니다.\nLuca",
+  "stored": "안녕하세요, Riley님,\n\n예비 센서는 유통업체에서 빌려온 상태입니다. 시험대는 여전히 저희가 소유하고 있습니다. 수거 시간대를 문의해 주세요. 저희는 운송비 부담에 합의하지 않았습니다.\n\n감사합니다.\nLuca",
+  "scope_only_current_mail": true,
+  "display": "안녕하세요, Riley님,\n\n예비 센서는 유통업체에서 빌려온 상태입니다. 시험대는 여전히 저희가 소유하고 있습니다. 수거 시간대를 문의해 주세요. 저희는 운송비 부담에 합의하지 않았습니다.\n\n감사합니다.\nLuca",
+  "restored_same": true
+}

@@ -1,0 +1,105 @@
+✔ tests\test_ai_input_preferences.js (139.6854ms)
+✔ tests\test_ai_polish_layout_ui.js (129.3694ms)
+C:\project\Mini-Server-Web-EqMgmt\tests\test_ai_polish_lifecycle_ui.js:9
+    const theme = new URLSearchParams(location.search).get('theme') || 'light';
+                                      ^
+
+ReferenceError: location is not defined
+    at C:\project\Mini-Server-Web-EqMgmt\tests\test_ai_polish_lifecycle_ui.js:9:39
+    at Object.<anonymous> (C:\project\Mini-Server-Web-EqMgmt\tests\test_ai_polish_lifecycle_ui.js:194:3)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.1
+✖ tests\test_ai_polish_lifecycle_ui.js (121.3407ms)
+✔ tests\test_ai_recovery_ui.js (113.9803ms)
+✔ tests\test_ai_status_banner_ui.js (106.5875ms)
+✔ splits one chunky reasoning/answer snapshot into bounded, independently exact frames (23.4613ms)
+ℹ {"scenario":"chunk","renders":14,"first_ms":32,"catch_up_ms":448,"max_queued_frames":1}
+✔ uses elapsed time at different display refresh rates (3.357ms)
+✔ handles maximum policy-sized text without segmenting on animation frames (29.9054ms)
+ℹ {"scenario":"100k-reasoning-64k-answer","renders":14,"catch_up_ms":448,"segmentation_passes":2,"segmented_utf16":164000}
+✔ segments only appended suffixes, with one previous cluster replayed at each boundary (14.2692ms)
+✔ preserves full emoji/mark/Hangul/flag clusters with native and dependency-free segmentation (1.9168ms)
+✔ completes a cluster that arrives as a later combining/ZWJ suffix (0.4596ms)
+✔ duplicate/reconnected snapshots neither duplicate text nor postpone the original catch-up deadline (0.4852ms)
+✔ a large late append gets its own window without extending old text or re-segmenting duplicate snapshots (3.5817ms)
+✔ same-generation authoritative replacements flush exactly once and cancel stale work (0.6451ms)
+✔ new generation replaces the provisional answer while preserving cumulative reasoning (0.5367ms)
+✔ completion synchronously flushes the exact final text and releases frames/listeners (0.7104ms)
+✔ failure/cancellation can flush accepted text, while conversation disposal discards detached UI (1.2694ms)
+✔ hidden/visible transitions flush immediately and never replay a background backlog (0.5331ms)
+✔ reduced motion is immediate initially and when enabled during a running batch (0.4241ms)
+✔ removes legacy media-query listeners symmetrically (0.2407ms)
+✔ adapts callback frequency to expensive Markdown without leaving a long tail (1.6884ms)
+ℹ {"scenario":"22ms-renderer","renders":7,"final_start_ms":452,"final_end_ms":474}
+✔ a renderer exception cannot leave a live frame or preference/page listener (0.6442ms)
+✔ final hydration and malformed snapshots do not create leaked requests (0.3658ms)
+✔ tests\test_ai_web_search_ui.js (103.1153ms)
+C:\project\Mini-Server-Web-EqMgmt\tests\test_equipment_ai_ui.js:9
+    const params = new URLSearchParams(location.search);
+                                       ^
+
+ReferenceError: location is not defined
+    at C:\project\Mini-Server-Web-EqMgmt\tests\test_equipment_ai_ui.js:9:40
+    at Object.<anonymous> (C:\project\Mini-Server-Web-EqMgmt\tests\test_equipment_ai_ui.js:642:3)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.1
+✖ tests\test_equipment_ai_ui.js (112.4508ms)
+✔ renders literal mail text during streaming and history hydration (2.0347ms)
+✔ keeps interrupted mail visibly separate from a completed mail and ordinary chat (0.6269ms)
+✔ removes only the bold subject label or its whole-line wrapper from a completed mail (1.3922ms)
+✔ leaves literal, ambiguous, quoted, non-leading and incomplete headings untouched (1.578ms)
+✔ preserves every stream prefix and partial record, including a closed-looking header (0.4411ms)
+✔ ordinary chat still creates its Markdown emphasis and code nodes (1.4311ms)
+C:\project\Mini-Server-Web-EqMgmt\tests\test_portal_polish_ui.js:9
+    const theme = new URLSearchParams(location.search).get('theme') || 'light';
+                                      ^
+
+ReferenceError: location is not defined
+    at C:\project\Mini-Server-Web-EqMgmt\tests\test_portal_polish_ui.js:9:39
+    at Object.<anonymous> (C:\project\Mini-Server-Web-EqMgmt\tests\test_portal_polish_ui.js:112:3)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.1
+✖ tests\test_portal_polish_ui.js (98.3727ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 29
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 304.4411
+
+✖ failing tests:
+
+test at tests\test_ai_polish_lifecycle_ui.js:1:1
+✖ tests\test_ai_polish_lifecycle_ui.js (121.3407ms)
+  'test failed'
+
+test at tests\test_equipment_ai_ui.js:1:1
+✖ tests\test_equipment_ai_ui.js (112.4508ms)
+  'test failed'
+
+test at tests\test_portal_polish_ui.js:1:1
+✖ tests\test_portal_polish_ui.js (98.3727ms)
+  'test failed'

@@ -1,0 +1,10 @@
+{
+  "case": "Y1",
+  "same_source_and_raw": true,
+  "old_display_gate": "failed",
+  "new_display_gate": "done",
+  "original_first_inference_still": "failed",
+  "new_inferences": 0,
+  "stored": "Sam 님,\n\n안녕하십니까.\n\nEast Lab이 감사 관련으로 우리 서비스 팀의 어쿠스틱 캘리브레이터를 빌려 갔습니다. 해당 장비는 여전히 우리 소유입니다. Lab에 회수 가능 날짜를 제안하도록 요청해 주시되, 대여 가격은 제시하지 마십시오.\n\n감사합니다.\nNora",
+  "raw_sha256": "07ba563753d4f8c62bd412ca96378562f09c17ddea39c3d476e204e8f9a3c2d3"
+}

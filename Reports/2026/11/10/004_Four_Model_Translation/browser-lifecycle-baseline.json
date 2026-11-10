@@ -1,0 +1,22 @@
+[
+  {
+    "status": "fail",
+    "width": 390,
+    "theme": "light",
+    "checks": [],
+    "error": "Error: condition timed out\n    at wait (http://127.0.0.1:37325/?theme=light:289:151)\n    at async HTMLDocument.<anonymous> (http://127.0.0.1:37325/?theme=light:300:13)",
+    "requested_width": 390,
+    "requested_theme": "light",
+    "exit_code": 0
+  },
+  {
+    "status": "fail",
+    "width": 1440,
+    "theme": "light",
+    "checks": [],
+    "error": "Error: condition timed out\n    at wait (http://127.0.0.1:37325/?theme=light:289:151)\n    at async HTMLDocument.<anonymous> (http://127.0.0.1:37325/?theme=light:300:13)",
+    "requested_width": 1440,
+    "requested_theme": "light",
+    "exit_code": 0
+  }
+]

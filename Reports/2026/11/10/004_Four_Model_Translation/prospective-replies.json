@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "prospective",
+    "thread": "9eb648e4-fb8b-40dd-bd48-e600a7988f9f",
+    "started": "2026-11-10T03:45:45.311499+00:00",
+    "seconds": 84.7,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | C, A | 2 | Option 1 missing; Option 2 preserves custody, ownership, pricing.\nm2 | B, B | 1, 2 | Both preserve billing refusal; need document, signature edits.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "7a01344057a00f81186eeb93326ce79d7cfd96d6761a891a406b828020aa7797"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "prospective",
+    "thread": "b4b3031b-b56f-453d-b618-22905235085f",
+    "started": "2026-11-10T03:45:45.311499+00:00",
+    "seconds": 231.44,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | C, A | 2 | Option 1 missing translation; option 2 is ready.\nm2 | C, B | 2 | Bill of lading alters document function; waybill is accurate.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "7a01344057a00f81186eeb93326ce79d7cfd96d6761a891a406b828020aa7797"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "prospective",
+    "thread": "5ecc512f-4a4e-4e0a-8dd3-c79802270c31",
+    "started": "2026-11-10T03:45:45.311499+00:00",
+    "seconds": 20.16,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | C, A | 2 | Option 1 missing; option 2 keeps custody, ownership, no-price instruction\nm2 | B, A | 2 | 운송장 means waybill; option 1 wrongly says bill of lading\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "7a01344057a00f81186eeb93326ce79d7cfd96d6761a891a406b828020aa7797"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "prospective",
+    "thread": "01a1c38f-d45b-7661-a585-3d8fb40e3643",
+    "started": "2026-11-10T03:45:45.311499+00:00",
+    "seconds": 112.69,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | C A | 2 | 1 missing. Lab borrowed ours. Collection requested, rental quote forbidden.  \nm2 | B B | 2 | “Waybill” fits 운송장. Both retain 이솔. “Cost billing” needs revision."
+    ],
+    "errors": [],
+    "prompt_sha256": "7a01344057a00f81186eeb93326ce79d7cfd96d6761a891a406b828020aa7797"
+  }
+}

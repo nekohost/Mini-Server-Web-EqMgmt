@@ -1,0 +1,72 @@
+[
+  {
+    "case": "T1",
+    "same_wire_instruction": false,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "T2",
+    "same_wire_instruction": false,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "T3",
+    "same_wire_instruction": true,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "T4",
+    "same_wire_instruction": true,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "T5",
+    "same_wire_instruction": true,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "failed"
+  },
+  {
+    "case": "T6",
+    "same_wire_instruction": true,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "X1",
+    "same_wire_instruction": false,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "X2",
+    "same_wire_instruction": false,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "X3",
+    "same_wire_instruction": true,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  },
+  {
+    "case": "X4",
+    "same_wire_instruction": true,
+    "same_stored_answer": false,
+    "control_state": "done",
+    "selected_state": "done"
+  }
+]

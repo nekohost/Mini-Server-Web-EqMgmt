@@ -1,0 +1,160 @@
+{
+  "matrix": {
+    "X1": {
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "a": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "B"
+      }
+    },
+    "X2": {
+      "a": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "BAB",
+        "best": [
+          2
+        ],
+        "reason": "빌려주었습니다와 아직 반납되지 않았습니다로 소유권·대여 방향을 확정한다. 1·3의 아직 반납하지 않았습니다에는 직전 주어 저희가 이어지는 오독 여지가 있다."
+      },
+      "m2": {
+        "grades": "BBB",
+        "best": [
+          2,
+          1
+        ],
+        "reason": "납품서, 시험용 사양서, 청구서를 구분한다. 세 출력의 keep … inside the box는 상자에 들어 있던 문서를 보관하라는 말을 상자 안에 계속 두라는 지시로도 읽게 한다."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "BAC",
+        "best": [
+          2
+        ],
+        "reason": "Option 2 accurately renders \"lent\" (\"빌려주었습니다\") and uses the passive (\"반납되지 않았습니다\") to keep ownership and the field team's return obligation clear, whereas Options 1 and 3 drop \"they\" after \"저희는/저희가\" (\"반납하지 않았습니다\") and Option 3's \"대여했습니다\" confuses lending direction."
+      },
+      "m2": {
+        "grades": "BBC",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Options 1 and 2 preserve the subject (\"구분\" as Classification) and document functions unlike Option 3's \"Clarification\" and \"packing slip\", but still need a mandatory edit to romanize the sender identity (\"이지연\") for English and clarify keeping the delivery note that is inside the box."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "ABB",
+        "best": [
+          1
+        ],
+        "reason": "Option 1 retains the greeting ('안녕하세요' for 'Hi') and maintains document function, whereas Options 2 and 3 omit the greeting."
+      },
+      "m2": {
+        "grades": "AAB",
+        "best": [
+          2
+        ],
+        "reason": "Options 1 and 2 correctly translate '구분' as 'Classification' with Option 2 precisely rendering '사양서' as 'specification sheet', whereas Option 3 mistranslates the subject as 'Clarification'."
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "BAC",
+        "best": [
+          2
+        ],
+        "reason": "Source: \"They have not returned it.\" Option 2 uses 반납되지 않았습니다 (\"has not been returned\"), which keeps the camera ours and the duty to return with the field team. Options 1 and 3 drop the subject after 저희는/저희가 (\"we\"), so the sentence can read as \"we have not returned it.\" Option 3 also uses 대여했습니다, which can mean lent or borrowed, so it can reverse who owns the camera."
+      },
+      "m2": {
+        "grades": "AAB",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Source: 동봉 서류 구분 means sorting out which enclosed document is which. Options 1 and 2 keep that and the instructions to keep, test with and expect each document. Option 3 changes the subject line to \"Clarification,\" which changes what the email says it is for."
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "BAB",
+        "best": [
+          2
+        ],
+        "reason": "Option 2 clearly conveys that the camera is still on loan, while 반납하지 않았습니다 in 1 and 3 can carry over “we” as the party responsible for returning it."
+      },
+      "m2": {
+        "grades": "BBB",
+        "best": [
+          2
+        ],
+        "reason": "All three can make “inside the box” sound like a storage instruction, though the source uses it to identify the delivery note. Option 2 renders 사양서 most precisely as “specification sheet.”"
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "7eb52d63-d6ba-4fe0-b53c-c98e1f63d63b",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "64eb4daf-bdc2-47c8-b0a5-c840d08a857c",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "7d28883a-5c5d-4c1d-9f4a-fefa3d097217",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c376-5b19-7111-8dab-812bf8185b99",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}

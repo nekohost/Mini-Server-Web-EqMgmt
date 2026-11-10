@@ -1,0 +1,34 @@
+[
+  {
+    "case": "X1",
+    "arm": "a",
+    "start": 1794280528.1605706,
+    "end": 1794280551.6503475,
+    "server_id_sha256": "5b5f719aa66bd909b95a9d62b0e985323c39383bea07c7348f386b4045f00e28",
+    "state": "done"
+  },
+  {
+    "case": "X2",
+    "arm": "a",
+    "start": 1794280555.0527678,
+    "end": 1794280569.2671678,
+    "server_id_sha256": "92d3c3f166558da5843a72fcaca3b3e34757134a1edc044952b89e569497beb2",
+    "state": "done"
+  },
+  {
+    "case": "X1",
+    "arm": "b",
+    "start": 1794280573.409648,
+    "end": 1794280590.652566,
+    "server_id_sha256": "b61beb88e9d83ecd07817fa9b4ce4a2c48aaa62ed28514feaf277a158a5eb9b4",
+    "state": "done"
+  },
+  {
+    "case": "X2",
+    "arm": "b",
+    "start": 1794280594.1961272,
+    "end": 1794280611.3711863,
+    "server_id_sha256": "ea11f237d5e439aa8b14799851ffc6f421bd1af677ecfb3c6dbbf74da7ca92d9",
+    "state": "done"
+  }
+]

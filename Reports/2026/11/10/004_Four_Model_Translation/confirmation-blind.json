@@ -1,0 +1,92 @@
+[
+  {
+    "id": "m1",
+    "source": "Hi Rosa,\n\nThe meter is ours. The lab may use it through Thursday at no charge. Please ask when it can be collected. We have not agreed to pay for shipping.\n\nRegards,\nEmil",
+    "target": "ko",
+    "options": [
+      "Rosa 님,\n\n해당 미터기는 저희 소유입니다. 실험실에서는 목요일까지 무상으로 사용할 수 있습니다. 언제 회수할 수 있는지 문의해 주세요. 저희는 배송비 부담에 합의한 적이 없습니다.\n\n감사합니다,\n에밀",
+      "로사 님,\n\n측정기는 저희 소유입니다. 실험실에서는 목요일까지 무료로 사용해도 됩니다. 언제 회수할 수 있는지 문의해 주십시오. 배송비 부담에는 합의하지 않았습니다.\n\n감사합니다.\n에밀 드림"
+    ]
+  },
+  {
+    "id": "m2",
+    "source": "제목: 반납 확인서\n\n안녕하세요.\n\n대여 업체가 보낸 반납 확인서에는 상자 세 개가 적혀 있습니다. 운송 기사가 서명한 것은 인수증뿐입니다. 파손 여부는 아직 확인하지 못했습니다.\n\n감사합니다.\n김소율 드림",
+    "target": "en",
+    "options": [
+      "Subject: Return Confirmation\n\nHello,\n\nThe return confirmation sent by the rental company lists three boxes. The delivery driver signed only the delivery receipt. We have not yet confirmed whether there is any damage.\n\nThank you.\n김소율",
+      "Subject: Return Confirmation\n\nHello,\n\nThe Return Confirmation sent by the rental company lists three boxes. The delivery driver signed only the Acknowledgment of Receipt. Whether there is any damage has not yet been confirmed.\n\nThank you.\n김소율"
+    ]
+  },
+  {
+    "id": "m3",
+    "source": "Subject: Credit request\n\nHello Max,\n\nThe bank acknowledged receipt of both requests but has approved neither refund. If only one is approved by noon, release that payment alone. Leave the other pending.\n\nRegards,\nJo",
+    "target": "ko",
+    "options": [
+      "제목: 신용 요청\n\n안녕하세요 Max,\n\n은행은 두 요청 모두 접수했음을 확인했으나 환불은 어느 한 건도 승인하지 않았습니다. 정오까지 한 건만 승인되는 경우 해당 건만 결제 처리하고, 다른 건은 보류 상태로 두세요.\n\nJo",
+      "Subject: 크레딧 요청\n\nMax 님,\n\n은행은 두 요청 모두의 접수를 확인했으나 환불은 어느 한 건도 승인하지 않았습니다. 정오까지 한 건만 승인되면 해당 결제만 진행하세요. 나머지 한 건은 보류 상태로 두세요.\n\n감사합니다,\nJo"
+    ]
+  },
+  {
+    "id": "m4",
+    "source": "제목: 서비스 연장 검토\n\n민수님, 안녕하세요.\n\n갱신이 가능한지만 업체에 문의했습니다. 견적서를 받은 뒤 비용을 검토할 수는 있지만, 계약을 연장하기로 한 것은 아닙니다.\n\n감사합니다.\n차민서 드림",
+    "target": "en",
+    "options": [
+      "Subject: Service Extension Review\n\nHello Minsu,\n\nI inquired with the vendor about whether renewal is possible. After receiving the quotation, we can review the costs, but we have not decided to extend the contract.\n\nThank you.\n차민서",
+      "Subject: Review of Service Extension\n\nHi Minsu,\n\nWe have only inquired with the vendor about whether a renewal is possible. After receiving the quotation, it is possible to review the cost, but we have not decided to extend the contract.\n\nBest regards,\n차민서"
+    ]
+  },
+  {
+    "id": "m5",
+    "source": "Hi Taylor,\n\nFor the demo, show the figures in stock.csv as estimates. Only the finance team may change the file. Please leave row 7 as it is even if the totals differ.\n\nRegards,\nAlex",
+    "target": "ko",
+    "options": [
+      "Taylor 님,\n\n안녕하세요.\n\n데모 시 stock.csv의 수치는 추정치로 표시해 주세요. 해당 파일은 재무팀만 변경할 수 있습니다. 합계가 서로 다르더라도 7행은 그대로 유지해 주세요.\n\n감사합니다.\nAlex",
+      "Taylor 님,\n\n데모에서는 stock.csv의 수치를 추정치로 표시해 주세요. 해당 파일은 재무팀만 변경할 수 있습니다. 총계가 다르더라도 7행은 현재 상태로 유지해 주세요.\n\n감사합니다,\nAlex"
+    ]
+  },
+  {
+    "id": "m6",
+    "source": "제목: 현장 접수 시간\n\n안녕하세요.\n\n방문객은 14:00 KST부터 안내 데스크에 직접 접수할 수 있습니다. 지금 요청드린 것은 안내문 게시이고 방문 승인이나 참석자 명단 변경이 아닙니다.\n\n감사합니다.\n현장지원팀",
+    "target": "en",
+    "options": [
+      "**Subject:** On-Site Check-in Time\n\nHello,\n\nVisitors can check in directly at the information desk starting at 14:00 KST. The request being made now is for posting an information notice, not for visit approval or changes to the attendee list.\n\nThank you.\n현장지원팀",
+      "Subject: On-Site Check-In Time\n\nHello,\n\nVisitors may check in directly at the reception desk starting at 14:00 KST. What I am requesting now is the posting of a notice only—not visit approval or changes to the attendee list.\n\nThank you.\n현장지원팀"
+    ]
+  },
+  {
+    "id": "m7",
+    "source": "Hi June,\n\nWe lent the field team our spare camera. They have not returned it. Please ask for a return date without offering them a discount.\n\nRegards,\nNia",
+    "target": "ko",
+    "options": [
+      "준 님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 빌려주었습니다. 아직 반납되지 않았습니다. 그들에게 할인 제안 없이 반납 일자를 요청해 주십시오.\n\n감사합니다.\nNia",
+      "June님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 대여해 주었습니다. 아직 반납하지 않았습니다. 할인 혜택은 제시하지 않은 채 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia"
+    ]
+  },
+  {
+    "id": "m8",
+    "source": "제목: 동봉 서류 구분\n\n안녕하세요.\n\n상자 안의 납품서는 보관해 주세요. 동봉한 사양서는 시험에 사용할 자료이고, 청구서는 금요일에 따로 보낼 예정입니다.\n\n감사합니다.\n이지연 드림",
+    "target": "en",
+    "options": [
+      "Subject: Classification of Enclosed Documents\n\nHello.\n\nPlease keep the delivery note inside the box. The enclosed specifications are materials to be used for testing, and the invoice will be sent separately on Friday.\n\nBest regards,\n이지연",
+      "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specification sheet is material for use in testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연"
+    ]
+  },
+  {
+    "id": "m9",
+    "source": "Hello Max,\n\nWe are considering a bank loan. We have not authorized the transfer. Please send only the draft payment schedule.\n\nRegards,\nUma",
+    "target": "ko",
+    "options": [
+      "Max 님, 안녕하십니까.\n\n저희는 은행 대출을 검토 중입니다. 송금은 아직 승인하지 않았습니다. 결제 일정 초안만 보내 주십시오.\n\n감사합니다.\nUma",
+      "Max님, 안녕하세요.\n\n저희는 은행 대출을 검토하고 있습니다. 해당 송금은 승인하지 않았습니다. 지급 일정 초안만 보내 주시기 바랍니다.\n\n감사합니다,\nUma"
+    ]
+  },
+  {
+    "id": "m10",
+    "source": "제목: 사양서 검토\n\n안녕하세요.\n\n새 사양서에서 허용 전압만 확인해 주세요. 제조사가 보낼 청구서의 발행일은 아직 정해지지 않았습니다.\n\n감사합니다.\n박유진 드림",
+    "target": "en",
+    "options": [
+      "**Subject:** Specification Review\n\nHello,\n\nPlease check only the allowable voltage in the new specification. The issue date of the invoice to be sent by the manufacturer has not yet been determined.\n\nThank you.\n박유진",
+      "**Subject:** Specification Review\n\nHello.\n\nPlease confirm only the allowable voltage in the new specification. The issue date of the invoice to be sent by the manufacturer has not yet been determined.\n\nThank you.\n박유진"
+    ]
+  }
+]

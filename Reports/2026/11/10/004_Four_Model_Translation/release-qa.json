@@ -1,0 +1,49 @@
+{
+  "run": 306,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "python": "3.12.3",
+  "shards": [
+    {
+      "run": 100,
+      "skipped": 0,
+      "failures": [],
+      "errors": [],
+      "python": "3.12.3",
+      "modules": [
+        "test_equipment_ai",
+        "test_ai_ux_integration",
+        "test_ai_release_guard",
+        "test_ai_input_reliability"
+      ]
+    },
+    {
+      "run": 105,
+      "skipped": 0,
+      "failures": [],
+      "errors": [],
+      "python": "3.12.3",
+      "modules": [
+        "test_ai_web_search",
+        "test_ai_conversation_lifecycle",
+        "test_ai_display_policy",
+        "test_ai_conversation_entry"
+      ]
+    },
+    {
+      "run": 101,
+      "skipped": 0,
+      "failures": [],
+      "errors": [],
+      "python": "3.12.3",
+      "modules": [
+        "test_multi_provider_ai",
+        "test_mail_translation",
+        "test_ai_input_preferences",
+        "test_ai_polish_status",
+        "test_ai_polish_lifecycle"
+      ]
+    }
+  ]
+}

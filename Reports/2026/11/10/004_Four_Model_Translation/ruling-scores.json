@@ -1,0 +1,341 @@
+{
+  "matrix": {
+    "E2": {
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      },
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "D05": {
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "P-en-ko": {
+      "ordinary-d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "micro-b": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "micro-d": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      },
+      "ordinary-c": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "micro-c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "micro-a": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "P-ko-en": {
+      "micro-d": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "micro-c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "ordinary-d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "micro-b": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "micro-a": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "ordinary-c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "BCB",
+        "best": [
+          1
+        ],
+        "reason": "접수하지 않았다는 수신 단계를 바꾼다. 착수는 가장 가깝지만 열람 전인지 착수 전인지 구분이 사라진다."
+      },
+      "m2": {
+        "grades": "BBA",
+        "best": [
+          3
+        ],
+        "reason": "3만 서류를 받은 담당자가 접수증을 발급한다는 관계를 단일 주어로 명시한다. 화면에서 Markdown 제목은 렌더링된다."
+      },
+      "m3": {
+        "grades": "BBACCBA",
+        "best": [
+          7,
+          3
+        ],
+        "reason": "7의 공급업체로부터 빌려 두고 있습니다와 3의 대여받았습니다는 소유자·사용자를 구별하고 비용을 만들지 않는다. 제이미는 Jamie의 통상적인 한글 표기이나 원문의 로마자 표기는 보존되지 않았다. 4는 공급업체가 가지고 있다고 오역한다."
+      },
+      "m4": {
+        "grades": "ABBABAB",
+        "best": [
+          6,
+          4,
+          1
+        ],
+        "reason": "1·4·6은 수량을 대조하는 실제 납품서류를 delivery note로 옮겼다. 6은 자연스럽고 중복 끝인사가 없다. 2의 delivery statement는 불명확하고 specification은 기술 사양을 뜻한다."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "BCB",
+        "best": [
+          1
+        ],
+        "reason": "Source says the lab \"has not opened the second,\" so Option 2's \"접수하지 않았습니다\" (has not received) is a material error, while Option 1's \"착수하지 않았습니다\" is the closest natural phrasing over Option 3's awkward \"개시하지 않았습니다\" though it still needs an edit to \"열어보지 않았습니다\"."
+      },
+      "m2": {
+        "grades": "CCB",
+        "best": [
+          3
+        ],
+        "reason": "Source \"담당자는 서류를 받으면 접수증만 발급해 주세요\" makes the person in charge both receiver and issuer; Option 3 (\"When receiving documents, the staff member in charge should issue only a receipt\") preserves this, whereas Options 1 and 2 split the agent (\"Once/When the person in charge receives... please issue\"), though Option 3 still needs an edit for \"**Subject:**\" and untranslated \"운영팀\"."
+      },
+      "m3": {
+        "grades": "BBACCBA",
+        "best": [
+          3,
+          7
+        ],
+        "reason": "Source says the workshop \"has a spare pump on loan\" that \"belongs to the supplier\"; Options 3 (\"예비 펌프를 대여받았습니다. 이 펌프는 공급업체 소유입니다\") and 7 (\"예비 펌프를 빌려 두고 있습니다. 이 펌프는 공급업체 소유입니다\") capture both holder and owner, whereas Option 4 falsely says the supplier holds it (\"공급업체가 갖고 있습니다\") and Options 1, 2, and 5 misuse \"임대/임차\" or \"워크숍\"."
+      },
+      "m4": {
+        "grades": "ABCBCAC",
+        "best": [
+          1,
+          6
+        ],
+        "reason": "A \"납품 명세서\" used to verify delivered quantities (\"수량은 아직 대조하지 않았습니다\") is a \"delivery note\" (or \"statement\" in Option 2), not a technical \"specification\" (Options 3, 5, 7), and Options 1 and 6 avoid the raw \"**Subject:**\" markdown in Options 2 and 4."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "ACB",
+        "best": [
+          1
+        ],
+        "reason": "\"has not opened\" is naturally rendered as \"착수하지 않았습니다\", whereas \"접수하지 않았습니다\" falsely claims it was not received and \"개시하지 않았습니다\" is unidiomatic."
+      },
+      "m2": {
+        "grades": "BBA",
+        "best": [
+          3
+        ],
+        "reason": "\"the staff member in charge should issue only a receipt\" correctly assigns receipt issuance to the staff member, unlike options 1 and 2 where \"please issue\" misdirects the action."
+      },
+      "m3": {
+        "grades": "BABCBBB",
+        "best": [
+          2
+        ],
+        "reason": "\"작업장에 임차 중인\" and \"공급업체 소유\" accurately distinguish holding versus ownership, whereas option 4 materially errs with \"공급업체가 갖고 있습니다\"."
+      },
+      "m4": {
+        "grades": "ABBABAB",
+        "best": [
+          1,
+          6
+        ],
+        "reason": "\"Delivery Note\" correctly identifies the document used for quantity reconciliation, whereas \"specification\" misidentifies the document type."
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "ACA",
+        "best": [
+          1,
+          3
+        ],
+        "reason": "\"has not opened the second\": \"착수하지\" and \"개시하지\" mean the lab has not started on it, but \"접수하지 않았습니다\" says the lab never received it."
+      },
+      "m2": {
+        "grades": "BBA",
+        "best": [
+          3
+        ],
+        "reason": "\"담당자는…접수증만 발급해 주세요\": only 3 has the staff member issue the receipt (\"the staff member in charge should issue only a receipt\"); 1 and 2 shift \"please issue\" to the reader."
+      },
+      "m3": {
+        "grades": "BAACBBA",
+        "best": [
+          3,
+          7
+        ],
+        "reason": "\"has a spare pump on loan… belongs to the supplier\": \"대여받았습니다\" and \"빌려 두고 있습니다\" are correct; \"임대 중\" suggests the pump is being rented out; 4's \"공급업체가 갖고 있습니다\" says the supplier holds it."
+      },
+      "m4": {
+        "grades": "AABABAB",
+        "best": [
+          4,
+          6
+        ],
+        "reason": "\"납품 명세서\" is the delivery record, so \"delivery note\" fits (\"reconciled\" also fits \"대조\"), while \"specification\" names the wrong kind of document."
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "BCB",
+        "best": [
+          1
+        ],
+        "reason": "“착수” comes closest, but both “착수” and “개시” leave the opening status unstated, while “접수하지 않았습니다” reports nonreceipt."
+      },
+      "m2": {
+        "grades": "BBB",
+        "best": [
+          3
+        ],
+        "reason": "Only 3 clearly assigns receipt issuance to “담당자”, and all three leave “운영팀” untranslated."
+      },
+      "m3": {
+        "grades": "BBACBBA",
+        "best": [
+          3,
+          7
+        ],
+        "reason": "The workshop holds the pump “on loan”, “belongs to the supplier” establishes ownership, and “임대” and “임차” imply rent."
+      },
+      "m4": {
+        "grades": "ABCACAC",
+        "best": [
+          1,
+          4,
+          6
+        ],
+        "reason": "“납품 명세서” lists delivered quantities, so “delivery note” is precise, “statement” is vague, and “specification” points to requirements."
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "21398eeb-8cbf-4690-997d-87a091275477",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "4e2940f4-a7ab-4ff2-9371-55da9cc57df4",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "5add4360-5525-4823-af77-500d3e615ae0",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c370-1293-7922-9924-452dd57bc3db",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}

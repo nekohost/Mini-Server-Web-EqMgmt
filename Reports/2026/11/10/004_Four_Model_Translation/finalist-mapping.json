@@ -1,0 +1,18 @@
+{
+  "m1": {
+    "case": "X1",
+    "arms": [
+      "control",
+      "a",
+      "b"
+    ]
+  },
+  "m2": {
+    "case": "X2",
+    "arms": [
+      "a",
+      "control",
+      "b"
+    ]
+  }
+}

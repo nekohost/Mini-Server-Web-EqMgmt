@@ -1,0 +1,26 @@
+[
+  {
+    "id": "X1",
+    "direction": "en-ko",
+    "original": "Hi June,\n\nWe lent the field team our spare camera. They have not returned it. Please ask for a return date without offering them a discount.\n\nRegards,\nNia",
+    "split": "unseen-contrast"
+  },
+  {
+    "id": "X2",
+    "direction": "ko-en",
+    "original": "제목: 동봉 서류 구분\n\n안녕하세요.\n\n상자 안의 납품서는 보관해 주세요. 동봉한 사양서는 시험에 사용할 자료이고, 청구서는 금요일에 따로 보낼 예정입니다.\n\n감사합니다.\n이지연 드림",
+    "split": "unseen-contrast"
+  },
+  {
+    "id": "X3",
+    "direction": "en-ko",
+    "original": "Hello Max,\n\nWe are considering a bank loan. We have not authorized the transfer. Please send only the draft payment schedule.\n\nRegards,\nUma",
+    "split": "unseen-contrast"
+  },
+  {
+    "id": "X4",
+    "direction": "ko-en",
+    "original": "제목: 사양서 검토\n\n안녕하세요.\n\n새 사양서에서 허용 전압만 확인해 주세요. 제조사가 보낼 청구서의 발행일은 아직 정해지지 않았습니다.\n\n감사합니다.\n박유진 드림",
+    "split": "unseen-contrast"
+  }
+]

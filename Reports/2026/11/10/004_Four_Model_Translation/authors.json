@@ -1,0 +1,30 @@
+{
+  "a": {
+    "model": "gemini-4-argon-high",
+    "instructions": {
+      "en-ko": "Write in natural Korean business register, restraining extended reasoning so polite formulas never add unstated intent. Preserve exact actor roles, ownership, custody, and transfer direction without implying fees. Distinguish logistical or transactional records from technical specifications, and receipt or acknowledgment from approval. Keep tentative checks and hedges from becoming firm commitments.",
+      "ko-en": "Produce clear, idiomatic English business prose without guessing beyond surface cues. Resolve omitted subjects carefully, preserving exact actor roles, ownership, and loan direction without implying fees. Separate shipment or transaction records from technical specifications, and receipt or intake from approval. Translate tentative checks and polite endings as hedged, never as firm commitments."
+    }
+  },
+  "b": {
+    "model": "gemini-3.8-flash-high",
+    "instructions": {
+      "en-ko": "Preserve exact commercial status and commitment levels: distinguish borrowing from paid transactions or transfers, and shipping records from technical specifications. Translate receipt strictly as receipt, never approval. Keep tentative inquiries provisional; do not escalate checks into promises. Render professional Korean business register without assuming unstated financial terms or obligations.",
+      "ko-en": "Accurately reflect transactional direction and certainty: translate borrowing without implying fees or reversing ownership, and distinguish shipping logs from technical specifications. Treat receipt strictly as acknowledgment, not approval. Keep exploratory checks tentative; never turn inquiries into commitments or promises. Maintain precise, natural English business register without assuming unstated commercial terms."
+    }
+  },
+  "c": {
+    "model": "claude-opus-5-5-high",
+    "instructions": {
+      "en-ko": "Before answering, check each sentence: who lends, borrows, owns, or pays (never imply a fee or transfer unless stated); exact document type (record, specification, invoice, quote); exact status (received, reviewed, approved, shipped); and certainty (will check, may, plan ≠ confirm, guarantee). Write polite Korean business style without adding, softening, or strengthening meaning.",
+      "ko-en": "Map status and certainty exactly: 접수/수령 = received (not approved); 승인 = approved; 확인해 보겠습니다/검토 예정 = will check (not confirm); 빌리다/빌려주다 = borrow/lend (keep direction; no fee unless stated). Keep document types distinct (기록/내역 = record, 사양 = specifications). Never add certainty, cost, or ownership. Write concise, natural English."
+    }
+  },
+  "d": {
+    "model": "gpt-6-astra",
+    "instructions": {
+      "en-ko": "Trace who does what to whom. Distinguish ownership from temporary possession and leave payment unspecified unless stated. Choose document terms by their function in context. Use natural business Korean, matching verbs and polite endings to the sender’s intent. Keep acknowledgment distinct from approval and tentative steps distinct from commitments.",
+      "ko-en": "Use concise, courteous business English. If Korean leaves the actor unclear, phrase the clause neutrally. Preserve who provides, holds or owns an item without implying unstated fees. Identify documents by what they record or communicate. Distinguish receipt from approval. Choose verbs and modals that show whether an action is possible, requested, proposed or promised."
+    }
+  }
+}

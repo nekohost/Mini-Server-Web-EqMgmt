@@ -1,0 +1,14 @@
+[
+  {
+    "id": "Y1",
+    "direction": "en-ko",
+    "original": "Hello Sam,\n\nEast Lab borrowed the acoustic calibrator from our service team for the audit. It still belongs to us. Please ask the lab to propose a collection date, but do not offer a rental price.\n\nRegards,\nNora",
+    "split": "prospective-targeted"
+  },
+  {
+    "id": "Y2",
+    "direction": "ko-en",
+    "original": "제목: 포장 서류 확인\n\n안녕하세요.\n\n포장명세표에는 상자별 내용물만 적혀 있습니다. 운송장은 운송사에서 따로 보내며, 창고 담당자가 서명한 인수증은 아직 받지 못했습니다. 비용 청구를 승인한 것은 아닙니다.\n\n감사합니다.\n이솔 드림",
+    "split": "prospective-targeted"
+  }
+]

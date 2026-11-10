@@ -1,0 +1,25 @@
+{
+  "claude-opus-5-5-high": {
+    "session": "b3dd0edb-981b-440c-a325-3b5ffe044dd4",
+    "model": "Claude Opus 5.5 (High)",
+    "effort": "high"
+  },
+  "gemini-3.8-flash-high": {
+    "session": "62a89a88-9cfb-4a48-a5dd-1ac3d9504b5d",
+    "model": "Gemini 3.8 Flash (High)",
+    "effort": "high"
+  },
+  "gemini-4-argon-high": {
+    "session": "f94fbd98-8735-4cef-a11d-514fd2629bde",
+    "model": "Gemini 4 Argon (High)",
+    "effort": "high"
+  },
+  "gpt-6-astra": {
+    "session": "01a1c34e-5399-7d71-828b-52161739916a",
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "served_tier": "priority",
+    "configured_window": 872000,
+    "effective_window": 828400
+  }
+}

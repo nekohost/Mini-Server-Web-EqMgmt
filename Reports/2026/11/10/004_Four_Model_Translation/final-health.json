@@ -1,0 +1,26 @@
+{
+  "at_utc": "2026-11-10T04:05:52.311614+00:00",
+  "head": "926dd9f7f38f0991295273e01d1130a31ebd6436",
+  "maintenance": "NORMAL",
+  "units": {
+    "equipment-ai-worker.service": "active",
+    "equipment-ai-retention.timer": "active"
+  },
+  "http": {
+    "/login": 200,
+    "/assistant": 302,
+    "/api/ai/capabilities": 401
+  },
+  "in_flight": {},
+  "net_added": {
+    "conversations": 1,
+    "jobs": 2,
+    "messages": 4,
+    "message_steps": 2,
+    "proposals": 0,
+    "ai_lifecycle_operations": 0,
+    "ai_lifecycle_tombstones": 0
+  },
+  "audit_preserved": true,
+  "previous_ai_rows_preserved": true
+}

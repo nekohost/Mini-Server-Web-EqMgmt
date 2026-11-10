@@ -1,0 +1,30 @@
+{
+  "selected": {
+    "en-ko": "micro-a",
+    "ko-en": "micro-a"
+  },
+  "domain": "physical custody/lending or accompanying delivery documents",
+  "general_guide": false,
+  "selection_sources": [
+    "development",
+    "ruling",
+    "finalist-X1-X2"
+  ],
+  "confirmation_sources": [
+    "T1",
+    "T2",
+    "T3",
+    "T4",
+    "T5",
+    "T6",
+    "X3",
+    "X4",
+    "20 historical"
+  ],
+  "basis": [
+    "P-en-ko: explicit lender, recipient and ownership; P-ko-en: delivery note and quantity reconciliation.",
+    "X1: the majority and coordinator preferred the unambiguous return wording of micro-a. X2: micro-a retains the document distinction; attachment scope still needs an edit in every option.",
+    "No general candidate showed uniform source-based superiority."
+  ],
+  "confirmed_before_opening_holdout_outputs": true
+}

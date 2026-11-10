@@ -1,0 +1,15 @@
+{
+  "model": "claude-opus-5-5-high",
+  "effort": "high",
+  "phase": "production",
+  "thread": "51cd8049-754e-4680-bc20-09a44459c7e0",
+  "started": "2026-11-10T04:06:11.928642+00:00",
+  "seconds": 4.44,
+  "status": "ERROR",
+  "code": 3,
+  "messages": [],
+  "errors": [
+    "Individual quota reached. Please upgrade your subscription to increase your limits. Resets in 2h0m8s."
+  ],
+  "prompt_sha256": "b9d59718d3d9064580a910bdde7d3ae4a68e7470b728389d4a8dd462091dacbf"
+}

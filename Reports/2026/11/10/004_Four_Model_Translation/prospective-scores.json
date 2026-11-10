@@ -1,0 +1,144 @@
+{
+  "matrix": {
+    "Y1": {
+      "control": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "Y2": {
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "selected": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "No deliverable in 1. In 2 lender, owner, collection and prohibition on quoting a rate are explicit."
+      },
+      "m2": {
+        "grades": "BB",
+        "best": [
+          2
+        ],
+        "reason": "Bill of lading assumes a specific transport document. Option 2 has waybill but weakens the receipt function; cost billing is awkward in both."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 missing; Option 2 preserves custody, ownership, pricing."
+      },
+      "m2": {
+        "grades": "BB",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve billing refusal; need document, signature edits."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 missing translation; option 2 is ready."
+      },
+      "m2": {
+        "grades": "CB",
+        "best": [
+          2
+        ],
+        "reason": "Bill of lading alters document function; waybill is accurate."
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 missing; option 2 keeps custody, ownership, no-price instruction"
+      },
+      "m2": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "운송장 means waybill; option 1 wrongly says bill of lading"
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "CA",
+        "best": [
+          2
+        ],
+        "reason": "1 missing. Lab borrowed ours. Collection requested, rental quote forbidden."
+      },
+      "m2": {
+        "grades": "BB",
+        "best": [
+          2
+        ],
+        "reason": "“Waybill” fits 운송장. Both retain 이솔. “Cost billing” needs revision."
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "9eb648e4-fb8b-40dd-bd48-e600a7988f9f",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "b4b3031b-b56f-453d-b618-22905235085f",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "5ecc512f-4a4e-4e0a-8dd3-c79802270c31",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c38f-d45b-7661-a585-3d8fb40e3643",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "m1": {
+    "grades": "CA",
+    "best": [
+      2
+    ],
+    "reason": "No deliverable in 1. In 2 lender, owner, collection and prohibition on quoting a rate are explicit."
+  },
+  "m2": {
+    "grades": "BB",
+    "best": [
+      2
+    ],
+    "reason": "Bill of lading assumes a specific transport document. Option 2 has waybill but weakens the receipt function; cost billing is awkward in both."
+  }
+}

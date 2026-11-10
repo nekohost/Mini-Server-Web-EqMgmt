@@ -1,0 +1,44 @@
+{
+  "m1": {
+    "case": "X1",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m2": {
+    "case": "T6",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m3": {
+    "case": "X2",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m4": {
+    "case": "T2",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m5": {
+    "case": "X3",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m6": {
+    "case": "T3",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  }
+}

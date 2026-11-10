@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "finalist",
+    "thread": "7eb52d63-d6ba-4fe0-b53c-c98e1f63d63b",
+    "started": "2026-11-10T03:17:55.863426+00:00",
+    "seconds": 151.61,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B, A, C | 2 | Option 2 accurately renders \"lent\" (\"빌려주었습니다\") and uses the passive (\"반납되지 않았습니다\") to keep ownership and the field team's return obligation clear, whereas Options 1 and 3 drop \"they\" after \"저희는/저희가\" (\"반납하지 않았습니다\") and Option 3's \"대여했습니다\" confuses lending direction.\nm2 | B, B, C | 1, 2 | Options 1 and 2 preserve the subject (\"구분\" as Classification) and document functions unlike Option 3's \"Clarification\" and \"packing slip\", but still need a mandatory edit to romanize the sender identity (\"이지연\") for English and clarify keeping the delivery note that is inside the box.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "fcf40fa1a900bf4048b2b7c56f5846a1d4d9cc8f4610bfbda473ede0f1f65a53"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "finalist",
+    "thread": "64eb4daf-bdc2-47c8-b0a5-c840d08a857c",
+    "started": "2026-11-10T03:17:55.864426+00:00",
+    "seconds": 214.25,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A, B, B | 1 | Option 1 retains the greeting ('안녕하세요' for 'Hi') and maintains document function, whereas Options 2 and 3 omit the greeting.\nm2 | A, A, B | 2 | Options 1 and 2 correctly translate '구분' as 'Classification' with Option 2 precisely rendering '사양서' as 'specification sheet', whereas Option 3 mistranslates the subject as 'Clarification'.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "fcf40fa1a900bf4048b2b7c56f5846a1d4d9cc8f4610bfbda473ede0f1f65a53"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "finalist",
+    "thread": "7d28883a-5c5d-4c1d-9f4a-fefa3d097217",
+    "started": "2026-11-10T03:17:55.863426+00:00",
+    "seconds": 32.3,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B, A, C | 2 | Source: \"They have not returned it.\" Option 2 uses 반납되지 않았습니다 (\"has not been returned\"), which keeps the camera ours and the duty to return with the field team. Options 1 and 3 drop the subject after 저희는/저희가 (\"we\"), so the sentence can read as \"we have not returned it.\" Option 3 also uses 대여했습니다, which can mean lent or borrowed, so it can reverse who owns the camera.\n\nm2 | A, A, B | 1, 2 | Source: 동봉 서류 구분 means sorting out which enclosed document is which. Options 1 and 2 keep that and the instructions to keep, test with and expect each document. Option 3 changes the subject line to \"Clarification,\" which changes what the email says it is for.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "fcf40fa1a900bf4048b2b7c56f5846a1d4d9cc8f4610bfbda473ede0f1f65a53"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "finalist",
+    "thread": "01a1c376-5b19-7111-8dab-812bf8185b99",
+    "started": "2026-11-10T03:17:55.864426+00:00",
+    "seconds": 118.5,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B, A, B | 2 | Option 2 clearly conveys that the camera is still on loan, while 반납하지 않았습니다 in 1 and 3 can carry over “we” as the party responsible for returning it.  \nm2 | B, B, B | 2 | All three can make “inside the box” sound like a storage instruction, though the source uses it to identify the delivery note. Option 2 renders 사양서 most precisely as “specification sheet.”"
+    ],
+    "errors": [],
+    "prompt_sha256": "fcf40fa1a900bf4048b2b7c56f5846a1d4d9cc8f4610bfbda473ede0f1f65a53"
+  }
+}

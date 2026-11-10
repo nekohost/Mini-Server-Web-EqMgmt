@@ -1,0 +1,22 @@
+[
+  {
+    "id": "m1",
+    "source": "Hi June,\n\nWe lent the field team our spare camera. They have not returned it. Please ask for a return date without offering them a discount.\n\nRegards,\nNia",
+    "target": "ko",
+    "options": [
+      "June님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 대여해 주었습니다. 아직 반납하지 않았습니다. 할인 혜택은 제시하지 않은 채 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "June 님,\n\n저희는 현장 팀에 예비 카메라를 빌려주었습니다. 아직 반납되지 않았습니다. 할인 혜택을 제시하지 않고 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "June 님,\n\n저희가 현장 팀에 예비 카메라를 대여했습니다. 아직 반납하지 않았습니다. 할인을 제시하지 않고 반납 일정을 요청해 주세요.\n\n감사합니다.\nNia"
+    ]
+  },
+  {
+    "id": "m2",
+    "source": "제목: 동봉 서류 구분\n\n안녕하세요.\n\n상자 안의 납품서는 보관해 주세요. 동봉한 사양서는 시험에 사용할 자료이고, 청구서는 금요일에 따로 보낼 예정입니다.\n\n감사합니다.\n이지연 드림",
+    "target": "en",
+    "options": [
+      "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specifications are materials for testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specification sheet is material for use in testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "Subject: Clarification of Enclosed Documents\n\nHello,\n\nPlease keep the packing slip inside the box. The enclosed specification is material to be used for testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연"
+    ]
+  }
+]

@@ -1,0 +1,114 @@
+{
+  "X1": {
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "87d77df713cf514d99f4e475e771467c481acb3edb6cbd14bb9a8800bb94e5e2",
+      "instruction_sha256": "bd5858021aa32583f3a67fcb775e8d9488c713d0498b4c13c8035fd9852aeeac",
+      "stored": "June 님,\n\n저희는 현장 팀에 예비 카메라를 빌려주었습니다. 아직 반납되지 않았습니다. 할인 혜택을 제시하지 않고 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "raw": "제목: 예비 카메라 반납 일정 요청\n\nJune 님,\n\n저희는 현장 팀에 예비 카메라를 빌려주었습니다. 아직 반납되지 않았습니다. 할인 혜택을 제시하지 않고 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "elapsed": 23.998,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "5b5f719aa66bd909b95a9d62b0e985323c39383bea07c7348f386b4045f00e28",
+      "start": 1794280528.1605706,
+      "end": 1794280551.6503475
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "87d77df713cf514d99f4e475e771467c481acb3edb6cbd14bb9a8800bb94e5e2",
+      "instruction_sha256": "9b9eb92da5bb766a9fcfe9fdda24d736c655de52362f8184083b6064348fac3d",
+      "stored": "June 님,\n\n저희가 현장 팀에 예비 카메라를 대여했습니다. 아직 반납하지 않았습니다. 할인을 제시하지 않고 반납 일정을 요청해 주세요.\n\n감사합니다.\nNia",
+      "raw": "제목: 예비 카메라 반납 일정 요청\n\nJune 님,\n\n저희가 현장 팀에 예비 카메라를 대여했습니다. 아직 반납하지 않았습니다. 할인을 제시하지 않고 반납 일정을 요청해 주세요.\n\n감사합니다.\nNia",
+      "elapsed": 17.798,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "b61beb88e9d83ecd07817fa9b4ce4a2c48aaa62ed28514feaf277a158a5eb9b4",
+      "start": 1794280573.409648,
+      "end": 1794280590.652566
+    },
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "87d77df713cf514d99f4e475e771467c481acb3edb6cbd14bb9a8800bb94e5e2",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "June님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 대여해 주었습니다. 아직 반납하지 않았습니다. 할인 혜택은 제시하지 않은 채 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "raw": "June님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 대여해 주었습니다. 아직 반납하지 않았습니다. 할인 혜택은 제시하지 않은 채 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "elapsed": 34.769,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "2084534db08bacffdb70bd059930d4cfc1b74300dbe7234e03732325bd4848dc",
+      "start": 1794279811.666639,
+      "end": 1794279845.934332
+    }
+  },
+  "X2": {
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6f8239834241731657ea45c8b069f82a2994c842024e599639aea25f2534a5e5",
+      "instruction_sha256": "43d99b3a4df388c0c8aa89e5c5f80f619200a5a442007c19157e3a427046ccb8",
+      "stored": "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specifications are materials for testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "raw": "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specifications are materials for testing, and the invoice will be sent separately on Friday.\n\nThank you.\nJiyeon Lee",
+      "elapsed": 14.683,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "92d3c3f166558da5843a72fcaca3b3e34757134a1edc044952b89e569497beb2",
+      "start": 1794280555.0527678,
+      "end": 1794280569.2671678
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6f8239834241731657ea45c8b069f82a2994c842024e599639aea25f2534a5e5",
+      "instruction_sha256": "e8fa9555db69ba8cab8254710570e409ef3e743a91f96285cf1648ff3c24c4ed",
+      "stored": "Subject: Clarification of Enclosed Documents\n\nHello,\n\nPlease keep the packing slip inside the box. The enclosed specification is material to be used for testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "raw": "Subject: Clarification of Enclosed Documents\n\nHello,\n\nPlease keep the packing slip inside the box. The enclosed specification is material to be used for testing, and the invoice will be sent separately on Friday.\n\nThank you.\n\n이지연",
+      "elapsed": 17.714,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "ea11f237d5e439aa8b14799851ffc6f421bd1af677ecfb3c6dbbf74da7ca92d9",
+      "start": 1794280594.1961272,
+      "end": 1794280611.3711863
+    },
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6f8239834241731657ea45c8b069f82a2994c842024e599639aea25f2534a5e5",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specification sheet is material for use in testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "raw": "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specification sheet is material for use in testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "elapsed": 17.19,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "38b070408dd615bd186b0787a7930f115e452eb547fb9bd7e4374130ffad8da4",
+      "start": 1794279849.3714173,
+      "end": 1794279866.017063
+    }
+  }
+}

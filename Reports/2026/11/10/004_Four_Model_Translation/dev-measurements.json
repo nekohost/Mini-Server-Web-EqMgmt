@@ -1,0 +1,738 @@
+{
+  "U03": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c9b86eee605349ad235e485307df0c4fcd358500eef0a1c8ed698b51c14dd757",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "제목: 워크숍 일정\n\nPat님,\n\n6월 3일은 캘린더에 예약이 아니라 임시 확보 상태입니다. 강사분이 정오 이후에는 참석할 수 없다면, 대신 오전 두 번으로 제안해 주세요. 아직 참석자분들께 연락하지 않아도 됩니다.\n\n감사합니다,\nKai",
+      "raw": "제목: 워크숍 일정\n\nPat님,\n\n6월 3일은 캘린더에 예약이 아니라 임시 확보 상태입니다. 강사분이 정오 이후에는 참석할 수 없다면, 대신 오전 두 번으로 제안해 주세요. 아직 참석자분들께 연락하지 않아도 됩니다.\n\n감사합니다,\nKai",
+      "elapsed": 20.345,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "3fd86dda63108465f521cefd56f8c6c201c54f9984edd915643f2124fac2798e",
+      "start": 1794278174.683354,
+      "end": 1794278194.5370185
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c9b86eee605349ad235e485307df0c4fcd358500eef0a1c8ed698b51c14dd757",
+      "instruction_sha256": "bd14190a710e16723d82d318fbf02e14b864a936c521f24d00c3bdb1a218d96b",
+      "stored": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 저희 캘린더에 예약 보류로 등록되어 있으며, 확정 예약은 아닙니다. 강사님이 정오 이후에는 참석할 수 없다면, 대신 오전 두 번으로 제안해 주세요. 아직 참석자들에게 연락할 필요는 없습니다.\n\n감사합니다.\nKai",
+      "raw": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 저희 캘린더에 예약 보류로 등록되어 있으며, 확정 예약은 아닙니다. 강사님이 정오 이후에는 참석할 수 없다면, 대신 오전 두 번으로 제안해 주세요. 아직 참석자들에게 연락할 필요는 없습니다.\n\n감사합니다.\nKai",
+      "elapsed": 59.353,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "1158c19d7d5d753a6ee13daad131c93e2f9f5523d44749bd94ea12df064f8a0f",
+      "start": 1794278401.3998232,
+      "end": 1794278460.184905
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c9b86eee605349ad235e485307df0c4fcd358500eef0a1c8ed698b51c14dd757",
+      "instruction_sha256": "fdccbd3c215b99f561a7ecd42b3ea51a687fdb4b19738b479c21fd2ce468e265",
+      "stored": "Subject: 워크숍 일정\n\nPat님,\n\n6월 3일은 저희 캘린더에 보류로 등록해 둔 상태이며, 확정 예약은 아닙니다. 강사가 정오 이후까지 체류할 수 없는 경우, 대신 오전 두 번을 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다,\nKai",
+      "raw": "Subject: 워크숍 일정\n\nPat님,\n\n6월 3일은 저희 캘린더에 보류로 등록해 둔 상태이며, 확정 예약은 아닙니다. 강사가 정오 이후까지 체류할 수 없는 경우, 대신 오전 두 번을 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다,\nKai",
+      "elapsed": 19.445,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "7f574759886d8d8f1ccb662a47bd25cc30b041d9a69638987193f78bb80dee66",
+      "start": 1794278760.0896637,
+      "end": 1794278778.8431835
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c9b86eee605349ad235e485307df0c4fcd358500eef0a1c8ed698b51c14dd757",
+      "instruction_sha256": "0b1c36d67e7c833721ca9c99aae05414aa733d13e411d929849bd62b479b4e15",
+      "stored": "제목: 워크숍 일정\n\nPat 님, 안녕하세요.\n\n6월 3일은 캘린더에 예약한 날짜가 아니라, 일단 확보해 둔 날짜입니다. 강사가 정오 이후에는 머무를 수 없다면, 대신 오전 시간대 두 개를 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다.\nKai",
+      "raw": "제목: 워크숍 일정\n\nPat 님, 안녕하세요.\n\n6월 3일은 캘린더에 예약한 날짜가 아니라, 일단 확보해 둔 날짜입니다. 강사가 정오 이후에는 머무를 수 없다면, 대신 오전 시간대 두 개를 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다.\nKai",
+      "elapsed": 18.484,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "29984de7f30694328d783d144c4d792ff44f946f8eef73288198e4f702b7254e",
+      "start": 1794279016.0628157,
+      "end": 1794279034.0165281
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c9b86eee605349ad235e485307df0c4fcd358500eef0a1c8ed698b51c14dd757",
+      "instruction_sha256": "fe4f0b1789af129b843243e2c6dfc9d3f638ad4906be2db4cf7a25c488c74c88",
+      "stored": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 저희 캘린더의 예약 보류일 뿐, 확정 예약은 아닙니다. 강사분이 정오 이후까지 참석할 수 없다면 대신 오전 두 회차로 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다.\nKai",
+      "raw": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 저희 캘린더의 예약 보류일 뿐, 확정 예약은 아닙니다. 강사분이 정오 이후까지 참석할 수 없다면 대신 오전 두 회차로 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다.\nKai",
+      "elapsed": 27.388,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "95f717048bc22b54e00709d3f501c9f38370da4fd507656ce776e53c91ea818b",
+      "start": 1794279253.1578567,
+      "end": 1794279279.934192
+    }
+  },
+  "U04": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "8c84ac19152005c7c4f069c6e8d41988331f656010ec73cd4da09ebf15bf5660",
+      "instruction_sha256": "5b36f07126e1dc8fd753a2b0797a99b4ee1f4c134341f150c13827a996559289",
+      "stored": "Subject: Card Payment Reconciliation\n\nHello.\n\nI received two approval text messages, but only one transaction appears on the statement. I am not requesting a payment cancellation; please only explain why this discrepancy occurred.\n\nThank you.\n회계팀",
+      "raw": "Subject: Card Payment Reconciliation\n\nHello.\n\nI received two approval text messages, but only one transaction appears on the statement. I am not requesting a payment cancellation; please only explain why this discrepancy occurred.\n\nThank you.\nAccounting Team",
+      "elapsed": 11.72,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "0544b6ff5623884427a24c7a44c4119fd1ffd6bad524025972994409baac518a",
+      "start": 1794278198.029012,
+      "end": 1794278209.152941
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "8c84ac19152005c7c4f069c6e8d41988331f656010ec73cd4da09ebf15bf5660",
+      "instruction_sha256": "14ef5a794c0b8b88611f06285cfcd575577dc9c37e1214c51a8d4647ba507f2f",
+      "stored": "Subject: Card Payment Reconciliation\n\nHello,\n\nI received two approval text messages, but only one transaction appears on the statement. I am not requesting a payment cancellation—please only explain why this discrepancy occurred.\n\nThank you.\n회계팀",
+      "raw": "Subject: Card Payment Reconciliation\n\nHello,\n\nI received two approval text messages, but only one transaction appears on the statement. I am not requesting a payment cancellation—please only explain why this discrepancy occurred.\n\nThank you.\nAccounting Team",
+      "elapsed": 16.676,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "da027c8f8fb8be9c87c6690bcd930530d446b0225f3178a9911dba50f1ac3442",
+      "start": 1794278463.5316718,
+      "end": 1794278479.771314
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "8c84ac19152005c7c4f069c6e8d41988331f656010ec73cd4da09ebf15bf5660",
+      "instruction_sha256": "35359cadff633048c5e60b2f32e469bcf94f6539300b21133d8e9e28ce82946b",
+      "stored": "Subject: Card Payment Reconciliation\n\nHello,\n\nI received two approval text messages, but only one transaction appears on my statement. This is not a request to cancel the payment; I would only like an explanation for the discrepancy.\n\nThank you.\n회계팀",
+      "raw": "Subject: Card Payment Reconciliation\n\nHello,\n\nI received two approval text messages, but only one transaction appears on my statement. This is not a request to cancel the payment; I would only like an explanation for the discrepancy.\n\nThank you.\nAccounting Team",
+      "elapsed": 9.967,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "cab5bbade91410006f06af12ff9d4d72e8f8178bc23d0397fcf8246cf2019e56",
+      "start": 1794278784.7948997,
+      "end": 1794278793.7095933
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "8c84ac19152005c7c4f069c6e8d41988331f656010ec73cd4da09ebf15bf5660",
+      "instruction_sha256": "a5aef54cba2ac94d66d1f73e60ac72bfa1303f99430d9342812b7e95622f6d72",
+      "stored": "Subject: Card Payment Reconciliation\n\nHello.\n\nApproval text messages were received twice, but only one item appears on the billing statement. I am not requesting a payment cancellation; please only explain why this discrepancy occurred.\n\nThank you.\n회계팀",
+      "raw": "Subject: Card Payment Reconciliation\n\nHello.\n\nApproval text messages were received twice, but only one item appears on the billing statement. I am not requesting a payment cancellation; please only explain why this discrepancy occurred.\n\nThank you.\nAccounting Team",
+      "elapsed": 9.457,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "2b6368929df910e32daafcff127b9f85e02fe71872446839dbca51747accdfab",
+      "start": 1794279037.4608867,
+      "end": 1794279046.4495137
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "8c84ac19152005c7c4f069c6e8d41988331f656010ec73cd4da09ebf15bf5660",
+      "instruction_sha256": "d2b0c653d42ea48f356be5e00493c9746d77c57e30d412281bf1df545b8fd1f2",
+      "stored": "Subject: Card Payment Reconciliation\n\nHello.\n\nThe approval text messages arrived twice, but only one transaction appears on the statement. I am not requesting a payment cancellation; please only explain why this discrepancy occurred.\n\nThank you.\n회계팀",
+      "raw": "Subject: Card Payment Reconciliation\n\nHello.\n\nThe approval text messages arrived twice, but only one transaction appears on the statement. I am not requesting a payment cancellation; please only explain why this discrepancy occurred.\n\nThank you.\nAccounting Team",
+      "elapsed": 18.132,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "f4ad357766571443e727575efa08445e99a6a406e9e19d44794b9a4d846b6288",
+      "start": 1794279283.5495305,
+      "end": 1794279301.0782669
+    }
+  },
+  "U08": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "a4df75f15728a3df4079a2e206756071db05a38fb0ce406718d5fb0da9124f4d",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line of the attached count.csv is the reserved quantity, not the actual physical quantity. Please do not modify the file; first confirm whether that quantity was included in today's arrival.\n\nThank you,\n수민",
+      "raw": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line of the attached count.csv is the reserved quantity, not the actual physical quantity. Please do not modify the file; first confirm whether that quantity was included in today's arrival.\n\nThank you,\nSumin",
+      "elapsed": 13.865,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "29072316478d0ff96a368ba0e8eee0146a4c415bec0968153cfadbc8dce881c5",
+      "start": 1794278212.6060789,
+      "end": 1794278225.979165
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "a4df75f15728a3df4079a2e206756071db05a38fb0ce406718d5fb0da9124f4d",
+      "instruction_sha256": "fc0e830b9caf2dfa7e84049930dc48aa58c20a71f3adc963e8387e45688c513e",
+      "stored": "Subject: Parts Intake Record\n\nHello,\n\nThe second line of the attached count.csv reflects the reserved quantity, not the actual physical quantity. Please do not modify the file; instead, first confirm whether that quantity is included in today's arrivals.\n\nThank you,\n수민",
+      "raw": "Subject: Parts Intake Record\n\nHello,\n\nThe second line of the attached count.csv reflects the reserved quantity, not the actual physical quantity. Please do not modify the file; instead, first confirm whether that quantity is included in today's arrivals.\n\nThank you,\nSumin",
+      "elapsed": 18.68,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "8ec588184cc48cab736bd137c35633fff1bf338be4cbaa9b86acc0fd52db5344",
+      "start": 1794278483.145144,
+      "end": 1794278501.2220867
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "a4df75f15728a3df4079a2e206756071db05a38fb0ce406718d5fb0da9124f4d",
+      "instruction_sha256": "65b4664c9c20bf192abf7f6050f4b5b3b395472dd273ac98e6bab9e4bdd148fd",
+      "stored": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line in the attached count.csv is a reserved quantity, not an actual quantity. Please do not modify the file. First, please confirm whether that quantity is included in today's arrivals.\n\nThank you.\n수민",
+      "raw": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line in the attached count.csv is a reserved quantity, not an actual quantity. Please do not modify the file. First, please confirm whether that quantity is included in today's arrivals.\n\nThank you.\n\nSumin",
+      "elapsed": 17.457,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "0ca37c2adf9d69ce7da38b90ab073234716bb0f846cec409ca1dc8763feee87d",
+      "start": 1794278799.3145041,
+      "end": 1794278816.0193408
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "a4df75f15728a3df4079a2e206756071db05a38fb0ce406718d5fb0da9124f4d",
+      "instruction_sha256": "5827bf2a7f4efb936c9fe129bd0c5950da1588ac9807f35eda3776c2ffe61b6e",
+      "stored": "Subject: Part Receipt Record\n\nHello,\n\nThe second line of the attached count.csv reflects the reserved quantity, not the actual physical quantity. Please do not edit the file; first confirm whether that quantity is included in today's arrivals.\n\nThank you.\n수민",
+      "raw": "Subject: Part Receipt Record\n\nHello,\n\nThe second line of the attached count.csv reflects the reserved quantity, not the actual physical quantity. Please do not edit the file; first confirm whether that quantity is included in today's arrivals.\n\nThank you.\n\nSumin",
+      "elapsed": 10.343,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "500a42b4ff40bce650956a664b24543eabc9149bbe9e312bcc46f5fde89b7770",
+      "start": 1794279049.9801571,
+      "end": 1794279059.8203635
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "a4df75f15728a3df4079a2e206756071db05a38fb0ce406718d5fb0da9124f4d",
+      "instruction_sha256": "d682305b01fe2d1886ec38ba46e864e316ff0c1c11cae1b21df7139623e25a05",
+      "stored": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line of the attached count.csv is not the physical quantity but the reserved quantity. Please do not modify the file; first confirm whether that quantity is included in today's delivery.\n\nThank you.\n수민",
+      "raw": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line of the attached count.csv is not the physical quantity but the reserved quantity. Please do not modify the file; first confirm whether that quantity is included in today's delivery.\n\nThank you.\nSumin",
+      "elapsed": 16.857,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "fa9a0350f6ca8b65018524b238c94bb5731539d6367554fea476bcd829ba5b35",
+      "start": 1794279304.6275666,
+      "end": 1794279320.9615529
+    }
+  },
+  "E2": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "aeae57e5a8456438f3769854775e78855ecfb62db95050b162618dfecd7deff3",
+      "instruction_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+      "stored": "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina 님,\n\n두 예외 요청 중 어느 쪽도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으나 두 번째 요청은 접수하지 않았습니다. 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다.\nDara",
+      "raw": "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina 님,\n\n두 예외 요청 중 어느 쪽도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으나 두 번째 요청은 접수하지 않았습니다. 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다.\nDara",
+      "elapsed": 8.216,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "843cd1ff814cfa6f53cebde008d2d306eeb5e13a6951073c224024f4fb9e5cad",
+      "start": 1794278229.420414,
+      "end": 1794278237.1434672
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "aeae57e5a8456438f3769854775e78855ecfb62db95050b162618dfecd7deff3",
+      "instruction_sha256": "70b923f4a49828d85a8319f301b7a3bf567cfa41222e1b2d27347d4247de70c9",
+      "stored": "제목: 테스트 벤치 요청 두 건\n\n니나 님,\n\n예외 요청 두 건 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토했으며, 두 번째 요청은 접수하지 않았습니다. 테스트 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다,\nDara",
+      "raw": "제목: 테스트 벤치 요청 두 건\n\n니나 님,\n\n예외 요청 두 건 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토했으며, 두 번째 요청은 접수하지 않았습니다. 테스트 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다,\nDara",
+      "elapsed": 66.16,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "17d880c9e86079659a6b3e7e4b720758dad2a70f9c466d271138359d2ef41495",
+      "start": 1794278504.716726,
+      "end": 1794278570.4145567
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "aeae57e5a8456438f3769854775e78855ecfb62db95050b162618dfecd7deff3",
+      "instruction_sha256": "69ee8010eb1c592964629f905daa60e624ffdf66b1ea88e5a4e4ea44efffa0f6",
+      "stored": "",
+      "raw": "제목: 테스트 벤치에 대한 두 건의 요청\n\n니나 님,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토했으며 두 번째 요청은 개시하지 않았습니다. 테스트 벤치를 금요일까지 예약 상태로 유지해 주십시오.\n\n감사 인사,\n다라",
+      "elapsed": 25.563,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "failed",
+      "error": "원문에 있는 발신자 서명을 확인할 수 없습니다.",
+      "server_id_sha256": "4f5992fefb7301ea02f086f7fd3d54cb9f5c8d0c689459b6cbbbcb9abb2c33d4",
+      "start": 1794278822.2332141,
+      "end": 1794278846.81876
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "aeae57e5a8456438f3769854775e78855ecfb62db95050b162618dfecd7deff3",
+      "instruction_sha256": "b64a225c90a11cfde3ddc94ce45d753fd915686e848597d19cbeb6d76e224166",
+      "stored": "제목: 테스트 벤치 관련 요청 2건\n\nNina님, 안녕하세요.\n\n두 예외 요청 중 어느 쪽도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토했고, 두 번째 요청은 착수하지 않았습니다. 벤치는 금요일까지 예약 상태로 유지해 주세요.\n\n감사합니다,\nDara",
+      "raw": "제목: 테스트 벤치 관련 요청 2건\n\nNina님, 안녕하세요.\n\n두 예외 요청 중 어느 쪽도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토했고, 두 번째 요청은 착수하지 않았습니다. 벤치는 금요일까지 예약 상태로 유지해 주세요.\n\n감사합니다,\nDara",
+      "elapsed": 32.91,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "d09a9f358ace9ae95cf105d9c9bafc0e7a965b3002203c6304b6259fdc79c306",
+      "start": 1794279063.1728892,
+      "end": 1794279095.6601408
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "aeae57e5a8456438f3769854775e78855ecfb62db95050b162618dfecd7deff3",
+      "instruction_sha256": "7ddef0b5e3aefd845e6b4c7b9251cb8fb9cd00111fc5197765c2a459f9e2d55f",
+      "stored": "제목: 테스트 벤치에 대한 요청 두 건\n\n니나 님,\n\n두 예외 요청 중 어느 것도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으며, 두 번째 요청은 개시하지 않았습니다. 테스트 벤치는 금요일까지 예약 상태로 유지해 주십시오.\n\n감사합니다,\n다라",
+      "raw": "제목: 테스트 벤치에 대한 요청 두 건\n\n니나 님,\n\n두 예외 요청 중 어느 것도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으며, 두 번째 요청은 개시하지 않았습니다. 테스트 벤치는 금요일까지 예약 상태로 유지해 주십시오.\n\n감사합니다,\n다라",
+      "elapsed": 45.005,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "7f504292f5f9ece6ffe7039fad3e7a1ba5c3d0a311dcbda3512a7f894f570ba1",
+      "start": 1794279324.3920906,
+      "end": 1794279368.9025676
+    }
+  },
+  "D01": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c7780e7568fbaffdf51d4b5be099d358337e75a57d797e54a71a86607ee53a25",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "Robin 님,\n\n안전 팀은 초안 체크리스트를 확인했습니다. 크루는 아직 절차를 시도하지 않았습니다. 다음 주 안건에 시범 절차를 포함해 주시고, 의사록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다.\nAvery",
+      "raw": "제목: 드래프트 체크리스트 확인 및 다음 주 시범 절차 안건 요청\n\nRobin 님,\n\n안전 팀은 초안 체크리스트를 확인했습니다. 크루는 아직 절차를 시도하지 않았습니다. 다음 주 안건에 시범 절차를 포함해 주시고, 의사록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다.\nAvery",
+      "elapsed": 16.245,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "02792af3abf26d8267dcb63bdfdca8fa54b88289983a8086e694e400db76476d",
+      "start": 1794278240.5836208,
+      "end": 1794278256.3467894
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c7780e7568fbaffdf51d4b5be099d358337e75a57d797e54a71a86607ee53a25",
+      "instruction_sha256": "bd14190a710e16723d82d318fbf02e14b864a936c521f24d00c3bdb1a218d96b",
+      "stored": "",
+      "raw": "로빈 님,\n\n안전팀이 초안 체크리스트를 확인했습니다. 크루는 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 절차를 올려 주시고, 회의록에는 오늘 논의된 사항만 기록해 주세요.\n\n정중히 인사드립니다.\n에이버리",
+      "elapsed": 82.7,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "failed",
+      "error": "원문에 있는 발신자 서명을 확인할 수 없습니다.",
+      "server_id_sha256": "7d1ca8e008813142e6f9c23ec97f7aa1932154ab422ea8c91f7d87c9760c9da5",
+      "start": 1794278573.8980386,
+      "end": 1794278656.116101
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c7780e7568fbaffdf51d4b5be099d358337e75a57d797e54a71a86607ee53a25",
+      "instruction_sha256": "fdccbd3c215b99f561a7ecd42b3ea51a687fdb4b19738b479c21fd2ce468e265",
+      "stored": "로빈 님,\n\n안전 팀은 체크리스트 초안을 확인했습니다. 현장 팀은 해당 절차를 시범 실행하지 않았습니다. 절차 시범 실행을 다음 주 안건으로 등록해 주시고, 회의록에는 오늘 논의 내용만 기록해 주세요.\n\n감사합니다.\n에이브리",
+      "raw": "제목: 안전 체크리스트 초안 확인 및 다음 주 절차 시범 실행 안건 요청\n\n로빈 님,\n\n안전 팀은 체크리스트 초안을 확인했습니다. 현장 팀은 해당 절차를 시범 실행하지 않았습니다. 절차 시범 실행을 다음 주 안건으로 등록해 주시고, 회의록에는 오늘 논의 내용만 기록해 주세요.\n\n감사합니다.\n에이브리",
+      "elapsed": 46.104,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "9e3900877a363d8fd0479f643d746f5013fc7831a11710b03999bf438fd8914f",
+      "start": 1794278852.6039598,
+      "end": 1794278898.0171564
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c7780e7568fbaffdf51d4b5be099d358337e75a57d797e54a71a86607ee53a25",
+      "instruction_sha256": "0b1c36d67e7c833721ca9c99aae05414aa733d13e411d929849bd62b479b4e15",
+      "stored": "로빈 님,\n\n안전 팀은 초안 체크리스트를 열람했습니다. 크루는 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다.  \n에이버리",
+      "raw": "제목: 안전 팀의 초안 체크리스트 열람 및 다음 주 안건 요청\n\n로빈 님,\n\n안전 팀은 초안 체크리스트를 열람했습니다. 크루는 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다.  \n에이버리",
+      "elapsed": 73.696,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "90bf8a1a8d38835401c5a68e320d9ffcb0e2250f0379944659200a3e3411aa66",
+      "start": 1794279096.7051604,
+      "end": 1794279169.8721108
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "c7780e7568fbaffdf51d4b5be099d358337e75a57d797e54a71a86607ee53a25",
+      "instruction_sha256": "fe4f0b1789af129b843243e2c6dfc9d3f638ad4906be2db4cf7a25c488c74c88",
+      "stored": "Robin 님,\n\n안전팀은 체크리스트 초안을 확인했습니다. 현장 인력은 절차를 시범 적용해 보지 않았습니다. 다음 주 회의 안건으로 절차 시범 적용을 올려 주시고, 회의록에는 오늘 논의된 사항만 기록해 주십시오.\n\n감사합니다.\nAvery 드림",
+      "raw": "제목: 체크리스트 초안 및 절차 시범 적용 안건 요청\n\nRobin 님,\n\n안전팀은 체크리스트 초안을 확인했습니다. 현장 인력은 절차를 시범 적용해 보지 않았습니다. 다음 주 회의 안건으로 절차 시범 적용을 올려 주시고, 회의록에는 오늘 논의된 사항만 기록해 주십시오.\n\n감사합니다.\nAvery 드림",
+      "elapsed": 28.447,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "2c0febaca8cefb8cfab47872389981fb1a2153b2eef8f4903613b118c9542cca",
+      "start": 1794279372.309092,
+      "end": 1794279400.1820633
+    }
+  },
+  "D05": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "aa98e7e948eb96ffa1100d5bc7fb8bb336d17bac22f2766127cd5473a43230f2",
+      "instruction_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+      "stored": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants may submit their applications directly at the information desk by noon tomorrow. When receiving documents, the staff member in charge should issue only a receipt. On-site approval was not requested.\n\nThank you.\n운영팀",
+      "raw": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants may submit their applications directly at the information desk by noon tomorrow. When receiving documents, the staff member in charge should issue only a receipt. On-site approval was not requested.\n\nThank you.\nOperations Team",
+      "elapsed": 57.766,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "df3fac5159a44188befe641e755749e4a619c11e767a359da727c689d8e523d0",
+      "start": 1794278259.7844265,
+      "end": 1794278317.063863
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "aa98e7e948eb96ffa1100d5bc7fb8bb336d17bac22f2766127cd5473a43230f2",
+      "instruction_sha256": "0505b08b3ba2d68b8520439453828e8c01f0a8a5c6021260aafa2da7adc2a729",
+      "stored": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt acknowledgment. On-site approval has not been requested.\n\nThank you.\n운영팀",
+      "raw": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt acknowledgment. On-site approval has not been requested.\n\nThank you.\nOperations Team",
+      "elapsed": 25.396,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "523b2fe9692876e2a27a19f316f6e386345e597364ebf38ee1faed45af549cca",
+      "start": 1794278659.6251678,
+      "end": 1794278684.5133433
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "aa98e7e948eb96ffa1100d5bc7fb8bb336d17bac22f2766127cd5473a43230f2",
+      "instruction_sha256": "039c3023488825ffdefdf01e64597a6df17c28b64d90af9b36b323386e674cad",
+      "stored": "Subject: On-site Application Form Submission\n\nHello.\n\nApplicants can directly submit their application forms at the information desk by noon tomorrow. When the staff member in charge receives the documents, please issue only a receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+      "raw": "Subject: On-site Application Form Submission\n\nHello.\n\nApplicants can directly submit their application forms at the information desk by noon tomorrow. When the staff member in charge receives the documents, please issue only a receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+      "elapsed": 64.365,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "9b05139632c1ca1a6216b64616c73579dbd9f898df36aa0d2d31772313c55989",
+      "start": 1794278901.4671195,
+      "end": 1794278965.3267288
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "aa98e7e948eb96ffa1100d5bc7fb8bb336d17bac22f2766127cd5473a43230f2",
+      "instruction_sha256": "0e32775d4237b9b6b465a8c84d7c38b844f94ab47d9d575bda7e3eed60ecdf12",
+      "stored": "Subject: On-Site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information desk by noon tomorrow. When the person in charge receives the documents, please issue only an intake receipt. On-site approval was not requested.\n\nThank you.\n운영팀",
+      "raw": "Subject: On-Site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information desk by noon tomorrow. When the person in charge receives the documents, please issue only an intake receipt. On-site approval was not requested.\n\nThank you.\nOperations Team",
+      "elapsed": 13.757,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "d005deac8fa0f9c6af589d4b70b0845b02a9b6d30ec4e2fb0e3dfd2bda9ec906",
+      "start": 1794279173.1694863,
+      "end": 1794279186.5008125
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "aa98e7e948eb96ffa1100d5bc7fb8bb336d17bac22f2766127cd5473a43230f2",
+      "instruction_sha256": "dc4bed434686594b2c5f17fa78aec735d667848024dcfc738e8f057f24f1fdde",
+      "stored": "Subject: On-Site Application Submission\n\nHello,\n\nApplicants may submit their applications directly at the information desk by noon tomorrow. Once the person in charge has received the documents, please issue only an acknowledgment of receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+      "raw": "Subject: On-Site Application Submission\n\nHello,\n\nApplicants may submit their applications directly at the information desk by noon tomorrow. Once the person in charge has received the documents, please issue only an acknowledgment of receipt. On-site approval has not been requested.\n\nThank you.\nOperations Team",
+      "elapsed": 16.863,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "792f7b4c350cb26f39917d75eec3778e342a6e748e11490e065c5a3122d0d1a3",
+      "start": 1794279403.6852925,
+      "end": 1794279420.001403
+    }
+  },
+  "P-en-ko": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "da864bb7caddc7ae935c3fda400e16f2645e584210cff930c682356ac959cc59",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "안녕하세요, 에린 님,\n\n작업장에 임차 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납일을 문의해 주십시오.\n\n감사합니다.\n제이미",
+      "raw": "제목: 작업장 임차 예비 펌프 반납일 문의\n\n안녕하세요, 에린 님,\n\n작업장에 임차 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납일을 문의해 주십시오.\n\n감사합니다.\n제이미",
+      "elapsed": 55.871,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "019c0919be95243bdc07e9a880a20adba2a51cdc93d4ff32345d47d6f61a37ee",
+      "start": 1794278320.5271504,
+      "end": 1794278375.83949
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "da864bb7caddc7ae935c3fda400e16f2645e584210cff930c682356ac959cc59",
+      "instruction_sha256": "bd14190a710e16723d82d318fbf02e14b864a936c521f24d00c3bdb1a218d96b",
+      "stored": "Erin 님, 안녕하십니까.\n\n작업장에는 공급업체 소유의 예비 펌프가 대여 상태로 있습니다. 운송을 준비하기 전에 반납일을 문의해 주십시오.\n\n감사합니다.\nJamie",
+      "raw": "제목: 공급업체 소유 예비 펌프 반납일 문의\n\nErin 님, 안녕하십니까.\n\n작업장에는 공급업체 소유의 예비 펌프가 대여 상태로 있습니다. 운송을 준비하기 전에 반납일을 문의해 주십시오.\n\n감사합니다.\nJamie",
+      "elapsed": 47.987,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "bc8318a5eba392cf24281ad52a46ac72339569e6fd9bd41e4dda1a1a8725ce06",
+      "start": 1794278687.9143288,
+      "end": 1794278735.2751887
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "da864bb7caddc7ae935c3fda400e16f2645e584210cff930c682356ac959cc59",
+      "instruction_sha256": "fdccbd3c215b99f561a7ecd42b3ea51a687fdb4b19738b479c21fd2ce468e265",
+      "stored": "Erin 님, 안녕하세요.\n\n작업장에 예비 펌프가 대여 중입니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\nJamie",
+      "raw": "제목: 예비 펌프 반납 일정 문의\n\nErin 님, 안녕하세요.\n\n작업장에 예비 펌프가 대여 중입니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\nJamie",
+      "elapsed": 24.248,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "6739aa8c80c596b502c6311771bff09d3606b90b29ec7e23a6414417c028cc48",
+      "start": 1794278968.7276332,
+      "end": 1794278992.4916697
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "da864bb7caddc7ae935c3fda400e16f2645e584210cff930c682356ac959cc59",
+      "instruction_sha256": "0b1c36d67e7c833721ca9c99aae05414aa733d13e411d929849bd62b479b4e15",
+      "stored": "에린 님,\n\n워크숍에 임대 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\n제이미",
+      "raw": "에린 님,\n\n워크숍에 임대 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\n제이미",
+      "elapsed": 39.691,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "97eb034bda6dedc02e442249f2df7ae6158f2cd9d484dba6822948892351ab26",
+      "start": 1794279191.0651953,
+      "end": 1794279230.2806153
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "da864bb7caddc7ae935c3fda400e16f2645e584210cff930c682356ac959cc59",
+      "instruction_sha256": "fe4f0b1789af129b843243e2c6dfc9d3f638ad4906be2db4cf7a25c488c74c88",
+      "stored": "안녕하세요, Erin 님,\n\n작업장에 임대 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\nJamie",
+      "raw": "제목: 예비 펌프 반납 일정 문의\n\n안녕하세요, Erin 님,\n\n작업장에 임대 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\nJamie",
+      "elapsed": 44.774,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "52b746fd0fd280a66b8d5203cb635d73aba28bbef501a694352b0273ed19e993",
+      "start": 1794279423.4167728,
+      "end": 1794279467.7147777
+    }
+  },
+  "P-ko-en": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "409635e1f3175a90e1b5190a9fbcbe00c17954434f9742e7dce763426ae5127e",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "**Subject: Delivery Specification Check**\n\nHello.\n\nI have received the new specification, but I have not yet cross-checked the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "raw": "**Subject: Delivery Specification Check**\n\nHello.\n\nI have received the new specification, but I have not yet cross-checked the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "elapsed": 19.022,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "5ea8517afbb0743ab6f10a5eac4ae6cc7b68dde1eb3bac9cac0dc835245f6a5d",
+      "start": 1794278379.3434863,
+      "end": 1794278397.7987783
+    },
+    "a": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "409635e1f3175a90e1b5190a9fbcbe00c17954434f9742e7dce763426ae5127e",
+      "instruction_sha256": "fc0e830b9caf2dfa7e84049930dc48aa58c20a71f3adc963e8387e45688c513e",
+      "stored": "Subject: Review of Delivery Specification\n\nHello,\n\nWe have received the new specification, but we have not yet reconciled the quantities. We will let you know if there are any discrepancies. Please do not reissue at this time.\n\nThank you.\n정하린",
+      "raw": "Subject: Review of Delivery Specification\n\nHello,\n\nWe have received the new specification, but we have not yet reconciled the quantities. We will let you know if there are any discrepancies. Please do not reissue at this time.\n\nThank you.\nJeong Harin",
+      "elapsed": 17.414,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "656b8ddb2a9fdaf69a7d31d6faa463fadb8f9c50fc44a198f6907534cc32f494",
+      "start": 1794278738.9375372,
+      "end": 1794278755.7720234
+    },
+    "b": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "409635e1f3175a90e1b5190a9fbcbe00c17954434f9742e7dce763426ae5127e",
+      "instruction_sha256": "65b4664c9c20bf192abf7f6050f4b5b3b395472dd273ac98e6bab9e4bdd148fd",
+      "stored": "**Subject:** Delivery Specification Confirmation\n\nHello,\n\nI have received the new specification, but I have not yet reconciled the quantities. If there are any discrepancies, I will let you know. Please do not reissue at this time.\n\nBest regards,\n정하린",
+      "raw": "**Subject:** Delivery Specification Confirmation\n\nHello,\n\nI have received the new specification, but I have not yet reconciled the quantities. If there are any discrepancies, I will let you know. Please do not reissue at this time.\n\nBest regards,\n정하린",
+      "elapsed": 16.261,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "5796662827e6fba520ed02eec16c3494f00da08123fe55e1ccd797f781444b1e",
+      "start": 1794278995.9627395,
+      "end": 1794279011.7395344
+    },
+    "c": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "409635e1f3175a90e1b5190a9fbcbe00c17954434f9742e7dce763426ae5127e",
+      "instruction_sha256": "5827bf2a7f4efb936c9fe129bd0c5950da1588ac9807f35eda3776c2ffe61b6e",
+      "stored": "Subject: Confirmation of Delivery Specification\n\nHi,\n\nI have received the new specification, but I have not yet reconciled the quantities. I will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "raw": "Subject: Confirmation of Delivery Specification\n\nHi,\n\nI have received the new specification, but I have not yet reconciled the quantities. I will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "elapsed": 15.921,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "10ea0ac59d00780dcaf38d6c10eafcc5410679b7eaeb0129aa1737b43988883d",
+      "start": 1794279233.7363203,
+      "end": 1794279249.216074
+    },
+    "d": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "409635e1f3175a90e1b5190a9fbcbe00c17954434f9742e7dce763426ae5127e",
+      "instruction_sha256": "d682305b01fe2d1886ec38ba46e864e316ff0c1c11cae1b21df7139623e25a05",
+      "stored": "Subject: Confirming the Delivery Specification\n\nHello,\n\nI have received the new specification, but I have not yet cross-checked the quantities. I will notify you if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "raw": "Subject: Confirming the Delivery Specification\n\nHello,\n\nI have received the new specification, but I have not yet cross-checked the quantities. I will notify you if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "elapsed": 15.939,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "53382d958cd7e26bc47c521f8a0bd761ee39fc0b4372d03702a17e3132482671",
+      "start": 1794279471.3535302,
+      "end": 1794279486.7662685
+    }
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "id": "m1",
+    "source": "Hello Erin,\n\nThe workshop has a spare pump on loan. It belongs to the supplier. Please ask about the return date before arranging transport.\n\nRegards,\nJamie",
+    "target": "ko",
+    "options": [
+      "안녕하세요, 에린 님,\n\n작업장에 임차 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납일을 문의해 주십시오.\n\n감사합니다.\n제이미",
+      "에린 님, 안녕하세요.\n\n작업장에서는 예비 펌프를 대여받았습니다. 이 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\n제이미",
+      "안녕하세요, Erin,\n\n작업장에는 예비 펌프가 빌려져 있습니다. 이 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일자를 문의해 주세요.\n\n감사합니다,\nJamie",
+      "에린 님, 안녕하세요.\n\n작업장이 공급업체로부터 예비 펌프를 빌려 두고 있습니다. 이 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 예정일을 문의해 주세요.\n\n감사합니다.\n제이미",
+      "에린 님,\n\n워크숍은 공급업체에게서 빌려 온 예비 펌프를 하나 갖고 있습니다. 이 펌프는 공급업체가 갖고 있습니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다,\n제이미"
+    ]
+  },
+  {
+    "id": "m2",
+    "source": "제목: 납품 명세서 확인\n\n안녕하세요.\n\n새 명세서는 받았지만 수량은 아직 대조하지 않았습니다. 차이가 있으면 알려 드리겠습니다. 지금은 재발행하지 마세요.\n\n감사합니다.\n정하린 드림",
+    "target": "en",
+    "options": [
+      "Subject: Delivery Note Confirmation\n\nHello,\n\nI have received the new delivery note, but I have not yet cross-checked the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n\nRegards,\n정하린",
+      "Subject: Delivery Note Confirmation\n\nHello,\n\nI have received the new delivery note, but I have not yet reconciled the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "**Subject:** Confirming the Delivery Statement\n\nHello,\n\nWe have received the new statement, but we have not yet cross-checked the quantities. We will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "**Subject:** Delivery Note Confirmation\n\nHello,\n\nI have received the new delivery note, but I have not yet reconciled the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "**Subject: Delivery Specification Check**\n\nHello.\n\nI have received the new specification, but I have not yet cross-checked the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린"
+    ]
+  }
+]

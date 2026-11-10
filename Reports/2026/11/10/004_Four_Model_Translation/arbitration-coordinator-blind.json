@@ -1,0 +1,46 @@
+{
+  "m1": {
+    "grades": "BA",
+    "best": [
+      2
+    ],
+    "reason": "Option 2 carries 저희 across the missing subject of 반납하지 않았습니다, obscuring who still holds the camera."
+  },
+  "m2": {
+    "grades": "AA",
+    "best": [
+      2
+    ],
+    "reason": "Time, personal check-in and notice-only request survive. Option 1 avoids inventing a singular sender for a team email."
+  },
+  "m3": {
+    "grades": "BB",
+    "best": [
+      1
+    ],
+    "reason": "Both can instruct storage inside the box. Source locates the enclosed note to retain; sheet is more specific in 2."
+  },
+  "m4": {
+    "grades": "AA",
+    "best": [
+      1,
+      2
+    ],
+    "reason": "Both distinguish the return form and the only signed delivery receipt."
+  },
+  "m5": {
+    "grades": "AA",
+    "best": [
+      1,
+      2
+    ],
+    "reason": "Bank financing remains tentative, transfer not authorized, draft schedule only."
+  },
+  "m6": {
+    "grades": "BA",
+    "best": [
+      2
+    ],
+    "reason": "신용 요청 reads as a creditworthiness request in a refund email. Both bodies preserve neither and the conditional payment."
+  }
+}

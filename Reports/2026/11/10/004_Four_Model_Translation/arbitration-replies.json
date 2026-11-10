@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "arbitration",
+    "thread": "149102cc-a435-4d42-8fdc-48efa5cc2fbf",
+    "started": "2026-11-10T03:38:20.882467+00:00",
+    "seconds": 228.17,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B A | 2 | Option 1 omits they/them, obscuring who does what.\nm2 | A B | 1 | Option 2 adds subject markdown and vague passive.\nm3 | A A | 1, 2 | Both ready; style and preserved signature are harmless.\nm4 | A B | 1 | Option 2 passive obscures who must confirm damage.\nm5 | A A | 1, 2 | Both are accurate with only harmless style differences.\nm6 | B A | 2 | Option 1 mistranslates credit subject and drops closing.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "68acce9a9a0543d57094d80107ed153cfc4e358180ae0c23ef50cd5939ede67f"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "arbitration",
+    "thread": "6b3a30f8-f4b4-456f-94ed-9b6301e2b2fa",
+    "started": "2026-11-10T03:38:20.882467+00:00",
+    "seconds": 349.23,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A B | 1 | Option 1 phrases the discount instruction more naturally.\nm2 | A B | 1 | Option 2 obscures who is requesting the notice.\nm3 | A A | 1 | Option 1 uses standard greeting comma punctuation.\nm4 | A A | 1 | Option 1 uses standard capitalization and active voice.\nm5 | A A | 1, 2 | Both options are accurate and ready to send.\nm6 | C A | 2 | Option 1 mistranslates credit request as loan request.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "68acce9a9a0543d57094d80107ed153cfc4e358180ae0c23ef50cd5939ede67f"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "arbitration",
+    "thread": "531491fc-bea9-42fc-b304-20564ce45831",
+    "started": "2026-11-10T03:38:20.883466+00:00",
+    "seconds": 46.89,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "I skipped the plan artifact because you asked me not to use tools.\n\nm1 | B, A | 2 | Option 1 \"아직 반납하지 않았습니다\" reads as \"we haven't returned\"\n\nm2 | A, A | 1 | Both accurate; option 2 has stray \"**\" markdown\n\nm3 | B, B | 1, 2 | \"keep … inside the box\" suggests leaving it there\n\nm4 | A, A | 1 | Both accurate; option 1 keeps \"we\" as checker\n\nm5 | A, A | 1, 2 | Both say only the draft schedule; transfer unauthorized\n\nm6 | B, A | 2 | Option 1 subject \"신용 요청\" means loan/creditworthiness, not refund credit\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "68acce9a9a0543d57094d80107ed153cfc4e358180ae0c23ef50cd5939ede67f"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "arbitration",
+    "thread": "01a1c389-10c4-7971-a824-cc9c4037027c",
+    "started": "2026-11-10T03:38:20.882467+00:00",
+    "seconds": 203.25,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B, A | 2 | 1’s omitted subject can make the lender seem responsible.  \nm2 | A, A | 1, 2 | Both preserve 14:00 KST check-in and the notice-only request.  \nm3 | B, B | 1, 2 | Both can imply the note must stay boxed.  \nm4 | A, A | 1, 2 | Both preserve three boxes, receipt-only signature, and unconfirmed damage.  \nm5 | A, A | 1, 2 | Both preserve the unapproved transfer and draft-only request.  \nm6 | C, A | 2 | 신용 suggests borrowing, while 크레딧 fits the refund context."
+    ],
+    "errors": [],
+    "prompt_sha256": "68acce9a9a0543d57094d80107ed153cfc4e358180ae0c23ef50cd5939ede67f"
+  }
+}

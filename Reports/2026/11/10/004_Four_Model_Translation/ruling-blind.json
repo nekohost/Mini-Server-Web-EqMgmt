@@ -1,0 +1,50 @@
+[
+  {
+    "id": "m1",
+    "source": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+    "target": "ko",
+    "options": [
+      "제목: 테스트 벤치 관련 요청 2건\n\nNina님, 안녕하세요.\n\n두 예외 요청 중 어느 쪽도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토했고, 두 번째 요청은 착수하지 않았습니다. 벤치는 금요일까지 예약 상태로 유지해 주세요.\n\n감사합니다,\nDara",
+      "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina 님,\n\n두 예외 요청 중 어느 쪽도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으나 두 번째 요청은 접수하지 않았습니다. 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다.\nDara",
+      "제목: 테스트 벤치에 대한 요청 두 건\n\n니나 님,\n\n두 예외 요청 중 어느 것도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으며, 두 번째 요청은 개시하지 않았습니다. 테스트 벤치는 금요일까지 예약 상태로 유지해 주십시오.\n\n감사합니다,\n다라"
+    ]
+  },
+  {
+    "id": "m2",
+    "source": "제목: 현장 지원서 접수\n\n안녕하세요.\n\n지원자는 내일 정오까지 안내 창구에 지원서를 직접 접수할 수 있습니다. 담당자는 서류를 받으면 접수증만 발급해 주세요. 현장 승인은 요청하지 않았습니다.\n\n감사합니다.\n운영팀",
+    "target": "en",
+    "options": [
+      "Subject: On-Site Application Submission\n\nHello,\n\nApplicants may submit their applications directly at the information desk by noon tomorrow. Once the person in charge has received the documents, please issue only an acknowledgment of receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+      "Subject: On-Site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information desk by noon tomorrow. When the person in charge receives the documents, please issue only an intake receipt. On-site approval was not requested.\n\nThank you.\n운영팀",
+      "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants may submit their applications directly at the information desk by noon tomorrow. When receiving documents, the staff member in charge should issue only a receipt. On-site approval was not requested.\n\nThank you.\n운영팀"
+    ]
+  },
+  {
+    "id": "m3",
+    "source": "Hello Erin,\n\nThe workshop has a spare pump on loan. It belongs to the supplier. Please ask about the return date before arranging transport.\n\nRegards,\nJamie",
+    "target": "ko",
+    "options": [
+      "안녕하세요, Erin 님,\n\n작업장에 임대 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\nJamie",
+      "안녕하세요, 에린 님,\n\n작업장에 임차 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납일을 문의해 주십시오.\n\n감사합니다.\n제이미",
+      "에린 님, 안녕하세요.\n\n작업장에서는 예비 펌프를 대여받았습니다. 이 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\n제이미",
+      "에린 님,\n\n워크숍은 공급업체에게서 빌려 온 예비 펌프를 하나 갖고 있습니다. 이 펌프는 공급업체가 갖고 있습니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다,\n제이미",
+      "에린 님,\n\n워크숍에 임대 중인 예비 펌프가 있습니다. 해당 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일정을 문의해 주세요.\n\n감사합니다.\n제이미",
+      "안녕하세요, Erin,\n\n작업장에는 예비 펌프가 빌려져 있습니다. 이 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 일자를 문의해 주세요.\n\n감사합니다,\nJamie",
+      "에린 님, 안녕하세요.\n\n작업장이 공급업체로부터 예비 펌프를 빌려 두고 있습니다. 이 펌프는 공급업체 소유입니다. 운송을 준비하기 전에 반납 예정일을 문의해 주세요.\n\n감사합니다.\n제이미"
+    ]
+  },
+  {
+    "id": "m4",
+    "source": "제목: 납품 명세서 확인\n\n안녕하세요.\n\n새 명세서는 받았지만 수량은 아직 대조하지 않았습니다. 차이가 있으면 알려 드리겠습니다. 지금은 재발행하지 마세요.\n\n감사합니다.\n정하린 드림",
+    "target": "en",
+    "options": [
+      "Subject: Delivery Note Confirmation\n\nHello,\n\nI have received the new delivery note, but I have not yet cross-checked the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n\nRegards,\n정하린",
+      "**Subject:** Confirming the Delivery Statement\n\nHello,\n\nWe have received the new statement, but we have not yet cross-checked the quantities. We will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "Subject: Confirming the Delivery Specification\n\nHello,\n\nI have received the new specification, but I have not yet cross-checked the quantities. I will notify you if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "**Subject:** Delivery Note Confirmation\n\nHello,\n\nI have received the new delivery note, but I have not yet reconciled the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "**Subject: Delivery Specification Check**\n\nHello.\n\nI have received the new specification, but I have not yet cross-checked the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "Subject: Delivery Note Confirmation\n\nHello,\n\nI have received the new delivery note, but I have not yet reconciled the quantities. If there are any discrepancies, I will let you know. Please do not reissue it for now.\n\nThank you.\n정하린",
+      "Subject: Confirmation of Delivery Specification\n\nHi,\n\nI have received the new specification, but I have not yet reconciled the quantities. I will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린"
+    ]
+  }
+]

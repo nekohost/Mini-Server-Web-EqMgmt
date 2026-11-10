@@ -1,0 +1,382 @@
+{
+  "T1": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "771b5ac44ab7d4a1e28388baa30d3460d7923bffe74d7195450f2fd9d16d94ad",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "Rosa 님,\n\n해당 미터기는 저희 소유입니다. 실험실에서는 목요일까지 무상으로 사용할 수 있습니다. 언제 회수할 수 있는지 문의해 주세요. 저희는 배송비 부담에 합의한 적이 없습니다.\n\n감사합니다,\n에밀",
+      "raw": "Rosa 님,\n\n해당 미터기는 저희 소유입니다. 실험실에서는 목요일까지 무상으로 사용할 수 있습니다. 언제 회수할 수 있는지 문의해 주세요. 저희는 배송비 부담에 합의한 적이 없습니다.\n\n감사합니다,\n에밀",
+      "elapsed": 12.193,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "8f44ae26ac68c287067fb2977968dbc3d855464b81a9a84a395e94fa2f5296b9",
+      "start": 1794279494.7372901,
+      "end": 1794279506.3983529
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "771b5ac44ab7d4a1e28388baa30d3460d7923bffe74d7195450f2fd9d16d94ad",
+      "instruction_sha256": "bd5858021aa32583f3a67fcb775e8d9488c713d0498b4c13c8035fd9852aeeac",
+      "stored": "로사 님,\n\n측정기는 저희 소유입니다. 실험실에서는 목요일까지 무료로 사용해도 됩니다. 언제 회수할 수 있는지 문의해 주십시오. 배송비 부담에는 합의하지 않았습니다.\n\n감사합니다.\n에밀 드림",
+      "raw": "제목: 측정기 사용 및 회수 문의\n\n로사 님,\n\n측정기는 저희 소유입니다. 실험실에서는 목요일까지 무료로 사용해도 됩니다. 언제 회수할 수 있는지 문의해 주십시오. 배송비 부담에는 합의하지 않았습니다.\n\n감사합니다.\n에밀 드림",
+      "elapsed": 69.372,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "a1bd32838a4c9e5560dc920174a5c40482301e560314ee6f2343c234ed7aac21",
+      "start": 1794280723.0656705,
+      "end": 1794280791.5653908
+    }
+  },
+  "T2": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6c88c9090b8eb4d1657386eb23e17076ee7b391a96b6c423693773db4dafacef",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Return Confirmation\n\nHello,\n\nThe return confirmation sent by the rental company lists three boxes. The delivery driver signed only the delivery receipt. We have not yet confirmed whether there is any damage.\n\nThank you.\n김소율",
+      "raw": "Subject: Return Confirmation\n\nHello,\n\nThe return confirmation sent by the rental company lists three boxes. The delivery driver signed only the delivery receipt. We have not yet confirmed whether there is any damage.\n\nThank you.\nKim So-yul",
+      "elapsed": 13.487,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "77bce5c1c9c02fb2b3bf9d83b5d9f7b000be399dc29110b0b80b04011c3c176e",
+      "start": 1794279509.9321647,
+      "end": 1794279522.8798275
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6c88c9090b8eb4d1657386eb23e17076ee7b391a96b6c423693773db4dafacef",
+      "instruction_sha256": "43d99b3a4df388c0c8aa89e5c5f80f619200a5a442007c19157e3a427046ccb8",
+      "stored": "Subject: Return Confirmation\n\nHello,\n\nThe Return Confirmation sent by the rental company lists three boxes. The delivery driver signed only the Acknowledgment of Receipt. Whether there is any damage has not yet been confirmed.\n\nThank you.\n김소율",
+      "raw": "Subject: Return Confirmation\n\nHello,\n\nThe Return Confirmation sent by the rental company lists three boxes. The delivery driver signed only the Acknowledgment of Receipt. Whether there is any damage has not yet been confirmed.\n\nThank you.\nKim So-yul",
+      "elapsed": 24.29,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "30589fd4eb4cc5d79d267a79c9dc8933896de62429a900625e59518e9b2871da",
+      "start": 1794280797.3424459,
+      "end": 1794280820.729216
+    }
+  },
+  "T3": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "f69a4e32c2439d76103f4d353d548d46e0bdda61453304eb55187d5216fce394",
+      "instruction_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+      "stored": "Subject: 크레딧 요청\n\nMax 님,\n\n은행은 두 요청 모두의 접수를 확인했으나 환불은 어느 한 건도 승인하지 않았습니다. 정오까지 한 건만 승인되면 해당 결제만 진행하세요. 나머지 한 건은 보류 상태로 두세요.\n\n감사합니다,\nJo",
+      "raw": "Subject: 크레딧 요청\n\nMax 님,\n\n은행은 두 요청 모두의 접수를 확인했으나 환불은 어느 한 건도 승인하지 않았습니다. 정오까지 한 건만 승인되면 해당 결제만 진행하세요. 나머지 한 건은 보류 상태로 두세요.\n\n감사합니다,\nJo",
+      "elapsed": 25.704,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "4d659146f1b48f1d15adc2c8e333dfc90cfc15f6daf3fd276c695d7b15e6ecfe",
+      "start": 1794279526.3965435,
+      "end": 1794279551.598607
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "f69a4e32c2439d76103f4d353d548d46e0bdda61453304eb55187d5216fce394",
+      "instruction_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+      "stored": "제목: 신용 요청\n\n안녕하세요 Max,\n\n은행은 두 요청 모두 접수했음을 확인했으나 환불은 어느 한 건도 승인하지 않았습니다. 정오까지 한 건만 승인되는 경우 해당 건만 결제 처리하고, 다른 건은 보류 상태로 두세요.\n\nJo",
+      "raw": "제목: 신용 요청\n\n안녕하세요 Max,\n\n은행은 두 요청 모두 접수했음을 확인했으나 환불은 어느 한 건도 승인하지 않았습니다. 정오까지 한 건만 승인되는 경우 해당 건만 결제 처리하고, 다른 건은 보류 상태로 두세요.\n\nJo",
+      "elapsed": 26.805,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "c600cf621d0489e68c81fd8bae99108d31d90dde025bab3408135f14a98ff049",
+      "start": 1794280826.679634,
+      "end": 1794280852.5829701
+    }
+  },
+  "T4": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6d05a30014c6a9e57ff7aabbfe6371e9fc5f45fc4234dd033af0a5012c7b2a2d",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Review of Service Extension\n\nHi Minsu,\n\nWe have only inquired with the vendor about whether a renewal is possible. After receiving the quotation, it is possible to review the cost, but we have not decided to extend the contract.\n\nBest regards,\n차민서",
+      "raw": "Subject: Review of Service Extension\n\nHi Minsu,\n\nWe have only inquired with the vendor about whether a renewal is possible. After receiving the quotation, it is possible to review the cost, but we have not decided to extend the contract.\n\nBest regards,\nCha Minseo",
+      "elapsed": 17.328,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "daadeb473cc8bd881d1cca4418ce7b8c358837ac617a61069971d017d32e9e02",
+      "start": 1794279555.03391,
+      "end": 1794279571.8730857
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6d05a30014c6a9e57ff7aabbfe6371e9fc5f45fc4234dd033af0a5012c7b2a2d",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Service Extension Review\n\nHello Minsu,\n\nI inquired with the vendor about whether renewal is possible. After receiving the quotation, we can review the costs, but we have not decided to extend the contract.\n\nThank you.\n차민서",
+      "raw": "Subject: Service Extension Review\n\nHello Minsu,\n\nI inquired with the vendor about whether renewal is possible. After receiving the quotation, we can review the costs, but we have not decided to extend the contract.\n\nThank you.\n차민서",
+      "elapsed": 11.822,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "749f5f0bbbb2c2c581ad0772c1ea09d41a2dbdaf6c8c30e21486359c85e6a8b3",
+      "start": 1794280858.4746478,
+      "end": 1794280869.4202094
+    }
+  },
+  "T5": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "8e6bb148dfbbaad2084f29e4b5aea05626b47861cc7a5a7daeedb22fcd120ef7",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "Taylor 님,\n\n데모에서는 stock.csv의 수치를 추정치로 표시해 주세요. 해당 파일은 재무팀만 변경할 수 있습니다. 총계가 다르더라도 7행은 현재 상태로 유지해 주세요.\n\n감사합니다,\nAlex",
+      "raw": "제목: 데모 시 stock.csv 수치 표시 요청\n\nTaylor 님,\n\n데모에서는 stock.csv의 수치를 추정치로 표시해 주세요. 해당 파일은 재무팀만 변경할 수 있습니다. 총계가 다르더라도 7행은 현재 상태로 유지해 주세요.\n\n감사합니다,\nAlex",
+      "elapsed": 16.307,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "eb6229b8c873c669e46fbd29880b5173c504b3ec84bd637693dc194fe50edd04",
+      "start": 1794279575.4651728,
+      "end": 1794279591.197428
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "8e6bb148dfbbaad2084f29e4b5aea05626b47861cc7a5a7daeedb22fcd120ef7",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "Taylor 님,\n\n안녕하세요.\n\n데모 시 stock.csv의 수치는 추정치로 표시해 주세요. 해당 파일은 재무팀만 변경할 수 있습니다. 합계가 서로 다르더라도 7행은 그대로 유지해 주세요.\n\n감사합니다.\nAlex",
+      "raw": "제목: 데모 시 stock.csv 표시 관련\n\nTaylor 님,\n\n안녕하세요.\n\n데모 시 stock.csv의 수치는 추정치로 표시해 주세요. 해당 파일은 재무팀만 변경할 수 있습니다. 합계가 서로 다르더라도 7행은 그대로 유지해 주세요.\n\n감사합니다.\nAlex",
+      "elapsed": 24.833,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "0f40de69863b069a4db1d5e087a544bc4351238a5a4c711159bd5041fddadeb8",
+      "start": 1794280875.2091956,
+      "end": 1794280899.1251853
+    }
+  },
+  "T6": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "fa94705995178e092c06ecf00a0684e48b4d5c128c31f84c16d5092deece24be",
+      "instruction_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+      "stored": "**Subject:** On-Site Check-in Time\n\nHello,\n\nVisitors can check in directly at the information desk starting at 14:00 KST. The request being made now is for posting an information notice, not for visit approval or changes to the attendee list.\n\nThank you.\n현장지원팀",
+      "raw": "**Subject:** On-Site Check-in Time\n\nHello,\n\nVisitors can check in directly at the information desk starting at 14:00 KST. The request being made now is for posting an information notice, not for visit approval or changes to the attendee list.\n\nThank you.\nOn-site Support Team",
+      "elapsed": 14.806,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "461aeae4c50dcd7c486a78e0270e9a6790e55d5d2678867b81da7af84cffcb8f",
+      "start": 1794279594.686742,
+      "end": 1794279608.9349043
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "fa94705995178e092c06ecf00a0684e48b4d5c128c31f84c16d5092deece24be",
+      "instruction_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+      "stored": "Subject: On-Site Check-In Time\n\nHello,\n\nVisitors may check in directly at the reception desk starting at 14:00 KST. What I am requesting now is the posting of a notice only—not visit approval or changes to the attendee list.\n\nThank you.\n현장지원팀",
+      "raw": "Subject: On-Site Check-In Time\n\nHello,\n\nVisitors may check in directly at the reception desk starting at 14:00 KST. What I am requesting now is the posting of a notice only—not visit approval or changes to the attendee list.\n\nThank you.\nOn-Site Support Team",
+      "elapsed": 18.802,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "d8ec4c8e5bdf07f29187b887e6ba9464456be0655e511d62a4d1e846ddb03b2e",
+      "start": 1794280904.821621,
+      "end": 1794280922.8060443
+    }
+  },
+  "X1": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "87d77df713cf514d99f4e475e771467c481acb3edb6cbd14bb9a8800bb94e5e2",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "June님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 대여해 주었습니다. 아직 반납하지 않았습니다. 할인 혜택은 제시하지 않은 채 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "raw": "June님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 대여해 주었습니다. 아직 반납하지 않았습니다. 할인 혜택은 제시하지 않은 채 반납 일정을 요청해 주세요.\n\n감사합니다,\nNia",
+      "elapsed": 34.769,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "2084534db08bacffdb70bd059930d4cfc1b74300dbe7234e03732325bd4848dc",
+      "start": 1794279811.666639,
+      "end": 1794279845.934332
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "87d77df713cf514d99f4e475e771467c481acb3edb6cbd14bb9a8800bb94e5e2",
+      "instruction_sha256": "bd5858021aa32583f3a67fcb775e8d9488c713d0498b4c13c8035fd9852aeeac",
+      "stored": "준 님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 빌려주었습니다. 아직 반납되지 않았습니다. 그들에게 할인 제안 없이 반납 일자를 요청해 주십시오.\n\n감사합니다.\nNia",
+      "raw": "제목: 예비 카메라 반납 요청\n\n준 님, 안녕하세요.\n\n저희는 현장 팀에 예비 카메라를 빌려주었습니다. 아직 반납되지 않았습니다. 그들에게 할인 제안 없이 반납 일자를 요청해 주십시오.\n\n감사합니다.\nNia",
+      "elapsed": 21.732,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "ccbde1a0db6d0c11d101ba80bf9cc6bfec34bffa089eea8d8e92a8ab2ae56c98",
+      "start": 1794280929.5893283,
+      "end": 1794280950.4491358
+    }
+  },
+  "X2": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6f8239834241731657ea45c8b069f82a2994c842024e599639aea25f2534a5e5",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specification sheet is material for use in testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "raw": "Subject: Classification of Enclosed Documents\n\nHello,\n\nPlease keep the delivery note inside the box. The enclosed specification sheet is material for use in testing, and the invoice will be sent separately on Friday.\n\nThank you.\n이지연",
+      "elapsed": 17.19,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "38b070408dd615bd186b0787a7930f115e452eb547fb9bd7e4374130ffad8da4",
+      "start": 1794279849.3714173,
+      "end": 1794279866.017063
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "6f8239834241731657ea45c8b069f82a2994c842024e599639aea25f2534a5e5",
+      "instruction_sha256": "43d99b3a4df388c0c8aa89e5c5f80f619200a5a442007c19157e3a427046ccb8",
+      "stored": "Subject: Classification of Enclosed Documents\n\nHello.\n\nPlease keep the delivery note inside the box. The enclosed specifications are materials to be used for testing, and the invoice will be sent separately on Friday.\n\nBest regards,\n이지연",
+      "raw": "Subject: Classification of Enclosed Documents\n\nHello.\n\nPlease keep the delivery note inside the box. The enclosed specifications are materials to be used for testing, and the invoice will be sent separately on Friday.\n\nBest regards,\n이지연",
+      "elapsed": 19.508,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "79232ff621c3d9b65f0f9df0aa0bcb13c7d2c7023eaeb8131333d7f1eba51efd",
+      "start": 1794280956.14164,
+      "end": 1794280974.7065213
+    }
+  },
+  "X3": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "338a08d78613b13ad79066af5c46a19da2c61ced0e8780f4548ef461419ff7de",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "Max님, 안녕하세요.\n\n저희는 은행 대출을 검토하고 있습니다. 해당 송금은 승인하지 않았습니다. 지급 일정 초안만 보내 주시기 바랍니다.\n\n감사합니다,\nUma",
+      "raw": "Max님, 안녕하세요.\n\n저희는 은행 대출을 검토하고 있습니다. 해당 송금은 승인하지 않았습니다. 지급 일정 초안만 보내 주시기 바랍니다.\n\n감사합니다,\nUma",
+      "elapsed": 6.423,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "c006b229304e538a34a610ef9ebc20e535fd9a4f08bfdf132d34f25330c151ab",
+      "start": 1794279869.485575,
+      "end": 1794279875.3001695
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "338a08d78613b13ad79066af5c46a19da2c61ced0e8780f4548ef461419ff7de",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "Max 님, 안녕하십니까.\n\n저희는 은행 대출을 검토 중입니다. 송금은 아직 승인하지 않았습니다. 결제 일정 초안만 보내 주십시오.\n\n감사합니다.\nUma",
+      "raw": "제목: 은행 대출 관련 결제 일정 초안 요청\n\nMax 님, 안녕하십니까.\n\n저희는 은행 대출을 검토 중입니다. 송금은 아직 승인하지 않았습니다. 결제 일정 초안만 보내 주십시오.\n\n감사합니다.\nUma",
+      "elapsed": 14.771,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "8e17b687bcc59515f7adf8eacdabdd07399a05808b685a2ce39f9226be829bd4",
+      "start": 1794280980.5148797,
+      "end": 1794280994.3747828
+    }
+  },
+  "X4": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "102afd8cc3772d1902464d4186acbe24a323b1471f1113f6dafb1aa35eedb9f0",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "**Subject:** Specification Review\n\nHello,\n\nPlease check only the allowable voltage in the new specification. The issue date of the invoice to be sent by the manufacturer has not yet been determined.\n\nThank you.\n박유진",
+      "raw": "**Subject:** Specification Review\n\nHello,\n\nPlease check only the allowable voltage in the new specification. The issue date of the invoice to be sent by the manufacturer has not yet been determined.\n\nThank you.\n\n박유진",
+      "elapsed": 9.429,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "7f9ff32e248bd769384f38f05fee673d656ba1ab1aaceedbef2ae25a88d2ffcf",
+      "start": 1794279878.7966506,
+      "end": 1794279887.6846383
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "102afd8cc3772d1902464d4186acbe24a323b1471f1113f6dafb1aa35eedb9f0",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "**Subject:** Specification Review\n\nHello.\n\nPlease confirm only the allowable voltage in the new specification. The issue date of the invoice to be sent by the manufacturer has not yet been determined.\n\nThank you.\n박유진",
+      "raw": "**Subject:** Specification Review\n\nHello.\n\nPlease confirm only the allowable voltage in the new specification. The issue date of the invoice to be sent by the manufacturer has not yet been determined.\n\nThank you.\n\n박유진",
+      "elapsed": 13.923,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "30c7bba328318c5370f4f09cb8c028156c025049c1764de4955b5228018c5f3f",
+      "start": 1794281000.4631274,
+      "end": 1794281013.4971395
+    }
+  }
+}

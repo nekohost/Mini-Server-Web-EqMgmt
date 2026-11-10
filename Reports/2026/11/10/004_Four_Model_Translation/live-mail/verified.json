@@ -1,0 +1,9 @@
+{
+  "status": "pass",
+  "role": "user",
+  "account": "test04",
+  "origin": "https://nekohost.org",
+  "same_conversation": true,
+  "restored_both": true,
+  "chromium": "Chrome/152.0.7977.82"
+}

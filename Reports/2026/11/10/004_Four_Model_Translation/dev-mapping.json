@@ -1,0 +1,82 @@
+{
+  "m1": {
+    "case": "U03",
+    "arms": [
+      "b",
+      "control",
+      "c",
+      "a",
+      "d"
+    ]
+  },
+  "m2": {
+    "case": "U04",
+    "arms": [
+      "d",
+      "a",
+      "b",
+      "c",
+      "control"
+    ]
+  },
+  "m3": {
+    "case": "U08",
+    "arms": [
+      "d",
+      "b",
+      "c",
+      "a",
+      "control"
+    ]
+  },
+  "m4": {
+    "case": "E2",
+    "arms": [
+      "control",
+      "d",
+      "a",
+      "c",
+      "b"
+    ]
+  },
+  "m5": {
+    "case": "D01",
+    "arms": [
+      "a",
+      "d",
+      "b",
+      "c",
+      "control"
+    ]
+  },
+  "m6": {
+    "case": "D05",
+    "arms": [
+      "b",
+      "a",
+      "d",
+      "control",
+      "c"
+    ]
+  },
+  "m7": {
+    "case": "P-en-ko",
+    "arms": [
+      "a",
+      "d",
+      "c",
+      "control",
+      "b"
+    ]
+  },
+  "m8": {
+    "case": "P-ko-en",
+    "arms": [
+      "d",
+      "control",
+      "b",
+      "c",
+      "a"
+    ]
+  }
+}

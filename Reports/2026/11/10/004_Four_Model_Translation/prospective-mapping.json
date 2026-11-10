@@ -1,0 +1,16 @@
+{
+  "m1": {
+    "case": "Y1",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m2": {
+    "case": "Y2",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  }
+}

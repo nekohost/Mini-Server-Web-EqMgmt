@@ -1,0 +1,29 @@
+{
+  "recorder_commit": "4e9ab17992ab1288d2846b00af211cd2318a2765",
+  "pre_recovery_receipts": 1863,
+  "all_previous_receipts_preserved": true,
+  "projected_markdown_files_identical_at_recovery": 51,
+  "registered_antigravity_ids_before_after": [
+    4,
+    4
+  ],
+  "recorder_tests_passed": 18,
+  "validation_errors": 0,
+  "source_material_sha256": {
+    "report.md": "316f0000705a7ba969085d3de03f4433059a435431423276a100665dc6a921f0",
+    "all-results.csv": "ab9d384fbf73ecb130c4f521300fd31dbf22c549a3434b0340a2cf906b9ceb3d",
+    "cases.json": "0c23007a0d8c42051828818803236b117237f9b83ea3a1d78e1e130e19f987a2",
+    "grading-protocol.md": "5c32230d0e7dccf200923cd100554bb88bd8228dc377e7e8d29e4d1795321da9",
+    "execution-audit.json": "b8716a31f5ed76cf981ee7f83ac7a011298717915825e6d289365bad99a2f06e",
+    "prompt-en-ko-basic.txt": "c0c76d739a0547230f9ad54e4e616e88b04ed1c0460c3761ac16345b9096360b",
+    "prompt-ko-en-improved.txt": "b024cf575df7eaa499a0e6b7c9d795a69a5e51288dfa007701a5d034428d6df6",
+    "prompt-postedit-experimental.txt": "dad55f7ba4eaa47578d774c68c0a9e3fe1d4d8c4708f95a8f9d7609918fb62c1"
+  },
+  "historic_observations": 164,
+  "dev_and_holdout_sha256": {
+    "development.json": "34e761272bd9b842bd1927c0addc872752bc40005665808d3e1de7f21b1cb9d6",
+    "holdout.json": "c95b8a56a2892bacca32cc59c510408eba762fadf9e969eedbbe63cb8142b43b",
+    "protocol.md": "11ac3a91f366c93d70f6648cfc4731a3990cbf31a153525b0cfa622fbfb69b2b",
+    "holdout-invariants.json": "d96d2acd8cd0d62f7434e350992a6b3d7d037512b33c6d146f99691a5cb3615c"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "m1": {
+    "case": "T1",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m2": {
+    "case": "T2",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m3": {
+    "case": "T3",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m4": {
+    "case": "T4",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m5": {
+    "case": "T5",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m6": {
+    "case": "T6",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  },
+  "m7": {
+    "case": "X1",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m8": {
+    "case": "X2",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m9": {
+    "case": "X3",
+    "arms": [
+      "selected",
+      "control"
+    ]
+  },
+  "m10": {
+    "case": "X4",
+    "arms": [
+      "control",
+      "selected"
+    ]
+  }
+}

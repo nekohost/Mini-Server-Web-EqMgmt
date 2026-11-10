@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "judge",
+    "thread": "c31deb4b-0d76-4563-8430-a4666971dd8a",
+    "started": "2026-11-10T02:58:13.787665+00:00",
+    "seconds": 260.56,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | BBABB | 3 | Option 3 accurately renders the calendar hold, \"stay past noon,\" and \"two mornings,\" whereas Option 1 leaves \"Subject:\" in English and Options 1, 4, and 5 mistranslate the hold as \"보류\" (postponement).\nm2 | AABAA | 2,5 | Option 3 introduces \"my statement\" despite the team sender (\"회계팀\"), while Options 2 and 5 most naturally render the receipt of two text messages and the statement discrepancy.\nm3 | AAAAA | 1,3,4 | All options are sendable, with Options 1, 3, and 4 best preserving both \"physical quantity\" (\"실물 수량\") and present-tense inclusion in today's arrivals.\nm4 | CCBBC | 4 | Option 5 is missing, Options 1 and 3 mistranslate \"has not opened\" as \"접수하지 않았습니다\" (not received/accepted), and Option 2 uses unnatural \"개시하지\" while transliterating source names.\nm5 | CABBB | 2 | Option 1 is missing, Options 4 and 5 mistranslate \"the trial\" as \"시범 절차\" (trial procedure) with awkward loanwords, and Option 3 alters source names, leaving Option 2 sendable unchanged.\nm6 | BAAAB | 3,5 | Option 4 leaves raw Markdown asterisks in the subject line and, like Option 1, uses bare \"a receipt\" for \"접수증\" instead of an acknowledgment or intake receipt.\nm7 | ABCBA | 1,5 | Option 3 mistranslates the physical workshop as \"워크숍\" (seminar) and \"on loan\" as \"임대 중\" (leasing out), while Options 2 and 4 use commercial lease terms (\"임대/임차\") instead of \"대여.\"\nm8 | ABBAA | 1,4,5 | Options 2 and 3 leave raw Markdown asterisks in the subject line, whereas Options 1, 4, and 5 are clean, accurate, and immediately sendable.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "551db7c30ace479244d98f70a1247f5131313be5f608ac38632aba4f114b972c"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "judge-fix",
+    "thread": "955b2a8a-f0f1-4db6-a52a-a8c8abc48c5d",
+    "started": "2026-11-10T03:00:59.837725+00:00",
+    "seconds": 264.12,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | BAAAA | 5 | Option 1 leaves Subject untranslated and uses awkward \"체류\"; Option 5 best translates calendar hold and workshop sessions (\"오전 두 회차\").\nm2 | AAAAA | 2, 5 | Options 2 and 5 use natural active phrasing (\"I received two approval text messages\") rather than literal or passive constructions.\nm3 | AAAAA | 1 | Option 1 accurately translates \"실물 수량\" as \"physical quantity\" and uses standard logistics phrasing (\"today's delivery\").\nm4 | BBBAC | 4 | Option 5 is incomplete; Option 4 correctly translates \"opened\" as \"착수하지 않았습니다\" while 1-3 use inaccurate calques (\"접수\", \"개시\").\nm5 | CAABB | 2, 3 | Option 1 is incomplete; Options 2 and 3 naturally translate \"crew\" and \"trial\", whereas 4 and 5 use awkward calques like \"크루\" and \"초안 체크리스트\".\nm6 | AAABA | 3 | Option 4 has markdown formatting artifacts; Option 3 uses the most precise terminology (\"acknowledgment of receipt\") and proper request tone.\nm7 | ABCAA | 1 | Option 3 mistranslates workshop as seminar (\"워크숍\"); Option 1 correctly and unambiguously states the pump is on loan from the supplier.\nm8 | ABBAA | 4 | Options 2 and 3 contain markdown formatting artifacts; Option 4 uses idiomatic terminology (\"reconciled the quantities\") and clean formatting.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "e69ae1d7986fdffd798fd608c7af163175bb3bc361dbe0e6779cf3b6c03f75c0"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "judge",
+    "thread": "42d2cf45-41a4-4bbc-aaf3-c91674162123",
+    "started": "2026-11-10T02:58:13.787665+00:00",
+    "seconds": 88.47,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | BAAAA | 3 | Option 1 leaves \"Subject:\" in English, and option 3 gives the most natural rendering of \"hold, not booking\"\nm2 | BBBBB | 2 | Every option leaves the sign-off \"회계팀\" untranslated instead of \"Accounting Team\"\nm3 | AAAAA | 1 | All are accurate, and option 1 most faithfully renders \"reserved, not physical quantity\" and \"today's delivery\"\nm4 | CBCAC | 4 | Options 1 and 3 render \"has not opened\" as \"접수하지 않았습니다\" (not received), option 2 uses the unnatural \"개시\", and option 5 has no translation\nm5 | CAABB | 2,3 | Option 1 has no translation, and options 4 and 5 make \"the trial\" into \"시범 절차\" (a trial procedure)\nm6 | BBBBB | 3 | Every option leaves the sign-off \"운영팀\" untranslated, option 4 adds markdown and option 2 says \"receipt acknowledgment\"\nm7 | ABBAB | 1,4 | Options 2 and 3 use \"임대\" (leasing out) and option 5 uses \"대여 중\" (lent out), so it is unclear the workshop borrowed the pump, and option 3 also uses \"워크숍\" for the shop\nm8 | BBBBB | 1,4 | Every option translates \"납품 명세서\" as \"specification\" instead of delivery note/statement, and options 2 and 3 add markdown\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "551db7c30ace479244d98f70a1247f5131313be5f608ac38632aba4f114b972c"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "judge",
+    "thread": "01a1c364-5167-71e1-b56a-9fe7e5858c63",
+    "started": "2026-11-10T02:58:13.787665+00:00",
+    "seconds": 441.7,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | BAABB | 3 | 2 and 3 clearly say June 3 is set aside. 보류 can suggest postponement.\nm2 | BBBBB | 2,5 | All leave 회계팀 untranslated. 3 also adds “my” to the statement.\nm3 | AAAAA | 3,4 | 3 and 4 explicitly distinguish the reserved quantity from the physical count and cover all of today’s arrivals.\nm4 | CCCBC | 4 | “Unopened” becomes unregistered in 1 and 3, uninitiated in 2, and unstarted in 4. 5 is missing.\nm5 | CAABB | 2,3 | 1 is missing. 4 and 5 change the agenda item from a trial run to a trial procedure.\nm6 | CBCBC | 4 | Only 2 and 4 clearly direct the receiving staff member to issue the receipt. All leave 운영팀 untranslated.\nm7 | ACCBA | 1,5 | 2 and 3 suggest renting the pump out. 3 also misidentifies the worksite, and 4 implies paid hire.\nm8 | CCCCC | 1,4 | All five call the itemized delivery note a specification."
+    ],
+    "errors": [],
+    "prompt_sha256": "551db7c30ace479244d98f70a1247f5131313be5f608ac38632aba4f114b972c"
+  }
+}

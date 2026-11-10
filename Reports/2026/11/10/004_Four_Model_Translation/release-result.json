@@ -1,0 +1,14 @@
+{
+  "base": "4e9ab17992ab1288d2846b00af211cd2318a2765",
+  "code": "926dd9f7f38f0991295273e01d1130a31ebd6436",
+  "started_utc": "2026-11-10T04:03:37.941789+00:00",
+  "activated_utc": "2026-11-10T04:03:57.841963+00:00",
+  "window_seconds": 19.91,
+  "old_business_rows_preserved": true,
+  "old_ai_rows_preserved": true,
+  "settings_unchanged": true,
+  "worker": "active",
+  "retention_timer_enabled": true,
+  "db_schema": 4,
+  "recovery_directory": "20261105-ai-ux-mail-fidelity-20261110T035104Z-58e2df"
+}

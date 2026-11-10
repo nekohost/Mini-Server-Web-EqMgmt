@@ -1,0 +1,7 @@
+{
+  "variant": "translation-only",
+  "files": {
+    "utils/ai_assistant/translation.py": "777fd404e3b664bb8347c7e087812ae6eb7249cd8793194b7b679f5a08fbd88a",
+    "tests/test_mail_translation.py": "5be0edf06b2cf0454ec78db1278678dc00bfd028866a1560ae9010b0b3714e0a"
+  }
+}

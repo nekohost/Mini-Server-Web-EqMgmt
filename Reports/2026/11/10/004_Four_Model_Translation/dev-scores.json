@@ -1,0 +1,639 @@
+{
+  "matrix": {
+    "U03": {
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "c": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "a": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "U04": {
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "a": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      }
+    },
+    "U08": {
+      "d": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "b": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "c": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "a": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "E2": {
+      "control": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      },
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "a": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      },
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "b": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      }
+    },
+    "D01": {
+      "a": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "C",
+        "gpt-6-astra": "C"
+      },
+      "d": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      }
+    },
+    "D05": {
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "a": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      }
+    },
+    "P-en-ko": {
+      "a": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "c": {
+        "coordinator": "C",
+        "gemini-4-argon-high": "C",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "A"
+      }
+    },
+    "P-ko-en": {
+      "d": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "b": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "c": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      },
+      "a": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "C"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "BBABB",
+        "best": [
+          3
+        ],
+        "reason": "확정 예약과 임시 확보를 구별하고 대안 오전 시간대 두 개를 요청한 3번이 가장 자연스럽다. 두 회차로 바꾼 표현은 일정 의미가 흐려진다."
+      },
+      "m2": {
+        "grades": "BBBBB",
+        "best": [
+          2,
+          5
+        ],
+        "reason": "카드 승인 알림이 반복된 상황을 표현한 것은 맞지만 approval text messages는 카드 승인 알림이라는 명칭을 어색하게 전달한다. 3번은 팀 명의 문안에 my statement라는 개인 소유를 더했다."
+      },
+      "m3": {
+        "grades": "AAAAA",
+        "best": [
+          1,
+          3,
+          4
+        ],
+        "reason": "예약 수량과 실물 수량, 파일 수정 금지와 당일 도착분 선확인을 다섯 후보 모두 보존했다."
+      },
+      "m4": {
+        "grades": "CBCBC",
+        "best": [
+          4
+        ],
+        "reason": "접수하지 않았다(1,3)는 아직 열어 보지 않은 요청이 이미 접수됐을 가능성을 배제한다. 착수·개시(2,4) 역시 열람과 구분된다. 5번은 응답이 없다."
+      },
+      "m5": {
+        "grades": "CABBB",
+        "best": [
+          2
+        ],
+        "reason": "2번은 체크리스트 열람과 현장 시범을 구분하고 원문에 적힌 발신자도 보존한다. 크루·시범 절차는 현장 인원과 시범 실시의 뜻을 흐린다."
+      },
+      "m6": {
+        "grades": "BBBAB",
+        "best": [
+          4
+        ],
+        "reason": "4번은 담당자가 접수증만 발급한다는 주체와 제출 창구·마감을 보존한다. 2번의 receipt acknowledgment는 어색하고 일부 후보에서 서류를 받는 사람과 발급 주체가 갈린다."
+      },
+      "m7": {
+        "grades": "BBCBB",
+        "best": [
+          1,
+          5
+        ],
+        "reason": "1·5의 대여 중은 빌려 사용한다는 방향이 흐리고 2·3·4의 임대·임차는 임대차를 암시한다. 3번은 정비 작업장을 행사로 읽히는 워크숍으로 바꿨다."
+      },
+      "m8": {
+        "grades": "BBBBB",
+        "best": [
+          1,
+          4
+        ],
+        "reason": "전부 실제 납품 서류를 기술 사양을 가리키는 specification으로 옮겼다. 필수 용어 수정이 필요하다."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "BBABB",
+        "best": [
+          3
+        ],
+        "reason": "Option 3 accurately renders the calendar hold, \"stay past noon,\" and \"two mornings,\" whereas Option 1 leaves \"Subject:\" in English and Options 1, 4, and 5 mistranslate the hold as \"보류\" (postponement)."
+      },
+      "m2": {
+        "grades": "AABAA",
+        "best": [
+          2,
+          5
+        ],
+        "reason": "Option 3 introduces \"my statement\" despite the team sender (\"회계팀\"), while Options 2 and 5 most naturally render the receipt of two text messages and the statement discrepancy."
+      },
+      "m3": {
+        "grades": "AAAAA",
+        "best": [
+          1,
+          3,
+          4
+        ],
+        "reason": "All options are sendable, with Options 1, 3, and 4 best preserving both \"physical quantity\" (\"실물 수량\") and present-tense inclusion in today's arrivals."
+      },
+      "m4": {
+        "grades": "CCBBC",
+        "best": [
+          4
+        ],
+        "reason": "Option 5 is missing, Options 1 and 3 mistranslate \"has not opened\" as \"접수하지 않았습니다\" (not received/accepted), and Option 2 uses unnatural \"개시하지\" while transliterating source names."
+      },
+      "m5": {
+        "grades": "CABBB",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 is missing, Options 4 and 5 mistranslate \"the trial\" as \"시범 절차\" (trial procedure) with awkward loanwords, and Option 3 alters source names, leaving Option 2 sendable unchanged."
+      },
+      "m6": {
+        "grades": "BAAAB",
+        "best": [
+          3,
+          5
+        ],
+        "reason": "Option 4 leaves raw Markdown asterisks in the subject line and, like Option 1, uses bare \"a receipt\" for \"접수증\" instead of an acknowledgment or intake receipt."
+      },
+      "m7": {
+        "grades": "ABCBA",
+        "best": [
+          1,
+          5
+        ],
+        "reason": "Option 3 mistranslates the physical workshop as \"워크숍\" (seminar) and \"on loan\" as \"임대 중\" (leasing out), while Options 2 and 4 use commercial lease terms (\"임대/임차\") instead of \"대여.\""
+      },
+      "m8": {
+        "grades": "ABBAA",
+        "best": [
+          1,
+          4,
+          5
+        ],
+        "reason": "Options 2 and 3 leave raw Markdown asterisks in the subject line, whereas Options 1, 4, and 5 are clean, accurate, and immediately sendable."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "BAAAA",
+        "best": [
+          5
+        ],
+        "reason": "Option 1 leaves Subject untranslated and uses awkward \"체류\"; Option 5 best translates calendar hold and workshop sessions (\"오전 두 회차\")."
+      },
+      "m2": {
+        "grades": "AAAAA",
+        "best": [
+          2,
+          5
+        ],
+        "reason": "Options 2 and 5 use natural active phrasing (\"I received two approval text messages\") rather than literal or passive constructions."
+      },
+      "m3": {
+        "grades": "AAAAA",
+        "best": [
+          1
+        ],
+        "reason": "Option 1 accurately translates \"실물 수량\" as \"physical quantity\" and uses standard logistics phrasing (\"today's delivery\")."
+      },
+      "m4": {
+        "grades": "BBBAC",
+        "best": [
+          4
+        ],
+        "reason": "Option 5 is incomplete; Option 4 correctly translates \"opened\" as \"착수하지 않았습니다\" while 1-3 use inaccurate calques (\"접수\", \"개시\")."
+      },
+      "m5": {
+        "grades": "CAABB",
+        "best": [
+          2,
+          3
+        ],
+        "reason": "Option 1 is incomplete; Options 2 and 3 naturally translate \"crew\" and \"trial\", whereas 4 and 5 use awkward calques like \"크루\" and \"초안 체크리스트\"."
+      },
+      "m6": {
+        "grades": "AAABA",
+        "best": [
+          3
+        ],
+        "reason": "Option 4 has markdown formatting artifacts; Option 3 uses the most precise terminology (\"acknowledgment of receipt\") and proper request tone."
+      },
+      "m7": {
+        "grades": "ABCAA",
+        "best": [
+          1
+        ],
+        "reason": "Option 3 mistranslates workshop as seminar (\"워크숍\"); Option 1 correctly and unambiguously states the pump is on loan from the supplier."
+      },
+      "m8": {
+        "grades": "ABBAA",
+        "best": [
+          4
+        ],
+        "reason": "Options 2 and 3 contain markdown formatting artifacts; Option 4 uses idiomatic terminology (\"reconciled the quantities\") and clean formatting."
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "BAAAA",
+        "best": [
+          3
+        ],
+        "reason": "Option 1 leaves \"Subject:\" in English, and option 3 gives the most natural rendering of \"hold, not booking\""
+      },
+      "m2": {
+        "grades": "BBBBB",
+        "best": [
+          2
+        ],
+        "reason": "Every option leaves the sign-off \"회계팀\" untranslated instead of \"Accounting Team\""
+      },
+      "m3": {
+        "grades": "AAAAA",
+        "best": [
+          1
+        ],
+        "reason": "All are accurate, and option 1 most faithfully renders \"reserved, not physical quantity\" and \"today's delivery\""
+      },
+      "m4": {
+        "grades": "CBCAC",
+        "best": [
+          4
+        ],
+        "reason": "Options 1 and 3 render \"has not opened\" as \"접수하지 않았습니다\" (not received), option 2 uses the unnatural \"개시\", and option 5 has no translation"
+      },
+      "m5": {
+        "grades": "CAABB",
+        "best": [
+          2,
+          3
+        ],
+        "reason": "Option 1 has no translation, and options 4 and 5 make \"the trial\" into \"시범 절차\" (a trial procedure)"
+      },
+      "m6": {
+        "grades": "BBBBB",
+        "best": [
+          3
+        ],
+        "reason": "Every option leaves the sign-off \"운영팀\" untranslated, option 4 adds markdown and option 2 says \"receipt acknowledgment\""
+      },
+      "m7": {
+        "grades": "ABBAB",
+        "best": [
+          1,
+          4
+        ],
+        "reason": "Options 2 and 3 use \"임대\" (leasing out) and option 5 uses \"대여 중\" (lent out), so it is unclear the workshop borrowed the pump, and option 3 also uses \"워크숍\" for the shop"
+      },
+      "m8": {
+        "grades": "BBBBB",
+        "best": [
+          1,
+          4
+        ],
+        "reason": "Every option translates \"납품 명세서\" as \"specification\" instead of delivery note/statement, and options 2 and 3 add markdown"
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "BAABB",
+        "best": [
+          3
+        ],
+        "reason": "2 and 3 clearly say June 3 is set aside. 보류 can suggest postponement."
+      },
+      "m2": {
+        "grades": "BBBBB",
+        "best": [
+          2,
+          5
+        ],
+        "reason": "All leave 회계팀 untranslated. 3 also adds “my” to the statement."
+      },
+      "m3": {
+        "grades": "AAAAA",
+        "best": [
+          3,
+          4
+        ],
+        "reason": "3 and 4 explicitly distinguish the reserved quantity from the physical count and cover all of today’s arrivals."
+      },
+      "m4": {
+        "grades": "CCCBC",
+        "best": [
+          4
+        ],
+        "reason": "“Unopened” becomes unregistered in 1 and 3, uninitiated in 2, and unstarted in 4. 5 is missing."
+      },
+      "m5": {
+        "grades": "CAABB",
+        "best": [
+          2,
+          3
+        ],
+        "reason": "1 is missing. 4 and 5 change the agenda item from a trial run to a trial procedure."
+      },
+      "m6": {
+        "grades": "CBCBC",
+        "best": [
+          4
+        ],
+        "reason": "Only 2 and 4 clearly direct the receiving staff member to issue the receipt. All leave 운영팀 untranslated."
+      },
+      "m7": {
+        "grades": "ACCBA",
+        "best": [
+          1,
+          5
+        ],
+        "reason": "2 and 3 suggest renting the pump out. 3 also misidentifies the worksite, and 4 implies paid hire."
+      },
+      "m8": {
+        "grades": "CCCCC",
+        "best": [
+          1,
+          4
+        ],
+        "reason": "All five call the itemized delivery note a specification."
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "c31deb4b-0d76-4563-8430-a4666971dd8a",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "955b2a8a-f0f1-4db6-a52a-a8c8abc48c5d",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "42d2cf45-41a4-4bbc-aaf3-c91674162123",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c364-5167-71e1-b56a-9fe7e5858c63",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}

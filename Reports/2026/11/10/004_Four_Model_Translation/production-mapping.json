@@ -1,0 +1,14 @@
+{
+  "m1": {
+    "case": "live-en-ko",
+    "arms": [
+      "deployed"
+    ]
+  },
+  "m2": {
+    "case": "live-ko-en",
+    "arms": [
+      "deployed"
+    ]
+  }
+}

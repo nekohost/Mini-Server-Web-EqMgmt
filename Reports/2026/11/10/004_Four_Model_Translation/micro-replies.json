@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "micro",
+    "thread": "3bc3abf8-deee-4915-bf74-0356d44e3b30",
+    "started": "2026-11-10T03:01:33.870234+00:00",
+    "seconds": 69.88,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "{\n  \"en-ko\": \"Scope by source meaning and direction: use '보관하다' for physical custody; '빌려주다/대여해 주다' (lend out) and '빌리다/대여받다' (borrow in) when payment is unspecified; '임대하다' (rent out) and '임차하다' (rent in) only when paid. Keep sender identity; never guess missing facts.\",\n  \"ko-en\": \"Scope by source meaning: for delivery paperwork, use 'packing slip' (itemized package contents), 'delivery note' (shipment handover confirmation), or 'waybill' (carrier transit document), not 'specifications' (technical requirements) or 'invoice/bill' (payment requests). Keep sender identity and never guess missing facts.\"\n}\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "9e50d4bc93588222b80f542d4ddc6789642376957761755b179128959bf88dda"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "micro",
+    "thread": "04e1219d-eadd-4aca-b7df-bc3eab3e6941",
+    "started": "2026-11-10T03:01:33.870234+00:00",
+    "seconds": 42.81,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "{\n  \"en-ko\": \"For outbound lending, use 대여하다 (unspecified) or 임대하다 (paid). For inbound borrowing, use 대여받다 (unspecified) or 임차하다 (paid). For custody, use 맡기다 (giving) or 보관하다 (holding). Keep sender viewpoint; never assume payment terms or transfer direction without explicit text.\",\n  \"ko-en\": \"Use 'delivery note' or 'packing slip' for itemized goods (거래명세서/납품서), 'waybill' for freight manifests (송장), and 'delivery receipt' or 'proof of delivery' for signed handovers (인수증). Never render as 'invoice' (billing) or 'specification' (technical requirements) unless explicitly stated.\"\n}\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "9e50d4bc93588222b80f542d4ddc6789642376957761755b179128959bf88dda"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "micro",
+    "thread": "efa4d01d-1ff5-422f-a08c-05b4b0aaf6d9",
+    "started": "2026-11-10T03:01:33.870234+00:00",
+    "seconds": 28.53,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "```json\n{\n  \"en-ko\": \"When the source concerns holding or lending items: lend out=빌려주다; borrow=빌리다; hold for someone=맡아 보관하다; entrust=맡기다. Use 대여/임대(료) only if payment is stated, 무상 only if free is stated; otherwise neutral 빌려주다/빌리다. Preserve giver/receiver and sender; never add fees or terms.\",\n  \"ko-en\": \"When documents travel with goods: 납품서=delivery note; 인수증=delivery receipt; 동봉 서류=enclosed documents; 출하 서류=shipping documents; 거래명세서=transaction statement, not invoice. Reserve specifications for 사양서/시방서, invoice for 청구서/세금계산서. Keep sender's voice; never invent quantities or dates.\"\n}\n```\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "9e50d4bc93588222b80f542d4ddc6789642376957761755b179128959bf88dda"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "micro",
+    "thread": "01a1c367-5f2b-7f10-8626-cdef617c7a42",
+    "started": "2026-11-10T03:01:33.871174+00:00",
+    "seconds": 90.89,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "{\n  \"en-ko\": \"Keep the sender’s name and viewpoint. Use 갖고 있다 for possession, 맡기다 for entrusting, and 맡아 두다 for safekeeping. With fees unspecified, use …에게 빌려주다 (lend to) or …에게서 빌리다 (borrow from). Reserve 임대하다 (rent out) and 임차하다 (rent from) for paid rentals.\",\n  \"ko-en\": \"Keep the sender’s name and affiliation as given. Use “delivery note” for a 거래명세서 listing goods delivered, “packing slip” for a list of package contents, and “accompanying paperwork” if its function is unspecified. Reserve “specifications” for technical requirements and “invoice” for a bill.\"\n}"
+    ],
+    "errors": [],
+    "prompt_sha256": "9e50d4bc93588222b80f542d4ddc6789642376957761755b179128959bf88dda"
+  }
+}

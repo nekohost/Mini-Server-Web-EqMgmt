@@ -1,0 +1,1654 @@
+{
+  "scale": {
+    "A": "sendable unchanged",
+    "B": "requires editing",
+    "C": "substantive error, missing or unusable"
+  },
+  "matched_targeted_examples": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "P-en-ko",
+          "X1",
+          "T1"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 34.77
+      },
+      "selected": {
+        "sources": [
+          "P-en-ko",
+          "X1",
+          "T1"
+        ],
+        "coordinator": {
+          "A": 3,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 69.37
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "P-ko-en",
+          "X2",
+          "T2"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 0,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 1,
+            "C": 1
+          }
+        },
+        "median_seconds": 17.19
+      },
+      "selected": {
+        "sources": [
+          "P-ko-en",
+          "X2",
+          "T2"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 19.51
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "P-en-ko",
+          "P-ko-en",
+          "X1",
+          "X2",
+          "T1",
+          "T2"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 4,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 4,
+            "B": 1,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 5,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 3,
+            "C": 1
+          }
+        },
+        "median_seconds": 18.11
+      },
+      "selected": {
+        "sources": [
+          "P-en-ko",
+          "P-ko-en",
+          "X1",
+          "X2",
+          "T1",
+          "T2"
+        ],
+        "coordinator": {
+          "A": 5,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 6,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 23.01
+      }
+    }
+  },
+  "never_used_for_selection": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "T1",
+          "T3",
+          "T5",
+          "X3"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 14.25
+      },
+      "selected": {
+        "sources": [
+          "T1",
+          "T3",
+          "T5",
+          "X3"
+        ],
+        "coordinator": {
+          "A": 3,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 1,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 25.82
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "T2",
+          "T4",
+          "T6",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 14.15
+      },
+      "selected": {
+        "sources": [
+          "T2",
+          "T4",
+          "T6",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 3,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 16.36
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "X3",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 8,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 6,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 6,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 8,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 6,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 14.15
+      },
+      "selected": {
+        "sources": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "X3",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 6,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 4,
+            "B": 4,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 4,
+            "B": 3,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 6,
+            "B": 2,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 5,
+            "B": 3,
+            "C": 0
+          }
+        },
+        "median_seconds": 21.55
+      }
+    }
+  },
+  "all_targeted_examples": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "P-en-ko",
+          "X1",
+          "T1",
+          "Y1"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 2,
+          "C": 1
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 0,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 0,
+            "C": 1
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 2,
+            "C": 1
+          }
+        },
+        "median_seconds": 24.36
+      },
+      "selected": {
+        "sources": [
+          "P-en-ko",
+          "X1",
+          "T1",
+          "Y1"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 51.65
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "P-ko-en",
+          "X2",
+          "T2",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 3,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 2,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 2,
+            "C": 1
+          }
+        },
+        "median_seconds": 18.11
+      },
+      "selected": {
+        "sources": [
+          "P-ko-en",
+          "X2",
+          "T2",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 19.24
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "P-en-ko",
+          "P-ko-en",
+          "X1",
+          "X2",
+          "T1",
+          "T2",
+          "Y1",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 5,
+          "C": 1
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 4,
+            "B": 2,
+            "C": 2
+          },
+          "gemini-3.8-flash-high": {
+            "A": 4,
+            "B": 2,
+            "C": 2
+          },
+          "claude-opus-5-5-high": {
+            "A": 5,
+            "B": 2,
+            "C": 1
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 4,
+            "C": 2
+          }
+        },
+        "median_seconds": 18.11
+      },
+      "selected": {
+        "sources": [
+          "P-en-ko",
+          "P-ko-en",
+          "X1",
+          "X2",
+          "T1",
+          "T2",
+          "Y1",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 6,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 5,
+            "B": 3,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 5,
+            "B": 3,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 8,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 5,
+            "B": 3,
+            "C": 0
+          }
+        },
+        "median_seconds": 23.01
+      }
+    }
+  },
+  "all_never_used_for_selection": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "T1",
+          "T3",
+          "T5",
+          "X3",
+          "Y1"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 0,
+          "C": 1
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 3,
+            "B": 1,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 1,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 0,
+            "C": 1
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 1,
+            "C": 1
+          }
+        },
+        "median_seconds": 13.96
+      },
+      "selected": {
+        "sources": [
+          "T1",
+          "T3",
+          "T5",
+          "X3",
+          "Y1"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 3,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 1,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 4,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 26.8
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "T2",
+          "T4",
+          "T6",
+          "X4",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 3,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 1,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 14.81
+      },
+      "selected": {
+        "sources": [
+          "T2",
+          "T4",
+          "T6",
+          "X4",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 3,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 3,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 3,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 3,
+            "C": 0
+          }
+        },
+        "median_seconds": 18.8
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "X3",
+          "X4",
+          "Y1",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 8,
+          "B": 1,
+          "C": 1
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 6,
+            "B": 3,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 6,
+            "B": 2,
+            "C": 2
+          },
+          "claude-opus-5-5-high": {
+            "A": 8,
+            "B": 1,
+            "C": 1
+          },
+          "gpt-6-astra": {
+            "A": 6,
+            "B": 3,
+            "C": 1
+          }
+        },
+        "median_seconds": 14.38
+      },
+      "selected": {
+        "sources": [
+          "T1",
+          "T2",
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "X3",
+          "X4",
+          "Y1",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 7,
+          "B": 3,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 5,
+            "B": 5,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 5,
+            "B": 4,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 8,
+            "B": 2,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 6,
+            "B": 4,
+            "C": 0
+          }
+        },
+        "median_seconds": 21.63
+      }
+    }
+  },
+  "prospective_only": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "Y1"
+        ],
+        "coordinator": {
+          "A": 0,
+          "B": 0,
+          "C": 1
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 0,
+            "B": 0,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 0,
+            "B": 0,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 0,
+            "B": 0,
+            "C": 1
+          },
+          "gpt-6-astra": {
+            "A": 0,
+            "B": 0,
+            "C": 1
+          }
+        },
+        "median_seconds": 13.96
+      },
+      "selected": {
+        "sources": [
+          "Y1"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 33.92
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 0,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 0,
+            "B": 0,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 24.87
+      },
+      "selected": {
+        "sources": [
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 0,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 18.97
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "Y1",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 0,
+          "B": 1,
+          "C": 1
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 0,
+            "B": 1,
+            "C": 1
+          },
+          "gemini-3.8-flash-high": {
+            "A": 0,
+            "B": 0,
+            "C": 2
+          },
+          "claude-opus-5-5-high": {
+            "A": 0,
+            "B": 1,
+            "C": 1
+          },
+          "gpt-6-astra": {
+            "A": 0,
+            "B": 1,
+            "C": 1
+          }
+        },
+        "median_seconds": 19.42
+      },
+      "selected": {
+        "sources": [
+          "Y1",
+          "Y2"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 26.45
+      }
+    }
+  },
+  "withheld_with_instruction_change": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "T1"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 12.19
+      },
+      "selected": {
+        "sources": [
+          "T1"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 69.37
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "T2"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 0,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 13.49
+      },
+      "selected": {
+        "sources": [
+          "T2"
+        ],
+        "coordinator": {
+          "A": 1,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 24.29
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "T1",
+          "T2"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 12.84
+      },
+      "selected": {
+        "sources": [
+          "T1",
+          "T2"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 0,
+            "C": 0
+          }
+        },
+        "median_seconds": 46.83
+      }
+    }
+  },
+  "no_instruction_change": {
+    "en-ko": {
+      "control": {
+        "sources": [
+          "T3",
+          "T5",
+          "X3"
+        ],
+        "coordinator": {
+          "A": 3,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 16.31
+      },
+      "selected": {
+        "sources": [
+          "T3",
+          "T5",
+          "X3"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 1,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 24.83
+      }
+    },
+    "ko-en": {
+      "control": {
+        "sources": [
+          "T4",
+          "T6",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 3,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 3,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          }
+        },
+        "median_seconds": 14.81
+      },
+      "selected": {
+        "sources": [
+          "T4",
+          "T6",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 2,
+          "B": 1,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 2,
+            "B": 1,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 1,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 13.92
+      }
+    },
+    "both": {
+      "control": {
+        "sources": [
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "X3",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 6,
+          "B": 0,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 5,
+            "B": 1,
+            "C": 0
+          },
+          "claude-opus-5-5-high": {
+            "A": 6,
+            "B": 0,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          }
+        },
+        "median_seconds": 15.56
+      },
+      "selected": {
+        "sources": [
+          "T3",
+          "T4",
+          "T5",
+          "T6",
+          "X3",
+          "X4"
+        ],
+        "coordinator": {
+          "A": 4,
+          "B": 2,
+          "C": 0
+        },
+        "panel": {
+          "gemini-4-argon-high": {
+            "A": 2,
+            "B": 4,
+            "C": 0
+          },
+          "gemini-3.8-flash-high": {
+            "A": 2,
+            "B": 3,
+            "C": 1
+          },
+          "claude-opus-5-5-high": {
+            "A": 4,
+            "B": 2,
+            "C": 0
+          },
+          "gpt-6-astra": {
+            "A": 3,
+            "B": 3,
+            "C": 0
+          }
+        },
+        "median_seconds": 16.79
+      }
+    }
+  },
+  "historical_20_identical_saved_frames": {
+    "en-ko": {
+      "A": 10,
+      "B": 0,
+      "C": 0
+    },
+    "ko-en": {
+      "A": 8,
+      "B": 2,
+      "C": 0
+    }
+  },
+  "same_instruction_control_replays": 6,
+  "staging_inferences": {
+    "count": 76,
+    "max_simultaneous_observed": 1,
+    "first_pass_states": {
+      "done": 72,
+      "failed": 4
+    },
+    "failures": [
+      {
+        "round": "dev",
+        "case": "D01",
+        "arm": "a"
+      },
+      {
+        "round": "dev",
+        "case": "E2",
+        "arm": "b"
+      },
+      {
+        "round": "confirmation",
+        "case": "T5",
+        "arm": "selected"
+      },
+      {
+        "round": "prospective",
+        "case": "Y1",
+        "arm": "control"
+      }
+    ]
+  },
+  "correction_replay": {
+    "case": "T5",
+    "original_state": "failed",
+    "original_error": "원문에 없는 다른 메일의 인사말이 들어 있습니다.",
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": true
+  },
+  "general_guides_development": {
+    "control": {
+      "A": 2,
+      "B": 5,
+      "C": 1
+    },
+    "a": {
+      "A": 1,
+      "B": 5,
+      "C": 2
+    },
+    "b": {
+      "A": 1,
+      "B": 6,
+      "C": 1
+    },
+    "c": {
+      "A": 2,
+      "B": 5,
+      "C": 1
+    },
+    "d": {
+      "A": 2,
+      "B": 6,
+      "C": 0
+    }
+  }
+}

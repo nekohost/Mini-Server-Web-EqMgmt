@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "author",
+    "thread": "f94fbd98-8735-4cef-a11d-514fd2629bde",
+    "started": "2026-11-10T02:34:12.520256+00:00",
+    "seconds": 82.86,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "{\n  \"en-ko\": \"Write in natural Korean business register, restraining extended reasoning so polite formulas never add unstated intent. Preserve exact actor roles, ownership, custody, and transfer direction without implying fees. Distinguish logistical or transactional records from technical specifications, and receipt or acknowledgment from approval. Keep tentative checks and hedges from becoming firm commitments.\",\n  \"ko-en\": \"Produce clear, idiomatic English business prose without guessing beyond surface cues. Resolve omitted subjects carefully, preserving exact actor roles, ownership, and loan direction without implying fees. Separate shipment or transaction records from technical specifications, and receipt or intake from approval. Translate tentative checks and polite endings as hedged, never as firm commitments.\"\n}\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "1739ac2809c599e06c04016fe78ede957911620edbef22f290fcc4286cba6d21"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "author",
+    "thread": "62a89a88-9cfb-4a48-a5dd-1ac3d9504b5d",
+    "started": "2026-11-10T02:34:12.521258+00:00",
+    "seconds": 48.42,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "{\n  \"en-ko\": \"Preserve exact commercial status and commitment levels: distinguish borrowing from paid transactions or transfers, and shipping records from technical specifications. Translate receipt strictly as receipt, never approval. Keep tentative inquiries provisional; do not escalate checks into promises. Render professional Korean business register without assuming unstated financial terms or obligations.\",\n  \"ko-en\": \"Accurately reflect transactional direction and certainty: translate borrowing without implying fees or reversing ownership, and distinguish shipping logs from technical specifications. Treat receipt strictly as acknowledgment, not approval. Keep exploratory checks tentative; never turn inquiries into commitments or promises. Maintain precise, natural English business register without assuming unstated commercial terms.\"\n}\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "1739ac2809c599e06c04016fe78ede957911620edbef22f290fcc4286cba6d21"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "author",
+    "thread": "b3dd0edb-981b-440c-a325-3b5ffe044dd4",
+    "started": "2026-11-10T02:34:12.521258+00:00",
+    "seconds": 28.64,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "```json\n{\n  \"en-ko\": \"Before answering, check each sentence: who lends, borrows, owns, or pays (never imply a fee or transfer unless stated); exact document type (record, specification, invoice, quote); exact status (received, reviewed, approved, shipped); and certainty (will check, may, plan ≠ confirm, guarantee). Write polite Korean business style without adding, softening, or strengthening meaning.\",\n  \"ko-en\": \"Map status and certainty exactly: 접수/수령 = received (not approved); 승인 = approved; 확인해 보겠습니다/검토 예정 = will check (not confirm); 빌리다/빌려주다 = borrow/lend (keep direction; no fee unless stated). Keep document types distinct (기록/내역 = record, 사양 = specifications). Never add certainty, cost, or ownership. Write concise, natural English.\"\n}\n```\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "1739ac2809c599e06c04016fe78ede957911620edbef22f290fcc4286cba6d21"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "author",
+    "thread": "01a1c34e-5399-7d71-828b-52161739916a",
+    "started": "2026-11-10T02:34:12.521258+00:00",
+    "seconds": 99.97,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "{\n  \"en-ko\": \"Trace who does what to whom. Distinguish ownership from temporary possession and leave payment unspecified unless stated. Choose document terms by their function in context. Use natural business Korean, matching verbs and polite endings to the sender’s intent. Keep acknowledgment distinct from approval and tentative steps distinct from commitments.\",\n  \"ko-en\": \"Use concise, courteous business English. If Korean leaves the actor unclear, phrase the clause neutrally. Preserve who provides, holds or owns an item without implying unstated fees. Identify documents by what they record or communicate. Distinguish receipt from approval. Choose verbs and modals that show whether an action is possible, requested, proposed or promised.\"\n}"
+    ],
+    "errors": [],
+    "prompt_sha256": "1739ac2809c599e06c04016fe78ede957911620edbef22f290fcc4286cba6d21"
+  }
+}

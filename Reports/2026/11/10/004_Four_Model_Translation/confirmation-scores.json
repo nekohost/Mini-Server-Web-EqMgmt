@@ -1,0 +1,568 @@
+{
+  "matrix": {
+    "T1": {
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "T2": {
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "T3": {
+      "selected": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "C",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "T4": {
+      "selected": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "B",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "T5": {
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "T6": {
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "X1": {
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "X2": {
+      "selected": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      },
+      "control": {
+        "coordinator": "B",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "B"
+      }
+    },
+    "X3": {
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "B",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "X4": {
+      "control": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      },
+      "selected": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both retain ownership, deadline, free use and unagreed freight. 에밀 is a recognizable transliteration."
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both distinguish the return form and the only signed delivery receipt."
+      },
+      "m3": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "신용 요청 reads as a creditworthiness request in a refund email. Both bodies preserve neither and the conditional payment."
+      },
+      "m4": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 leaves the source restriction on what the vendor was asked implicit. Option 2 retains that limit and the undecided contract."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve finance alone, row 7, estimates, file and the complete salutation."
+      },
+      "m6": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "Time, personal check-in and notice-only request survive. Option 1 avoids inventing a singular sender for a team email."
+      },
+      "m7": {
+        "grades": "AB",
+        "best": [
+          1
+        ],
+        "reason": "Option 2 carries 저희 across the missing subject of 반납하지 않았습니다, obscuring who still holds the camera."
+      },
+      "m8": {
+        "grades": "BB",
+        "best": [
+          2
+        ],
+        "reason": "Both can instruct storage inside the box. Source locates the enclosed note to retain; sheet is more specific in 2."
+      },
+      "m9": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Bank financing remains tentative, transfer not authorized, draft schedule only."
+      },
+      "m10": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both retain voltage-only scope and the unknown invoice issue date."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve ownership, scope, and shipping refusal."
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "Both preserve document identity, scope, and uncertainty."
+      },
+      "m3": {
+        "grades": "BB",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 mistranslates credit; Option 2 keeps Subject."
+      },
+      "m4": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 omits \"only\" on inquiry scope."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve estimate status, authority, and row scope."
+      },
+      "m6": {
+        "grades": "BB",
+        "best": [
+          1
+        ],
+        "reason": "Untranslated team name; Option 2 misuses \"I\"."
+      },
+      "m7": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 uses awkward pronoun and passive voice."
+      },
+      "m8": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 2 preserves specification sheet document identity."
+      },
+      "m9": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Option 1 adds \"yet\" to unauthorized transfer."
+      },
+      "m10": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve voltage scope and invoice uncertainty."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both accurately convey ownership and terms"
+      },
+      "m2": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Misattributed agency and inaccurate document term"
+      },
+      "m3": {
+        "grades": "CB",
+        "best": [
+          2
+        ],
+        "reason": "Mistranslated credit request and omitted closing"
+      },
+      "m4": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Omitted scope restriction only in option 1"
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both accurately convey all instructions"
+      },
+      "m6": {
+        "grades": "AB",
+        "best": [
+          1
+        ],
+        "reason": "Incorrect first-person pronoun for team sender"
+      },
+      "m7": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Awkward pronoun calque and passive shift"
+      },
+      "m8": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both accurately translate enclosed document types"
+      },
+      "m9": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "Unwarranted addition of yet alters certainty"
+      },
+      "m10": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Check and confirm are synonymous here"
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "AA",
+        "best": [
+          2
+        ],
+        "reason": "2: clearer \"측정기\"; consistent name scripts"
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "2: passive voice drops who checked damage"
+      },
+      "m3": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "1: \"신용 요청\" mistranslates credit (refund) request"
+      },
+      "m4": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "1 drops \"only\", widening the inquiry's scope"
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          2
+        ],
+        "reason": "1: \"서로 다르더라도\" narrows \"differ\" slightly"
+      },
+      "m6": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "2: \"I\" conflicts with team signature"
+      },
+      "m7": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both keep ownership, no-discount instruction intact"
+      },
+      "m8": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Equivalent; both share \"inside the box\" ambiguity"
+      },
+      "m9": {
+        "grades": "AA",
+        "best": [
+          2
+        ],
+        "reason": "1: \"아직\" hints transfer approval is expected"
+      },
+      "m10": {
+        "grades": "AA",
+        "best": [
+          1
+        ],
+        "reason": "2: \"confirm\" slightly shifts \"check\" toward approval"
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve ownership, free use, and shipping terms."
+      },
+      "m2": {
+        "grades": "AA",
+        "best": [
+          2
+        ],
+        "reason": "“Acknowledgment of Receipt” avoids implying completed delivery."
+      },
+      "m3": {
+        "grades": "BB",
+        "best": [
+          2
+        ],
+        "reason": "신용 suggests borrowing. Both obscure refund disbursement."
+      },
+      "m4": {
+        "grades": "BA",
+        "best": [
+          2
+        ],
+        "reason": "First omits the limit on the vendor inquiry."
+      },
+      "m5": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both preserve estimates, editing rights, and row seven."
+      },
+      "m6": {
+        "grades": "BB",
+        "best": [
+          1
+        ],
+        "reason": "Both leave 현장지원팀 untranslated. Second adds “I.”"
+      },
+      "m7": {
+        "grades": "BB",
+        "best": [
+          1
+        ],
+        "reason": "Both leave ownership implicit. Second blurs return responsibility."
+      },
+      "m8": {
+        "grades": "BB",
+        "best": [
+          2
+        ],
+        "reason": "Both imply box storage. Second identifies specification sheet."
+      },
+      "m9": {
+        "grades": "AA",
+        "best": [
+          2
+        ],
+        "reason": "Second preserves authorization status without adding “yet.”"
+      },
+      "m10": {
+        "grades": "AA",
+        "best": [
+          1,
+          2
+        ],
+        "reason": "Both limit review to voltage. Invoice date undetermined."
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "36cdeea4-404b-4be4-9eca-5ee83c2e6561",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "fd036676-93d1-42f9-a5aa-5b69e0aed064",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "0c6644ca-440b-4ea4-a4a8-1d35ba4c7d62",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c383-bc7c-7ca1-90a4-0a12e2a273c8",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}

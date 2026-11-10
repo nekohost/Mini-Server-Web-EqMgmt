@@ -1,0 +1,78 @@
+{
+  "Y1": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "28d2205f37ed8411d3d760f477280a5883a593722cca03edca979a02211159fc",
+      "instruction_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+      "stored": "",
+      "raw": "제목: 어쿠스틱 캘리브레이터 회수 요청\n\nSam 님,\n\n안녕하십니까.\n\nEast Lab이 감사 관련으로 우리 서비스 팀의 어쿠스틱 캘리브레이터를 빌려 갔습니다. 해당 장비는 여전히 우리 소유입니다. Lab에 회수 가능 날짜를 제안하도록 요청해 주시되, 대여 가격은 제시하지 마십시오.\n\n감사합니다.\nNora",
+      "elapsed": 13.959,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "failed",
+      "error": "원문에 없는 다른 메일의 인사말이 들어 있습니다.",
+      "server_id_sha256": "a4070ae56f5286928cc89873ad28a51154ceba83f85cf6af84340937b38c1a31",
+      "start": 1794282136.0373025,
+      "end": 1794282148.9741492
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "xhigh",
+      "source_sha256": "28d2205f37ed8411d3d760f477280a5883a593722cca03edca979a02211159fc",
+      "instruction_sha256": "bd5858021aa32583f3a67fcb775e8d9488c713d0498b4c13c8035fd9852aeeac",
+      "stored": "안녕하세요, Sam님.\n\n동부 연구실(East Lab)이 감사(audit)를 위해 우리 서비스 팀에서 음향 캘리브레이터(acoustic calibrator)를 빌려갔습니다. 해당 장비는 여전히 우리 소유입니다. 연구실에 회수일을 제안하도록 요청해 주시되, 임대료는 제시하지 마세요.\n\n감사합니다,\nNora",
+      "raw": "제목: 음향 캘리브레이터 회수 요청\n\n안녕하세요, Sam님.\n\n동부 연구실(East Lab)이 감사(audit)를 위해 우리 서비스 팀에서 음향 캘리브레이터(acoustic calibrator)를 빌려갔습니다. 해당 장비는 여전히 우리 소유입니다. 연구실에 회수일을 제안하도록 요청해 주시되, 임대료는 제시하지 마세요.\n\n감사합니다,\nNora",
+      "elapsed": 33.924,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "60251097d62305d07786841a2ec5671a689ae84a6fb652b2e33968824f40d729",
+      "start": 1794282185.2083514,
+      "end": 1794282218.119563
+    }
+  },
+  "Y2": {
+    "control": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "df191318097a0bc120743443dd6b40a135846b8bc9a2622faa56acb89f399ec7",
+      "instruction_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+      "stored": "Subject: Confirmation of Packaging Documents\n\nHello,\n\nThe packing list only lists the contents of each box. The bill of lading is sent separately by the carrier, and the delivery receipt signed by the warehouse staff has not yet been received. This does not constitute approval of the cost billing.\n\nThank you.\n\nBest regards,\n이솔",
+      "raw": "Subject: Confirmation of Packaging Documents\n\nHello,\n\nThe packing list only lists the contents of each box. The bill of lading is sent separately by the carrier, and the delivery receipt signed by the warehouse staff has not yet been received. This does not constitute approval of the cost billing.\n\nThank you.\n\nBest regards,\n이솔",
+      "elapsed": 24.873,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "dafb30c72554409f49283eb1446b50b3492af5a22d1cbe2b9a116e2a8ab9e859",
+      "start": 1794282154.6687338,
+      "end": 1794282178.600046
+    },
+    "selected": {
+      "model": "qwen3.8-flash-next-iq3_xxs",
+      "effort": "low",
+      "source_sha256": "df191318097a0bc120743443dd6b40a135846b8bc9a2622faa56acb89f399ec7",
+      "instruction_sha256": "43d99b3a4df388c0c8aa89e5c5f80f619200a5a442007c19157e3a427046ccb8",
+      "stored": "Subject: Confirming Packing Documents\n\nHello.\n\nThe packing slip only lists the contents of each box. The waybill is sent separately by the carrier, and we have not yet received the delivery note signed by the warehouse person in charge. This is not an approval of the cost billing.\n\nThank you.\n이솔",
+      "raw": "Subject: Confirming Packing Documents\n\nHello.\n\nThe packing slip only lists the contents of each box. The waybill is sent separately by the carrier, and we have not yet received the delivery note signed by the warehouse person in charge. This is not an approval of the cost billing.\n\nThank you.\n이솔",
+      "elapsed": 18.968,
+      "termination": {
+        "done": true,
+        "finish_reason": "stop"
+      },
+      "state": "done",
+      "error": null,
+      "server_id_sha256": "667e48ae5053ec8d9b29c420bdae1360c2ccf804eabbb50c6dd913530cdce2ae",
+      "start": 1794282223.9455938,
+      "end": 1794282242.0845299
+    }
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "direction": "ko-en",
+  "instruction": "아래 메일을 자연스러운 업무용 영어로 옮겨 주세요.",
+  "source": "제목: 납품 서류 대조\n\n안녕하세요.\n\n창고에서 받은 납품 명세서에는 여섯 상자가 적혀 있습니다. 실제로 도착한 수량은 아직 대조 중입니다. 차이가 확인되면 명세서 사본만 보내 주세요.\n\n감사합니다.\n한서린 드림",
+  "model": "qwen3.8-flash-next-iq3_xxs",
+  "provider": "260Strata",
+  "reasoning_effort": "low",
+  "writing_revision": "business-writing-20261110-v2",
+  "correspondence_revision": "correspondence-20261110-v1",
+  "fidelity_revision": "source-sender-20261110-v1",
+  "state": "done",
+  "error": null,
+  "seconds": 15.62,
+  "model_steps": 1,
+  "proposals": 0,
+  "raw": "Subject: Reconciliation of Delivery Documents\n\nHello,\n\nThe packing slip received from the warehouse lists six boxes. The actual quantity received is still being reconciled. If a discrepancy is confirmed, please send only a copy of the packing slip.\n\nThank you.\nHan Seorin",
+  "stored": "Subject: Reconciliation of Delivery Documents\n\nHello,\n\nThe packing slip received from the warehouse lists six boxes. The actual quantity received is still being reconciled. If a discrepancy is confirmed, please send only a copy of the packing slip.\n\nThank you.\n한서린",
+  "scope_only_current_mail": true,
+  "display": "Subject: Reconciliation of Delivery Documents\n\nHello,\n\nThe packing slip received from the warehouse lists six boxes. The actual quantity received is still being reconciled. If a discrepancy is confirmed, please send only a copy of the packing slip.\n\nThank you.\n한서린",
+  "restored_same": true
+}

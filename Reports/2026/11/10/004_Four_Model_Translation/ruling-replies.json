@@ -1,0 +1,62 @@
+{
+  "gemini-4-argon-high": {
+    "model": "gemini-4-argon-high",
+    "effort": "high",
+    "phase": "ruling",
+    "thread": "21398eeb-8cbf-4690-997d-87a091275477",
+    "started": "2026-11-10T03:11:04.057052+00:00",
+    "seconds": 147.83,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B,C,B | 1 | Source says the lab \"has not opened the second,\" so Option 2's \"접수하지 않았습니다\" (has not received) is a material error, while Option 1's \"착수하지 않았습니다\" is the closest natural phrasing over Option 3's awkward \"개시하지 않았습니다\" though it still needs an edit to \"열어보지 않았습니다\".\nm2 | C,C,B | 3 | Source \"담당자는 서류를 받으면 접수증만 발급해 주세요\" makes the person in charge both receiver and issuer; Option 3 (\"When receiving documents, the staff member in charge should issue only a receipt\") preserves this, whereas Options 1 and 2 split the agent (\"Once/When the person in charge receives... please issue\"), though Option 3 still needs an edit for \"**Subject:**\" and untranslated \"운영팀\".\nm3 | B,B,A,C,C,B,A | 3,7 | Source says the workshop \"has a spare pump on loan\" that \"belongs to the supplier\"; Options 3 (\"예비 펌프를 대여받았습니다. 이 펌프는 공급업체 소유입니다\") and 7 (\"예비 펌프를 빌려 두고 있습니다. 이 펌프는 공급업체 소유입니다\") capture both holder and owner, whereas Option 4 falsely says the supplier holds it (\"공급업체가 갖고 있습니다\") and Options 1, 2, and 5 misuse \"임대/임차\" or \"워크숍\".\nm4 | A,B,C,B,C,A,C | 1,6 | A \"납품 명세서\" used to verify delivered quantities (\"수량은 아직 대조하지 않았습니다\") is a \"delivery note\" (or \"statement\" in Option 2), not a technical \"specification\" (Options 3, 5, 7), and Options 1 and 6 avoid the raw \"**Subject:**\" markdown in Options 2 and 4.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "490f8f0ff7c4b2de1e728b006b3b11b21c4b710b21e503afd8257e1e0500f3bc"
+  },
+  "gemini-3.8-flash-high": {
+    "model": "gemini-3.8-flash-high",
+    "effort": "high",
+    "phase": "ruling",
+    "thread": "4e2940f4-a7ab-4ff2-9371-55da9cc57df4",
+    "started": "2026-11-10T03:11:04.057052+00:00",
+    "seconds": 323.67,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A, C, B | 1 | \"has not opened\" is naturally rendered as \"착수하지 않았습니다\", whereas \"접수하지 않았습니다\" falsely claims it was not received and \"개시하지 않았습니다\" is unidiomatic.\nm2 | B, B, A | 3 | \"the staff member in charge should issue only a receipt\" correctly assigns receipt issuance to the staff member, unlike options 1 and 2 where \"please issue\" misdirects the action.\nm3 | B, A, B, C, B, B, B | 2 | \"작업장에 임차 중인\" and \"공급업체 소유\" accurately distinguish holding versus ownership, whereas option 4 materially errs with \"공급업체가 갖고 있습니다\".\nm4 | A, B, B, A, B, A, B | 1, 6 | \"Delivery Note\" correctly identifies the document used for quantity reconciliation, whereas \"specification\" misidentifies the document type.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "490f8f0ff7c4b2de1e728b006b3b11b21c4b710b21e503afd8257e1e0500f3bc"
+  },
+  "claude-opus-5-5-high": {
+    "model": "claude-opus-5-5-high",
+    "effort": "high",
+    "phase": "ruling",
+    "thread": "5add4360-5525-4823-af77-500d3e615ae0",
+    "started": "2026-11-10T03:11:04.057052+00:00",
+    "seconds": 41.81,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | A C A | 1, 3 | \"has not opened the second\": \"착수하지\" and \"개시하지\" mean the lab has not started on it, but \"접수하지 않았습니다\" says the lab never received it.\nm2 | B B A | 3 | \"담당자는…접수증만 발급해 주세요\": only 3 has the staff member issue the receipt (\"the staff member in charge should issue only a receipt\"); 1 and 2 shift \"please issue\" to the reader.\nm3 | B A A C B B A | 3, 7 | \"has a spare pump on loan… belongs to the supplier\": \"대여받았습니다\" and \"빌려 두고 있습니다\" are correct; \"임대 중\" suggests the pump is being rented out; 4's \"공급업체가 갖고 있습니다\" says the supplier holds it.\nm4 | A A B A B A B | 4, 6 | \"납품 명세서\" is the delivery record, so \"delivery note\" fits (\"reconciled\" also fits \"대조\"), while \"specification\" names the wrong kind of document.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "490f8f0ff7c4b2de1e728b006b3b11b21c4b710b21e503afd8257e1e0500f3bc"
+  },
+  "gpt-6-astra": {
+    "model": "gpt-6-astra",
+    "effort": "max",
+    "phase": "ruling",
+    "thread": "01a1c370-1293-7922-9924-452dd57bc3db",
+    "started": "2026-11-10T03:11:04.057052+00:00",
+    "seconds": 250.92,
+    "status": "SUCCESS",
+    "code": 0,
+    "messages": [
+      "m1 | B C B | 1 | “착수” comes closest, but both “착수” and “개시” leave the opening status unstated, while “접수하지 않았습니다” reports nonreceipt.\nm2 | B B B | 3 | Only 3 clearly assigns receipt issuance to “담당자”, and all three leave “운영팀” untranslated.\nm3 | B B A C B B A | 3, 7 | The workshop holds the pump “on loan”, “belongs to the supplier” establishes ownership, and “임대” and “임차” imply rent.\nm4 | A B C A C A C | 1, 4, 6 | “납품 명세서” lists delivered quantities, so “delivery note” is precise, “statement” is vague, and “specification” points to requirements."
+    ],
+    "errors": [],
+    "prompt_sha256": "490f8f0ff7c4b2de1e728b006b3b11b21c4b710b21e503afd8257e1e0500f3bc"
+  }
+}

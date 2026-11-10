@@ -1,0 +1,22 @@
+{
+  "m1": {
+    "case": "P-en-ko",
+    "arms": [
+      "control",
+      "b",
+      "c",
+      "a",
+      "d"
+    ]
+  },
+  "m2": {
+    "case": "P-ko-en",
+    "arms": [
+      "d",
+      "a",
+      "c",
+      "b",
+      "control"
+    ]
+  }
+}

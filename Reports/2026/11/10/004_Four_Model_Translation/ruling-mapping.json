@@ -1,0 +1,42 @@
+{
+  "m1": {
+    "case": "E2",
+    "arms": [
+      "c",
+      "control",
+      "d"
+    ]
+  },
+  "m2": {
+    "case": "D05",
+    "arms": [
+      "d",
+      "c",
+      "control"
+    ]
+  },
+  "m3": {
+    "case": "P-en-ko",
+    "arms": [
+      "ordinary-d",
+      "control",
+      "micro-b",
+      "micro-d",
+      "ordinary-c",
+      "micro-c",
+      "micro-a"
+    ]
+  },
+  "m4": {
+    "case": "P-ko-en",
+    "arms": [
+      "micro-d",
+      "micro-c",
+      "ordinary-d",
+      "micro-b",
+      "control",
+      "micro-a",
+      "ordinary-c"
+    ]
+  }
+}

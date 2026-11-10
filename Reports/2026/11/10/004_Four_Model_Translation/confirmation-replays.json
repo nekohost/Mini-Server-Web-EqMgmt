@@ -1,0 +1,92 @@
+[
+  {
+    "case": "T1",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "T2",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "T3",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "T4",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "T5",
+    "original_state": "failed",
+    "original_error": "원문에 없는 다른 메일의 인사말이 들어 있습니다.",
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": true
+  },
+  {
+    "case": "T6",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "X1",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "X2",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "X3",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  },
+  {
+    "case": "X4",
+    "original_state": "done",
+    "original_error": null,
+    "final_state": "done",
+    "final_error": null,
+    "identical_wire_and_raw": true,
+    "display_changed": false
+  }
+]
