@@ -20,7 +20,7 @@ from utils.ai_assistant.translation import (
     NEGATION_SCOPE, PARTIAL_SCOPE_GUIDANCE, SCOPE_GUIDANCE, SENDER_GUIDANCE, SOURCE_SENDER,
     BUSINESS_WRITING, INTAKE_GUIDANCE, KO_EN_WRITING_GUIDANCE,
     clarify_zero_status, final_mail_text, source_sender, unrequested_heading,
-    format_verified_signoff, output_problem, translation_packet,
+    format_verified_signoff, output_problem, translation_completion, translation_packet,
 )
 
 EN = 'Subject: Inspection of LT-31\n\nHi Jae,\n\nPlease inspect LT-31. Do not start the unit.\n\nRegards,\nMira'
@@ -86,6 +86,43 @@ class MailTests(unittest.TestCase):
             fix.drive(job, lambda _: stream(answer))
             self.assertEqual(fix.finish_reports[-1][1]['state'], 'done')
             self.assertEqual(fix.blocked_tools, [])
+
+    def test_correspondence_guide_is_frozen_only_for_matching_mail(self):
+        from utils.ai_assistant.translation import CORRESPONDENCE_GUIDES, CORRESPONDENCE_REVISION
+        for direction, source in (
+            ('en-ko', 'Hello Rita,\n\nWe borrowed the spare camera. Please retain the label.\n\nRegards,\nLee'),
+            ('ko-en', '제목: 확인\n\n안녕하세요.\n\n납품 명세서를 보관해 주세요. 사양서는 추후 발송하겠습니다.\n\n감사합니다.\n김하린 드림'),
+        ):
+            with self.subTest(direction=direction), fixture(assistant) as fix:
+                job_id = fix.submit(request(source, direction)).get_json()['job_id']
+                claimed = fix.claim()
+                with fix.store.db() as db:
+                    job = dict(fix.store.job(job_id, db))
+                job['lease'] = claimed['lease']
+                current = claimed['route']
+                prior = dict(current)
+                self.assertEqual(prior.pop('mail_correspondence_revision'), CORRESPONDENCE_REVISION)
+                prior_packet = translation_packet(job, prior, 3)
+                self.assertEqual(claimed['messages'][0]['content'], prior_packet['messages'][0]['content'] + '\n' + CORRESPONDENCE_GUIDES[direction])
+                self.assertEqual(claimed['messages'][1:], [{'role': 'user', 'content': source}])
+                self.assertEqual(claimed['tools'], [])
+                for invalid in ({'mail_correspondence_revision': None}, {'mail_correspondence_revision': 'unknown'},
+                                {'mail_writing_revision': None}, {'provider_id': 'other', 'mail_translation_profile': SELECTED_PROFILE}):
+                    with self.assertRaises(AssistantError):
+                        translation_packet(job, {**current, **invalid}, 3)
+
+    def test_unrelated_or_financial_mail_retains_the_existing_prompt(self):
+        for direction, source in (
+            ('en-ko', 'Hello Rita,\n\nWe have not approved the bank loan. Please check the interest rate.\n\nRegards,\nLee'),
+            ('en-ko', 'Hello Rita,\n\nWe will lend support if the deadline changes.\n\nRegards,\nLee'),
+            ('en-ko', 'Hi Lee,\n\nWe borrowed an idea for our agenda and will discuss it next week.\n\nRegards,\nRita'),
+            ('ko-en', '제목: 제품 요구 사항\n\n안녕하세요.\n\n사양서의 전압만 확인해 주세요. 청구서는 발행 전입니다.\n\n감사합니다.'),
+        ):
+            with self.subTest(direction=direction, source=source), fixture(assistant) as fix:
+                fix.submit(request(source, direction))
+                job = fix.claim()
+                self.assertNotIn('mail_correspondence_revision', job['route'])
+                self.assertEqual(job['messages'][1]['content'], source)
 
     def test_document_intake_guidance_is_bound_to_the_current_korean_mail(self):
         for body, expected in [('신청서를 창구에 접수할 수 있습니다.', True),
@@ -671,6 +708,33 @@ class MailTests(unittest.TestCase):
         # A structurally complete reversal of meaning still needs independent grading.
         self.assertIsNone(output_problem(EN, KO.replace('가동하지 마세요.', '가동하세요.'), 'en-ko'))
 
+    def test_split_greeting_requires_same_source_addressee_and_keeps_raw_text(self):
+        raw = KO.replace('Jae님, 안녕하세요.', 'Jae 님,\n\n안녕하세요.')
+        with fixture(assistant) as fix:
+            job_id = fix.submit(request()).get_json()['job_id']
+            packet = fix.claim()
+            with fix.store.db() as db:
+                row = dict(fix.store.job(job_id, db))
+            route = packet['route']
+            self.assertEqual(route['mail_display_revision'], 'ko-envelope-20261110-v2')
+            data = {'termination': {'done': True, 'finish_reason': 'stop'}, 'content': raw}
+            old = {**route, 'mail_display_revision': 'ko-signoff-20261110-v1'}
+            self.assertEqual(translation_completion({**row, 'route_snapshot': canonical(old)}, 'en-ko', data)[0], 'failed')
+            for bad in (raw.replace('Jae 님,', 'Alex 님,'), raw.replace('안녕하세요.', '안녕하세요.\n\n안녕하세요.'),
+                        raw.replace('LT-31을 점검해 주세요.', '안녕하세요.\nLT-31을 점검해 주세요.')):
+                self.assertEqual(translation_completion(row, 'en-ko', {**data, 'content': bad})[0], 'failed')
+            short = 'Hi Sam,\n\nPlease wait\n\nRegards,\nNora'
+            short_job = {**row, 'context': canonical([{'role':'user','content':short}])}
+            no_body = 'Sam 님\n\n안녕하세요.\n\n감사합니다.\nNora'
+            self.assertEqual(translation_completion(short_job, 'en-ko', {**data, 'content':no_body})[0], 'failed')
+            complete = no_body.replace('감사합니다.', '기다려 주세요.\n\n감사합니다.')
+            self.assertEqual(translation_completion(short_job, 'en-ko', {**data, 'content':complete})[0], 'done')
+            fix.drive(packet, lambda _: stream(raw))
+            self.assertEqual(fix.finish_reports[-1][1]['state'], 'done')
+            with fix.store.db() as db:
+                self.assertEqual(db.execute("SELECT content FROM messages WHERE role='assistant' AND job=?", (job_id,)).fetchone()[0], raw)
+                self.assertEqual(db.execute('SELECT content FROM message_steps WHERE job=?', (job_id,)).fetchone()[0], raw)
+
     def test_wrapped_signature_preserves_every_component_and_the_original_response(self):
         source = EN.replace('Mira', 'Mira, Service Desk')
         wrapped = KO.replace('Mira 드림', 'Mira\nService Desk')
@@ -711,7 +775,7 @@ class MailTests(unittest.TestCase):
                 with fix.store.db(True) as db:
                     job = fix.store.job(receipt['job_id'], db)
                     route = json.loads(job['route_snapshot'])
-                    self.assertEqual(route.pop('mail_display_revision'), 'ko-signoff-20261110-v1')
+                    self.assertEqual(route.pop('mail_display_revision'), 'ko-envelope-20261110-v2')
                     self.assertNotIn('mail_prompt_revision', route)
                     if previous:
                         db.execute('UPDATE jobs SET route_snapshot=? WHERE id=?', (canonical(route), job['id']))

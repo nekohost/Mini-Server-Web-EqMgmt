@@ -61,9 +61,47 @@ ACTIVE_REVISED_DIRECTIONS = frozenset()
 ACTIVE_TERM_DIRECTIONS = frozenset({'en-ko', 'ko-en'})
 USE_CONTACT_REVISION = True
 KOREAN_SIGNOFF_REVISION = 'ko-signoff-20261110-v1'
+KOREAN_ENVELOPE_REVISION = 'ko-envelope-20261110-v2'
 NEGATION_SCOPE = 'negative-scope-20261110-v1'
 SOURCE_SENDER = 'source-sender-20261110-v1'
 BUSINESS_WRITING = 'business-writing-20261110-v2'
+CORRESPONDENCE_REVISION = 'correspondence-20261110-v1'
+CORRESPONDENCE_GUIDES = {
+    'en-ko': (
+        "Scope by source meaning and direction: use '보관하다' for physical custody; '빌려주다/대여해 "
+        "주다' (lend out) and '빌리다/대여받다' (borrow in) when payment is unspecified; '임대하다' (rent "
+        "out) and '임차하다' (rent in) only when paid. Keep sender identity; never guess missing "
+        "facts."
+    ),
+    'ko-en': (
+        "Scope by source meaning: for delivery paperwork, use 'packing slip' (itemized "
+        "package contents), 'delivery note' (shipment handover confirmation), or 'waybill' "
+        "(carrier transit document), not 'specifications' (technical requirements) or "
+        "'invoice/bill' (payment requests). Keep sender identity and never guess missing "
+        "facts."
+    ),
+}
+# Physical custody and delivery paperwork need terms that a general-purpose
+# translation instruction may miss. Pick the guide only when admitting a job.
+CUSTODY = re.compile(r'\b(?:on loan|borrow(?:s|ed|ing)?|lend(?:s|ing)?|lent|loaned)\b|'
+                     r'\buse\b[^.!?\n]{0,100}\b(?:at no charge|free of charge)\b', re.I)
+NONPHYSICAL_LOAN = re.compile(
+    r'\b(?:bank loan|interest rate|loan (?:agreement|application|officer|repayment)|'
+    r'(?:borrow(?:s|ed|ing)?|lend(?:s|ing)?|lent)\s+(?:(?:some|an?|the)\s+)?'
+    r'(?:money|funds|cash|capital|time|idea|term|phrase|support|credibility|weight|hand|ear|'
+    r'dollars?|euros?|pounds?|USD|EUR|GBP|KRW))\b', re.I)
+DELIVERY_DOCUMENT = re.compile(r'납품\s*(?:명세[서표]|내역서|확인서|서류|서(?=$|[^가-힣]|[이가은는을를와과의로에도만]))'
+                               r'|(?:거래|배송|포장)\s*명세[서표]|출하\s*서류|운송장|인수증')
+
+
+def correspondence_guide_applies(direction, source):
+    if direction not in CORRESPONDENCE_GUIDES:
+        return False
+    if direction == 'ko-en':
+        return DELIVERY_DOCUMENT.search(source) is not None
+    return CUSTODY.search(source) is not None and NONPHYSICAL_LOAN.search(source) is None
+
+
 KO_EN_WRITING_GUIDANCE = (
     'Write a complete email the recipient can act on. Use the specific action and object in context: '
     'reading, examining, starting work and deciding are distinct. Keep tentative, conditional and '
@@ -198,8 +236,10 @@ def translation_route(route, direction, selected_level, source=''):
             raise AssistantError(f'260Strata 메일 번역에 필요한 {level} 추론 설정이 허용되지 않았습니다.', 409)
         snapshot['reasoning_effort'] = LEVELS[level]
         snapshot['mail_writing_revision'] = BUSINESS_WRITING
+        if correspondence_guide_applies(direction, source):
+            snapshot['mail_correspondence_revision'] = CORRESPONDENCE_REVISION
         if direction == 'en-ko':
-            snapshot['mail_display_revision'] = KOREAN_SIGNOFF_REVISION
+            snapshot['mail_display_revision'] = KOREAN_ENVELOPE_REVISION
         revision = revision_for_source(direction, source)
         if revision:
             snapshot['mail_prompt_revision'] = revision
@@ -274,6 +314,13 @@ def translation_packet(job, route, protocol):
             instruction += '\n' + KO_EN_WRITING_GUIDANCE
             if '접수' in original:
                 instruction += '\n' + INTAKE_GUIDANCE
+    if 'mail_correspondence_revision' in route:
+        if (route['mail_correspondence_revision'] != CORRESPONDENCE_REVISION
+                or route.get('mail_translation_profile') != HERMES_PROFILE
+                or route.get('mail_writing_revision') != BUSINESS_WRITING
+                or direction not in CORRESPONDENCE_GUIDES):
+            raise AssistantError('접수한 업무 용어 지침 버전을 확인할 수 없습니다.', 409)
+        instruction += '\n' + CORRESPONDENCE_GUIDES[direction]
     messages = [{'role': 'system', 'content': instruction},
                 {'role': 'user', 'content': original}]
     output_tokens = min(8192, max(512, route['context_tokens'] // 4))
@@ -376,10 +423,32 @@ def output_problem(source, output, direction, *, split_signature=False):
 
 def revised_korean_display(route):
     return (isinstance(route, dict) and route.get('mail_translation') == 'en-ko'
-            and (route.get('mail_display_revision') == KOREAN_SIGNOFF_REVISION
+            and (route.get('mail_display_revision') in (KOREAN_SIGNOFF_REVISION, KOREAN_ENVELOPE_REVISION)
                  or route.get('mail_prompt_revision') == REVISED_MAIL)
             and route.get('provider_id') == LEGACY_PROVIDER and route.get('adapter') == 'strata'
             and route.get('model') == MODEL)
+
+
+def single_source_greeting(source, output):
+    """Count a named addressee and a following plain Korean greeting as one opening."""
+    def opening_lines(text):
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+        return lines[1:] if lines and SUBJECT.fullmatch(lines[0]) else lines
+
+    original = opening_lines(source)
+    lines = opening_lines(output)
+    if not original or len(lines) < 3 or not re.fullmatch(r'안녕하(?:세요|십니까)[.!?]?', lines[1]):
+        return output
+    name = re.fullmatch(r"(?:hi|hello|dear)\s+([A-Za-z][A-Za-z .’'\-]{0,64}?)[,!.]?", original[0], re.I)
+    if not name or not re.fullmatch(re.escape(name[1].strip()) + r'\s*님(?:께)?[,，]?', lines[0], re.I):
+        return output
+    # Keep the addressee and greeting together, so an unpunctuated name cannot count as body text.
+    opening = lines[0] + ' ' + lines[1]
+    if not GREETING.fullmatch(opening):
+        return output
+    header = (r'(?m)^[ \t]*' + re.escape(lines[0]) + r'[ \t]*(?:\r?\n[ \t]*)+'
+              + re.escape(lines[1]) + r'[ \t]*\r?$')
+    return re.sub(header, lambda _: opening, output, count=1)
 
 
 def format_verified_signoff(source, output):
@@ -582,6 +651,8 @@ def translation_completion(job, direction, data):
     if len(display) > MAX_CONTENT:
         return 'failed', 'LENGTH_LIMIT', '서명을 포함한 번역문이 표시 한도를 초과했습니다.'
     structural_text = display
+    if revised and route.get('mail_display_revision') == KOREAN_ENVELOPE_REVISION:
+        structural_text = single_source_greeting(source, display)
     if not problem and route.get('mail_fidelity_revision') == SOURCE_SENDER:
         sender = source_sender(source)
         if sender and '\n' in sender and display.rstrip().endswith('\n' + sender):
