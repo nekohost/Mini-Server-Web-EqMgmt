@@ -722,6 +722,11 @@ def install_assistant(app, services):
             msg=db.execute("SELECT id,reasoning,content FROM messages WHERE job=? AND role='assistant'",(jid,)).fetchone()
             # Content may reset for a continuation. Steps lets the UI reset only the provisional answer.
             generation=job['steps']+(1 if job['state'] in ('running','draining','recovery_required') else 0)
+            # The final mail footer may replace an already streamed prefix of the same length.
+            if (job['state'] == 'done' and json.loads(job['route_snapshot'] or '{}').get('mail_translation')
+                    and db.execute('SELECT 1 FROM message_steps WHERE job=? AND step=0 AND content<>?',
+                                   (jid, msg['content'])).fetchone()):
+                generation += 1
             if request.args.get('v')!=str(generation):
                 co=0
             co=min(co,len(msg['content']))

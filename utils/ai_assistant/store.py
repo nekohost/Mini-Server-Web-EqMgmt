@@ -19,7 +19,7 @@ import uuid
 from .policy import (AssistantError, ERROR_REASONS, MAX_CONTENT, MAX_PROPOSALS, MAX_REASONING,
                      MAX_RECEIPT, OUTPUT_RESERVATION, TERMINAL, canonical, digest, mac, opaque)
 from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION, search_mode
-from .translation import format_verified_signoff, revised_korean_display, translation_route, translation_source
+from .translation import NEGATION_SCOPE, SOURCE_SENDER, final_mail_text, revised_korean_display, translation_route, translation_source
 
 SCHEMA = '''
 CREATE TABLE IF NOT EXISTS ai_meta(version INTEGER NOT NULL);
@@ -628,8 +628,8 @@ class Store(LifecycleStore):
 
     def finish(self, jid, token, state, error=None, context=None, error_code=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.FINISH]
-        [EN rev.3]
-        [Role] Finalizes outcomes and releases only definitively terminated independent execution guards.
+        [EN rev.4]
+        [Role] Finalizes outcomes, persists verified mail text and releases definitively terminated execution guards.
         [Dependencies] Current lease, authoritative response outcome and pending confirmations.
         [Impact] Failures stop pending work; cancelled/deleted jobs accept no late context and new search evidence consumes its reserved storage exactly once.
         """
@@ -652,11 +652,13 @@ class Store(LifecycleStore):
                 db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'", (jid,))
             if state == 'done' and db.execute("SELECT 1 FROM proposals WHERE job=? AND state='pending'", (jid,)).fetchone():
                 state = 'waiting_confirmation'
-            if (state == 'done' and row['purpose'] == 'chat' and not row['is_deleted']
-                    and revised_korean_display(json.loads(row['route_snapshot'] or '{}'))):
+            route = json.loads(row['route_snapshot'] or '{}') if state == 'done' and row['purpose'] == 'chat' and not row['is_deleted'] else {}
+            if revised_korean_display(route) or route.get('mail_fidelity_revision') in (SOURCE_SENDER, NEGATION_SCOPE):
                 # Keep the exact streamed signal in message_steps; charge only the completed display delta.
                 message = db.execute("SELECT reasoning,content FROM messages WHERE job=? AND role='assistant'", (jid,)).fetchone()
-                display = format_verified_signoff(translation_source(row), message['content'])
+                display, problem = final_mail_text(route, translation_source(row), message['content'])
+                if problem:
+                    raise AssistantError(problem, 409)
                 if display != message['content']:
                     self._message_text(db, row, message['reasoning'], display)
             order = db.execute('SELECT COALESCE(MAX(queue_order),0)+1 FROM jobs').fetchone()[0]

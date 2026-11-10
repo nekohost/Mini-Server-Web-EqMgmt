@@ -17,11 +17,15 @@ from utils.ai_assistant.translation import (
     ACTIVE_REVISED_DIRECTIONS, ACTIVE_TERM_DIRECTIONS, EFFORT, HERMES_PROFILE, LEGACY_PROMPTS, PROMPTS,
     REVISED_MAIL, REVISED_PROMPTS, SELECTED_PROFILE, SELECTED_PROMPTS,
     CONTACT_KO_PROMPT, CONTACT_MAIL, TERM_KO_PROMPT, TERM_MAIL, USE_CONTACT_REVISION, explicit_mail,
+    NEGATION_SCOPE, PARTIAL_SCOPE_GUIDANCE, SCOPE_GUIDANCE, SENDER_GUIDANCE, SOURCE_SENDER,
+    clarify_zero_status, final_mail_text, source_sender,
     format_verified_signoff, output_problem, translation_packet,
 )
 
 EN = 'Subject: Inspection of LT-31\n\nHi Jae,\n\nPlease inspect LT-31. Do not start the unit.\n\nRegards,\nMira'
 KO = '제목: LT-31 검사\n\nJae님, 안녕하세요.\n\nLT-31을 점검해 주세요. 장비를 가동하지 마세요.\n\n감사합니다.\nMira 드림'
+SIGNED_FIXTURES = {'B-K03', 'N-K01', 'N-K02', 'N-K03'}
+SCOPE_FIXTURES = {'N-E02'}
 
 
 def request(source=EN, direction='en-ko'):
@@ -88,6 +92,10 @@ class MailTests(unittest.TestCase):
                         expected = CONTACT_KO_PROMPT
                     if row['id'] in {'B-E02','N-E02'} and 'en-ko' in ACTIVE_TERM_DIRECTIONS:
                         expected = REVISED_PROMPTS['en-ko']
+                    if row['id'] in SIGNED_FIXTURES:
+                        expected += '\n' + SENDER_GUIDANCE
+                    elif row['id'] in SCOPE_FIXTURES:
+                        expected += '\n' + SCOPE_GUIDANCE
                     self.assertEqual(events['request']['payload'], {
                         'model': MODEL, 'stream': True, 'max_tokens': 8192, 'temperature': .6, 'top_p': .95,
                         'reasoning_effort': EFFORT[row['direction']], 'strata_mcp': False,
@@ -326,9 +334,10 @@ class MailTests(unittest.TestCase):
         fix.drive(packet, translated, expected_origin=origin)
         self.assertEqual(fix.finish_reports[-1][1]['state'], 'done')
         instructions = PROMPTS if profile == HERMES_PROFILE else SELECTED_PROMPTS
+        instruction = instructions[direction]
         expected_payload = {'model': resolved['model'], 'stream': True, 'max_tokens': 8192,
                             'temperature': 0.6, 'top_p': 0.95,
-                            'messages': [{'role': 'system', 'content': instructions[direction]},
+                            'messages': [{'role': 'system', 'content': instruction},
                                          {'role': 'user', 'content': source}]}
         if expected_wire is not None:
             expected_payload['reasoning_effort'] = expected_wire
@@ -415,6 +424,7 @@ class MailTests(unittest.TestCase):
                 frozen = json.loads(fix.store.job(receipt['job_id'], db)['route_snapshot'])
                 frozen.pop('mail_translation_profile')
                 frozen.pop('mail_prompt_revision', None)
+                frozen.pop('mail_fidelity_revision', None)
                 db.execute('UPDATE jobs SET route_snapshot=? WHERE id=?', (canonical(frozen), receipt['job_id']))
             job = fix.claim()
             self.assertEqual(job['messages'][0]['content'], LEGACY_PROMPTS['ko-en'])
@@ -430,6 +440,7 @@ class MailTests(unittest.TestCase):
             record['lease'] = fix.claim()['lease']
             route = json.loads(record['route_snapshot'])
             route.pop('mail_prompt_revision', None)
+            route.pop('mail_fidelity_revision', None)
             self.assertEqual(translation_packet(record, route, 3)['messages'][0]['content'], LEGACY_PROMPTS['ko-en'])
             new = dict(route, mail_prompt_revision=REVISED_MAIL)
             with patch('utils.ai_assistant.translation.ACTIVE_REVISED_DIRECTIONS', frozenset()):
@@ -447,6 +458,90 @@ class MailTests(unittest.TestCase):
             new.pop('mail_translation_profile')
             with self.assertRaises(AssistantError):
                 translation_packet(record, new, 3)
+
+    def test_negative_scope_and_uncertainty_keep_the_exact_model_input(self):
+        for text in ('Neither approval has arrived.', 'We have not received both.',
+                     'We cannot confirm whether either permit was approved.',
+                     'Both permits are on file.'):
+            with self.subTest(text=text), fixture(assistant) as fix:
+                src = EN.replace('Do not start the unit.', text)
+                receipt = fix.submit(request(src)).get_json()
+                packet = fix.claim()
+                self.assertEqual(packet['id'], receipt['job_id'])
+                self.assertEqual(packet['messages'][1], {'role':'user','content':src})
+                expected = LEGACY_PROMPTS['en-ko']
+                if text.startswith('Both permits'):
+                    self.assertNotIn('mail_fidelity_revision', packet['route'])
+                else:
+                    self.assertEqual(packet['route']['mail_fidelity_revision'], NEGATION_SCOPE)
+                    expected += '\n' + SCOPE_GUIDANCE
+                    if text == 'We have not received both.':
+                        expected += '\n' + PARTIAL_SCOPE_GUIDANCE
+                self.assertEqual(packet['messages'][0]['content'], expected)
+                self.assertEqual(packet['tools'], [])
+
+    def test_aligned_source_event_can_disambiguate_only_a_matching_standalone_status(self):
+        eng = 'Subject: Status\n\nNeither approval has been received. Keep the pass in the safe.\n\nRegards,\nLou'
+        kor = '제목: 상태\n\n아직 두 승인이 모두 접수되지 않았습니다. 출입증은 금고에 보관하세요.\n\nLou 드림'
+        self.assertEqual(clarify_zero_status(eng,kor),kor.replace('두 승인이 모두','두 승인 중 어느 한 건도'))
+        for changed in ('We have not received both approvals.', 'We do not know whether either approval has been received.',
+                        'If neither approval has been received, let us know.', 'Neither permit has been received.',
+                        'Neither approval has been approved.', '"Neither approval has been received."'):
+            self.assertEqual(clarify_zero_status(eng.replace('Neither approval has been received.',changed),kor),kor)
+        self.assertEqual(clarify_zero_status(eng,kor.replace(' 출입증은',' 처음입니다. 출입증은')),kor.replace(' 출입증은',' 처음입니다. 출입증은'))
+
+    def test_sender_binding_writes_only_the_verified_terminal_signature(self):
+        raw = 'Subject: Return\n\nDear Yerin,\n\nPlease ask Yerim about the file.\n\nBest regards,\nYerim'
+        for footer, expected in (('예린 드림','예린'), ('윤서 (Eunice Yoon) 올림','윤서 (Eunice Yoon)'),
+                                 ('김도윤 · 박서린 드림','김도윤 · 박서린'), ('품질관리팀 드림','품질관리팀'),
+                                 ('Jean-Luc Lee','Jean-Luc Lee'), ('예린\n지원팀 드림','예린\n지원팀')):
+            with self.subTest(footer=footer), fixture(assistant) as fix:
+                source = '제목: 반납\n\n파일을 확인해 주세요.\n\n감사합니다.\n' + footer
+                jid = fix.submit(request(source, 'ko-en')).get_json()['job_id']
+                packet = fix.claim()
+                self.assertEqual(packet['route']['mail_fidelity_revision'], SOURCE_SENDER)
+                fix.drive(packet, lambda _: stream(raw))
+                self.assertEqual(fix.finish_reports[-1][1]['state'], 'done')
+                with fix.store.db() as db:
+                    stored = db.execute("SELECT content FROM messages WHERE job=? AND role='assistant'",(jid,)).fetchone()[0]
+                    self.assertEqual(db.execute('SELECT content FROM message_steps WHERE job=?',(jid,)).fetchone()[0], raw)
+                self.assertEqual(stored, raw[:-len('Yerim')] + expected)
+                complete = fix.client.get(f'/api/ai/jobs/{jid}?r=0&c={len(raw)}&v=1').get_json()
+                self.assertEqual(complete['content'], stored)
+                self.assertNotEqual(complete['generation'], 1)
+
+    def test_unsigned_quoted_and_unverifiable_footers(self):
+        route = {'mail_fidelity_revision':SOURCE_SENDER}
+        src = '제목: 반납\n\n반납을 기다립니다.\n\n감사합니다.'
+        raw = 'Subject: Return\n\nWe await the return.\n\nRegards,\nUnknown'
+        self.assertEqual(final_mail_text(route,src,raw),(raw.rsplit('\n',1)[0],None))
+        self.assertIsNone(source_sender('제목: 초안\n\n> 감사합니다.\n> 예린 드림'))
+        self.assertIsNone(source_sender('제목: 초안\n\n확인해 주세요.\n\n감사합니다.\n추신. 아직 검토 중입니다.'))
+        self.assertIsNone(source_sender('제목: 초안\n\n확인해 주세요.\n\n-----Original Message-----\n감사합니다.\n다른 이름 드림'))
+        self.assertIsNotNone(final_mail_text(route,src+'\n예린 드림',raw.rsplit('\n',1)[0])[1])
+        self.assertIsNotNone(final_mail_text(route,src+'\n예린 드림',raw+'\nDo not ship.')[1])
+
+    def test_fidelity_revision_rejects_wrong_route_and_old_jobs_keep_their_sender(self):
+        raw = EN.replace('Mira','Other')
+        source = KO.replace('Mira','예린')
+        with fixture(assistant) as fix:
+            jid = fix.submit(request(source,'ko-en')).get_json()['job_id']
+            with fix.store.db(True) as db:
+                job = dict(fix.store.job(jid,db))
+                route = json.loads(job['route_snapshot'])
+                del route['mail_fidelity_revision']
+                db.execute('UPDATE jobs SET route_snapshot=? WHERE id=?',(canonical(route),jid))
+            packet = fix.claim()
+            job['lease'] = packet['lease']
+            for changes in ({'mail_fidelity_revision':'unknown'}, {'mail_fidelity_revision':NEGATION_SCOPE},
+                            {'mail_fidelity_revision':SOURCE_SENDER,'provider_id':'other'}):
+                with self.assertRaises(AssistantError):
+                    translation_packet(job,{**route,**changes},3)
+            self.assertEqual(packet['messages'][0]['content'], LEGACY_PROMPTS['ko-en'])
+            fix.drive(packet,lambda _:stream(raw))
+            self.assertEqual(fix.finish_reports[-1][1]['state'],'done')
+            with fix.store.db() as db:
+                self.assertEqual(db.execute("SELECT content FROM messages WHERE job=? AND role='assistant'",(jid,)).fetchone()[0],raw)
 
     def test_document_checks_and_semantic_grading_boundary(self):
         self.assertIsNone(output_problem(EN, KO, 'en-ko'))
