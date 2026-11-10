@@ -100,6 +100,42 @@ test('Antigravity mailbox sender·recipient가 worker를 main과 연결한다', 
   assert.ok(result.events.every((event) => !event.content.includes('내부 도구 원문')));
 });
 
+test('Antigravity 수신함은 여러 자식의 부모 지시·응답, 실제 부모 충돌과 외부 경로 언급을 구분한다', async (context) => {
+  const brain = await mkdtemp(path.join(os.tmpdir(), 'conversation-recorder-mailbox-'));
+  context.after(() => rm(brain, { recursive: true, force: true }));
+  const ids = ['1', '2', '3', '4'].map((digit) => '00000000-0000-4000-8000-00000000000' + digit);
+  const [parent, first, second, foreign] = ids;
+  const main = await fixture('antigravity-main.jsonl');
+  const worker = await fixture('antigravity-worker.jsonl');
+  const folder = (id, name) => path.join(brain, id, '.system_generated', name);
+  for (const id of ids) {
+    await mkdir(folder(id, 'messages'), { recursive: true });
+    await mkdir(folder(id, 'logs'), { recursive: true });
+    const unrelated = main.replaceAll('fixture', 'other') + JSON.stringify({ type: 'TOOL_RESULT', content: FIXTURE_WORKSPACE }) + '\n';
+    await writeFile(path.join(folder(id, 'logs'), 'transcript.jsonl'), id === parent ? main : id === foreign ? unrelated : worker);
+  }
+  const deliver = (id, sender, recipient, extra) => writeFile(path.join(folder(recipient, 'messages'), id + '.json'), JSON.stringify({
+    id, sender, recipient, timestamp: '2026-09-08T01:01:02Z', content: id, ...extra,
+  }));
+  await deliver('assign1', parent, first, { renderDetails: { messageTitle: 'Message from Parent Agent' } });
+  await deliver('assign2', parent, second, { sourceMetadata: { tool: { toolCall: { name: 'invoke_subagent' } } } });
+  await deliver('reply', first, parent);
+  const inspect = () => collectAntigravityEvents({ workspaceRoot: FIXTURE_WORKSPACE, state: emptyState(), homeDirectory: brain, roots: [brain], force: true });
+  const result = await inspect();
+  assert.equal(result.status, 'ok');
+  assert.ok(!result.registeredConversations.includes(foreign));
+  for (const [id, child, channel, actor] of [['assign1', first, 'subagent_task', 'parent'], ['assign2', second, 'subagent_task', 'parent'], ['reply', first, 'subagent_status', 'assistant']]) {
+    const matching = result.events.filter((event) => event.content === id);
+    assert.deepEqual(matching.map((event) => [event.threadId, event.parentThreadId, event.channel, event.actor]), [[child, parent, channel, actor]]);
+  }
+  await deliver('wrongParent', foreign, first, { renderDetails: { messageTitle: 'Message from Parent Agent' } });
+  await deliver('zAnotherAssignment', parent, first, { renderDetails: { messageTitle: 'Message from Parent Agent' } });
+  const conflict = await inspect();
+  assert.equal(conflict.status, 'error');
+  assert.equal(conflict.errors.filter((message) => message.includes(first)).length, 1);
+  assert.ok(!conflict.events.some((event) => ['assign1', 'wrongParent', 'zAnotherAssignment'].includes(event.content)));
+});
+
 test('Antigravity workspace registry는 새 직접 conversation 첫 턴을 식별한다', async (context) => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), 'conversation-recorder-antigravity-registry-'));
   context.after(() => rm(temporary, { recursive: true, force: true }));

@@ -52,9 +52,9 @@ function inspectConversation(text, conversationId, workspaceRoot, fullText = nul
     // 같은 대상이 여러 번 나와도 관계 판정에는 한 번이면 충분하다.
     for (const match of matches) if (!sentTargets.includes(match[1])) sentTargets.push(match[1]);
   }
-  // 원본 어딘가에 정규화한 workspace 경로가 있으면 해당 프로젝트 conversation 후보로 본다.
+  // 모델이나 도구가 다른 저장소 경로를 언급한 것만으로 그 프로젝트의 대화를 가져오지 않는다.
   const workspaceNeedle = normalizePathForComparison(workspaceRoot);
-  const workspaceMatch = normalizeTranscriptForSearch(text).includes(workspaceNeedle);
+  const workspaceMatch = userRows.some((row) => normalizeTranscriptForSearch(row.value.content).includes(workspaceNeedle));
   // 후속 변환에 재사용할 rows와 판정 메타데이터를 반환한다.
   return { conversationId, rows, fullRows, userRows, sentTargets, workspaceMatch };
 }
@@ -129,10 +129,10 @@ async function discoverConversationFiles(roots) {
   return discovered;
 }
 
-// 부모 conversation의 메시지 보관소에서 worker와 부모의 명시적 관계 및 handoff를 읽는다.
+// 수신함에 배달된 부모 지시와 하위 보고를 구분한다. 구형 보고에는 renderDetails가 없다.
 async function discoverMessageRelationships(candidates, snapshots, errors) {
-  // sender별 parent와 사용자에게 노출 가능한 handoff 목록을 보존한다.
   const relationships = new Map();
+  const conflictingChildren = new Set();
   for (const candidate of candidates) {
     let entries;
     try {
@@ -153,17 +153,23 @@ async function discoverMessageRelationships(candidates, snapshots, errors) {
         // sender·recipient가 실제 conversation UUID인 mailbox 메시지만 하위 관계로 인정한다.
         const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
         if (typeof message.sender !== 'string' || typeof message.recipient !== 'string' || !uuidPattern.test(message.sender) || !uuidPattern.test(message.recipient)) continue;
-        if (!relationships.has(message.sender)) relationships.set(message.sender, { parentThreadId: message.recipient, messages: [] });
-        const relation = relationships.get(message.sender);
-        // 한 sender가 서로 다른 부모로 보내면 임의 선택하지 않고 오류로 격리한다.
-        if (relation.parentThreadId !== message.recipient) {
-          errors.push(`Antigravity worker ${message.sender}의 부모 conversation이 둘 이상입니다.`);
-          relationships.delete(message.sender);
+        if (message.recipient !== candidate.conversationId || message.sender === message.recipient) continue;
+        const fromParent = message.renderDetails?.messageTitle === 'Message from Parent Agent' ||
+          message.sourceMetadata?.tool?.toolCall?.name === 'invoke_subagent';
+        const childId = fromParent ? message.recipient : message.sender;
+        const parentId = fromParent ? message.sender : message.recipient;
+        if (conflictingChildren.has(childId)) continue;
+        if (!relationships.has(childId)) relationships.set(childId, { parentThreadId: parentId, messages: [] });
+        const relation = relationships.get(childId);
+        if (relation.parentThreadId !== parentId) {
+          errors.push(`Antigravity worker ${childId}의 부모 conversation이 둘 이상입니다.`);
+          conflictingChildren.add(childId);
+          relationships.delete(childId);
           continue;
         }
         // 실제 전송된 content와 timestamp가 있는 메시지만 상태·handoff 후보로 보관한다.
         if (typeof message.content === 'string' && message.content.length > 0 && message.timestamp) {
-          relation.messages.push({ id: String(message.id ?? entry.name), timestamp: message.timestamp, content: message.content });
+          relation.messages.push({ id: String(message.id ?? entry.name), timestamp: message.timestamp, content: message.content, fromParent });
         }
       } catch (error) {
         // 작성 중인 파일은 다음 폴링에서 재시도하고 현재 cursor를 성공 처리하지 않는다.
@@ -297,12 +303,15 @@ export async function collectAntigravityEvents({ workspaceRoot, state, homeDirec
     // 확인된 child는 main timeline에서 제외하고 companion으로 변환한다.
     if (childParent.has(info.conversationId)) {
       const childEvents = conversationEvents(info, { isSubagent: true, parentThreadId: childParent.get(info.conversationId) });
-      const existingContents = new Set(childEvents.map((event) => event.content));
+      const existingContents = new Set(childEvents.map((event) => `${event.actor}:${event.content}`));
       const relation = messageRelationships.get(info.conversationId);
       // mailbox에만 있는 진행 보고도 내부 tool 원문 없이 실제 전송 content만 companion에 보존한다.
       for (const message of relation?.messages ?? []) {
-        if (existingContents.has(message.content)) continue;
-        childEvents.push(createEvent({ provider: 'antigravity', threadId: info.conversationId, sourceEventId: `message-${message.id}`, sourceOrdinal: childEvents.length + 1, occurredAt: message.timestamp, actor: 'assistant', channel: 'subagent_status', speaker: 'Gemini 하위 에이전트 → 부모', content: message.content, destination: 'subagent', parentThreadId: childParent.get(info.conversationId), agentId: info.conversationId, taskName: info.conversationId }));
+        const actor = message.fromParent ? 'parent' : 'assistant';
+        if (existingContents.has(`${actor}:${message.content}`)) continue;
+        childEvents.push(createEvent({ provider: 'antigravity', threadId: info.conversationId, sourceEventId: `message-${message.id}`, sourceOrdinal: childEvents.length + 1, occurredAt: message.timestamp, actor,
+          channel: message.fromParent ? 'subagent_task' : 'subagent_status', speaker: message.fromParent ? '부모 → Gemini 하위 에이전트' : 'Gemini 하위 에이전트 → 부모',
+          content: message.content, destination: 'subagent', parentThreadId: childParent.get(info.conversationId), agentId: info.conversationId, taskName: info.conversationId }));
       }
       events.push(...childEvents);
     }
