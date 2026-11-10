@@ -64,4 +64,18 @@ Staging에서 실제 260Strata 추론은 76회였고 최초 저장 72회, 실패
 | 영→한, xhigh | 53.01초 | 예비 센서를 유통업체에서 빌려 왔고 시험대는 우리 소유이며 운송비 부담에 합의하지 않았다는 뜻을 보존했다. [원문과 응답](004_Four_Model_Translation/live-mail/en-ko.json) · [화면](004_Four_Model_Translation/live-mail/en-ko.png) |
 | 한→영, low | 15.62초 | 포장명세서의 여섯 상자, 실수량 대조 중, 차이 확인 시 사본만 요청한다는 조건과 발신자 한서린을 보존했다. [원문과 응답](004_Four_Model_Translation/live-mail/ko-en.json) · [화면](004_Four_Model_Translation/live-mail/ko-en.png) |
 
-운영 문안에 대한 총괄 판정은 두 편 모두 A다. 네 모델의 후보 작성, 교차 채점, 재심은 배포 전 완료됐다. 배포 후 별도로 수행한 운영 채점에서 Opus 첫 호출은 429로 답변을 반환하지 않았다. 최초 시도와 같은 입력을 보존했다. [운영 사용자 화면 확인](004_Four_Model_Translation/live-mail/verified.json) · [최초 호출 기록](004_Four_Model_Translation/production-opus-first-attempt.json)
+운영 영→한은 총괄과 네 평가자 모두 A였다. 운영 한→영은 총괄·Argon·Opus·Astra가 A, Flash가 B였다. Flash의 지적은 한서린을 영문 서명으로 바꾸라는 것이었다. 원문에는 당사자의 공식 영문명이 없으므로 발신자 식별 정보를 보존하는 정책을 적용했다. 최초 Opus 운영 채점은 할당량 오류 429로 종료됐다. 할당량 복구 후 같은 입력 지문으로 다시 접수해 두 편 모두 A를 받았다. 재채점은 Qwen을 추가로 호출하지 않았다. 15시 07분 KST에도 운영 소스 지문, 로그인 응답, 워커와 보관 정리 타이머를 다시 확인했다. [운영 사용자 화면](004_Four_Model_Translation/live-mail/verified.json) · [최초 호출 기록](004_Four_Model_Translation/production-opus-first-attempt.json) · [최종 점수](004_Four_Model_Translation/production-scores.json) · [마지막 서비스 확인](004_Four_Model_Translation/closeout-health.json)
+
+## CLI 입력과 공개 답변
+
+| 같은 과제를 받은 단계 | 입력 | 모델 답변 원문 |
+|---|---|---|
+| 양방향 지침 작성 | [작성 지시](004_Four_Model_Translation/author-instruction.txt) | [네 모델](004_Four_Model_Translation/author-responses.json) |
+| 범용 후보 40건 평가 | [채점 지시](004_Four_Model_Translation/grading-instruction.txt) · [익명 문안](004_Four_Model_Translation/dev-blind.json) · [Flash 재요청 입력](004_Four_Model_Translation/dev-flash-retry-input.txt) | [네 모델](004_Four_Model_Translation/dev-replies.json) · [Flash 최초 시도](004_Four_Model_Translation/dev-flash-empty-attempt.json) |
+| 대여·문서 지침 작성 | [작성 지시](004_Four_Model_Translation/micro-instruction.txt) | [네 모델](004_Four_Model_Translation/micro-replies.json) |
+| 개발·대여·문서 재심 | [지시](004_Four_Model_Translation/ruling-instruction.txt) · [익명 문안](004_Four_Model_Translation/ruling-blind.json) | [네 모델](004_Four_Model_Translation/ruling-replies.json) |
+| 결선 두 후보와 기존판 | [지시](004_Four_Model_Translation/finalist-instruction.txt) · [익명 문안](004_Four_Model_Translation/finalist-blind.json) | [네 모델](004_Four_Model_Translation/finalist-replies.json) |
+| 10편 독립 비교 | [전체 입력](004_Four_Model_Translation/confirmation-instruction.txt) | [네 모델](004_Four_Model_Translation/confirmation-replies.json) |
+| 이견 6편 재심 | [전체 입력](004_Four_Model_Translation/arbitration-instruction.txt) | [네 모델](004_Four_Model_Translation/arbitration-replies.json) |
+| 추가 미사용 2편 | [전체 입력](004_Four_Model_Translation/prospective-instruction.txt) | [네 모델](004_Four_Model_Translation/prospective-replies.json) |
+| 운영 합성 번역 2편 | [전체 입력](004_Four_Model_Translation/production-instruction.txt) | [네 모델 및 Opus 재호출](004_Four_Model_Translation/production-replies.json) · [최초 상태](004_Four_Model_Translation/production-first-panel.json) |

@@ -7,6 +7,14 @@
     "errors": [],
     "prompt_sha256": "b9d59718d3d9064580a910bdde7d3ae4a68e7470b728389d4a8dd462091dacbf"
   },
+  "gemini-3.8-flash-high": {
+    "status": "SUCCESS",
+    "messages": [
+      "m1 | A | 1 | Accurate translation preserving ownership, collection, freight, and signer identity.\nm2 | B | 1 | Korean signer name requires romanization in English email.\n"
+    ],
+    "errors": [],
+    "prompt_sha256": "b9d59718d3d9064580a910bdde7d3ae4a68e7470b728389d4a8dd462091dacbf"
+  },
   "claude-opus-5-5-high": {
     "status": "ERROR",
     "messages": [],

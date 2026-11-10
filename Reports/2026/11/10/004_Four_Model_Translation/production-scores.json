@@ -1,0 +1,129 @@
+{
+  "matrix": {
+    "live-en-ko": {
+      "deployed": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "A",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    },
+    "live-ko-en": {
+      "deployed": {
+        "coordinator": "A",
+        "gemini-4-argon-high": "A",
+        "gemini-3.8-flash-high": "B",
+        "claude-opus-5-5-high": "A",
+        "gpt-6-astra": "A"
+      }
+    }
+  },
+  "rubrics": {
+    "coordinator": {
+      "m1": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Distributor loan stays inbound, stand remains ours, collection window requested, no agreement to freight. Greeting punctuation is stylistic."
+      },
+      "m2": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Packing slip, six boxes, reconciliation still in progress, only a copy after confirmed discrepancy, and literal sender retained."
+      }
+    },
+    "gemini-4-argon-high": {
+      "m1": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Preserves ownership, collection request, freight refusal, and signer."
+      },
+      "m2": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Preserves packing slip, six boxes, copy restriction, and signer."
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "m1": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Accurate translation preserving ownership, collection, freight, and signer identity."
+      },
+      "m2": {
+        "grades": "B",
+        "best": [
+          1
+        ],
+        "reason": "Korean signer name requires romanization in English email."
+      }
+    },
+    "claude-opus-5-5-high": {
+      "m1": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Loan, ownership, collection request and freight refusal all match; Luca kept."
+      },
+      "m2": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Six boxes, still reconciling, copy only; signer 한서린 unchanged."
+      }
+    },
+    "gpt-6-astra": {
+      "m1": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Distributor’s loan, our stand, pickup window inquiry, no freight agreement."
+      },
+      "m2": {
+        "grades": "A",
+        "best": [
+          1
+        ],
+        "reason": "Six boxes listed, count pending, slip copy only upon discrepancy."
+      }
+    }
+  },
+  "settings": {
+    "gemini-4-argon-high": {
+      "session": "cdf979a7-6e01-4c6c-869c-77af49b9c2fa",
+      "model": "Gemini 4 Argon (High)",
+      "effort": "high"
+    },
+    "gemini-3.8-flash-high": {
+      "session": "33af65e4-0c4c-461b-a232-3f04db4852d1",
+      "model": "Gemini 3.8 Flash (High)",
+      "effort": "high"
+    },
+    "claude-opus-5-5-high": {
+      "session": "67da84e0-56a3-431c-876b-caafebbaed00",
+      "model": "Claude Opus 5.5 (High)",
+      "effort": "high"
+    },
+    "gpt-6-astra": {
+      "session": "01a1c3a2-8bdc-7533-872b-5fdc2b87a063",
+      "model": "gpt-6-astra",
+      "effort": "max",
+      "served_tier": "priority",
+      "configured_window": 872000,
+      "effective_window": 828400
+    }
+  }
+}
