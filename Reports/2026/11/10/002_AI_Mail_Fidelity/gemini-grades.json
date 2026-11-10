@@ -1,0 +1,27 @@
+{
+  "instruction": "도구와 파일을 사용하지 마세요. 아래 합성 업무메일의 발췌만 독립 평가하세요. E 원문은 “Facilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received.”입니다. E-A는 “Facilities 부서는 이메일로 승인할 수 있습니다. Security 부서만 원본 종이 양식에 서명해야 합니다. Facilities 이메일 승인도, Security 서면 승인도 아직 접수되지 않았습니다.”이고 E-B는 “Facilities 팀은 이메일로 승인할 수 있습니다. 다만, Security 팀만 원본 종이 양식에 서명해야 합니다. 아직 두 승인이 모두 접수되지 않았습니다.”입니다. K 원문은 “어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요. 감사합니다. 예린 드림”입니다. K-A는 “Please do not re-execute any request, and let us know only whether we can check the logs by 13:40 KST. Best regards, Yerim”이고 K-B는 “Do not re-run any request; please let me know only whether you can check the logs by 13:40 KST. Thank you. 예린”입니다. 공식 영문 철자는 주어지지 않았고 원문 서명을 유지할 수 있습니다. 승인 접수 0건, 주체·시각·금지 범위, 서명 동일성을 기준으로 E-A/E-B/K-A/K-B 각각 통과·수정 필요·중대 오류 중 하나와 근거를 한 줄로 답하세요. 해당 발췌만 평가하세요.",
+  "mapping": {
+    "E-A": "final",
+    "E-B": "previous",
+    "K-A": "previous",
+    "K-B": "final"
+  },
+  "reviews": [
+    {
+      "model": "gemini-4-argon-high",
+      "effort": "high",
+      "duration_seconds": 47.4399881,
+      "turns": 1,
+      "status": "SUCCESS",
+      "response": "- **E-A: 통과** — 이메일 승인 가능 여부와 원본 종이 양식 서명 주체를 정확히 옮겼고, 두 부서의 승인이 모두 미접수(0건, Neither)임을 중의성 없이 명확하게 전달했습니다.\n- **E-B: 수정 필요** — “두 승인이 모두 접수되지 않았습니다”는 한국어에서 1건만 접수된 상태(부분 부정)로도 해석될 수 있어 ‘승인 접수 0건’이라는 원문 의미가 모호해집니다.\n- **K-A: 중대 오류** — 재실행 전면 금지 범위와 시각(13:40 KST)은 유지했으나, 발신·로그 확인 주체를 임의로 ‘us/we’로 왜곡했고 원문 서명(‘예린’)을 다른 이름인 ‘Yerim(예림)’으로 오기하여 서명 동일성을 위반했습니다.\n- **K-B: 통과** — 어느 요청도 재실행하지 말라는 금지 범위, 기한 시각(13:40 KST), 발신자(me)·수신자(you) 주체 관계 및 원문 서명(‘예린’) 동일성을 모두 정확하게 유지했습니다.\n"
+    },
+    {
+      "model": "gemini-3.8-flash-high",
+      "effort": "high",
+      "duration_seconds": 30.8176614,
+      "turns": 1,
+      "status": "SUCCESS",
+      "response": "- **E-A: 통과** — 주체별 서명 방식과 함께 승인이 단 1건도 접수되지 않은 0건 상태를 명확히 전달했습니다.\n- **E-B: 수정 필요** — “두 승인이 모두 접수되지 않았습니다”는 부분 부정(1건은 접수됨)으로 오독될 여지가 있어 접수 0건을 명확히 하도록 수정이 필요합니다.\n- **K-A: 중대 오류** — 로그 확인 주체를 원문의 상대방이 아닌 화자 측(we)으로 왜곡하여 요청의 본래 의미를 훼손했습니다.\n- **K-B: 통과** — 금지 범위, 확인 주체(you), 기한 시각(13:40 KST)이 정확하고 허용 기준에 맞춰 원문 서명을 유지했습니다.\n"
+    }
+  ]
+}

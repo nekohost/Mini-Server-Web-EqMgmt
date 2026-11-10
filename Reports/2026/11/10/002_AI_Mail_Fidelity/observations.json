@@ -1,0 +1,490 @@
+{
+  "attempts": {
+    "baseline": {
+      "E1": {
+        "source": "Subject: Inspection form 06b6ca\n\nDear Lee,\n\nFacilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received. Keep the pass in the cabinet until both are recorded.\n\nRegards,\nRobin",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 69.863,
+        "prompt_sha256": "2ff4b732a488129ad21a4b339885af034c3d4d55a9035f9ad281c5bf6ffe9943",
+        "raw": "제목: 점검 양식 06b6ca\n\n안녕하십니까, Lee 님,\n\n시설 부서는 이메일로 승인할 수 있습니다. 보안 부서만 원본 종이 양식에 서명해야 합니다. 두 승인 모두 아직 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 출입증을 캐비닛에 보관해 주십시오.\n\n Robin 드림",
+        "display": "제목: 점검 양식 06b6ca\n\n안녕하십니까, Lee 님,\n\n시설 부서는 이메일로 승인할 수 있습니다. 보안 부서만 원본 종이 양식에 서명해야 합니다. 두 승인 모두 아직 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 출입증을 캐비닛에 보관해 주십시오.\n\n Robin 드림"
+      },
+      "K1": {
+        "source": "제목: 반품 작업 기록 확인\n\n현수님, 안녕하세요.\n\n반품 요청 하나가 중복으로 표시됐지만 창고 작업이 중복 실행됐는지는 아직 확인되지 않았습니다. 어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요.\n\n감사합니다.\n예린 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 12.881,
+        "prompt_sha256": "ef6c35728a5be5cfa745d68d391535d467f058f0cfd9eaee73a8db5994cb8e3f",
+        "raw": "Subject: Confirming Return Task Records\n\nHi Hyun-su,\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse task was processed more than once. Do not re-execute either request. Please let me know only whether you can check the logs by 13:40 KST.\n\nBest regards,\nYerin",
+        "display": "Subject: Confirming Return Task Records\n\nHi Hyun-su,\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse task was processed more than once. Do not re-execute either request. Please let me know only whether you can check the logs by 13:40 KST.\n\nBest regards,\nYerin"
+      },
+      "E2": {
+        "source": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 15.064,
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "raw": "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요 Nina,\n\n두 건의 예외 요청 모두 승인되지 않았습니다. 랩은 첫 번째 요청을 검토했고, 두 번째 요청은 아직 오픈하지 않았습니다. 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다,\nDara",
+        "display": "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요 Nina,\n\n두 건의 예외 요청 모두 승인되지 않았습니다. 랩은 첫 번째 요청을 검토했고, 두 번째 요청은 아직 오픈하지 않았습니다. 벤치는 금요일까지 예약 상태를 유지해 주세요.\n\n감사합니다,\nDara"
+      },
+      "E3": {
+        "source": "Subject: Two permits for Hall C\n\nDear Jo,\n\nWe have not received both approvals. The facilities approval is on file, and the fire safety decision is pending. Keep the hall closed.\n\nBest regards,\nMara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 16.476,
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "raw": "제목: C홀 관련 두 건의 허가\n\n조 님,\n\n두 건의 허가를 모두 아직 받지 못했습니다. 시설 관련 승인은 이미 등록되어 있으며, 소방 안전 관련 결정은 아직 보류 중입니다. C홀은 계속 폐쇄 상태로 유지해 주세요.\n\n감사합니다,\nMara",
+        "display": "제목: C홀 관련 두 건의 허가\n\n조 님,\n\n두 건의 허가를 모두 아직 받지 못했습니다. 시설 관련 승인은 이미 등록되어 있으며, 소방 안전 관련 결정은 아직 보류 중입니다. C홀은 계속 폐쇄 상태로 유지해 주세요.\n\n감사합니다,\nMara"
+      },
+      "E4": {
+        "source": "Subject: Temporary badges\n\nHello Ben,\n\nWe do not know whether either permit has been approved. Please check the register tomorrow. Do not mark either permit as rejected.\n\nThanks,\nNora",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 12.181,
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "raw": "제목: 임시 출입증\n\n안녕하세요, Ben님,\n\n두 허가 중 어느 것이 승인되었는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 두 허가 중 어느 것도 반려로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "display": "제목: 임시 출입증\n\n안녕하세요, Ben님,\n\n두 허가 중 어느 것이 승인되었는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 두 허가 중 어느 것도 반려로 표시하지 마세요.\n\n감사합니다,\nNora"
+      },
+      "K2": {
+        "source": "제목: 봉인 번호 확인\n\n재민님, 안녕하세요.\n\n목록의 봉인 번호만 확인해 주세요. 상자를 열거나 새 번호를 발급하지 마세요.\n\n감사합니다.\n윤서 (Eunice Yoon) 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 8.897,
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "raw": "Subject: Confirm Seal Numbers\n\nHi Jaemin,\n\nPlease confirm only the seal numbers on the list. Do not open the boxes or issue new numbers.\n\nThank you.\nEunice Yoon",
+        "display": "Subject: Confirm Seal Numbers\n\nHi Jaemin,\n\nPlease confirm only the seal numbers on the list. Do not open the boxes or issue new numbers.\n\nThank you.\nEunice Yoon"
+      },
+      "K3": {
+        "source": "제목: 시연 일정\n\n안녕하세요.\n\n시연을 수요일 오후로 옮길 수 있는지 알려 주세요. 아직 일정을 변경하지 마세요.\n\n감사합니다.\n김도윤 · 박서린 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 14.482,
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "raw": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know if the demo can be moved to Wednesday afternoon. Please do not change the schedule yet.\n\nThank you.\n\nBest regards,\nDoyun Kim · Seorin Park",
+        "display": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know if the demo can be moved to Wednesday afternoon. Please do not change the schedule yet.\n\nThank you.\n\nBest regards,\nDoyun Kim · Seorin Park"
+      },
+      "K4": {
+        "source": "제목: 인쇄 수량\n\n안녕하세요.\n\n금요일까지 초안 한 부만 인쇄해 주세요. 최종본은 아직 인쇄하지 마세요.\n\n감사합니다.",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 6.74,
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "raw": "Subject: Print Quantity\n\nHello,\n\nPlease print only one copy of the draft by Friday. Do not print the final version yet.\n\nThank you.",
+        "display": "Subject: Print Quantity\n\nHello,\n\nPlease print only one copy of the draft by Friday. Do not print the final version yet.\n\nThank you."
+      },
+      "K5": {
+        "source": "제목: 임시 보관 기한\n\n안녕하세요.\n\n샘플 두 개를 월요일까지 보관해 주세요. 폐기 승인은 아직 요청하지 않았습니다.\n\n감사합니다.\n품질관리팀 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 11.837,
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "raw": "Subject: Temporary Retention Period\n\nHello,\n\nPlease retain two samples until Monday. Disposal approval has not yet been requested.\n\nThank you.\nQuality Control Team",
+        "display": "Subject: Temporary Retention Period\n\nHello,\n\nPlease retain two samples until Monday. Disposal approval has not yet been requested.\n\nThank you.\nQuality Control Team"
+      },
+      "E5": {
+        "source": "Subject: Status of the two releases\n\nDear Sam,\n\nWe cannot confirm that both releases were approved. We do not yet know whether one or neither was approved. Leave both release flags unchanged.\n\nRegards,\nMina",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 9.767,
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "raw": "제목: 두 릴리스 상태\n\nSam 님,\n\n두 릴리스가 모두 승인되었는지 확인할 수 없습니다. 아직 하나만 승인되었는지, 아니면 둘 다 승인되지 않았는지 알지 못합니다. 두 릴리스 플래그는 변경하지 마십시오.\n\n감사합니다,\nMina",
+        "display": "제목: 두 릴리스 상태\n\nSam 님,\n\n두 릴리스가 모두 승인되었는지 확인할 수 없습니다. 아직 하나만 승인되었는지, 아니면 둘 다 승인되지 않았는지 알지 못합니다. 두 릴리스 플래그는 변경하지 마십시오.\n\n감사합니다,\nMina"
+      }
+    },
+    "candidate1": {
+      "E1": {
+        "source": "Subject: Inspection form 06b6ca\n\nDear Lee,\n\nFacilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received. Keep the pass in the cabinet until both are recorded.\n\nRegards,\nRobin",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 53.955,
+        "prompt_sha256": "56e37227d024490a9c3eae689d1594f4b13ff94d635688a3642ee6da2d7b4d52",
+        "raw": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities 팀은 이메일로 승인할 수 있습니다. Security 팀만 원본 종이 양식에 서명해야 합니다. 두 승인 중 어느 쪽도 아직 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 패스를 캐비닛에 보관해 주십시오.\n\nRobin",
+        "display": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities 팀은 이메일로 승인할 수 있습니다. Security 팀만 원본 종이 양식에 서명해야 합니다. 두 승인 중 어느 쪽도 아직 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 패스를 캐비닛에 보관해 주십시오.\n\nRobin"
+      },
+      "K1": {
+        "source": "제목: 반품 작업 기록 확인\n\n현수님, 안녕하세요.\n\n반품 요청 하나가 중복으로 표시됐지만 창고 작업이 중복 실행됐는지는 아직 확인되지 않았습니다. 어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요.\n\n감사합니다.\n예린 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 18.563,
+        "prompt_sha256": "78fff40b98a766ec05b4281213f137aa6ed413b39835e281b743434750a386d9",
+        "raw": "Subject: Verification of Return Processing Records\n\nHello, Hyun-su.\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse operation was processed more than once. Do not re-execute either request; please only let me know whether you can check the logs by 13:40 KST.\n\nThank you.\nYerin",
+        "display": "Subject: Verification of Return Processing Records\n\nHello, Hyun-su.\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse operation was processed more than once. Do not re-execute either request; please only let me know whether you can check the logs by 13:40 KST.\n\nThank you.\n예린"
+      },
+      "E2": {
+        "source": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 41.025,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으며, 두 번째 요청은 열지 않았습니다. 벤치를 금요일까지 예약 상태로 유지해 주십시오.\n\n감사합니다,\nDara",
+        "display": "제목: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였으며, 두 번째 요청은 열지 않았습니다. 벤치를 금요일까지 예약 상태로 유지해 주십시오.\n\n감사합니다,\nDara"
+      },
+      "E3": {
+        "source": "Subject: Two permits for Hall C\n\nDear Jo,\n\nWe have not received both approvals. The facilities approval is on file, and the fire safety decision is pending. Keep the hall closed.\n\nBest regards,\nMara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 43.481,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: Hall C에 대한 두 건의 허가\n\n조 님,\n\n두 승인 중 한 건은 아직 받지 못했습니다. 시설 관련 승인은 이미 접수되어 있으며, 소방 안전 관련 결정은 아직 보류 중입니다. 홀을 계속 폐쇄 상태로 유지해 주십시오.\n\n감사합니다.\n마라",
+        "display": "제목: Hall C에 대한 두 건의 허가\n\n조 님,\n\n두 승인 중 한 건은 아직 받지 못했습니다. 시설 관련 승인은 이미 접수되어 있으며, 소방 안전 관련 결정은 아직 보류 중입니다. 홀을 계속 폐쇄 상태로 유지해 주십시오.\n\n감사합니다.\n마라"
+      },
+      "E4": {
+        "source": "Subject: Temporary badges\n\nHello Ben,\n\nWe do not know whether either permit has been approved. Please check the register tomorrow. Do not mark either permit as rejected.\n\nThanks,\nNora",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 45.012,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: 임시 출입증\n\nBen 님,\n\n어느 허가증이든 승인되었는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 어느 허가증도 반려로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "display": "제목: 임시 출입증\n\nBen 님,\n\n어느 허가증이든 승인되었는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 어느 허가증도 반려로 표시하지 마세요.\n\n감사합니다,\nNora"
+      },
+      "K2": {
+        "source": "제목: 봉인 번호 확인\n\n재민님, 안녕하세요.\n\n목록의 봉인 번호만 확인해 주세요. 상자를 열거나 새 번호를 발급하지 마세요.\n\n감사합니다.\n윤서 (Eunice Yoon) 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 16.842,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Seal Number Verification\n\nHello Jaemin,\n\nPlease verify only the seal numbers on the list. Do not open the boxes or issue new numbers.\n\nThank you,\nEunice Yoon",
+        "display": "Subject: Seal Number Verification\n\nHello Jaemin,\n\nPlease verify only the seal numbers on the list. Do not open the boxes or issue new numbers.\n\nThank you,\n윤서 (Eunice Yoon)"
+      },
+      "K3": {
+        "source": "제목: 시연 일정\n\n안녕하세요.\n\n시연을 수요일 오후로 옮길 수 있는지 알려 주세요. 아직 일정을 변경하지 마세요.\n\n감사합니다.\n김도윤 · 박서린 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 13.957,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know whether the demo can be moved to Wednesday afternoon. Do not change the schedule yet.\n\nThank you.\n김도윤 · 박서린",
+        "display": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know whether the demo can be moved to Wednesday afternoon. Do not change the schedule yet.\n\nThank you.\n김도윤 · 박서린"
+      },
+      "K4": {
+        "source": "제목: 인쇄 수량\n\n안녕하세요.\n\n금요일까지 초안 한 부만 인쇄해 주세요. 최종본은 아직 인쇄하지 마세요.\n\n감사합니다.",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 8.424,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Print Quantity\n\nHello,\n\nPlease print only one copy of the draft by Friday. Do not print the final version yet.\n\nThank you.",
+        "display": "Subject: Print Quantity\n\nHello,\n\nPlease print only one copy of the draft by Friday. Do not print the final version yet.\n\nThank you."
+      },
+      "K5": {
+        "source": "제목: 임시 보관 기한\n\n안녕하세요.\n\n샘플 두 개를 월요일까지 보관해 주세요. 폐기 승인은 아직 요청하지 않았습니다.\n\n감사합니다.\n품질관리팀 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 13.038,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Temporary Retention Period\n\nHello,\n\nPlease keep two samples until Monday. Disposal approval has not yet been requested.\n\nThank you.\nQuality Control Team",
+        "display": "Subject: Temporary Retention Period\n\nHello,\n\nPlease keep two samples until Monday. Disposal approval has not yet been requested.\n\nThank you.\n품질관리팀"
+      },
+      "E5": {
+        "source": "Subject: Status of the two releases\n\nDear Sam,\n\nWe cannot confirm that both releases were approved. We do not yet know whether one or neither was approved. Leave both release flags unchanged.\n\nRegards,\nMina",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 33.277,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: 두 릴리스 현황\n\n샘 님,\n\n두 릴리스가 모두 승인되었는지 확인하지 못하고 있습니다. 하나는 승인되었고 다른 하나는 승인되지 않았는지, 아니면 어느 한 건도 승인되지 않았는지 아직 알 수 없습니다. 두 릴리스 플래그는 변경하지 마세요.\n\n감사합니다,\n미나",
+        "display": "제목: 두 릴리스 현황\n\n샘 님,\n\n두 릴리스가 모두 승인되었는지 확인하지 못하고 있습니다. 하나는 승인되었고 다른 하나는 승인되지 않았는지, 아니면 어느 한 건도 승인되지 않았는지 아직 알 수 없습니다. 두 릴리스 플래그는 변경하지 마세요.\n\n감사합니다,\n미나"
+      }
+    },
+    "candidate2": {
+      "E1": {
+        "source": "Subject: Inspection form 06b6ca\n\nDear Lee,\n\nFacilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received. Keep the pass in the cabinet until both are recorded.\n\nRegards,\nRobin",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 143.367,
+        "prompt_sha256": "56e37227d024490a9c3eae689d1594f4b13ff94d635688a3642ee6da2d7b4d52",
+        "raw": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities 부서는 이메일로 승인할 수 있습니다. Security 부서만 원본 종이 양식에 서명해야 합니다. Facilities 이메일 승인도, Security 서면 승인도 아직 접수되지 않았습니다. 두 승인이 기록될 때까지 출입증을 캐비닛에 보관해 주십시오.\n\n감사합니다.\nRobin",
+        "display": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities 부서는 이메일로 승인할 수 있습니다. Security 부서만 원본 종이 양식에 서명해야 합니다. Facilities 이메일 승인도, Security 서면 승인도 아직 접수되지 않았습니다. 두 승인이 기록될 때까지 출입증을 캐비닛에 보관해 주십시오.\n\n감사합니다.\nRobin"
+      },
+      "K1": {
+        "source": "제목: 반품 작업 기록 확인\n\n현수님, 안녕하세요.\n\n반품 요청 하나가 중복으로 표시됐지만 창고 작업이 중복 실행됐는지는 아직 확인되지 않았습니다. 어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요.\n\n감사합니다.\n예린 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 15.889,
+        "prompt_sha256": "eace309bd93d4882ee3b01a0aa214094afed46e9e686d8505ecadd8619e12555",
+        "raw": "Subject: Checking Return Processing Records\n\nHi Hyun-soo,\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse job was processed more than once. Do not re-run any request; please let me know only whether you can check the logs by 13:40 KST.\n\nThank you.\n예린 드림",
+        "display": "Subject: Checking Return Processing Records\n\nHi Hyun-soo,\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse job was processed more than once. Do not re-run any request; please let me know only whether you can check the logs by 13:40 KST.\n\nThank you.\n예린"
+      },
+      "E2": {
+        "source": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 34.238,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina님,\n\n두 예외 요청 중 어느 한 건도 승인되지 않았습니다. 연구실은 첫 번째 요청을 검토하였으며 두 번째 요청은 처리를 시작하지 않았습니다. 테스트 벤치를 금요일까지 예약 상태로 유지해 주세요.\n\n감사합니다,\nDara",
+        "display": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina님,\n\n두 예외 요청 중 어느 한 건도 승인되지 않았습니다. 연구실은 첫 번째 요청을 검토하였으며 두 번째 요청은 처리를 시작하지 않았습니다. 테스트 벤치를 금요일까지 예약 상태로 유지해 주세요.\n\n감사합니다,\nDara"
+      },
+      "E3": {
+        "source": "Subject: Two permits for Hall C\n\nDear Jo,\n\nWe have not received both approvals. The facilities approval is on file, and the fire safety decision is pending. Keep the hall closed.\n\nBest regards,\nMara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 136.732,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: C홀에 대한 두 허가\n\n조 님,\n\n두 허가를 한 번에 받지는 못했습니다. 시설 허가 문서는 비치되어 있고, 소방 안전 결정은 아직 대기 중입니다. 홀은 계속 폐쇄 상태로 유지해 주세요.\n\n마라 드림",
+        "display": "제목: C홀에 대한 두 허가\n\n조 님,\n\n두 허가를 한 번에 받지는 못했습니다. 시설 허가 문서는 비치되어 있고, 소방 안전 결정은 아직 대기 중입니다. 홀은 계속 폐쇄 상태로 유지해 주세요.\n\n마라 드림"
+      },
+      "E4": {
+        "source": "Subject: Temporary badges\n\nHello Ben,\n\nWe do not know whether either permit has been approved. Please check the register tomorrow. Do not mark either permit as rejected.\n\nThanks,\nNora",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 139.367,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: 임시 배지\n\n안녕하세요 Ben,\n\n저희는 두 허가 중 어느 쪽도 승인되었는지 알지 못합니다. 내일 등록부를 확인해 주세요. 두 허가 중 어느 쪽도 거절로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "display": "제목: 임시 배지\n\n안녕하세요 Ben,\n\n저희는 두 허가 중 어느 쪽도 승인되었는지 알지 못합니다. 내일 등록부를 확인해 주세요. 두 허가 중 어느 쪽도 거절로 표시하지 마세요.\n\n감사합니다,\nNora"
+      },
+      "K2": {
+        "source": "제목: 봉인 번호 확인\n\n재민님, 안녕하세요.\n\n목록의 봉인 번호만 확인해 주세요. 상자를 열거나 새 번호를 발급하지 마세요.\n\n감사합니다.\n윤서 (Eunice Yoon) 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 11.329,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Seal Number Confirmation\n\nHi Jaemin,\n\nPlease only confirm the seal numbers on the list. Do not open the box or issue new numbers.\n\nRegards,\nEunice Yoon",
+        "display": "Subject: Seal Number Confirmation\n\nHi Jaemin,\n\nPlease only confirm the seal numbers on the list. Do not open the box or issue new numbers.\n\nRegards,\n윤서 (Eunice Yoon)"
+      },
+      "K3": {
+        "source": "제목: 시연 일정\n\n안녕하세요.\n\n시연을 수요일 오후로 옮길 수 있는지 알려 주세요. 아직 일정을 변경하지 마세요.\n\n감사합니다.\n김도윤 · 박서린 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 12.2,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Demo Schedule\n\nHello.\n\nPlease let me know if the demo can be moved to Wednesday afternoon. Please do not change the schedule yet.\n\nThank you.\nKim Doyoon · Park Seorin",
+        "display": "Subject: Demo Schedule\n\nHello.\n\nPlease let me know if the demo can be moved to Wednesday afternoon. Please do not change the schedule yet.\n\nThank you.\n김도윤 · 박서린"
+      },
+      "K4": {
+        "source": "제목: 인쇄 수량\n\n안녕하세요.\n\n금요일까지 초안 한 부만 인쇄해 주세요. 최종본은 아직 인쇄하지 마세요.\n\n감사합니다.",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 7.853,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "Subject: Print Quantity\n\nHello,\n\nPlease print only one copy of the draft by Friday. Do not print the final version yet.\n\nThank you.",
+        "display": "Subject: Print Quantity\n\nHello,\n\nPlease print only one copy of the draft by Friday. Do not print the final version yet.\n\nThank you."
+      },
+      "K5": {
+        "source": "제목: 임시 보관 기한\n\n안녕하세요.\n\n샘플 두 개를 월요일까지 보관해 주세요. 폐기 승인은 아직 요청하지 않았습니다.\n\n감사합니다.\n품질관리팀 드림",
+        "direction": "ko-en",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "elapsed_s": 10.388,
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "raw": "**Subject:** Temporary Storage Deadline\n\nHello,\n\nPlease retain two samples until Monday. Disposal approval has not yet been requested.\n\nThank you.\n\nQuality Management Team",
+        "display": "**Subject:** Temporary Storage Deadline\n\nHello,\n\nPlease retain two samples until Monday. Disposal approval has not yet been requested.\n\nThank you.\n품질관리팀"
+      },
+      "E5": {
+        "source": "Subject: Status of the two releases\n\nDear Sam,\n\nWe cannot confirm that both releases were approved. We do not yet know whether one or neither was approved. Leave both release flags unchanged.\n\nRegards,\nMina",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 9.76,
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "raw": "제목: 두 릴리스의 상태\n\n샘 님,\n\n두 릴리스가 모두 승인되었는지는 확인할 수 없습니다. 한 건이 승인되었는지, 아니면 어느 한 건도 승인되지 않았는지도 아직 알 수 없습니다. 두 릴리스 플래그는 변경하지 마세요.\n\n감사합니다,\n미나",
+        "display": "제목: 두 릴리스의 상태\n\n샘 님,\n\n두 릴리스가 모두 승인되었는지는 확인할 수 없습니다. 한 건이 승인되었는지, 아니면 어느 한 건도 승인되지 않았는지도 아직 알 수 없습니다. 두 릴리스 플래그는 변경하지 마세요.\n\n감사합니다,\n미나"
+      }
+    },
+    "extra_baseline": {
+      "E6": {
+        "source": "Subject: Gate clearances\n\nDear Mo,\n\nWe have not yet received both approvals. We do not know if one has arrived or if neither has arrived. Please check the inbox after lunch.\n\nRegards,\nNico",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 15.962,
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "raw": "제목: 게이트 클리어런스\n\nMo 님,\n\n두 건의 승인 모두 아직 수신하지 못했습니다. 한 건이 도착했는지, 아니면 하나도 도착하지 않았는지 확인되지 않습니다. 점심 이후 받은 편지함을 확인해 주세요.\n\n감사합니다,  \nNico",
+        "display": "제목: 게이트 클리어런스\n\nMo 님,\n\n두 건의 승인 모두 아직 수신하지 못했습니다. 한 건이 도착했는지, 아니면 하나도 도착하지 않았는지 확인되지 않습니다. 점심 이후 받은 편지함을 확인해 주세요.\n\n감사합니다,  \nNico"
+      },
+      "E7": {
+        "source": "Subject: Approval arrival times\n\nDear Sal,\n\nWe did not receive both approvals at the same time. Both are on file now. Archive the notices and do not request new approvals.\n\nRegards,\nTara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 34.888,
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "raw": "제목: 승인 도착 시각\n\nSal 님,\n\n두 승인 건을 동시에 수령하지는 않았습니다. 현재 두 건 모두 보관되어 있습니다. 통지문은 보관 처리하고, 새로운 승인을 요청하지 마십시오.\n\n감사합니다.\nTara",
+        "display": "제목: 승인 도착 시각\n\nSal 님,\n\n두 승인 건을 동시에 수령하지는 않았습니다. 현재 두 건 모두 보관되어 있습니다. 통지문은 보관 처리하고, 새로운 승인을 요청하지 마십시오.\n\n감사합니다.\nTara"
+      }
+    },
+    "extra_final": {
+      "E3": {
+        "source": "Subject: Two permits for Hall C\n\nDear Jo,\n\nWe have not received both approvals. The facilities approval is on file, and the fire safety decision is pending. Keep the hall closed.\n\nBest regards,\nMara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 38.966,
+        "prompt_sha256": "11ced299fe07739f4d17480d4398b39f0907c881b43b516622917a22dd32d42b",
+        "raw": "제목: C홀의 두 허가\n\nJo 님,\n\n두 승인 중 한 건은 아직 받지 못했습니다. 시설 승인은 접수되어 있으며, 소방 안전 결정은 대기 중입니다. C홀을 계속 폐쇄 상태로 유지해 주십시오.\n\nMara 드림",
+        "display": "제목: C홀의 두 허가\n\nJo 님,\n\n두 승인 중 한 건은 아직 받지 못했습니다. 시설 승인은 접수되어 있으며, 소방 안전 결정은 대기 중입니다. C홀을 계속 폐쇄 상태로 유지해 주십시오.\n\nMara 드림"
+      },
+      "E6": {
+        "source": "Subject: Gate clearances\n\nDear Mo,\n\nWe have not yet received both approvals. We do not know if one has arrived or if neither has arrived. Please check the inbox after lunch.\n\nRegards,\nNico",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 115.296,
+        "prompt_sha256": "11ced299fe07739f4d17480d4398b39f0907c881b43b516622917a22dd32d42b",
+        "raw": "제목: 게이트 승인 처리\n\nMo 님,\n\n아직 두 승인 건이 다 접수된 상태는 아닙니다. 한 건이 도착했는지, 아니면 한 건도 도착하지 않았는지는 확인하지 못한 상태입니다. 점심 이후에 수신함을 확인해 주세요.\n\nNico 드림",
+        "display": "제목: 게이트 승인 처리\n\nMo 님,\n\n아직 두 승인 건이 다 접수된 상태는 아닙니다. 한 건이 도착했는지, 아니면 한 건도 도착하지 않았는지는 확인하지 못한 상태입니다. 점심 이후에 수신함을 확인해 주세요.\n\nNico 드림"
+      },
+      "E7": {
+        "source": "Subject: Approval arrival times\n\nDear Sal,\n\nWe did not receive both approvals at the same time. Both are on file now. Archive the notices and do not request new approvals.\n\nRegards,\nTara",
+        "direction": "en-ko",
+        "state": "done",
+        "error": null,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "elapsed_s": 22.279,
+        "prompt_sha256": "11ced299fe07739f4d17480d4398b39f0907c881b43b516622917a22dd32d42b",
+        "raw": "제목: 승인서 접수 시각\n\nSal 님,\n\n두 승인서가 같은 시각에 접수된 것은 아닙니다. 두 승인서 모두 현재 보관되어 있습니다. 통지서를 보관하고, 새로운 승인을 요청하지 마십시오.\n\n감사합니다,\nTara",
+        "display": "제목: 승인서 접수 시각\n\nSal 님,\n\n두 승인서가 같은 시각에 접수된 것은 아닙니다. 두 승인서 모두 현재 보관되어 있습니다. 통지서를 보관하고, 새로운 승인을 요청하지 마십시오.\n\n감사합니다,\nTara"
+      }
+    }
+  },
+  "study": {
+    "baseline": {
+      "models": [
+        "qwen3.8-flash-next-iq3_xxs"
+      ],
+      "sample_errors": 0,
+      "max_provider_queued": 0,
+      "counter_delta": 10
+    },
+    "candidate1": {
+      "models": [
+        "qwen3.8-flash-next-iq3_xxs"
+      ],
+      "sample_errors": 0,
+      "max_provider_queued": 0,
+      "counter_delta": 10
+    },
+    "candidate2": {
+      "models": [
+        "qwen3.8-flash-next-iq3_xxs"
+      ],
+      "sample_errors": 0,
+      "max_provider_queued": 0,
+      "counter_delta": 10
+    },
+    "extra_baseline": {
+      "models": [
+        "qwen3.8-flash-next-iq3_xxs"
+      ],
+      "sample_errors": 0,
+      "max_provider_queued": 0,
+      "counter_delta": 2
+    },
+    "extra_final": {
+      "models": [
+        "qwen3.8-flash-next-iq3_xxs"
+      ],
+      "sample_errors": 0,
+      "max_provider_queued": 0,
+      "counter_delta": 3
+    }
+  },
+  "wire_count": 35,
+  "different_upstream_ids": 35,
+  "overlapping_requests": 0,
+  "minimum_client_gap_s": 0.342,
+  "median_seconds_on_same_12": {
+    "en-ko": {
+      "baseline": 15.96,
+      "final": 38.97
+    },
+    "ko-en": {
+      "baseline": 11.84,
+      "final": 11.33
+    }
+  }
+}

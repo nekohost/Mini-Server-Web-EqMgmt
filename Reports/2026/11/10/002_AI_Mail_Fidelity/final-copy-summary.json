@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "business_tables_preserved": 18,
+  "ai_tables_preserved": 17,
+  "ai_version": 4,
+  "menu_parent": "admin_center",
+  "anonymous_statuses": {
+    "/login": 200,
+    "/assistant": 302,
+    "/admin/ai/providers": 302,
+    "/api/ai/capabilities": 401,
+    "/internal/ai/claim": 403
+  },
+  "audit_rows_preserved": true,
+  "old_lifecycle_rows": 9,
+  "lifecycle_rows_preserved": true,
+  "real_model_called": false,
+  "production_databases_modified": false
+}

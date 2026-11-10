@@ -1,0 +1,27 @@
+{
+  "direction": "ko-en",
+  "job": "3caaf0f36f694a3baef1e571a953f6a5",
+  "conversation": "ae192d9c50c77ae9018ab67f6bc79649",
+  "owner_login": "test04",
+  "state": "done",
+  "error": null,
+  "source": "제목: 반품 작업 기록 확인 [619bfa]\n\n현수님, 안녕하세요.\n\n반품 요청 하나가 중복으로 표시됐지만 창고 작업이 중복 실행됐는지는 아직 확인되지 않았습니다. 어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요.\n\n감사합니다.\n예린 드림",
+  "raw": "Subject: Confirm Return Processing Records [619bfa]\n\nHello, Hyunsu.\n\nOne return request was marked as a duplicate, but whether the warehouse task was processed more than once has not yet been confirmed. Please do not re-execute any request, and just let me know whether you can check the logs by 13:40 KST.\n\nThank you.\nYerin",
+  "stored": "Subject: Confirm Return Processing Records [619bfa]\n\nHello, Hyunsu.\n\nOne return request was marked as a duplicate, but whether the warehouse task was processed more than once has not yet been confirmed. Please do not re-execute any request, and just let me know whether you can check the logs by 13:40 KST.\n\nThank you.\n예린",
+  "settings": {
+    "provider_name": "260Strata",
+    "revision": 6,
+    "adapter": "strata",
+    "model": "qwen3.8-flash-next-iq3_xxs",
+    "reasoning_effort": "low",
+    "mail_translation": "ko-en",
+    "mail_prompt_revision": "mail-20261110-terms-r3",
+    "mail_fidelity_revision": "source-sender-20261110-v1"
+  },
+  "steps": 1,
+  "proposals": 0,
+  "context_contains_only_this_mail": true,
+  "elapsed_s": 12.59,
+  "display": "Subject: Confirm Return Processing Records [619bfa]\n\nHello, Hyunsu.\n\nOne return request was marked as a duplicate, but whether the warehouse task was processed more than once has not yet been confirmed. Please do not re-execute any request, and just let me know whether you can check the logs by 13:40 KST.\n\nThank you.\n예린",
+  "restored_same": true
+}

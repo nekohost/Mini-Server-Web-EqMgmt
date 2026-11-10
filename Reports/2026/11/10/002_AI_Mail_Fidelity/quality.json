@@ -1,0 +1,144 @@
+{
+  "scale": {
+    "A": "필수 수정 없이 발송 가능",
+    "B": "중요 의미를 보존했으나 필수 수정 필요",
+    "C": "중요 의미 오류·불완전·무응답 또는 혼입"
+  },
+  "assessment": "Codex가 같은 12개 원문과 처음 저장된 전체 번역을 대조했다. Gemini 두 모델은 별도 파일에 기록한 운영 결함 두 사례의 발췌만 독립 평가했다.",
+  "totals": {
+    "en-ko": {
+      "baseline": {
+        "A": 2,
+        "B": 5,
+        "C": 0
+      },
+      "final": {
+        "A": 5,
+        "B": 2,
+        "C": 0
+      }
+    },
+    "ko-en": {
+      "baseline": {
+        "A": 2,
+        "B": 3,
+        "C": 0
+      },
+      "final": {
+        "A": 4,
+        "B": 1,
+        "C": 0
+      }
+    },
+    "all": {
+      "baseline": {
+        "A": 4,
+        "B": 8,
+        "C": 0
+      },
+      "final": {
+        "A": 9,
+        "B": 3,
+        "C": 0
+      }
+    }
+  },
+  "cases": [
+    {
+      "id": "E1",
+      "direction": "en-ko",
+      "baseline": "B",
+      "final": "A",
+      "baseline_note": "두 승인 모두 아직 접수되지 않았다는 표현은 부분 접수로도 읽힌다.",
+      "final_note": "부서별로 미접수임을 각각 명시했고 서명 방식·출입증 보관 조건을 보존했다."
+    },
+    {
+      "id": "E2",
+      "direction": "en-ko",
+      "baseline": "B",
+      "final": "B",
+      "baseline_note": "두 요청 모두 승인되지 않았다는 표현과 두 번째 요청을 오픈하지 않았다는 문장이 모호하다.",
+      "final_note": "승인 0건은 명확하다. 두 번째 요청을 열어보지 않았다는 사실을 처리를 시작하지 않았다는 뜻으로 넓혀 해당 문장을 수정해야 한다."
+    },
+    {
+      "id": "E3",
+      "direction": "en-ko",
+      "baseline": "B",
+      "final": "A",
+      "baseline_note": "두 건 모두 아직 받지 못했다는 첫 문장은 한 건이 이미 접수됐다는 뒷문장과 혼동될 수 있다.",
+      "final_note": "한 건 접수와 다른 결정의 대기 상태를 구분했다. 중간 후보에서 새로 생긴 ‘한 번에’라는 시간 해석도 사라졌다."
+    },
+    {
+      "id": "E4",
+      "direction": "en-ko",
+      "baseline": "B",
+      "final": "B",
+      "baseline_note": "어느 것이 승인됐는지 모른다는 문장은 한 건 이상이 승인됐음을 전제하는 듯하다.",
+      "final_note": "불확실성을 남겼지만 ‘어느 쪽도 승인되었는지 알지 못합니다’는 어색하다. 외부 발송용으로는 ‘하나라도 승인됐는지는 아직 알 수 없습니다’로 고칠 필요가 있다."
+    },
+    {
+      "id": "E5",
+      "direction": "en-ko",
+      "baseline": "A",
+      "final": "A",
+      "baseline_note": "둘 다 승인되었는지 확인할 수 없음, 한 건 또는 0건이 가능한 상태, 두 플래그 유지가 드러난다.",
+      "final_note": "확인 불가와 플래그 유지 지시를 그대로 전달했다."
+    },
+    {
+      "id": "E6",
+      "direction": "en-ko",
+      "baseline": "B",
+      "final": "A",
+      "baseline_note": "첫 문장은 승인 0건으로 읽힐 수 있어 원문에 있는 한 건 접수 가능성이 흐려졌다.",
+      "final_note": "두 건이 다 접수된 상태가 아니며 한 건인지 0건인지는 모른다고 밝혔다."
+    },
+    {
+      "id": "E7",
+      "direction": "en-ko",
+      "baseline": "A",
+      "final": "A",
+      "baseline_note": "두 접수 시각이 달랐고 현재 두 건을 모두 보관 중이라는 뜻을 보존했다.",
+      "final_note": "동시 접수만 부정하고 현재는 두 건 모두 보관 중임을 보존했다."
+    },
+    {
+      "id": "K1",
+      "direction": "ko-en",
+      "baseline": "B",
+      "final": "A",
+      "baseline_note": "이 재측정에서는 Yerin을 추정했고 any request를 either request로 좁혔다. 기존 운영 사례에서는 Yerim과 행위 주체 변경이 함께 발생했다.",
+      "final_note": "원문 서명 예린, 재실행 전면 금지, 수신자가 확인할 수 있는지만 알리라는 조건과 13:40 KST를 보존했다."
+    },
+    {
+      "id": "K2",
+      "direction": "ko-en",
+      "baseline": "B",
+      "final": "A",
+      "baseline_note": "실제 영문 이름은 일치했지만 한·영 병기 서명에서 한글 표기를 생략했다.",
+      "final_note": "병기 서명 윤서 (Eunice Yoon)과 제한·금지 지시를 보존했다."
+    },
+    {
+      "id": "K3",
+      "direction": "ko-en",
+      "baseline": "B",
+      "final": "B",
+      "baseline_note": "공동 서명의 영문 철자를 추정했고 맺음말이 중복됐다.",
+      "final_note": "공동 서명 두 이름과 순서는 일치한다. 본문에서 공동 발신자를 me로 한정해, 외부 발송 전 수신 회신 대상을 중립적으로 표현할 필요가 있다."
+    },
+    {
+      "id": "K4",
+      "direction": "ko-en",
+      "baseline": "A",
+      "final": "A",
+      "baseline_note": "원문에 발신자 서명이 없고 영어 출력에도 임의 이름이 없다. 금요일까지 초안 한 부만 인쇄하라는 지시를 보존했다.",
+      "final_note": "같은 인쇄 조건을 보존하고 서명을 추가하지 않았다."
+    },
+    {
+      "id": "K5",
+      "direction": "ko-en",
+      "baseline": "A",
+      "final": "A",
+      "baseline_note": "일반 부서명을 Quality Control Team으로 번역했으며 문안에서 부서를 식별할 수 있다.",
+      "final_note": "원문 부서명 품질관리팀과 샘플 두 개, 폐기 승인 미요청을 보존했다."
+    }
+  ]
+}

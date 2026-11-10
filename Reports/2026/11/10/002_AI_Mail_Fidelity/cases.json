@@ -1,0 +1,62 @@
+[
+  {
+    "id": "E1",
+    "direction": "en-ko",
+    "original": "Subject: Inspection form 06b6ca\n\nDear Lee,\n\nFacilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received. Keep the pass in the cabinet until both are recorded.\n\nRegards,\nRobin",
+    "split": "reported"
+  },
+  {
+    "id": "K1",
+    "direction": "ko-en",
+    "original": "제목: 반품 작업 기록 확인\n\n현수님, 안녕하세요.\n\n반품 요청 하나가 중복으로 표시됐지만 창고 작업이 중복 실행됐는지는 아직 확인되지 않았습니다. 어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요.\n\n감사합니다.\n예린 드림",
+    "split": "reported"
+  },
+  {
+    "id": "E2",
+    "direction": "en-ko",
+    "original": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+    "split": "unseen"
+  },
+  {
+    "id": "E3",
+    "direction": "en-ko",
+    "original": "Subject: Two permits for Hall C\n\nDear Jo,\n\nWe have not received both approvals. The facilities approval is on file, and the fire safety decision is pending. Keep the hall closed.\n\nBest regards,\nMara",
+    "split": "unseen"
+  },
+  {
+    "id": "E4",
+    "direction": "en-ko",
+    "original": "Subject: Temporary badges\n\nHello Ben,\n\nWe do not know whether either permit has been approved. Please check the register tomorrow. Do not mark either permit as rejected.\n\nThanks,\nNora",
+    "split": "unseen"
+  },
+  {
+    "id": "K2",
+    "direction": "ko-en",
+    "original": "제목: 봉인 번호 확인\n\n재민님, 안녕하세요.\n\n목록의 봉인 번호만 확인해 주세요. 상자를 열거나 새 번호를 발급하지 마세요.\n\n감사합니다.\n윤서 (Eunice Yoon) 드림",
+    "split": "unseen"
+  },
+  {
+    "id": "K3",
+    "direction": "ko-en",
+    "original": "제목: 시연 일정\n\n안녕하세요.\n\n시연을 수요일 오후로 옮길 수 있는지 알려 주세요. 아직 일정을 변경하지 마세요.\n\n감사합니다.\n김도윤 · 박서린 드림",
+    "split": "unseen"
+  },
+  {
+    "id": "K4",
+    "direction": "ko-en",
+    "original": "제목: 인쇄 수량\n\n안녕하세요.\n\n금요일까지 초안 한 부만 인쇄해 주세요. 최종본은 아직 인쇄하지 마세요.\n\n감사합니다.",
+    "split": "unseen"
+  },
+  {
+    "id": "K5",
+    "direction": "ko-en",
+    "original": "제목: 임시 보관 기한\n\n안녕하세요.\n\n샘플 두 개를 월요일까지 보관해 주세요. 폐기 승인은 아직 요청하지 않았습니다.\n\n감사합니다.\n품질관리팀 드림",
+    "split": "unseen"
+  },
+  {
+    "id": "E5",
+    "direction": "en-ko",
+    "original": "Subject: Status of the two releases\n\nDear Sam,\n\nWe cannot confirm that both releases were approved. We do not yet know whether one or neither was approved. Leave both release flags unchanged.\n\nRegards,\nMina",
+    "split": "unseen"
+  }
+]

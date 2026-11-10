@@ -1,0 +1,27 @@
+{
+  "checked_utc": "2026-11-10T00:57:55.350347+00:00",
+  "release_code": "5753c79b23a20d274a5c6ac31c4dcac29399d12c",
+  "public_http": {
+    "/login": 200,
+    "/assistant": 302,
+    "/api/ai/capabilities": 401
+  },
+  "maintenance": "NORMAL",
+  "units": {
+    "equipment-ai-worker.service": "active",
+    "equipment-ai-retention.timer": "active"
+  },
+  "active_jobs": {},
+  "audit_rows_preserved": true,
+  "existing_chat_job_step_and_lifecycle_rows_preserved": true,
+  "net_added_rows": {
+    "conversations": 1,
+    "jobs": 2,
+    "messages": 4,
+    "message_steps": 2,
+    "proposals": 0,
+    "ai_lifecycle_operations": 0,
+    "ai_lifecycle_tombstones": 0
+  },
+  "two_first_attempts_one_conversation": true
+}

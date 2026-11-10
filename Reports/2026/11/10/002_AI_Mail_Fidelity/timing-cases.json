@@ -1,0 +1,20 @@
+[
+  {
+    "id": "E3",
+    "direction": "en-ko",
+    "original": "Subject: Two permits for Hall C\n\nDear Jo,\n\nWe have not received both approvals. The facilities approval is on file, and the fire safety decision is pending. Keep the hall closed.\n\nBest regards,\nMara",
+    "split": "unseen"
+  },
+  {
+    "id": "E6",
+    "direction": "en-ko",
+    "original": "Subject: Gate clearances\n\nDear Mo,\n\nWe have not yet received both approvals. We do not know if one has arrived or if neither has arrived. Please check the inbox after lunch.\n\nRegards,\nNico",
+    "split": "new-contrast"
+  },
+  {
+    "id": "E7",
+    "direction": "en-ko",
+    "original": "Subject: Approval arrival times\n\nDear Sal,\n\nWe did not receive both approvals at the same time. Both are on file now. Archive the notices and do not request new approvals.\n\nRegards,\nTara",
+    "split": "new-contrast"
+  }
+]
