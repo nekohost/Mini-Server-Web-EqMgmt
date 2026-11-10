@@ -237,24 +237,40 @@ class UXIntegrationTests(unittest.TestCase):
         self.assertFalse(other.get_json()['found'])
 
     def test_pre_dispatch_purge_and_preparation_fault_release_only_own_guard(self):
-        """[Role] Purges between claim admission and route preparation then injects a known non-dispatch failure. [Dependencies] Actual claim exception path. [Impact] A removed job cannot leave an unnecessary permanent group lock."""
-        cid=self.conversation()
-        jid=self.submit(cid)
-        with self.store.db() as db:
-            account=db.execute('SELECT account_key FROM conversations WHERE id=?',(cid,)).fetchone()[0]
-        registry=self.app.extensions['equipment_assistant']['registry']
-        original=registry.policy.destination
-        def fail_after_purge(url):
-            """[Role] Inserts one deterministic pre-dispatch race. [Dependencies] Real lifecycle writer. [Impact] No network request is made."""
-            original(url)
-            moved=self.store.lifecycle(2,cid,account,'trash',0,uuid.uuid4().hex)
-            self.store.lifecycle(2,cid,account,'purge',moved['conversation']['lifecycle_revision'],uuid.uuid4().hex)
+        """Purge after the worker acquires a guard and fails to prepare its frozen provider revision."""
+        cid = self.conversation()
+        jid = self.submit(cid)
+        other_job = uuid.uuid4().hex
+        other_group = uuid.uuid4().hex
+        with self.store.db(True) as db:
+            job = self.store.job(jid, db)
+            account = job['account_key']
+            route = json.loads(job['route_snapshot'])
+            # Another physical group still has an unconfirmed request after its conversation was purged.
+            db.execute('INSERT INTO ai_resource_groups(id,name) VALUES(?,?)', (other_group, 'Independent fixture GPU'))
+            db.execute("""INSERT INTO ai_execution_guards(job,resource_group,owner,account_key,epoch,state,created,updated)
+                VALUES(?,?,?,?,?,'recovery_required',?,?)""",
+                       (other_job, other_group, job['owner'], account, self.store.epoch, job['created'], job['created']))
+
+        registry = self.app.extensions['equipment_assistant']['registry']
+        guard_after_purge = []
+
+        def fail_after_purge(provider_id, revision):
+            moved = self.store.lifecycle(2, cid, account, 'trash', 0, uuid.uuid4().hex)
+            self.store.lifecycle(2, cid, account, 'purge', moved['conversation']['lifecycle_revision'], uuid.uuid4().hex)
+            with self.store.db() as db:
+                guard_after_purge.extend(row[0] for row in db.execute(
+                    'SELECT state FROM ai_execution_guards WHERE job=?', (jid,)))
             raise ValueError('synthetic preparation failure after purge')
-        with patch.object(registry.policy,'destination',side_effect=fail_after_purge):
+
+        with patch.object(registry, 'connection', autospec=True, side_effect=fail_after_purge) as prepare_connection:
             self.assertIsNone(self.claim())
+        prepare_connection.assert_called_once_with(route['provider_id'], route['revision'])
+        self.assertEqual(guard_after_purge, ['draining'])
         with self.store.db() as db:
-            self.assertEqual(db.execute('SELECT COUNT(*) FROM jobs WHERE id=?',(jid,)).fetchone()[0],0)
-            self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'released')
+            self.assertEqual(db.execute('SELECT COUNT(*) FROM jobs WHERE id=?', (jid,)).fetchone()[0], 0)
+            self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?', (jid,)).fetchone()[0], 'released')
+            self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?', (other_job,)).fetchone()[0], 'recovery_required')
 
     def test_trash_after_first_tool_stops_remaining_model_tool_calls(self):
         """[Role] Moves a conversation between two validated tool calls. [Dependencies] Real domain query and lifecycle writer. [Impact] No subsequent read/tool is admitted after deletion takes effect."""

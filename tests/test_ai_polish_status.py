@@ -105,8 +105,10 @@ class StatusTests(unittest.TestCase):
         self.assertEqual(self.status('?provider_url=http://127.0.0.1').status_code, 400)
         self.assertEqual(self.status('?selection_id=' + 'f' * 32 + '&selection_id=' + 'e' * 32).status_code, 400)
         self.assertEqual(self.client.post('/api/ai/status', json={}, headers=self.headers).status_code, 405)
-        self.client.get('/logout')
-        self.assertNotEqual(self.status().status_code, 200)
+        self.assertEqual(self.client.get('/logout').status_code, 405)
+        self.assertEqual(self.status().status_code, 200)
+        self.client.post('/logout', headers=self.headers)
+        self.assertEqual(self.status().status_code, 401)
 
 
 @unittest.skipUnless(os.name == 'posix', 'Linux loopback fixtures only')

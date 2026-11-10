@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.8]
+[EN rev.9]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
 [Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
@@ -13,7 +13,7 @@ from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
 from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
-from .web_search import WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted, validate_query
+from .web_search import current_search_terms, WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted, validate_query
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -107,7 +107,7 @@ class Domain:
 
     def read_or_prepare(self, name, args, job, store, search_control=None):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.6]
+        [EN rev.7]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
         [Impact] Existing read/write boundaries are preserved; bounded search-only batch feedback passes the same actor/consent/taint/privacy checks and never becomes executed evidence.
@@ -149,10 +149,16 @@ class Domain:
                 if len(private)>1000:
                     raise WebSearchError('WEB_SEARCH_BLOCKED')
                 sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
+                query = validate_query(args.get('query'), sensitive)
+                with store.db() as history:
+                    current = history.execute("SELECT content FROM messages WHERE job=? AND role='user' AND conversation=?",
+                                              (job['id'], job['conversation'])).fetchone()
+                if current is None:
+                    raise WebSearchError('WEB_SEARCH_BLOCKED')
+                current_search_terms(query, current['content'])
                 if search_control is not None:
                     if name!='web_search' or planning or type(search_control) is not int or not 0<=search_control<MAX_SEARCHES:
                         raise AssistantError('검색 제어 상태를 확인해 주세요.')
-                    validate_query(args.get('query'),sensitive)
                     return {'kind':'web_search_control','executed':False,
                         'reason':'budget_exhausted' if search_control==0 else 'one_search_per_step',
                         'remaining':search_control,

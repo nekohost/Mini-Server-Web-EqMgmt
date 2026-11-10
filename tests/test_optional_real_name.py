@@ -37,7 +37,7 @@ class OptionalRealNameTests(unittest.TestCase):
         cls.root = Path(cls.temp.name)
         cls.environment = patch.dict(os.environ, DATABASE_PATH=str(cls.root / 'fixture.db'),
             DATABASE_OPERATION_ROOT=str(cls.root / 'operations'), MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'),
-            EQUIPMENT_ATTACHMENT_ROOT=str(cls.root / 'attachments'), SECRET_KEY='isolated-optional-name-secret')
+            EQUIPMENT_ATTACHMENT_ROOT=str(cls.root / 'attachments'), SECRET_KEY='isolated-optional-name-secret-synthetic-0123456789')
         cls.environment.start()
         spec = importlib.util.spec_from_file_location('optional_name_fixture_app', Path(__file__).resolve().parents[1] / 'app.py')
         cls.module = importlib.util.module_from_spec(spec)

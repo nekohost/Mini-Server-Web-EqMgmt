@@ -16,7 +16,7 @@ class ReleaseApiTests(unittest.TestCase):
         cls.root = Path(cls.temp.name)
         cls.environment = {name: os.environ.get(name) for name in ('DATABASE_PATH', 'DATABASE_OPERATION_ROOT', 'MAINTENANCE_STATE_PATH', 'SECRET_KEY')}
         os.environ.update(DATABASE_PATH=str(cls.root / 'fixture.db'), DATABASE_OPERATION_ROOT=str(cls.root / 'operations'),
-                          MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'), SECRET_KEY='isolated-test-secret')
+                          MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'), SECRET_KEY='isolated-test-secret-synthetic-0123456789')
         spec = importlib.util.spec_from_file_location('release_fixture_app', Path(__file__).resolve().parents[1] / 'app.py')
         cls.module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.module)

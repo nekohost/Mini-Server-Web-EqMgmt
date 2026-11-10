@@ -1,23 +1,27 @@
 """[MINI-COMMENT: ASSISTANT.AUDIT]
-[EN rev.2]
-[Role] Preserves AI audit content while replacing reusable credentials with correlated fingerprints.
+[EN rev.5]
+[Role] Fingerprints reusable credentials and retains only approved metadata for provider registrations.
 [Dependencies] Python JSON/regex and the server HMAC helper; no database, request or model access.
 [Impact] AI events remain auditable; formatter failure never falls back to a raw credential body.
 """
 import json
+from flask import current_app
 import re
 import hashlib
 import os
-from pathlib import Path
+from utils.equipment_audit_migration import private_directory
 import time
 import uuid
 
-from .policy import canonical, mac
+from .policy import AssistantError, canonical, mac
 
 SENSITIVE_KEYS = frozenset({
     'authorization', 'cookie', 'set-cookie', 'password', 'session_token', 'csrf_token',
-    'access_token', 'refresh_token', 'api_key', 'worker_token', 'strata_key', 'lease', 'token', 'credential',
+    'current_password', 'new_password', 'temp_password', 'candidate_admin_password', 'pin', 'pin_code',
+    'confirmation_token', 'preview_token', 'confirmation_nonce', 'access_token', 'refresh_token', 'api_key', 'worker_token', 'strata_key', 'lease', 'token', 'credential', 'ca_pem',
 })
+
+NORMALIZED_CREDENTIALS = frozenset(key.replace('-', '').replace('_', '') for key in SENSITIVE_KEYS)
 
 
 def audit_body(raw, secret, known_secrets=()):
@@ -44,7 +48,7 @@ def audit_body(raw, secret, known_secrets=()):
         [Impact] Ordinary prompts, reasoning, proposals and outcomes are retained for audit.
         """
         if isinstance(value, dict):
-            return {key: protected(item) if key.lower().replace('-', '_') in {k.replace('-', '_') for k in SENSITIVE_KEYS}
+            return {key: protected(item) if key.lower().replace('-', '').replace('_', '') in NORMALIZED_CREDENTIALS
                     and item not in (None, '') else sanitize(item) for key, item in value.items()}
         if isinstance(value, list):
             return [sanitize(item) for item in value]
@@ -75,9 +79,27 @@ def http_payloads(request, response, context):
     raw = getattr(request, '_cached_data', None)
     metadata = {'content_type':request.mimetype, 'declared_bytes':request.content_length,
                 'outcome':response.status_code, 'validated_file':getattr(context, 'assistant_audit_file', None)}
-    if request.method in ('POST','PUT','PATCH','DELETE'):
+    if request.method == 'POST' and re.fullmatch(r'/api/admin/ai/providers(?:/[^/]+)?', request.path):
+        # Even a rejected upload may contain a private key. Project safe fields before global logging.
+        from .provider_trust import origin
+        summary = {**metadata, 'actor':getattr(context, 'provider_actor', None)}
+        data = request.get_json(silent=True) if raw is not None and len(raw) <= 32768 and request.is_json else None
+        if isinstance(data, dict):
+            try:
+                summary['origin'] = origin(data.get('base_url'))
+            except AssistantError:
+                pass
+            if response.status_code < 400 and isinstance(data.get('name'), str):
+                summary['name'] = data['name']
+        request_body = canonical(summary)
+    elif request.method in ('POST','PUT','PATCH','DELETE'):
         if raw is not None and request.is_json:
-            request_body = raw.decode('utf-8', errors='replace')
+            try:
+                request_body = raw.decode('utf-8')
+                json.loads(request_body)
+            except (UnicodeError, ValueError, RecursionError):
+                request_body = canonical({'malformed_json': True, 'bytes':len(raw),
+                    'body_fingerprint':mac(current_app.secret_key, 'assistant-malformed', raw.hex()), **metadata})
         else:
             request_body = canonical({'wire_body_not_reparsed':True, **metadata})
     else:
@@ -97,35 +119,66 @@ def http_payloads(request, response, context):
 
 def preserve_export(store, root, raw, actor, scope, row_count, maximum=2147483648):
     """[MINI-COMMENT: ASSISTANT.AUDIT.EXPORT]
-    [EN rev.1]
+    [EN rev.2]
     [Role] Durably preserves CSV originals under a separate physical audit budget before reporting success.
     [Dependencies] Private 0700 directory/0600 immutable files and an AI-only artifact ledger transaction.
-    [Impact] Exhausted audit budget refuses export; no original is silently lost or charged to chat characters.
+    [Impact] Each export keeps a receipt. Identical bytes reuse a verified file within the same account and are charged once.
     """
     from .policy import AssistantError
     raw = raw.encode('utf-8') if isinstance(raw, str) else raw
     if not isinstance(raw, bytes) or type(maximum) is not int or maximum < 1048576:
         raise ValueError('invalid audit artifact configuration')
-    root = Path(root)
-    root.mkdir(mode=0o700, parents=True, exist_ok=True)
-    if root.is_symlink():
-        raise AssistantError('감사 원문 보관 경로를 확인해 주세요.', 503)
-    os.chmod(root, 0o700)
-    aid, sha = uuid.uuid4().hex, hashlib.sha256(raw).hexdigest()
-    target = root / (aid + '.csv')
+    try:
+        root = private_directory(root)
+    except (OSError, ValueError) as error:
+        raise AssistantError('감사 원문 보관 경로를 확인해 주세요.', 503) from error
+    aid = uuid.uuid4().hex
+    sha = hashlib.sha256(raw).hexdigest()
+    owner = actor['UserId']
+    created = time.time()
+    new_file = None
     try:
         with store.db(True) as db:
-            db.execute('CREATE TABLE IF NOT EXISTS ai_audit_artifacts(id TEXT PRIMARY KEY,sha256 TEXT NOT NULL,bytes INTEGER NOT NULL,owner INTEGER NOT NULL,scope TEXT NOT NULL,row_count INTEGER NOT NULL,created REAL NOT NULL)')
-            used = db.execute('SELECT COALESCE(SUM(bytes),0) FROM ai_audit_artifacts').fetchone()[0]
-            if used + len(raw) > maximum:
-                raise AssistantError('감사 원문 보관 예산이 부족하여 내보내기를 중단했습니다. 관리자에게 문의해 주세요.', 507)
-            with open(target, 'xb') as stream:
-                os.chmod(target, 0o600)
-                stream.write(raw)
-                stream.flush()
-                os.fsync(stream.fileno())
-            db.execute('INSERT INTO ai_audit_artifacts VALUES(?,?,?,?,?,?,?)', (aid, sha, len(raw), actor['UserId'], scope, row_count, time.time()))
+            db.execute('CREATE TABLE IF NOT EXISTS ai_audit_artifacts(id TEXT PRIMARY KEY,sha256 TEXT NOT NULL,bytes INTEGER NOT NULL,owner INTEGER NOT NULL,scope TEXT NOT NULL,row_count INTEGER NOT NULL,created REAL NOT NULL,blob_id TEXT)')
+            if 'blob_id' not in {r[1] for r in db.execute('PRAGMA table_info(ai_audit_artifacts)')}:
+                db.execute('ALTER TABLE ai_audit_artifacts ADD COLUMN blob_id TEXT')
+            db.execute('CREATE INDEX IF NOT EXISTS ai_artifact_owner_hash ON ai_audit_artifacts(owner,sha256,bytes)')
+            db.execute('CREATE INDEX IF NOT EXISTS ai_artifact_rate ON ai_audit_artifacts(owner,created)')
+            recent = db.execute('SELECT COUNT(*) FROM ai_audit_artifacts WHERE owner=? AND created>?', (owner, created-60)).fetchone()[0]
+            if recent >= 30:
+                raise AssistantError('내보내기 요청이 많습니다. 잠시 후 다시 시도해 주세요.', 429)
+            prior = db.execute("""SELECT COALESCE(blob_id,id) FROM ai_audit_artifacts
+                                  WHERE owner=? AND sha256=? AND bytes=? LIMIT 1""", (owner, sha, len(raw))).fetchone()
+            if prior:
+                blob = prior[0]
+                if not isinstance(blob, str) or not re.fullmatch('[0-9a-f]{32}', blob):
+                    raise AssistantError('감사 원본 식별자를 확인해 주세요.', 503)
+                existing = root / (blob + '.csv')
+                if existing.is_symlink() or not existing.is_file() or existing.stat().st_size != len(raw):
+                    raise AssistantError('기존 감사 원본 파일을 확인해 주세요.', 503)
+                digest = hashlib.sha256()
+                with existing.open('rb') as stream:
+                    for block in iter(lambda: stream.read(65536), b''):
+                        digest.update(block)
+                if digest.hexdigest() != sha:
+                    raise AssistantError('기존 감사 원본 무결성을 확인해 주세요.', 503)
+            else:
+                total, personal = db.execute("""SELECT COALESCE(SUM(bytes),0),COALESCE(SUM(CASE WHEN owner=? THEN bytes ELSE 0 END),0)
+                                                FROM ai_audit_artifacts WHERE blob_id IS NULL OR blob_id=id""", (owner,)).fetchone()
+                if total + len(raw) > maximum or personal + len(raw) > max(1048576, maximum // 2):
+                    raise AssistantError('감사 원문 보관 예산이 부족하여 내보내기를 중단했습니다. 관리자에게 문의해 주세요.', 507)
+                blob = aid
+                target = root / (blob + '.csv')
+                with open(target, 'xb') as stream:
+                    new_file = target
+                    os.chmod(target, 0o600)
+                    stream.write(raw)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+            db.execute("""INSERT INTO ai_audit_artifacts(id,sha256,bytes,owner,scope,row_count,created,blob_id)
+                          VALUES(?,?,?,?,?,?,?,?)""", (aid, sha, len(raw), owner, scope, row_count, created, blob))
     except Exception:
-        target.unlink(missing_ok=True)
+        if new_file is not None:
+            new_file.unlink(missing_ok=True)
         raise
-    return {'id':aid,'sha256':sha,'bytes':len(raw),'owner':actor['UserId'],'scope':scope,'row_count':row_count}
+    return {'id':aid,'blob_id':blob,'sha256':sha,'bytes':len(raw),'owner':owner,'scope':scope,'row_count':row_count}

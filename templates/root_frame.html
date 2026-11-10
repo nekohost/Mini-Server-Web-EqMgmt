@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}미니서버 통합 관리 시스템{% endblock %}</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com" onerror="this.onerror=null; this.src='{{ url_for("static", filename="js/tailwindcss.js") }}'"></script>
+    <script src="{{ url_for('static', filename='js/tailwindcss.js') }}"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -31,7 +30,7 @@
         }
     </script>
     <!-- Font Awesome CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
     {% block extra_head %}{% endblock %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/roadmap.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">

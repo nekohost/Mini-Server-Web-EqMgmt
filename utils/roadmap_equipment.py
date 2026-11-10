@@ -59,15 +59,20 @@ def due_badge(value, today=None):
             'label': f'{abs(days)}일 경과' if days < 0 else '오늘 만료' if days == 0 else f'D-{days}', 'days': days}
 
 
+def has_equipment_menu(user, menu):
+    """Browser and AI actors supply grants read from the live database."""
+    return user.get('Role') == 'admin' or menu in user.get('menus', ())
+
+
 def can_write(row, user):
     """[역할] 장비 변경 권한. [의존성 관계] 상태/파일/기한. [변경 시 영향도] 공개는 쓰기 허용 아님."""
-    return user.get('Role') == 'admin' or row['user_id'] == user['UserId']
+    return has_equipment_menu(user, 'my_equipment') and (user.get('Role') == 'admin' or row['user_id'] == user['UserId'])
 
 
 def require_equipment(connection, equipment_id, user, write=False):
     """[역할] 상세 권한 공통화. [의존성 관계] 모든 장비 부속 API. [변경 시 영향도] 비공개 존재 은닉."""
     row = connection.execute('SELECT * FROM equipments WHERE id=?', (equipment_id,)).fetchone()
-    if not row or not (can_write(row, user) or not write and row['is_public'] == 1 and not row['is_draft']):
+    if not row or not (can_write(row, user) or not write and has_equipment_menu(user, 'public_equipment') and row['is_public'] == 1 and not row['is_draft']):
         raise InputError('장비를 찾을 수 없거나 접근 권한이 없습니다.', 404)
     if row['is_draft'] and row['user_id'] != user['UserId']:
         raise InputError('다른 사용자의 임시저장 장비에는 접근할 수 없습니다.', 404)
@@ -83,6 +88,9 @@ def query_contract(args, user):
     include = args.get('include_mine', 'false')
     if str(draft) not in ('0', '1') or str(include) not in ('true', 'false'):
         raise InputError('목록 옵션이 올바르지 않습니다.')
+    menu = 'my_equipment' if mode == 'my' or str(draft) == '1' else 'public_equipment'
+    if not has_equipment_menu(user, menu):
+        raise InputError('장비 목록을 이용할 권한이 없습니다.', 403)
     conditions, values = [], []
     if str(draft) == '1':
         conditions += ['e.user_id=?', 'e.is_draft=1']
@@ -93,8 +101,11 @@ def query_contract(args, user):
             conditions += ['e.user_id=?']
             values += [user['UserId']]
         elif user.get('Role') != 'admin':
-            conditions += ['(e.is_public=1 OR e.user_id=?)' if include == 'true' else '(e.is_public=1 AND (e.user_id IS NULL OR e.user_id<>?))']
-            values += [user['UserId']]
+            if include == 'true' and not has_equipment_menu(user, 'my_equipment'):
+                conditions += ['e.is_public=1']
+            else:
+                conditions += ['(e.is_public=1 OR e.user_id=?)' if include == 'true' else '(e.is_public=1 AND (e.user_id IS NULL OR e.user_id<>?))']
+                values += [user['UserId']]
     for key, column in (('category_id', 'node.category_id'), ('manufacturer_id', 'node.manufacturer_id')):
         if args.get(key):
             conditions.append(column + '=?')

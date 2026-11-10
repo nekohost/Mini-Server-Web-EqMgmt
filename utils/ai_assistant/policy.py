@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.POLICY]
-[EN rev.12]
+[EN rev.13]
 [Role] Defines the only model levels, tools and validated inputs of the user assistant.
 [Dependencies] Python standard library; server-side domain authorization remains mandatory.
 [Impact] No caller may supply an owner, role, endpoint, executable or confirmation command; additive display allowlists keep internal references available to tools without treating them as user-facing equipment numbers. Existing file authorization, audit content and completion reservations are preserved.
@@ -22,6 +22,11 @@ MAX_RECEIPT = 32768
 MAX_PROPOSALS = 8
 OUTPUT_RESERVATION = MAX_REASONING + MAX_CONTENT + MAX_PROPOSALS * MAX_RECEIPT + 2 * 16384
 ERROR_REASONS = {
+    'PROVIDER_ADDRESS': '주소 단계에서 승인한 모델 서버에 연결하지 못했습니다.',
+    'PROVIDER_CONTEXT': '모델 기능 시험 단계에서 일반 대화에 필요한 문맥 예산이 부족합니다. 모델의 실제 컨텍스트 한도를 확인해 주세요.',
+    'PROVIDER_TLS': '인증서 단계에서 모델 서버의 TLS 인증에 실패했습니다.',
+    'PROVIDER_AUTH': 'API 키 인증 단계에서 모델 서버가 요청을 거절했습니다.',
+    'PROVIDER_REVOKED': '관리자가 이 연결 버전의 신뢰를 철회하여 요청을 중단했습니다.',
     'EMPTY_RESPONSE': 'AI가 답변 보정 후에도 내용을 보내지 않아 작업을 완료하지 못했습니다. 기존 처리 결과와 기록은 보존됩니다. 다른 모델을 선택하거나 질문을 구체화해 주세요.',
     'INVALID_RESPONSE': 'AI 응답 형식이 올바르지 않아 작업을 중단했습니다.',
     'INVALID_TOOL_CALL': 'AI의 작업 요청 형식이 올바르지 않아 작업을 중단했습니다.',

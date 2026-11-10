@@ -31,7 +31,7 @@ before=snapshot(before_path)
 output=io.StringIO()
 with patch.dict(os.environ,DATABASE_PATH=str(after_path),DATABASE_OPERATION_ROOT=str(candidate/'rehearsal-operations'),
         MAINTENANCE_STATE_PATH=str(candidate/'rehearsal-maintenance.json'),EQUIPMENT_ATTACHMENT_ROOT=str(candidate/'rehearsal-attachments'),
-        SECRET_KEY='isolated-rehearsal-key'), patch('dotenv.load_dotenv',return_value=False), redirect_stdout(output), redirect_stderr(output):
+        SECRET_KEY='isolated-rehearsal-key-synthetic-0123456789'), patch('dotenv.load_dotenv',return_value=False), redirect_stdout(output), redirect_stderr(output):
     spec=importlib.util.spec_from_file_location('rehearsal_workflow_app',candidate/'app.py')
     module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
     module.ACCESS_LOG_ACCEPTING.clear();module.shutdown_event.set();module.logger_thread.join(timeout=3)

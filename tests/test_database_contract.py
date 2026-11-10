@@ -22,7 +22,7 @@ class DatabaseContractTests(unittest.TestCase):
         cls.root = Path(cls.temp.name)
         names = ('DATABASE_PATH', 'DATABASE_OPERATION_ROOT', 'MAINTENANCE_STATE_PATH', 'SECRET_KEY')
         cls.environment = {name: os.environ.get(name) for name in names}
-        os.environ.update(DATABASE_PATH=str(cls.root / 'test.db'), DATABASE_OPERATION_ROOT=str(cls.root / 'operations'), MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'), SECRET_KEY='isolated-contract-test')
+        os.environ.update(DATABASE_PATH=str(cls.root / 'test.db'), DATABASE_OPERATION_ROOT=str(cls.root / 'operations'), MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'), SECRET_KEY='isolated-contract-test-synthetic-0123456789')
         spec = importlib.util.spec_from_file_location('contract_fixture_app', Path(__file__).resolve().parents[1] / 'app.py')
         cls.module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(cls.module)
@@ -79,7 +79,7 @@ class DatabaseContractTests(unittest.TestCase):
 
     def test_reject_referenced_node_rolls_back_request_status(self):
         """[역할] 반려 중 참조 충돌을 검증합니다. [의존성 관계] 승인 API. [변경 시 영향도] 대기 상태 보존."""
-        self.connection.execute("UPDATE lineup_nodes SET status='PENDING' WHERE id=90001")
+        self.connection.execute("UPDATE lineup_nodes SET status='PENDING',requested_by=90001 WHERE id=90001")
         cursor = self.connection.execute("INSERT INTO approval_requests(RequesterId,RequestType,RequestDataJSON,Status) VALUES(90001,'Lineup_Node','{\"node_id\":90001}','PENDING')")
         request_id = cursor.lastrowid
         self.connection.commit()
@@ -90,7 +90,7 @@ class DatabaseContractTests(unittest.TestCase):
 
     def test_approval_succeeds_with_same_transaction_audit(self):
         """[역할] 승인 성공 경로도 보존합니다. [의존성 관계] 승인 API. [변경 시 영향도] writer 교착 회귀."""
-        self.connection.execute("UPDATE lineup_nodes SET status='PENDING' WHERE id=90001")
+        self.connection.execute("UPDATE lineup_nodes SET status='PENDING',requested_by=90001 WHERE id=90001")
         cursor = self.connection.execute("INSERT INTO approval_requests(RequesterId,RequestType,RequestDataJSON,Status) VALUES(90001,'Lineup_Node','{\"node_id\":90001}','PENDING')")
         request_id = cursor.lastrowid
         self.connection.commit()

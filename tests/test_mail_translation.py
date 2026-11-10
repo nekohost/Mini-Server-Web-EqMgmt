@@ -12,7 +12,7 @@ from mail_replay import read_cases, replay, submission
 from utils import ai_assistant as assistant
 from utils.ai_assistant.policy import AssistantError, canonical
 from utils.ai_assistant.providers import LEGACY_MODEL, LEGACY_PROVIDER
-from utils.ai_assistant.transport import EndpointPolicy
+from utils.ai_assistant import providers
 from utils.ai_assistant.translation import (
     ACTIVE_REVISED_DIRECTIONS, ACTIVE_TERM_DIRECTIONS, EFFORT, HERMES_PROFILE, LEGACY_PROMPTS, PROMPTS,
     REVISED_MAIL, REVISED_PROMPTS, SELECTED_PROFILE, SELECTED_PROMPTS,
@@ -39,6 +39,34 @@ def stream(content='', finish='stop', done=True, calls=None):
         delta['tool_calls'] = calls
     frame = {'choices': [{'delta': delta, 'finish_reason': finish}]}
     return {'lines': ['data: ' + json.dumps(frame, ensure_ascii=False), '', *(['data: [DONE]'] if done else [])]}
+
+
+def verified_provider(fix, adapter):
+    """Commission a synthetic peer through the same discovery and worker proof as the admin UI."""
+    origin = 'https://192.168.0.67:8443'
+    fix.login(1)
+    def post(path, data, status):
+        response = fix.post(path, data)
+        if response.status_code != status:
+            raise AssertionError((path, response.status_code, response.get_json()))
+        return response.get_json()
+    pid = post('/api/admin/ai/providers', {'name':'Other provider', 'adapter':adapter, 'base_url':origin,
+               'enabled':True, 'manual':True, 'new_group':'Other hardware', 'revision':0}, 201)['id']
+    with patch.object(providers, 'model_request') as call:
+        response = call.return_value.__enter__.return_value
+        response.status_code = 200
+        response.json.return_value = {'data':[{'id':'integration-probe'}]}
+        table = post(f'/api/admin/ai/providers/{pid}/discover', {'candidate_revision':1}, 200)
+        assert call.call_args.args[1:3] == (origin, '/models')
+    entry = next(p['candidate'] for p in table['providers'] if p['id'] == pid)
+    mid = entry['models'][0]['id']
+    post(f'/api/admin/ai/models/{mid}/probe', {'client_key':uuid.uuid4().hex, 'tools':False,
+         'reasoning':False, 'provider_id':pid, 'candidate_revision':1, 'context_tokens':32768}, 202)
+    job = fix.claim()
+    fix.drive(job, lambda _: stream(job['route']['probe_nonce']), expected_origin=origin)
+    assert fix.finish_reports[-1][1]['state'] == 'done'
+    fix.login(2)
+    return pid, origin
 
 
 def tool_call(name):
@@ -525,11 +553,7 @@ class MailTests(unittest.TestCase):
             with self.subTest(adapter=adapter, upstream=upstream, level=level), fixture(assistant) as fix:
                 pid, origin = LEGACY_PROVIDER, ORIGIN
                 if not existing_provider:
-                    origin = 'https://127.0.0.1:8443'
-                    policy = EndpointPolicy([ORIGIN, origin])
-                    fix.registry.policy = fix.worker.policy = policy
-                    pid = fix.registry.save({'name': 'Other provider', 'adapter': adapter, 'base_url': origin,
-                                             'enabled': True, 'manual': True, 'new_group': 'Other hardware', 'revision': 0})
+                    pid, origin = verified_provider(fix, adapter)
                 # Seed the result of a prior capability check without contacting any provider.
                 mid = uuid.uuid4().hex
                 verified = {'chat': True, 'tools': True, 'reasoning_version': 2, 'verified_levels': levels,

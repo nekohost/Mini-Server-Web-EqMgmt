@@ -52,7 +52,7 @@
                     {% endif %}
 
                     <!-- 로그아웃 버튼 -->
-                    <a href="/logout" class="app-nav-control app-nav-logout" title="로그아웃" aria-label="로그아웃"><span>로그아웃</span></a>
+                    <form method="post" action="{{ url_for('logout') }}" class="contents"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" class="app-nav-control app-nav-logout" title="로그아웃" aria-label="로그아웃"><span>로그아웃</span></button></form>
                     </div>
                 </div>
             </div>

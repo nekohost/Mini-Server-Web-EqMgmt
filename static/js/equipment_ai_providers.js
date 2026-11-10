@@ -1,6 +1,6 @@
 /* [MINI-COMMENT: ASSISTANT.PROVIDERS.CLIENT]
- * [EN rev.4]
- * [Role] Uses one locked operation flow and native result dialogs for provider administration.
+ * [EN rev.5]
+ * [Role] Registers and tests candidate origins and CA files through the authenticated provider editor.
  * [Dependencies] Same-origin CSRF/revision APIs, existing global loading, owner-bound probe reads and safe DOM.
  * [Impact] Separates ACK/refresh/unknown outcomes, never resends a POST, and never cancels shared generation.
  */
@@ -150,7 +150,7 @@
         $('provider-encryption').textContent = state.encryption_configured ? '독립 암호화 키 설정됨' : 'API 키 저장 전 서버의 독립 암호화 키 설정 필요';
         $('provider-list').replaceChildren();
         for (const provider of state.providers) {
-            const button = document.createElement('button'); button.type = 'button'; button.textContent = provider.name + (provider.retired ? ' · 폐기' : provider.enabled ? '' : ' · 중지');
+            const button = document.createElement('button'); button.type = 'button'; button.textContent = provider.name + (provider.retired ? ' · 폐기' : provider.candidate ? ' · 후보 시험' : provider.enabled ? '' : ' · 중지');
             button.dataset.providerId = provider.id; button.dataset.focusKey = 'connection:' + provider.id;
             button.setAttribute('aria-current', String(provider.id === selectedId));
             button.addEventListener('click', () => switchEditor(provider)); $('provider-list').append(button);
@@ -170,24 +170,84 @@
     function edit(provider) {
         current = provider || null; selectedId = current && current.id; form.reset(); dirty = false;
         $('provider-list').querySelectorAll('button').forEach(button => button.setAttribute('aria-current', String(button.dataset.providerId === selectedId)));
-        $('provider-heading').textContent = current ? current.name + ' · 설정 ' + current.revision : '연결 추가';
+        const draft = current && (current.candidate || current);
+        $('provider-heading').textContent = current ? draft.name + (current.candidate ? ' · 후보 ' : ' · 활성 ') + draft.revision : '연결 추가';
         const groups = document.createDocumentFragment();
         for (const group of state.groups) { const option = document.createElement('option'); option.value = group.id; option.textContent = group.name; groups.append(option); }
         $('provider-group').replaceChildren(groups);
-        for (const name of ['name','base_url','adapter','resource_group','sort_order','enabled','manual']) if (current) {
-            const input = form.elements.namedItem(name); if (input.type === 'checkbox') input.checked = Boolean(current[name]); else input.value = current[name];
+        for (const name of ['name','base_url','adapter','resource_group','sort_order','enabled','manual']) if (draft) {
+            const input = form.elements.namedItem(name); if (input.type === 'checkbox') input.checked = Boolean(draft[name]); else input.value = draft[name] ?? '';
         }
-        form.elements.api_key.placeholder = current && current.has_key ? '키 저장됨 · 변경할 때만 입력' : '인증이 필요하면 API 키 입력';
+        form.elements.api_key.placeholder = draft && draft.has_key ? '같은 출처의 키 저장됨' : '인증이 필요하면 API 키 입력';
+        form.elements.trust_mode.value = draft && draft.fingerprint ? 'private' : 'system';
+        showUpload();
+        renderTrust(current);
         $('provider-retire').hidden = !current || Boolean(current.retired);
         mutationControl($('provider-save'), Boolean(current && current.retired));
         mutationControl($('provider-retire'), !current || Boolean(current.retired));
         mutationControl($('provider-discover'), !current || Boolean(current.retired));
-        $('provider-models-panel').hidden = !current;
+        $('provider-models-panel').hidden = !current || !current.revision;
         $('provider-manual').hidden = !current || !current.manual || Boolean(current.retired);
         $('provider-models').replaceChildren(); $('provider-status').textContent = '';
         if (!current) return;
         $('provider-status').textContent = current.last_error || '마지막 목록 확인: ' + (current.last_checked ? new Date(current.last_checked * 1000).toLocaleString() : '아직 없음') + ' · 목록은 60초 캐시';
         for (const model of current.models) renderModel(model, current);
+    }
+
+    function showUpload() {
+        const plainHttp = /^http:/i.test(form.elements.base_url.value.trim());
+        $('provider-tls-mode').hidden = plainHttp;
+        $('provider-http-note').hidden = !plainHttp;
+        if (plainHttp) form.elements.trust_mode.value = 'system';
+        const visible = !plainHttp && form.elements.trust_mode.value === 'private';
+        $('provider-ca-upload').hidden = !visible;
+        if (!visible) form.elements.ca_file.value = '';
+    }
+    form.elements.trust_mode.addEventListener('change', showUpload);
+    form.elements.base_url.addEventListener('input', showUpload);
+
+    function trustLabel(rev) {
+        if (rev.fingerprint) return 'SHA-256 ' + rev.fingerprint + ' · 만료 ' + new Date(rev.expires).toLocaleString();
+        return (rev.origin || rev.base_url || '').startsWith('http:') ? '내부망 HTTP' : '시스템 신뢰 저장소';
+    }
+
+    function renderTrust(provider) {
+        const draft = provider && provider.candidate;
+        $('provider-candidate').hidden = !draft;
+        $('provider-trust').hidden = !provider;
+        $('provider-candidate-models').replaceChildren();
+        $('provider-trust-version').replaceChildren();
+        if (!provider) return;
+        const history = provider.trust_history || [];
+        $('provider-active-trust').textContent = provider.revision ? (provider.revoked ? '신뢰 철회됨 · 버전 ' : '활성 ') + provider.revision + ' · ' + provider.base_url + ' · ' + trustLabel(provider) : '활성 버전 없음';
+        for (const rev of history) {
+            const option = document.createElement('option'); option.value = rev.revision; option.disabled = Boolean(rev.revoked);
+            option.textContent = rev.revision + ' · ' + rev.origin + ' · ' + trustLabel(rev) + (rev.revoked ? ' · 철회됨' : '');
+            $('provider-trust-version').append(option);
+        }
+        mutationControl($('provider-revoke'), !history.some(rev => !rev.revoked));
+        if (!draft) return;
+        $('provider-candidate-status').textContent = '후보 ' + draft.revision + ' · ' + draft.result;
+        $('provider-candidate-trust').textContent = draft.base_url + ' · 승인 IP ' + draft.addresses.join(', ') + ' · ' + trustLabel(draft);
+        mutationControl($('provider-candidate-discover'));
+        if (!draft.discovered) return;
+        for (const model of draft.models) {
+            const row = document.createElement('div'); row.className = 'provider-model-card';
+            const heading = document.createElement('h3'); heading.textContent = model.label + (model.passed ? ' · 시험 통과' : ''); row.append(heading);
+            const context = field(row, '확인한 모델 컨텍스트 한도 (토큰)', 'number', model.context_tokens ?? '');
+            context.min = 2048; context.max = 1048576; context.required = true; context.readOnly = model.context_tokens != null;
+            const tools = field(row, '장비 도구 시험', 'checkbox', Boolean(model.profile.tools));
+            const limitTools = () => { tools.disabled = Number(context.value) < 8192; if (tools.disabled) tools.checked = false; };
+            context.addEventListener('input', limitTools); limitTools();
+            const reasoning = field(row, '허용한 추론 수준 시험', 'checkbox', model.profile.enabled_levels.length > 0);
+            reasoning.disabled = !model.profile.enabled_levels.length;
+            const probe = mutationControl(document.createElement('button')); probe.type = 'button'; probe.dataset.probe = 'true';
+            probe.textContent = '후보 워커 기능 시험';
+            probe.addEventListener('click', () => {
+                if (context.reportValidity()) startProbe(model, tools.checked, reasoning.checked, draft.revision, Number(context.value));
+            });
+            row.append(probe); $('provider-candidate-models').append(row);
+        }
     }
 
     /** [MINI-COMMENT: ASSISTANT.PROVIDERS.CLIENT.OPERATION]
@@ -233,10 +293,13 @@
     function providerVerification(id, priorIds, expected) {
         return async () => {
             const fresh = await api('/api/admin/ai/providers');
-            const rows = id ? fresh.providers.filter(provider => provider.id === id) : fresh.providers.filter(provider => !priorIds.includes(provider.id) && provider.name === expected.name && provider.base_url === expected.base_url);
+            const rows = id ? fresh.providers.filter(provider => provider.id === id) : fresh.providers.filter(provider => {
+                const draft = provider.candidate || provider;
+                return !priorIds.includes(provider.id) && draft.name === expected.name && draft.base_url === new URL(expected.base_url).origin;
+            });
             const row = rows.length === 1 ? rows[0] : null;
             return { fresh, selected: row && row.id,
-                message: row ? '현재 목록에서 연결 “' + row.name + '”의 설정 ' + row.revision + (row.retired ? ' · 폐기 상태' : '') + '를 확인했습니다. 비밀 키의 내용이나 이 요청의 처리 여부는 목록 정보만으로 확정할 수 없습니다. 확인한 설정을 불러와 검토해 주세요.' :
+                message: row ? '현재 목록에서 연결 “' + row.name + '”의 활성 버전 ' + row.revision + (row.candidate ? ' · 후보 ' + row.candidate.revision : '') + (row.retired ? ' · 폐기 상태' : '') + '를 확인했습니다. 비밀 키의 내용이나 이 요청의 처리 여부는 목록 정보만으로 확정할 수 없습니다. 확인한 설정을 불러와 검토해 주세요.' :
                     '현재 목록에서 요청 대상을 확정하지 못했습니다. 아직 처리 중일 수 있습니다. 잠시 후 다시 확인해 주세요.' };
         };
     }
@@ -371,14 +434,16 @@
      * [Dependencies] A stable client key, job read API and session-scoped opaque identifiers.
      * [Impact] Lost status responses are never reported as model failure; leaving the page never controls shared Strata.
      */
-    async function startProbe(model, tools, reasoning) {
+    async function startProbe(model, tools, reasoning, candidateRevision, contextTokens) {
         if (busy || pending || probeJob || probeClientKey || dialog.open) return;
         const focus = focusTarget();
-        if (dirty && !await resultDialog('저장된 설정으로 시험', '저장하지 않은 입력은 이번 기능 시험에 반영되지 않습니다. 현재 서버에 저장된 설정으로 시험할까요?', { confirm: true, accept: '저장된 설정 시험', focus })) return;
+        const confirmText = candidateRevision ? '저장한 후보 주소와 화면에서 선택한 컨텍스트 한도·기능으로 시험할까요?' : '저장하지 않은 입력은 이번 기능 시험에 반영되지 않습니다. 현재 서버에 저장된 설정으로 시험할까요?';
+        if (dirty && !await resultDialog('저장된 설정으로 시험', confirmText, { confirm: true, accept: '저장된 설정 시험', focus })) return;
         probeClientKey = crypto.randomUUID().replaceAll('-', ''); saveProbe(); setBusy(true, '기능 시험 접수 중입니다...');
         let title, message;
         try {
-            const value = await api('/api/admin/ai/models/' + model.id + '/probe', { tools, reasoning, client_key: probeClientKey });
+            const candidate = candidateRevision ? { provider_id: current.id, candidate_revision: candidateRevision, context_tokens: contextTokens } : {};
+            const value = await api('/api/admin/ai/models/' + model.id + '/probe', { tools, reasoning, client_key: probeClientKey, ...candidate });
             probeJob = value.job_id; saveProbe(); title = '기능 시험 접수 완료';
             message = '내부 자원 그룹 큐에 접수했습니다. 접수는 시험 성공을 뜻하지 않습니다. 대기·진행·최종 결과는 상태 영역에서 확인할 수 있습니다. 긴 생성 중에도 화면을 사용할 수 있습니다.';
         } catch (error) {
@@ -434,17 +499,25 @@
         const data = Object.fromEntries(new FormData(form)), original = current;
         const payload = { name: data.name.trim(), base_url: data.base_url.trim(), adapter: data.adapter, resource_group: data.resource_group,
             new_group: data.new_group.trim(), enabled: form.elements.enabled.checked, manual: form.elements.manual.checked, sort_order: Number(data.sort_order), revision: original ? original.revision : 0 };
+        if (original && original.candidate) payload.candidate_revision = original.candidate.revision;
+        payload.trust_mode = data.trust_mode;
+        const file = form.elements.ca_file.files[0];
+        if (file && file.size > 16384) { resultDialog('인증서 크기 초과', '16 KiB 이하의 공개 CA 인증서 한 장을 선택해 주세요.'); return; }
         if (data.api_key || form.elements.clear_key.checked) payload.api_key = form.elements.clear_key.checked ? '' : data.api_key;
         const verify = providerVerification(original && original.id, state.providers.map(provider => provider.id), { name: payload.name, base_url: payload.base_url });
         mutate({ loading: '연결 저장 중입니다...', title: '연결 저장 완료', success: '연결 “' + payload.name + '”을 저장했습니다. 모델 목록을 확인하고 현재 설정으로 기능 시험을 진행해 주세요.',
-            send: () => api('/api/admin/ai/providers' + (original ? '/' + original.id : ''), payload),
+            send: async () => {
+                if (file && payload.trust_mode === 'private') payload.ca_pem = await file.text();
+                return api('/api/admin/ai/providers' + (original ? '/' + original.id : ''), payload);
+            },
             ack: value => { form.elements.api_key.value = ''; form.elements.clear_key.checked = false; selectedId = value.id; }, verify });
     });
 
     /** [Role] Requires named retirement confirmation while preserving all historic and shared model state. */
     $('provider-retire').addEventListener('click', () => {
         const provider = current; if (!provider) return;
-        const payload = { name: provider.name, base_url: provider.base_url, adapter: provider.adapter, resource_group: provider.resource_group, enabled: false, retired: true, manual: Boolean(provider.manual), sort_order: provider.sort_order, revision: provider.revision };
+        const draft = provider.candidate || provider;
+        const payload = { name: draft.name, base_url: draft.base_url, adapter: draft.adapter, resource_group: draft.resource_group, enabled: false, retired: true, manual: Boolean(draft.manual), sort_order: draft.sort_order, revision: provider.revision, candidate_revision: provider.candidate?.revision || 0 };
         mutate({ loading: '연결 폐기 중입니다...', title: '연결 폐기 완료', success: '연결 “' + provider.name + '”을 폐기했습니다. 기존 기록과 실행 중 요청의 종료 보고는 보존되며 공유 모델 프로세스는 중단하지 않습니다.',
             confirm: { title: '연결 폐기', message: '“' + provider.name + '” 연결의 신규 요청을 중지하고 폐기할까요? 폐기한 연결은 다시 활성화할 수 없습니다. 기존 기록은 보존하며 공유 모델 프로세스는 중단하지 않습니다.', accept: '연결 폐기' },
             send: () => api('/api/admin/ai/providers/' + provider.id, payload), verify: providerVerification(provider.id, [], { name: provider.name, base_url: provider.base_url }) });
@@ -455,6 +528,21 @@
         const provider = current; if (!provider) return;
         mutate({ loading: '모델 목록 조회 중입니다...', title: '모델 목록 조회 완료', success: '연결 “' + provider.name + '”의 모델 목록을 갱신했습니다. 목록 조회는 기능 시험을 대신하지 않습니다.',
             send: () => api('/api/admin/ai/providers/' + provider.id + '/discover', {}), verify: modelVerification(provider.id) });
+    });
+
+    $('provider-candidate-discover').addEventListener('click', () => {
+        const provider = current;
+        mutate({ loading: '후보 모델 조회 중', title: '후보 모델 조회 완료', success: '후보에 표시된 모델로 워커 기능 시험을 진행하세요.',
+            send: () => api('/api/admin/ai/providers/' + provider.id + '/discover', { candidate_revision: provider.candidate.revision }),
+            verify: modelVerification(provider.id) });
+    });
+
+    $('provider-revoke').addEventListener('click', () => {
+        const provider = current, revision = Number($('provider-trust-version').value);
+        mutate({ loading: '신뢰 철회 중', title: '신뢰 철회 완료', success: '선택한 버전의 신뢰를 철회했습니다.',
+            confirm: { title: '연결 버전 신뢰 철회', message: provider.name + ' 버전 ' + revision + '의 대기 요청을 중단하고 해당 버전의 새 전송을 차단할까요?', accept: '신뢰 철회' },
+            send: () => api('/api/admin/ai/providers/' + provider.id + '/revoke-trust', { revision }),
+            verify: modelVerification(provider.id) });
     });
 
     /** [Role] Registers a manually opted-in model without retrying an unknown creation. */

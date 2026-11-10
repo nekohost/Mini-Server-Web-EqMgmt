@@ -343,7 +343,7 @@
                 renderPagination(result.pagination);
                 applyColumnVisibility();
             } else {
-                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">${result.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">${window.escapeMarkup(result.message)}</td></tr>`;
             }
         } catch (err) {
             tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-rose-500">데이터를 불러오는 중 오류가 발생했습니다.</td></tr>`;
@@ -366,21 +366,21 @@
 
         tbody.innerHTML = logs.map(log => `
             <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors">
-                <td class="py-3 px-4 text-center font-mono text-xs text-slate-500 col-id">${log.AuditId}</td>
-                <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 font-mono col-created">${log.CreatedAt}</td>
+                <td class="py-3 px-4 text-center font-mono text-xs text-slate-500 col-id">${window.escapeMarkup(log.AuditId)}</td>
+                <td class="py-3 px-4 whitespace-nowrap text-xs text-slate-600 dark:text-slate-300 font-mono col-created">${window.escapeMarkup(log.CreatedAt)}</td>
                 <td class="py-3 px-4 whitespace-nowrap col-actor">
-                    <span class="font-medium text-slate-900 dark:text-white">${log.ActorName || 'System'}</span>
-                    <span class="text-xs text-slate-400 block font-mono">(${log.ActorLoginId || log.ActorId || 'N/A'})</span>
+                    <span class="font-medium text-slate-900 dark:text-white">${window.escapeMarkup(log.ActorName || 'System')}</span>
+                    <span class="text-xs text-slate-400 block font-mono">(${window.escapeMarkup(log.ActorLoginId || log.ActorId || 'N/A')})</span>
                 </td>
                 <td class="py-3 px-4 whitespace-nowrap col-action">
                     <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800">
-                        ${log.Action}
+                        ${window.escapeMarkup(log.Action)}
                     </span>
                 </td>
-                <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-slate-500 col-ip">${log.IpAddress || '-'}</td>
-                <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-700 dark:text-slate-300 col-target">${log.TargetId || '-'}</td>
-                <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate col-details" title="${log.Details || ''}">
-                    ${log.Details || ''}
+                <td class="py-3 px-4 whitespace-nowrap font-mono text-xs text-slate-500 col-ip">${window.escapeMarkup(log.IpAddress || '-')}</td>
+                <td class="py-3 px-4 whitespace-nowrap text-xs font-medium text-slate-700 dark:text-slate-300 col-target">${window.escapeMarkup(log.TargetId || '-')}</td>
+                <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate col-details" title="${window.escapeMarkup(log.Details || '')}">
+                    ${window.escapeMarkup(log.Details || '')}
                 </td>
             </tr>
         `).join('');

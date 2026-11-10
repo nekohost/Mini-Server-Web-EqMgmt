@@ -10,7 +10,7 @@ import subprocess
 import tempfile
 from types import SimpleNamespace
 import unittest
-from unittest.mock import patch, PropertyMock, MagicMock
+from unittest.mock import patch, PropertyMock
 import uuid
 
 from assistant_fixture_tests import AssistantTests, ProtocolTests
@@ -149,9 +149,9 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Dependencies] Existing full auth/audit fixture. [Impact] Replaces only the injected search service with inert transport."""
         AssistantTests.setUp(self);self.search=FakeSearch();self.domain.search_service=self.search
 
-    def turn(self,cid=None,allow=False,key=None,expected=202,level='medium'):
+    def turn(self,cid=None,allow=False,key=None,expected=202,level='medium',question='공개 Flask 문서를 찾아 주세요.'):
         """[Role] Sends a genuine opted browser turn; omitted legacy consent stays exactly absent."""
-        cid=cid or self.conversation();data={'content':'공개 Flask 문서를 찾아 주세요.','level':level,'reasoning_version':2,'client_key':key or uuid.uuid4().hex}
+        cid=cid or self.conversation();data={'content':question,'level':level,'reasoning_version':2,'client_key':key or uuid.uuid4().hex}
         if allow is not None:data['web_search']=allow
         response=self.client.post('/api/ai/conversations/'+cid+'/turns',json=data,headers=self.headers)
         self.assertEqual(response.status_code,expected,response.get_json());return response.get_json()
@@ -209,7 +209,7 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """
         for value,expected in (('True',True),('False',False),('true',True),('false',False)):
             with self.subTest(value=value):
-                before=len(self.search.calls);jid=self.turn(allow=None)['job_id']
+                before=len(self.search.calls);jid=self.turn(allow=None,question='Find Samsung Galaxy S25 specifications.')['job_id']
                 self.assertEqual(self.plan_step(self.claim(),value,query='Samsung Galaxy S25 specifications')['state'],'queued')
                 next_job=self.claim()
                 self.assertEqual('web_search' in [t['function']['name'] for t in next_job['tools']],expected)
@@ -309,9 +309,18 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.assertIsNone(self.claim())
         with self.store.db() as db:self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'recovery_required')
 
+    def test_prior_only_query_never_reaches_external_search(self):
+        cid = self.conversation()
+        self.turn(cid, False, question='Previously discussed telescope warranty.')
+        self.assertEqual(self.finish(self.claim(), content='Stored.')['state'], 'done')
+        self.turn(cid, True, question='Find Flask documentation.')
+        result = self.search_step(self.claim(), query='telescope warranty')
+        self.assertEqual(result['state'], 'failed')
+        self.assertEqual(self.search.calls, [])
+
     def test_missing_decision_is_corrected_once_and_real_search_still_runs(self):
         """[Role] Replays the observed741-character reasoning-only completion through the durable correction and real search boundary."""
-        jid=self.turn(allow=None,level='xhigh')['job_id'];first=self.claim()
+        jid=self.turn(allow=None,level='xhigh',question='Find Flask public docs.')['job_id'];first=self.claim()
         result=self.finish(first,content='',reasoning='R'*741)
         self.assertEqual((result['state'],result['response_correction']),('queued','search_plan'));self.assertEqual(self.search.calls,[])
         corrected=self.claim();self.assertEqual(corrected['id'],jid);self.assertEqual(corrected['steps'],1)
@@ -471,12 +480,13 @@ class WebSearchIntegrationTests(unittest.TestCase):
         responses=[reply({'reasoning_content':'R'*741},'stop'),
                    reply({'tool_calls':[{'index':0,'id':'plan','function':{'name':'plan_web_search','arguments':canonical({'needed':True,'query':'Flask docs'})}}]},'tool_calls'),
                    reply({'reasoning_content':'결과 검토'},'stop'),reply({'content':'실제 출처를 확인했습니다. [1]'},'stop')]
-        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model');worker.post=post
+        worker=Worker('http://127.0.0.1:5000',self.app.config['USER_AI_WORKER_TOKEN'],self.app.config['USER_AI_STRATA_URL'],'fixture-search-key','fixture-model');worker.post=post
         jid=self.turn(allow=None,level='xhigh')['job_id']
         with patch('utils.ai_assistant.worker.model_request',side_effect=responses) as transport,self.assertLogs('equipment_assistant_worker',level='INFO') as logs:
             for _ in range(4):
                 job=self.claim();self.assertEqual(job['id'],jid);worker.run_job(job)
         payloads=[call.args[4] for call in transport.call_args_list]
+        self.assertTrue(all(call.args[1:4]==(self.app.config['USER_AI_STRATA_URL'],'/chat/completions','fixture-search-key') for call in transport.call_args_list))
         self.assertEqual(len(payloads),4);self.assertTrue(all(p['reasoning_effort']=='xhigh' for p in payloads))
         self.assertTrue(all(sum(m['role']=='system' for m in p['messages'])==1 for p in payloads))
         self.assertIn(CORRECTIONS['search_plan'],payloads[1]['messages'][0]['content'])
@@ -501,11 +511,12 @@ class WebSearchIntegrationTests(unittest.TestCase):
             self.assertEqual(response.status_code,200,response.get_json());return response.get_json()
         responses=[reply({'tool_calls':[{'index':0,'id':'plan','function':{'name':'plan_web_search','arguments':canonical({'needed':True,'query':'Flask docs'})}}]},'tool_calls'),
                    reply({'reasoning_content':'검토','content':'잘린 표'},'length'),reply({'content':'완결된 짧은 비교표입니다. [1]'},'stop')]
-        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model');worker.post=post
+        worker=Worker('http://127.0.0.1:5000',self.app.config['USER_AI_WORKER_TOKEN'],self.app.config['USER_AI_STRATA_URL'],'fixture-search-key','fixture-model');worker.post=post
         jid=self.turn(allow=None,level='xhigh')['job_id']
         with patch('utils.ai_assistant.worker.model_request',side_effect=responses) as transport:
             for _ in range(3):worker.run_job(self.claim())
         self.assertEqual(transport.call_count,3);self.assertNotIn('tools',transport.call_args_list[-1].args[4]);self.assertEqual(len(self.search.calls),1)
+        self.assertTrue(all(call.args[1:4]==(self.app.config['USER_AI_STRATA_URL'],'/chat/completions','fixture-search-key') for call in transport.call_args_list))
         with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['state'],'done')
         self.assert_correction_released(jid)
 
@@ -576,7 +587,7 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Role] Replays the observed one-used plus two-requested batch without increasing quota or HTTP work.
         [Dependencies] Genuine finish/domain/store/source projection. [Impact] Exactly one additional child runs; control data is never evidence or an extra source charge.
         """
-        jid=self.turn(allow=None)['job_id'];self.plan_step(self.claim(),True,query='Flask first')
+        jid=self.turn(allow=None,question='Find Flask first, second and third.')['job_id'];self.plan_step(self.claim(),True,query='Flask first')
         job=self.claim();self.assertIn('현재 요청의 남은 웹 검색 횟수:1/2',job['messages'][0]['content'])
         calls=[{'id':str(x),'name':'web_search','arguments':canonical({'query':query})} for x,query in enumerate(('Flask second','Flask third'))]
         result=self.finish(job,calls);self.assertEqual(result['state'],'queued');self.assertEqual(self.search.calls,['Flask first','Flask second'])
@@ -597,7 +608,7 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """[Role] Keeps one8s child inside each15s finish request even when two searches fit the total quota.
         [Dependencies] Real admitted required turn. [Impact] The second search can run next step without pretending the deferred call ran.
         """
-        self.turn(allow=True);job=self.claim()
+        self.turn(allow=True,question='Search Flask 0 and 1, retry deferred.');job=self.claim()
         self.assertEqual(self.finish(job,[{'id':str(x),'name':'web_search','arguments':canonical({'query':'Flask '+str(x)})} for x in range(2)])['state'],'queued')
         self.assertEqual(len(self.search.calls),1)
         next_job=self.claim();self.assertIn('web_search',[t['function']['name'] for t in next_job['tools']])
@@ -610,7 +621,7 @@ class WebSearchIntegrationTests(unittest.TestCase):
         """
         for mode in ('cancel','trash'):
             with self.subTest(mode=mode):
-                self.search.callback=None;cid=self.conversation();jid=self.turn(cid,None)['job_id']
+                self.search.callback=None;cid=self.conversation();jid=self.turn(cid,None,question='Find Flask prior evidence and later 0 and 1.')['job_id']
                 self.plan_step(self.claim(),True,query='Flask prior evidence');job=self.claim()
                 with self.store.db() as db:
                     row=self.store.job(jid,db);account=row['account_key'];before=evidence_chars(row['context'])
@@ -717,30 +728,28 @@ class WebSearchIntegrationTests(unittest.TestCase):
 class WebSearchWorkerTests(unittest.TestCase):
     """[Role] Checks actual OpenAI worker request selection with inert transport and no model connection."""
     response=ProtocolTests.response
+    def search_worker(self, tool, **fields):
+        frames=['data: '+canonical({'choices':[{'delta':{'content':'synthetic'},'finish_reason':'stop'}]}),'','data: [DONE]','']
+        return ProtocolTests.fake_worker(self,frames,tools=[{'type':'function','function':{'name':tool}}],**fields)
+
     def test_only_server_required_search_selects_the_named_tool(self):
         """[Dependencies] Actual worker payload and synthetic SSE. [Impact] On requests force the fixed search function; off/continuation requests keep existing behavior."""
-        from utils.ai_assistant.worker import Worker
         for required in (True,False):
-            worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model')
-            client=MagicMock();client.__enter__.return_value=client
-            client.post.return_value=self.response(['data: '+canonical({'choices':[{'delta':{'content':'synthetic'},'finish_reason':'stop'}]}),'','data: [DONE]',''])
-            worker.post=lambda *_:{'success':True,'accepted':True,'cancel':False}
-            with patch('utils.ai_assistant.worker.requests.Session',return_value=client),patch.object(worker.stop,'wait',return_value=False):
-                worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[],'tools':[{'type':'function','function':{'name':'web_search'}}],'web_search_required':required})
-            payload=client.post.call_args.kwargs['json']
+            reports,transport=self.search_worker('web_search',web_search_required=required)
+            transport.assert_called_once()
+            self.assertEqual(reports[-1][1]['outcome'],'complete')
+            payload=transport.call_args.args[4]
             self.assertEqual(payload.get('tool_choice'),{'type':'function','function':{'name':'web_search'}} if required else None)
 
     def test_server_auto_decision_uses_a_fixed_named_tool_and_rejects_unknown_names(self):
         """[Role] Verifies the automatic decision is a forced structured model choice, never a model-selected endpoint.
         [Dependencies] Actual worker payload and inert SSE/loopback transport. [Impact] Invalid required names do not dispatch an upstream request.
         """
-        from utils.ai_assistant.worker import Worker
         for name in ('plan_web_search','unsafe_dynamic_tool'):
-            worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','unused','fixture-model')
-            client=MagicMock();client.__enter__.return_value=client
-            client.post.return_value=self.response(['data: '+canonical({'choices':[{'delta':{'content':'synthetic'},'finish_reason':'stop'}]}),'','data: [DONE]',''])
-            worker.post=lambda *_:{'success':True,'accepted':True,'cancel':False}
-            with patch('utils.ai_assistant.worker.requests.Session',return_value=client),patch.object(worker.stop,'wait',return_value=False):
-                worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[],'tools':[{'type':'function','function':{'name':'plan_web_search'}}],'required_tool':name})
-            if name=='plan_web_search':self.assertEqual(client.post.call_args.kwargs['json']['tool_choice'],{'type':'function','function':{'name':'plan_web_search'}})
-            else:client.post.assert_not_called()
+            reports,transport=self.search_worker('plan_web_search',required_tool=name)
+            if name=='plan_web_search':
+                transport.assert_called_once()
+                self.assertEqual(transport.call_args.args[4]['tool_choice'],{'type':'function','function':{'name':'plan_web_search'}})
+            else:
+                transport.assert_not_called()
+                self.assertEqual(reports[-1][1]['outcome'],'failed')

@@ -1,7 +1,7 @@
 """[MINI-COMMENT: ASSISTANT.TRANSPORT]
-[EN rev.1]
+[EN rev.3]
 [Role] Connects only fixed model API paths to approved, pinned destinations.
-[Dependencies] Server endpoint allowlist, stdlib HTTP/TLS/DNS; never browser URLs or environment proxies.
+[Dependencies] Version-bound trust and stdlib HTTP/TLS/DNS; the deployment allowlist bootstraps older routes.
 [Impact] Redirects, credentials in URLs and DNS rebinding cannot expand the configured network boundary.
 """
 import http.client
@@ -12,6 +12,7 @@ import ssl
 from urllib.parse import urlsplit
 
 from .policy import AssistantError
+from .provider_trust import BeforeSendError, check_peer
 
 
 class EndpointPolicy:
@@ -68,11 +69,11 @@ class EndpointPolicy:
             raise AssistantError('연결 포트를 확인해 주세요.')
         return url
 
-    def destination(self, base):
+    def destination(self, base, *, all_addresses=False):
         """[MINI-COMMENT: ASSISTANT.TRANSPORT.ENDPOINTPOLICY.DESTINATION]
-        [EN rev.1]
+        [EN rev.4]
         [Role] Resolves once, checks every result and returns the checked IP for the actual socket.
-        [Dependencies] Fixed compiled origin/CIDR rules and normal TLS hostname validation.
+        [Dependencies] Fixed deployment rules; the registry alone seals older LAN destinations using all_addresses.
         [Impact] Validation and connection use the same address; no second DNS lookup occurs.
         """
         url = self.parse(base)
@@ -85,6 +86,10 @@ class EndpointPolicy:
             raise AssistantError('연결 대상의 주소가 없습니다.', 503)
         for address in addresses:
             ip = ipaddress.ip_address(address)
+            if url.scheme == 'http' and not ip.is_loopback:
+                if not all_addresses:
+                    raise BeforeSendError('내부망 HTTP에는 승인된 연결 버전이 필요합니다.')
+                check_peer(address)
             if ip.is_link_local or ip.is_multicast or ip.is_unspecified:
                 raise AssistantError('허용되지 않은 연결 대상입니다.', 403)
             allowed = any(p == port and s == url.scheme and (
@@ -93,7 +98,7 @@ class EndpointPolicy:
                 for h, p, s, n, a in self.rules)
             if not allowed:
                 raise AssistantError('서버 허용 목록에 없는 주소/포트입니다.', 403)
-        return url, addresses[0], port
+        return url, addresses if all_addresses else addresses[0], port
 
 
 class ModelResponse:
@@ -172,7 +177,7 @@ class ModelResponse:
 
 def model_request(policy, base, path, key='', payload=None, timeout=1800):
     """[MINI-COMMENT: ASSISTANT.TRANSPORT.MODEL_REQUEST]
-    [EN rev.1]
+    [EN rev.2]
     [Role] Calls only GET models or POST chat completions over a checked pinned socket.
     [Dependencies] EndpointPolicy and standard certificate verification, with no proxy/redirect support.
     [Impact] JSON discovery is bounded and inference is never automatically retried.
@@ -183,7 +188,10 @@ def model_request(policy, base, path, key='', payload=None, timeout=1800):
     cls = http.client.HTTPSConnection if url.scheme == 'https' else http.client.HTTPConnection
     options = {'timeout': 5}
     if url.scheme == 'https':
-        options['context'] = ssl.create_default_context()
+        try:
+            options['context'] = policy.tls_context() if hasattr(policy, 'tls_context') else ssl.create_default_context()
+        except (ValueError, OSError):
+            raise BeforeSendError('인증서 단계에서 연결의 신뢰 저장소를 열지 못했습니다.', 'PROVIDER_TLS') from None
     connection = cls(url.hostname, port, **options)
     # http.client retains the original Host and TLS SNI while its socket uses the validated IP.
     connection._create_connection = lambda _address, timeout=5, source_address=None: socket.create_connection((address, port), timeout, source_address)
@@ -197,7 +205,12 @@ def model_request(policy, base, path, key='', payload=None, timeout=1800):
         headers['Content-Type'] = 'application/json'
         body = json.dumps(payload, ensure_ascii=False, allow_nan=False).encode('utf-8')
     try:
-        connection.connect()
+        try:
+            connection.connect()
+        except ssl.SSLError:
+            raise BeforeSendError('인증서 단계에서 TLS 체인·유효기간·서버 이름을 확인하지 못했습니다.', 'PROVIDER_TLS') from None
+        except OSError:
+            raise BeforeSendError('주소 단계에서 승인한 IP와 포트에 연결할 수 없습니다.') from None
         connection.sock.settimeout(timeout)
         connection.request('GET' if payload is None else 'POST', '/v1' + path, body=body, headers=headers)
         return ModelResponse(connection, connection.getresponse())

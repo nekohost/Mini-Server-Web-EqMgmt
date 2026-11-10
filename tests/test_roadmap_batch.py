@@ -27,7 +27,7 @@ class RoadmapBatchTests(unittest.TestCase):
         cls.temp = tempfile.TemporaryDirectory(prefix='roadmap-test-')
         cls.root = Path(cls.temp.name)
         cls.environment = patch.dict(os.environ, DATABASE_PATH=str(cls.root / 'fixture.db'), DATABASE_OPERATION_ROOT=str(cls.root / 'operations'),
-            MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'), EQUIPMENT_ATTACHMENT_ROOT=str(cls.root / 'attachments'), SECRET_KEY='isolated-roadmap-test-secret')
+            MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'), EQUIPMENT_ATTACHMENT_ROOT=str(cls.root / 'attachments'), SECRET_KEY='isolated-roadmap-test-secret-synthetic-0123456789')
         cls.environment.start()
         spec = importlib.util.spec_from_file_location('roadmap_fixture_app', Path(__file__).resolve().parents[1] / 'app.py')
         cls.module = importlib.util.module_from_spec(spec)
@@ -103,15 +103,16 @@ class RoadmapBatchTests(unittest.TestCase):
 
     def test_auth_limit_has_retry_header_and_expiry(self):
         for attempt in range(10):
-            self.assertEqual(self.client.post('/login', json={'LoginId': 'fixture-20002', 'Password': 'wrong'}).status_code, 400)
-        blocked = self.client.post('/login', json={'LoginId': 'fixture-20002', 'Password': 'GoodPass1!'})
+            self.assertEqual(self.client.post('/login', headers=self.headers, json={'LoginId': 'fixture-20002', 'Password': 'wrong'}).status_code, 400)
+        blocked = self.client.post('/login', headers=self.headers, json={'LoginId': 'fixture-20002', 'Password': 'GoodPass1!'})
         self.assertEqual(blocked.status_code, 429)
         self.assertGreater(int(blocked.headers['Retry-After']), 0)
-        self.assertEqual(self.client.post('/login', json={'LoginId': 'fixture-20003', 'Password': 'GoodPass1!'}).status_code, 200)
+        self.assertEqual(self.client.post('/login', headers=self.headers, json={'LoginId': 'fixture-20003', 'Password': 'GoodPass1!'}).status_code, 200)
         with closing(self.connection()) as connection:
             connection.execute('UPDATE auth_rate_buckets SET expires_at=0')
             connection.commit()
-        self.assertEqual(self.client.post('/login', json={'LoginId': 'fixture-20002', 'Password': 'GoodPass1!'}).status_code, 200)
+        self.login(20002)  # The preceding successful login rotated the browser session.
+        self.assertEqual(self.client.post('/login', headers=self.headers, json={'LoginId': 'fixture-20002', 'Password': 'GoodPass1!'}).status_code, 200)
 
     def test_forged_forwarded_ip_does_not_change_untrusted_peer(self):
         class Request:
@@ -280,7 +281,7 @@ class RoadmapBatchTests(unittest.TestCase):
                 ((30000 + number, 'Bulk-' + str(number),) for number in range(2000)))
             connection.commit()
             args = {'status': 'REPAIR', 'purchase_from': '2026-01-01', 'per_page': '100', 'page': '2'}
-            user = {'UserId': 20002, 'Role': 'user'}
+            user = {'UserId': 20002, 'Role': 'user', 'menus': {'my_equipment'}}
             cte, where, values, order = equipment.query_contract(args, user)
             plan = connection.execute('EXPLAIN QUERY PLAN ' + cte + 'SELECT e.id' + equipment.FROM_SQL + where + order, values).fetchall()
             self.assertTrue(any('SEARCH e USING' in row[3] for row in plan))

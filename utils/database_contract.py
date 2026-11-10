@@ -37,6 +37,7 @@ def configure_connection(connection, timeout=5.0):
     [의존성 관계] connect_database/open_application_database.
     [변경 시 영향도] 모든 정상 쓰기와 백업·복원 연결의 무결성에 영향을 줍니다.
     """
+    connection.execute('PRAGMA trusted_schema=OFF')  # Candidate databases cannot invoke unsafe application-defined functions in their schema.
     connection.execute('PRAGMA foreign_keys=ON')  # SQLite 기본값에 의존하지 않습니다.
     connection.execute(f'PRAGMA busy_timeout={max(0, min(int(timeout * 1000), 30000))}')  # 잠금 대기를 제한합니다.
     if connection.execute('PRAGMA foreign_keys').fetchone()[0] != 1:  # transaction 중의 무효 설정도 감지합니다.
@@ -94,7 +95,7 @@ def schema_contract(connection):
     [변경 시 영향도] 백업 후보 호환성과 migration 지문의 기준입니다.
     """
     result = {}  # 객체명을 키로 사용합니다.
-    objects = connection.execute("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' AND type IN ('table','index','view','trigger') ORDER BY type,name")  # 모든 앱 객체를 조회합니다.
+    objects = connection.execute("SELECT type,name,tbl_name,sql FROM sqlite_master WHERE lower(name) NOT GLOB 'sqlite_*' AND type IN ('table','index','view','trigger') ORDER BY type,name")  # 모든 앱 객체를 조회합니다.
     for kind, name, table, sql in objects.fetchall():  # 별도 PRAGMA 실행 전에 결과를 고정합니다.
         if kind != 'table':  # 표현식/부분 인덱스와 trigger/view SQL을 빠짐없이 비교합니다.
             result[(kind, name)] = (table, sql_tokens(sql))  # SQL 문자열 리터럴은 보존합니다.

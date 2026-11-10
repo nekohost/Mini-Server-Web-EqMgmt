@@ -5,6 +5,7 @@
 [Impact] Also covers real global audit-hook integration, persistent stop reasons, pagination, v1 migration, reserved storage and normalization without production data/model access.
 """
 import ast
+from contextlib import closing
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from functools import wraps
@@ -16,15 +17,18 @@ import sqlite3
 import tempfile
 import time
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 import uuid
 
 from flask import Flask, g, jsonify, redirect, request, session, url_for
 from jinja2 import ChoiceLoader, DictLoader, FileSystemLoader
-from utils import roadmap_schema
+from utils import http_audit_queue, roadmap_schema
+from utils.http_security import client_ip, legacy_audit_payloads, referrer_path
 from utils.ai_assistant import install_assistant
 from utils.ai_assistant.audit import audit_body
 from utils.ai_assistant.policy import canonical, LEVELS
+from utils.ai_assistant.providers import LEGACY_PROVIDER, PROTOCOL
+from utils.ai_assistant.provider_trust import STRATA_HTTP
 from utils.ai_assistant.store import Store
 from utils.ai_assistant.worker import sse, Worker
 import requests
@@ -88,11 +92,11 @@ class AssistantTests(unittest.TestCase):
         self.app.add_url_rule('/deactivated_notice','deactivated_notice_page',lambda:'inactive')
         self.app.add_url_rule('/api/check_session','check_session',lambda:jsonify(valid=True))
 
-        @self.app.get('/logout')
+        @self.app.post('/logout')
         def logout():
             """[Role] Emulates existing cookie clearing so the real assistant revocation hook is exercised."""
             session.clear()
-            return 'logout'
+            return redirect('/login')
 
         functions=[n for n in source.body if isinstance(n,ast.FunctionDef) and n.name=='login_required']
         namespace=dict(wraps=wraps,session=session,request=request,jsonify=jsonify,redirect=redirect,url_for=url_for,get_db_connection=self.connect)
@@ -112,7 +116,8 @@ class AssistantTests(unittest.TestCase):
         hook=next(n for n in source.body if isinstance(n,ast.FunctionDef) and n.name=='after_request_func')
         hook.decorator_list=[]
         audit_namespace=dict(app=self.app,request=request,session=session,g=g,time=time,datetime=datetime,json=json,
-            STATIC_METADATA_ROUTES_FROZEN=frozenset(),push_access_log=self.audit_logs.append,audit_body=audit_body)
+            STATIC_METADATA_ROUTES_FROZEN=frozenset(),push_access_log=self.audit_logs.append,audit_body=audit_body,
+            client_ip=client_ip,referrer_path=referrer_path,legacy_audit_payloads=legacy_audit_payloads,http_audit_queue=http_audit_queue)
         exec(compile(ast.Module(body=[hook],type_ignores=[]),'real-audit-hook-fixture','exec'),audit_namespace)
         self.app.after_request(audit_namespace['after_request_func'])
         self.store=self.app.extensions['equipment_assistant']['store']
@@ -154,7 +159,7 @@ class AssistantTests(unittest.TestCase):
 
     def claim(self):
         """[Role] Claims one application job with the private fixture worker token."""
-        result=self.client.post('/internal/ai/claim',json={'worker':'fixture-worker','protocol':3},headers=self.worker_headers)
+        result=self.client.post('/internal/ai/claim',json={'worker':'fixture-worker','protocol':PROTOCOL},headers=self.worker_headers)
         self.assertEqual(result.status_code,200,result.get_json())
         return result.get_json()['job']
 
@@ -251,14 +256,14 @@ class AssistantTests(unittest.TestCase):
 
     def test_logout_revokes_queued_job(self):
         """[Role] Verifies logout revokes queued job. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
-        jid=self.submit();self.client.get('/logout')
+        jid=self.submit();self.client.post('/logout')
         self.assertIsNone(self.claim())
         with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['state'],'cancelled')
 
     def test_changed_database_token_cancels_queued_job(self):
         """[Role] Verifies changed database token cancels queued job. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
         jid=self.submit()
-        with self.connect() as db:db.execute("UPDATE users SET SessionToken='new-login' WHERE UserId=2")
+        with closing(self.connect()) as db, db:db.execute("UPDATE users SET SessionToken='new-login' WHERE UserId=2")
         self.assertIsNone(self.claim())
         with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['state'],'cancelled')
 
@@ -272,7 +277,7 @@ class AssistantTests(unittest.TestCase):
         """[Role] Verifies passive reads do not refresh cookie. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
         self.assertNotIn('Set-Cookie',self.client.get('/api/ai/conversations').headers)
         self.assertNotIn('Set-Cookie',self.client.get('/api/check_session',headers={'X-Assistant-Poll':'1'}).headers)
-        self.assertIn('Set-Cookie',self.client.get('/api/check_session').headers)
+        self.assertNotIn('Set-Cookie',self.client.get('/api/check_session').headers)
 
     def test_private_account_context_changes_without_exposing_token(self):
         """[Role] Verifies private account context changes without exposing token. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
@@ -304,7 +309,7 @@ class AssistantTests(unittest.TestCase):
             r=self.client.post('/api/ai/proposals/'+p['id']+'/confirm',json={},headers=self.headers)
             self.assertEqual(r.status_code,200,r.get_json())
         self.assertEqual(self.count('equipments'),5)
-        with self.connect() as db:self.assertEqual(db.execute("SELECT COUNT(*) FROM audit_logs WHERE Action='AI_EXECUTE'").fetchone()[0],1)
+        with closing(self.connect()) as db, db:self.assertEqual(db.execute("SELECT COUNT(*) FROM audit_logs WHERE Action='AI_EXECUTE'").fetchone()[0],1)
 
     def test_lost_ai_state_recovers_equipment_receipt(self):
         """[Role] Verifies lost ai state recovers equipment receipt. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
@@ -318,7 +323,7 @@ class AssistantTests(unittest.TestCase):
     def test_revision_conflict(self):
         """[Role] Verifies revision conflict. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
         p=self.prepare('prepare_equipment_update',{'equipment_id':2,'name':'AI name'})
-        with self.connect() as db:db.execute("UPDATE equipments SET name='Manual change' WHERE id=2")
+        with closing(self.connect()) as db, db:db.execute("UPDATE equipments SET name='Manual change' WHERE id=2")
         r=self.client.post('/api/ai/proposals/'+p['id']+'/confirm',json={},headers=self.headers)
         self.assertEqual(r.status_code,409,r.get_json())
 
@@ -411,7 +416,7 @@ class AssistantTests(unittest.TestCase):
     def test_menu_revocation_disables_existing_proposal(self):
         """[Role] Verifies menu revocation disables existing proposal. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
         p=self.prepare()
-        with self.connect() as db:db.execute("UPDATE role_menu_permissions SET IsAllowed=0 WHERE Role='user' AND MenuCode='my_equipment'")
+        with closing(self.connect()) as db, db:db.execute("UPDATE role_menu_permissions SET IsAllowed=0 WHERE Role='user' AND MenuCode='my_equipment'")
         self.assertEqual(self.client.post('/api/ai/proposals/'+p['id']+'/confirm',json={},headers=self.headers).status_code,403)
 
     def test_invalid_levels_and_message_size(self):
@@ -424,7 +429,7 @@ class AssistantTests(unittest.TestCase):
     def test_reviewed_option_change_blocks_confirmation(self):
         """[Role] Verifies reviewed option change blocks confirmation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
         p=self.prepare()
-        with self.connect() as db:db.execute("UPDATE equipment_options SET option_name='Changed' WHERE id=1")
+        with closing(self.connect()) as db, db:db.execute("UPDATE equipment_options SET option_name='Changed' WHERE id=1")
         self.assertEqual(self.client.post('/api/ai/proposals/'+p['id']+'/confirm',json={},headers=self.headers).status_code,409)
         self.assertEqual(self.count('equipments'),4)
 
@@ -458,7 +463,7 @@ class AssistantTests(unittest.TestCase):
         p=self.prepare('prepare_equipment_status',{'equipment_id':2,'status':'REPAIR','reason':'검사 중'})
         r=self.client.post('/api/ai/proposals/'+p['id']+'/confirm',json={},headers=self.headers)
         self.assertEqual(r.status_code,200,r.get_json())
-        with self.connect() as db:
+        with closing(self.connect()) as db, db:
             row=db.execute('SELECT status,revision FROM equipments WHERE id=2').fetchone()
         self.assertEqual(tuple(row),('REPAIR',1))
 
@@ -478,11 +483,11 @@ class AssistantTests(unittest.TestCase):
 
     def test_preferences_preserve_existing_keys_and_actual_result_in_history(self):
         """[Role] Verifies preferences preserve existing keys and actual result in history. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
-        with self.connect() as db:db.execute("INSERT INTO user_settings(UserId,PreferencesJSON) VALUES(2,'{\"unrelated\":\"keep\"}')")
+        with closing(self.connect()) as db, db:db.execute("INSERT INTO user_settings(UserId,PreferencesJSON) VALUES(2,'{\"unrelated\":\"keep\"}')")
         p=self.prepare('prepare_preferences',{'theme':'dark'})
         r=self.client.post('/api/ai/proposals/'+p['id']+'/confirm',json={},headers=self.headers)
         self.assertEqual(r.status_code,200,r.get_json())
-        with self.connect() as db:settings=json.loads(db.execute('SELECT PreferencesJSON FROM user_settings WHERE UserId=2').fetchone()[0])
+        with closing(self.connect()) as db, db:settings=json.loads(db.execute('SELECT PreferencesJSON FROM user_settings WHERE UserId=2').fetchone()[0])
         self.assertEqual(settings,{'unrelated':'keep','theme':'dark'})
         with self.store.db() as db:self.assertEqual(db.execute('SELECT COUNT(*) FROM messages WHERE job IS NULL').fetchone()[0],1)
 
@@ -516,7 +521,7 @@ class AssistantTests(unittest.TestCase):
         """[Role] Simulates restored/reused IDs with even the same token. [Dependencies] Synthetic account birth identity. [Impact] Old conversations/results remain private and preserved."""
         p=self.prepare()
         with self.store.db() as db:old_job=self.store.job(p['job'],db)
-        with self.connect() as db:db.execute("UPDATE users SET LoginId='replacement',CreatedAt='2027-01-01 00:00:00' WHERE UserId=2")
+        with closing(self.connect()) as db, db:db.execute("UPDATE users SET LoginId='replacement',CreatedAt='2027-01-01 00:00:00' WHERE UserId=2")
         self.assertEqual(self.client.get('/api/ai/conversations').get_json()['conversations'],[])
         self.assertEqual(self.client.get('/api/ai/conversations/'+old_job['conversation']+'/messages').status_code,404)
         self.assertEqual(self.client.get('/api/ai/jobs/'+p['job']).status_code,404)
@@ -527,7 +532,7 @@ class AssistantTests(unittest.TestCase):
     def test_login_name_change_keeps_account_chat(self):
         """[Role] Keeps the original account's history through a profile rename. [Dependencies] Stable source CreatedAt. [Impact] Does not confuse mutable login names with a new person."""
         cid=self.conversation()
-        with self.connect() as db:db.execute("UPDATE users SET LoginId='renamed' WHERE UserId=2")
+        with closing(self.connect()) as db, db:db.execute("UPDATE users SET LoginId='renamed' WHERE UserId=2")
         self.assertEqual(self.client.get('/api/ai/conversations/'+cid+'/messages').status_code,200)
 
     def test_global_audit_preserves_ai_content_and_protects_lease(self):
@@ -719,7 +724,7 @@ class AssistantTests(unittest.TestCase):
         self.assertEqual(payload['purchase_date'],'2026-11-04');self.assertEqual(payload['serial_number'],'SERIAL-NORMAL')
         result=self.client.post('/api/ai/proposals/'+proposal['id']+'/confirm',json={},headers=self.headers).get_json()
         self.assertTrue(result['success'])
-        with self.connect() as db:
+        with closing(self.connect()) as db, db:
             row=db.execute('SELECT serial_number,purchase_date FROM equipments WHERE id=?',(result['result']['equipment_id'],)).fetchone()
             self.assertEqual(tuple(row),('SERIAL-NORMAL','2026-11-04'))
 
@@ -753,43 +758,39 @@ class ProtocolTests(unittest.TestCase):
         for delta,finish in (({'reasoning_content':'Inspect '},None),({'reasoning_content':'safely. '},None),({'content':'Answer'},'stop')):
             frames.extend(['data: '+json.dumps({'choices':[{'delta':delta,'finish_reason':finish}]}),''])
         frames.extend(['data: [DONE]',''])
-        reply=self.response(frames)
-        class Client:
-            def __enter__(self): """[Role] Implements the synthetic __enter__ transport/context operation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access.""";return self
-            def __exit__(self,*args): """[Role] Implements the synthetic __exit__ transport/context operation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access.""";return False
-            def post(self,*args,**kwargs):
-                """[Role] Implements the synthetic post transport/context operation. [Dependencies] Isolated Linux fixture and deterministic inputs. [Impact] Detects regressions without production data/model access."""
-                self.request=(args,kwargs);return reply
-        client=Client()
-        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','strata-fixture-key','fixture-model')
-        reports=[]
-        worker.post=lambda path,data:(reports.append((path,data)) or {'success':True,'cancel':False})
-        with patch('utils.ai_assistant.worker.requests.Session',return_value=client):
-            worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[{'role':'user','content':'Hi'}],'tools':[],'reasoning_effort':'xhigh'})
-        payload=client.request[1]['json']
+        reports,transport=self.fake_worker(frames,messages=[{'role':'user','content':'Hi'}],reasoning_effort='xhigh')
+        transport.assert_called_once()
+        self.assertEqual(transport.call_args.args[1:4],(STRATA_HTTP,'/chat/completions','strata-fixture-key'))
+        payload=transport.call_args.args[4]
         self.assertFalse(payload['strata_mcp']);self.assertEqual(payload['reasoning_effort'],'xhigh')
         self.assertNotIn('strata-fixture-key',canonical(payload))
         self.assertEqual(reports[-1][1]['reasoning'],'Inspect safely. ')
         self.assertEqual(reports[-1][1]['content'],'Answer');self.assertEqual(reports[-1][1]['outcome'],'complete')
         self.assertTrue(all('/internal/ai/jobs/' in path for path,_ in reports))
 
-    def fake_worker(self,frames=(),status=200,exception=None,retry_report=False):
-        """[Role] Runs a synthetic response through the real worker. [Dependencies] Fake requests transport and private report sink. [Impact] Never contacts Strata; counts inference versus finish-report delivery separately."""
-        reply=self.response(frames);reply.status_code=status
-        client=MagicMock();client.__enter__.return_value=client
-        if exception:client.post.side_effect=exception
-        else:client.post.return_value=reply
-        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345','http://127.0.0.1:9000','strata-fixture-key','fixture-model')
+    def fake_worker(self,frames=(),status=200,exception=None,retry_report=False,**packet_fields):
+        """Exercise the negotiated dispatch branch on a synthetic approved legacy route and bounded SSE frames."""
+        reply=self.response(frames)
+        reply.status_code=status
+        route={'model':'fixture-model','adapter':'strata','base_url':STRATA_HTTP,'provider_id':LEGACY_PROVIDER,
+               'revision':1,'legacy_worker_key':True,'trust':{'origin':STRATA_HTTP,'addresses':['192.168.0.14'],'ca_pem':''}}
+        packet={'id':'a'*32,'lease':'private-lease','protocol':PROTOCOL,'route':route,
+                'messages':[],'tools':[],'reasoning_effort':'medium',**packet_fields}
+        worker=Worker('http://127.0.0.1:5000','worker-fixture-key-0123456789012345',STRATA_HTTP,'strata-fixture-key','fixture-model')
         reports=[]
         def report(path,data):
-            """[Role] Captures reports with optional first-delivery loss. [Dependencies] Fixture report list. [Impact] Tests report retries without repeating inference."""
             reports.append((path,data))
-            if retry_report and path.endswith('/finish') and sum(item[0].endswith('/finish') for item in reports)==1:raise requests.ConnectionError('synthetic delivery loss')
-            return {'success':True,'cancel':False}
+            if retry_report and path.endswith('/finish') and sum(p.endswith('/finish') for p,_ in reports)==1:
+                raise requests.ConnectionError('synthetic report delivery loss')
+            ack={'success':True,'accepted':True,'cancel':False}
+            if 'content_offset' in data:
+                ack['content_offset']=data['content_offset']+len(data['content'])
+                ack['reasoning_offset']=data['reasoning_offset']+len(data['reasoning'])
+            return ack
         worker.post=report
-        with patch('utils.ai_assistant.worker.requests.Session',return_value=client),patch.object(worker.stop,'wait',return_value=False):
-            worker.run_job({'id':'a'*32,'lease':'private-lease','messages':[],'tools':[],'reasoning_effort':'medium'})
-        return reports,client
+        with patch('utils.ai_assistant.worker.model_request',return_value=reply,side_effect=exception) as transport, patch.object(worker.stop,'wait',return_value=False):
+            worker.run_job(packet)
+        return reports,transport
 
     def test_worker_known_rejection_and_length_stop_have_safe_reasons(self):
         """[Role] Classifies definitive HTTP rejection and length termination. [Dependencies] Real worker with synthetic SSE. [Impact] Known failures are reported as stopped, never as successful tool continuation."""
@@ -803,15 +804,15 @@ class ProtocolTests(unittest.TestCase):
         """[Role] Classifies timeout and missing DONE without replay. [Dependencies] Real worker and failed synthetic transport. [Impact] User receives safe stop codes while unknown upstream completion remains reserved."""
         reports,client=self.fake_worker(exception=requests.ReadTimeout('PRIVATE_ENDPOINT_DETAILS'))
         self.assertEqual((reports[-1][1]['outcome'],reports[-1][1]['error_code']),('recovery_required','CONNECTION_TIMEOUT'))
-        self.assertNotIn('PRIVATE_ENDPOINT_DETAILS',canonical(reports));self.assertEqual(client.post.call_count,1)
+        self.assertNotIn('PRIVATE_ENDPOINT_DETAILS',canonical(reports));self.assertEqual(client.call_count,1)
         reports,client=self.fake_worker(['data: {}',''])
-        self.assertEqual(reports[-1][1]['error_code'],'STREAM_INCOMPLETE');self.assertEqual(client.post.call_count,1)
+        self.assertEqual(reports[-1][1]['error_code'],'STREAM_INCOMPLETE');self.assertEqual(client.call_count,1)
 
     def test_worker_retries_finish_delivery_without_replaying_inference(self):
         """[Role] Retries only a fixed completion report after delivery loss. [Dependencies] One synthetic model response. [Impact] A transient local API failure cannot silently leave a known job running or repeat a model/tool request."""
         reports,client=self.fake_worker(['data: '+json.dumps({'choices':[{'delta':{'content':'끝'},'finish_reason':'stop'}]}),'','data: [DONE]',''],retry_report=True)
         finishes=[data for path,data in reports if path.endswith('/finish')]
-        self.assertEqual(len(finishes),2);self.assertEqual(finishes[0],finishes[1]);self.assertEqual(client.post.call_count,1)
+        self.assertEqual(len(finishes),2);self.assertEqual(finishes[0],finishes[1]);self.assertEqual(client.call_count,1)
 
     def test_worker_flushes_explicit_step_offsets(self):
         """[Role] Attaches monotonic per-step offsets to separate text batches. [Dependencies] Synthetic multi-frame response and real flush boundary. [Impact] A retried event is distinguishable from new text and cannot duplicate reasoning."""

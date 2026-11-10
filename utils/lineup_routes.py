@@ -27,6 +27,7 @@ def build_lineup_node_blueprint(
     csrf_required: Callable[[Callable[..., Any]], Callable[..., Any]],
     audit_callback: Callable[[Any, str, int | None, Any, Any], None] | None = None,
     error_logger: Callable[[str], None] | None = None,
+    check_permission: Callable[[str], bool] | None = None,
 ) -> Blueprint:
     """[역할] 운영 앱의 인증·DB·감사 의존성을 주입받아 노드 API Blueprint를 구성합니다.
 
@@ -85,6 +86,9 @@ def build_lineup_node_blueprint(
         [변경 시 영향도] 장비등록 화면과 관리자 화면의 노드 추가에 영향을 줍니다.
         """
 
+        if session['user'].get('Role') != 'admin' and (check_permission is None or not any(
+                check_permission(menu) for menu in ('my_equipment', 'public_equipment', 'my_approvals'))):
+            return jsonify(success=False, message='모델 등록 신청 권한이 없습니다.'), 403
         connection = get_connection()
         try:
             connection.execute("BEGIN IMMEDIATE")  # 중복 검사와 변경을 직렬화합니다.

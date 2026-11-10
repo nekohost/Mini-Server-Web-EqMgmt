@@ -102,7 +102,7 @@
             
             let statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300">🟢 정상</span>';
             if (u.Status === 'DEACTIVATED') {
-                statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">🟡 유예 (D-${u.DaysLeft}일)</span>`;
+                statusBadge = `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300">🟡 유예 (D-${Number(u.DaysLeft)}일)</span>`;
             } else if (u.Status === 'ADMIN_SUSPENDED') {
                 statusBadge = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">🟣 정지(관리자)</span>';
             } else if (u.Status === 'DELETED') {
@@ -112,30 +112,30 @@
             tbody.innerHTML += `
                 <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <td class="px-4 py-4 text-center">
-                        <input type="checkbox" class="user-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" value="${u.UserId}" onchange="updateSelectedButton()">
+                        <input type="checkbox" class="user-checkbox w-4 h-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500" value="${Number(u.UserId)}" onchange="updateSelectedButton()">
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${u.UserId} ${isMe ? '<span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-bold">ME</span>' : ''}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">${u.LoginId}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">${u.Name} / ${u.NickName}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">${Number(u.UserId)} ${isMe ? '<span class="text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300 px-1.5 py-0.5 rounded ml-1 font-bold">ME</span>' : ''}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm font-bold text-slate-800 dark:text-slate-200">${window.escapeMarkup(u.LoginId)}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-sm text-slate-600 dark:text-slate-300">${window.escapeMarkup(u.Name)} / ${window.escapeMarkup(u.NickName)}</td>
                     <td class="px-4 py-4 whitespace-nowrap">${statusBadge}</td>
                     <td class="px-4 py-4 whitespace-nowrap">
-                        <select onchange="changeRole(${u.UserId}, this.value)" ${isMe ? 'disabled' : ''}
+                        <select onchange="changeRole(${Number(u.UserId)}, this.value)" ${isMe ? 'disabled' : ''}
                                 class="text-xs rounded border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 text-slate-800 dark:text-slate-200 focus:ring-blue-500 focus:border-blue-500 ${isMe ? 'opacity-50 cursor-not-allowed' : ''}">
                             <option value="user" ${u.Role === 'user' ? 'selected' : ''}>일반 사용자</option>
                             <option value="admin" ${u.Role === 'admin' ? 'selected' : ''}>최고 관리자</option>
                         </select>
                     </td>
-                    <td class="px-4 py-4 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">${u.CreatedAt}</td>
+                    <td class="px-4 py-4 whitespace-nowrap text-xs text-slate-400 dark:text-slate-500">${window.escapeMarkup(u.CreatedAt)}</td>
                     <td class="px-4 py-4 whitespace-nowrap text-right text-xs font-medium space-x-2">
-                        <button onclick="openResetModal(${u.UserId}, '${u.LoginId}')" ${isMe ? 'disabled' : ''}
+                        <button data-login="${window.escapeMarkup(u.LoginId)}" onclick="openResetModal(${Number(u.UserId)}, this.dataset.login)" ${isMe ? 'disabled' : ''}
                                 class="text-amber-600 hover:text-amber-900 dark:text-amber-400 dark:hover:text-amber-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
                             PW초기화
                         </button>
-                        <button onclick="toggleSingleDeactivation(${u.UserId}, '${u.LoginId}', ${isDeactivated})" ${isMe ? 'disabled' : ''}
+                        <button data-login="${window.escapeMarkup(u.LoginId)}" onclick="toggleSingleDeactivation(${Number(u.UserId)}, this.dataset.login, ${isDeactivated})" ${isMe ? 'disabled' : ''}
                                 class="${isDeactivated ? 'text-emerald-600 hover:text-emerald-800 dark:text-emerald-400' : 'text-orange-600 hover:text-orange-800 dark:text-orange-400'} transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
                             ${isDeactivated ? '계정 활성화' : '계정 비활성화'}
                         </button>
-                        <button onclick="deleteSingleUser(${u.UserId}, '${u.LoginId}')" ${isMe ? 'disabled' : ''}
+                        <button data-login="${window.escapeMarkup(u.LoginId)}" onclick="deleteSingleUser(${Number(u.UserId)}, this.dataset.login)" ${isMe ? 'disabled' : ''}
                                 class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300 transition ${isMe ? 'opacity-30 cursor-not-allowed' : ''}">
                             영구 삭제
                         </button>

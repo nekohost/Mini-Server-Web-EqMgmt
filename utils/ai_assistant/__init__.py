@@ -1,6 +1,6 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.15]
-[Role] Installs independent user chat routes and an authenticated worker boundary.
+[EN rev.16]
+[Role] Installs private chat and mail translation, administrator provider verification and revision-bound worker handoff.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] Explicit single-mail translations use an isolated, tool-free step and a checked terminal report. Ordinary chat corrections, immutable consent and execution guards are preserved.
 """
@@ -27,6 +27,8 @@ from .policy import (AssistantError, DEFAULT_LEVEL, ERROR_REASONS, LEGACY_LEVELS
                      opaque, stream_text, text, validate_schema, normalized_tool_arguments)
 from .store import Store
 from .providers import Registry, PROTOCOL, public_source
+from . import provider_candidates
+from .provider_trust import BeforeSendError, RevisionPolicy
 from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
 from .audit import preserve_export
@@ -64,7 +66,7 @@ class PassiveSessionInterface(SecureCookieSessionInterface):
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
         passive=request.method=='GET' and (request.path.startswith('/api/ai/') or
-            request.path=='/api/check_session' and request.headers.get('X-Assistant-Poll')=='1')
+            request.path=='/api/check_session')
         if passive and not current.modified:
             return False
         return super().should_set_cookie(app,current)
@@ -72,7 +74,7 @@ class PassiveSessionInterface(SecureCookieSessionInterface):
 
 def install_assistant(app, services):
     """[MINI-COMMENT: ASSISTANT.INSTALL]
-    [EN rev.6]
+    [EN rev.7]
     [Role] Wires disabled-by-default assistant, owner-authorized rename and passive status routes with injected application contracts.
     [Dependencies] A stable strong app secret, independent worker secret and explicit public origin.
     [Impact] Enabling upgrades the AI store and reparents only the verified admin menu while preserving business data/grants.
@@ -99,17 +101,19 @@ def install_assistant(app, services):
     registry=None
     domain=Domain(connect,app.secret_key,services['get_maintenance_state'],
         SearchService(app.root_path,enabled(os.getenv('USER_AI_WEB_SEARCH','true'))))
+    if type(app.session_interface) is SecureCookieSessionInterface:
+        app.session_interface=PassiveSessionInterface()
     if is_enabled:
-        if not app.secret_key or len(app.secret_key)<32 or app.secret_key=='default_secret_key_if_not_found' or len(app.config['USER_AI_WORKER_TOKEN'])<32:
+        if (not app.secret_key or len(app.secret_key)<32 or app.secret_key=='default_secret_key_if_not_found'
+                or len(app.config['USER_AI_WORKER_TOKEN'])<32 or app.secret_key==app.config['USER_AI_WORKER_TOKEN']):
             raise ValueError('assistant requires independent strong server secrets')
         origin=urlsplit(app.config['USER_AI_PUBLIC_ORIGIN'])
         if origin.scheme not in ('http','https') or not origin.netloc or origin.path or origin.query or origin.fragment or origin.username:
             raise ValueError('invalid assistant public origin')
-        if type(app.session_interface) is not SecureCookieSessionInterface:
+        if type(app.session_interface) is not PassiveSessionInterface:
             raise ValueError('assistant passive session adapter requires an audited session interface')
         if origin.scheme=='https':
             app.config['SESSION_COOKIE_SECURE']=True
-        app.session_interface=PassiveSessionInterface()
         store=Store(app.config['USER_AI_DATABASE'],int(app.config['USER_AI_COMPLETION_RESERVE_CHARS']),app.config['USER_AI_DATABASE_EPOCH'])
         registry=Registry(store,app.config)
         db=connect()
@@ -189,7 +193,9 @@ def install_assistant(app, services):
             raise AssistantError('AI 도우미가 설정되지 않았습니다.',404)
         expected=app.config.get('USER_AI_WORKER_TOKEN','')
         given=request.headers.get('Authorization','')
-        if request.remote_addr not in ('127.0.0.1','::1') or not expected or not secrets.compare_digest(given,'Bearer '+expected):
+        peer = request.environ.get('werkzeug.proxy_fix.orig', {}).get('REMOTE_ADDR', request.remote_addr)
+        if (peer not in ('127.0.0.1','::1') or request.remote_addr not in ('127.0.0.1','::1')
+                or request.headers.get('X-Forwarded-For') or not expected or not secrets.compare_digest(given,'Bearer '+expected)):
             raise AssistantError('처리 권한이 없습니다.',403)
 
     def worker_lease_boundary(jid,token,outcome=None):
@@ -362,7 +368,7 @@ def install_assistant(app, services):
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
-        if store and request.path=='/logout':
+        if store and request.method=='POST' and request.endpoint=='logout':
             user=session.get('user') or {}
             token=session.get('session_token')
             if type(user.get('UserId')) is int and isinstance(token,str):
@@ -375,7 +381,7 @@ def install_assistant(app, services):
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
         binding=getattr(g,'assistant_logout_binding',None)
-        if binding:
+        if binding and response.status_code in (302, 303) and not session.get('user'):
             store.revoke(binding)
         return response
 
@@ -473,9 +479,10 @@ def install_assistant(app, services):
         [Dependencies] Actual admin/menu, CSRF/Origin on mutation and registry validation.
         [Impact] No original/encrypted credentials are returned by this API.
         """
-        administrator(request.method=='POST')
+        actor=administrator(request.method=='POST')
         if request.method=='POST':
-            return jsonify(success=True,id=registry.save(body())),201
+            g.provider_actor=actor['UserId']
+            return jsonify(success=True,id=registry.save(body(),actor=actor['UserId'])),201
         return jsonify(success=True,**registry.admin_list())
 
     @bp.post('/api/admin/ai/providers/<pid>')
@@ -487,8 +494,19 @@ def install_assistant(app, services):
         [Dependencies] Current administrator and optimistic revision.
         [Impact] Retiring never deletes records or controls upstream processes.
         """
-        administrator(True)
-        return jsonify(success=True,id=registry.save(body(),opaque(pid)))
+        actor=administrator(True)
+        g.provider_actor=actor['UserId']
+        return jsonify(success=True,id=registry.save(body(),opaque(pid),actor['UserId']))
+
+    @bp.post('/api/admin/ai/providers/<pid>/revoke-trust')
+    @login
+    def admin_revoke_trust(pid):
+        actor=administrator(True)
+        data=object_only(body(),('revision',),('revision',))
+        if type(data['revision']) is not int or data['revision']<1:
+            raise AssistantError('철회할 연결 버전을 선택해 주세요.')
+        registry.revoke_trust(opaque(pid),data['revision'],actor['UserId'])
+        return jsonify(success=True)
 
     @bp.post('/api/admin/ai/providers/<pid>/discover')
     @login
@@ -499,9 +517,11 @@ def install_assistant(app, services):
         [Dependencies] Administrator CSRF/Origin and fixed pinned models adapter.
         [Impact] An error retains last-known records and an actionable connection status.
         """
-        administrator(True)
-        object_only(body(),())
-        registry.discover(opaque(pid),True)
+        actor=administrator(True)
+        data=object_only(body(),('candidate_revision',))
+        if 'candidate_revision' in data and type(data['candidate_revision']) is not int:
+            raise AssistantError('후보 버전을 확인해 주세요.')
+        registry.discover(opaque(pid),True,data.get('candidate_revision'),actor['UserId'])
         return jsonify(success=True,**registry.admin_list())
 
     @bp.post('/api/admin/ai/providers/<pid>/models')
@@ -520,16 +540,26 @@ def install_assistant(app, services):
     @login
     def admin_probe(mid):
         """[MINI-COMMENT: ASSISTANT.PROBE.QUEUE]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Queues inert model capability checks through the same account quotas and physical group slot.
         [Dependencies] Admin-only intent, current route, nonce and the ordinary private worker protocol.
         [Impact] Probe tools never touch equipment; accepted parameters alone do not prove reasoning output.
         """
         actor=administrator(True)
-        data=object_only(body(),('tools','reasoning','client_key'),('tools','reasoning','client_key'))
+        data=object_only(body(),('tools','reasoning','client_key','provider_id','candidate_revision','context_tokens'),('tools','reasoning','client_key'))
         if type(data['tools']) is not bool or type(data['reasoning']) is not bool:
             raise AssistantError('시험할 기능을 확인해 주세요.')
-        route=registry.resolve(opaque(mid),True)
+        mid=opaque(mid)
+        if 'candidate_revision' in data or 'provider_id' in data:
+            if type(data.get('candidate_revision')) is not int:
+                raise AssistantError('후보 버전을 확인해 주세요.')
+            with store.db() as db:
+                route=provider_candidates.probe_route(db,opaque(data.get('provider_id')),data['candidate_revision'],mid,
+                                                     context_tokens=data.get('context_tokens'))
+        else:
+            if 'context_tokens' in data:
+                raise AssistantError('활성 모델의 컨텍스트 한도는 모델 설정에서 변경해 주세요.')
+            route=registry.resolve(mid,True)
         if data['reasoning'] and not route['profile']['enabled_levels']:
             raise AssistantError('관리자 모델 설정에서 시험할 추론 수준을 먼저 허용해 주세요.')
         if data['tools'] and route['context_tokens']<8192:
@@ -540,7 +570,10 @@ def install_assistant(app, services):
         with store.db() as db:
             previous=db.execute('SELECT j.* FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=? AND c.account_key=?',(actor['UserId'],opaque(data['client_key']),actor['account_key'])).fetchone()
         if previous:
-            if previous['purpose']!='probe' or previous['selection_id']!=mid or json.loads(previous['probe_plan'])!=plan:
+            prior_route=json.loads(previous['route_snapshot'])
+            if (previous['purpose']!='probe' or previous['selection_id']!=mid or json.loads(previous['probe_plan'])!=plan
+                    or prior_route['revision']!=route['revision'] or prior_route.get('candidate_generation')!=route.get('candidate_generation')
+                    or prior_route['context_tokens']!=route['context_tokens']):
                 raise AssistantError('같은 접수 키로 다른 시험을 요청할 수 없습니다.',409)
             return jsonify(success=True,job_id=previous['id'],conversation_id=previous['conversation']),202
         cid=store.create_conversation(actor['UserId'],actor['account_key'])
@@ -808,13 +841,20 @@ def install_assistant(app, services):
             if not route or not job['selection_id']:
                 raise AssistantError('이전 요청의 연결 식별을 확인하지 못했습니다. 관리자 확인이 필요합니다.',409)
             with store.db() as db:
-                current=db.execute('SELECT p.enabled,p.retired,m.present FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id WHERE m.id=?',(job['selection_id'],)).fetchone()
-            if not current or not current['enabled'] or current['retired'] or not current['present']:
-                raise AssistantError('접수한 모델/연결이 중지되어 요청을 실행하지 않았습니다. 모델을 다시 선택해 주세요.',409)
-            # Decrypt/pin/serialize before dispatch. Any preparation exception below is a known non-dispatch.
-            registry.policy.destination(route['base_url'])
-            route['api_key']=registry.secret(route['credential'])
-            route['legacy_worker_key']=route['credential']=='env:USER_AI_STRATA_KEY' and not route['api_key']
+                if 'candidate_generation' in route:
+                    if job['purpose']!='probe':
+                        raise AssistantError('후보 연결은 관리자 시험에만 사용할 수 있습니다.',403)
+                    provider_candidates.check_probe(db,route)
+                else:
+                    current=db.execute('''SELECT p.enabled,p.retired,p.revision,m.present FROM ai_providers p
+                        JOIN ai_provider_models m ON m.provider=p.id WHERE m.id=? AND p.id=?''',(job['selection_id'],route['provider_id'])).fetchone()
+                    if not current or not current['enabled'] or current['retired'] or (current['revision']==route['revision'] and not current['present']):
+                        raise AssistantError('접수한 모델/연결이 중지되어 요청을 실행하지 않았습니다.',409)
+            trust,credential=registry.connection(route['provider_id'],route['revision'])
+            RevisionPolicy(route['provider_id'],trust).destination(route['base_url'])
+            route['trust']=trust
+            route['api_key']=registry.secret(credential)
+            route['legacy_worker_key']=credential=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
             if 'mail_translation' in route:
                 return jsonify(success=True, job=translation_packet(job, route, PROTOCOL))
@@ -846,7 +886,18 @@ def install_assistant(app, services):
             if not route['profile'].get('tools'):
                 system+='\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
             output_tokens=min(8192,max(512,route['context_tokens']//4))
+            overhead=len(canonical([{'role':'system','content':system},tools]).encode())+1024
             if job['purpose']=='probe':
+                if 'candidate_generation' in route and not job['steps']:
+                    # The nonce alone can fit even when a minimal equipment chat cannot. Check the
+                    # normal local admission budget without sending equipment context to a candidate.
+                    with store.db() as db:
+                        try:
+                            build_context(db,job,route['context_tokens']-output_tokens-overhead)
+                        except AssistantError as error:
+                            if error.status!=413:
+                                raise
+                            raise BeforeSendError(ERROR_REASONS['PROVIDER_CONTEXT'],'PROVIDER_CONTEXT') from None
                 db=connect()
                 try:
                     if db.execute('SELECT Role FROM users WHERE UserId=?',(actor['UserId'],)).fetchone()[0]!='admin':
@@ -863,7 +914,6 @@ def install_assistant(app, services):
                 system='You are running an inert model capability test. No real equipment operations exist in this test.'
                 output_tokens=512 if stage in ('chat','tools') else min(4096,max(512,route['context_tokens']//4))
             elif not job['steps']:
-                overhead=len(canonical([{'role':'system','content':system},tools]).encode())+1024
                 with store.db(True) as db:
                     context=build_context(db,job,route['context_tokens']-output_tokens-overhead)
                     store.charge_handoff(db,job,context)
@@ -886,7 +936,8 @@ def install_assistant(app, services):
             app.logger.warning('assistant pre-dispatch failure job=%s type=%s',job['id'],type(error).__name__)
             auth_failure=isinstance(error,AssistantError) and error.status in (401,403)
             try:
-                store.finish(job['id'],job['lease'],'cancelled' if auth_failure else 'failed',reason,error_code='AUTH_EXPIRED' if auth_failure else 'PROCESSING_FAILED')
+                code=error.code if isinstance(error,BeforeSendError) else 'AUTH_EXPIRED' if auth_failure else 'PROCESSING_FAILED'
+                store.finish(job['id'],job['lease'],'cancelled' if auth_failure else 'failed',reason,error_code=code)
             except AssistantError as lifecycle_error:
                 # No model was dispatched. A concurrent purge may have removed its job but must not strand its guard.
                 if lifecycle_error.status not in (404,409) or store.guard_finish(job['id'],job['lease'],'failed') is None:
@@ -1045,8 +1096,13 @@ def install_assistant(app, services):
                             require_administrator_grant(access,actor)
                         finally:
                             access.close()
-                        version=db.execute('SELECT p.revision,m.profile_revision FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id WHERE m.id=?',(job['selection_id'],)).fetchone()
-                        if tuple(version)!=(route['revision'],route['profile_revision']):
+                        if 'candidate_generation' in route:
+                            provider_candidates.record_proof(db,route,profile,actor['UserId'])
+                            return jsonify(success=True,state=store.finish(jid,data['lease'],'done',transaction=db))
+                        version=db.execute('''SELECT p.revision,m.profile_revision FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id
+                            JOIN ai_provider_trust t ON t.provider=p.id AND t.revision=p.revision
+                            WHERE m.id=? AND p.retired=0 AND p.enabled=1 AND t.revoked IS NULL''',(job['selection_id'],)).fetchone()
+                        if not version or tuple(version)!=(route['revision'],route['profile_revision']):
                             raise AssistantError('시험 중 연결 설정이 변경되었습니다. 현재 설정에서 다시 시험해 주세요.',409)
                         db.execute('UPDATE ai_provider_models SET profile=?,verified_revision=?,profile_revision=profile_revision+1,checked=? WHERE id=?',(canonical(profile),route['revision'],time.time(),job['selection_id']))
                 return jsonify(success=True,state=store.finish(jid,data['lease'],'done' if last else 'queued'))

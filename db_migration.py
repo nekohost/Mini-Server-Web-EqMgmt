@@ -179,7 +179,9 @@ def run_migration():
                 purchase_date = row['PurchaseDate']
                 memo = row['Memo']
                 user_id = row['UserId']
-                is_public = row['IsPublic'] if 'IsPublic' in row.keys() else 0
+                draft_key = next((key for key in row.keys() if key.lower().replace('_', '') == 'isdraft'), None)
+                is_draft = int(draft_key is not None and str(row[draft_key]).strip().lower() not in ('0','false','n','no','none',''))
+                is_public = row['IsPublic'] if not is_draft and 'IsPublic' in row.keys() else 0
                 created_at = row['CreatedAt'] if 'CreatedAt' in row.keys() else datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 updated_at = row['UpdatedAt'] if 'UpdatedAt' in row.keys() else created_at
 
@@ -242,8 +244,8 @@ def run_migration():
 
                 cursor.execute("""
                     INSERT INTO equipments (option_id, name, serial_number, purchase_date, status, memo, user_id, is_public, is_draft, created_at, updated_at)
-                    VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, 0, ?, ?);
-                """, (opt_id, eq_name, serial_no, purchase_date, memo, user_id, is_public, created_at, updated_at))
+                    VALUES (?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?, ?, ?);
+                """, (opt_id, eq_name, serial_no, purchase_date, memo, user_id, is_public, is_draft, created_at, updated_at))
                 
                 new_eq_id = cursor.lastrowid
                 

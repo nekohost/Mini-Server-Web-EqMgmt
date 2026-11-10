@@ -1,7 +1,7 @@
 """[MINI-COMMENT: ASSISTANT.WORKER]
-[EN rev.10]
+[EN rev.12]
 [Role] Dispatches only equipment queue steps using immutable routes and DB-authoritative group slots.
-[Dependencies] requests, private loopback worker API and server-only environment credentials.
+[Dependencies] Private loopback protocol 4, per-revision pins and TLS, and an origin-bound legacy key.
 [Impact] Delivers small SSE batches within 150ms when frames arrive, preserves monotonic offsets and drains only its own cancelled response; group occupancy remains server-controlled.
 """
 import argparse
@@ -20,7 +20,8 @@ import requests
 
 from .policy import MAX_CONTENT, MAX_REASONING
 from .providers import PROTOCOL
-from .transport import EndpointPolicy, model_request
+from .transport import model_request
+from .provider_trust import BeforeSendError, LEGACY_PROVIDER, RevisionPolicy, origin
 
 LOG=logging.getLogger('equipment_assistant_worker')
 
@@ -84,7 +85,6 @@ class Worker:
         self.timeout=read_timeout
         self.worker=uuid.uuid4().hex
         self.stop=threading.Event()
-        self.policy=EndpointPolicy(json.loads(os.environ.get('USER_AI_ALLOWED_ENDPOINTS','null')) or [strata_url])
         self.parallelism=int(os.environ.get('USER_AI_DISPATCHERS','8'))
         if not 1<=self.parallelism<=32:
             raise ValueError('invalid bounded dispatcher count')
@@ -118,7 +118,7 @@ class Worker:
 
     def run_job(self, job):
         """[MINI-COMMENT: ASSISTANT.WORKER.STEP]
-        [EN rev.8]
+        [EN rev.10]
         [Role] Verifies dispatch admission, applies only the server's fixed required decision/search tool and submits completed live calls.
         [Dependencies] Strata Chat Completions SSE; an HTTP EOF without DONE is not a completed request.
         [Impact] Flushes display batches at 150ms or 4096 characters without changing final content, stop reasons or uncertain-request locks.
@@ -191,20 +191,31 @@ class Worker:
                 payload['reasoning_effort']=job['reasoning_effort']
             if not route or route['adapter']=='strata':
                 payload['strata_mcp']=False
-            # Compatibility branch is only for historical direct fixtures; v3 claim always supplies a route.
+            if job.get('protocol') and (job['protocol']!=PROTOCOL or not route):
+                raise BeforeSendError('인증된 연결 버전이 없습니다.')
+            if route:
+                trust=route.get('trust')
+                if not isinstance(trust,dict) or not route.get('provider_id'):
+                    raise BeforeSendError('승인된 연결 정보가 없습니다.')
+                if route.get('legacy_worker_key') and (route['provider_id']!=LEGACY_PROVIDER or origin(route['base_url'])!=origin(self.strata)):
+                    raise BeforeSendError('기존 워커 키의 승인 출처가 다릅니다.')
+                policy=RevisionPolicy(route['provider_id'],trust)
+            elif urlsplit(self.strata).hostname not in ('127.0.0.1','::1'):
+                raise BeforeSendError('버전 없는 호출은 숫자 루프백에서만 가능합니다.')
             with nullcontext(None) if route else requests.Session() as client:
                 dispatched=True
                 if route:
-                    response_context=model_request(self.policy,route['base_url'],'/chat/completions',
+                    response_context=model_request(policy,route['base_url'],'/chat/completions',
                         self.key if route.get('legacy_worker_key') else route.get('api_key',''),payload,self.timeout)
                 else:
                     client.trust_env=False
                     response_context=client.post(self.strata+'/v1/chat/completions',json=payload,
                         headers={'Authorization':'Bearer '+self.key},timeout=(5,self.timeout),stream=True,allow_redirects=False)
                 with response_context as response:
-                    if response.status_code in (400,401,403,404,413,429,503):
+                    if 300 <= response.status_code < 400 or response.status_code in (400,401,403,404,413,429,503):
                         outcome='failed'  # Definitively rejected, without running a model step.
-                        error_code='UPSTREAM_REJECTED'
+                        error_code=('PROVIDER_AUTH' if response.status_code in (401,403) else
+                                    'PROVIDER_ADDRESS' if 300 <= response.status_code < 400 else 'UPSTREAM_REJECTED')
                         raise ValueError('upstream rejected request')
                     response.raise_for_status()
                     if 'text/event-stream' not in response.headers.get('Content-Type',''):
@@ -270,6 +281,9 @@ class Worker:
                 error_code='USER_CANCELLED'
         except DispatchCancelled:
             pass
+        except BeforeSendError as error:
+            outcome='failed'
+            error_code=error.code
         except Exception as error:
             if not dispatched:
                 outcome='failed'

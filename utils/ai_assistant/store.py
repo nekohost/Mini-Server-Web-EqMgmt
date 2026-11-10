@@ -5,7 +5,8 @@
 [Impact] Keeps existing data and execution guards. Versioned mail display preserves raw model steps and stores only the verified source envelope.
 """
 import base64
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
+from . import provider_candidates
 import json
 import math
 import os
@@ -321,7 +322,7 @@ class Store(LifecycleStore):
 
     def _enqueue(self, db, owner, cid, content, level, client_key, binding, expires, account_key, route, purpose, probe_plan, fingerprint=None, mail=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.ACCEPT]
-        [EN rev.12]
+        [EN rev.13]
         [Role] Accepts active chat input once only when the full bounded completion has reserved storage.
         [Dependencies] Caller-owned transaction, idempotency, rate/admission limits and base plus extension budget.
         [Impact] Mail jobs retain UI-level semantics including default/off. Only the targeted 260Strata job overrides its effort, and the next conversation setting remains user-selected.
@@ -342,7 +343,11 @@ class Store(LifecycleStore):
                 if old['input_hash'] != fingerprint:
                     raise AssistantError('같은 접수 키에 다른 내용이 전달되었습니다.', 409)
                 return old['id']
-        if route:
+        if route and 'candidate_generation' in route:
+            if purpose != 'probe':
+                raise AssistantError('후보 연결은 관리자 기능 시험에만 사용할 수 있습니다.', 403)
+            provider_candidates.check_probe(db, route)
+        elif route:
             model=db.execute('SELECT p.revision,p.enabled,p.retired,m.profile_revision,m.verified_revision,m.present,m.published FROM ai_provider_models m JOIN ai_providers p ON p.id=m.provider WHERE m.id=?',(route['selection_id'],)).fetchone()
             if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose=='chat' and (not model['published'] or model['verified_revision']!=model['revision'])):
                 raise AssistantError('접수 중 모델 설정이 변경되었습니다. 모델을 다시 확인해 주세요.',409)
@@ -627,14 +632,14 @@ class Store(LifecycleStore):
                        (pid, job['id'], job['owner'], operation, canonical(payload), canonical(before), signature, expires, time.time()))
         return {'proposal_id': pid, 'operation': operation, 'status': 'WAITING_CONFIRMATION', 'message': '아직 적용되지 않았습니다. 화면에서 내용을 확인한 뒤 실행해 주세요.'}
 
-    def finish(self, jid, token, state, error=None, context=None, error_code=None):
+    def finish(self, jid, token, state, error=None, context=None, error_code=None, transaction=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.FINISH]
         [EN rev.4]
-        [Role] Finalizes outcomes, persists verified mail text and releases definitively terminated execution guards.
+        [Role] Persists verified mail output and releases execution guards in the transaction that finalizes a job or promotes a provider.
         [Dependencies] Current lease, authoritative response outcome and pending confirmations.
         [Impact] Failures stop pending work; cancelled/deleted jobs accept no late context and new search evidence consumes its reserved storage exactly once.
         """
-        with self.db(True) as db:
+        with (self.db(True) if transaction is None else nullcontext(transaction)) as db:
             row = self.lease(db, jid, token)
             if row['is_deleted'] or row['cancel']:
                 context = None
@@ -650,6 +655,14 @@ class Store(LifecycleStore):
             if state in ('failed','cancelled','recovery_required'):
                 error = error or ERROR_REASONS.get(error_code or 'PROCESSING_FAILED')
                 error_code = error_code or ('STREAM_INCOMPLETE' if state == 'recovery_required' else 'PROCESSING_FAILED')
+                if row['purpose'] == 'probe':
+                    route = json.loads(row['route_snapshot'])
+                    if 'candidate_generation' in route:
+                        result = ERROR_REASONS.get(error_code, '모델 기능 시험 실패')
+                        db.execute('''UPDATE ai_provider_candidates SET result=?
+                            WHERE provider=? AND revision=? AND generation=?''',
+                            ('워커 기능 시험 · '+result,route['provider_id'],route['revision'],route['candidate_generation']))
+                        provider_candidates.audit(db,route['provider_id'],route['revision'],row['owner'],error_code)
                 db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'", (jid,))
             if state == 'done' and db.execute("SELECT 1 FROM proposals WHERE job=? AND state='pending'", (jid,)).fetchone():
                 state = 'waiting_confirmation'

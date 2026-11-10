@@ -39,10 +39,8 @@
                     class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2">
                 <i class="fa-solid fa-rotate-left"></i> 비활성화 철회 (계정 복구)
             </button>
-            <a href="/logout" 
-               class="px-5 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-right-from-bracket"></i> 로그아웃
-            </a>
+            <form method="post" action="{{ url_for('logout') }}" class="contents"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button type="submit" class="px-5 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-semibold rounded-xl transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-right-from-bracket"></i> 로그아웃</button></form>
         </div>
     </div>
 </div>

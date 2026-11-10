@@ -489,22 +489,22 @@ function renderTable(logs) {
         if (log.HttpMethod === 'POST') methodColor = 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400';
         else if (log.HttpMethod === 'PUT') methodColor = 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400';
         else if (log.HttpMethod === 'DELETE') methodColor = 'bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400';
-        const methodBadge = `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${methodColor}">${log.HttpMethod}</span>`;
+        const methodBadge = `<span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold ${methodColor}">${window.escapeMarkup(log.HttpMethod)}</span>`;
 
         // 상태 코드 뱃지
-        let statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200">${log.StatusCode}</span>`;
+        let statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200">${window.escapeMarkup(log.StatusCode)}</span>`;
         if (log.StatusCode >= 200 && log.StatusCode < 300) {
-            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">${log.StatusCode}</span>`;
+            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">${window.escapeMarkup(log.StatusCode)}</span>`;
         } else if (log.StatusCode >= 300 && log.StatusCode < 400) {
-            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200 dark:border-blue-800">${log.StatusCode}</span>`;
+            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200 dark:border-blue-800">${window.escapeMarkup(log.StatusCode)}</span>`;
         } else if (log.StatusCode >= 400 && log.StatusCode < 500) {
-            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800">${log.StatusCode}</span>`;
+            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400 border border-amber-200 dark:border-amber-800">${window.escapeMarkup(log.StatusCode)}</span>`;
         } else if (log.StatusCode >= 500) {
-            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800">${log.StatusCode}</span>`;
+            statusBadge = `<span class="inline-block px-2 py-0.5 rounded text-[11px] font-mono font-bold bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 border border-rose-200 dark:border-rose-800">${window.escapeMarkup(log.StatusCode)}</span>`;
         }
 
         // 응답 시간 포맷
-        const durationText = log.DurationMs != null ? `${log.DurationMs.toFixed(1)}ms` : '-';
+        const durationText = log.DurationMs != null ? `${window.escapeMarkup(log.DurationMs.toFixed(1))}ms` : '-';
         
         // [제안-045] Payload 존재 여부 플래그(0/1 또는 boolean)에 따른 행 스타일 및 클립 아이콘 표출
         const hasPayload = (log.HasRequestPayload === 1 || log.HasResponsePayload === 1 || log.HasRequestPayload === true || log.HasResponsePayload === true);
@@ -515,16 +515,16 @@ function renderTable(logs) {
         html += `
             <tr class="${trClass}" onclick="openPayloadModal(${index})" title="행을 클릭하면 Payload 세부 정보를 확인할 수 있습니다.">
                 <td class="px-4 py-2.5 whitespace-nowrap text-slate-500 dark:text-slate-400">
-                    ${log.CreatedAt} 
+                    ${window.escapeMarkup(log.CreatedAt)}
                     ${hasPayload ? '<i class="fa-solid fa-paperclip text-brand-400 ml-1"></i>' : ''}
                 </td>
-                <td class="px-4 py-2.5 whitespace-nowrap font-bold text-slate-800 dark:text-slate-200">${log.IpAddress}</td>
+                <td class="px-4 py-2.5 whitespace-nowrap font-bold text-slate-800 dark:text-slate-200">${window.escapeMarkup(log.IpAddress)}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap">${isStaticBadge}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap">${methodBadge}</td>
-                <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white max-w-xs sm:max-w-md truncate" title="${log.RequestPath}">${log.RequestPath}</td>
+                <td class="px-4 py-2.5 font-medium text-slate-900 dark:text-white max-w-xs sm:max-w-md truncate" title="${window.escapeMarkup(log.RequestPath)}">${window.escapeMarkup(log.RequestPath)}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap">${statusBadge}</td>
                 <td class="px-3 py-2.5 whitespace-nowrap text-slate-500 dark:text-slate-400">${durationText}</td>
-                <td class="px-4 py-2.5 text-slate-400 dark:text-slate-500 max-w-[200px] truncate" title="${log.UserAgent || ''}">${log.UserAgent || '-'}</td>
+                <td class="px-4 py-2.5 text-slate-400 dark:text-slate-500 max-w-[200px] truncate" title="${window.escapeMarkup(log.UserAgent || '')}">${window.escapeMarkup(log.UserAgent || '-')}</td>
             </tr>
         `;
     });
@@ -821,7 +821,7 @@ async function executeCleanup() {
         await fetch('/api/access_logs/cleanup', {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ action: activeCleanupAction, step: 'finish', total_deleted: deleted })
+                body: JSON.stringify({ action: activeCleanupAction, step: 'finish' })
         });
 
         alert(`✅ 성공적으로 정리되었습니다. (삭제된 로그: ${deleted}건)`);
@@ -904,8 +904,8 @@ async function openPayloadModal(index) {
         }
     } catch (err) {
         console.error("Payload Fetch Error:", err);
-        reqPre.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Payload 조회 실패: ${err.message}</span>`;
-        resPre.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Payload 조회 실패: ${err.message}</span>`;
+        reqPre.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Payload 조회 실패: ${window.escapeMarkup(err.message)}</span>`;
+        resPre.innerHTML = `<span class="text-rose-500"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Payload 조회 실패: ${window.escapeMarkup(err.message)}</span>`;
     }
 }
 

@@ -119,9 +119,17 @@ def install_roadmap(app, services):
             original.update(data)  # public get_json cache를 공유하여 기존 view에서도 같은 검증값을 읽습니다.
         g.roadmap_payload = data
         if endpoint in auth.POLICIES:
-            if endpoint != 'login_page' and (not request.headers.get('X-CSRFToken') or request.headers.get('X-CSRFToken') != session.get('csrf_token')):
+            csrf = request.headers.get('X-CSRFToken')
+            if endpoint == 'login_page' and not request.is_json:
+                csrf = request.form.get('csrf_token')
+            if not csrf or csrf != session.get('csrf_token'):
                 raise InputError('CSRF 토큰 검증에 실패했습니다.', 403)
-            account = str(data.get('LoginId') or data.get('email') or data.get('Email') or session.get('user', {}).get('UserId') or '')
+            if endpoint in ('login_page', 'register_page'):
+                account = str(data['LoginId'])
+            elif endpoint in ('api_send_pin_logic', 'api_verify_pin_logic', 'api_request_password_reset_logic', 'api_reset_password_logic'):
+                account = str(data.get('email', ''))
+            else:
+                account = str(session.get('user', {}).get('UserId', ''))
             peer = auth.peer_address(request, os.getenv('AUTH_TRUSTED_PROXY_CIDRS', '127.0.0.1/32,::1/128'))
             with closing(get_connection()) as connection:
                 connection.execute('BEGIN IMMEDIATE')
@@ -137,10 +145,11 @@ def install_roadmap(app, services):
 
     def actor(connection):
         """[역할] 새 API의 현재 DB 역할/계정 검사. [의존성 관계] login_required. [변경 시 영향도] 오래된 세션 권한 차단."""
-        row = connection.execute('SELECT UserId,LoginId,Role,IsDeleted,IsDeactivated FROM users WHERE UserId=?', (session['user']['UserId'],)).fetchone()
+        row = connection.execute('SELECT UserId,LoginId,Role,IsDeleted,IsDeactivated FROM users WHERE UserId=? AND SessionToken=?', (session['user']['UserId'], session.get('session_token'))).fetchone()
         if not row or row['IsDeleted'] == 'Y' or row['IsDeactivated'] == 'Y':
             raise InputError('사용할 수 없는 계정입니다.', 403)
-        return dict(row)
+        menus = {item[0] for item in connection.execute('SELECT MenuCode FROM role_menu_permissions WHERE Role=? AND IsAllowed=1', (row['Role'],))}
+        return {**dict(row), 'menus': menus}
 
     def transaction(write=False):
         """[역할] route의 connection/commit/rollback 통일. [의존성 관계] Blueprint. [변경 시 영향도] 부분 저장 차단."""
@@ -276,6 +285,9 @@ def install_roadmap(app, services):
     @transaction()
     def csv_export(connection, user):
         """[역할] 현재 범위/필터 전체 CSV. [의존성 관계] SQL 공통 권한. [변경 시 영향도] 현재 페이지뿐 아니라 총 필터 결과."""
+        menu = 'public_equipment' if request.args.get('type') == 'public' else 'my_equipment'
+        if not equipment.has_equipment_menu(user, menu):
+            raise InputError('장비 목록을 이용할 권한이 없습니다.', 403)
         rows = [] if request.args.get('template') == '1' else equipment.list_equipment(connection, request.args, user, paginated=False, export=True)
         response = Response(equipment.export_csv(rows), content_type='text/csv; charset=utf-8')
         response.headers['Content-Disposition'] = 'attachment; filename="equipment.csv"'
@@ -289,6 +301,8 @@ def install_roadmap(app, services):
     @transaction(write=True)
     def csv_preview(connection, user):
         """[역할] 행별 검증과 15분 preview. [의존성 관계] 파일/행 상한. [변경 시 영향도] 장비 생성 없음."""
+        if not equipment.has_equipment_menu(user, 'my_equipment'):
+            raise InputError('장비를 등록할 권한이 없습니다.', 403)
         upload = request.files.get('file')
         if not upload or not upload.filename.lower().endswith('.csv'):
             raise InputError('CSV 파일을 선택해 주세요.')
@@ -300,6 +314,8 @@ def install_roadmap(app, services):
     @transaction(write=True)
     def csv_commit(connection, user):
         """[역할] 명시 확인 토큰 확정. [의존성 관계] 동일 사용자/idempotency. [변경 시 영향도] all-or-none."""
+        if not equipment.has_equipment_menu(user, 'my_equipment'):
+            raise InputError('장비를 등록할 권한이 없습니다.', 403)
         return jsonify(success=True, **equipment.commit_import(connection, g.roadmap_payload.get('token'), user))
 
     @login_required

@@ -13,6 +13,7 @@ import secrets
 import stat
 import tempfile
 from types import SimpleNamespace
+from urllib.parse import urlsplit
 import unittest
 from unittest.mock import Mock, patch
 
@@ -38,16 +39,16 @@ class AssistantReleaseRetirementTests(unittest.TestCase):
         source = CANDIDATE_FILES['tools/deploy_user_ai.py']
         tree = ast.parse(source)
         functions = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in
-                     ('save', 'read_private_key', 'prepare')]
-        self.assertEqual(len(functions), 3)
+                     ('save', 'read_private_key', 'provider_origin', 'prepare')]
+        self.assertEqual(len(functions), 4)
         self.namespace = dict(os=os, Path=Path, stat=stat, pwd=SimpleNamespace(getpwnam=lambda _: self.account),
-                              CONFIG=self.config, base64=base64, secrets=secrets, json=json)
+                              CONFIG=self.config, base64=base64, secrets=secrets, json=json, urlsplit=urlsplit)
         exec(compile(ast.Module(body=functions, type_ignores=[]), '<candidate-key-helpers>', 'exec'), self.namespace)
 
     def prepare(self, path=None):
         """[Role] Emulates only the root identity assertion while writing to the test user's own private files."""
         with patch.dict(os.environ, {'SUDO_USER': 'nekohost'}), patch('os.geteuid', return_value=0):
-            return self.namespace['prepare'](path)
+            return self.namespace['prepare'](path, provider_url='https://192.168.0.51:8443')
 
     def test_explicit_input_creates_independent_config_without_old_include(self):
         """[Role] Checks the fresh bootstrap path, key continuity and owner-only resulting permissions."""

@@ -145,18 +145,20 @@ def search_permitted(job,route):
 
 def compact(value):
     """[Role] Compares known sensitive values despite punctuation/case without rewriting stored business numbers."""
-    return ''.join(c for c in str(value).casefold() if c.isalnum())
+    return ''.join(c for c in unicodedata.normalize('NFKC', str(value)).casefold() if c.isalnum())
 
 
 def validate_query(query, sensitive=()):
-    """[MINI-COMMENT: ASSISTANT.WEB.QUERY] [EN rev.2]
+    """[MINI-COMMENT: ASSISTANT.WEB.QUERY] [EN rev.3]
     [Role] Accepts a bounded public keyword query and rejects credentials, contact data and known private references before I/O.
     [Dependencies] Exact current-owner sensitive values supplied by Domain; generic credential documentation remains searchable.
     [Impact] This defense complements context-search instructions; it does not claim to classify every possible confidential sentence.
     """
     if not isinstance(query, str) or not 2 <= len(query.strip()) <= MAX_QUERY or any(unicodedata.category(c)[0] == 'C' for c in query):
         raise WebSearchError('WEB_SEARCH_BLOCKED')
-    query = ' '.join(query.split())
+    query = ' '.join(unicodedata.normalize('NFKC', query).split())
+    if len(query) > MAX_QUERY:
+        raise WebSearchError('WEB_SEARCH_BLOCKED')
     patterns = (
         r'https?://|(?:localhost|127\.0\.0\.1|169\.254\.)',
         r'[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}',
@@ -174,9 +176,32 @@ def validate_query(query, sensitive=()):
         except ipaddress.AddressValueError:
             pass
     target = compact(query)
-    if any(len(compact(value)) >= 5 and compact(value) in target for value in sensitive if value):
-        raise WebSearchError('WEB_SEARCH_BLOCKED')
+    terms = set(re.findall(r'[^\W_]+', unicodedata.normalize('NFKC', query).casefold()))
+    for value in sensitive:
+        if not value:
+            continue
+        private = compact(value)
+        if private and ((len(private) >= 3 and private in target) or private in terms):
+            raise WebSearchError('WEB_SEARCH_BLOCKED')
+        if len(private) >= 6 and any(target[i:i+6] in private for i in range(len(target)-5)):
+            raise WebSearchError('WEB_SEARCH_BLOCKED')
     return query
+
+
+def current_search_terms(query, question):
+    """Only current user-supplied words and fixed public search qualifiers may leave this turn."""
+    public = {'official','documentation','docs','spec','specs','specifications','manual','datasheet',
+              'release','notes','github','google','version','price','latest','공식','문서','사양','가격','출시','최신','정보'}
+    supplied = set(re.findall(r'[^\W_]+', unicodedata.normalize('NFKC', question).casefold()))
+    particles = ('에는', '에서', '으로', '까지', '부터', '에게', '만', '와', '과', '의', '은', '는', '이', '가', '을', '를', '로', '에', '도')
+    stems = {word[:-len(end)] for word in supplied for end in particles
+             if word.endswith(end) and len(word) > len(end)}
+    normalized = unicodedata.normalize('NFKC', query).casefold()
+    words = re.findall(r'[^\W_]+', normalized)
+    punctuation = " -+.#_()/'\":,"
+    if (not words or any(not c.isalnum() and c not in punctuation for c in normalized)
+            or any(word not in public | supplied | stems for word in words)):
+        raise WebSearchError('WEB_SEARCH_BLOCKED')
 
 
 def safe_url(value):

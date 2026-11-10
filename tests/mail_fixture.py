@@ -13,7 +13,8 @@ from flask import Flask
 import requests
 
 MODEL = 'qwen3.8-flash-next-iq3_xxs'
-ORIGIN = 'http://127.0.0.1:1'
+# Exercise the migrated provider revision and intercept transport before any model socket opens.
+ORIGIN = 'http://192.168.0.14:8080'
 TOKEN = 'synthetic-mail-worker-token-for-fixture-only'
 
 

@@ -48,3 +48,9 @@ window.getCSRFToken = function() {
     const meta = document.querySelector('meta[name="csrf-token"]');
     return meta ? meta.getAttribute('content') : '';
 };
+
+/** Escape text before inserting it into HTML text or a quoted data attribute. */
+window.escapeMarkup = function (value) {
+    const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return String(value ?? '').replace(/[&<>"']/g, character => entities[character]);
+};

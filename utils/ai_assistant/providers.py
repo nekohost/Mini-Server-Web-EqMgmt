@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.PROVIDERS]
-[EN rev.3]
+[EN rev.5]
 [Role] Stores immutable connections and verified, published model identities in the private AI database.
 [Dependencies] Store v4 lifecycle/guard migration, deployment endpoint policy and optional standard Fernet with an external key.
 [Impact] Browser/model callers receive opaque choices; active jobs retain their accepted route and credentials.
@@ -7,13 +7,15 @@
 import json
 import time
 import uuid
+from urllib.parse import urlsplit
 
 from .policy import AssistantError, LEVELS, canonical, object_only, text
 from .reasoning import LEGACY_UI, VERSION as REASONING_VERSION, known_levels, normalize_profile, public_settings, validate_settings
 from .transport import EndpointPolicy, model_request
+from .provider_trust import BeforeSendError, LEGACY_PROVIDER, STRATA_HTTP, RevisionPolicy, certificate, check_peer, origin, resolve_addresses
+from . import provider_candidates as candidates
 
-PROTOCOL = 3
-LEGACY_PROVIDER = '0' * 31 + '1'
+PROTOCOL = 4
 LEGACY_MODEL = '0' * 31 + '2'
 LEGACY_GROUP = '0' * 31 + '3'
 
@@ -47,14 +49,15 @@ CREATE TABLE IF NOT EXISTS ai_selection_events(id INTEGER PRIMARY KEY,conversati
 
 def migrate(db):
     """[MINI-COMMENT: ASSISTANT.PROVIDERS.MIGRATE]
-    [EN rev.2]
+    [EN rev.3]
     [Role] Adds routing/selection/draft fields without downgrading a v4 lifecycle/guard database.
-    [Dependencies] Store's single startup writer transaction; old workers must be stopped before migration.
+    [Dependencies] Store's startup writer transaction and per-revision trust migration.
     [Impact] Legacy active requests retain a dedicated group; no global slot is silently freed.
     """
     for statement in SCHEMA.split(';'):
         if statement.strip():
             db.execute(statement)
+    candidates.migrate_trust(db)
     additions = {
         'conversations': {'selection_id': 'TEXT', 'next_level': "TEXT NOT NULL DEFAULT 'low'", 'selection_revision': 'INTEGER NOT NULL DEFAULT 0'},
         'jobs': {'selection_id': 'TEXT', 'route_snapshot': "TEXT NOT NULL DEFAULT '{}'", 'resource_group': 'TEXT', 'purpose': "TEXT NOT NULL DEFAULT 'chat'", 'probe_plan': "TEXT NOT NULL DEFAULT '[]'", 'handoff_chars':'INTEGER NOT NULL DEFAULT 0'},
@@ -100,6 +103,7 @@ class Registry:
                 upgraded = bool(db.execute('SELECT 1 FROM conversations LIMIT 1').fetchone())
                 db.execute('INSERT INTO ai_providers(id,name,revision,enabled,last_checked) VALUES(?,?,?,?,?)', (LEGACY_PROVIDER, '기존 Strata', 1, 1, time.time()))
                 db.execute('INSERT INTO ai_provider_revisions VALUES(?,?,?,?,?,?,?)', (LEGACY_PROVIDER, 1, base, 'strata', LEGACY_GROUP, 'env:USER_AI_STRATA_KEY', time.time()))
+                db.execute('INSERT INTO ai_provider_trust(provider,revision,origin) VALUES(?,1,?)', (LEGACY_PROVIDER,origin(base)))
                 model_id = config.get('USER_AI_MODEL', 'qwen3.8-flash-next-iq3_xxs')
                 approved = known_levels(model_id, 'strata') is not None
                 profile = normalize_profile(model_id, 'strata', {'chat': approved, 'tools': approved, 'levels': ['low','medium','high'] if approved else [], 'evidence': '기존 승인된 Qwen/Strata 프로필 및 공식 모델의 지원 단계 사전 설정; 신규 연결은 별도 시험 필요'})
@@ -192,7 +196,7 @@ class Registry:
             raise AssistantError('모델 목록 연결 확인에 실패했습니다. 관리자의 재확인 후 이용해 주세요.', 503)
         return {'selection_id': row['id'], 'provider_id': row['provider'], 'provider_name': row['name'], 'model': row['upstream'],
                 'model_label': row['label'], 'revision': row['revision'], 'base_url': row['base_url'], 'adapter': row['adapter'],
-                'resource_group': row['resource_group'], 'credential': row['credential'], 'profile': profile, 'profile_revision':row['profile_revision'], 'context_tokens': row['context_tokens']}
+                'resource_group': row['resource_group'], 'profile': profile, 'profile_revision':row['profile_revision'], 'context_tokens': row['context_tokens']}
 
     def resolve(self, mid, allow_unverified=False):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.RESOLVE]
@@ -228,15 +232,32 @@ class Registry:
 
     def admin_list(self):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.ADMIN_LIST]
-        [EN rev.2]
-        [Role] Returns editable basic settings and credential-presence only to the authenticated admin.
+        [EN rev.3]
+        [Role] Shows active and candidate settings, approved IPs, CA metadata and probe progress to the admin.
         [Dependencies] Fixed column projection and protected HTTP route.
         [Impact] Encryption tokens and original secrets are never returned, even to administrators.
         """
         with self.store.db() as db:
-            providers = [dict(r) for r in db.execute('''SELECT p.*,r.base_url,r.adapter,r.resource_group,(r.credential<>'') AS has_key
-                FROM ai_providers p JOIN ai_provider_revisions r ON r.provider=p.id AND r.revision=p.revision ORDER BY p.sort_order,p.name''')]
+            providers = [dict(r) for r in db.execute('''SELECT p.*,r.base_url,r.adapter,r.resource_group,
+                (r.credential<>'') AS has_key,t.fingerprint,t.expires,t.addresses,t.revoked FROM ai_providers p
+                LEFT JOIN ai_provider_revisions r ON r.provider=p.id AND r.revision=p.revision
+                LEFT JOIN ai_provider_trust t ON t.provider=p.id AND t.revision=p.revision ORDER BY p.sort_order,p.name''')]
             for p in providers:
+                row = db.execute('''SELECT c.revision,c.name,c.enabled,c.manual,c.sort_order,c.result,c.generation,
+                    c.discovered,r.base_url,r.adapter,r.resource_group,(r.credential<>'') AS has_key,t.fingerprint,t.expires,t.addresses
+                    FROM ai_provider_candidates c JOIN ai_provider_revisions r USING(provider,revision)
+                    JOIN ai_provider_trust t USING(provider,revision) WHERE c.provider=?''', (p['id'],)).fetchone()
+                p['candidate'] = dict(row) if row else None
+                p['addresses'] = json.loads(p['addresses'] or '[]')
+                if row:
+                    p['candidate']['addresses'] = json.loads(row['addresses'])
+                    p['candidate']['models'] = [dict(m) for m in db.execute('''SELECT c.id,c.upstream,c.label,
+                        (c.proof IS NOT NULL) AS passed, m.context_tokens,m.profile FROM ai_candidate_models c
+                        LEFT JOIN ai_provider_models m ON m.id=c.id WHERE c.provider=? ORDER BY c.label''', (p['id'],))]
+                    for m in p['candidate']['models']:
+                        m['profile'] = candidates.candidate_profile(m['upstream'], row['adapter'], m['profile'])
+                p['trust_history'] = [dict(r) for r in db.execute('''SELECT revision,origin,fingerprint,expires,revoked
+                    FROM ai_provider_trust WHERE provider=? ORDER BY revision DESC''', (p['id'],))]
                 p['models'] = [dict(r) for r in db.execute('SELECT id,upstream,label,published,present,manual,sort_order,context_tokens,profile,verified_revision,profile_revision FROM ai_provider_models WHERE provider=? ORDER BY sort_order,label', (p['id'],))]
                 for model in p['models']:
                     profile = normalize_profile(model['upstream'], p['adapter'], json.loads(model['profile']))
@@ -246,106 +267,242 @@ class Registry:
             default = db.execute('SELECT default_model FROM ai_provider_settings WHERE id=1').fetchone()[0]
         return {'providers': providers, 'groups': groups, 'default_model': default, 'encryption_configured': bool(self.config.get('USER_AI_PROVIDER_ENCRYPTION_KEY'))}
 
-    def save(self, data, pid=None):
+    def connection(self, pid, revision):
+        """Resolve only an immutable DB version. Older rows seal their deployment-approved pins once."""
+        with self.store.db() as db:
+            row = db.execute('''SELECT t.*,r.credential,r.base_url,r.adapter FROM ai_provider_trust t
+                JOIN ai_provider_revisions r USING(provider,revision) WHERE provider=? AND revision=?''', (pid, revision)).fetchone()
+        if not row or row['revoked'] is not None:
+            raise AssistantError('이 연결 버전의 신뢰가 철회되었거나 승인 정보가 없습니다.', 409)
+        base = origin(row['base_url'])
+        if origin(row['origin']) != base:
+            raise BeforeSendError('저장된 주소와 승인한 출처가 다릅니다.')
+        if row['addresses'] is None:
+            if pid == LEGACY_PROVIDER and base == STRATA_HTTP:
+                _, addresses, _ = resolve_addresses(base, pid)
+            else:
+                _, addresses, _ = self.policy.destination(base, all_addresses=True)
+                for address in addresses:
+                    check_peer(address)
+            with self.store.db(True) as db:
+                db.execute('''UPDATE ai_provider_trust SET origin=?,addresses=? WHERE provider=? AND revision=?
+                    AND addresses IS NULL AND revoked IS NULL''', (base,canonical(addresses),pid,revision))
+            return self.connection(pid, revision)
+        trust = {'origin':base, 'addresses':json.loads(row['addresses']), 'ca_pem':row['ca_pem']}
+        credential = row['credential']
+        if credential == 'env:USER_AI_STRATA_KEY' and (pid != LEGACY_PROVIDER or
+                base != origin(self.config.get('USER_AI_STRATA_URL', STRATA_HTTP))):
+            raise AssistantError('기존 환경 키의 승인 출처가 다릅니다. 전용 키로 다시 등록해 주세요.', 409)
+        return trust, credential
+
+    @staticmethod
+    def _editor(db, pid, data):
+        old = db.execute('SELECT * FROM ai_providers WHERE id=?', (pid,)).fetchone()
+        candidate = db.execute('SELECT revision FROM ai_provider_candidates WHERE provider=?', (pid,)).fetchone()
+        if (data['revision'] != (old['revision'] if old else 0) or old and old['retired']
+                or data.get('candidate_revision', 0) != (candidate[0] if candidate else 0)):
+            raise AssistantError('다른 관리자가 연결을 변경했습니다. 새로고침해 주세요.', 409)
+        revision = candidate[0] if candidate else old['revision'] if old else 0
+        previous = db.execute('''SELECT r.*,t.ca_pem,t.fingerprint,t.expires,t.revoked,t.addresses
+            FROM ai_provider_revisions r JOIN ai_provider_trust t USING(provider,revision)
+            WHERE provider=? AND revision=?''', (pid, revision)).fetchone()
+        return old, previous
+
+    def save(self, data, pid=None, actor=0):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.SAVE]
-        [EN rev.2]
-        [Role] Saves a new immutable basic revision under optimistic admin revision checking.
-        [Dependencies] Server network allowlist, separate encrypted key storage and retained execution guards.
-        [Impact] Existing jobs retain their old revision; retired providers cannot be resurrected by stale forms.
+        [EN rev.4]
+        [Role] Saves an immutable revision and checks both active and candidate editor versions.
+        [Dependencies] Server-approved LAN pins, origin-bound credentials and per-revision CA.
+        [Impact] Only dedicated candidate probes can use an unpromoted address.
         """
-        object_only(data, ('name','base_url','adapter','resource_group','new_group','enabled','retired','manual','sort_order','revision','api_key'), ('name','base_url','adapter','enabled','manual','revision'))
-        name, base = text(data['name'], 80), text(data['base_url'], 256)
-        self.policy.destination(base)
-        if data['adapter'] not in ('strata', 'openai') or any(type(data[k]) is not bool for k in ('enabled','manual')) or type(data['revision']) is not int:
-            raise AssistantError('연결 종류와 상태를 확인해 주세요.')
-        retired = data.get('retired', False)
-        order = data.get('sort_order', 0)
-        if type(retired) is not bool or type(order) is not int or not 0 <= order <= 10000:
-            raise AssistantError('공개 순서/폐기 상태를 확인해 주세요.')
-        credential = self.encrypt(data['api_key']) if 'api_key' in data else None
+        object_only(data, ('name','base_url','adapter','resource_group','new_group','enabled','retired','manual',
+                           'sort_order','revision','api_key','candidate_revision','trust_mode','ca_pem'),
+                    ('name','base_url','adapter','enabled','manual','revision'))
+        name, base = text(data['name'], 80), origin(data['base_url'])
+        retired, order = data.get('retired', False), data.get('sort_order', 0)
+        if (data['adapter'] not in ('strata','openai') or any(type(data[k]) is not bool for k in ('enabled','manual'))
+                or type(retired) is not bool or type(order) is not int or not 0 <= order <= 10000
+                or type(data['revision']) is not int or type(data.get('candidate_revision',0)) is not int):
+            raise AssistantError('연결 종류·상태·버전을 확인해 주세요.')
+        creating = pid is None
+        pid = pid or uuid.uuid4().hex
+        with self.store.db() as db:
+            old, previous = self._editor(db, pid, data)
+            if not creating and not old:
+                raise AssistantError('연결을 찾을 수 없습니다.', 404)
+        same = bool(previous and origin(previous['base_url']) == base)
+        # Stopping/retiring an unreachable active service is a local operation.
+        pause = (old and old['enabled'] and not data['enabled'] and not data.get('candidate_revision') and same
+                 and previous['adapter'] == data['adapter'] and previous['resource_group'] == data.get('resource_group')
+                 and not data.get('new_group') and 'api_key' not in data and 'ca_pem' not in data
+                 and data.get('trust_mode', 'private' if previous['fingerprint'] else 'system') == ('private' if previous['fingerprint'] else 'system'))
+        if retired or pause:
+            if not old:
+                raise AssistantError('기존 연결에서만 중지·폐기할 수 있습니다.')
+            with self.store.db(True) as db:
+                self._editor(db, pid, data)
+                db.execute('DELETE FROM ai_provider_candidates WHERE provider=?', (pid,))
+                if pause and not retired:
+                    # Advance the editor token without changing already accepted routes.
+                    rev = db.execute('SELECT MAX(revision)+1 FROM ai_provider_revisions WHERE provider=?', (pid,)).fetchone()[0]
+                    db.execute('''INSERT INTO ai_provider_revisions SELECT provider,?,base_url,adapter,resource_group,credential,?
+                        FROM ai_provider_revisions WHERE provider=? AND revision=?''',(rev,time.time(),pid,old['revision']))
+                    db.execute('''INSERT INTO ai_provider_trust SELECT provider,?,origin,addresses,ca_pem,fingerprint,expires,revoked
+                        FROM ai_provider_trust WHERE provider=? AND revision=?''',(rev,pid,old['revision']))
+                    db.execute('UPDATE ai_providers SET revision=?,enabled=0,name=?,manual=?,sort_order=? WHERE id=?',
+                               (rev,name,data['manual'],order,pid))
+                    db.execute('UPDATE ai_provider_models SET verified_revision=? WHERE provider=? AND verified_revision=?',(rev,pid,old['revision']))
+                else:
+                    rev = previous['revision']
+                    db.execute('UPDATE ai_providers SET enabled=0,retired=1 WHERE id=?',(pid,))
+                candidates.audit(db,pid,rev,actor,'retired' if retired else 'paused')
+            return pid
+
+        _, addresses, _ = resolve_addresses(base, pid)
+        if base == STRATA_HTTP and data['adapter'] != 'strata':
+            raise BeforeSendError('기존 260Strata 8080은 Strata 연결에서만 사용할 수 있습니다.')
+        inherit = same and previous['revoked'] is None
+        mode = data.get('trust_mode', 'private' if inherit and previous['fingerprint'] else 'system')
+        if mode not in ('private', 'system') or mode == 'private' and not base.startswith('https://'):
+            raise AssistantError('HTTPS 연결의 신뢰 방식을 확인해 주세요.')
+        pem, fingerprint, expires = '', None, None
+        if mode == 'private':
+            pem, fingerprint, expires = certificate(data.get('ca_pem', previous['ca_pem'] if inherit else ''))
+        elif 'ca_pem' in data:
+            raise AssistantError('공개 CA를 등록하려면 사설 CA 방식을 선택해 주세요.')
+        credential = (self.encrypt(data['api_key']) if 'api_key' in data else previous['credential'] if inherit else '')
         with self.store.db(True) as db:
-            old = db.execute('SELECT * FROM ai_providers WHERE id=?', (pid,)).fetchone() if pid else None
-            if (pid and not old) or data['revision'] != (old['revision'] if old else 0):
-                raise AssistantError('다른 관리자가 연결을 수정했습니다. 새로고침해 주세요.', 409)
-            if old and old['retired']:
-                raise AssistantError('폐기한 연결은 다시 활성화할 수 없습니다. 새 연결을 등록해 주세요.', 409)
+            _, checked = self._editor(db, pid, data)
+            if previous and checked['revoked'] != previous['revoked']:
+                raise AssistantError('저장 중 연결 신뢰가 변경되었습니다. 새로고침해 주세요.',409)
             group = data.get('resource_group')
             if data.get('new_group'):
+                group_name = text(data['new_group'], 80)
+                if db.execute('SELECT 1 FROM ai_resource_groups WHERE name=?', (group_name,)).fetchone():
+                    raise AssistantError('이미 등록된 자원 그룹 이름입니다.',409)
                 group = uuid.uuid4().hex
-                db.execute('INSERT INTO ai_resource_groups(id,name) VALUES(?,?)', (group, text(data['new_group'], 80)))
+                db.execute('INSERT INTO ai_resource_groups(id,name) VALUES(?,?)', (group,group_name))
             if not db.execute('SELECT 1 FROM ai_resource_groups WHERE id=?', (group,)).fetchone():
                 raise AssistantError('물리 PC/백엔드 자원 그룹을 선택해 주세요.')
-            shared=db.execute('SELECT resource_group FROM ai_provider_revisions WHERE base_url=? AND resource_group<>? LIMIT 1',(base.rstrip('/'),group)).fetchone()
-            if shared:
-                raise AssistantError('같은 API 주소의 연결은 기존 물리 자원 그룹을 공유해야 합니다.',409)
-            if old:
-                old_group=db.execute('SELECT resource_group FROM ai_provider_revisions WHERE provider=? AND revision=?',(pid,old['revision'])).fetchone()[0]
-                if old_group!=group and (db.execute("SELECT 1 FROM jobs WHERE selection_id IN (SELECT id FROM ai_provider_models WHERE provider=?) AND state IN ('queued','running','draining','recovery_required')",(pid,)).fetchone() or db.execute("SELECT 1 FROM ai_execution_guards WHERE resource_group=? AND state IN ('running','draining','recovery_required')", (old_group,)).fetchone()):
-                    raise AssistantError('접수/실행 요청을 정리한 뒤 물리 자원 그룹을 변경해 주세요.',409)
-            if not old and db.execute('SELECT COUNT(*) FROM ai_providers').fetchone()[0]>=100:
-                raise AssistantError('연결 등록 한도(100개)에 도달했습니다.',429)
-            pid = pid or uuid.uuid4().hex
-            rev = (old['revision'] if old else 0) + 1
-            if credential is None:
-                credential = db.execute('SELECT credential FROM ai_provider_revisions WHERE provider=? AND revision=?', (pid, old['revision'])).fetchone()[0] if old else ''
-            db.execute('INSERT INTO ai_provider_revisions VALUES(?,?,?,?,?,?,?)', (pid, rev, base.rstrip('/'), data['adapter'], group, credential, time.time()))
-            if old:
-                db.execute('UPDATE ai_providers SET name=?,revision=?,enabled=?,retired=?,manual=?,sort_order=?,last_error=NULL WHERE id=?', (name, rev, data['enabled'], retired, data['manual'], order, pid))
-                # Every changed connection needs a fresh capability probe before new requests.
-                db.execute('UPDATE ai_provider_models SET verified_revision=NULL WHERE provider=?', (pid,))
-            else:
-                db.execute('INSERT INTO ai_providers(id,name,revision,enabled,retired,manual,sort_order) VALUES(?,?,?,?,?,?,?)', (pid, name, rev, data['enabled'], retired, data['manual'], order))
+            endpoint = urlsplit(base)
+            port = endpoint.port or (443 if endpoint.scheme == 'https' else 80)
+            for other in db.execute('''SELECT r.base_url,t.addresses FROM ai_provider_revisions r
+                    LEFT JOIN ai_provider_trust t USING(provider,revision) WHERE r.resource_group<>?''',(group,)):
+                peer = urlsplit(origin(other['base_url']))
+                peer_port = peer.port or (443 if peer.scheme == 'https' else 80)
+                pins = json.loads(other['addresses']) if other['addresses'] else [peer.hostname]
+                if port == peer_port and (endpoint.hostname == peer.hostname or set(addresses).intersection(pins)):
+                    raise AssistantError('같은 API 주소·포트는 기존 물리 자원 그룹을 공유해야 합니다.',409)
+            candidates.group_available(db, pid, group)
+            if creating:
+                if db.execute('SELECT COUNT(*) FROM ai_providers').fetchone()[0] >= 100:
+                    raise AssistantError('연결 등록 한도(100개)에 도달했습니다.',429)
+                db.execute('INSERT INTO ai_providers(id,name,revision,enabled) VALUES(?,?,0,0)',(pid,name))
+            rev = db.execute('SELECT COALESCE(MAX(revision),0)+1 FROM ai_provider_revisions WHERE provider=?',(pid,)).fetchone()[0]
+            db.execute('INSERT INTO ai_provider_revisions VALUES(?,?,?,?,?,?,?)',(pid,rev,base,data['adapter'],group,credential,time.time()))
+            db.execute('''INSERT INTO ai_provider_trust(provider,revision,origin,addresses,ca_pem,fingerprint,expires)
+                VALUES(?,?,?,?,?,?,?)''',(pid,rev,base,canonical(addresses),pem,fingerprint,expires))
+            if data.get('candidate_revision'):
+                candidates.audit(db,pid,data['candidate_revision'],actor,'superseded')
+            db.execute('DELETE FROM ai_provider_candidates WHERE provider=?',(pid,))
+            db.execute('''INSERT INTO ai_provider_candidates(provider,revision,parent,name,enabled,manual,sort_order,result)
+                VALUES(?,?,?,?,?,?,?,?)''',(pid,rev,data['revision'],name,data['enabled'],data['manual'],order,'주소 승인 · 모델 목록 조회 대기'))
+            candidates.audit(db,pid,rev,actor,'candidate_saved')
         return pid
 
-    def discover(self, pid, force=False):
+    def _inventory(self, pid, revision):
+        trust, credential = self.connection(pid, revision)
+        with model_request(RevisionPolicy(pid, trust), trust['origin'], '/models', self.secret(credential), timeout=15) as response:
+            if response.status_code in (401,403):
+                raise AssistantError('API 키 인증 단계에서 모델 서버가 조회를 거절했습니다.', 422)
+            if 300 <= response.status_code < 400:
+                raise AssistantError('주소 단계에서 리디렉션을 거절했습니다.', 422)
+            if not 200 <= response.status_code < 300:
+                raise AssistantError('모델 목록 단계에서 모델 서버가 조회를 거절했습니다.', 422)
+            result = response.json()
+        items = result.get('data') if isinstance(result, dict) else None
+        if not isinstance(items, list) or len(items) > 500:
+            raise AssistantError('모델 목록 형식 또는 개수를 확인해 주세요.', 422)
+        ids = []
+        for item in items:
+            if not isinstance(item, dict):
+                raise AssistantError('모델 목록 항목을 확인해 주세요.', 422)
+            mid = text(item.get('id'), 200)
+            if item.get('type') in ('embedding','embeddings','tts','audio','image') or any(x in mid.lower() for x in ('embedding','embed-','tts-')):
+                continue
+            ids.append((mid, mid.replace('\\','/').rsplit('/',1)[-1] or mid))
+        return ids
+
+    def discover(self, pid, force=False, candidate_revision=None, actor=0):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.DISCOVER]
-        [EN rev.1]
-        [Role] Fetches bounded model IDs outside DB transactions and preserves last known data on failure.
-        [Dependencies] Pinned fixed models endpoint and credential decryption; 60-second success cache.
-        [Impact] Discovery never loads/unloads a model or treats a listed model as verified/loaded.
+        [EN rev.2]
+        [Role] Reads a pinned inventory outside the writer transaction.
+        [Dependencies] An explicit admin candidate revision, or the active version for ordinary discovery.
+        [Impact] A late or failed candidate response cannot change the published catalogue.
         """
-        with self.store.db() as db:
-            row = db.execute('SELECT p.*,r.* FROM ai_providers p JOIN ai_provider_revisions r ON r.provider=p.id AND r.revision=p.revision WHERE p.id=?', (pid,)).fetchone()
-            if row is None or row['retired']:
-                raise AssistantError('연결을 찾을 수 없습니다.', 404)
-            row = dict(row)
-        if not force and row['last_checked'] and time.time()-row['last_checked'] < 60:
-            return
+        with self.store.db(candidate_revision is not None) as db:
+            if candidate_revision is None:
+                row = db.execute('SELECT * FROM ai_providers WHERE id=? AND retired=0 AND revision>0',(pid,)).fetchone()
+                if not row:
+                    raise AssistantError('활성 연결을 찾을 수 없습니다.',404)
+                revision = row['revision']
+                if not force and row['last_checked'] and time.time()-row['last_checked'] < 60:
+                    return
+            else:
+                row = candidates.pending(db,pid,candidate_revision)
+                revision, generation = row['revision'], row['generation']+1
+                db.execute("UPDATE ai_provider_candidates SET generation=?,discovered=0,result='모델 목록 조회 중' WHERE provider=?", (generation,pid))
         try:
-            with model_request(self.policy, row['base_url'], '/models', self.secret(row['credential']), timeout=15) as response:
-                response.raise_for_status()
-                result = response.json()
-            items = result.get('data') if isinstance(result, dict) else None
-            if not isinstance(items, list) or len(items) > 500:
-                raise ValueError('invalid model list')
-            ids = []
-            for item in items:
-                if not isinstance(item, dict):
-                    raise ValueError('invalid model')
-                mid = text(item.get('id'), 200)
-                if '/' in mid or '\\' in mid:
-                    # A path may be a valid upstream ID; never publish that path as a user-facing label.
-                    label = mid.replace('\\', '/').rsplit('/', 1)[-1]
-                else:
-                    label = mid
-                if item.get('type') in ('embedding','embeddings','tts','audio','image') or any(x in mid.lower() for x in ('embedding', 'embed-', 'tts-')):
-                    continue
-                ids.append((mid, label))
+            items = self._inventory(pid, revision)
             with self.store.db(True) as db:
-                if db.execute('SELECT revision FROM ai_providers WHERE id=?', (pid,)).fetchone()[0] != row['revision']:
-                    raise AssistantError('조회 중 연결 설정이 변경되었습니다. 다시 조회해 주세요.', 409)
-                db.execute('UPDATE ai_provider_models SET present=manual WHERE provider=?', (pid,))
-                existing={r[0] for r in db.execute('SELECT upstream FROM ai_provider_models WHERE provider=?',(pid,))}
-                if len(existing|{mid for mid,_ in ids})>500:
-                    raise AssistantError('모델 보관 한도(연결별 500개)를 초과했습니다.',429)
-                for mid, label in ids:
+                if candidate_revision is not None:
+                    cand = candidates.pending(db,pid,revision,generation)
+                    candidates.record_inventory(db,cand,items)
+                    candidates.audit(db,pid,revision,actor,'models_passed')
+                    return
+                if not db.execute('''SELECT 1 FROM ai_providers p JOIN ai_provider_trust t ON t.provider=p.id AND t.revision=p.revision
+                    WHERE p.id=? AND p.revision=? AND p.retired=0 AND t.revoked IS NULL''',(pid,revision)).fetchone():
+                    raise AssistantError('조회 중 연결 설정이 변경되었습니다.',409)
+                existing = {r[0] for r in db.execute('SELECT upstream FROM ai_provider_models WHERE provider=?',(pid,))}
+                if len(existing | {mid for mid,_ in items}) > 500:
+                    raise AssistantError('모델 보관 한도를 초과했습니다.',429)
+                db.execute('UPDATE ai_provider_models SET present=manual WHERE provider=?',(pid,))
+                for mid,label in items:
                     db.execute('''INSERT INTO ai_provider_models(id,provider,upstream,label,present,checked) VALUES(?,?,?,?,1,?)
-                        ON CONFLICT(provider,upstream) DO UPDATE SET present=1,checked=excluded.checked''', (uuid.uuid4().hex, pid, mid, label, time.time()))
-                db.execute('UPDATE ai_providers SET last_checked=?,last_error=NULL WHERE id=?', (time.time(), pid))
+                       ON CONFLICT(provider,upstream) DO UPDATE SET present=1,checked=excluded.checked''',(uuid.uuid4().hex,pid,mid,label,time.time()))
+                db.execute('UPDATE ai_providers SET last_checked=?,last_error=NULL WHERE id=?',(time.time(),pid))
         except Exception as error:
+            reason = str(error) if isinstance(error,AssistantError) else '모델 목록 응답을 확인하지 못했습니다.'
             with self.store.db(True) as db:
-                db.execute('UPDATE ai_providers SET last_checked=?,last_error=? WHERE id=? AND revision=?', (time.time(), '모델 목록 확인 실패 (' + type(error).__name__ + ')', pid, row['revision']))
-            raise AssistantError('모델 목록을 확인하지 못했습니다. 이전 목록은 보관되며 자동 대체하지 않습니다.', 503) from None
+                if candidate_revision is not None:
+                    candidates.pending(db,pid,revision,generation)
+                    db.execute('UPDATE ai_provider_candidates SET result=? WHERE provider=?',(reason,pid))
+                    candidates.audit(db,pid,revision,actor,reason)
+                else:
+                    db.execute('UPDATE ai_providers SET last_checked=?,last_error=? WHERE id=? AND revision=?',(time.time(),reason,pid,revision))
+            raise AssistantError(reason, error.status if isinstance(error,AssistantError) else 422) from None
+
+    def revoke_trust(self, pid, revision, actor):
+        with self.store.db(True) as db:
+            changed = db.execute('UPDATE ai_provider_trust SET revoked=? WHERE provider=? AND revision=? AND revoked IS NULL',
+                                 (time.time(),pid,revision)).rowcount
+            if not changed:
+                raise AssistantError('철회할 연결 버전을 찾을 수 없습니다.',409)
+            db.execute('''UPDATE ai_providers SET retired=1 WHERE id=? AND revision=0 AND EXISTS(
+                SELECT 1 FROM ai_provider_candidates WHERE provider=? AND revision=?)''',(pid,pid,revision))
+            db.execute('DELETE FROM ai_provider_candidates WHERE provider=? AND revision=?',(pid,revision))
+            db.execute('UPDATE ai_provider_models SET verified_revision=NULL WHERE provider=? AND verified_revision=?',(pid,revision))
+            reason = '관리자가 이 연결 버전의 신뢰를 철회하여 요청을 중단했습니다.'
+            db.execute('UPDATE ai_providers SET last_error=? WHERE id=? AND revision=?',(reason,pid,revision))
+            db.execute("""UPDATE jobs SET cancel=1,error=COALESCE(error,?),error_code=COALESCE(error_code,'PROVIDER_REVOKED'),
+                state=CASE state WHEN 'queued' THEN 'failed' WHEN 'running' THEN 'draining' ELSE state END
+                WHERE json_extract(route_snapshot,'$.provider_id')=? AND json_extract(route_snapshot,'$.revision')=?
+                AND state IN ('queued','running','draining','recovery_required')""",(reason,pid,revision))
+            db.execute("""UPDATE ai_execution_guards SET cancel=1,state=CASE state WHEN 'running' THEN 'draining' ELSE state END,updated=?
+                WHERE state IN ('running','draining','recovery_required') AND job IN (SELECT id FROM jobs WHERE cancel=1
+                AND json_extract(route_snapshot,'$.provider_id')=? AND json_extract(route_snapshot,'$.revision')=?)""",(time.time(),pid,revision))
+            candidates.audit(db,pid,revision,actor,'revoked')
+            self.store.expire(db)
 
     def update_model(self, pid, data):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.UPDATE_MODEL]

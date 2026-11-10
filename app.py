@@ -6,6 +6,7 @@ import sqlite3
 import os
 import json
 import queue
+import sys
 import threading
 import atexit
 import time
@@ -18,8 +19,6 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
 from dotenv import load_dotenv
-import random
-import string
 import uuid
 import secrets
 from utils.mailer import send_email
@@ -37,6 +36,8 @@ from utils.roadmap_files import assert_files as assert_attachment_files  # DB-on
 from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 복원을 동시에 실행하지 않습니다.
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
 from utils.roadmap_auth import email_verification_proof, matches_email_verification
+from utils.http_security import client_ip, legacy_audit_payloads, password_reset_origin, referrer_path
+from utils import http_audit_queue
 from utils.strata_integration import install_strata, visible_portal_menus  # Retired UI tombstones and legacy-menu suppression only.
 from utils.ai_assistant import install_assistant, visible_assistant_menus  # 독립 사용자 AI·내부 큐·서버 권한 경계.
 from utils.ai_assistant.audit import audit_body  # 감사 사건·본문을 보존하고 인증값 원문만 보호합니다.
@@ -52,10 +53,17 @@ app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 
 # 세션 암호화를 위한 비밀키 설정 (하드코딩 방지: .env에서 가져옴)
-app.secret_key = os.getenv('SECRET_KEY', 'default_secret_key_if_not_found')
+app.secret_key = os.getenv('SECRET_KEY')
+if (not app.secret_key or len(app.secret_key.strip().encode('utf-8')) < 32
+        or app.secret_key == 'default_secret_key_if_not_found'):
+    raise RuntimeError('A private SECRET_KEY of at least 32 bytes is required before starting the equipment service.')
+app.config['PASSWORD_RESET_ORIGIN'] = password_reset_origin()
 
 # 보안 쿠키 정책 강화
 app.config['SESSION_COOKIE_HTTPONLY'] = True
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # File and database routes set their own verified limits.
+app.config['MAX_FORM_PARTS'] = 16
+app.config['SESSION_COOKIE_SECURE'] = os.getenv('SESSION_COOKIE_SECURE', 'true').lower() != 'false'
 app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 
@@ -325,48 +333,70 @@ STATIC_METADATA_ROUTES_FROZEN = frozenset(STATIC_METADATA_ROUTES)
 # 1-1. [제안-036] 웹 접근 로그 비동기 수집 엔진
 # ==========================================
 access_log_queue = queue.Queue(maxsize=10000)
+access_log_bytes = 0
+access_log_bytes_lock = threading.Lock()
+ACCESS_LOG_QUEUE_BYTES = 16 * 1024 * 1024
 shutdown_event = threading.Event()
 
-def push_access_log(log_data):
-    """
-    [역할]: Non-blocking 큐 푸시 (웹 응답 지연 0% 절대 보장)
-    [의존성 관계]: @app.after_request 인터셉터에서 호출
-    [변경 시 영향도]: 큐가 꽉 차더라도 웹 요청을 지연시키지 않고 즉시 응답 (Fail-Open)
-    """
-    if not ACCESS_LOG_ACCEPTING.is_set():
-        return
-    try:
-        access_log_queue.put_nowait(log_data)
-    except queue.Full:
-        pass # 큐 풀 시 안전하게 드롭 (웹 서비스 가용성 최우선)
 
-def _write_logs_to_db(logs):
-    """
-    [역할]: 로그 리스트를 DB에 일괄 벌크 인서트 트랜잭션으로 저장합니다.
-    [의존성 관계]: access_logs 테이블, sqlite3
-    [변경 시 영향도]: 디스크 I/O 최적화 및 접근 로그 영구 저장에 영향을 줍니다.
-    """
+def _access_log_size(entry):
+    return sys.getsizeof(entry) + sum(sys.getsizeof(value) for value in entry.values())
+
+AUDIT_SPOOL = Path(app.instance_path) / 'http-audit' / 'pending.sqlite3'
+
+
+def push_access_log(log_data):
+    global access_log_bytes
+    if http_audit_queue.protected_path(log_data['RequestPath']) and (not has_request_context() or request.endpoint is not None):
+        if ACCESS_LOG_ACCEPTING.is_set():
+            try:
+                _insert_access_logs([log_data], durable=True)
+                return
+            except (OSError, sqlite3.Error, RuntimeError):
+                app.logger.warning('AI access audit deferred to durable local storage')
+        http_audit_queue.enqueue(AUDIT_SPOOL, log_data)
+        return
+    if ACCESS_LOG_ACCEPTING.is_set():
+        size = _access_log_size(log_data)
+        with access_log_bytes_lock:
+            if access_log_bytes + size > ACCESS_LOG_QUEUE_BYTES:
+                return
+            try:
+                access_log_queue.put_nowait(log_data)
+            except queue.Full:
+                return
+            access_log_bytes += size
+
+
+def _insert_access_logs(logs, *, durable=False):
+    conn = open_application_database(timeout=5.0)
     try:
-        conn = open_application_database(timeout=5.0)
-        cur = conn.cursor()
-        cur.execute("PRAGMA journal_mode = WAL;")
-        cur.execute("PRAGMA synchronous = NORMAL;")
-        cur.execute("PRAGMA busy_timeout = 5000;")
-        cur.executemany("""
+        conn.execute('PRAGMA journal_mode=WAL')
+        conn.execute('PRAGMA synchronous=FULL' if durable else 'PRAGMA synchronous=NORMAL')
+        conn.executemany("""
             INSERT INTO access_logs (IpAddress, HttpMethod, RequestPath, StatusCode, UserAgent, Referer, DurationMs, IsStatic, RequestPayload, ResponsePayload, CreatedAt)
             VALUES (:IpAddress, :HttpMethod, :RequestPath, :StatusCode, :UserAgent, :Referer, :DurationMs, :IsStatic, :RequestPayload, :ResponsePayload, :CreatedAt)
         """, logs)
-
-        # [사용자 지침: 추후 필요 시 주석 해제하여 활성화]
-        # cur.execute("DELETE FROM access_logs WHERE LogId NOT IN (SELECT LogId FROM access_logs ORDER BY LogId DESC LIMIT 30000)")
-
         conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"[Access Log Worker Error] {e}")
     finally:
-        for _ in range(len(logs)):
+        conn.close()
+
+
+def _write_logs_to_db(logs):
+    global access_log_bytes
+    try:
+        _insert_access_logs(logs)
+    except (OSError, sqlite3.Error, RuntimeError):
+        app.logger.exception('Ordinary access log batch could not be stored')
+    finally:
+        with access_log_bytes_lock:
+            access_log_bytes -= sum(_access_log_size(entry) for entry in logs)
+        for _ in logs:
             access_log_queue.task_done()
+
+
+def _deliver_durable_events(logs):
+    _insert_access_logs(logs, durable=True)
 
 def batch_logger_worker():
     """
@@ -386,10 +416,16 @@ def batch_logger_worker():
                 except queue.Empty:
                     break
         except queue.Empty:
-            continue
+            pass
 
         if logs_to_insert:
             _write_logs_to_db(logs_to_insert)
+        if ACCESS_LOG_ACCEPTING.is_set():
+            try:
+                http_audit_queue.drain(AUDIT_SPOOL, _deliver_durable_events)
+            except (OSError, sqlite3.Error, RuntimeError, ValueError):
+                app.logger.exception('AI access audit retry pending')
+                shutdown_event.wait(1.0)
 
     # [Graceful Shutdown 처리] 종료 신호 수신 시 큐에 남은 잔여 로그 100% 최종 커밋
     remaining_logs = []
@@ -436,7 +472,7 @@ def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, ol
     [변경 시 영향도]: 전역 감사 로그 기록 기능에 영향을 줍니다.
     """
     try:
-        ip_address = request.headers.get('X-Forwarded-For', request.remote_addr)
+        ip_address = client_ip(request)
         user_agent = request.headers.get('User-Agent', '')
 
         old_json = json.dumps(old_value, ensure_ascii=False) if old_value is not None else None
@@ -781,6 +817,9 @@ def run_migration_if_needed(migration_name, migration_func):
 
             print(f"[Migration Manager] '{migration_name}' successfully applied.")
         except Exception as e:
+            if migration_name in ('passwords_to_hash', 'proposal_030_email_auth'):
+                conn.close()
+                raise RuntimeError(f'Required authentication migration failed: {migration_name}') from e
             print(f"[Migration Manager] Error applying '{migration_name}': {e}")
     conn.close()
 
@@ -1143,7 +1182,7 @@ def migrate_passwords_to_hash():
         conn.commit()
         conn.close()
     except Exception as e:
-        print(f"[Migration Error] {e}")
+        raise RuntimeError('password hash migration failed') from e
 
 # 구동 시 비밀번호 해싱 자동 마이그레이션 수행
 run_migration_if_needed('passwords_to_hash', migrate_passwords_to_hash)
@@ -1184,7 +1223,7 @@ def migrate_email_features():
         conn.commit()
         conn.close()
     except Exception as e:
-        print(f"[Migration Error (email_features)] {e}")
+        raise RuntimeError('email security schema migration failed') from e
 
 run_migration_if_needed('proposal_030_email_auth', migrate_email_features)
 
@@ -1233,7 +1272,7 @@ def get_server_session_role():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute('SELECT Role FROM users WHERE UserId = ?', (user['UserId'],))
+        cursor.execute("SELECT Role FROM users WHERE UserId=? AND SessionToken=? AND IsDeleted='N' AND IsDeactivated='N'", (user['UserId'], session.get('session_token')))
         row = cursor.fetchone()
         conn.close()
         return row['Role'] if row else None
@@ -1322,14 +1361,15 @@ def after_request_func(response):
     [의존성 관계]: Flask Response, push_access_log, flask.g
     [변경 시 영향도]: 브라우저 클라이언트 측 보안 제어 및 실시간 접근 로그 수집에 영향을 줍니다.
     """
-    # 1. 폴링 요청 시에는 플라스크가 세션을 자동으로 갱신(Refresh)하지 못하게 세션 쿠키 발급을 차단
+    response.headers.setdefault('Referrer-Policy', 'same-origin')
+    response.headers.setdefault('X-Content-Type-Options', 'nosniff')
+    response.headers.setdefault('X-Frame-Options', 'SAMEORIGIN')
+    if request.path == '/reset_password':
+        response.headers['Referrer-Policy'] = 'no-referrer'
+    if request.path in ('/login', '/register', '/reset_password') or ('user' in session and not request.path.startswith('/static/')):
+        response.headers.setdefault('Cache-Control', 'private, no-store')
+    # Passive cookie refresh is decided after the response hooks by the session interface.
     if request.path == '/api/check_session':
-        new_headers = []
-        for k, v in response.headers.items():
-            if k.lower() == 'set-cookie' and v.startswith('session='):
-                continue
-            new_headers.append((k, v))
-        response.headers = type(response.headers)(new_headers)
         return response
 
     # 2. [제안-036] 접근 로그 비동기 수집 (Fail-Safe 격리)
@@ -1343,34 +1383,31 @@ def after_request_func(response):
             request.path in STATIC_METADATA_ROUTES_FROZEN
         ) else 0
 
-        # 안전한 IP 추출 (X-Forwarded-For 우선)
-        raw_ip = request.headers.get('X-Forwarded-For', request.remote_addr or '127.0.0.1')
-        ip_addr = raw_ip.split(',')[0].strip() if raw_ip else '127.0.0.1'
+        ip_addr = client_ip(request)
 
         # [제안-013] DB 작업 API에는 비밀번호·DB 파일·일회성 토큰이 포함되므로 본문을 절대 로그에 남기지 않습니다.
         is_sensitive_database_operation = (request.path.startswith('/api/admin/database/')
             or request.path.startswith('/api/equipment/csv/')
             or ('/files' in request.path and request.path.startswith('/api/equipment/')))  # 신규 바이너리/확정토큰은 메타데이터만 기록합니다. 기존 일반 로그 정책은 유지합니다.
         # [제안-040, 043] 일반 변경 요청만 Payload를 수집하고 민감 DB 작업은 메타데이터만 기록합니다.
-        is_ai = request.path in ('/assistant','/admin/ai/providers') or request.path.startswith(('/api/ai/','/internal/ai/','/api/admin/ai/'))
-        request_payload = (request.get_data(as_text=True)
-                           if request.method in ["POST", "PUT", "PATCH", "DELETE"]
-                           and not is_sensitive_database_operation and not is_ai else None)
-
-        response_payload = None
-        # [제안-043] /api/access_logs 계열 응답은 ResponsePayload에서 제외하여 재귀적 DB 비대화 및 락 교착 방어
-        if (not is_static and not request.path.startswith('/api/access_logs')
-                and not is_sensitive_database_operation and not is_ai):
+        is_ai = request.endpoint is not None and http_audit_queue.protected_path(request.path)
+        request_payload = response_payload = None
+        protected_values = (app.secret_key, app.config.get('USER_AI_WORKER_TOKEN'),
+            session.get('csrf_token'), session.get('session_token'),
+            request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session')),
+            request.headers.get('Authorization'), request.headers.get('Authorization', '').removeprefix('Bearer '))
+        if (not is_ai and not is_static and not is_sensitive_database_operation
+                and not request.path.startswith('/api/access_logs')):
             try:
-                response_payload = response.get_data(as_text=True)
-            except Exception:
-                pass # 바이너리 데이터 등 텍스트 변환 실패 시 무시
+                request_payload, response_payload = legacy_audit_payloads(request, response, app.secret_key, protected_values)
+            except Exception as error:
+                request_payload = json.dumps({'audit_body_unavailable': type(error).__name__})
 
         # [MINI-COMMENT: ASSISTANT.AUDIT.GLOBAL]
-        # [EN rev.2]
+        # [EN rev.3]
         # [Role] Retains AI request/response audit content while fingerprinting reusable credentials.
         # [Dependencies] The pure audit formatter and server-owned current secret values.
-        # [Impact] AI events are still written to access_logs; the default formatter never returns raw secrets on failure.
+        # [Impact] Required AI events commit to access_logs or a private retry spool, independently of ordinary queue limits.
         if is_ai:
             from utils.ai_assistant.audit import http_payloads
             try:
@@ -1379,24 +1416,20 @@ def after_request_func(response):
                 # Body capture failure must not suppress the access event itself or reread rejected wire data.
                 request_payload = json.dumps({'audit_body_unavailable': type(error).__name__}, ensure_ascii=False)
                 response_payload = None
-            protected_values = (app.secret_key, app.config.get('USER_AI_WORKER_TOKEN'),
-                session.get('csrf_token'), session.get('session_token'),
-                request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session')),
-                request.headers.get('Authorization'), request.headers.get('Authorization', '').removeprefix('Bearer '))
             request_payload = audit_body(request_payload, app.secret_key, protected_values)
             response_payload = audit_body(response_payload, app.secret_key, protected_values)
 
         # KST 일시 생성
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # Non-blocking 큐 푸시
+        # AI 감사 이벤트는 영구 저장하고 일반 접근 기록은 제한된 큐로 보냅니다.
         push_access_log({
             'IpAddress': ip_addr,
             'HttpMethod': request.method,
             'RequestPath': request.path,
             'StatusCode': response.status_code,
             'UserAgent': request.user_agent.string[:255] if request.user_agent else '',
-            'Referer': request.referrer[:255] if request.referrer else '',
+            'Referer': referrer_path(request.referrer),
             'DurationMs': duration_ms,
             'IsStatic': is_static,
             'RequestPayload': request_payload,
@@ -1422,8 +1455,7 @@ def after_request_func(response):
         # else:
         #     print(f"[{created_at}] {ip_addr} - {request.method} {request.path} {color}{status_code}{reset} {duration_ms}ms")
     except Exception:
-        # 어떠한 로깅 예외도 웹 응답(200 OK 등)을 500으로 방해하지 않도록 완전 격리
-        pass
+        app.logger.critical('HTTP access audit could not be stored (endpoint=%s)', request.endpoint, exc_info=True)
 
     return response
 
@@ -1442,7 +1474,7 @@ def check_session():
 
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT SessionToken, Role FROM users WHERE UserId = ?', (user['UserId'],))
+    cursor.execute("SELECT SessionToken, Role FROM users WHERE UserId=? AND IsDeleted='N' AND (IsDeactivated='N' OR DeactivatedAt IS NOT NULL)", (user['UserId'],))
     db_token = cursor.fetchone()
     conn.close()
 
@@ -1461,7 +1493,7 @@ def check_session():
         response.headers['X-Maintenance-Mode'] = maintenance_state['state']
         return response
 
-    if db_token and current_token != db_token['SessionToken']:
+    if not db_token or not current_token or current_token != db_token['SessionToken']:
         return jsonify({"valid": False, "reason": "concurrent_login"}), 401
 
     return jsonify({"valid": True}), 200
@@ -1728,6 +1760,18 @@ def check_menu_permission(menu_code):
     return bool(row and row['IsAllowed'] == 1)
 
 
+def menu_required(*menu_codes):
+    """Enforce the matching live menu grant after login, including direct API callers."""
+    def decorate(view):
+        @wraps(view)
+        def checked(*args, **kwargs):
+            if not any(check_menu_permission(code) for code in menu_codes):
+                return jsonify(success=False, message='이 기능을 이용할 권한이 없습니다.'), 403
+            return view(*args, **kwargs)
+        return checked
+    return decorate
+
+
 def validate_maintenance_admin_request(data, confirmation_text):
     """
     [역할]: 점검 상태 변경 전 현재 관리자의 역할·비밀번호·확인 문구를 재검증합니다.
@@ -1946,7 +1990,7 @@ def inspect_database_file(database_path, admin_login_id=None, admin_password=Non
             counts[table_name] = conn.execute(f'SELECT COUNT(*) FROM {quote_sql_identifier(table_name)}').fetchone()[0]
         if admin_login_id is not None:
             row = conn.execute(
-                "SELECT LoginId, Password, Role FROM users WHERE LoginId = ? AND Role = 'admin'",
+                "SELECT LoginId, Password, Role FROM users WHERE LoginId=? AND Role='admin' AND IsDeleted='N' AND IsDeactivated='N'",
                 (admin_login_id,)
             ).fetchone()
             if not row or not check_password_hash(row['Password'], admin_password or ''):
@@ -2003,6 +2047,9 @@ def validate_database_compatibility(candidate_path, baseline_path):
         if baseline.execute('PRAGMA user_version').fetchone()[0] != candidate.execute('PRAGMA user_version').fetchone()[0]:  # 구버전 또는 미래 버전 자동 복원을 막습니다.
             raise ValueError('후보 DB의 스키마 버전이 현재 서비스와 다릅니다.')
         # 운영에 존재하는 모든 객체가 후보에도 존재해야 합니다.
+        unexpected_objects = candidate_contract.keys() - baseline_contract.keys()
+        if unexpected_objects:
+            raise ValueError('후보 DB에 운영 기준에 없는 스키마 객체가 있습니다.')
         missing_objects = sorted(set(baseline_contract) - set(candidate_contract))
         if missing_objects:
             missing_non_indexes = [key for key in missing_objects if key[0] != 'index']
@@ -2243,6 +2290,8 @@ def _run_database_restore_job(job_id):
     job = {}
     # 복원 전 자동 백업 경로는 실제 생성 뒤에만 원복 대상으로 사용합니다.
     before_restore_path = None
+    snapshot_verified = False
+    live_write_started = False
     # 원복 완료 여부는 관리자 안내와 최종 작업 상태에만 사용합니다.
     rollback_succeeded = False
     with DATABASE_RESTORE_LOCK:
@@ -2301,6 +2350,8 @@ def _run_database_restore_job(job_id):
                 live_source.close()
             # 자동 백업 자체가 손상되지 않았는지 복원 전에 확인합니다.
             inspect_database_file(before_restore_path)
+            snapshot_verified = True
+            validate_database_compatibility(job['candidate_path'], before_restore_path)
 
             # 후보 파일을 운영 DB로 쓰기 직전에 진행 상태를 갱신합니다.
             record_database_job_progress(job_id, state='restoring', message='검증된 후보 DB를 적용하는 중입니다.')
@@ -2310,6 +2361,7 @@ def _run_database_restore_job(job_id):
             live_target = connect_database(DATABASE_PATH, timeout=10.0)
             try:
                 # 검증된 후보의 전체 스냅샷을 운영 DB로 적용합니다.
+                live_write_started = True
                 candidate.backup(live_target, pages=256, sleep=0.01)
                 # 적용된 변경을 디스크에 확정합니다.
                 live_target.commit()
@@ -2345,7 +2397,7 @@ def _run_database_restore_job(job_id):
             # 기술 오류는 제한된 서버 로그에만 남기고 공개 작업 상태에는 넣지 않습니다.
             app.logger.exception('제안-013 DB 복원 작업이 실패했습니다: job_id=%s', job_id)
             # 자동 백업이 만들어진 경우에만 원복을 시도합니다.
-            if before_restore_path and os.path.exists(before_restore_path):
+            if live_write_started and snapshot_verified:
                 try:
                     # 저널 갱신 실패와 무관하게 실제 원복을 우선 수행합니다.
                     record_database_job_progress(job_id, state='rolling_back', message='복원 실패로 직전 자동 백업을 되돌리는 중입니다.')
@@ -2378,8 +2430,12 @@ def _run_database_restore_job(job_id):
                     app.logger.exception('제안-013 DB 자동 원복이 실패했습니다: job_id=%s', job_id)
                     rollback_succeeded = False
             # 원복 결과에 따라 사용자가 이해할 수 있는 한국어 안내를 선택합니다.
-            recovery_message = ('복원에 실패하여 직전 DB로 자동 원복했습니다.' if rollback_succeeded
-                                else '복원과 자동 원복을 완료하지 못했습니다. 점검을 유지하고 수동 복구가 필요합니다.')
+            if not live_write_started:
+                recovery_message = '복원 준비 중 오류가 발생했습니다. 기존 DB가 유지되며 점검을 계속합니다.'
+            elif rollback_succeeded:
+                recovery_message = '복원에 실패하여 직전 DB로 자동 원복했습니다.'
+            else:
+                recovery_message = '복원과 자동 원복을 완료하지 못했습니다. 점검을 유지하고 수동 복구가 필요합니다.'
             try:
                 # 자동 점검 해제를 막기 위해 실패 후에도 복구 상태를 유지합니다.
                 set_maintenance_state('RECOVERY', recovery_message, '', 'system')
@@ -2505,7 +2561,9 @@ def api_upload_database_candidate():
     if get_maintenance_state()['state'] not in {'DRAINING', 'RECOVERY'}:
         return jsonify({'success': False, 'message': '후보 DB 검증은 점검 모드에서만 가능합니다.'}), 409
     # 요청 전체가 파일 제한을 크게 넘으면 multipart 파싱 전 거부합니다.
-    if request.content_length and request.content_length > DATABASE_UPLOAD_LIMIT + (1024 * 1024):
+    request.max_content_length = DATABASE_UPLOAD_LIMIT + 1024 * 1024
+    request.max_form_parts = 8
+    if request.content_length and request.content_length > request.max_content_length:
         return jsonify({'success': False, 'message': '업로드 파일은 512MB를 초과할 수 없습니다.'}), 413
     upload = request.files.get('database')
     current_password = request.form.get('current_password', '')
@@ -2798,15 +2856,20 @@ def login_page():
         }
 
         session_token = os.urandom(24).hex()
+        conn_update = get_db_connection()
+        cursor_update = conn_update.execute(
+            "UPDATE users SET SessionToken=? WHERE UserId=? AND Password=? AND IsDeleted='N' "
+            "AND (IsDeactivated='N' OR DeactivatedAt IS NOT NULL)",
+            (session_token, user['UserId'], user['Password']))
+        if cursor_update.rowcount != 1:
+            conn_update.close()
+            return jsonify(success=False, message='계정 상태가 변경되었습니다. 다시 로그인해 주세요.'), 409
+        conn_update.commit()
+        conn_update.close()
+        session.clear()
         session['user'] = user_dict
         session['session_token'] = session_token
         session.permanent = True
-
-        conn_update = get_db_connection()
-        cursor_update = conn_update.cursor()
-        cursor_update.execute("UPDATE users SET SessionToken = ? WHERE UserId = ?", (session_token, user['UserId']))
-        conn_update.commit()
-        conn_update.close()
 
         log_audit(user['UserId'], user['LoginId'], 'LOGIN_SUCCESS', 'users', user['UserId'], None, {"LoginId": login_id, "Status": status})
 
@@ -2935,7 +2998,14 @@ def register_page():
             conn.close()
             return jsonify({"success": False, "message": "이메일 인증 상태가 변경되었습니다. 다시 인증해 주세요."}), 400
         cursor.execute("SELECT COUNT(*) FROM users")
-        role = 'admin' if cursor.fetchone()[0] == 0 else 'user'
+        role = 'user'
+        if cursor.fetchone()[0] == 0:
+            bootstrap_email = os.getenv('BOOTSTRAP_ADMIN_EMAIL', '').strip()
+            if not bootstrap_email or bootstrap_email != email:
+                conn.rollback()
+                conn.close()
+                return jsonify(success=False, message='최초 관리자 등록은 서버에 지정한 인증 이메일로 진행해 주세요.'), 403
+            role = 'admin'
         cursor.execute('''
             INSERT INTO users (LoginId, Name, NickName, Password, Email, notification_verified_email, Role, CreatedAt, UpdatedAt, IsDeactivated, IsDeleted)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'N', 'N')
@@ -2952,18 +3022,23 @@ def register_page():
         return jsonify({"success": False, "message": "이미 다른 계정에 등록되어 사용 중인 이메일 주소입니다."}), 400
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
 def logout():
-    """
-    [역할]: 현재 세션을 파기하고 사용자를 로그아웃 처리합니다.
-    [의존성 관계]: session
-    [변경 시 영향도]: 로그아웃 기능 동작에 영향을 줍니다.
-    """
-    user = session.get('user')
-    if user:
-        if 'UserId' in user:
+    token = request.headers.get('X-CSRFToken') or request.form.get('csrf_token')
+    if not token or token != session.get('csrf_token'):
+        return jsonify(success=False, message='CSRF 토큰 검증에 실패했습니다.'), 403
+    user = session.get('user') or {}
+    if user.get('UserId') and session.get('session_token'):
+        conn = get_db_connection()
+        try:
+            changed = conn.execute("UPDATE users SET SessionToken=NULL WHERE UserId=? AND SessionToken=?",
+                                   (user['UserId'], session['session_token'])).rowcount
+            conn.commit()
+        finally:
+            conn.close()
+        if changed:
             log_audit(user['UserId'], user['LoginId'], 'LOGOUT', 'users', user['UserId'], None, None)
-        session.clear()
+    session.clear()
     return redirect(url_for('login_page'))
 
 
@@ -3253,6 +3328,7 @@ def _get_all_descendant_node_ids(cursor, node_id):
 
 @app.route('/api/lineup_tree_all', methods=['GET'])
 @login_required
+@menu_required('my_equipment', 'public_equipment', 'my_approvals', 'dashboard')
 def get_lineup_tree_all():
     """
     [역할]: 카테고리, 제조사, N차 라인업 노드(가변 깊이), N+1차 옵션까지 전체 카탈로그 트리를 단 1회 덤프로 반환
@@ -3337,7 +3413,7 @@ def audit_lineup_change(connection, action, node_id, before, after, table=None):
     user = session['user']  # 인증 decorator를 통과한 요청자입니다.
     connection.execute(  # 별도 연결의 쓰기 잠금 충돌을 방지합니다.
         "INSERT INTO audit_logs (ActorId, ActorLoginId, IpAddress, UserAgent, TargetTable, TargetId, Action, OldValue, NewValue, CreatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        (user['UserId'], user['LoginId'], request.remote_addr, request.headers.get('User-Agent', ''),
+        (user['UserId'], user['LoginId'], client_ip(request), request.headers.get('User-Agent', ''),
          table or ('equipment_options' if action.endswith('_OPTION') else 'lineup_nodes'),
          node_id, action, json.dumps(before, ensure_ascii=False), json.dumps(after, ensure_ascii=False),
          datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
@@ -3346,7 +3422,7 @@ def audit_lineup_change(connection, action, node_id, before, after, table=None):
 
 app.register_blueprint(build_lineup_node_blueprint(  # 로그인·관리자·CSRF 정책을 재사용합니다.
     get_db_connection, login_required, admin_required, csrf_required,
-    audit_callback=audit_lineup_change, error_logger=app.logger.error
+    audit_callback=audit_lineup_change, error_logger=app.logger.error, check_permission=check_menu_permission
 ))
 
 
@@ -3398,6 +3474,7 @@ def handle_option_change(option_id=None):
 
 @app.route('/api/equipment_option', methods=['POST'])
 @login_required
+@menu_required('my_equipment', 'public_equipment', 'my_approvals')
 @csrf_required
 def create_equipment_option():
     """Create an approved option as admin or a pending approval as user."""
@@ -3425,6 +3502,7 @@ def require_equipment_option(connection, option_id, is_draft, user):
 
 @app.route('/api/equipments_v2', methods=['GET', 'POST'])
 @login_required
+@menu_required('my_equipment', 'public_equipment')
 def api_equipments_v2():
     """
     [역할]: 3-Tier 계층 구조 기반 장비 인스턴스 등록 및 복합 JOIN 조회 API
@@ -3469,13 +3547,16 @@ def api_equipments_v2():
                 JOIN categories cat ON node.category_id = cat.CategoryId
                 JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
                 LEFT JOIN users u ON e.user_id = u.UserId
-                WHERE COALESCE(e.is_draft, 0) = 0 AND (? = 'admin' OR e.user_id = ? OR e.is_public = 1)
+                WHERE COALESCE(e.is_draft, 0) = 0 AND (? = 'admin' OR (? AND e.user_id = ?) OR (? AND e.is_public = 1))
                 ORDER BY e.id DESC;
-            """, (session['user']['Role'], session['user']['UserId']))
+            """, (session['user']['Role'], check_menu_permission('my_equipment'), session['user']['UserId'], check_menu_permission('public_equipment')))
             rows = cursor.fetchall()
             result = []
             for r in rows:
                 item = dict(r)
+                if session['user']['Role'] != 'admin' and item['UserId'] != session['user']['UserId']:
+                    item.pop('UserLoginId', None)
+                    item.pop('UserName', None)
                 if item.get('SpecsJson'):
                     try:
                         item['Specs'] = json.loads(item['SpecsJson'])
@@ -3756,6 +3837,7 @@ def api_audit_logs():
 # ------------------------------------------
 @app.route('/api/dashboard/stats', methods=['GET'])
 @login_required
+@menu_required('dashboard')
 def api_dashboard_stats():
     """
     [역할] 대시보드 통계용(나의 장비, 총 장비, 카테고리/제조사 분포, 복합 조건 검색결과) JSON 데이터를 반환합니다.
@@ -3859,6 +3941,7 @@ def api_dashboard_stats():
 
 @app.route('/api/dashboard/master_options', methods=['GET'])
 @login_required
+@menu_required('dashboard')
 def api_dashboard_master_options():
     """
     [역할] 카테고리와 제조사 목록을 제공하여 복합 조건 검색용 Select Box를 동적으로 채웁니다.
@@ -3907,13 +3990,20 @@ def api_change_my_password():
         return jsonify({"success": False, "message": "현재 비밀번호가 일치하지 않습니다."}), 400
 
     hashed_new = generate_password_hash(new_pw)
-    cursor.execute("UPDATE users SET Password = ? WHERE UserId = ?", (hashed_new, user['UserId']))
+    new_session_token = secrets.token_hex(32)
+    cursor.execute("UPDATE users SET Password=?, SessionToken=? WHERE UserId=? AND Password=? AND SessionToken=?",
+                   (hashed_new, new_session_token, user['UserId'], db_user['Password'], session['session_token']))
+    if cursor.rowcount != 1:
+        conn.close()
+        return jsonify(success=False, message='계정 상태가 변경되었습니다. 다시 로그인해 주세요.'), 409
+    cursor.execute("DELETE FROM password_resets WHERE UserId=?", (user['UserId'],))
 
     # 비밀번호 변경 로그 남기기
     audit_lineup_change(conn, 'CHANGE_PASSWORD', user['UserId'], None, {'changed': True}, table='users')  # 비밀번호를 기록하지 않고 같은 writer transaction에서 감사합니다.
 
     conn.commit()
     conn.close()
+    session['session_token'] = new_session_token
     return jsonify({"success": True, "message": "비밀번호가 성공적으로 변경되었습니다."})
 
 @app.route('/api/users/withdraw', methods=['POST'])
@@ -3975,13 +4065,18 @@ def api_user_withdraw_cancel():
     cursor = conn.cursor()
     cursor.execute('''
         UPDATE users
-        SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
-        WHERE UserId = ?
-    ''', (user['UserId'],))
+        SET IsDeactivated = 'N', DeactivatedAt = NULL
+        WHERE UserId=? AND SessionToken=? AND IsDeactivated='Y' AND IsDeleted='N'
+          AND DeactivatedAt IS NOT NULL AND DeactivatedAt>?
+    ''', (user['UserId'], session['session_token'], (datetime.now()-timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')))
+    if cursor.rowcount != 1:
+        conn.close()
+        return jsonify(success=False, message='철회할 수 있는 탈퇴 신청이 없습니다.'), 409
 
     conn.commit()
     conn.close()
 
+    session.modified = True
     session['user']['IsDeactivated'] = False
     session['user'].pop('DeactivationDaysLeft', None)
 
@@ -4007,28 +4102,33 @@ def api_update_email():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 1. 인증 완료 여부 확인
-    cursor.execute("SELECT IsVerified FROM email_verifications WHERE Email = ?", (new_email,))
-    verif = cursor.fetchone()
-    if not verif or verif['IsVerified'] != 1:
-        conn.close()
-        return jsonify({"success": False, "message": "이메일 인증이 완료되지 않았습니다."}), 400
-
-    # 2. 이메일 중복 확인 (IntegrityError 처리)
     try:
-        cursor.execute("UPDATE users SET Email = ?, notification_verified_email = ?, UpdatedAt = ? WHERE UserId = ?",
-                       (new_email, new_email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user['UserId']))  # 인증 완료 주소를 같은 transaction에 보존합니다.
+        conn.execute('BEGIN IMMEDIATE')
+        account = cursor.execute("SELECT Password FROM users WHERE UserId=? AND SessionToken=?",
+                                 (user['UserId'], session['session_token'])).fetchone()
+        if not account or not check_password_hash(account['Password'], data.get('current_password', '')):
+            return jsonify(success=False, message='현재 비밀번호를 확인해 주세요.'), 403
+        record = cursor.execute("SELECT PinCodeHash FROM email_verifications WHERE Email=? AND IsVerified=1",
+                                (new_email,)).fetchone()
+        if not record or not matches_email_verification(session.get('registration_email_proof'),
+                                                        new_email, record['PinCodeHash'], app.secret_key):
+            return jsonify(success=False, message='현재 브라우저에서 이메일 인증을 완료해 주세요.'), 400
+        cursor.execute("DELETE FROM email_verifications WHERE Email=? AND PinCodeHash=? AND IsVerified=1",
+                       (new_email, record['PinCodeHash']))
+        if cursor.rowcount != 1:
+            return jsonify(success=False, message='이메일을 다시 인증해 주세요.'), 409
+        cursor.execute("UPDATE users SET Email=?, notification_verified_email=?, UpdatedAt=? WHERE UserId=? AND SessionToken=?",
+                       (new_email, new_email, datetime.now().strftime('%Y-%m-%d %H:%M:%S'), user['UserId'], session['session_token']))
+        if cursor.rowcount != 1:
+            return jsonify(success=False, message='다시 로그인해 주세요.'), 409
+        cursor.execute("DELETE FROM password_resets WHERE UserId=?", (user['UserId'],))
         conn.commit()
     except sqlite3.IntegrityError:
+        return jsonify(success=False, message='이미 다른 계정에서 사용 중인 이메일입니다.'), 400
+    finally:
         conn.close()
-        return jsonify({"success": False, "message": "이미 다른 계정에서 사용 중인 이메일입니다."}), 400
-
-    # 성공 시 인증 기록 삭제 및 세션 업데이트
-    cursor.execute("DELETE FROM email_verifications WHERE Email = ?", (new_email,))
-    conn.commit()
-    conn.close()
-
-    session['user']['Email'] = new_email
+    session.pop('registration_email_proof', None)
+    session['user'] = dict(user, Email=new_email)
     log_audit(user['UserId'], user['LoginId'], 'UPDATE_EMAIL', 'users', user['UserId'], None, {"NewEmail": new_email})
 
     return jsonify({"success": True, "message": "이메일 주소가 성공적으로 변경되었습니다."})
@@ -4165,7 +4265,7 @@ def api_toggle_user_deactivation(target_user_id):
             SET IsDeactivated = 'Y', DeactivatedAt = NULL, SessionToken = hex(randomblob(16))
             WHERE UserId = ?
         ''', (target_user_id,))
-        log_audit(user['UserId'], user['LoginId'], 'ADMIN_SUSPEND_USER', 'users', target_user_id, None, None)
+        audit_lineup_change(conn, 'ADMIN_SUSPEND_USER', target_user_id, None, None, table='users')
         msg = "계정이 비활성화(정지) 처리되었습니다."
     else:
         cursor.execute('''
@@ -4173,7 +4273,7 @@ def api_toggle_user_deactivation(target_user_id):
             SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
             WHERE UserId = ?
         ''', (target_user_id,))
-        log_audit(user['UserId'], user['LoginId'], 'ADMIN_UNSUSPEND_USER', 'users', target_user_id, None, None)
+        audit_lineup_change(conn, 'ADMIN_UNSUSPEND_USER', target_user_id, None, None, table='users')
         msg = "계정이 정상 활성화되었습니다."
 
     conn.commit()
@@ -4209,7 +4309,7 @@ def api_deactivate_selected_users():
             SET IsDeactivated = 'Y', DeactivatedAt = NULL, SessionToken = hex(randomblob(16))
             WHERE UserId IN ({placeholders})
         ''', tuple(target_ids))
-        log_audit(user['UserId'], user['LoginId'], 'ADMIN_BULK_SUSPEND', 'users', None, None, {"TargetIds": target_ids})
+        audit_lineup_change(conn, 'ADMIN_BULK_SUSPEND', None, None, {"TargetIds": target_ids}, table='users')
         msg = f"{len(target_ids)}명의 계정이 비활성화 처리되었습니다."
     else:
         cursor.execute(f'''
@@ -4217,7 +4317,7 @@ def api_deactivate_selected_users():
             SET IsDeactivated = 'N', DeactivatedAt = NULL, IsDeleted = 'N', DeletedAt = NULL
             WHERE UserId IN ({placeholders})
         ''', tuple(target_ids))
-        log_audit(user['UserId'], user['LoginId'], 'ADMIN_BULK_UNSUSPEND', 'users', None, None, {"TargetIds": target_ids})
+        audit_lineup_change(conn, 'ADMIN_BULK_UNSUSPEND', None, None, {"TargetIds": target_ids}, table='users')
         msg = f"{len(target_ids)}명의 계정이 활성화 처리되었습니다."
 
     conn.commit()
@@ -4252,7 +4352,7 @@ def api_update_user_role(target_user_id):
 
     old_role = target['Role']
     cursor.execute("UPDATE users SET Role = ? WHERE UserId = ?", (new_role, target_user_id))
-    log_audit(user['UserId'], user['LoginId'], 'UPDATE_ROLE', 'users', target_user_id, {"Role": old_role}, {"Role": new_role})
+    audit_lineup_change(conn, 'UPDATE_ROLE', target_user_id, {"Role": old_role}, {"Role": new_role}, table='users')
 
     conn.commit()
     conn.close()
@@ -4278,6 +4378,7 @@ def api_reset_user_password(target_user_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("UPDATE users SET Password = ?, SessionToken = ? WHERE UserId = ?", (hashed_pw, secrets.token_hex(32), target_user_id))  # 초기화 시 기존 세션도 만료합니다.
+    cursor.execute("DELETE FROM password_resets WHERE UserId=?", (target_user_id,))
     audit_lineup_change(conn, 'RESET_PASSWORD', target_user_id, None, {'changed': True}, table='users')  # 별도 writer로 인한 감사 교착을 피합니다.
 
     conn.commit()
@@ -4308,11 +4409,11 @@ def api_force_logout_all():
     if include_me:
         # 모든 유저의 세션 갱신 (본인 포함)
         cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16))")
-        log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_ALL', 'users', None, None, {"IncludeMe": True})
+        audit_lineup_change(conn, 'FORCE_LOGOUT_ALL', None, None, {"IncludeMe": True}, table='users')
     else:
         # 본인 제외 모든 유저 세션 갱신
         cursor.execute("UPDATE users SET SessionToken = hex(randomblob(16)) WHERE UserId != ?", (user['UserId'],))
-        log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_ALL', 'users', None, None, {"IncludeMe": False})
+        audit_lineup_change(conn, 'FORCE_LOGOUT_ALL', None, None, {"IncludeMe": False}, table='users')
 
     conn.commit()
     conn.close()
@@ -4346,7 +4447,7 @@ def api_force_logout_selected():
     placeholders = ','.join(['?'] * len(target_ids))
     cursor.execute(f"UPDATE users SET SessionToken = hex(randomblob(16)) WHERE UserId IN ({placeholders})", tuple(target_ids))
 
-    log_audit(user['UserId'], user['LoginId'], 'FORCE_LOGOUT_SELECTED', 'users', None, None, {"TargetIds": target_ids})
+    audit_lineup_change(conn, 'FORCE_LOGOUT_SELECTED', None, None, {"TargetIds": target_ids}, table='users')
 
     conn.commit()
     conn.close()
@@ -4521,6 +4622,7 @@ def search_users():
 # ------------------------------------------
 @app.route('/api/master_data', methods=['GET'])
 @login_required
+@menu_required('my_equipment', 'public_equipment', 'my_approvals', 'dashboard')
 def get_master_data():
     """
     [역할] 장비 등록 시 드롭다운에 표시될 승인된 카테고리 및 제조사 목록 조회 (ID 및 다국어 포함)
@@ -4614,145 +4716,46 @@ def get_approvals():
 @login_required
 @csrf_required
 def process_approval(req_id):
-    """
-    [역할] 관리자가 전자결재(마스터 데이터 추가) 건을 승인하거나 반려(대체 처리) 수행
-    [의존성 관계] approval_requests, categories, manufacturers, equipment 테이블
-    [변경 시 영향도] 마스터 데이터 승인/반려 로직 변경 시, 기존 장비들의 분류 정보 및 드롭다운 노출에 영향을 미칩니다.
-    """
+    from utils.approval_decision import decide
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict) or data.get('action') not in ('approve', 'reject'):
+        return jsonify(success=False, message='승인 또는 반려를 선택해 주세요.'), 400
     user = session['user']
     if user['Role'] != 'admin':
-        return jsonify({"success": False, "message": "관리자만 승인/반려할 수 있습니다."}), 403
-
-    data = request.json
-    action = data.get('action')  # 'approve' or 'reject'
-    reject_reason = data.get('reject_reason', '')
-    replacement_name = data.get('replacement_name', '').strip() if data.get('replacement_name') else ''
+        return jsonify(success=False, message='관리자만 승인·반려할 수 있습니다.'), 403
+    approve = data['action'] == 'approve'
+    status = 'APPROVED' if approve else 'REJECTED'
+    reason, replacement = data.get('reject_reason') or '', data.get('replacement_name') or ''
+    if not isinstance(reason, str) or not isinstance(replacement, str):
+        return jsonify(success=False, message='올바른 결재 내용을 입력해 주세요.'), 400
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
     conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM approval_requests WHERE RequestId = ?", (req_id,))
-    req = cursor.fetchone()
-    if not req:
-        conn.close()
-        return jsonify({"success": False, "message": "해당 결재 건을 찾을 수 없습니다."}), 404
-
-    req_dict = dict(req)
-    req_data = json.loads(req_dict['RequestDataJSON'])
-    target_name = req_data.get('name')
-    req_type = req_dict['RequestType']
-
-    try:  # 반려로 참조 무결성이 깨지는 경우 전체 변경을 취소합니다.
-        conn.execute('BEGIN IMMEDIATE')  # 승인 상태 변경과 관련 카탈로그 변경을 직렬화합니다.
-        if action == 'approve':
-            cursor.execute("UPDATE approval_requests SET Status = 'APPROVED', ApproverId = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], now, req_id))
-            if req_type == 'ADD_CATEGORY':
-                cursor.execute("UPDATE categories SET IsApproved = 1 WHERE Name = ?", (target_name,))
-                cursor.execute("""
-                    UPDATE lineup_nodes SET status = 'APPROVED'
-                    WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'
-                """, (target_name,))
-                cursor.execute("""
-                    UPDATE equipment_options SET status = 'APPROVED'
-                    WHERE lineup_node_id IN (
-                        SELECT id FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
-                    ) AND status = 'PENDING'
-                """, (target_name,))
-                cursor.execute("""
-                    UPDATE equipments SET is_draft = 0
-                    WHERE option_id IN (
-                        SELECT opt.id FROM equipment_options opt
-                        JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                        JOIN categories cat ON node.category_id = cat.CategoryId
-                        WHERE cat.Name = ?
-                    ) AND is_draft = 1
-                """, (target_name,))
-            elif req_type == 'ADD_MANUFACTURER':
-                cursor.execute("UPDATE manufacturers SET IsApproved = 1 WHERE Name = ?", (target_name,))
-                cursor.execute("""
-                    UPDATE lineup_nodes SET status = 'APPROVED'
-                    WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'
-                """, (target_name,))
-                cursor.execute("""
-                    UPDATE equipment_options SET status = 'APPROVED'
-                    WHERE lineup_node_id IN (
-                        SELECT id FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
-                    ) AND status = 'PENDING'
-                """, (target_name,))
-                cursor.execute("""
-                    UPDATE equipments SET is_draft = 0
-                    WHERE option_id IN (
-                        SELECT opt.id FROM equipment_options opt
-                        JOIN lineup_nodes node ON opt.lineup_node_id = node.id
-                        JOIN manufacturers mfg ON node.manufacturer_id = mfg.ManufacturerId
-                        WHERE mfg.Name = ?
-                    ) AND is_draft = 1
-                """, (target_name,))
-            elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
-                node_id = req_data.get('node_id')
-                if node_id:
-                    cursor.execute("UPDATE lineup_nodes SET status = 'APPROVED' WHERE id = ?", (node_id,))
-                else:
-                    cursor.execute("UPDATE lineup_nodes SET status = 'APPROVED' WHERE name = ? AND status = 'PENDING'", (target_name,))
-            elif req_type in ('Equipment_Option', 'ADD_EQUIPMENT_OPTION'):
-                opt_id = req_data.get('option_id')
-                if opt_id:
-                    cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE id = ?", (opt_id,))
-                else:
-                    cursor.execute("UPDATE equipment_options SET status = 'APPROVED' WHERE option_name = ? AND status = 'PENDING'", (target_name,))
-            audit_lineup_change(conn, 'APPROVE_REQUEST', req_id, req_dict, {"Status": "APPROVED"}, table='approval_requests')  # 승인 쓰기와 감사의 writer를 통일합니다.
-    
-        elif action == 'reject':
-            cursor.execute("UPDATE approval_requests SET Status = 'REJECTED', ApproverId = ?, RejectReason = ?, UpdatedAt = ? WHERE RequestId = ?", (user['UserId'], reject_reason, now, req_id))
-    
-            # 대체 이름이 지정된 경우 장비 및 노드 분류 일괄 업데이트 및 미승인 항목 삭제
-            if req_type == 'ADD_CATEGORY':
-                if replacement_name:
-                    cursor.execute("SELECT CategoryId FROM categories WHERE Name = ?", (replacement_name,))
-                    rep_row = cursor.fetchone()
-                    if rep_row:
-                        cursor.execute("""
-                            UPDATE lineup_nodes SET category_id = ?
-                            WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?)
-                        """, (rep_row['CategoryId'], target_name))
-                    cursor.execute("UPDATE equipment SET Category = ? WHERE Category = ?", (replacement_name, target_name))
-                cursor.execute("DELETE FROM lineup_nodes WHERE category_id IN (SELECT CategoryId FROM categories WHERE Name = ?) AND status = 'PENDING'", (target_name,))
-                cursor.execute("DELETE FROM categories WHERE Name = ? AND IsApproved = 0", (target_name,))
-            elif req_type == 'ADD_MANUFACTURER':
-                if replacement_name:
-                    cursor.execute("SELECT ManufacturerId FROM manufacturers WHERE Name = ?", (replacement_name,))
-                    rep_row = cursor.fetchone()
-                    if rep_row:
-                        cursor.execute("""
-                            UPDATE lineup_nodes SET manufacturer_id = ?
-                            WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?)
-                        """, (rep_row['ManufacturerId'], target_name))
-                    cursor.execute("UPDATE equipment SET Manufacturer = ? WHERE Manufacturer = ?", (replacement_name, target_name))
-                cursor.execute("DELETE FROM lineup_nodes WHERE manufacturer_id IN (SELECT ManufacturerId FROM manufacturers WHERE Name = ?) AND status = 'PENDING'", (target_name,))
-                cursor.execute("DELETE FROM manufacturers WHERE Name = ? AND IsApproved = 0", (target_name,))
-            elif req_type in ('Lineup_Node', 'ADD_LINEUP_NODE'):
-                node_id = req_data.get('node_id')
-                if node_id:
-                    cursor.execute("DELETE FROM lineup_nodes WHERE id = ? AND status = 'PENDING'", (node_id,))
-                else:
-                    cursor.execute("DELETE FROM lineup_nodes WHERE name = ? AND status = 'PENDING'", (target_name,))
-            elif req_type in ('Equipment_Option', 'ADD_EQUIPMENT_OPTION'):
-                opt_id = req_data.get('option_id')
-                if opt_id:
-                    cursor.execute("DELETE FROM equipment_options WHERE id = ? AND status = 'PENDING'", (opt_id,))
-                else:
-                    cursor.execute("DELETE FROM equipment_options WHERE option_name = ? AND status = 'PENDING'", (target_name,))
-    
-            audit_lineup_change(conn, 'REJECT_REQUEST', req_id, req_dict, {"Status": "REJECTED", "Reason": reject_reason, "Replacement": replacement_name}, table='approval_requests')  # 반려 실패 시 감사도 rollback합니다.
-    
+    try:
+        conn.execute('BEGIN IMMEDIATE')
+        row = conn.execute('SELECT * FROM approval_requests WHERE RequestId=?', (req_id,)).fetchone()
+        if not row:
+            raise InputError('해당 결재 건을 찾을 수 없습니다.', 404)
+        changed = conn.execute("""UPDATE approval_requests SET Status=?, ApproverId=?, RejectReason=?, UpdatedAt=?
+                                  WHERE RequestId=? AND Status='PENDING'""",
+                               (status, user['UserId'], None if approve else reason, now, req_id)).rowcount
+        if changed != 1:
+            raise InputError('이미 처리된 결재입니다.', 409)
+        try:
+            info = json.loads(row['RequestDataJSON'])
+            decide(conn, row, info, approve, replacement.strip())
+        except (KeyError, TypeError, AttributeError, json.JSONDecodeError):
+            raise InputError('저장된 신청 대상 정보를 확인해 주세요.', 409)
+        audit_lineup_change(conn, 'APPROVE_REQUEST' if approve else 'REJECT_REQUEST', req_id, dict(row),
+                            {'Status': status, 'Reason': reason, 'Replacement': replacement}, table='approval_requests')
         conn.commit()
-        conn.close()
-        return jsonify({"success": True, "message": "결재 처리가 완료되었습니다."})
-    except sqlite3.IntegrityError:  # 사용 중인 옵션·노드 삭제는 정상적인 충돌입니다.
-        conn.rollback()  # 이미 쓴 승인 상태도 대기로 되돌립니다.
-        return jsonify({"success": False, "message": "연결된 장비·옵션·하위 노드가 있어 반려 삭제할 수 없습니다. 참조를 정리하거나 유효한 대체 항목을 지정한 후 다시 시도해 주세요."}), 409
-    finally:  # 실패 응답에도 잠금과 연결을 반환합니다.
+        return jsonify(success=True, message='결재 처리가 완료되었습니다.')
+    except InputError as error:
+        conn.rollback()
+        return jsonify(success=False, message=str(error)), error.status
+    except sqlite3.IntegrityError:
+        conn.rollback()
+        return jsonify(success=False, message='연결된 장비나 다른 분류가 있어 변경할 수 없습니다.'), 409
+    finally:
         conn.close()
 
 
@@ -4852,6 +4855,7 @@ def get_equipment():
 # 장비 등록
 @app.route('/api/equipment', methods=['POST'])
 @login_required
+@menu_required('my_equipment')
 @csrf_required
 def add_equipment():
     """
@@ -4910,6 +4914,7 @@ def add_equipment():
         if has_custom_root:
             final_cat_id = None
             final_mfg_id = None
+            pending_request_ids = []
 
             # 1. 카테고리 처리
             if has_custom_cat:
@@ -4922,13 +4927,20 @@ def add_equipment():
                     final_cat_id = cursor.lastrowid
 
                 # 결재 상신 (중복 PENDING 방어)
-                cursor.execute("SELECT RequestId FROM approval_requests WHERE RequestType = 'ADD_CATEGORY' AND Status = 'PENDING' AND json_extract(RequestDataJSON, '$.name') = ?", (cat_custom_val,))
-                if not cursor.fetchone():
-                    req_payload = json.dumps({"type": "Category", "name": cat_custom_val, "category_id": final_cat_id}, ensure_ascii=False)
-                    cursor.execute("""
-                        INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
-                        VALUES (?, 'ADD_CATEGORY', ?, 'PENDING', ?, ?)
-                    """, (user['UserId'], req_payload, now, now))
+                if not (cat_row and cat_row['IsApproved']):
+                    pending = cursor.execute("""SELECT RequestId, RequesterId FROM approval_requests WHERE RequestType='ADD_CATEGORY'
+                        AND Status='PENDING' AND json_extract(RequestDataJSON,'$.name')=?""", (cat_custom_val,)).fetchone()
+                    if pending and pending['RequesterId'] != user['UserId']:
+                        raise InputError('다른 사용자가 이미 같은 이름을 신청했습니다.', 409)
+                    if pending:
+                        pending_request_ids.append(pending['RequestId'])
+                    else:
+                        req_payload = json.dumps({"type": "Category", "name": cat_custom_val, "category_id": final_cat_id}, ensure_ascii=False)
+                        cursor.execute("""
+                            INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
+                            VALUES (?, 'ADD_CATEGORY', ?, 'PENDING', ?, ?)
+                        """, (user['UserId'], req_payload, now, now))
+                        pending_request_ids.append(cursor.lastrowid)
             else:
                 try:
                     final_cat_id = int(cat_select_val) if cat_select_val else None
@@ -4946,45 +4958,50 @@ def add_equipment():
                     final_mfg_id = cursor.lastrowid
 
                 # 결재 상신 (중복 PENDING 방어)
-                cursor.execute("SELECT RequestId FROM approval_requests WHERE RequestType = 'ADD_MANUFACTURER' AND Status = 'PENDING' AND json_extract(RequestDataJSON, '$.name') = ?", (mfg_custom_val,))
-                if not cursor.fetchone():
-                    req_payload = json.dumps({"type": "Manufacturer", "name": mfg_custom_val, "manufacturer_id": final_mfg_id}, ensure_ascii=False)
-                    cursor.execute("""
-                        INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
-                        VALUES (?, 'ADD_MANUFACTURER', ?, 'PENDING', ?, ?)
-                    """, (user['UserId'], req_payload, now, now))
+                if not (mfg_row and mfg_row['IsApproved']):
+                    pending = cursor.execute("""SELECT RequestId, RequesterId FROM approval_requests WHERE RequestType='ADD_MANUFACTURER'
+                        AND Status='PENDING' AND json_extract(RequestDataJSON,'$.name')=?""", (mfg_custom_val,)).fetchone()
+                    if pending and pending['RequesterId'] != user['UserId']:
+                        raise InputError('다른 사용자가 이미 같은 이름을 신청했습니다.', 409)
+                    if pending:
+                        pending_request_ids.append(pending['RequestId'])
+                    else:
+                        req_payload = json.dumps({"type": "Manufacturer", "name": mfg_custom_val, "manufacturer_id": final_mfg_id}, ensure_ascii=False)
+                        cursor.execute("""
+                            INSERT INTO approval_requests (RequesterId, RequestType, RequestDataJSON, Status, CreatedAt, UpdatedAt)
+                            VALUES (?, 'ADD_MANUFACTURER', ?, 'PENDING', ?, ?)
+                        """, (user['UserId'], req_payload, now, now))
+                        pending_request_ids.append(cursor.lastrowid)
             else:
                 try:
                     final_mfg_id = int(mfg_select_val) if mfg_select_val else None
                 except ValueError:
                     final_mfg_id = None
 
-            # 3. 임시 라인업 노드 및 옵션 연계
-            if final_cat_id and final_mfg_id:
-                cursor.execute("""
-                    SELECT id FROM lineup_nodes
-                    WHERE parent_id IS NULL AND category_id = ? AND manufacturer_id = ?
-                """, (final_cat_id, final_mfg_id))
-                node_row = cursor.fetchone()
-                if node_row:
-                    temp_node_id = node_row['id']
-                else:
-                    cursor.execute("""
-                        INSERT INTO lineup_nodes (parent_id, category_id, manufacturer_id, name, depth, status, requested_by, created_at)
-                        VALUES (NULL, ?, ?, '기본 모델', 1, 'PENDING', ?, ?)
-                    """, (final_cat_id, final_mfg_id, user['UserId'], now))
-                    temp_node_id = cursor.lastrowid
-
-                cursor.execute("SELECT id FROM equipment_options WHERE lineup_node_id = ? LIMIT 1", (temp_node_id,))
-                opt_row = cursor.fetchone()
-                if opt_row:
-                    option_id = opt_row['id']
-                else:
-                    cursor.execute("""
-                        INSERT INTO equipment_options (lineup_node_id, option_name, specs_json, status, requested_by, created_at)
-                        VALUES (?, '기본 사양', '{}', 'PENDING', ?, ?)
-                    """, (temp_node_id, user['UserId'], now))
-                    option_id = cursor.lastrowid
+            if not pending_request_ids or not final_cat_id or not final_mfg_id:
+                raise InputError('카테고리와 제조사를 확인하고, 이미 승인된 조합은 카탈로그에서 선택해 주세요.', 409)
+            if not has_custom_cat and not cursor.execute('SELECT 1 FROM categories WHERE CategoryId=? AND IsApproved=1', (final_cat_id,)).fetchone():
+                raise InputError('승인된 카테고리를 선택해 주세요.', 409)
+            if not has_custom_mfg and not cursor.execute('SELECT 1 FROM manufacturers WHERE ManufacturerId=? AND IsApproved=1', (final_mfg_id,)).fetchone():
+                raise InputError('승인된 제조사를 선택해 주세요.', 409)
+            placeholders = ','.join('?' for _ in pending_request_ids)
+            pair = cursor.execute(f"""
+                SELECT n.id,o.id FROM approval_requests r, json_each(r.RequestDataJSON,'$.linked_equipment') link
+                JOIN lineup_nodes n ON n.id=json_extract(link.value,'$.node_id')
+                JOIN equipment_options o ON o.id=json_extract(link.value,'$.option_id') AND o.lineup_node_id=n.id
+                WHERE r.RequestId IN ({placeholders}) AND r.RequesterId=? AND r.Status='PENDING'
+                  AND n.category_id=? AND n.manufacturer_id=? AND n.requested_by=? AND o.requested_by=?
+                  AND n.status='PENDING' AND o.status='PENDING' LIMIT 1
+            """, (*pending_request_ids, user['UserId'], final_cat_id, final_mfg_id, user['UserId'], user['UserId'])).fetchone()
+            if pair:
+                temp_node_id, option_id = pair
+            else:
+                cursor.execute("""INSERT INTO lineup_nodes(parent_id,category_id,manufacturer_id,name,depth,status,requested_by,created_at)
+                                  VALUES(NULL,?,?,'기본 모델',1,'PENDING',?,?)""", (final_cat_id, final_mfg_id, user['UserId'], now))
+                temp_node_id = cursor.lastrowid
+                cursor.execute("""INSERT INTO equipment_options(lineup_node_id,option_name,specs_json,status,requested_by,created_at)
+                                  VALUES(?,'기본 사양','{}','PENDING',?,?)""", (temp_node_id, user['UserId'], now))
+                option_id = cursor.lastrowid
 
         # OptionData 해석 (정규 선택 모드)
         if not option_id:
@@ -5052,6 +5069,13 @@ def add_equipment():
         ))
 
         new_id = cursor.lastrowid
+        if has_custom_root and target_user_id == user['UserId']:
+            for request_id in pending_request_ids:
+                cursor.execute("""UPDATE approval_requests SET RequestDataJSON=json_insert(
+                    json_insert(RequestDataJSON,'$.linked_equipment',json_array()),'$.linked_equipment[#]',
+                    json_object('node_id',?,'option_id',?,'equipment_id',?))
+                    WHERE RequestId=? AND RequesterId=? AND Status='PENDING'""",
+                    (temp_node_id, option_id, new_id, request_id, user['UserId']))
 
         # 3-Tier 감사 로그 적재
         cursor.execute('''
@@ -5088,6 +5112,7 @@ def add_equipment():
 # 장비 수정
 @app.route('/api/equipment/<int:eq_id>', methods=['PUT'])
 @login_required
+@menu_required('my_equipment')
 @csrf_required
 def update_equipment(eq_id):
     """
@@ -5110,8 +5135,8 @@ def update_equipment(eq_id):
             return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
 
         old_dict = dict(old_row)
-        if user['Role'] != 'admin' and old_dict['user_id'] != user['UserId']:
-            return jsonify({"error": "수정 권한이 없습니다."}), 403
+        if old_dict['user_id'] != user['UserId'] and (old_dict['is_draft'] or user['Role'] != 'admin'):
+            return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
         if 'Revision' in data and integer(data['Revision'], 'revision', 0) != old_dict['revision']:
             raise InputError('장비가 이미 변경되었습니다. 새로고침 후 다시 시도해 주세요.', 409)
         warranty_end_date, replacement_due_date = deadline_values(data, old_dict)
@@ -5202,6 +5227,7 @@ def update_equipment(eq_id):
 # 장비 삭제
 @app.route('/api/equipment/<int:eq_id>', methods=['DELETE'])
 @login_required
+@menu_required('my_equipment')
 @csrf_required
 def delete_equipment(eq_id):
     """[역할] 장비만 실제 삭제하고 옵션·삭제 감사 이력은 보존합니다.
@@ -5216,8 +5242,8 @@ def delete_equipment(eq_id):
         if row is None:
             return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
         old_dict = dict(row)
-        if user['Role'] != 'admin' and old_dict['user_id'] != user['UserId']:
-            return jsonify({"error": "삭제 권한이 없습니다."}), 403
+        if old_dict['user_id'] != user['UserId'] and (old_dict['is_draft'] or user['Role'] != 'admin'):
+            return jsonify({"error": "해당 장비를 찾을 수 없습니다."}), 404
         conn.execute("""
             INSERT INTO equipments_audit_log (equipment_id, action_type, old_value, changed_by, changed_at)
             VALUES (?, 'DELETE', ?, ?, ?)
@@ -5324,10 +5350,9 @@ def update_permissions():
             ON CONFLICT(Role, MenuCode) DO UPDATE SET IsAllowed=excluded.IsAllowed, UpdatedAt=excluded.UpdatedAt
         ''', (item['Role'], item['MenuCode'], item['IsAllowed'], now))
 
+    audit_lineup_change(conn, 'UPDATE_PERMISSIONS', None, old_perms, data, table='role_menu_permissions')
     conn.commit()
     conn.close()
-
-    log_audit(user['UserId'], user['LoginId'], 'UPDATE_PERMISSIONS', 'role_menu_permissions', None, old_perms, data)
     return jsonify({"success": True, "message": "권한 설정이 업데이트되었습니다."})
 
 
@@ -5416,7 +5441,7 @@ def get_or_create_master_management_item(target_type):
         new_id = cursor.lastrowid
 
         user = session['user']
-        log_audit(user['UserId'], user['LoginId'], 'CREATE_MASTER', table_name, new_id, None, data)
+        audit_lineup_change(conn, 'CREATE_MASTER', new_id, None, data, table=table_name)
         conn.commit()
         conn.close()
         return jsonify({"success": True, "message": "성공적으로 추가되었습니다.", "id": new_id})
@@ -5511,7 +5536,7 @@ def update_or_delete_master_item(target_type, item_id):
         cursor.execute(f"UPDATE {table_name} SET Name = ?, NameKo = ?, NameEn = ? WHERE {id_col} = ?",
                        (name, name_ko, name_en, item_id))
 
-        log_audit(user['UserId'], user['LoginId'], 'UPDATE_MASTER', table_name, item_id, dict(old_item), data)
+        audit_lineup_change(conn, 'UPDATE_MASTER', item_id, dict(old_item), data, table=table_name)
         conn.commit()
         conn.close()
         return jsonify({"success": True, "message": "성공적으로 수정되었습니다."})
@@ -5570,7 +5595,7 @@ def api_send_pin_logic():
         conn.close()
         return jsonify({"success": False, "message": "이미 사용 중인 이메일 주소입니다."}), 400
 
-    pin_code = ''.join(random.choices(string.digits, k=6))
+    pin_code = f"{secrets.randbelow(1000000):06d}"
     session.pop('registration_email_proof', None)
     pin_hash = generate_password_hash(pin_code)
     expires_at = (datetime.now() + timedelta(minutes=3)).strftime('%Y-%m-%d %H:%M:%S')
@@ -5617,7 +5642,11 @@ def api_verify_pin_logic():
         conn.close()
         return jsonify({"success": False, "message": "PIN 코드가 잘못되었거나 만료되었습니다."}), 400
 
-    cursor.execute("UPDATE email_verifications SET IsVerified = 1 WHERE Email = ?", (email,))
+    cursor.execute("UPDATE email_verifications SET IsVerified=1 WHERE Email=? AND PinCodeHash=? AND ExpiresAt>=?",
+                   (email, record['PinCodeHash'], datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    if cursor.rowcount != 1:
+        conn.close()
+        return jsonify(success=False, message='새 PIN이 발급되었거나 만료되었습니다. 다시 인증해 주세요.'), 400
     if session.get('user'):
         cursor.execute('UPDATE users SET notification_verified_email=? WHERE UserId=? AND Email=?', (email, session['user']['UserId'], email))  # 기존 본인 이메일 재인증도 알림에 사용할 수 있습니다.
     conn.commit()
@@ -5659,12 +5688,16 @@ def api_request_password_reset_logic():
     token_hash = generate_password_hash(raw_token)
     expires_at = (datetime.now() + timedelta(hours=1)).strftime('%Y-%m-%d %H:%M:%S')
 
-    cursor.execute("INSERT INTO password_resets (TokenHash, UserId, ExpiresAt, IsUsed) VALUES (?, ?, ?, 0)",
-                   (token_hash, user['UserId'], expires_at))
+    cursor.execute("UPDATE password_resets SET IsUsed=1 WHERE UserId=? AND IsUsed=0", (user['UserId'],))
+    cursor.execute("INSERT INTO password_resets (TokenHash, UserId, ExpiresAt, IsUsed) SELECT ?, UserId, ?, 0 FROM users WHERE UserId=? AND Email=? AND IsDeleted='N'",
+                   (token_hash, expires_at, user['UserId'], email))
+    if cursor.rowcount != 1:
+        conn.close()
+        return jsonify(success=True, message='입력하신 이메일이 등록되어 있다면 재설정 링크가 메일로 발송되었습니다.')
     conn.commit()
     conn.close()
 
-    reset_url = request.host_url.rstrip('/') + '/reset_password?' + urlencode({'token': raw_token, 'email': email})
+    reset_url = app.config['PASSWORD_RESET_ORIGIN'] + '/reset_password#' + urlencode({'token': raw_token, 'email': email})
     success, msg = send_email(email, "[미니서버] 비밀번호 재설정", f"<a href='{reset_url}'>비밀번호 재설정하기</a>")
 
     return jsonify({"success": True, "message": "입력하신 이메일이 등록되어 있다면 재설정 링크가 메일로 발송되었습니다."})
@@ -5718,9 +5751,17 @@ def api_reset_password_logic():
 
     hashed_pw = generate_password_hash(new_password)
     new_session_token = secrets.token_hex(32)
-    cursor.execute("UPDATE users SET Password = ?, SessionToken = ?, UpdatedAt = ? WHERE UserId = ?",
-                   (hashed_pw, new_session_token, now_str, user['UserId']))
-    cursor.execute("UPDATE password_resets SET IsUsed = 1 WHERE TokenHash = ?", (valid_req['TokenHash'],))
+    cursor.execute("UPDATE password_resets SET IsUsed=1 WHERE TokenHash=? AND UserId=? AND IsUsed=0 AND ExpiresAt>?",
+                   (valid_req['TokenHash'], user['UserId'], datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    if cursor.rowcount != 1:
+        conn.close()
+        return jsonify(success=False, message='유효하지 않거나 만료된 토큰입니다.'), 400
+    cursor.execute("UPDATE users SET Password=?, SessionToken=?, UpdatedAt=? WHERE UserId=? AND Email=? AND IsDeleted='N'",
+                   (hashed_pw, new_session_token, now_str, user['UserId'], email))
+    if cursor.rowcount != 1:
+        conn.close()
+        return jsonify(success=False, message='계정 상태가 변경되었습니다. 다시 신청해 주세요.'), 400
+    cursor.execute("UPDATE password_resets SET IsUsed=1 WHERE UserId=? AND IsUsed=0", (user['UserId'],))
     conn.commit()
 
     log_audit(user['UserId'], 'System', 'RESET_PASSWORD', 'users', user['UserId'])
@@ -5747,6 +5788,8 @@ def api_get_access_logs():
 
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 50, type=int)
+    page = max(1, min(page, 2147483647))
+    per_page = max(1, min(per_page, 1000))
     quick_filter = request.args.get('quick_filter', 'all')
     filter_ip = request.args.get('ip', '').strip()
     filter_method = request.args.get('method', '').strip()
@@ -5810,7 +5853,7 @@ def api_get_access_logs():
     rows = cursor.fetchall()
     conn.close()
 
-    logs = [dict(row) for row in rows]
+    logs = [{**dict(row), 'Referer': referrer_path(row['Referer'])} for row in rows]
     return jsonify({
         "status": "success",
         "total": total_count,
@@ -5822,6 +5865,7 @@ def api_get_access_logs():
 
 @app.route('/api/access_logs/<int:log_id>/payload', methods=['GET'])
 @login_required
+@admin_required
 def api_get_access_log_payload(log_id):
     """
     [역할]: [제안-045] 특정 access_log 레코드의 RequestPayload 및 ResponsePayload 상세 데이터를 온디맨드로 단건 조회하여 반환합니다.
@@ -5835,7 +5879,7 @@ def api_get_access_log_payload(log_id):
     cursor = conn.cursor()
 
     cursor.execute("""
-        SELECT LogId, RequestPayload, ResponsePayload
+        SELECT LogId, RequestPath, RequestPayload, ResponsePayload
         FROM access_logs
         WHERE LogId = ?
     """, (log_id,))
@@ -5846,11 +5890,17 @@ def api_get_access_log_payload(log_id):
     if not row:
         return jsonify({"status": "error", "message": "로그 데이터를 찾을 수 없습니다."}), 404
 
+    # Old rows may contain complete credentials or rendered HTML with a CSRF token.
+    path = row['RequestPath'] or ''
+    is_ai = http_audit_queue.protected_path(path)
+    sensitive = not is_ai and (not path.startswith('/api/') or path.startswith(('/api/auth/', '/api/admin/maintenance/', '/api/maintenance/', '/api/admin/database/'))
+                 or path in ('/api/change_password', '/api/users/update_email', '/api/users/update_profile', '/api/users/withdraw')
+                 or path.endswith('/reset_password'))
     return jsonify({
         "status": "success",
         "log_id": row['LogId'],
-        "request_payload": row['RequestPayload'],
-        "response_payload": row['ResponsePayload']
+        "request_payload": None if sensitive else row['RequestPayload'],
+        "response_payload": None if sensitive else row['ResponsePayload']
     })
 
 
@@ -5935,104 +5985,34 @@ def api_cleanup_access_logs():
     if not action or action not in ['older_30d', 'static_only', 'all']:
         return jsonify({"success": False, "message": "올바른 정리 방식을 지정해 주세요."}), 400
 
+    if step == 'finish':
+        # Each successful delete is audited with its actual row count in its own transaction.
+        return jsonify(status='success', message='로그가 정리되었습니다.')
+    if step not in ('count', 'direct', 'delete_chunk'):
+        return jsonify(status='error', message='지원하지 않는 정리 단계입니다.'), 400
+    where, values = http_audit_queue.cleanup_filter()
+    if action == 'older_30d':
+        where += ' AND CreatedAt < ?'
+        values += ((datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),)
+    elif action == 'static_only':
+        where += ' AND IsStatic = 1'
+
     conn = get_db_connection()
-    cursor = conn.cursor()
-
     try:
-        deleted_count = 0
-        if step == 'direct':
-            if action == 'older_30d':
-                cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
-                cursor.execute("DELETE FROM access_logs WHERE CreatedAt < ?", (cutoff_date,))
-                deleted_count = cursor.rowcount
-            elif action == 'static_only':
-                cursor.execute("DELETE FROM access_logs WHERE IsStatic = 1")
-                deleted_count = cursor.rowcount
-            elif action == 'all':
-                cursor.execute("DELETE FROM access_logs")
-                deleted_count = cursor.rowcount
-
-            conn.commit()
-
-            log_audit(user['UserId'], user['LoginId'], 'CLEANUP_ACCESS_LOGS', 'access_logs', None, None, {
-                "action": action,
-                "deleted_count": deleted_count
-            })
-
-            return jsonify({
-                "status": "success",
-                "message": "로그가 성공적으로 정리되었습니다.",
-                "deleted_count": deleted_count
-            })
-        elif step == 'count':
-            if action == 'older_30d':
-                cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
-                cursor.execute("SELECT COUNT(*) FROM access_logs WHERE CreatedAt < ?", (cutoff_date,))
-            elif action == 'static_only':
-                cursor.execute("SELECT COUNT(*) FROM access_logs WHERE IsStatic = 1")
-            elif action == 'all':
-                cursor.execute("SELECT COUNT(*) FROM access_logs")
-            total_count = cursor.fetchone()[0]
-            return jsonify({
-                "status": "success",
-                "total_count": total_count
-            })
-        elif step == 'delete_chunk':
-            chunk_size = 250
-            if action == 'older_30d':
-                cutoff_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
-                cursor.execute("""
-                    DELETE FROM access_logs
-                    WHERE LogId IN (
-                        SELECT LogId FROM access_logs
-                        WHERE CreatedAt < ?
-                        ORDER BY CreatedAt ASC
-                        LIMIT ?
-                    )
-                """, (cutoff_date, chunk_size))
-            elif action == 'static_only':
-                cursor.execute("""
-                    DELETE FROM access_logs
-                    WHERE LogId IN (
-                        SELECT LogId FROM access_logs
-                        WHERE IsStatic = 1
-                        ORDER BY CreatedAt ASC
-                        LIMIT ?
-                    )
-                """, (chunk_size,))
-            elif action == 'all':
-                cursor.execute("""
-                    DELETE FROM access_logs
-                    WHERE LogId IN (
-                        SELECT LogId FROM access_logs
-                        ORDER BY CreatedAt ASC
-                        LIMIT ?
-                    )
-                """, (chunk_size,))
-
-            deleted_count = cursor.rowcount
-            conn.commit()
-            return jsonify({
-                "status": "success",
-                "deleted_count": deleted_count
-            })
-        elif step == 'finish':
-            total_deleted = data.get('total_deleted', 0)
-            log_audit(user['UserId'], user['LoginId'], 'CLEANUP_ACCESS_LOGS', 'access_logs', None, None, {
-                "action": action,
-                "deleted_count": total_deleted
-            })
-            return jsonify({
-                "status": "success",
-                "message": "로그가 성공적으로 정리되었습니다.",
-                "deleted_count": total_deleted
-            })
-        else:
-            return jsonify({"status": "error", "message": "유효하지 않은 step 파라미터입니다."}), 400
+        if step == 'count':
+            count = conn.execute('SELECT COUNT(*) FROM access_logs WHERE ' + where, values).fetchone()[0]
+            return jsonify(status='success', total_count=count)
+        with conn:
+            selection = 'SELECT LogId FROM access_logs WHERE ' + where
+            if step == 'delete_chunk':
+                selection += ' ORDER BY LogId LIMIT 250'
+            deleted = conn.execute('DELETE FROM access_logs WHERE LogId IN (' + selection + ')', values).rowcount
+            if deleted:
+                audit_lineup_change(conn, 'CLEANUP_ACCESS_LOGS', None, None,
+                                    {'action': action, 'deleted_count': deleted}, table='access_logs')
+        return jsonify(status='success', deleted_count=deleted, message='로그가 정리되었습니다.')
     finally:
         conn.close()
-
-    return jsonify({"status": "success"})
 
 
 @app.route('/api/access_logs/error_ips', methods=['GET'])
@@ -6093,7 +6073,7 @@ if __name__ == '__main__':
         is_debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
         print(f"[Server Startup] Starting Flask on http://0.0.0.0:5000 (debug={is_debug}, reloader=False)...")
         # [Python 3.14 호환성] use_reloader=False를 명시하여 서브프로세스 IPC 세마포어 누수 경고 및 크래시 방어
-        app.run(host='0.0.0.0', port=5000, debug=is_debug, use_reloader=False)
+        app.run(host=os.getenv('EQUIPMENT_BIND_HOST', '127.0.0.1'), port=5000, debug=is_debug, use_reloader=False)
     except Exception as e:
         import traceback
         print(f"[Server Fatal Error] Failed to start server: {e}")

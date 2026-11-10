@@ -17,7 +17,7 @@ class MenuWorkflowTests(unittest.TestCase):
         cls.root = Path(cls.temp.name)
         cls.environment = patch.dict(os.environ, DATABASE_PATH=str(cls.root / 'fixture.db'),
             DATABASE_OPERATION_ROOT=str(cls.root / 'operations'), MAINTENANCE_STATE_PATH=str(cls.root / 'maintenance.json'),
-            EQUIPMENT_ATTACHMENT_ROOT=str(cls.root / 'attachments'), SECRET_KEY='isolated-workflow-secret')
+            EQUIPMENT_ATTACHMENT_ROOT=str(cls.root / 'attachments'), SECRET_KEY='isolated-workflow-secret-synthetic-0123456789')
         cls.environment.start()
         spec = importlib.util.spec_from_file_location('menu_workflow_fixture_app', Path(__file__).resolve().parents[1] / 'app.py')
         cls.module = importlib.util.module_from_spec(spec)
@@ -83,6 +83,23 @@ class MenuWorkflowTests(unittest.TestCase):
         self.assertTrue(all(r['Status'] == 'REJECTED' and r['RejectReason'] for r in filtered['data']))
         last = self.client.get('/api/my_approvals?per_page=3&page=999999999999999999999').get_json()
         self.assertEqual(last['page'], last['pages'])
+
+    def test_historical_login_payload_is_hidden_from_admin_and_preserved_in_storage(self):
+        """Exercise role restrictions and an authorized historical login detail."""
+        sentinel = '{"Password":"synthetic-old-value"}'
+        with self.connection() as db:
+            log_id = db.execute("""INSERT INTO access_logs
+                (IpAddress,HttpMethod,RequestPath,StatusCode,RequestPayload,ResponsePayload,CreatedAt)
+                VALUES('127.0.0.1','POST','/login',200,?,?,'2026-01-01')""",(sentinel,sentinel)).lastrowid
+        path = f'/api/access_logs/{log_id}/payload'
+        self.assertEqual(self.client.get(path).status_code,403)
+        self.login(41001)
+        response = self.client.get(path)
+        self.assertEqual(response.status_code,200)
+        self.assertIsNone(response.json['request_payload'])
+        self.assertIsNone(response.json['response_payload'])
+        with self.connection() as db:
+            self.assertEqual(db.execute('SELECT RequestPayload FROM access_logs WHERE LogId=?',(log_id,)).fetchone()[0],sentinel)
 
     def test_invalid_filters_are_rejected(self):
         for query in ['status=ALL', 'status=PENDING%27%20OR%201=1', 'page=0', 'page=no', 'per_page=0', 'per_page=101']:

@@ -1,7 +1,7 @@
 """Linux-only, scoped release operations for the approved equipment assistant.
 
 [MINI-COMMENT: ASSISTANT.RELEASE]
-[EN rev.2]
+[EN rev.3]
 [Role] Prepares private settings, checks a production snapshot and activates a known release.
 [Dependencies] An exact Git commit, existing private USER_AI configuration or explicit protected key input, and user-owned Python app.
 [Impact] Preserves the Flask key/business rows and records backups; never controls shared model jobs.
@@ -26,6 +26,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+from urllib.parse import urlsplit
 
 ROOT = Path('/home/nekohost/services/Mini-Server-Web-EqMgmt')
 CONFIG = Path('/home/nekohost/.config/eqmgmt/assistant-worker.env')
@@ -122,11 +123,25 @@ def read_private_key(key_file, account_uid):
     return key
 
 
-def prepare(key_file=None):
+def provider_origin(value, *, existing=False):
+    """Check private bootstrap configuration without contacting a provider or reading an API key."""
+    parsed = urlsplit(value or '')
+    if (not parsed.hostname or parsed.username is not None or parsed.password is not None
+            or parsed.path not in ('', '/') or not value.isascii() or parsed.port == 0
+            or any(c in value for c in '@?#\\%*') or any(ord(c) <= 32 or ord(c) == 127 for c in value)
+            or parsed.netloc.endswith(':')):
+        raise ValueError('Invalid provider origin')
+    base = value.rstrip('/')
+    if parsed.scheme == 'https' or existing and base == 'http://192.168.0.14:8080':
+        return base
+    raise ValueError('New provider configurations require HTTPS')
+
+
+def prepare(key_file=None, provider_url=None):
     """[MINI-COMMENT: ASSISTANT.RELEASE.KEY.PREPARE]
-    [EN rev.1]
+    [EN rev.3]
     [Role] Preserves an existing private assistant configuration or creates it from explicit protected key input.
-    [Dependencies] Verified Linux sudo owner; independent USER_AI secrets and the fixed private configuration path.
+    [Dependencies] Verified Linux sudo owner, explicit HTTPS bootstrap origin and protected key input.
     [Impact] Never reads/deletes an old Nginx include, overwrites existing keys or rotates an API key.
     """
     assert os.geteuid() == 0 and os.environ.get('SUDO_USER') == 'nekohost'
@@ -141,6 +156,7 @@ def prepare(key_file=None):
                 'key_input_read': False, 'legacy_nginx_dependency': False, 'secrets_disclosed': False}
     if key_file is None:
         raise ValueError('A new configuration requires --key-file; existing USER_AI configuration is preserved without one')
+    upstream = provider_origin(provider_url)
     key = read_private_key(key_file, account.pw_uid)
     created_parent = not CONFIG.parent.exists()
     CONFIG.parent.mkdir(mode=0o700, parents=True, exist_ok=True)
@@ -156,9 +172,9 @@ def prepare(key_file=None):
         'USER_AI_WORKER_TOKEN': secrets.token_urlsafe(48),
         'USER_AI_PROVIDER_ENCRYPTION_KEY': base64.urlsafe_b64encode(secrets.token_bytes(32)).decode(),
         'USER_AI_DATABASE_EPOCH': secrets.token_hex(16),
-        'USER_AI_STRATA_URL': 'http://192.168.0.14:8080', 'USER_AI_STRATA_KEY': key,
+        'USER_AI_STRATA_URL': upstream, 'USER_AI_STRATA_KEY': key,
         'USER_AI_MODEL': 'qwen3.8-flash-next-iq3_xxs',
-        'USER_AI_ALLOWED_ENDPOINTS': '["http://192.168.0.14:8080"]',
+        'USER_AI_ALLOWED_ENDPOINTS': json.dumps([upstream]),
         'USER_AI_READ_TIMEOUT': '1800', 'USER_AI_COMPLETION_RESERVE_CHARS': '32000000',
         'USER_AI_DISPATCHERS': '8',
     }
@@ -238,6 +254,7 @@ def activate(release, pid):
     environment = dict(p.decode().split('=', 1) for p in proc.joinpath('environ').read_bytes().split(b'\0') if p)
     settings = {k: v for k, v in dotenv_values(CONFIG).items() if v is not None}
     assert all(k.startswith('USER_AI_') for k in settings)
+    provider_origin(settings.get('USER_AI_STRATA_URL'), existing=True)
     existing = (ROOT / '.env').read_bytes()
     assert not any(k.startswith('USER_AI_') for k in dotenv_values(ROOT / '.env')), 'Review existing AI settings instead of overwriting'
     before_secret = dotenv_values(ROOT / '.env').get('SECRET_KEY')
@@ -297,6 +314,7 @@ def main():
     parser.add_argument('--release', type=Path)
     parser.add_argument('--pid', type=int)
     parser.add_argument('--key-file', type=Path, help='New configuration only: protected owner-only plaintext key file; never a Nginx include')
+    parser.add_argument('--provider-url', help='Verified HTTPS origin for a new bootstrap configuration')
     args = parser.parse_args()
     assert os.name == 'posix' and socket.gethostname() == 'nkhst-pentium'
     assert re.fullmatch('[0-9a-f]{40}', args.commit) and git('rev-parse', 'HEAD') == args.commit
@@ -304,7 +322,7 @@ def main():
     os.chdir(ROOT)
     sys.dont_write_bytecode = True
     if args.action == 'prepare-key':
-        result = prepare(args.key_file)
+        result = prepare(args.key_file, args.provider_url)
     else:
         assert os.geteuid() == pwd.getpwnam('nekohost').pw_uid
         assert args.release and args.release.resolve() == args.release and args.release.parent == ROOT / 'instance/releases'

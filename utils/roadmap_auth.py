@@ -9,7 +9,7 @@ POLICIES = {  # (계정+IP 한도, IP 한도, 초); 모든 시도를 소비하�
     'login_page': (10, 60, 900), 'register_page': (5, 30, 900),
     'api_send_pin_logic': (3, 20, 900), 'api_verify_pin_logic': (5, 40, 900),
     'api_request_password_reset_logic': (3, 20, 900), 'api_reset_password_logic': (5, 30, 900),
-    'api_change_my_password': (5, 30, 900), 'api_update_profile': (10, 60, 900),
+    'api_change_my_password': (5, 30, 900), 'api_update_profile': (10, 60, 900), 'api_update_email': (5, 30, 900),
 }
 
 EMAIL_PROOF_TTL = 600

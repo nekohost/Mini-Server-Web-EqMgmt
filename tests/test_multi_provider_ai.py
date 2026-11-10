@@ -1,72 +1,123 @@
 """[MINI-COMMENT: ASSISTANT.PROVIDER.FIXTURES]
-[EN rev.2]
-[Role] Exercises registry/network/group/lifecycle/handoff boundaries on synthetic Linux fixtures.
+[EN rev.3]
+[Role] Exercises registry and queue boundaries through verified HTTPS candidates on synthetic Linux fixtures.
 [Dependencies] Existing source-derived Flask fixture, loopback fake model servers and temporary keys/DBs.
 [Impact] No real provider, equipment DB or production credential is used.
 """
 from contextlib import contextmanager
+from datetime import datetime, timedelta, timezone
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import ipaddress
 import io
 import json
 import os
 import re
+import socket
 import sqlite3
+import ssl
+from types import SimpleNamespace
 import threading
 import time
 import unittest
 import uuid
 from unittest.mock import patch
 
+from cryptography import x509
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.x509.oid import ExtendedKeyUsageOID, NameOID
 from assistant_fixture_tests import AssistantTests
 from utils.ai_assistant import install_assistant
 from utils.ai_assistant.audit import audit_body, preserve_export
 from utils.ai_assistant.context import build_context
 from utils.ai_assistant.policy import AssistantError, canonical
-from utils.ai_assistant.providers import LEGACY_MODEL, LEGACY_GROUP, Registry
-from utils.ai_assistant.reasoning import normalize_profile
+from utils.ai_assistant.providers import LEGACY_MODEL, LEGACY_GROUP, PROTOCOL, Registry
 from utils.ai_assistant.store import Store
 from utils.ai_assistant.transport import EndpointPolicy, model_request
 from utils.ai_assistant.worker import Worker
 
 
+def fixture_certificate(case, address):
+    """Make a new short-lived CA and an IP-SAN leaf in this case's disposable directory."""
+    now = datetime.now(timezone.utc)
+    ca_key = ec.generate_private_key(ec.SECP256R1())
+    leaf_key = ec.generate_private_key(ec.SECP256R1())
+    issuer = x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, 'fixture CA '+uuid.uuid4().hex)])
+    template = (x509.CertificateBuilder().issuer_name(issuer).not_valid_before(now-timedelta(days=1))
+                .not_valid_after(now+timedelta(days=2)))
+    ca = (template.subject_name(issuer).public_key(ca_key.public_key()).serial_number(x509.random_serial_number())
+          .add_extension(x509.BasicConstraints(ca=True,path_length=0),True)
+          .add_extension(x509.KeyUsage(False,False,False,False,False,True,True,False,False),True)
+          .add_extension(x509.SubjectKeyIdentifier.from_public_key(ca_key.public_key()),False)
+          .sign(ca_key,hashes.SHA256()))
+    leaf = (template.subject_name(x509.Name([x509.NameAttribute(NameOID.COMMON_NAME,'fixture GPU')]))
+            .public_key(leaf_key.public_key()).serial_number(x509.random_serial_number())
+            .add_extension(x509.BasicConstraints(ca=False,path_length=None),True)
+            .add_extension(x509.SubjectAlternativeName([x509.IPAddress(ipaddress.ip_address(address))]),False)
+            .add_extension(x509.ExtendedKeyUsage([ExtendedKeyUsageOID.SERVER_AUTH]),False)
+            .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()),False)
+            .sign(ca_key,hashes.SHA256()))
+    stem = uuid.uuid4().hex
+    cert_path, key_path = case.root/(stem+'.pem'), case.root/(stem+'.key')
+    cert_path.write_bytes(leaf.public_bytes(serialization.Encoding.PEM))
+    key_path.write_bytes(leaf_key.private_bytes(serialization.Encoding.PEM,serialization.PrivateFormat.PKCS8,
+                                              serialization.NoEncryption()))
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(cert_path,key_path)
+    return context,ca.public_bytes(serialization.Encoding.PEM).decode('ascii')
+
+
+def loopback_socket(case, address, port):
+    """Map only provisioned, already-validated IP/port pairs onto local listening sockets."""
+    if not hasattr(case,'fixture_sockets'):
+        case.fixture_sockets = {}
+        original = socket.create_connection
+        def connect(peer, *args, **kwargs):
+            if peer in case.fixture_sockets:
+                peer = case.fixture_sockets[peer]
+            elif not ipaddress.ip_address(peer[0]).is_loopback:
+                raise AssertionError('Unregistered fixture destination')
+            return original(peer,*args,**kwargs)
+        case.enterContext(patch('socket.create_connection',connect))
+    case.fixture_sockets[(address,port)] = ('127.0.0.1',port)
+
+
 @contextmanager
-def fake_provider(models=None, reject=False, delay=0, barrier=None):
-    """[Role] Serves inert nonce Chat Completions and model inventory on an ephemeral local socket.
-    [Dependencies] stdlib HTTP server; no outbound traffic or equipment tools.
-    [Impact] Tests actual pinned transport, adapter payloads and completion parser.
-    """
-    calls=[]
+def fake_provider(case=None, *, models=None, reject=False, address='192.168.0.51'):
+    """A loopback HTTP fixture for direct transport tests, or an enrolled HTTPS model PC."""
+    peer = SimpleNamespace(calls=[],models=models if models is not None else [
+        {'id':'fixture-chat'},{'id':'fixture-embedding','type':'embedding'}],
+        reject=reject,barrier=None,keys=set(),ca_pem=None)
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *_):
-            """[Role] Implements log message within this module's fixed boundary.
-            [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
-            [Impact] Detects regressions without production data changes or real model calls.
-            """
             pass
+
+        def authorized(self):
+            if peer.keys and self.headers.get('Authorization') not in {'Bearer '+key for key in peer.keys}:
+                self.send_response(401)
+                self.end_headers()
+                return False
+            return True
+
         def do_GET(self):
-            """[Role] Implements do GET within this module's fixed boundary.
-            [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
-            [Impact] Detects regressions without production data changes or real model calls.
-            """
-            calls.append({'method':'GET','path':self.path,'authorization':self.headers.get('Authorization')})
-            self.send_response(302 if reject else 200)
+            peer.calls.append({'method':'GET','path':self.path,'authorization':self.headers.get('Authorization')})
+            if not self.authorized():
+                return
+            self.send_response(302 if peer.reject else 200)
             self.send_header('Content-Type','application/json')
-            if reject:
+            if peer.reject:
                 self.send_header('Location','http://169.254.169.254/latest/meta-data/')
             self.end_headers()
-            self.wfile.write(canonical({'data':models if models is not None else [{'id':'fixture-chat'},{'id':'fixture-embedding','type':'embedding'}]}).encode())
+            self.wfile.write(canonical({'data':peer.models}).encode())
+
         def do_POST(self):
-            """[Role] Implements do POST within this module's fixed boundary.
-            [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
-            [Impact] Detects regressions without production data changes or real model calls.
-            """
             payload=json.loads(self.rfile.read(int(self.headers['Content-Length'])))
-            calls.append({'method':'POST','path':self.path,'payload':payload,'authorization':self.headers.get('Authorization')})
-            if barrier:
-                barrier.wait(timeout=5)
-            if delay:
-                time.sleep(delay)
+            peer.calls.append({'method':'POST','path':self.path,'payload':payload,'authorization':self.headers.get('Authorization')})
+            if not self.authorized():
+                return
+            if peer.barrier:
+                peer.barrier.wait(timeout=5)
             content=payload['messages'][-1]['content']
             nonce=(re.findall(r'[0-9a-f]{32}',content) or ['fake-answer'])[-1]
             delta={'content':nonce}
@@ -79,15 +130,40 @@ def fake_provider(models=None, reject=False, delay=0, barrier=None):
             self.end_headers()
             frame={'choices':[{'delta':delta,'finish_reason':'tool_calls' if delta.get('tool_calls') else 'stop'}]}
             self.wfile.write(('data: '+canonical(frame)+'\n\ndata: [DONE]\n\n').encode())
-    server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
-    thread=threading.Thread(target=server.serve_forever,daemon=True)
-    thread.start()
-    try:
-        yield 'http://127.0.0.1:'+str(server.server_port), calls
-    finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)
+
+    with ThreadingHTTPServer(('127.0.0.1',0),Handler) as server:
+        peer.base_url = 'http://127.0.0.1:'+str(server.server_port)
+        if case is not None:
+            context,peer.ca_pem = fixture_certificate(case,address)
+            server.socket = context.wrap_socket(server.socket,server_side=True)
+            loopback_socket(case,address,server.server_port)
+            peer.base_url = 'https://'+address+':'+str(server.server_port)
+        thread=threading.Thread(target=server.serve_forever,kwargs={'poll_interval':0.01},daemon=True)
+        thread.start()
+        try:
+            yield peer
+        finally:
+            server.shutdown()
+            thread.join(timeout=2)
+            if case is not None:
+                del case.fixture_sockets[(address,server.server_port)]
+
+
+def admin_post(case, path, data, status=200):
+    response = case.client.post(path,json=data,headers=case.headers)
+    case.assertEqual(response.status_code,status,response.get_json())
+    return response.get_json()
+
+
+def queue_candidate(case, pid, mid, revision, *, tools, reasoning=False):
+    return admin_post(case,'/api/admin/ai/models/'+mid+'/probe',dict(
+        provider_id=pid,candidate_revision=revision,context_tokens=65536,client_key=uuid.uuid4().hex,
+        tools=tools,reasoning=reasoning),202)['job_id']
+
+
+def publish_model(case, pid, mid, revision=1):
+    admin_post(case,'/api/admin/ai/providers/'+pid+'/models',dict(
+        id=mid,label='Fixture model',published=True,sort_order=0,context_tokens=65536,revision=revision))
 
 
 @unittest.skipUnless(os.name=='posix','Linux-only isolated behavior fixtures')
@@ -110,27 +186,40 @@ class ProviderTests(unittest.TestCase):
         """
         return self.app.extensions['equipment_assistant']['registry']
 
-    def add_model(self, base='http://127.0.0.1:18999', group=None, verified=True, tools=True, adapter='openai', upstream='fixture-chat', manual=True):
-        """[Role] Creates explicit synthetic registry fixtures; real verification has separate transport tests.
-        [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
-        [Impact] Detects regressions without production data changes or real model calls.
-        """
+    def add_model(self, peer=None, group=None, verified=True, tools=True, adapter='openai', upstream='fixture-chat', manual=True):
+        """Register/discover a real TLS candidate. Leave it private when the test owns the probe."""
+        if peer is None:
+            peer=self.enterContext(fake_provider(self,models=[{'id':upstream}]))
         if not self.app.config.get('USER_AI_PROVIDER_ENCRYPTION_KEY'):
             self.app.config['USER_AI_PROVIDER_ENCRYPTION_KEY']=Fernet.generate_key().decode()
-        self.registry.policy=EndpointPolicy([base,*[p['base_url'] for p in self.registry.admin_list()['providers']]])
-        data={'name':'Fixture '+uuid.uuid4().hex[:6],'base_url':base,'adapter':adapter,'enabled':True,'manual':manual,'revision':0,
-              'api_key':'synthetic-model-key-'+uuid.uuid4().hex,'resource_group':group or LEGACY_GROUP}
-        pid=self.registry.save(data)
-        if not manual:
-            self.registry.discover(pid,True)
-            with self.store.db() as db:
-                mid=db.execute('SELECT id FROM ai_provider_models WHERE provider=?',(pid,)).fetchone()[0]
-        else:
-            mid=self.registry.update_model(pid,{'upstream':upstream,'label':'Fixture model','published':True,'sort_order':0,'context_tokens':65536,'revision':1})
-        if verified:
-            with self.store.db(True) as db:
-                db.execute('UPDATE ai_provider_models SET profile=?,verified_revision=1,context_tokens=65536 WHERE id=?', (canonical(normalize_profile(upstream,adapter,{'chat':True,'tools':tools,'levels':[]})),mid))
-        return pid,mid,data['api_key']
+        key='synthetic-model-key-'+uuid.uuid4().hex
+        peer.keys.add(key)
+        with self.client.session_transaction() as session:
+            previous_user=session['user']['UserId']
+        self.login(1)
+        try:
+            data=dict(name='Fixture '+uuid.uuid4().hex[:6],base_url=peer.base_url,adapter=adapter,enabled=True,
+                      manual=manual,revision=0,api_key=key,resource_group=group or LEGACY_GROUP,
+                      trust_mode='private',ca_pem=peer.ca_pem)
+            pid=admin_post(self,'/api/admin/ai/providers',data,201)['id']
+            registry=admin_post(self,'/api/admin/ai/providers/'+pid+'/discover',{'candidate_revision':1})
+            candidate=next(p for p in registry['providers'] if p['id']==pid)['candidate']
+            mid=next(m['id'] for m in candidate['models'] if m['upstream']==upstream)
+            self.assertNotIn(mid,[m['id'] for m in self.registry.choices()['models']])
+            if verified:
+                jid=queue_candidate(self,pid,mid,1,tools=tools)
+                for _ in range(2 if tools else 1):
+                    job=self.claim()
+                    self.assertIsNotNone(job)
+                    self.assertEqual(job['id'],jid)
+                    ProviderTests.run_one(self,job)
+                with self.store.db() as db:
+                    self.assertEqual(self.store.job(jid,db)['state'],'done')
+                publish_model(self,pid,mid)
+                self.assertEqual(self.registry.resolve(mid)['profile']['tools'],tools)
+            return pid,mid,key
+        finally:
+            self.login(previous_user)
 
     def choose(self, cid, mid, level='default', revision=None):
         """[Role] Implements choose within this module's fixed boundary.
@@ -146,8 +235,7 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        worker=Worker('http://127.0.0.1:5000','synthetic-worker-secret-0123456789abcdef','http://192.168.0.14:8080','legacy-key','unused-model')
-        worker.policy=self.registry.policy
+        worker=Worker('http://127.0.0.1:5000',self.app.config['USER_AI_WORKER_TOKEN'],self.app.config['USER_AI_STRATA_URL'],'legacy-key','unused-model')
         def post(path,data):
             """[Role] Implements post within this module's fixed boundary.
             [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
@@ -191,9 +279,9 @@ class ProviderTests(unittest.TestCase):
         """
         self.login(1)
         self.app.config['USER_AI_PROVIDER_ENCRYPTION_KEY']=Fernet.generate_key().decode()
-        self.registry.policy=EndpointPolicy(['http://127.0.0.1:18999'])
+        peer=self.enterContext(fake_provider(self))
         key='synthetic-audited-model-key-123456789'
-        response=self.client.post('/api/admin/ai/providers',json={'name':'Audited office AI','base_url':'http://127.0.0.1:18999','adapter':'openai','enabled':True,'manual':False,'revision':0,'resource_group':LEGACY_GROUP,'api_key':key},headers=self.headers)
+        response=self.client.post('/api/admin/ai/providers',json={'name':'Audited office AI','base_url':peer.base_url,'adapter':'openai','enabled':True,'manual':False,'revision':0,'resource_group':LEGACY_GROUP,'api_key':key,'trust_mode':'private','ca_pem':peer.ca_pem},headers=self.headers)
         self.assertEqual(response.status_code,201,response.get_json())
         record=self.audit_logs[-1]
         self.assertIn('Audited office AI',record['RequestPayload'])
@@ -204,46 +292,53 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        policy=EndpointPolicy(['http://127.0.0.1:18999',{'host':'192.168.0.0/24','port':8080,'scheme':'http'}])
-        self.assertEqual(policy.destination('http://192.168.0.7:8080/v1')[1],'192.168.0.7')
+        policy=EndpointPolicy(['http://127.0.0.1:18999',{'host':'192.168.0.0/24','port':8080,'scheme':'https'},{'host':'192.168.0.0/24','port':8080,'scheme':'http'}])
+        self.assertEqual(policy.destination('https://192.168.0.7:8080/v1')[1],'192.168.0.7')
+        with self.assertRaises(AssistantError):
+            policy.destination('http://192.168.0.7:8080/v1')
         for url in ('http://127.0.0.1:19000','http://169.254.169.254:8080','http://192.168.0.7:80','http://user:pass@192.168.0.7:8080','http://192.168.0.7:8080/load','http://192.168.0.7:8080/v1?x=1','http://192.168.0.7:8080/#x','http://192.168.0.7:8080/\n'):
             with self.subTest(url=url),self.assertRaises(AssistantError):
                 policy.destination(url)
+            secure_url=url.replace('http://','https://',1)
+            with self.subTest(url=secure_url),self.assertRaises(AssistantError):
+                policy.destination(secure_url)
         with patch('socket.getaddrinfo',return_value=[(2,1,6,'',('192.168.0.10',8080))]):
-            dns=EndpointPolicy(['http://approved.example:8080'])
+            dns=EndpointPolicy(['https://approved.example:8080'])
         with patch('socket.getaddrinfo',return_value=[(2,1,6,'',('8.8.8.8',8080))]),self.assertRaises(AssistantError):
-            dns.destination('http://approved.example:8080')
+            dns.destination('https://approved.example:8080')
 
     def test_real_pinned_models_transport_ignores_proxy_and_rejects_redirect(self):
         """[Role] Verifies real pinned models transport ignores proxy and rejects redirect on synthetic fixtures.
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        with fake_provider() as (base,calls),patch.dict(os.environ,{'HTTP_PROXY':'http://127.0.0.1:1','HTTPS_PROXY':'http://127.0.0.1:1'}):
-            policy=EndpointPolicy([base])
-            with model_request(policy,base+'/v1','/models','synthetic-key') as response:
+        with fake_provider() as peer,patch.dict(os.environ,{'HTTP_PROXY':'http://127.0.0.1:1','HTTPS_PROXY':'http://127.0.0.1:1'}):
+            policy=EndpointPolicy([peer.base_url])
+            with model_request(policy,peer.base_url+'/v1','/models','synthetic-key') as response:
                 self.assertEqual(response.status_code,200)
                 self.assertEqual(len(response.json()['data']),2)
-            self.assertEqual(calls[0]['path'],'/v1/models')
-        with fake_provider(reject=True) as (base,calls):
-            with model_request(EndpointPolicy([base]),base,'/models') as response:
+            self.assertEqual(peer.calls[0]['path'],'/v1/models')
+        with fake_provider(reject=True) as peer:
+            with model_request(EndpointPolicy([peer.base_url]),peer.base_url,'/models') as response:
                 with self.assertRaises(AssistantError):
                     response.raise_for_status()
-            self.assertEqual(len(calls),1)
+            self.assertEqual(len(peer.calls),1)
 
     def test_discovery_default_auto_manual_opt_in_and_embedding_exclusion(self):
         """[Role] Verifies discovery default auto manual opt in and embedding exclusion on synthetic fixtures.
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        with fake_provider() as (base,calls):
-            pid,mid,_=self.add_model(base,manual=False,verified=False)
+        with fake_provider(self) as peer:
+            pid,mid,_=self.add_model(peer,manual=False,tools=False)
             with self.store.db() as db:
                 self.assertEqual(db.execute('SELECT COUNT(*) FROM ai_provider_models WHERE provider=?',(pid,)).fetchone()[0],1)
             with self.assertRaises(AssistantError):
                 self.registry.update_model(pid,{'upstream':'manual-id','label':'Manual','published':True,'sort_order':0,'context_tokens':4096,'revision':1})
             self.registry.discover(pid)
-            self.assertEqual(len(calls),1)
+            self.assertEqual([call['method'] for call in peer.calls],['GET','POST'])
+            # Change a tested limit through the normal API so this published model really needs a new probe.
+            self.registry.update_model(pid,{'id':mid,'label':'Fixture model','published':True,'sort_order':0,'context_tokens':32768,'revision':1})
             self.assertEqual(self.registry.choices()['default_model'],LEGACY_MODEL)
             self.assertFalse(next(m for m in self.registry.choices()['models'] if m['id']==mid)['available'])
 
@@ -252,12 +347,11 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        with fake_provider(reject=True) as (base,_):
-            pid,mid,_=self.add_model(base)
-            with self.store.db(True) as db:
-                db.execute('UPDATE ai_provider_models SET manual=0 WHERE id=?',(mid,))
+        with fake_provider(self) as peer:
+            pid,mid,_=self.add_model(peer,manual=False)
             cid=self.conversation()
             self.assertEqual(self.choose(cid,mid).status_code,200)
+            peer.reject=True
             with self.assertRaises(AssistantError):
                 self.registry.discover(pid,True)
             value=self.client.post('/api/ai/conversations/'+cid+'/turns',json={'content':'Still here','reasoning_version':2,'level':'default','client_key':uuid.uuid4().hex},headers=self.headers)
@@ -310,19 +404,37 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        pid,mid,key=self.add_model()
+        peer=self.enterContext(fake_provider(self))
+        pid,mid,old_key=self.add_model(peer,tools=False)
+        self.login(1)
+        new_key='synthetic-new-key-123456789'
+        peer.keys.add(new_key)  # Both keys remain valid upstream during its rotation window.
+        admin_post(self,'/api/admin/ai/providers/'+pid,dict(name='Renamed provider',base_url=peer.base_url,
+                   adapter='openai',resource_group=LEGACY_GROUP,enabled=True,manual=True,revision=1,api_key=new_key))
+        self.assertEqual(self.registry.resolve(mid)['revision'],1)
+        admin_post(self,'/api/admin/ai/models/'+mid+'/probe',dict(provider_id=pid,candidate_revision=2,
+                   tools=False,reasoning=False,client_key=uuid.uuid4().hex),409)
+        admin_post(self,'/api/admin/ai/providers/'+pid+'/discover',{'candidate_revision':2})
+        probe_id=queue_candidate(self,pid,mid,2,tools=False)
+        probe=self.claim()
+        self.assertEqual(probe['id'],probe_id)
+        self.login(2)
         cid=self.conversation()
-        self.choose(cid,mid)
-        self.submit(cid,level='default')
-        provider=next(p for p in self.registry.admin_list()['providers'] if p['id']==pid)
-        self.registry.save({'name':'Renamed provider','base_url':provider['base_url'],'adapter':'openai','resource_group':provider['resource_group'],'enabled':True,'manual':True,'revision':1,'api_key':'synthetic-new-key-123456789'},pid)
+        self.assertEqual(self.choose(cid,mid).status_code,200)
+        jid=self.submit(cid,level='default')
+        with self.store.db() as db:
+            accepted=self.store.job(jid,db)['route_snapshot']
+        self.run_one(probe)
+        self.assertEqual(self.registry.resolve(mid)['revision'],2)
+        self.assertEqual(peer.calls[-1]['authorization'],'Bearer '+new_key)
         job=self.claim()
-        self.assertEqual(job['route']['revision'],1)
-        self.assertEqual(job['route']['api_key'],key)
+        self.assertEqual((job['id'],job['route']['revision'],job['route']['api_key']),(jid,1,old_key))
         self.assertNotEqual(job['route']['provider_name'],'Renamed provider')
-        self.finish(job)
-        with self.assertRaises(AssistantError):
-            self.registry.resolve(mid)
+        self.run_one(job)
+        self.assertEqual(peer.calls[-1]['authorization'],'Bearer '+old_key)
+        with self.store.db() as db:
+            row=self.store.job(jid,db)
+            self.assertEqual((row['state'],row['route_snapshot']),('done',accepted))
 
     def test_group_slots_allow_independent_pcs_and_hold_unknown_only_own_group(self):
         """[Role] Verifies group slots allow independent pcs and hold unknown only own group on synthetic fixtures.
@@ -370,8 +482,11 @@ class ProviderTests(unittest.TestCase):
         [Impact] Detects regressions without production data changes or real model calls.
         """
         jid=self.submit()
-        response=self.client.post('/internal/ai/claim',json={'worker':'old','protocol':2},headers=self.worker_headers)
-        self.assertEqual(response.status_code,409)
+        for obsolete in sorted({2,PROTOCOL-1}):
+            response=self.client.post('/internal/ai/claim',json={'worker':'old','protocol':obsolete},headers=self.worker_headers)
+            self.assertEqual(response.status_code,409)
+            with self.store.db() as db:
+                self.assertEqual(self.store.job(jid,db)['state'],'queued')
         with patch.object(self.domain,'tools',side_effect=sqlite3.OperationalError('synthetic fault')):
             self.assertIsNone(self.claim())
         with self.store.db() as db:
@@ -403,7 +518,7 @@ class ProviderTests(unittest.TestCase):
         job=self.claim()
         for state in ('DRAINING','RESTORING','RECOVERY'):
             self.maintenance={'state':state}
-            response=self.app.test_client().post('/internal/ai/claim',json={'worker':'fixture','protocol':3},headers=self.worker_headers)
+            response=self.app.test_client().post('/internal/ai/claim',json={'worker':'fixture','protocol':PROTOCOL},headers=self.worker_headers)
             self.assertEqual(response.status_code,503)
             with patch.object(self.domain,'connect',side_effect=AssertionError('equipment must not be opened')):
                 before=self.equipment_connections
@@ -499,39 +614,41 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        with fake_provider() as (base,calls):
-            pid,mid,_=self.add_model(base,verified=False)
+        with fake_provider(self) as peer:
+            pid,mid,_=self.add_model(peer,verified=False)
             self.login(1)
-            response=self.client.post('/api/admin/ai/models/'+mid+'/probe',json={'tools':True,'reasoning':False,'client_key':uuid.uuid4().hex},headers=self.headers)
-            self.assertEqual(response.status_code,202,response.get_json())
+            queue_candidate(self,pid,mid,1,tools=True)
             for _ in range(2):
                 job=self.claim()
                 self.run_one(job)
+            publish_model(self,pid,mid)
             self.assertTrue(self.registry.resolve(mid)['profile']['tools'])
             self.login(2)
             cid=self.conversation()
             self.choose(cid,mid)
             self.submit(cid,level='default')
             self.run_one(self.claim())
-            self.assertEqual(len([c for c in calls if c['method']=='POST']),3)
-            self.assertNotIn('strata_mcp',calls[-1]['payload'])
-            self.assertNotIn('reasoning_effort',calls[-1]['payload'])
+            self.assertEqual(len([c for c in peer.calls if c['method']=='POST']),3)
+            self.assertNotIn('strata_mcp',peer.calls[-1]['payload'])
+            self.assertNotIn('reasoning_effort',peer.calls[-1]['payload'])
 
     def test_real_strata_probe_verifies_four_preset_reasoning_outputs(self):
         """[Role] Verifies Strata preset efforts through the real worker/loopback transport on synthetic fixtures.
         [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
         [Impact] Detects regressions without production data changes or real model calls.
         """
-        with fake_provider() as (base,calls):
-            _,mid,_=self.add_model(base,verified=False,adapter='strata',upstream='qwen3.8-flash-next-iq3_xxs')
+        model='qwen3.8-flash-next-iq3_xxs'
+        with fake_provider(self,models=[{'id':model}]) as peer:
+            pid,mid,_=self.add_model(peer,verified=False,adapter='strata',upstream=model)
             self.login(1)
-            response=self.client.post('/api/admin/ai/models/'+mid+'/probe',json={'tools':True,'reasoning':True,'client_key':uuid.uuid4().hex},headers=self.headers)
-            self.assertEqual(response.status_code,202,response.get_json())
+            queue_candidate(self,pid,mid,1,tools=True,reasoning=True)
             for _ in range(6):
                 self.run_one(self.claim())
+            publish_model(self,pid,mid)
             route=self.registry.resolve(mid)
             self.assertEqual(route['profile']['levels'],['off','low','medium','xhigh'])
-            self.assertTrue(all(c['payload']['strata_mcp'] is False for c in calls))
+            self.assertEqual([c['method'] for c in peer.calls],['GET']+['POST']*6)
+            self.assertTrue(all(c['payload']['strata_mcp'] is False for c in peer.calls if c['method']=='POST'))
 
     def test_retire_keeps_history_and_rejects_stale_reactivation(self):
         """[Role] Verifies retire keeps history and rejects stale reactivation on synthetic fixtures.
@@ -563,9 +680,16 @@ class ProviderTests(unittest.TestCase):
         self.assertNotIn('SERIAL-2',self.audit_logs[-1]['ResponsePayload'])
         self.assertEqual(len(list((self.root/'audit').glob('*.csv'))),1)
         self.app.config['USER_AI_AUDIT_MAX_BYTES']=1048576
-        with self.store.db(True) as db:
-            db.execute('UPDATE ai_audit_artifacts SET bytes=1048576')
         response=self.client.get('/api/ai/csv/export?scope=my')
+        self.assertEqual(response.status_code,200)
+        with self.store.db(True) as db:
+            ids=db.execute('SELECT id,blob_id FROM ai_audit_artifacts').fetchall()
+            self.assertEqual(len(ids),2)
+            self.assertNotEqual(ids[0][0],ids[1][0])
+            self.assertEqual(ids[0][1],ids[1][1])
+            self.assertEqual(len(list((self.root/'audit').glob('*.csv'))),1)
+            db.execute("INSERT INTO ai_audit_artifacts(id,sha256,bytes,owner,scope,row_count,created) VALUES('reserved','other',1048576,1,'my',1,0)")
+        response=self.client.get('/api/ai/csv/export?scope=public')
         self.assertEqual(response.status_code,507)
         self.assertIn('감사',response.get_json()['message'])
 
@@ -656,7 +780,9 @@ class ProviderTests(unittest.TestCase):
         """
         worker=Worker('http://127.0.0.1:5000','synthetic-worker-secret-0123456789abcdef','http://192.168.0.14:8080','synthetic-key','model')
         events=[]
-        job={'id':'a'*32,'lease':'b'*64,'messages':[],'tools':[],'reasoning_effort':'medium','protocol':3}
+        jid=self.submit()
+        job=self.claim()
+        self.assertEqual((job['id'],job['protocol']),(jid,PROTOCOL))
         class Reply:
             status_code=200
             headers={'Content-Type':'text/event-stream'}
@@ -700,9 +826,10 @@ class ProviderTests(unittest.TestCase):
                 return {'success':True,'accepted':True,'reasoning_offset':0,'content_offset':0,'cancel':False}
             return {'success':True,'accepted':False,'reasoning_offset':0,'content_offset':0,'cancel':True}
         worker.post=post
-        with patch('requests.Session') as session:
-            session.return_value.__enter__.return_value.post.return_value=Reply()
+        with patch('utils.ai_assistant.worker.model_request',return_value=Reply()) as transport:
             worker.run_job(job)
+        transport.assert_called_once()
+        self.assertEqual(transport.call_args.args[1:4],(job['route']['trust']['origin'],'/chat/completions','synthetic-key'))
         chunks=[data for path,data in events if path.endswith('/event') and data.get('content')]
         self.assertEqual(len(chunks),1)
         self.assertEqual(events[-1][1]['outcome'],'cancelled')
@@ -713,18 +840,19 @@ class ProviderTests(unittest.TestCase):
         [Impact] Detects regressions without production data changes or real model calls.
         """
         barrier=threading.Barrier(2)
-        with fake_provider(barrier=barrier) as (base_a,calls_a),fake_provider(barrier=barrier) as (base_b,calls_b):
-            _,a,_=self.add_model(base_a)
+        with fake_provider(self) as peer_a,fake_provider(self,address='192.168.0.52') as peer_b:
+            _,a,_=self.add_model(peer_a)
             with self.store.db(True) as db:
                 group=uuid.uuid4().hex
                 db.execute('INSERT INTO ai_resource_groups(id,name) VALUES(?,?)',(group,'Second synthetic PC'))
-            _,b,_=self.add_model(base_b,group=group)
+            _,b,_=self.add_model(peer_b,group=group)
+            initial_a,initial_b=len(peer_a.calls),len(peer_b.calls)
+            peer_a.barrier=peer_b.barrier=barrier
             for mid in (a,b):
                 cid=self.conversation()
                 self.choose(cid,mid)
                 self.submit(cid,level='default')
             worker=Worker('http://127.0.0.1:5000','synthetic-worker-secret-0123456789abcdef','http://192.168.0.14:8080','unused-key','unused-model')
-            worker.policy=self.registry.policy
             completed=[]
             def post(path,data):
                 """[Role] Implements post within this module's fixed boundary.
@@ -747,7 +875,7 @@ class ProviderTests(unittest.TestCase):
             worker.stop.set()
             self.assertFalse(thread.is_alive(),'dispatcher must let both independent model calls reach the barrier')
             self.assertEqual([r['state'] for r in completed],['done','done'])
-            self.assertEqual((len(calls_a),len(calls_b)),(1,1))
+            self.assertEqual(([c['method'] for c in peer_a.calls[initial_a:]],[c['method'] for c in peer_b.calls[initial_b:]]),(['POST'],['POST']))
 
     def test_restored_ai_database_epoch_rejects_delayed_old_lease(self):
         """[Role] Verifies restored ai database epoch rejects delayed old lease on synthetic fixtures.
@@ -768,11 +896,26 @@ class ProviderTests(unittest.TestCase):
         """
         _,mid,key=self.add_model()
         route=self.registry.resolve(mid)
+        cid=self.conversation()
+        self.assertEqual(self.choose(cid,mid).status_code,200)
+        jid=self.submit(cid,level='default')
+        with self.store.db() as db:
+            before=self.store.job(jid,db)['route_snapshot']
         old=self.app.config['USER_AI_PROVIDER_ENCRYPTION_KEY']
         self.app.config['USER_AI_PROVIDER_ENCRYPTION_KEY']=Fernet.generate_key().decode()
         self.app.config['USER_AI_PROVIDER_PREVIOUS_KEYS']=canonical([old])
-        self.assertEqual(self.registry.secret(route['credential']),key)
+        trust,credential=self.registry.connection(route['provider_id'],route['revision'])
+        self.assertEqual(trust['origin'],route['base_url'])
+        self.assertNotIn('credential',route)
+        self.assertTrue(credential.startswith('fernet:'))
+        self.assertEqual(self.registry.secret(credential),key)
         self.assertNotEqual(self.app.config['USER_AI_PROVIDER_ENCRYPTION_KEY'],self.app.secret_key)
+        job=self.claim()
+        self.assertEqual((job['id'],job['route']['revision'],job['route']['api_key']),(jid,route['revision'],key))
+        self.run_one(job)
+        with self.store.db() as db:
+            row=self.store.job(jid,db)
+            self.assertEqual((row['state'],row['route_snapshot']),('done',before))
 
     def test_partial_v3_schema_fails_closed_without_recreating_missing_slot_index(self):
         """[Role] Rejects an incomplete current schema before startup can repair away missing safety state.
@@ -940,12 +1083,14 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Unknown OpenAI-compatible synthetic provider, private group queue and nonce checks.
         [Impact] A configured high/max is not accepted on an unknown model until the complete probe succeeds.
         """
-        with fake_provider() as (base,calls):
-            pid,mid,_=self.add_model(base,verified=False)
+        with fake_provider(self) as peer:
+            pid,mid,_=self.add_model(peer,tools=False)
             self.login(1)
             levels=['off','low','medium','high','xhigh','max']
+            version=self.registry.resolve(mid)['profile_revision']
+            first=len(peer.calls)
             self.registry.update_model(pid,{'id':mid,'label':'Custom effort model','published':True,'sort_order':0,'context_tokens':65536,
-                'revision':1,'reasoning_levels':levels,'reasoning_default':'max','profile_revision':1})
+                'revision':1,'reasoning_levels':levels,'reasoning_default':'max','profile_revision':version})
             self.assertFalse(next(m for m in self.registry.choices()['models'] if m['id']==mid)['available'])
             response=self.client.post('/api/admin/ai/models/'+mid+'/probe',json={'tools':True,'reasoning':True,'client_key':uuid.uuid4().hex},headers=self.headers)
             self.assertEqual(response.status_code,202,response.get_json())
@@ -953,7 +1098,7 @@ class ProviderTests(unittest.TestCase):
             route=self.registry.resolve(mid)
             self.assertEqual(route['profile']['levels'],levels)
             self.assertEqual(route['profile']['default_level'],'max')
-            self.assertEqual([c['payload'].get('reasoning_effort') for c in calls if c['method']=='POST'],[None,None,'none','low','medium','high','xhigh','max'])
+            self.assertEqual([c['payload'].get('reasoning_effort') for c in peer.calls[first:]],[None,None,'none','low','medium','high','xhigh','max'])
 
     def test_legacy_reasoning_upgrade_preserves_history_and_accepted_snapshot(self):
         """[Role] Converts only next-turn alias names and proves startup migration is idempotent.
@@ -982,8 +1127,10 @@ class ProviderTests(unittest.TestCase):
         [Dependencies] Versionless frozen probe profile and the actual fake-provider worker path.
         [Impact] An already accepted probe dispatches none/medium/xhigh and records a standard verified profile.
         """
-        with fake_provider() as (base,calls):
-            _,mid,_=self.add_model(base,verified=False,adapter='strata',upstream='qwen3.8-flash-next-iq3_xxs')
+        model='qwen3.8-flash-next-iq3_xxs'
+        with fake_provider(self,models=[{'id':model}]) as peer:
+            _,mid,_=self.add_model(peer,tools=False,adapter='strata',upstream=model)
+            first=len(peer.calls)
             self.login(1)
             response=self.client.post('/api/admin/ai/models/'+mid+'/probe',json={'tools':False,'reasoning':True,'client_key':uuid.uuid4().hex},headers=self.headers)
             self.assertEqual(response.status_code,202,response.get_json());jid=response.get_json()['job_id']
@@ -992,7 +1139,7 @@ class ProviderTests(unittest.TestCase):
                 frozen['profile']={'chat':False,'tools':False,'levels':['low','medium','high']}
                 db.execute('UPDATE jobs SET route_snapshot=?,probe_plan=? WHERE id=?',(canonical(frozen),canonical(['chat','low','medium','high']),jid))
             for _ in range(4):self.run_one(self.claim())
-            self.assertEqual([c['payload'].get('reasoning_effort') for c in calls if c['method']=='POST'],[None,'none','medium','xhigh'])
+            self.assertEqual([c['payload'].get('reasoning_effort') for c in peer.calls[first:]],[None,'none','medium','xhigh'])
             self.assertEqual(self.registry.resolve(mid)['profile']['verified_levels'],['off','medium','xhigh'])
 
     def test_first_registry_seed_upgrades_old_null_selection_but_new_rows_use_default(self):
@@ -1005,6 +1152,7 @@ class ProviderTests(unittest.TestCase):
             account=db.execute('SELECT account_key FROM conversations WHERE id=?',(cid,)).fetchone()[0]
             db.execute("UPDATE conversations SET selection_id=NULL,next_level='low' WHERE id=?",(cid,))
             db.execute('DELETE FROM ai_provider_models')
+            db.execute('DELETE FROM ai_provider_trust')
             db.execute('DELETE FROM ai_provider_revisions')
             db.execute('DELETE FROM ai_providers')
         Registry(self.store,{**self.app.config,'USER_AI_MODEL':'unrecognized-custom-model'})
