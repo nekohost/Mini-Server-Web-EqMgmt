@@ -1,0 +1,134 @@
+[
+  {
+    "instruction": "아래 영문 메일을 한국어로 번역해 주세요.",
+    "expected": "en-ko",
+    "actual": "en-ko",
+    "ok": true
+  },
+  {
+    "instruction": "이메일 번역 부탁드립니다.",
+    "expected": "en-ko",
+    "actual": "en-ko",
+    "ok": true
+  },
+  {
+    "instruction": "Could you translate the following email into English, please?",
+    "expected": "ko-en",
+    "actual": "ko-en",
+    "ok": true
+  },
+  {
+    "instruction": "정중한 한국어로 옮겨 주시겠어요?",
+    "expected": "en-ko",
+    "actual": "en-ko",
+    "ok": true
+  },
+  {
+    "instruction": "아래 내용 영어로 번역해 주세요.",
+    "expected": "ko-en",
+    "actual": "ko-en",
+    "ok": true
+  },
+  {
+    "instruction": "다음 문안을 영문으로 부탁드려요.",
+    "expected": "ko-en",
+    "actual": "ko-en",
+    "ok": true
+  },
+  {
+    "instruction": "이 이메일 정중한 한국어로 옮겨 줘요.",
+    "expected": "en-ko",
+    "actual": "en-ko",
+    "ok": true
+  },
+  {
+    "instruction": "Please translate the message below into Korean.",
+    "expected": "en-ko",
+    "actual": "en-ko",
+    "ok": true
+  },
+  {
+    "instruction": "Please translate this into business English.",
+    "expected": "ko-en",
+    "actual": "ko-en",
+    "ok": true
+  },
+  {
+    "instruction": "아래 메일을 업무용 영문으로 옮겨 주세요.",
+    "expected": "ko-en",
+    "actual": "ko-en",
+    "ok": true
+  },
+  {
+    "instruction": "국문으로 부탁합니다.",
+    "expected": "en-ko",
+    "actual": "en-ko",
+    "ok": true
+  },
+  {
+    "instruction": "영어로 번역해 주세요.",
+    "expected": "ko-en",
+    "actual": "ko-en",
+    "ok": true
+  },
+  {
+    "instruction": "영어로 부탁해요.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "이 이메일이 영어로 자연스러운지 검토해 주세요.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "내 서신에서 번역 오류가 있는지 찾아줘.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "답장 초안을 작성해 주세요.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "Subject: Desks",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "> Please translate this message into Korean.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "Would you recommend a business translation service?",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "메일을 영어로 옮긴 뒤 장비 등록도 진행해 주세요.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "Please translate this message into Korean and register the device.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  },
+  {
+    "instruction": "아래 메일은 번역하지 마세요.",
+    "expected": null,
+    "actual": null,
+    "ok": true
+  }
+]

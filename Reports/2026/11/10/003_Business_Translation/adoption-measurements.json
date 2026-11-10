@@ -1,0 +1,2015 @@
+{
+  "cases": [
+    {
+      "id": "U01",
+      "direction": "en-ko",
+      "original": "Subject: Credit for the spare units\n\nHello Morgan,\n\nWe can credit the freight charge on the two spare units. The unit price on the original invoice still stands. Please send a copy of the receipt; no refund has been issued yet.\n\nBest regards,\nAlex",
+      "split": "unseen"
+    },
+    {
+      "id": "U02",
+      "direction": "ko-en",
+      "original": "안녕하세요.\n\n서버를 교체하면 점검 시간을 줄일 수 있는지 의견을 부탁드립니다. 예산은 아직 배정되지 않았으니 견적을 발주서로 접수하지 말아 주세요.\n\n감사합니다.",
+      "split": "unseen"
+    },
+    {
+      "id": "U03",
+      "direction": "en-ko",
+      "original": "Subject: Workshop dates\n\nHi Pat,\n\nJune 3 is a hold on our calendar, not a booking. If the trainer cannot stay past noon, please suggest two mornings instead. No need to contact the attendees yet.\n\nThanks,\nKai",
+      "split": "unseen"
+    },
+    {
+      "id": "U04",
+      "direction": "ko-en",
+      "original": "제목: 카드 결제 대사\n\n안녕하세요.\n\n승인 문자는 두 번 왔지만 청구서에는 한 건만 올라와 있습니다. 결제 취소를 요청한 것은 아니니, 이 차이가 왜 생겼는지만 설명 부탁드립니다.\n\n감사합니다.\n회계팀",
+      "split": "unseen"
+    },
+    {
+      "id": "U05",
+      "direction": "en-ko",
+      "original": "Hello Taylor,\n\nThe parcel was scanned at the depot, but the carrier has not collected it. Could you check whether it can still make the 16:10 pickup? Please leave the replacement order on hold.\n\nRegards,\nLee",
+      "split": "unseen"
+    },
+    {
+      "id": "U06",
+      "direction": "ko-en",
+      "original": "제목: 회의실 정산\n\n미진님,\n\n두 지점 중 어느 지점으로 비용을 돌릴지는 아직 정하지 않았습니다. 어느 지점에도 비용을 청구하지 말고 견적 유효기간만 확인해 주세요.\n\n감사합니다.\n김현우 · 이유나 드림",
+      "split": "unseen"
+    },
+    {
+      "id": "U07",
+      "direction": "en-ko",
+      "original": "Subject: Saturday support cover\n\nDear Lin,\n\nI can cover the first hour on Saturday if Jules confirms the handover. Otherwise the rota stays as it is. Would you check with Jules before changing it?\n\nRegards,\nRory",
+      "split": "unseen"
+    },
+    {
+      "id": "U08",
+      "direction": "ko-en",
+      "original": "제목: 부품 인수 기록\n\n안녕하세요.\n\n첨부한 count.csv의 둘째 줄은 실물 수량이 아니라 예약 수량입니다. 파일은 고치지 말고, 오늘 도착분에 그 수량이 포함됐는지 먼저 확인해 주세요.\n\n고맙습니다.\n수민 올림",
+      "split": "unseen"
+    },
+    {
+      "id": "U09",
+      "direction": "en-ko",
+      "original": "Subject: Draft minutes\n\nHello all,\n\nPlease add the renewal to the agenda. The committee noted the proposal; it did not vote on it. A note in the minutes is enough for now.\n\nThanks,\nJo",
+      "split": "unseen"
+    },
+    {
+      "id": "U10",
+      "direction": "ko-en",
+      "original": "안녕하세요.\n\n아래 세 가지를 구분해서 회신 부탁드립니다.\n- 납품을 약속한 날짜\n- 저희가 물건을 실제로 받은 날짜\n- 아직 도착하지 않은 품목\n\n정확한 날짜를 모르면 추정치라고 표시해 주세요.\n\n감사합니다.\n조달지원팀",
+      "split": "unseen"
+    },
+    {
+      "id": "E1",
+      "direction": "en-ko",
+      "original": "Subject: Inspection form 06b6ca\n\nDear Lee,\n\nFacilities may sign off by email. Only Security must sign the original paper form. Neither approval has been received. Keep the pass in the cabinet until both are recorded.\n\nRegards,\nRobin",
+      "split": "prior"
+    },
+    {
+      "id": "K1",
+      "direction": "ko-en",
+      "original": "제목: 반품 작업 기록 확인\n\n현수님, 안녕하세요.\n\n반품 요청 하나가 중복으로 표시됐지만 창고 작업이 중복 실행됐는지는 아직 확인되지 않았습니다. 어느 요청도 다시 실행하지 말고, 13:40 KST까지 로그를 확인할 수 있는지만 알려 주세요.\n\n감사합니다.\n예린 드림",
+      "split": "prior"
+    },
+    {
+      "id": "E2",
+      "direction": "en-ko",
+      "original": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+      "split": "prior"
+    },
+    {
+      "id": "E4",
+      "direction": "en-ko",
+      "original": "Subject: Temporary badges\n\nHello Ben,\n\nWe do not know whether either permit has been approved. Please check the register tomorrow. Do not mark either permit as rejected.\n\nThanks,\nNora",
+      "split": "prior"
+    },
+    {
+      "id": "K3",
+      "direction": "ko-en",
+      "original": "제목: 시연 일정\n\n안녕하세요.\n\n시연을 수요일 오후로 옮길 수 있는지 알려 주세요. 아직 일정을 변경하지 마세요.\n\n감사합니다.\n김도윤 · 박서린 드림",
+      "split": "prior"
+    },
+    {
+      "id": "B-E01",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Reporting API — monitoring update\n\nHello Mina,\n\nA temporary workaround is in place, and requests to the reporting API are succeeding again. We are still observing the service and have not closed the incident. The next status update is scheduled for 14:30 UTC; that time is not a commitment to full resolution.\n\nRegards,\nService Operations"
+    },
+    {
+      "id": "B-E02",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Contact list for the service review\n\nHi Owen,\n\nPlease send the updated support contact list by 16:00 KST on November 18, 2026. Include a primary contact and a backup for each team, and use the attached template. We will use the list for the service review on November 20, 2026. If your team's details have not changed, please reply to confirm that instead of sending another file.\n\nThanks,\nLena"
+    },
+    {
+      "id": "B-E03",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Request to bring forward the training session\n\nHello Priya,\n\nThank you for checking. I'm afraid we cannot move the training to November 17, 2026 unless the instructor confirms availability by 12:00 UTC on November 13, 2026. For now, please keep your November 24, 2026 booking. We can offer a recorded introduction while you wait, but it would not replace the live training. Please let me know if the recording would help.\n\nKind regards,\nDaniel"
+    },
+    {
+      "id": "B-E04",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Webhook receipt is not job completion\n\nHi Ellis,\n\nOur receiver must acknowledge each GitHub webhook with a 2XX response within 10 seconds of receipt. The payload is then processed through a background queue. Please keep receipt and processing results separate in the test report. A successful response does not mean the queued job has finished. For the sample delivery, record the header name X-GitHub-Delivery and its value 7c2d9a10-6b34-4e5f-8a21-0d9c6b4e3f20 exactly as shown.\n\nThanks,\nIntegration Team"
+    },
+    {
+      "id": "B-E05",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Draft notice for the access review\n\nHello Naomi,\n\nPlease ask the team leads to check the access list and send their corrections to you by 15:00 KST on November 19, 2026. Combine their feedback into one draft notice for my review, and copy Arun when you send me the draft. Arun will check the terminology, but I will approve the final text. Please do not distribute the notice to staff until I have approved it.\n\nRegards,\nGrace"
+    },
+    {
+      "id": "B-E06",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Import schedule estimate\n\nHi Marco,\n\nBased on the sample file, we estimate that importing the full dataset will take 3 to 5 hours. This is a planning estimate, not a guaranteed completion window. We can commit to starting at 09:00 UTC on November 23, 2026 if the final file reaches us by 18:00 UTC on November 20, 2026. If it arrives later, we will propose a new start time rather than assume the same slot is available.\n\nBest,\nSofia"
+    },
+    {
+      "id": "B-K01",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 오발송 메일의 후속 조치\n\nAlex님, 안녕하세요.\n\n이미 외부 거래처로 보낸 메일은 네이버웍스에서 발송을 취소할 수 없습니다. 반면 내일 09:00 KST로 예약한 후속 메일은 아직 발송되지 않았으므로 예약 취소가 가능합니다.\n\n우선 예약만 취소해 주시고, 정정 안내는 제가 승인한 뒤에 보내 주세요. 예약을 취소한 것을 이미 보낸 메일까지 회수한 것으로 안내하지 않도록 유의해 주세요.\n\n감사합니다.\nMira 드림"
+    },
+    {
+      "id": "B-K02",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 고객 교육 일정 확인 요청\n\nNora님, 안녕하세요.\n\n고객 교육은 11월 19일 15:00 KST를 후보로 잡아 두었지만 아직 확정하지 않았습니다. 예산 승인은 재무팀에서 검토 중이며, 회의실 예약은 제가 맡겠습니다. 가능하시면 내일 12:00 KST까지 예상 참석 인원을 알려 주세요. 회신을 받더라도 예산 승인 전에는 초대장을 보내지 않겠습니다. 제안한 시간이 어려우시면 대체 가능한 시간을 함께 보내 주시면 감사하겠습니다.\n\n감사합니다.\nEvan 드림"
+    },
+    {
+      "id": "B-K03",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 문서 업로드 지연 — 임시 조치 안내\n\nLena님, 안녕하세요.\n\n문서 업로드가 지연되어 운영팀에서 파일 크기 제한을 임시로 낮췄습니다. 현재 작은 파일은 업로드되지만, 큰 파일은 계속 대기해야 합니다. 원인을 조사 중이므로 이번 조치를 영구 해결로 안내하지 말아 주세요. 다음 상황 안내는 16:20 KST에 드리겠으며, 그때까지 복구를 완료하겠다는 뜻은 아닙니다. 급한 자료가 있으면 파일 이름만 회신해 주시면 운영팀이 대체 전달 방법을 확인하겠습니다.\n\n감사합니다.\n서비스 지원팀"
+    },
+    {
+      "id": "B-K04",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 견적 메일 수신 여부 확인 요청\n\nOwen님, 안녕하세요.\n\n어제 고객에게 보낸 견적 메일은 텍스트 모드로 작성해 네이버웍스에서 열람 여부를 확인할 수 없습니다. 따라서 수신 확인 기록이 없다는 이유만으로 고객이 읽지 않았다고 판단해서는 안 됩니다. 오늘 17:00 KST까지 고객에게 메일을 받았는지만 확인해 주시겠어요? 같은 견적서를 다시 보내지는 마시고, 재발송을 요청받은 경우에만 저에게 알려 주세요. 견적 수락 여부는 이번 확인 대상이 아닙니다.\n\n감사합니다.\nMira 드림"
+    },
+    {
+      "id": "B-K05",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: webhook-worker-2 처리 지연 확인 요청\n\nJules님, 안녕하세요.\n\n오늘 GitHub 웹훅 요청에 대해 수신 서버가 HTTP 202를 반환했지만, webhook-worker-2의 후속 처리는 아직 끝나지 않았습니다. 수신 응답이 나갔다는 사실을 처리 완료로 보고하지 말아 주세요. 이벤트 유형은 X-GitHub-Event 헤더로, 작업 유형은 본문의 action 값으로 확인해 주세요. 조사는 플랫폼팀이 맡고 있으며, 지금은 운영 설정을 변경하지 말아 주세요. 큐에 남은 작업을 확인할 수 있으면 18:10 UTC까지 현재 상태만 회신 부탁드립니다.\n\n감사합니다.\nEvan 드림"
+    },
+    {
+      "id": "B-K06",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 안내문 수정본 검토 부탁드립니다\n\nMina님, 안녕하세요.\n\n첨부한 welcome_v3.docx에서는 문의 담당자의 연락처만 수정했고, 교육 시작일은 그대로 두었습니다. 배포 전에 연락처가 맞는지 확인해 주시겠어요? 오류가 없으면 제가 오늘 14:00 KST에 신규 입사자들에게 보내겠습니다. 회신에는 인사팀만 참조로 넣어 주시고, 외부 교육 업체에는 이 초안을 전달하지 말아 주세요. 수정이 필요하면 파일을 직접 고치지 마시고 해당 문장을 회신에 적어 주세요.\n\n감사합니다.\nNora 드림"
+    },
+    {
+      "id": "H-E01",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Inspect the webhook retry before taking action\n\nHello Sam,\n\nThe receiver is back online, and I have requested redelivery for ticket WH-208. GitHub reuses the original X-GitHub-Delivery value for a redelivery, so the matching identifier alone is not evidence of an attack. Please check whether the original job completed before deciding to process the retry. Our internal command `replayctl inspect --ticket WH-208` only displays the job record; it does not start or retry a job.\n\nThanks,\nJules"
+    },
+    {
+      "id": "H-E02",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Correction to the file export notice\n\nDear Asha,\n\nThe file export incident was resolved at 11:20 UTC on November 26, 2026. Our earlier notice incorrectly included the search service; search was not affected. Please share this correction with your support team. We are still checking the cause, and the review report will follow by November 30, 2026. That ongoing review does not mean the service remains unavailable. We apologize for the disruption and the confusion in our notice.\n\nRegards,\nCustomer Operations"
+    },
+    {
+      "id": "H-E03",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: Revised laptop quotation\n\nHi Keiko,\n\nThank you for updating the quotation. The quantity of 24 laptops is correct, but the delivery address in Quote-R7.pdf is still the old office. Please send a corrected quotation by 17:00 KST on December 2, 2026, keeping the quantity and unit price unchanged. This confirmation covers the quantity only; it is not a purchase order. Please do not reserve stock or arrange shipment until Purchasing sends a formal order.\n\nBest regards,\nBen"
+    },
+    {
+      "id": "H-E04",
+      "split": "legacy20",
+      "direction": "en-ko",
+      "original": "Subject: New route for training requests\n\nHello colleagues,\n\nFrom December 7, 2026, please submit new training requests through the staff portal rather than by email. Requests emailed before that date will still be reviewed, so you do not need to submit them again. This change applies to training requests only; continue sending travel requests to the travel team by email. If you cannot access the portal, contact Iris for help.\n\nThank you,\nPeople Services"
+    },
+    {
+      "id": "H-K01",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 잘못 첨부한 내부 메일의 수신자별 조치\n\nDana님, 안녕하세요.\n\n잘못된 견적표를 첨부한 내부 메일을 보낸 지 26시간이 지났습니다. 두 수신자는 저와 같은 네이버웍스 조직의 계정을 사용하며, Jae님은 읽었고 Robin님은 아직 읽지 않았습니다. Jae님에게 보낸 메일은 회수할 수 없으니 제가 정정 안내를 보내겠습니다. Robin님에게 보낸 메일만 회수를 시도하고 결과를 확인해 주세요. 회수를 시도했다는 이유만으로 양쪽 메일함에서 모두 삭제되었다고 보고하지 말아 주세요.\n\n감사합니다.\nMira 드림"
+    },
+    {
+      "id": "H-K02",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 웹훅 재전송 기록 대조 요청\n\nTheo님, 안녕하세요.\n\n장애 중 놓친 GitHub 웹훅 한 건을 서버 복구 후 다시 전송했습니다. 재전송 요청의 X-GitHub-Delivery 값은 7f9c2a10-6b45-4d83-9e21-c0a8f7b6d592로, 최초 요청과 같습니다. 이 요청을 새 이벤트로 분류하지 말아 주세요. 플랫폼팀에서 두 요청의 수신 시각과 처리 결과를 대조해 주시면 감사하겠습니다. 처리 결과가 확인되기 전에는 중복 처리됐다고 단정하지 않겠습니다. 오늘 19:00 UTC까지는 조사 결과나, 아직 조사 중이라는 안내를 부탁드립니다.\n\n감사합니다.\nJules 드림"
+    },
+    {
+      "id": "H-K03",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 임시 대여 노트북 발송 전 확인 요청\n\nKai님, 안녕하세요.\n\n지원팀에서 확보한 임시 대여용 노트북은 LT-04 한 대뿐입니다. 사용자가 동의하면 내일 오전에 보내 주시되, 기존 장비의 수리가 끝난 것으로 안내하지는 말아 주세요. 사용자가 동의하지 않으면 새 제품을 주문하지 말고 저에게 먼저 알려 주세요. 신규 구매 승인은 제가 부서장에게 따로 요청할 예정이며, 아직 승인받지 못했습니다. 발송 후 배송 조회 번호를 이 메일에 회신해 주세요.\n\n감사합니다.\nOwen 드림"
+    },
+    {
+      "id": "H-K04",
+      "split": "legacy20",
+      "direction": "ko-en",
+      "original": "제목: 제품 공지 예약 발송의 수신자 범위 조정\n\nSora님, 안녕하세요.\n\n국문과 영문 제품 공지는 각각 네이버웍스에서 내일 08:30 KST로 예약되어 있으며, 둘 다 아직 발송 전입니다. 영문본 검토가 끝나지 않았으니 외부 고객용 영문 메일의 예약만 취소해 주세요. 이미 승인된 국문본은 사내 직원에게 예정대로 보내되, 수신자 목록에 고객 주소가 섞이지 않았는지 확인 부탁드립니다. 영문본 검토는 제가 맡겠지만 내일 발송할 수 있다고 아직 약속드리기는 어렵습니다. 새 발송 시각을 제가 회신하기 전에는 외부 고객 대상 예약을 다시 잡지 말아 주세요.\n\n감사합니다.\nLena 드림"
+    },
+    {
+      "id": "V01",
+      "direction": "en-ko",
+      "original": "Hi Casey,\n\nThree boxes were set aside for our visit. They have not been shipped. Please keep one at reception and leave the other two where they are.\n\nThanks,\nNell",
+      "split": "locked_confirmation"
+    },
+    {
+      "id": "V02",
+      "direction": "ko-en",
+      "original": "안녕하세요.\n\n차액은 다음 달 청구서에서 조정할 예정입니다. 이번 달 입금액을 임의로 줄이지 말아 주세요.\n\n감사합니다.\n정산팀",
+      "split": "locked_confirmation"
+    },
+    {
+      "id": "V03",
+      "direction": "en-ko",
+      "original": "Subject: Author copies\n\nHello Dev,\n\nA proof copy is available for inspection. Buying copies is optional and will not affect the review. Please send just the delivery address if you would like the proof.\n\nRegards,\nAri",
+      "split": "locked_confirmation"
+    },
+    {
+      "id": "V04",
+      "direction": "ko-en",
+      "original": "제목: 교대조 인수인계\n\n안녕하세요.\n\n야간조가 읽은 것은 점검 메모이고, 장비 자체를 점검한 것은 아닙니다. 아침조가 도착하면 점검 가능 시간만 확인해 주세요.\n\n감사합니다.\n서지원 드림",
+      "split": "locked_confirmation"
+    },
+    {
+      "id": "V05",
+      "direction": "en-ko",
+      "original": "Hello Dana,\n\nCould the library display the proposal for comment? Displaying it would not commit the library to hosting the exhibition. Let us know by Thursday whether that approach is acceptable.\n\nBest regards,\nImani",
+      "split": "locked_confirmation"
+    },
+    {
+      "id": "V06",
+      "direction": "ko-en",
+      "original": "제목: 공용 계정 정리\n\n안녕하세요.\n\n공용 계정 두 개 중 하나는 보관 중입니다. 어느 계정을 보관할지는 이미 정해졌으니 담당자가 확인하기 전에는 두 계정 모두 그대로 두어 주세요.\n\n감사합니다.\n운영지원팀",
+      "split": "locked_confirmation"
+    },
+    {
+      "id": "D01",
+      "direction": "en-ko",
+      "original": "Hi Robin,\n\nThe safety team has read the draft checklist. The crew has not tried the procedure. Please put the trial on next week's agenda and record only today's discussion in the minutes.\n\nKind regards,\nAvery",
+      "split": "release_decision"
+    },
+    {
+      "id": "D02",
+      "direction": "en-ko",
+      "original": "Subject: Samples for the branch\n\nDear Noor,\n\nWe can lend two display samples for the open day. Their labels stay with the samples. Please ask the branch whether it has space before you book a courier.\n\nRegards,\nParker",
+      "split": "release_decision"
+    },
+    {
+      "id": "D03",
+      "direction": "ko-en",
+      "original": "안녕하세요.\n\n제안서를 받았지만 계약서로 접수하지는 않았습니다. 담당자가 돌아오기 전에는 어느 쪽에서도 서명 일정을 잡지 말아 주세요. 샘플 검토 일정만 알려 주세요.\n\n감사합니다.\n최다원 드림",
+      "split": "release_decision"
+    },
+    {
+      "id": "D04",
+      "direction": "ko-en",
+      "original": "제목: 강의실 냉방 문의\n\n안녕하세요.\n\n목요일 오전에 강의실을 쓸 예정입니다. 냉방을 미리 켤 수 있는지 시설팀에 문의만 부탁드립니다. 답변이 오기 전에는 장소를 바꾸지 말아 주세요.\n\n감사합니다.\n교육팀",
+      "split": "release_decision"
+    },
+    {
+      "id": "D05",
+      "direction": "ko-en",
+      "original": "제목: 현장 지원서 접수\n\n안녕하세요.\n\n지원자는 내일 정오까지 안내 창구에 지원서를 직접 접수할 수 있습니다. 담당자는 서류를 받으면 접수증만 발급해 주세요. 현장 승인은 요청하지 않았습니다.\n\n감사합니다.\n운영팀",
+      "split": "release_decision"
+    }
+  ],
+  "arms": {
+    "baseline": {
+      "U01": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 예비 제품 두 대에 대한 크레딧\n\n안녕하세요, Morgan 님,\n\n예비 제품 두 대의 배송비 크레딧 처리가 가능합니다. 최초 인보이스에 기재된 제품 단가는 그대로 유지됩니다. 영수증 사본을 보내 주십시오. 아직 환불은 처리되지 않았습니다.\n\n감사합니다,\nAlex",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 예비 제품 두 대에 대한 크레딧\n\n안녕하세요, Morgan 님,\n\n예비 제품 두 대의 배송비 크레딧 처리가 가능합니다. 최초 인보이스에 기재된 제품 단가는 그대로 유지됩니다. 영수증 사본을 보내 주십시오. 아직 환불은 처리되지 않았습니다.\n\n감사합니다,\nAlex",
+        "seconds": 17.293,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "425d5231fc4d078150b4d78dcfa84f0374c23377e15a06ed828fef069c33c9a0"
+      },
+      "U02": {
+        "origin": "comparison/baseline",
+        "raw": "Hello,\n\nWe would appreciate your opinion on whether replacing the server could reduce the maintenance window. Please note that the budget has not yet been allocated, so please do not submit the estimate as a purchase order.\n\nThank you.",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nWe would appreciate your opinion on whether replacing the server could reduce the maintenance window. Please note that the budget has not yet been allocated, so please do not submit the estimate as a purchase order.\n\nThank you.",
+        "seconds": 16.19,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "ae4231b46ba456d2934f7a291f8cbe2d2f63d35a4e830b7c862f25db190cff0c"
+      },
+      "U03": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 캘린더의 예약 보류일 뿐, 확정 예약이 아닙니다. 강사가 정오 이후에 머물 수 없다면 대신 오전 두 번의 일정을 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다,\nKai",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 캘린더의 예약 보류일 뿐, 확정 예약이 아닙니다. 강사가 정오 이후에 머물 수 없다면 대신 오전 두 번의 일정을 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다,\nKai",
+        "seconds": 13.827,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "3c6899d177cd61fb6c8cc9d76de873820c0b0cc6b7fa65c69c372f2b4ceef524"
+      },
+      "U04": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Card Payment Reconciliation\n\nHello,\n\nApproval text messages were received twice, but only one transaction appears on the statement. I am not requesting a payment cancellation, so please only explain why this discrepancy occurred.\n\nThank you.\nAccounting Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Card Payment Reconciliation\n\nHello,\n\nApproval text messages were received twice, but only one transaction appears on the statement. I am not requesting a payment cancellation, so please only explain why this discrepancy occurred.\n\nThank you.\n회계팀",
+        "seconds": 10.763,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "78fff40b98a766ec05b4281213f137aa6ed413b39835e281b743434750a386d9",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "a0596f68b27bbd3f29d2613632a44157cd34069c02a092687d6191893270d91f"
+      },
+      "U05": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 16:10 픽업 가능 여부 확인 요청\n\n본문:\nTaylor님,\n\n택배는 집하장에서 스캔되었으나 운송사가 아직 수거하지 않았습니다. 16:10 픽업에 여전히 반영할 수 있는지 확인해 주시겠어요? 대체 주문은 보류 상태로 유지해 주세요.\n\n감사합니다.\nLee",
+        "state": "failed",
+        "error": "원문에 없는 다른 메일의 인사말이 들어 있습니다.",
+        "stored": "",
+        "seconds": 41.905,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "0089946b6c728ef95b1d03c66fd3af00d55b4624938a2269284c31e89751e10b"
+      },
+      "U06": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Meeting Room Cost Settlement\n\nMijin,\n\nWe have not yet decided which of the two locations to allocate the cost to. Please do not bill the cost to either location; please only confirm the validity period of the quote.\n\nThank you.\nKim Hyunwoo · Lee Yuna",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Meeting Room Cost Settlement\n\nMijin,\n\nWe have not yet decided which of the two locations to allocate the cost to. Please do not bill the cost to either location; please only confirm the validity period of the quote.\n\nThank you.\n김현우 · 이유나",
+        "seconds": 17.077,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d572d4c9c3b50e96a2176b4e82f31cdf66a266837ecb5a21b582de020c69f71a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "52ce141b264a775b9092e8c086da07f7d5c69e8f7decf14856e69b6f4b7a052b"
+      },
+      "U07": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 토요일 지원 근무 커버\n\n린 님,\n\n줄스가 인수인계를 확인해 주시면 제가 토요일 첫 1시간을 커버할 수 있습니다. 그렇지 않으면 근무 일정은 그대로 유지됩니다. 근무 일정을 변경하기 전에 줄스와 확인해 주시겠어요?\n\n감사합니다.\n로리",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 토요일 지원 근무 커버\n\n린 님,\n\n줄스가 인수인계를 확인해 주시면 제가 토요일 첫 1시간을 커버할 수 있습니다. 그렇지 않으면 근무 일정은 그대로 유지됩니다. 근무 일정을 변경하기 전에 줄스와 확인해 주시겠어요?\n\n감사합니다.\n로리",
+        "seconds": 24.264,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "a59644edbbd6f12ab8df92c00786ff43de95e92f96f077063803f11c7b5b7898"
+      },
+      "U08": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line of the attached count.csv is not the actual quantity but the reserved quantity. Please do not modify the file; instead, first check whether that quantity is included in today's arrivals.\n\nThank you,\n수민",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Parts Receipt Record\n\nHello,\n\nThe second line of the attached count.csv is not the actual quantity but the reserved quantity. Please do not modify the file; instead, first check whether that quantity is included in today's arrivals.\n\nThank you,\n수민",
+        "seconds": 19.615,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "9062d3ff23d129e5e536c71f14f9d7bd7f1f186c0f73c2c94fb3c30db1d16afb"
+      },
+      "U09": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 회의록 초안\n\n안녕하세요, 여러분,\n\n갱신 안건을 의사일정에 추가해 주세요. 위원회는 해당 제안을 확인만 하였고 표결하지 않았습니다. 현재로서는 회의록에 메모를 남기는 것으로 충분합니다.\n\n감사합니다,\n조",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 회의록 초안\n\n안녕하세요, 여러분,\n\n갱신 안건을 의사일정에 추가해 주세요. 위원회는 해당 제안을 확인만 하였고 표결하지 않았습니다. 현재로서는 회의록에 메모를 남기는 것으로 충분합니다.\n\n감사합니다,\n조",
+        "seconds": 8.284,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "26be0bc40b318cda2ed06f5b3addcf56a5c909eff24e4da62482f03112622099"
+      },
+      "U10": {
+        "origin": "comparison/baseline",
+        "raw": "Hello,\n\nPlease reply with the following three items clearly separated:\n- The date delivery was promised\n- The date we actually received the goods\n- Items that have not yet arrived\n\nIf you do not know the exact date, please note it as an estimate.\n\nThank you.\n\nProcurement Support Team",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nPlease reply with the following three items clearly separated:\n- The date delivery was promised\n- The date we actually received the goods\n- Items that have not yet arrived\n\nIf you do not know the exact date, please note it as an estimate.\n\nThank you.\n조달지원팀",
+        "seconds": 20.204,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "5e98cfb8ef8c04ac5bc1069fe6bd60b391bf9d41a894be217c54f719b7b8915c"
+      },
+      "E1": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities에서는 이메일로 승인을 할 수 있습니다. Security만 원본 종이 양식에 서명해야 합니다. Facilities와 Security의 승인은 아직 한 건도 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 출입카드를 캐비닛에 보관해 주십시오.\n\n감사합니다.\nRobin",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities에서는 이메일로 승인을 할 수 있습니다. Security만 원본 종이 양식에 서명해야 합니다. Facilities와 Security의 승인은 아직 한 건도 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 출입카드를 캐비닛에 보관해 주십시오.\n\n감사합니다.\nRobin",
+        "seconds": 141.241,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "56e37227d024490a9c3eae689d1594f4b13ff94d635688a3642ee6da2d7b4d52",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "173a5f2aeb46690fd1568fd26bf02c25737c707cf874481bc51387a3cee90e75"
+      },
+      "K1": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Confirming Return Operation Records\n\nHyunsu, hello.\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse operation was processed more than once. Please do not re-execute any request, and let me know whether you can check the logs by 13:40 KST.\n\nThank you.\n예린",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Confirming Return Operation Records\n\nHyunsu, hello.\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse operation was processed more than once. Please do not re-execute any request, and let me know whether you can check the logs by 13:40 KST.\n\nThank you.\n예린",
+        "seconds": 30.563,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "eace309bd93d4882ee3b01a0aa214094afed46e9e686d8505ecadd8619e12555",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "1d12731c6d9f859497d5a2dab36e2cd31ca52fc473745f83c1551675c2ab178d"
+      },
+      "E2": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였고, 두 번째 요청은 오픈하지 않았습니다. 벤치를 금요일까지 예약 상태로 유지하세요.\n\n감사합니다,\nDara",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였고, 두 번째 요청은 오픈하지 않았습니다. 벤치를 금요일까지 예약 상태로 유지하세요.\n\n감사합니다,\nDara",
+        "seconds": 42.765,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "f94a7b1cc275f5db0697f98fc8a79dff12a9d0e345dfeeb6459d27037d85a620"
+      },
+      "E4": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 임시 배지\n\n벤 님,\n\n두 허가증 중 승인된 것이 있는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 두 허가증 중 어느 것이든 반려로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 임시 배지\n\n벤 님,\n\n두 허가증 중 승인된 것이 있는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 두 허가증 중 어느 것이든 반려로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "seconds": 138.394,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "f6073c2b83bc38812840ff56333631b5e07f792bed3cae713cdb5a61e03d7fd5"
+      },
+      "K3": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know if the demo can be moved to Wednesday afternoon. Do not change the schedule yet.\n\nThank you.\n\nKim Doyoon · Park Seorin",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know if the demo can be moved to Wednesday afternoon. Do not change the schedule yet.\n\nThank you.\n김도윤 · 박서린",
+        "seconds": 10.524,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "c06e69782504a030a84f01915419bb7cdcbfdcc7d2552c19443feb8eb776d487"
+      },
+      "B-E01": {
+        "origin": "comparison/baseline",
+        "raw": "제목: Reporting API — 모니터링 업데이트\n\n안녕하세요, Mina 님,\n\n임시 우회 조치가 적용되어 Reporting API에 대한 요청이 다시 정상적으로 처리되고 있습니다. 서비스 상황을 계속 모니터링하고 있으며, 해당 장애는 아직 종료하지 않았습니다. 다음 상태 업데이트는 14:30 UTC에 예정되어 있으며, 해당 시각은 완전한 해결을 확약하는 것은 아닙니다.\n\nService Operations 드림",
+        "state": "done",
+        "error": null,
+        "stored": "제목: Reporting API — 모니터링 업데이트\n\n안녕하세요, Mina 님,\n\n임시 우회 조치가 적용되어 Reporting API에 대한 요청이 다시 정상적으로 처리되고 있습니다. 서비스 상황을 계속 모니터링하고 있으며, 해당 장애는 아직 종료하지 않았습니다. 다음 상태 업데이트는 14:30 UTC에 예정되어 있으며, 해당 시각은 완전한 해결을 확약하는 것은 아닙니다.\n\nService Operations 드림",
+        "seconds": 13.66,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "916da114b01988d09d50e607ddb97c36784310d1129189b27f688c41120b24da"
+      },
+      "B-E02": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 서비스 검토용 연락처 목록\n\n안녕하세요, Owen 님,\n\n2026년 11월 18일 16:00 KST까지 업데이트된 지원 연락처 목록을 보내 주십시오. 각 팀의 주 담당자와 대체 담당자를 포함해 주시고, 첨부된 양식을 사용해 주십시오. 해당 목록은 2026년 11월 20일 서비스 검토에 사용될 예정입니다. 팀의 세부 정보가 변경되지 않았다면, 다른 파일을 보내는 대신 확인 회신을 주십시오.\n\n감사합니다,\nLena",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 서비스 검토용 연락처 목록\n\n안녕하세요, Owen 님,\n\n2026년 11월 18일 16:00 KST까지 업데이트된 지원 연락처 목록을 보내 주십시오. 각 팀의 주 담당자와 대체 담당자를 포함해 주시고, 첨부된 양식을 사용해 주십시오. 해당 목록은 2026년 11월 20일 서비스 검토에 사용될 예정입니다. 팀의 세부 정보가 변경되지 않았다면, 다른 파일을 보내는 대신 확인 회신을 주십시오.\n\n감사합니다,\nLena",
+        "seconds": 24.107,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "2ff4b732a488129ad21a4b339885af034c3d4d55a9035f9ad281c5bf6ffe9943",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "04961a7193ab373c93bcce5bc1122a28b7a36c24614e54abca340960d92b3dee"
+      },
+      "B-E03": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 교육 세션 일정 앞당기기 요청\n\n안녕하세요 Priya 님,\n\n확인해 주셔서 감사합니다. 유감스럽게도 강사가 2026년 11월 13일 12:00 UTC까지 일정 가능 여부를 확인해 주지 않는 한, 교육을 2026년 11월 17일로 변경할 수 없습니다. 당분간 2026년 11월 24일 예약을 유지해 주십시오. 기다리는 동안 녹화본 소개 영상을 제공해 드릴 수 있으나, 이는 라이브 교육을 대체할 수는 없습니다. 녹화본이 도움이 될 수 있을지 알려 주시면 감사하겠습니다.\n\n감사합니다,\nDaniel",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 교육 세션 일정 앞당기기 요청\n\n안녕하세요 Priya 님,\n\n확인해 주셔서 감사합니다. 유감스럽게도 강사가 2026년 11월 13일 12:00 UTC까지 일정 가능 여부를 확인해 주지 않는 한, 교육을 2026년 11월 17일로 변경할 수 없습니다. 당분간 2026년 11월 24일 예약을 유지해 주십시오. 기다리는 동안 녹화본 소개 영상을 제공해 드릴 수 있으나, 이는 라이브 교육을 대체할 수는 없습니다. 녹화본이 도움이 될 수 있을지 알려 주시면 감사하겠습니다.\n\n감사합니다,\nDaniel",
+        "seconds": 48.836,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "725c3fc64cc6abf2133f4f61e4e96f57c197393cb9814baeb4df1ee79bb9e1a1"
+      },
+      "B-E04": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 웹훅 수신은 작업 완료를 의미하지 않습니다\n\nEllis 님,\n\n당사의 수신 서비스는 GitHub 웹훅을 수신한 후 10초 이내에 2XX 응답으로 각 웹훅을 확인해야 합니다. 페이로드는 이후 백그라운드 큐를 통해 처리됩니다. 테스트 보고서에는 수신 결과와 처리 결과를 별도로 기록해 주세요. 성공적인 응답은 큐에 등록된 작업이 완료되었음을 의미하지 않습니다. 샘플 전달의 경우 헤더 이름 X-GitHub-Delivery와 그 값 7c2d9a10-6b34-4e5f-8a21-0d9c6b4e3f20을 표시된 대로 정확히 기록해 주세요.\n\n감사합니다.\n통합 팀",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 웹훅 수신은 작업 완료를 의미하지 않습니다\n\nEllis 님,\n\n당사의 수신 서비스는 GitHub 웹훅을 수신한 후 10초 이내에 2XX 응답으로 각 웹훅을 확인해야 합니다. 페이로드는 이후 백그라운드 큐를 통해 처리됩니다. 테스트 보고서에는 수신 결과와 처리 결과를 별도로 기록해 주세요. 성공적인 응답은 큐에 등록된 작업이 완료되었음을 의미하지 않습니다. 샘플 전달의 경우 헤더 이름 X-GitHub-Delivery와 그 값 7c2d9a10-6b34-4e5f-8a21-0d9c6b4e3f20을 표시된 대로 정확히 기록해 주세요.\n\n감사합니다.\n통합 팀",
+        "seconds": 27.204,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "4cd7b52f7727d8afbd356964f1b03f81599e7014a8f1552c81cd87dee1fdf55b"
+      },
+      "B-E05": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 접근 권한 점검 공지 초안\n\n안녕하세요, Naomi 님,\n\n팀 리더들이 접근 권한 목록을 확인하고 수정 사항을 2026년 11월 19일 KST 15:00까지 회신하도록 요청해 주십시오. 피드백을 하나의 공지 초안으로 취합해 저의 검토를 위해 보내주시고, 초안을 저에게 보내실 때 Arun을 CC로 포함해 주세요. Arun이 용어를 확인하겠지만, 최종 문구는 제가 승인하겠습니다. 제가 승인하기 전에는 직원들에게 공지를 배포하지 말아 주세요.\n\n감사합니다,\nGrace",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 접근 권한 점검 공지 초안\n\n안녕하세요, Naomi 님,\n\n팀 리더들이 접근 권한 목록을 확인하고 수정 사항을 2026년 11월 19일 KST 15:00까지 회신하도록 요청해 주십시오. 피드백을 하나의 공지 초안으로 취합해 저의 검토를 위해 보내주시고, 초안을 저에게 보내실 때 Arun을 CC로 포함해 주세요. Arun이 용어를 확인하겠지만, 최종 문구는 제가 승인하겠습니다. 제가 승인하기 전에는 직원들에게 공지를 배포하지 말아 주세요.\n\n감사합니다,\nGrace",
+        "seconds": 15.058,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "3c5d82ca46b55138e2d4b469c6575055db73cff222f67a61127bc3d79f6c373c"
+      },
+      "B-E06": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 데이터 가져오기 일정 추정\n\nMarco 님,\n\n샘플 파일을 기준으로 전체 데이터셋을 가져오는 데 3~5시간이 소요될 것으로 추정합니다. 이는 계획을 위한 추정일 뿐, 완료 시점을 보장하는 것은 아닙니다. 최종 파일이 2026년 11월 20일 18:00 UTC까지 도착하면 2026년 11월 23일 09:00 UTC에 시작하는 것으로 확정할 수 있습니다. 그 이후에 도착할 경우 동일한 시작 시간이 비어 있다고 가정하지 않고 새로운 시작 시간을 제안하겠습니다.\n\n감사합니다,\nSofia",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 데이터 가져오기 일정 추정\n\nMarco 님,\n\n샘플 파일을 기준으로 전체 데이터셋을 가져오는 데 3~5시간이 소요될 것으로 추정합니다. 이는 계획을 위한 추정일 뿐, 완료 시점을 보장하는 것은 아닙니다. 최종 파일이 2026년 11월 20일 18:00 UTC까지 도착하면 2026년 11월 23일 09:00 UTC에 시작하는 것으로 확정할 수 있습니다. 그 이후에 도착할 경우 동일한 시작 시간이 비어 있다고 가정하지 않고 새로운 시작 시간을 제안하겠습니다.\n\n감사합니다,\nSofia",
+        "seconds": 25.504,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "75ee35861e57219847fbb0dcfdb614cc10b42447392d65a20b20df07d877e0e8"
+      },
+      "B-K01": {
+        "origin": "comparison/baseline",
+        "raw": "**Subject:** Follow-up Actions for the Mis-Sent Email\n\nHi Alex,\n\nThe email already sent to the external business partner cannot be recalled via NAVER WORKS. However, the follow-up email scheduled for tomorrow at 09:00 KST has not yet been delivered, so the scheduled delivery can be canceled.\n\nPlease cancel only the scheduled delivery for now, and send the correction notice only after I have approved it. Please be careful not to describe canceling the scheduled delivery as having recalled the email that was already sent.\n\nThank you.\nMira",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** Follow-up Actions for the Mis-Sent Email\n\nHi Alex,\n\nThe email already sent to the external business partner cannot be recalled via NAVER WORKS. However, the follow-up email scheduled for tomorrow at 09:00 KST has not yet been delivered, so the scheduled delivery can be canceled.\n\nPlease cancel only the scheduled delivery for now, and send the correction notice only after I have approved it. Please be careful not to describe canceling the scheduled delivery as having recalled the email that was already sent.\n\nThank you.\nMira",
+        "seconds": 19.821,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "42e6dd6c29ae12503980c9f363482de168448b85f74c1f24af9409c60c9be71f"
+      },
+      "B-K02": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Request to Confirm Customer Training Schedule\n\nHi Nora,\n\nThe customer training is tentatively scheduled for November 19 at 15:00 KST, but it has not been confirmed yet. Budget approval is currently under review by the finance team, and I will handle the conference room reservation. If possible, please provide the estimated number of attendees by tomorrow at 12:00 KST. Even if I receive a reply, I will not send out invitations before the budget is approved. If the proposed time is not feasible, I would appreciate it if you could also suggest alternative times.\n\nThank you.\nEvan",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Confirm Customer Training Schedule\n\nHi Nora,\n\nThe customer training is tentatively scheduled for November 19 at 15:00 KST, but it has not been confirmed yet. Budget approval is currently under review by the finance team, and I will handle the conference room reservation. If possible, please provide the estimated number of attendees by tomorrow at 12:00 KST. Even if I receive a reply, I will not send out invitations before the budget is approved. If the proposed time is not feasible, I would appreciate it if you could also suggest alternative times.\n\nThank you.\nEvan",
+        "seconds": 19.294,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "5218e8a51711f8a4597ebfef1dd417045491b8442b236451bd050628ec21ab37"
+      },
+      "B-K03": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Document Upload Delay — Temporary Measure Notice\n\nHello Lena,\n\nDue to document upload delays, the operations team has temporarily lowered the file size limit. Currently, small files can be uploaded, but large files must continue to wait. The root cause is still under investigation, so please do not communicate this measure as a permanent fix. The next status update will be provided at 16:20 KST; however, this does not mean that recovery will be completed by that time. If you have urgent materials, please reply with the file name(s) only, and the operations team will look into alternative delivery methods.\n\nThank you.\nService Support Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Document Upload Delay — Temporary Measure Notice\n\nHello Lena,\n\nDue to document upload delays, the operations team has temporarily lowered the file size limit. Currently, small files can be uploaded, but large files must continue to wait. The root cause is still under investigation, so please do not communicate this measure as a permanent fix. The next status update will be provided at 16:20 KST; however, this does not mean that recovery will be completed by that time. If you have urgent materials, please reply with the file name(s) only, and the operations team will look into alternative delivery methods.\n\nThank you.\n서비스 지원팀",
+        "seconds": 23.391,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "d8870b1823ba47fb7104f62eff470ca2455a4c1f97d41d0b86aa36a108d91023"
+      },
+      "B-K04": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Request to Confirm Receipt of Quotation Email\n\nHi Owen,\n\nThe quotation email sent to the client yesterday was composed in text mode, so we are unable to verify whether it was opened in NAVER WORKS. Therefore, the absence of a read confirmation record should not be taken as evidence that the client has not read it. Could you please confirm by 17:00 KST today only whether the client received the email? Please do not resend the same quotation; only let me know if a resend is requested. Whether the quotation has been accepted is not part of this confirmation.\n\nThank you.\nMira",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Confirm Receipt of Quotation Email\n\nHi Owen,\n\nThe quotation email sent to the client yesterday was composed in text mode, so we are unable to verify whether it was opened in NAVER WORKS. Therefore, the absence of a read confirmation record should not be taken as evidence that the client has not read it. Could you please confirm by 17:00 KST today only whether the client received the email? Please do not resend the same quotation; only let me know if a resend is requested. Whether the quotation has been accepted is not part of this confirmation.\n\nThank you.\nMira",
+        "seconds": 11.07,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "03023711c4632e745a11bbf33fff99b554163762d9d736df4846fb97e52055a0"
+      },
+      "B-K05": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Request to Confirm Processing Delay on webhook-worker-2\n\nHi Jules,\n\nToday, the receiving server returned HTTP 202 for a GitHub webhook request, but the subsequent processing on webhook-worker-2 has not yet completed. Please do not treat the fact that a receiving response was sent as confirmation that processing is complete. Please check the event type via the X-GitHub-Event header and the action type via the action value in the body. The platform team is handling the investigation; please do not change operational settings at this time. If you are able to check the remaining tasks in the queue, please reply with the current status only by 18:10 UTC.\n\nThank you.\nBest regards,\nEvan",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Confirm Processing Delay on webhook-worker-2\n\nHi Jules,\n\nToday, the receiving server returned HTTP 202 for a GitHub webhook request, but the subsequent processing on webhook-worker-2 has not yet completed. Please do not treat the fact that a receiving response was sent as confirmation that processing is complete. Please check the event type via the X-GitHub-Event header and the action type via the action value in the body. The platform team is handling the investigation; please do not change operational settings at this time. If you are able to check the remaining tasks in the queue, please reply with the current status only by 18:10 UTC.\n\nThank you.\nBest regards,\nEvan",
+        "seconds": 24.761,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "15670df771d48032f1707dacb13a603bd3232cdf514eaaac8e1cb5392d451cb9"
+      },
+      "B-K06": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Please review the revised notice\n\nHi Mina,\n\nIn the attached welcome_v3.docx, only the point of contact's information has been updated; the training start date remains unchanged. Could you please verify that the contact information is correct before distribution? If there are no errors, I will send it to new hires today at 14:00 KST. When replying, please CC only the HR team and do not share this draft with the external training vendor. If any changes are needed, please do not edit the file directly—instead, include the relevant sentence in your reply.\n\nBest regards,\nNora",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Please review the revised notice\n\nHi Mina,\n\nIn the attached welcome_v3.docx, only the point of contact's information has been updated; the training start date remains unchanged. Could you please verify that the contact information is correct before distribution? If there are no errors, I will send it to new hires today at 14:00 KST. When replying, please CC only the HR team and do not share this draft with the external training vendor. If any changes are needed, please do not edit the file directly—instead, include the relevant sentence in your reply.\n\nBest regards,\nNora",
+        "seconds": 11.74,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "a46d537991bf388060a6311e2f1bd7786046a5cfb3f94448daa92faa1adb4b70",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "5209dc6ce2fe17baa15f27e2fa33e52e333839ae73a28255e3b5a7036b2da592"
+      },
+      "H-E01": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 조치 전에 웹훅 재시도 점검\n\nSam님,\n\n수신 서버가 다시 온라인 상태이며, WH-208 티켓에 대해 재전송을 요청했습니다. GitHub는 재전송 시 원래의 X-GitHub-Delivery 값을 그대로 재사용하므로, 일치하는 식별자만으로는 공격의 증거가 아닙니다. 재시도 처리 여부를 결정하기 전에 원래 작업이 완료되었는지 확인해 주세요. 내부 명령어 `replayctl inspect --ticket WH-208`는 작업 기록만 표시하며, 작업을 시작하거나 재시도하지 않습니다.\n\n감사합니다,\nJules",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 조치 전에 웹훅 재시도 점검\n\nSam님,\n\n수신 서버가 다시 온라인 상태이며, WH-208 티켓에 대해 재전송을 요청했습니다. GitHub는 재전송 시 원래의 X-GitHub-Delivery 값을 그대로 재사용하므로, 일치하는 식별자만으로는 공격의 증거가 아닙니다. 재시도 처리 여부를 결정하기 전에 원래 작업이 완료되었는지 확인해 주세요. 내부 명령어 `replayctl inspect --ticket WH-208`는 작업 기록만 표시하며, 작업을 시작하거나 재시도하지 않습니다.\n\n감사합니다,\nJules",
+        "seconds": 36.912,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "0a8f21553c8b48d4db7b8c0a9ee5bf420e6e6b28a0bcddc36a115b5a2df02c7d"
+      },
+      "H-E02": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 파일 내보내기 공지사항 정정\n\nAsha 님,\n\n파일 내보내기 장애는 2026년 11월 26일 11:20(UTC)에 해결되었습니다. 이전 공지사항에 검색 서비스가 잘못 포함되었으나, 검색 서비스에는 영향이 없었습니다. 이 정정 사항을 지원팀에 공유해 주시기를 부탁드립니다. 현재 원인 조사를 계속 진행 중이며, 검토 보고서는 2026년 11월 30일까지 전달될 예정입니다. 해당 진행 중인 검토가 서비스가 계속 이용 불가 상태라는 의미는 아닙니다. 장애로 인한 불편과 공지사항으로 인한 혼란에 대해 사과드립니다.\n\n감사합니다.\n고객 운영팀",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 파일 내보내기 공지사항 정정\n\nAsha 님,\n\n파일 내보내기 장애는 2026년 11월 26일 11:20(UTC)에 해결되었습니다. 이전 공지사항에 검색 서비스가 잘못 포함되었으나, 검색 서비스에는 영향이 없었습니다. 이 정정 사항을 지원팀에 공유해 주시기를 부탁드립니다. 현재 원인 조사를 계속 진행 중이며, 검토 보고서는 2026년 11월 30일까지 전달될 예정입니다. 해당 진행 중인 검토가 서비스가 계속 이용 불가 상태라는 의미는 아닙니다. 장애로 인한 불편과 공지사항으로 인한 혼란에 대해 사과드립니다.\n\n감사합니다.\n고객 운영팀",
+        "seconds": 39.285,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "4a9fcb04b2ea17561ae2d5b08e615f5b17ecee2fc14e1132924930cf8e34ee02"
+      },
+      "H-E03": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 수정된 노트북 견적서\n\nKeiko 님,\n\n견적서를 업데이트해 주셔서 감사합니다. 노트북 24대 수량은 정확하지만, Quote-R7.pdf의 배송 주소는 여전히 이전 사무실로 되어 있습니다. 수량과 단가는 그대로 유지한 채 수정된 견적서를 2026년 12월 2일 17:00 KST까지 보내 주십시오. 이 확인은 수량에만 해당하며, 발주서가 아닙니다. 구매부서(Purchasing)가 정식 발주서를 발송할 때까지 재고 확보 또는 출하 준비를 하지 마십시오.\n\n감사합니다.  \nBen",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 수정된 노트북 견적서\n\nKeiko 님,\n\n견적서를 업데이트해 주셔서 감사합니다. 노트북 24대 수량은 정확하지만, Quote-R7.pdf의 배송 주소는 여전히 이전 사무실로 되어 있습니다. 수량과 단가는 그대로 유지한 채 수정된 견적서를 2026년 12월 2일 17:00 KST까지 보내 주십시오. 이 확인은 수량에만 해당하며, 발주서가 아닙니다. 구매부서(Purchasing)가 정식 발주서를 발송할 때까지 재고 확보 또는 출하 준비를 하지 마십시오.\n\n감사합니다.  \nBen",
+        "seconds": 13.718,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "329d530bc3d96f7e0685bf7249cff06dbdaabb84c46b11bf44a49b48c7f5c1e9"
+      },
+      "H-E04": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 교육 신청 접수 경로 변경 안내\n\n동료 여러분,\n\n2026년 12월 7일부터는 교육 신청을 이메일이 아닌 직원 포털을 통해 제출해 주시기 바랍니다. 해당 날짜 이전에 이메일로 제출된 신청은 계속 검토되므로 다시 제출하지 않으셔도 됩니다. 이번 변경은 교육 신청에만 적용되며, 출장 신청은 기존과 같이 이메일로 출장팀에 보내 주시기 바랍니다. 포털에 접근할 수 없는 경우 Iris에게 문의해 주십시오.\n\n감사합니다.  \nPeople Services",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 교육 신청 접수 경로 변경 안내\n\n동료 여러분,\n\n2026년 12월 7일부터는 교육 신청을 이메일이 아닌 직원 포털을 통해 제출해 주시기 바랍니다. 해당 날짜 이전에 이메일로 제출된 신청은 계속 검토되므로 다시 제출하지 않으셔도 됩니다. 이번 변경은 교육 신청에만 적용되며, 출장 신청은 기존과 같이 이메일로 출장팀에 보내 주시기 바랍니다. 포털에 접근할 수 없는 경우 Iris에게 문의해 주십시오.\n\n감사합니다.  \nPeople Services",
+        "seconds": 11.106,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "17bfff4d3ca6712261559f3381495156ef4463f60ff72b7f6ac989b569c4c2f6"
+      },
+      "H-K01": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Recipient-Specific Actions for Internal Email with Incorrect Attachment\n\nHi Dana,\n\nIt has been 26 hours since I sent the internal email with the incorrect quotation attached. Both recipients use accounts in the same NAVER WORKS organization as I do. Jae has read the email, and Robin has not yet read it. Since the email sent to Jae cannot be recalled, I will send a correction notice. Please attempt to recall only the email sent to Robin and verify the result. Please do not report that it has been deleted from both mailboxes merely because a recall was attempted.\n\nThank you.\nMira",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Recipient-Specific Actions for Internal Email with Incorrect Attachment\n\nHi Dana,\n\nIt has been 26 hours since I sent the internal email with the incorrect quotation attached. Both recipients use accounts in the same NAVER WORKS organization as I do. Jae has read the email, and Robin has not yet read it. Since the email sent to Jae cannot be recalled, I will send a correction notice. Please attempt to recall only the email sent to Robin and verify the result. Please do not report that it has been deleted from both mailboxes merely because a recall was attempted.\n\nThank you.\nMira",
+        "seconds": 15.507,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "779d4179d158851ec01b7863ca94e218210da7c33df82842e669e272fef431df"
+      },
+      "H-K02": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Request to Cross-Check Webhook Resend Records\n\nHello Theo,\n\nWe missed one GitHub webhook during the outage and resent it after server recovery. The X-GitHub-Delivery value for the resend request is 7f9c2a10-6b45-4d83-9e21-c0a8f7b6d592, which is the same as the original request. Please do not classify this request as a new event. We would appreciate it if the Platform team could cross-check the receipt times and processing results of the two requests. Before the processing result is confirmed, we will not assert that it was processed more than once. We would appreciate receiving either the investigation results or a notice that the investigation is still ongoing by 19:00 UTC today.\n\nThank you.\nJules",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Cross-Check Webhook Resend Records\n\nHello Theo,\n\nWe missed one GitHub webhook during the outage and resent it after server recovery. The X-GitHub-Delivery value for the resend request is 7f9c2a10-6b45-4d83-9e21-c0a8f7b6d592, which is the same as the original request. Please do not classify this request as a new event. We would appreciate it if the Platform team could cross-check the receipt times and processing results of the two requests. Before the processing result is confirmed, we will not assert that it was processed more than once. We would appreciate receiving either the investigation results or a notice that the investigation is still ongoing by 19:00 UTC today.\n\nThank you.\nJules",
+        "seconds": 26.837,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "ef6c35728a5be5cfa745d68d391535d467f058f0cfd9eaee73a8db5994cb8e3f",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "8b5ccdb93961da8943e1b7af190333dfe1a2d8697c3dcc7ca99e4d6c4b3c1f51"
+      },
+      "H-K03": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: Request for Confirmation Before Sending the Temporary Loan Laptop\n\nHi Kai,\n\nThe only temporary loan laptop secured by the support team is one unit, LT-04. If the user agrees, please send it out tomorrow morning; however, please do not inform them that the repair of the existing equipment has been completed. If the user does not agree, please let me know first before ordering a new unit. I will separately request approval for a new purchase from the department head, and I have not yet received approval. After shipping, please reply to this email with the tracking number.\n\nThank you,\nOwen",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request for Confirmation Before Sending the Temporary Loan Laptop\n\nHi Kai,\n\nThe only temporary loan laptop secured by the support team is one unit, LT-04. If the user agrees, please send it out tomorrow morning; however, please do not inform them that the repair of the existing equipment has been completed. If the user does not agree, please let me know first before ordering a new unit. I will separately request approval for a new purchase from the department head, and I have not yet received approval. After shipping, please reply to this email with the tracking number.\n\nThank you,\nOwen",
+        "seconds": 19.625,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "e24b0a428988e6f378c123420d7de6dd837d3997ad4fa7b60b3e4cdde1988fcd"
+      },
+      "H-K04": {
+        "origin": "comparison/baseline",
+        "raw": "**Subject:** Adjustment of Recipient Scope for Scheduled Product Announcement Delivery\n\nHi Sora,\n\nBoth the Korean and English product announcements are currently scheduled on NAVER WORKS for tomorrow at 08:30 KST, and neither has been sent yet. As the review of the English version is not yet complete, please cancel only the scheduled delivery of the English email intended for external customers. The already-approved Korean version should proceed as scheduled to internal employees; however, please confirm that no customer addresses are included in the recipient list.\n\nI will handle the review of the English version, but I am not yet able to commit to sending it tomorrow. Please do not reschedule the delivery for external customers until I reply with a new sending time.\n\nThank you.\nLena",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** Adjustment of Recipient Scope for Scheduled Product Announcement Delivery\n\nHi Sora,\n\nBoth the Korean and English product announcements are currently scheduled on NAVER WORKS for tomorrow at 08:30 KST, and neither has been sent yet. As the review of the English version is not yet complete, please cancel only the scheduled delivery of the English email intended for external customers. The already-approved Korean version should proceed as scheduled to internal employees; however, please confirm that no customer addresses are included in the recipient list.\n\nI will handle the review of the English version, but I am not yet able to commit to sending it tomorrow. Please do not reschedule the delivery for external customers until I reply with a new sending time.\n\nThank you.\nLena",
+        "seconds": 29.387,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "9399c8900b2b7933ba84f87a49e5e9dfdfa07dd9ac295f0ac44eb9bf6ad8fbe2",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "062389dc02ddb14451d3dd2873906315980e7a893d16d7f5e35e9b40529b103f"
+      },
+      "V01": {
+        "origin": "confirmation/baseline",
+        "raw": "안녕하세요, Casey님,\n\n저희 방문을 위해 박스 3개가 별도로 준비되어 있습니다. 아직 발송되지 않았습니다. 하나는 리셉션에 보관해 주시고, 나머지 두 개는 현재 위치에 그대로 두어 주세요.\n\n감사합니다.\nNell",
+        "state": "done",
+        "error": null,
+        "stored": "안녕하세요, Casey님,\n\n저희 방문을 위해 박스 3개가 별도로 준비되어 있습니다. 아직 발송되지 않았습니다. 하나는 리셉션에 보관해 주시고, 나머지 두 개는 현재 위치에 그대로 두어 주세요.\n\n감사합니다.\nNell",
+        "seconds": 37.629,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "50b35ca81b8455255d6d9cdbfd9c21d39aefc9b51496ac96414c507de073ff7e"
+      },
+      "V02": {
+        "origin": "confirmation/baseline",
+        "raw": "Hello.\n\nThe difference will be adjusted in next month's invoice. Please do not arbitrarily reduce this month's payment amount.\n\nThank you.\nSettlement Team",
+        "state": "done",
+        "error": null,
+        "stored": "Hello.\n\nThe difference will be adjusted in next month's invoice. Please do not arbitrarily reduce this month's payment amount.\n\nThank you.\n정산팀",
+        "seconds": 11.716,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "3c650818fc838b1418aa0a85ae25ddb3596fbe3f75163446898341023fa67ed0"
+      },
+      "V03": {
+        "origin": "confirmation/baseline",
+        "raw": "제목: 저자 사본\n\n안녕하세요 Dev 님,\n\n교정본 열람이 가능합니다. 사본 구매는 선택 사항이며, 심사에는 영향을 미치지 않습니다. 교정본을 원하시면 배송 주소만 보내 주세요.\n\n감사합니다,\nAri",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 저자 사본\n\n안녕하세요 Dev 님,\n\n교정본 열람이 가능합니다. 사본 구매는 선택 사항이며, 심사에는 영향을 미치지 않습니다. 교정본을 원하시면 배송 주소만 보내 주세요.\n\n감사합니다,\nAri",
+        "seconds": 15.35,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "017360a45d97ebd68cb9508f4c4bece0abe17249f7d6971a53b26fa6a78cf969"
+      },
+      "V04": {
+        "origin": "confirmation/baseline",
+        "raw": "Subject: Shift Handover\n\nHello,\n\nWhat the night shift reviewed was an inspection memo, not an actual inspection of the equipment itself. When the morning shift arrives, please only confirm the time available for an inspection.\n\nThank you.\n서지원",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Shift Handover\n\nHello,\n\nWhat the night shift reviewed was an inspection memo, not an actual inspection of the equipment itself. When the morning shift arrives, please only confirm the time available for an inspection.\n\nThank you.\n서지원",
+        "seconds": 16.318,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "6b68e2edeb09f6955e2f234e67001ea74f3786119c6a86a19924cfc992e56f98"
+      },
+      "V05": {
+        "origin": "confirmation/baseline",
+        "raw": "제목: 제안서 게시 및 의견 요청\n\n안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 제안서 게시 및 의견 요청\n\n안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani",
+        "seconds": 28.668,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "0b6121075602446ddaaf859d6afeb7c4ee91f3674a1452ee074b0daf900cee20"
+      },
+      "V06": {
+        "origin": "confirmation/baseline",
+        "raw": "Subject: Shared Account Cleanup\n\nHello,\n\nOne of the two shared accounts is currently being archived. Since it has already been decided which account will be retained, please leave both accounts as they are until the person in charge confirms.\n\nThank you.\nOperations Support Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Shared Account Cleanup\n\nHello,\n\nOne of the two shared accounts is currently being archived. Since it has already been decided which account will be retained, please leave both accounts as they are until the person in charge confirms.\n\nThank you.\n운영지원팀",
+        "seconds": 13.596,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "1b72d27715c212b689e907f47ce1aeb66362557b946c96d685479b19df4b7c7a"
+      },
+      "D01": {
+        "origin": "adoption/baseline",
+        "raw": "제목: 안전 체크리스트 초안 및 다음 주 시범 절차 안건\n\n로빈 님,\n\n안전 팀은 체크리스트 초안을 검토했습니다. 현장 팀은 아직 절차를 시도하지 않았습니다. 다음 주 회의 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다,\n에이브리",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 안전 체크리스트 초안 및 다음 주 시범 절차 안건\n\n로빈 님,\n\n안전 팀은 체크리스트 초안을 검토했습니다. 현장 팀은 아직 절차를 시도하지 않았습니다. 다음 주 회의 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다,\n에이브리",
+        "seconds": 23.684,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "2610ab0a64d3b7748514853bb5e08ea20cb2cfd5f94f35915c75546e30176910"
+      },
+      "D02": {
+        "origin": "adoption/baseline",
+        "raw": "제목: 지점용 전시 샘플\n\nNoor 님,\n\n오픈 데이를 위해 전시용 샘플 2개를 대여할 수 있습니다. 라벨은 샘플과 함께 보관됩니다. 택배를 예약하기 전에 지점에 공간이 있는지 확인해 주십시오.\n\n감사합니다.\nParker 드림",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 지점용 전시 샘플\n\nNoor 님,\n\n오픈 데이를 위해 전시용 샘플 2개를 대여할 수 있습니다. 라벨은 샘플과 함께 보관됩니다. 택배를 예약하기 전에 지점에 공간이 있는지 확인해 주십시오.\n\n감사합니다.\nParker 드림",
+        "seconds": 14.476,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "6017cb6921c273f41f68f7dd3128cd845cdd0e9ecc797bae87709805226ac21b"
+      },
+      "D03": {
+        "origin": "adoption/baseline",
+        "raw": "Hello,\n\nI received the proposal but have not registered it as a contract. Please do not schedule signatures on either side before the responsible contact returns. Please only let me know the sample review schedule.\n\nThank you.\nChoi Dawon",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nI received the proposal but have not registered it as a contract. Please do not schedule signatures on either side before the responsible contact returns. Please only let me know the sample review schedule.\n\nThank you.\n최다원",
+        "seconds": 27.22,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d572d4c9c3b50e96a2176b4e82f31cdf66a266837ecb5a21b582de020c69f71a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "7deb348d204c4693c94e73de8122b62ace863ec6eb7e077b4b1f8f54418f37da"
+      },
+      "D04": {
+        "origin": "adoption/baseline",
+        "raw": "Subject: Inquiry About Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue until a response is received.\n\nThank you.\nEducation Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Inquiry About Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue until a response is received.\n\nThank you.\n교육팀",
+        "seconds": 14.425,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "dab6149b4f8189183e1931550daeffcab1ad843922c9944a6f59d0f482785f48"
+      },
+      "D05": {
+        "origin": "adoption/baseline",
+        "raw": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants can submit their applications directly at the information counter by noon tomorrow. When the person in charge receives the documents, please issue only an application receipt. On-site approval has not been requested.\n\nThank you.\nOperations Team",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants can submit their applications directly at the information counter by noon tomorrow. When the person in charge receives the documents, please issue only an application receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+        "seconds": 26.264,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "11c8e6833e9e86891313ded5a087eea2e612b6e5e61c84305481b54080853f36"
+      }
+    },
+    "release": {
+      "U01": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 예비 제품 두 대에 대한 크레딧\n\n안녕하세요, Morgan 님,\n\n예비 제품 두 대의 배송비 크레딧 처리가 가능합니다. 최초 인보이스에 기재된 제품 단가는 그대로 유지됩니다. 영수증 사본을 보내 주십시오. 아직 환불은 처리되지 않았습니다.\n\n감사합니다,\nAlex",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 예비 제품 두 대에 대한 크레딧\n\n안녕하세요, Morgan 님,\n\n예비 제품 두 대의 배송비 크레딧 처리가 가능합니다. 최초 인보이스에 기재된 제품 단가는 그대로 유지됩니다. 영수증 사본을 보내 주십시오. 아직 환불은 처리되지 않았습니다.\n\n감사합니다,\nAlex",
+        "seconds": 17.293,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "425d5231fc4d078150b4d78dcfa84f0374c23377e15a06ed828fef069c33c9a0"
+      },
+      "U02": {
+        "origin": "adoption/candidate",
+        "raw": "Hello,\n\nPlease share your opinion on whether replacing the server would reduce maintenance time. Since the budget has not yet been allocated, please do not register the quotation as a purchase order.\n\nThank you.",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nPlease share your opinion on whether replacing the server would reduce maintenance time. Since the budget has not yet been allocated, please do not register the quotation as a purchase order.\n\nThank you.",
+        "seconds": 17.401,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "83e876a7995e2c2244c462b450fc65cfe4276eb3208aa04bc05e2f72527403d3"
+      },
+      "U03": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 캘린더의 예약 보류일 뿐, 확정 예약이 아닙니다. 강사가 정오 이후에 머물 수 없다면 대신 오전 두 번의 일정을 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다,\nKai",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 워크숍 일정\n\nPat 님,\n\n6월 3일은 캘린더의 예약 보류일 뿐, 확정 예약이 아닙니다. 강사가 정오 이후에 머물 수 없다면 대신 오전 두 번의 일정을 제안해 주세요. 아직 참석자에게 연락할 필요는 없습니다.\n\n감사합니다,\nKai",
+        "seconds": 13.827,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "3c6899d177cd61fb6c8cc9d76de873820c0b0cc6b7fa65c69c372f2b4ceef524"
+      },
+      "U04": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Card Payment Reconciliation\n\nHello,\n\nI received two approval text messages, but only one transaction appears on the statement. I am not requesting a payment cancellation—please just explain why this discrepancy occurred.\n\nThank you.\nAccounting Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Card Payment Reconciliation\n\nHello,\n\nI received two approval text messages, but only one transaction appears on the statement. I am not requesting a payment cancellation—please just explain why this discrepancy occurred.\n\nThank you.\n회계팀",
+        "seconds": 12.171,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "5b36f07126e1dc8fd753a2b0797a99b4ee1f4c134341f150c13827a996559289",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "83d46898dbc48c81cc28d17b73b95c300bea2877a329db4592ff85d2c4883e59"
+      },
+      "U05": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 16:10 픽업 가능 여부 확인 요청\n\n본문:\nTaylor님,\n\n택배는 집하장에서 스캔되었으나 운송사가 아직 수거하지 않았습니다. 16:10 픽업에 여전히 반영할 수 있는지 확인해 주시겠어요? 대체 주문은 보류 상태로 유지해 주세요.\n\n감사합니다.\nLee",
+        "state": "done",
+        "error": null,
+        "stored": "Taylor님,\n\n택배는 집하장에서 스캔되었으나 운송사가 아직 수거하지 않았습니다. 16:10 픽업에 여전히 반영할 수 있는지 확인해 주시겠어요? 대체 주문은 보류 상태로 유지해 주세요.\n\n감사합니다.\nLee",
+        "seconds": 41.905,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "0089946b6c728ef95b1d03c66fd3af00d55b4624938a2269284c31e89751e10b",
+        "original_state": "failed",
+        "original_error": "원문에 없는 다른 메일의 인사말이 들어 있습니다.",
+        "original_display": ""
+      },
+      "U06": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Meeting Room Cost Allocation\n\nMijin,\n\nWe have not yet determined which of the two locations the cost should be charged to. Please do not bill either location; only confirm the validity period of the quotation.\n\nThank you.\nKim Hyunwoo · Lee Yuna",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Meeting Room Cost Allocation\n\nMijin,\n\nWe have not yet determined which of the two locations the cost should be charged to. Please do not bill either location; only confirm the validity period of the quotation.\n\nThank you.\n김현우 · 이유나",
+        "seconds": 17.392,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "b29c50584b698c0aad54f3fd842acbaf518ae01dbfaee394a204d12dd15b1b94",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "495771ace328f0729639ca67c268eaa578d26bf53aa25a403362aae20f200fec"
+      },
+      "U07": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 토요일 지원 근무 커버\n\n린 님,\n\n줄스가 인수인계를 확인해 주시면 제가 토요일 첫 1시간을 커버할 수 있습니다. 그렇지 않으면 근무 일정은 그대로 유지됩니다. 근무 일정을 변경하기 전에 줄스와 확인해 주시겠어요?\n\n감사합니다.\n로리",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 토요일 지원 근무 커버\n\n린 님,\n\n줄스가 인수인계를 확인해 주시면 제가 토요일 첫 1시간을 커버할 수 있습니다. 그렇지 않으면 근무 일정은 그대로 유지됩니다. 근무 일정을 변경하기 전에 줄스와 확인해 주시겠어요?\n\n감사합니다.\n로리",
+        "seconds": 24.264,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "a59644edbbd6f12ab8df92c00786ff43de95e92f96f077063803f11c7b5b7898"
+      },
+      "U08": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Parts Receipt Record\n\nHello.\n\nThe second line of the attached count.csv is not the actual quantity but the reserved quantity. Please do not modify the file; instead, first check whether that quantity is included in today's incoming shipment.\n\nThank you.\nSumin",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Parts Receipt Record\n\nHello.\n\nThe second line of the attached count.csv is not the actual quantity but the reserved quantity. Please do not modify the file; instead, first check whether that quantity is included in today's incoming shipment.\n\nThank you.\n수민",
+        "seconds": 13.131,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "47cf7f9bf5937417cd6cf128cd6db5a64663745adf6ae0a1f1994ce3f9273809"
+      },
+      "U09": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 회의록 초안\n\n안녕하세요, 여러분,\n\n갱신 안건을 의사일정에 추가해 주세요. 위원회는 해당 제안을 확인만 하였고 표결하지 않았습니다. 현재로서는 회의록에 메모를 남기는 것으로 충분합니다.\n\n감사합니다,\n조",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 회의록 초안\n\n안녕하세요, 여러분,\n\n갱신 안건을 의사일정에 추가해 주세요. 위원회는 해당 제안을 확인만 하였고 표결하지 않았습니다. 현재로서는 회의록에 메모를 남기는 것으로 충분합니다.\n\n감사합니다,\n조",
+        "seconds": 8.284,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "26be0bc40b318cda2ed06f5b3addcf56a5c909eff24e4da62482f03112622099"
+      },
+      "U10": {
+        "origin": "comparison/candidate",
+        "raw": "Hello,\n\nPlease reply with the following three items clearly distinguished:\n- The date promised for delivery\n- The date we actually received the goods\n- Items that have not yet arrived\n\nIf the exact date is unknown, please mark it as an estimate.\n\nThank you.\nProcurement Support Team",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nPlease reply with the following three items clearly distinguished:\n- The date promised for delivery\n- The date we actually received the goods\n- Items that have not yet arrived\n\nIf the exact date is unknown, please mark it as an estimate.\n\nThank you.\n조달지원팀",
+        "seconds": 13.564,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "8be1ad8d88392c2664fe386e121fd4eca53b67185e5e0000882f248fb6f8c464"
+      },
+      "E1": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities에서는 이메일로 승인을 할 수 있습니다. Security만 원본 종이 양식에 서명해야 합니다. Facilities와 Security의 승인은 아직 한 건도 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 출입카드를 캐비닛에 보관해 주십시오.\n\n감사합니다.\nRobin",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 점검 양식 06b6ca\n\nLee 님,\n\nFacilities에서는 이메일로 승인을 할 수 있습니다. Security만 원본 종이 양식에 서명해야 합니다. Facilities와 Security의 승인은 아직 한 건도 접수되지 않았습니다. 두 승인이 모두 기록될 때까지 출입카드를 캐비닛에 보관해 주십시오.\n\n감사합니다.\nRobin",
+        "seconds": 141.241,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "56e37227d024490a9c3eae689d1594f4b13ff94d635688a3642ee6da2d7b4d52",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "173a5f2aeb46690fd1568fd26bf02c25737c707cf874481bc51387a3cee90e75"
+      },
+      "K1": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Check return operation records\n\nHello Hyun-su,\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse operation was processed more than once. Please do not re-execute any request, and let me know only whether you can check the logs by 13:40 KST.\n\nThank you.\nYerin",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Check return operation records\n\nHello Hyun-su,\n\nOne return request was marked as a duplicate, but it has not yet been confirmed whether the warehouse operation was processed more than once. Please do not re-execute any request, and let me know only whether you can check the logs by 13:40 KST.\n\nThank you.\n예린",
+        "seconds": 12.432,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "4108b65762d3465c89e561a7ba6bc7918e6ce50c9d0649c235a73cf804b28729",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "fd753f345281bdb280385bc239dff67534cced6e0d1731efdd0515272777761d"
+      },
+      "E2": {
+        "origin": "comparison/baseline",
+        "raw": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였고, 두 번째 요청은 오픈하지 않았습니다. 벤치를 금요일까지 예약 상태로 유지하세요.\n\n감사합니다,\nDara",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였고, 두 번째 요청은 오픈하지 않았습니다. 벤치를 금요일까지 예약 상태로 유지하세요.\n\n감사합니다,\nDara",
+        "seconds": 42.765,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "f94a7b1cc275f5db0697f98fc8a79dff12a9d0e345dfeeb6459d27037d85a620"
+      },
+      "E4": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 임시 배지\n\n벤 님,\n\n두 허가증 중 승인된 것이 있는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 두 허가증 중 어느 것이든 반려로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 임시 배지\n\n벤 님,\n\n두 허가증 중 승인된 것이 있는지 알 수 없습니다. 내일 등록부를 확인해 주세요. 두 허가증 중 어느 것이든 반려로 표시하지 마세요.\n\n감사합니다,\nNora",
+        "seconds": 138.394,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "fe1c530fe279ef08ae569ff9bb3423d6a7e5259a2f9de2134fd9bc0364b63246",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "f6073c2b83bc38812840ff56333631b5e07f792bed3cae713cdb5a61e03d7fd5"
+      },
+      "K3": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know whether the demo can be moved to Wednesday afternoon. Do not change the schedule yet.\n\nThank you.\nKim Doyun · Park Seorin",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Demo Schedule\n\nHello,\n\nPlease let us know whether the demo can be moved to Wednesday afternoon. Do not change the schedule yet.\n\nThank you.\n김도윤 · 박서린",
+        "seconds": 14.105,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "1155c10971cd7fda38979b03dbe8288f6ca83125f6cb007e780f92486b525b91"
+      },
+      "B-E01": {
+        "origin": "comparison/baseline",
+        "raw": "제목: Reporting API — 모니터링 업데이트\n\n안녕하세요, Mina 님,\n\n임시 우회 조치가 적용되어 Reporting API에 대한 요청이 다시 정상적으로 처리되고 있습니다. 서비스 상황을 계속 모니터링하고 있으며, 해당 장애는 아직 종료하지 않았습니다. 다음 상태 업데이트는 14:30 UTC에 예정되어 있으며, 해당 시각은 완전한 해결을 확약하는 것은 아닙니다.\n\nService Operations 드림",
+        "state": "done",
+        "error": null,
+        "stored": "제목: Reporting API — 모니터링 업데이트\n\n안녕하세요, Mina 님,\n\n임시 우회 조치가 적용되어 Reporting API에 대한 요청이 다시 정상적으로 처리되고 있습니다. 서비스 상황을 계속 모니터링하고 있으며, 해당 장애는 아직 종료하지 않았습니다. 다음 상태 업데이트는 14:30 UTC에 예정되어 있으며, 해당 시각은 완전한 해결을 확약하는 것은 아닙니다.\n\nService Operations 드림",
+        "seconds": 13.66,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "916da114b01988d09d50e607ddb97c36784310d1129189b27f688c41120b24da"
+      },
+      "B-E02": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 서비스 검토용 연락처 목록\n\n안녕하세요, Owen 님,\n\n2026년 11월 18일 16:00 KST까지 업데이트된 지원 연락처 목록을 보내 주십시오. 각 팀의 주 담당자와 대체 담당자를 포함해 주시고, 첨부된 양식을 사용해 주십시오. 해당 목록은 2026년 11월 20일 서비스 검토에 사용될 예정입니다. 팀의 세부 정보가 변경되지 않았다면, 다른 파일을 보내는 대신 확인 회신을 주십시오.\n\n감사합니다,\nLena",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 서비스 검토용 연락처 목록\n\n안녕하세요, Owen 님,\n\n2026년 11월 18일 16:00 KST까지 업데이트된 지원 연락처 목록을 보내 주십시오. 각 팀의 주 담당자와 대체 담당자를 포함해 주시고, 첨부된 양식을 사용해 주십시오. 해당 목록은 2026년 11월 20일 서비스 검토에 사용될 예정입니다. 팀의 세부 정보가 변경되지 않았다면, 다른 파일을 보내는 대신 확인 회신을 주십시오.\n\n감사합니다,\nLena",
+        "seconds": 24.107,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "2ff4b732a488129ad21a4b339885af034c3d4d55a9035f9ad281c5bf6ffe9943",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "04961a7193ab373c93bcce5bc1122a28b7a36c24614e54abca340960d92b3dee"
+      },
+      "B-E03": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 교육 세션 일정 앞당기기 요청\n\n안녕하세요 Priya 님,\n\n확인해 주셔서 감사합니다. 유감스럽게도 강사가 2026년 11월 13일 12:00 UTC까지 일정 가능 여부를 확인해 주지 않는 한, 교육을 2026년 11월 17일로 변경할 수 없습니다. 당분간 2026년 11월 24일 예약을 유지해 주십시오. 기다리는 동안 녹화본 소개 영상을 제공해 드릴 수 있으나, 이는 라이브 교육을 대체할 수는 없습니다. 녹화본이 도움이 될 수 있을지 알려 주시면 감사하겠습니다.\n\n감사합니다,\nDaniel",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 교육 세션 일정 앞당기기 요청\n\n안녕하세요 Priya 님,\n\n확인해 주셔서 감사합니다. 유감스럽게도 강사가 2026년 11월 13일 12:00 UTC까지 일정 가능 여부를 확인해 주지 않는 한, 교육을 2026년 11월 17일로 변경할 수 없습니다. 당분간 2026년 11월 24일 예약을 유지해 주십시오. 기다리는 동안 녹화본 소개 영상을 제공해 드릴 수 있으나, 이는 라이브 교육을 대체할 수는 없습니다. 녹화본이 도움이 될 수 있을지 알려 주시면 감사하겠습니다.\n\n감사합니다,\nDaniel",
+        "seconds": 48.836,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "725c3fc64cc6abf2133f4f61e4e96f57c197393cb9814baeb4df1ee79bb9e1a1"
+      },
+      "B-E04": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 웹훅 수신은 작업 완료를 의미하지 않습니다\n\nEllis 님,\n\n당사의 수신 서비스는 GitHub 웹훅을 수신한 후 10초 이내에 2XX 응답으로 각 웹훅을 확인해야 합니다. 페이로드는 이후 백그라운드 큐를 통해 처리됩니다. 테스트 보고서에는 수신 결과와 처리 결과를 별도로 기록해 주세요. 성공적인 응답은 큐에 등록된 작업이 완료되었음을 의미하지 않습니다. 샘플 전달의 경우 헤더 이름 X-GitHub-Delivery와 그 값 7c2d9a10-6b34-4e5f-8a21-0d9c6b4e3f20을 표시된 대로 정확히 기록해 주세요.\n\n감사합니다.\n통합 팀",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 웹훅 수신은 작업 완료를 의미하지 않습니다\n\nEllis 님,\n\n당사의 수신 서비스는 GitHub 웹훅을 수신한 후 10초 이내에 2XX 응답으로 각 웹훅을 확인해야 합니다. 페이로드는 이후 백그라운드 큐를 통해 처리됩니다. 테스트 보고서에는 수신 결과와 처리 결과를 별도로 기록해 주세요. 성공적인 응답은 큐에 등록된 작업이 완료되었음을 의미하지 않습니다. 샘플 전달의 경우 헤더 이름 X-GitHub-Delivery와 그 값 7c2d9a10-6b34-4e5f-8a21-0d9c6b4e3f20을 표시된 대로 정확히 기록해 주세요.\n\n감사합니다.\n통합 팀",
+        "seconds": 27.204,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "4cd7b52f7727d8afbd356964f1b03f81599e7014a8f1552c81cd87dee1fdf55b"
+      },
+      "B-E05": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 접근 권한 점검 공지 초안\n\n안녕하세요, Naomi 님,\n\n팀 리더들이 접근 권한 목록을 확인하고 수정 사항을 2026년 11월 19일 KST 15:00까지 회신하도록 요청해 주십시오. 피드백을 하나의 공지 초안으로 취합해 저의 검토를 위해 보내주시고, 초안을 저에게 보내실 때 Arun을 CC로 포함해 주세요. Arun이 용어를 확인하겠지만, 최종 문구는 제가 승인하겠습니다. 제가 승인하기 전에는 직원들에게 공지를 배포하지 말아 주세요.\n\n감사합니다,\nGrace",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 접근 권한 점검 공지 초안\n\n안녕하세요, Naomi 님,\n\n팀 리더들이 접근 권한 목록을 확인하고 수정 사항을 2026년 11월 19일 KST 15:00까지 회신하도록 요청해 주십시오. 피드백을 하나의 공지 초안으로 취합해 저의 검토를 위해 보내주시고, 초안을 저에게 보내실 때 Arun을 CC로 포함해 주세요. Arun이 용어를 확인하겠지만, 최종 문구는 제가 승인하겠습니다. 제가 승인하기 전에는 직원들에게 공지를 배포하지 말아 주세요.\n\n감사합니다,\nGrace",
+        "seconds": 15.058,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "3c5d82ca46b55138e2d4b469c6575055db73cff222f67a61127bc3d79f6c373c"
+      },
+      "B-E06": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 데이터 가져오기 일정 추정\n\nMarco 님,\n\n샘플 파일을 기준으로 전체 데이터셋을 가져오는 데 3~5시간이 소요될 것으로 추정합니다. 이는 계획을 위한 추정일 뿐, 완료 시점을 보장하는 것은 아닙니다. 최종 파일이 2026년 11월 20일 18:00 UTC까지 도착하면 2026년 11월 23일 09:00 UTC에 시작하는 것으로 확정할 수 있습니다. 그 이후에 도착할 경우 동일한 시작 시간이 비어 있다고 가정하지 않고 새로운 시작 시간을 제안하겠습니다.\n\n감사합니다,\nSofia",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 데이터 가져오기 일정 추정\n\nMarco 님,\n\n샘플 파일을 기준으로 전체 데이터셋을 가져오는 데 3~5시간이 소요될 것으로 추정합니다. 이는 계획을 위한 추정일 뿐, 완료 시점을 보장하는 것은 아닙니다. 최종 파일이 2026년 11월 20일 18:00 UTC까지 도착하면 2026년 11월 23일 09:00 UTC에 시작하는 것으로 확정할 수 있습니다. 그 이후에 도착할 경우 동일한 시작 시간이 비어 있다고 가정하지 않고 새로운 시작 시간을 제안하겠습니다.\n\n감사합니다,\nSofia",
+        "seconds": 25.504,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "75ee35861e57219847fbb0dcfdb614cc10b42447392d65a20b20df07d877e0e8"
+      },
+      "B-K01": {
+        "origin": "comparison/candidate",
+        "raw": "**Subject:** Follow-up Actions for the Misdirected Email\n\nHi Alex,\n\nThe email that has already been sent to the external partner cannot be canceled in NAVER WORKS. However, the follow-up email scheduled for delivery tomorrow at 09:00 KST has not yet been sent, so its scheduled delivery can be canceled.\n\nPlease first cancel only the scheduled delivery, and send the correction notice only after I have approved it. Please be careful not to indicate that canceling the scheduled delivery has recalled the email that was already sent.\n\nThank you.\nMira",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** Follow-up Actions for the Misdirected Email\n\nHi Alex,\n\nThe email that has already been sent to the external partner cannot be canceled in NAVER WORKS. However, the follow-up email scheduled for delivery tomorrow at 09:00 KST has not yet been sent, so its scheduled delivery can be canceled.\n\nPlease first cancel only the scheduled delivery, and send the correction notice only after I have approved it. Please be careful not to indicate that canceling the scheduled delivery has recalled the email that was already sent.\n\nThank you.\nMira",
+        "seconds": 20.435,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "226653056668587a63e54eefef05753c54bee38d66d83d252e2f1a56314517cd"
+      },
+      "B-K02": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Request to Confirm Customer Training Schedule\n\nHi Nora,\n\nWe have set November 19 at 15:00 KST as a candidate slot for the customer training, but it has not been confirmed yet. Budget approval is currently under review by the Finance team, and I will take care of the meeting room reservation. If possible, please let us know the estimated number of attendees by 12:00 KST tomorrow. Even if I receive a reply, I will not send out any invitations before the budget is approved. If the proposed time is inconvenient, I would appreciate it if you could also share alternative times that work for you.\n\nThank you.\nEvan",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Confirm Customer Training Schedule\n\nHi Nora,\n\nWe have set November 19 at 15:00 KST as a candidate slot for the customer training, but it has not been confirmed yet. Budget approval is currently under review by the Finance team, and I will take care of the meeting room reservation. If possible, please let us know the estimated number of attendees by 12:00 KST tomorrow. Even if I receive a reply, I will not send out any invitations before the budget is approved. If the proposed time is inconvenient, I would appreciate it if you could also share alternative times that work for you.\n\nThank you.\nEvan",
+        "seconds": 14.858,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "1333a028c8aecbfed2efd9d340cf54413a11a34747058498d980bfe726e8e048"
+      },
+      "B-K03": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Document Upload Delay — Interim Measure Notice\n\nHi Lena,\n\nDue to a delay in document uploads, the operations team has temporarily lowered the file size limit. Currently, small files are uploading successfully, but large files still need to wait. The root cause is under investigation, so please do not present this measure as a permanent resolution. A status update will be provided at 16:20 KST; this does not mean recovery will be completed by that time. If you have urgent materials, please reply with just the file name(s) and the operations team will check for alternative delivery methods.\n\nThank you.\nService Support Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Document Upload Delay — Interim Measure Notice\n\nHi Lena,\n\nDue to a delay in document uploads, the operations team has temporarily lowered the file size limit. Currently, small files are uploading successfully, but large files still need to wait. The root cause is under investigation, so please do not present this measure as a permanent resolution. A status update will be provided at 16:20 KST; this does not mean recovery will be completed by that time. If you have urgent materials, please reply with just the file name(s) and the operations team will check for alternative delivery methods.\n\nThank you.\n서비스 지원팀",
+        "seconds": 18.706,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "210e7229ebaa6665cc9d7adea479e61fa741a4bd71473b56ad853200f26e615c"
+      },
+      "B-K04": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Request to Confirm Receipt of the Quotation Email\n\nHello Owen,\n\nThe quotation email sent to the customer yesterday was composed in text mode in NAVER WORKS, so its read status cannot be confirmed. Therefore, the customer should not be assumed to have not read it simply because there is no read confirmation record. Could you please confirm by 17:00 KST today whether the customer received the email? Please do not resend the same quotation; only notify me if a resend is requested. Whether the quotation has been accepted is not part of this confirmation.\n\nThank you.\nMira",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Confirm Receipt of the Quotation Email\n\nHello Owen,\n\nThe quotation email sent to the customer yesterday was composed in text mode in NAVER WORKS, so its read status cannot be confirmed. Therefore, the customer should not be assumed to have not read it simply because there is no read confirmation record. Could you please confirm by 17:00 KST today whether the customer received the email? Please do not resend the same quotation; only notify me if a resend is requested. Whether the quotation has been accepted is not part of this confirmation.\n\nThank you.\nMira",
+        "seconds": 13.379,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "aa0fcf6e960b08cfbca378c2d72ac012cdb1d9a4b0ff4a4a446d7dc04194cd70"
+      },
+      "B-K05": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Request to Confirm Processing Delay on webhook-worker-2\n\nHi Jules,\n\nToday, the receiving server returned HTTP 202 for a GitHub webhook request, but the subsequent processing by webhook-worker-2 has not yet completed. Please do not treat the sending of the receiving response as processing completion. Please check the event type via the X-GitHub-Event header and the action type via the action value in the body. The investigation is being handled by the Platform team; for now, please do not change any operational settings. If you are able to check the remaining tasks in the queue, please reply with the current status only by 18:10 UTC.\n\nThank you,\nEvan",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Confirm Processing Delay on webhook-worker-2\n\nHi Jules,\n\nToday, the receiving server returned HTTP 202 for a GitHub webhook request, but the subsequent processing by webhook-worker-2 has not yet completed. Please do not treat the sending of the receiving response as processing completion. Please check the event type via the X-GitHub-Event header and the action type via the action value in the body. The investigation is being handled by the Platform team; for now, please do not change any operational settings. If you are able to check the remaining tasks in the queue, please reply with the current status only by 18:10 UTC.\n\nThank you,\nEvan",
+        "seconds": 21.547,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "043934e8aacbb132ab876a41f2fbdb7b82b8d925aec39114419616b86d9378a9"
+      },
+      "B-K06": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Please Review the Revised Notice\n\nHi Mina,\n\nIn the attached welcome_v3.docx, I have only updated the contact information of the inquiry contact person; the training start date has been left unchanged. Could you please confirm whether the contact information is correct before distribution? If there are no errors, I will send it to new hires today at 14:00 KST. For your reply, please CC only the HR team, and please do not forward this draft to the external training vendor. If any modifications are needed, please do not edit the file directly—instead, note the relevant sentence in your reply.\n\nThank you.\nNora",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Please Review the Revised Notice\n\nHi Mina,\n\nIn the attached welcome_v3.docx, I have only updated the contact information of the inquiry contact person; the training start date has been left unchanged. Could you please confirm whether the contact information is correct before distribution? If there are no errors, I will send it to new hires today at 14:00 KST. For your reply, please CC only the HR team, and please do not forward this draft to the external training vendor. If any modifications are needed, please do not edit the file directly—instead, note the relevant sentence in your reply.\n\nThank you.\nNora",
+        "seconds": 22.582,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "0555b1fb1c39fc00695c3d46315cf6b070a9ee27126a63b0a7b72656599052dc",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "bc4911f52c828461b8771f850aac01e72213986479df87f98261f575d87b6202"
+      },
+      "H-E01": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 조치 전에 웹훅 재시도 점검\n\nSam님,\n\n수신 서버가 다시 온라인 상태이며, WH-208 티켓에 대해 재전송을 요청했습니다. GitHub는 재전송 시 원래의 X-GitHub-Delivery 값을 그대로 재사용하므로, 일치하는 식별자만으로는 공격의 증거가 아닙니다. 재시도 처리 여부를 결정하기 전에 원래 작업이 완료되었는지 확인해 주세요. 내부 명령어 `replayctl inspect --ticket WH-208`는 작업 기록만 표시하며, 작업을 시작하거나 재시도하지 않습니다.\n\n감사합니다,\nJules",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 조치 전에 웹훅 재시도 점검\n\nSam님,\n\n수신 서버가 다시 온라인 상태이며, WH-208 티켓에 대해 재전송을 요청했습니다. GitHub는 재전송 시 원래의 X-GitHub-Delivery 값을 그대로 재사용하므로, 일치하는 식별자만으로는 공격의 증거가 아닙니다. 재시도 처리 여부를 결정하기 전에 원래 작업이 완료되었는지 확인해 주세요. 내부 명령어 `replayctl inspect --ticket WH-208`는 작업 기록만 표시하며, 작업을 시작하거나 재시도하지 않습니다.\n\n감사합니다,\nJules",
+        "seconds": 36.912,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "0a8f21553c8b48d4db7b8c0a9ee5bf420e6e6b28a0bcddc36a115b5a2df02c7d"
+      },
+      "H-E02": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 파일 내보내기 공지사항 정정\n\nAsha 님,\n\n파일 내보내기 장애는 2026년 11월 26일 11:20(UTC)에 해결되었습니다. 이전 공지사항에 검색 서비스가 잘못 포함되었으나, 검색 서비스에는 영향이 없었습니다. 이 정정 사항을 지원팀에 공유해 주시기를 부탁드립니다. 현재 원인 조사를 계속 진행 중이며, 검토 보고서는 2026년 11월 30일까지 전달될 예정입니다. 해당 진행 중인 검토가 서비스가 계속 이용 불가 상태라는 의미는 아닙니다. 장애로 인한 불편과 공지사항으로 인한 혼란에 대해 사과드립니다.\n\n감사합니다.\n고객 운영팀",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 파일 내보내기 공지사항 정정\n\nAsha 님,\n\n파일 내보내기 장애는 2026년 11월 26일 11:20(UTC)에 해결되었습니다. 이전 공지사항에 검색 서비스가 잘못 포함되었으나, 검색 서비스에는 영향이 없었습니다. 이 정정 사항을 지원팀에 공유해 주시기를 부탁드립니다. 현재 원인 조사를 계속 진행 중이며, 검토 보고서는 2026년 11월 30일까지 전달될 예정입니다. 해당 진행 중인 검토가 서비스가 계속 이용 불가 상태라는 의미는 아닙니다. 장애로 인한 불편과 공지사항으로 인한 혼란에 대해 사과드립니다.\n\n감사합니다.\n고객 운영팀",
+        "seconds": 39.285,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "4a9fcb04b2ea17561ae2d5b08e615f5b17ecee2fc14e1132924930cf8e34ee02"
+      },
+      "H-E03": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 수정된 노트북 견적서\n\nKeiko 님,\n\n견적서를 업데이트해 주셔서 감사합니다. 노트북 24대 수량은 정확하지만, Quote-R7.pdf의 배송 주소는 여전히 이전 사무실로 되어 있습니다. 수량과 단가는 그대로 유지한 채 수정된 견적서를 2026년 12월 2일 17:00 KST까지 보내 주십시오. 이 확인은 수량에만 해당하며, 발주서가 아닙니다. 구매부서(Purchasing)가 정식 발주서를 발송할 때까지 재고 확보 또는 출하 준비를 하지 마십시오.\n\n감사합니다.  \nBen",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 수정된 노트북 견적서\n\nKeiko 님,\n\n견적서를 업데이트해 주셔서 감사합니다. 노트북 24대 수량은 정확하지만, Quote-R7.pdf의 배송 주소는 여전히 이전 사무실로 되어 있습니다. 수량과 단가는 그대로 유지한 채 수정된 견적서를 2026년 12월 2일 17:00 KST까지 보내 주십시오. 이 확인은 수량에만 해당하며, 발주서가 아닙니다. 구매부서(Purchasing)가 정식 발주서를 발송할 때까지 재고 확보 또는 출하 준비를 하지 마십시오.\n\n감사합니다.  \nBen",
+        "seconds": 13.718,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "329d530bc3d96f7e0685bf7249cff06dbdaabb84c46b11bf44a49b48c7f5c1e9"
+      },
+      "H-E04": {
+        "origin": "comparison/baseline",
+        "raw": "제목: 교육 신청 접수 경로 변경 안내\n\n동료 여러분,\n\n2026년 12월 7일부터는 교육 신청을 이메일이 아닌 직원 포털을 통해 제출해 주시기 바랍니다. 해당 날짜 이전에 이메일로 제출된 신청은 계속 검토되므로 다시 제출하지 않으셔도 됩니다. 이번 변경은 교육 신청에만 적용되며, 출장 신청은 기존과 같이 이메일로 출장팀에 보내 주시기 바랍니다. 포털에 접근할 수 없는 경우 Iris에게 문의해 주십시오.\n\n감사합니다.  \nPeople Services",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 교육 신청 접수 경로 변경 안내\n\n동료 여러분,\n\n2026년 12월 7일부터는 교육 신청을 이메일이 아닌 직원 포털을 통해 제출해 주시기 바랍니다. 해당 날짜 이전에 이메일로 제출된 신청은 계속 검토되므로 다시 제출하지 않으셔도 됩니다. 이번 변경은 교육 신청에만 적용되며, 출장 신청은 기존과 같이 이메일로 출장팀에 보내 주시기 바랍니다. 포털에 접근할 수 없는 경우 Iris에게 문의해 주십시오.\n\n감사합니다.  \nPeople Services",
+        "seconds": 11.106,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "17bfff4d3ca6712261559f3381495156ef4463f60ff72b7f6ac989b569c4c2f6"
+      },
+      "H-K01": {
+        "origin": "comparison/candidate",
+        "raw": "**Subject:** Recipient-Specific Action for Internal Email with Incorrect Attachment\n\nHi Dana,\n\nIt has been 26 hours since I sent the internal email with the incorrect quotation attached. Both recipients use accounts in the same NAVER WORKS organization as mine. Jae has read the email, while Robin has not yet read it. Since the email sent to Jae cannot be recalled, I will send a correction notice. Please attempt to recall only the email sent to Robin and check the result. Please do not report that it has been deleted from both mailboxes simply because a recall was attempted.\n\nThank you.\nMira",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** Recipient-Specific Action for Internal Email with Incorrect Attachment\n\nHi Dana,\n\nIt has been 26 hours since I sent the internal email with the incorrect quotation attached. Both recipients use accounts in the same NAVER WORKS organization as mine. Jae has read the email, while Robin has not yet read it. Since the email sent to Jae cannot be recalled, I will send a correction notice. Please attempt to recall only the email sent to Robin and check the result. Please do not report that it has been deleted from both mailboxes simply because a recall was attempted.\n\nThank you.\nMira",
+        "seconds": 25.03,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "bfca87ef423f5da35c05612747561ca05c27df76d45f06b103a02de0685697af"
+      },
+      "H-K02": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Request to Cross-Check Webhook Resend Records\n\nTheo, hello.\n\nOne GitHub webhook was missed during the outage, and I resent it after server recovery. The X-GitHub-Delivery value of this resend request is 7f9c2a10-6b45-4d83-9e21-c0a8f7b6d592, which is the same as the original request. Please do not classify this request as a new event. I would appreciate it if the Platform team could cross-check the receipt times and processing results of the two requests. Until the processing result is confirmed, I will not assert that it was processed more than once. By 19:00 UTC today, please provide either the investigation results or a notice that the investigation is still ongoing.\n\nThank you.\nJules",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request to Cross-Check Webhook Resend Records\n\nTheo, hello.\n\nOne GitHub webhook was missed during the outage, and I resent it after server recovery. The X-GitHub-Delivery value of this resend request is 7f9c2a10-6b45-4d83-9e21-c0a8f7b6d592, which is the same as the original request. Please do not classify this request as a new event. I would appreciate it if the Platform team could cross-check the receipt times and processing results of the two requests. Until the processing result is confirmed, I will not assert that it was processed more than once. By 19:00 UTC today, please provide either the investigation results or a notice that the investigation is still ongoing.\n\nThank you.\nJules",
+        "seconds": 24.376,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "058d7c152b32d6987ca1fb7c199c6270f81b7c9d7a36821e9cc9897264fa61a1",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "f81e5b1b074e51cfdcf34551aa9f1e620a6668376e0ab9ce21983324d154be07"
+      },
+      "H-K03": {
+        "origin": "comparison/candidate",
+        "raw": "Subject: Request for Confirmation Before Sending Temporary Loan Laptop\n\nHi Kai,\n\nThe only temporary loan laptop secured by the support team is one unit of LT-04. If the user agrees, please send it out tomorrow morning; however, please do not inform them that the repair of the existing equipment has been completed. If the user does not agree, please do not order a new product—let me know first. I plan to request approval for a new purchase separately from the department head, and I have not yet received approval. After sending, please reply to this email with the tracking number.\n\nThank you,\nOwen",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Request for Confirmation Before Sending Temporary Loan Laptop\n\nHi Kai,\n\nThe only temporary loan laptop secured by the support team is one unit of LT-04. If the user agrees, please send it out tomorrow morning; however, please do not inform them that the repair of the existing equipment has been completed. If the user does not agree, please do not order a new product—let me know first. I plan to request approval for a new purchase separately from the department head, and I have not yet received approval. After sending, please reply to this email with the tracking number.\n\nThank you,\nOwen",
+        "seconds": 27.419,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "98192e9613a8e4022df0f47292a9b6740795a23e9f5e20a3211c31cd18fbf131"
+      },
+      "H-K04": {
+        "origin": "comparison/candidate",
+        "raw": "**Subject:** Adjusting the recipient scope for scheduled product announcement emails\n\nHi Sora,\n\nThe Korean and English product announcements are each scheduled in NAVER WORKS for tomorrow at 08:30 KST, and neither has been sent yet. Since the review of the English version is not yet complete, please cancel only the scheduled delivery of the English email for external customers. The already-approved Korean version should be sent to internal employees as scheduled, but please confirm that no customer addresses have been mixed into the recipient list. I will handle the review of the English version, but I cannot yet commit to sending it tomorrow. Please do not reschedule the delivery for external customers until I confirm a new send time.\n\nThank you.\nBest regards,\nLena",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** Adjusting the recipient scope for scheduled product announcement emails\n\nHi Sora,\n\nThe Korean and English product announcements are each scheduled in NAVER WORKS for tomorrow at 08:30 KST, and neither has been sent yet. Since the review of the English version is not yet complete, please cancel only the scheduled delivery of the English email for external customers. The already-approved Korean version should be sent to internal employees as scheduled, but please confirm that no customer addresses have been mixed into the recipient list. I will handle the review of the English version, but I cannot yet commit to sending it tomorrow. Please do not reschedule the delivery for external customers until I confirm a new send time.\n\nThank you.\nBest regards,\nLena",
+        "seconds": 18.424,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "c844feeed435b796369d49862239b0fb213968096e9735d00cc48d76f62e69a6",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "fa9d02c800831ee80d976bfdc2b9439288478a81f6befa59fad14fd9b5dfca46"
+      },
+      "V01": {
+        "origin": "confirmation/baseline",
+        "raw": "안녕하세요, Casey님,\n\n저희 방문을 위해 박스 3개가 별도로 준비되어 있습니다. 아직 발송되지 않았습니다. 하나는 리셉션에 보관해 주시고, 나머지 두 개는 현재 위치에 그대로 두어 주세요.\n\n감사합니다.\nNell",
+        "state": "done",
+        "error": null,
+        "stored": "안녕하세요, Casey님,\n\n저희 방문을 위해 박스 3개가 별도로 준비되어 있습니다. 아직 발송되지 않았습니다. 하나는 리셉션에 보관해 주시고, 나머지 두 개는 현재 위치에 그대로 두어 주세요.\n\n감사합니다.\nNell",
+        "seconds": 37.629,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "50b35ca81b8455255d6d9cdbfd9c21d39aefc9b51496ac96414c507de073ff7e"
+      },
+      "V02": {
+        "origin": "confirmation/candidate",
+        "raw": "Hello,\n\nThe difference will be adjusted in next month's invoice. Please do not arbitrarily reduce the payment amount for this month.\n\nThank you.\nSettlement Team",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nThe difference will be adjusted in next month's invoice. Please do not arbitrarily reduce the payment amount for this month.\n\nThank you.\n정산팀",
+        "seconds": 13.487,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "5c0753d7a783fd19e5c95a2a6ab84d0686bc903faab683af52eb7beede435445"
+      },
+      "V03": {
+        "origin": "confirmation/baseline",
+        "raw": "제목: 저자 사본\n\n안녕하세요 Dev 님,\n\n교정본 열람이 가능합니다. 사본 구매는 선택 사항이며, 심사에는 영향을 미치지 않습니다. 교정본을 원하시면 배송 주소만 보내 주세요.\n\n감사합니다,\nAri",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 저자 사본\n\n안녕하세요 Dev 님,\n\n교정본 열람이 가능합니다. 사본 구매는 선택 사항이며, 심사에는 영향을 미치지 않습니다. 교정본을 원하시면 배송 주소만 보내 주세요.\n\n감사합니다,\nAri",
+        "seconds": 15.35,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "017360a45d97ebd68cb9508f4c4bece0abe17249f7d6971a53b26fa6a78cf969"
+      },
+      "V04": {
+        "origin": "confirmation/candidate",
+        "raw": "**Subject: Shift Handover**\n\nHello,\n\nWhat the night shift reviewed was a maintenance memo; they did not inspect the equipment itself. When the morning shift arrives, please only confirm the available inspection time.\n\nThank you.\n서지원",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject: Shift Handover**\n\nHello,\n\nWhat the night shift reviewed was a maintenance memo; they did not inspect the equipment itself. When the morning shift arrives, please only confirm the available inspection time.\n\nThank you.\n서지원",
+        "seconds": 16.178,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "e17c01d40bb362957ec25f3aa400c8b853970705c045a3f8e286802d55366e1e"
+      },
+      "V05": {
+        "origin": "confirmation/baseline",
+        "raw": "제목: 제안서 게시 및 의견 요청\n\n안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani",
+        "state": "done",
+        "error": null,
+        "stored": "안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani",
+        "seconds": 28.668,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "0b6121075602446ddaaf859d6afeb7c4ee91f3674a1452ee074b0daf900cee20",
+        "original_state": "done",
+        "original_error": null,
+        "original_display": "제목: 제안서 게시 및 의견 요청\n\n안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani"
+      },
+      "V06": {
+        "origin": "confirmation/candidate",
+        "raw": "Subject: Shared Account Cleanup\n\nHello,\n\nOne of the two shared accounts is currently being archived. Since it has already been decided which account to archive, please leave both accounts as they are until the person in charge confirms.\n\nThank you.\nOperations Support Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Shared Account Cleanup\n\nHello,\n\nOne of the two shared accounts is currently being archived. Since it has already been decided which account to archive, please leave both accounts as they are until the person in charge confirms.\n\nThank you.\n운영지원팀",
+        "seconds": 15.628,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "aaac7fc2c3f0a0c51a61186993f6459bae9550e26da3f2240e3f16419544c2dd"
+      },
+      "D01": {
+        "origin": "adoption/candidate",
+        "raw": "제목: 안전 점검표 초안 및 다음 주 시범 적용 안건 요청\n\nRobin 님,\n\n안전 팀은 초안 점검표를 검토했습니다. 현장 인력은 아직 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 적용을 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다,\nAvery",
+        "state": "done",
+        "error": null,
+        "stored": "Robin 님,\n\n안전 팀은 초안 점검표를 검토했습니다. 현장 인력은 아직 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 적용을 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다,\nAvery",
+        "seconds": 21.781,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "5dfcef4404c1e647a9f35830c2b7a259b191b5537d03855a48295129d6fe9fbd"
+      },
+      "D02": {
+        "origin": "adoption/candidate",
+        "raw": "제목: 지점용 샘플\n\nNoor 님,\n\n오픈데이를 위해 디스플레이 샘플 2개를 대여할 수 있습니다. 샘플에는 라벨이 함께 부착되어 있습니다. 택배를 예약하기 전에 지점의 공간 확보 여부를 확인해 주세요.\n\n감사합니다,  \nParker",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 지점용 샘플\n\nNoor 님,\n\n오픈데이를 위해 디스플레이 샘플 2개를 대여할 수 있습니다. 샘플에는 라벨이 함께 부착되어 있습니다. 택배를 예약하기 전에 지점의 공간 확보 여부를 확인해 주세요.\n\n감사합니다,  \nParker",
+        "seconds": 13.326,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "d1f33ef4ed8cf0945e9dd10e54a4f7fb37083c9a734038d81ec9cd1b434f7996"
+      },
+      "D03": {
+        "origin": "adoption/candidate",
+        "raw": "Hello.\n\nI received the proposal, but I did not register it as a contract. Please do not schedule signing on either side until the person in charge returns. Please provide only the sample review schedule.\n\nThank you.\nChoi Dawon",
+        "state": "done",
+        "error": null,
+        "stored": "Hello.\n\nI received the proposal, but I did not register it as a contract. Please do not schedule signing on either side until the person in charge returns. Please provide only the sample review schedule.\n\nThank you.\n최다원",
+        "seconds": 17.467,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "180136b561f604129d4e07c56e03b3fc09f618c394a0b5c741f66cf9669d8c62",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "447e7d3efaea9c97e810da59e2ea11b86acfa92e9ad9acd6a6782a6e741c6233"
+      },
+      "D04": {
+        "origin": "adoption/candidate",
+        "raw": "Subject: Inquiry Regarding Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue before a response is received.\n\nThank you.\nEducation Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Inquiry Regarding Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue before a response is received.\n\nThank you.\n교육팀",
+        "seconds": 18.208,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "6df3b1e909b9981e4724c48e592b025b6a81f2140df28c67a90de75154e84d7e"
+      },
+      "D05": {
+        "origin": "adoption/candidate",
+        "raw": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt of acceptance. On-site approval has not been requested.\n\nThank you.\nOperations Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt of acceptance. On-site approval has not been requested.\n\nThank you.\n운영팀",
+        "seconds": 17.533,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "c4eb4c78a35f6e68684432fec26fecab449126942f18f17420f88e8f20df6348"
+      }
+    }
+  },
+  "exact_packet_and_finish_replays": 46,
+  "adoption_live_rows": {
+    "baseline": {
+      "U02": {
+        "origin": "adoption/baseline",
+        "raw": "Hello,\n\nCould you please share your thoughts on whether replacing the server would reduce the maintenance window? Since the budget has not yet been allocated, please do not submit the quote as a purchase order.\n\nThank you.",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nCould you please share your thoughts on whether replacing the server would reduce the maintenance window? Since the budget has not yet been allocated, please do not submit the quote as a purchase order.\n\nThank you.",
+        "seconds": 15.975,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "1c429907a272dd69ae162da1f6fb2224a46c0c734fe0ca16ba2485314e13d2fd"
+      },
+      "D01": {
+        "origin": "adoption/baseline",
+        "raw": "제목: 안전 체크리스트 초안 및 다음 주 시범 절차 안건\n\n로빈 님,\n\n안전 팀은 체크리스트 초안을 검토했습니다. 현장 팀은 아직 절차를 시도하지 않았습니다. 다음 주 회의 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다,\n에이브리",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 안전 체크리스트 초안 및 다음 주 시범 절차 안건\n\n로빈 님,\n\n안전 팀은 체크리스트 초안을 검토했습니다. 현장 팀은 아직 절차를 시도하지 않았습니다. 다음 주 회의 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다,\n에이브리",
+        "seconds": 23.684,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "2610ab0a64d3b7748514853bb5e08ea20cb2cfd5f94f35915c75546e30176910"
+      },
+      "D02": {
+        "origin": "adoption/baseline",
+        "raw": "제목: 지점용 전시 샘플\n\nNoor 님,\n\n오픈 데이를 위해 전시용 샘플 2개를 대여할 수 있습니다. 라벨은 샘플과 함께 보관됩니다. 택배를 예약하기 전에 지점에 공간이 있는지 확인해 주십시오.\n\n감사합니다.\nParker 드림",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 지점용 전시 샘플\n\nNoor 님,\n\n오픈 데이를 위해 전시용 샘플 2개를 대여할 수 있습니다. 라벨은 샘플과 함께 보관됩니다. 택배를 예약하기 전에 지점에 공간이 있는지 확인해 주십시오.\n\n감사합니다.\nParker 드림",
+        "seconds": 14.476,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "6017cb6921c273f41f68f7dd3128cd845cdd0e9ecc797bae87709805226ac21b"
+      },
+      "D03": {
+        "origin": "adoption/baseline",
+        "raw": "Hello,\n\nI received the proposal but have not registered it as a contract. Please do not schedule signatures on either side before the responsible contact returns. Please only let me know the sample review schedule.\n\nThank you.\nChoi Dawon",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nI received the proposal but have not registered it as a contract. Please do not schedule signatures on either side before the responsible contact returns. Please only let me know the sample review schedule.\n\nThank you.\n최다원",
+        "seconds": 27.22,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d572d4c9c3b50e96a2176b4e82f31cdf66a266837ecb5a21b582de020c69f71a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "7deb348d204c4693c94e73de8122b62ace863ec6eb7e077b4b1f8f54418f37da"
+      },
+      "D04": {
+        "origin": "adoption/baseline",
+        "raw": "Subject: Inquiry About Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue until a response is received.\n\nThank you.\nEducation Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Inquiry About Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue until a response is received.\n\nThank you.\n교육팀",
+        "seconds": 14.425,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "dab6149b4f8189183e1931550daeffcab1ad843922c9944a6f59d0f482785f48"
+      },
+      "D05": {
+        "origin": "adoption/baseline",
+        "raw": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants can submit their applications directly at the information counter by noon tomorrow. When the person in charge receives the documents, please issue only an application receipt. On-site approval has not been requested.\n\nThank you.\nOperations Team",
+        "state": "done",
+        "error": null,
+        "stored": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants can submit their applications directly at the information counter by noon tomorrow. When the person in charge receives the documents, please issue only an application receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+        "seconds": 26.264,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "8480f98eb97a426f03267660823224eeb0b2e890a3e3b2366416434b1a66df66",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "11c8e6833e9e86891313ded5a087eea2e612b6e5e61c84305481b54080853f36"
+      }
+    },
+    "candidate": {
+      "U02": {
+        "origin": "adoption/candidate",
+        "raw": "Hello,\n\nPlease share your opinion on whether replacing the server would reduce maintenance time. Since the budget has not yet been allocated, please do not register the quotation as a purchase order.\n\nThank you.",
+        "state": "done",
+        "error": null,
+        "stored": "Hello,\n\nPlease share your opinion on whether replacing the server would reduce maintenance time. Since the budget has not yet been allocated, please do not register the quotation as a purchase order.\n\nThank you.",
+        "seconds": 17.401,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "83e876a7995e2c2244c462b450fc65cfe4276eb3208aa04bc05e2f72527403d3"
+      },
+      "D01": {
+        "origin": "adoption/candidate",
+        "raw": "제목: 안전 점검표 초안 및 다음 주 시범 적용 안건 요청\n\nRobin 님,\n\n안전 팀은 초안 점검표를 검토했습니다. 현장 인력은 아직 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 적용을 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다,\nAvery",
+        "state": "done",
+        "error": null,
+        "stored": "Robin 님,\n\n안전 팀은 초안 점검표를 검토했습니다. 현장 인력은 아직 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 적용을 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다,\nAvery",
+        "seconds": 21.781,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "5dfcef4404c1e647a9f35830c2b7a259b191b5537d03855a48295129d6fe9fbd"
+      },
+      "D02": {
+        "origin": "adoption/candidate",
+        "raw": "제목: 지점용 샘플\n\nNoor 님,\n\n오픈데이를 위해 디스플레이 샘플 2개를 대여할 수 있습니다. 샘플에는 라벨이 함께 부착되어 있습니다. 택배를 예약하기 전에 지점의 공간 확보 여부를 확인해 주세요.\n\n감사합니다,  \nParker",
+        "state": "done",
+        "error": null,
+        "stored": "제목: 지점용 샘플\n\nNoor 님,\n\n오픈데이를 위해 디스플레이 샘플 2개를 대여할 수 있습니다. 샘플에는 라벨이 함께 부착되어 있습니다. 택배를 예약하기 전에 지점의 공간 확보 여부를 확인해 주세요.\n\n감사합니다,  \nParker",
+        "seconds": 13.326,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "xhigh",
+        "prompt_sha256": "6e0c828d1a7eef4ad1a10011cdf8613aaf14c79ca62136ee6dd061065bba8230",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "d1f33ef4ed8cf0945e9dd10e54a4f7fb37083c9a734038d81ec9cd1b434f7996"
+      },
+      "D03": {
+        "origin": "adoption/candidate",
+        "raw": "Hello.\n\nI received the proposal, but I did not register it as a contract. Please do not schedule signing on either side until the person in charge returns. Please provide only the sample review schedule.\n\nThank you.\nChoi Dawon",
+        "state": "done",
+        "error": null,
+        "stored": "Hello.\n\nI received the proposal, but I did not register it as a contract. Please do not schedule signing on either side until the person in charge returns. Please provide only the sample review schedule.\n\nThank you.\n최다원",
+        "seconds": 17.467,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "180136b561f604129d4e07c56e03b3fc09f618c394a0b5c741f66cf9669d8c62",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "447e7d3efaea9c97e810da59e2ea11b86acfa92e9ad9acd6a6782a6e741c6233"
+      },
+      "D04": {
+        "origin": "adoption/candidate",
+        "raw": "Subject: Inquiry Regarding Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue before a response is received.\n\nThank you.\nEducation Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: Inquiry Regarding Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue before a response is received.\n\nThank you.\n교육팀",
+        "seconds": 18.208,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "d20e17b6e1227838a8fb38e5d9fc67966e6f4193c37e370dd73023fcb9307e6a",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "6df3b1e909b9981e4724c48e592b025b6a81f2140df28c67a90de75154e84d7e"
+      },
+      "D05": {
+        "origin": "adoption/candidate",
+        "raw": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt of acceptance. On-site approval has not been requested.\n\nThank you.\nOperations Team",
+        "state": "done",
+        "error": null,
+        "stored": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt of acceptance. On-site approval has not been requested.\n\nThank you.\n운영팀",
+        "seconds": 17.533,
+        "model": "qwen3.8-flash-next-iq3_xxs",
+        "effort": "low",
+        "prompt_sha256": "0aef04b6b4d6623acab31b2c79a869804d3bf011ffb8df051ca07ebf49231017",
+        "termination": {
+          "done": true,
+          "finish_reason": "stop"
+        },
+        "request_fingerprint": "c4eb4c78a35f6e68684432fec26fecab449126942f18f17420f88e8f20df6348"
+      }
+    }
+  },
+  "all_model_calls": 94,
+  "overlapping_calls": 0,
+  "reused_review_arms": {
+    "U01": "baseline",
+    "U03": "baseline",
+    "U04": "candidate",
+    "U06": "candidate",
+    "U07": "baseline",
+    "U08": "candidate",
+    "U09": "baseline",
+    "U10": "candidate",
+    "E1": "baseline",
+    "K1": "candidate",
+    "E2": "baseline",
+    "E4": "baseline",
+    "K3": "candidate",
+    "B-E01": "baseline",
+    "B-E02": "baseline",
+    "B-E03": "baseline",
+    "B-E04": "baseline",
+    "B-E05": "baseline",
+    "B-E06": "baseline",
+    "B-K01": "candidate",
+    "B-K02": "candidate",
+    "B-K03": "candidate",
+    "B-K04": "candidate",
+    "B-K05": "candidate",
+    "B-K06": "candidate",
+    "H-E01": "baseline",
+    "H-E02": "baseline",
+    "H-E03": "baseline",
+    "H-E04": "baseline",
+    "H-K01": "candidate",
+    "H-K02": "candidate",
+    "H-K03": "candidate",
+    "H-K04": "candidate",
+    "V01": "baseline",
+    "V02": "candidate",
+    "V03": "baseline",
+    "V04": "candidate",
+    "V06": "candidate"
+  },
+  "time_medians_seconds": {
+    "baseline": {
+      "en-ko": 24.26,
+      "ko-en": 19.29
+    },
+    "release": {
+      "en-ko": 24.26,
+      "ko-en": 17.4
+    }
+  }
+}

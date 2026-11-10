@@ -1,0 +1,258 @@
+{
+  "scale": {
+    "A": "필수 수정 없이 외부 발송 가능",
+    "B": "중요 취지는 보존하지만 발송 전 필수 수정",
+    "C": "중요 동작·의미의 오류, 누락, 무응답 등"
+  },
+  "cases": 46,
+  "by_group": {
+    "all": {
+      "baseline": {
+        "A": 34,
+        "B": 9,
+        "C": 3
+      },
+      "release": {
+        "A": 37,
+        "B": 9,
+        "C": 0
+      }
+    },
+    "unseen": {
+      "baseline": {
+        "A": 7,
+        "B": 1,
+        "C": 2
+      },
+      "release": {
+        "A": 9,
+        "B": 1,
+        "C": 0
+      }
+    },
+    "prior": {
+      "baseline": {
+        "A": 3,
+        "B": 2,
+        "C": 0
+      },
+      "release": {
+        "A": 4,
+        "B": 1,
+        "C": 0
+      }
+    },
+    "legacy20": {
+      "baseline": {
+        "A": 18,
+        "B": 1,
+        "C": 1
+      },
+      "release": {
+        "A": 18,
+        "B": 2,
+        "C": 0
+      }
+    },
+    "locked_confirmation": {
+      "baseline": {
+        "A": 3,
+        "B": 3,
+        "C": 0
+      },
+      "release": {
+        "A": 4,
+        "B": 2,
+        "C": 0
+      }
+    },
+    "release_decision": {
+      "baseline": {
+        "A": 3,
+        "B": 2,
+        "C": 0
+      },
+      "release": {
+        "A": 2,
+        "B": 3,
+        "C": 0
+      }
+    },
+    "en-ko": {
+      "baseline": {
+        "A": 19,
+        "B": 3,
+        "C": 1
+      },
+      "release": {
+        "A": 20,
+        "B": 3,
+        "C": 0
+      }
+    },
+    "ko-en": {
+      "baseline": {
+        "A": 15,
+        "B": 6,
+        "C": 2
+      },
+      "release": {
+        "A": 17,
+        "B": 6,
+        "C": 0
+      }
+    }
+  },
+  "external": {
+    "gemini-4-argon-high": {
+      "all": {
+        "baseline": {
+          "A": 39,
+          "B": 5,
+          "C": 2
+        },
+        "release": {
+          "A": 44,
+          "B": 2,
+          "C": 0
+        }
+      },
+      "en-ko": {
+        "baseline": {
+          "A": 19,
+          "B": 3,
+          "C": 1
+        },
+        "release": {
+          "A": 22,
+          "B": 1,
+          "C": 0
+        }
+      },
+      "ko-en": {
+        "baseline": {
+          "A": 20,
+          "B": 2,
+          "C": 1
+        },
+        "release": {
+          "A": 22,
+          "B": 1,
+          "C": 0
+        }
+      }
+    },
+    "gemini-3.8-flash-high": {
+      "all": {
+        "baseline": {
+          "A": 40,
+          "B": 4,
+          "C": 2
+        },
+        "release": {
+          "A": 45,
+          "B": 1,
+          "C": 0
+        }
+      },
+      "en-ko": {
+        "baseline": {
+          "A": 20,
+          "B": 2,
+          "C": 1
+        },
+        "release": {
+          "A": 22,
+          "B": 1,
+          "C": 0
+        }
+      },
+      "ko-en": {
+        "baseline": {
+          "A": 20,
+          "B": 2,
+          "C": 1
+        },
+        "release": {
+          "A": 23,
+          "B": 0,
+          "C": 0
+        }
+      }
+    },
+    "claude-opus-5-5-high": {
+      "all": {
+        "baseline": {
+          "A": 39,
+          "B": 5,
+          "C": 2
+        },
+        "release": {
+          "A": 46,
+          "B": 0,
+          "C": 0
+        }
+      },
+      "en-ko": {
+        "baseline": {
+          "A": 20,
+          "B": 2,
+          "C": 1
+        },
+        "release": {
+          "A": 23,
+          "B": 0,
+          "C": 0
+        }
+      },
+      "ko-en": {
+        "baseline": {
+          "A": 19,
+          "B": 3,
+          "C": 1
+        },
+        "release": {
+          "A": 23,
+          "B": 0,
+          "C": 0
+        }
+      }
+    }
+  },
+  "time_medians_seconds": {
+    "baseline": {
+      "en-ko": 24.26,
+      "ko-en": 19.29
+    },
+    "release": {
+      "en-ko": 24.26,
+      "ko-en": 17.4
+    }
+  },
+  "response_counts": {
+    "baseline": {
+      "done": 45,
+      "failed": 1
+    },
+    "release": {
+      "done": 46
+    }
+  },
+  "all_live_requests": 94,
+  "overlaps": 0,
+  "input_hashes": {
+    "blind-mail.json": "8bd480a7b4bdebffa7bf5a1ed9047642c74cdde5a3d39d9d6e3e66029af441d7",
+    "adoption-blind.json": "0ed40253422fb77172d393fa432ccbd6628fc2cccde3b9613aaa1b02834291dc"
+  },
+  "remaining_release_B": [
+    "U04",
+    "E2",
+    "B-K05",
+    "H-K04",
+    "V04",
+    "V06",
+    "D01",
+    "D02",
+    "D05"
+  ]
+}

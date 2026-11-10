@@ -1,0 +1,38 @@
+[
+  {
+    "id": "U02",
+    "direction": "ko-en",
+    "original": "안녕하세요.\n\n서버를 교체하면 점검 시간을 줄일 수 있는지 의견을 부탁드립니다. 예산은 아직 배정되지 않았으니 견적을 발주서로 접수하지 말아 주세요.\n\n감사합니다.",
+    "split": "diagnosed_repeat"
+  },
+  {
+    "id": "D01",
+    "direction": "en-ko",
+    "original": "Hi Robin,\n\nThe safety team has read the draft checklist. The crew has not tried the procedure. Please put the trial on next week's agenda and record only today's discussion in the minutes.\n\nKind regards,\nAvery",
+    "split": "release_decision"
+  },
+  {
+    "id": "D02",
+    "direction": "en-ko",
+    "original": "Subject: Samples for the branch\n\nDear Noor,\n\nWe can lend two display samples for the open day. Their labels stay with the samples. Please ask the branch whether it has space before you book a courier.\n\nRegards,\nParker",
+    "split": "release_decision"
+  },
+  {
+    "id": "D03",
+    "direction": "ko-en",
+    "original": "안녕하세요.\n\n제안서를 받았지만 계약서로 접수하지는 않았습니다. 담당자가 돌아오기 전에는 어느 쪽에서도 서명 일정을 잡지 말아 주세요. 샘플 검토 일정만 알려 주세요.\n\n감사합니다.\n최다원 드림",
+    "split": "release_decision"
+  },
+  {
+    "id": "D04",
+    "direction": "ko-en",
+    "original": "제목: 강의실 냉방 문의\n\n안녕하세요.\n\n목요일 오전에 강의실을 쓸 예정입니다. 냉방을 미리 켤 수 있는지 시설팀에 문의만 부탁드립니다. 답변이 오기 전에는 장소를 바꾸지 말아 주세요.\n\n감사합니다.\n교육팀",
+    "split": "release_decision"
+  },
+  {
+    "id": "D05",
+    "direction": "ko-en",
+    "original": "제목: 현장 지원서 접수\n\n안녕하세요.\n\n지원자는 내일 정오까지 안내 창구에 지원서를 직접 접수할 수 있습니다. 담당자는 서류를 받으면 접수증만 발급해 주세요. 현장 승인은 요청하지 않았습니다.\n\n감사합니다.\n운영팀",
+    "split": "release_decision"
+  }
+]

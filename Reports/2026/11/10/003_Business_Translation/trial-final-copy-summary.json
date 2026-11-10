@@ -1,0 +1,25 @@
+{
+  "status": "pass",
+  "business_tables_preserved": 18,
+  "ai_tables_preserved": 17,
+  "ai_version": 4,
+  "menu_parent": "admin_center",
+  "anonymous_statuses": {
+    "/login": 200,
+    "/assistant": 302,
+    "/admin/ai/providers": 302,
+    "/api/ai/capabilities": 401,
+    "/internal/ai/claim": 403
+  },
+  "audit_rows_preserved": true,
+  "old_lifecycle_rows": 9,
+  "lifecycle_rows_preserved": true,
+  "real_model_called": false,
+  "production_databases_modified": false,
+  "validated_sha256": {
+    "utils/ai_assistant/translation.py": "ab501338eafc87cac1785f01efefd657d1e863554215fb699363650871a679e1",
+    "tests/test_mail_translation.py": "68fdc103eed7fe758cf3542f8d81a8a9936e83635137fbe89adaceb64cd9b5de",
+    "utils/ai_assistant/store.py": "79199f370f7b74be8ee19287fd68f221c261ebef710fffd3e449a0dfbb87fc74"
+  },
+  "checked_utc": "2026-11-10T01:28:27.342611+00:00"
+}

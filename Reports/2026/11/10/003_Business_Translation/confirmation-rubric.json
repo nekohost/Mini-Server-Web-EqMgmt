@@ -1,0 +1,16 @@
+{
+  "frozen_after_candidate_source_sha256": {
+    "utils/ai_assistant/translation.py": "ab501338eafc87cac1785f01efefd657d1e863554215fb699363650871a679e1",
+    "tests/test_mail_translation.py": "68fdc103eed7fe758cf3542f8d81a8a9936e83635137fbe89adaceb64cd9b5de",
+    "utils/ai_assistant/store.py": "79199f370f7b74be8ee19287fd68f221c261ebef710fffd3e449a0dfbb87fc74"
+  },
+  "before_first_confirmation_outputs": true,
+  "invariants": {
+    "V01": "세 상자 확보·미발송, 한 상자만 접수처, 두 상자는 현 위치 유지.",
+    "V02": "차액은 다음 달 청구서 조정 예정, 이번 달 송금액 임의 차감 금지, 부서 서명과 제목 유무.",
+    "V03": "검토용 견본과 선택 구매 구분, 평가 영향 없음, 원할 때 배송지 주소만 요청.",
+    "V04": "야간조 메모 열람과 실제 장비 점검 구분, 아침조 도착 조건·점검 가능 시간만 확인, 서명 일치.",
+    "V05": "의견수렴용 전시 가능성 문의, 실제 전시회 개최 약속 아님, 목요일까지 해당 방식 가능 여부를 알려달라는 요청.",
+    "V06": "두 개 중 하나 보관 중, 어느 계정인지 이미 결정, 담당자 확인 전에는 양쪽 모두 그대로 유지, 부서 서명."
+  }
+}

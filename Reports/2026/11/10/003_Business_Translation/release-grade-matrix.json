@@ -1,0 +1,560 @@
+{
+  "gemini-4-argon-high": {
+    "D02": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "U09": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "D05": {
+      "baseline": "B",
+      "release": "B"
+    },
+    "U02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E2": {
+      "release": "B",
+      "baseline": "B"
+    },
+    "D04": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "H-K03": {
+      "baseline": "C",
+      "release": "A"
+    },
+    "U05": {
+      "baseline": "C",
+      "release": "A"
+    },
+    "V05": {
+      "release": "A",
+      "baseline": "B"
+    },
+    "D01": {
+      "release": "A",
+      "baseline": "B"
+    },
+    "D03": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "U01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U07": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U08": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U10": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E1": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "K1": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E4": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "K3": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E05": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K05": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V06": {
+      "baseline": "B",
+      "release": "A"
+    }
+  },
+  "gemini-3.8-flash-high": {
+    "D02": {
+      "release": "B",
+      "baseline": "A"
+    },
+    "U09": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "D05": {
+      "baseline": "B",
+      "release": "A"
+    },
+    "U02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E2": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "D04": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "H-K03": {
+      "baseline": "C",
+      "release": "A"
+    },
+    "U05": {
+      "baseline": "C",
+      "release": "A"
+    },
+    "V05": {
+      "release": "A",
+      "baseline": "B"
+    },
+    "D01": {
+      "release": "A",
+      "baseline": "B"
+    },
+    "D03": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "U01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U07": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U08": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U10": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E1": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "K1": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E4": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "K3": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E05": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K05": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V06": {
+      "baseline": "B",
+      "release": "A"
+    }
+  },
+  "claude-opus-5-5-high": {
+    "D02": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "U09": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "D05": {
+      "baseline": "B",
+      "release": "A"
+    },
+    "U02": {
+      "baseline": "B",
+      "release": "A"
+    },
+    "E2": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "D04": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "H-K03": {
+      "baseline": "C",
+      "release": "A"
+    },
+    "U05": {
+      "baseline": "C",
+      "release": "A"
+    },
+    "V05": {
+      "release": "A",
+      "baseline": "B"
+    },
+    "D01": {
+      "release": "A",
+      "baseline": "B"
+    },
+    "D03": {
+      "release": "A",
+      "baseline": "A"
+    },
+    "U01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U07": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U08": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "U10": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E1": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "K1": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "E4": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "K3": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E05": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-E06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K05": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "B-K06": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-E04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "H-K04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V01": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V02": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V03": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V04": {
+      "baseline": "A",
+      "release": "A"
+    },
+    "V06": {
+      "baseline": "B",
+      "release": "A"
+    }
+  }
+}

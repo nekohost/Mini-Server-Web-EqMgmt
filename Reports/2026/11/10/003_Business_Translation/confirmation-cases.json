@@ -1,0 +1,38 @@
+[
+  {
+    "id": "V01",
+    "direction": "en-ko",
+    "original": "Hi Casey,\n\nThree boxes were set aside for our visit. They have not been shipped. Please keep one at reception and leave the other two where they are.\n\nThanks,\nNell",
+    "split": "locked_confirmation"
+  },
+  {
+    "id": "V02",
+    "direction": "ko-en",
+    "original": "안녕하세요.\n\n차액은 다음 달 청구서에서 조정할 예정입니다. 이번 달 입금액을 임의로 줄이지 말아 주세요.\n\n감사합니다.\n정산팀",
+    "split": "locked_confirmation"
+  },
+  {
+    "id": "V03",
+    "direction": "en-ko",
+    "original": "Subject: Author copies\n\nHello Dev,\n\nA proof copy is available for inspection. Buying copies is optional and will not affect the review. Please send just the delivery address if you would like the proof.\n\nRegards,\nAri",
+    "split": "locked_confirmation"
+  },
+  {
+    "id": "V04",
+    "direction": "ko-en",
+    "original": "제목: 교대조 인수인계\n\n안녕하세요.\n\n야간조가 읽은 것은 점검 메모이고, 장비 자체를 점검한 것은 아닙니다. 아침조가 도착하면 점검 가능 시간만 확인해 주세요.\n\n감사합니다.\n서지원 드림",
+    "split": "locked_confirmation"
+  },
+  {
+    "id": "V05",
+    "direction": "en-ko",
+    "original": "Hello Dana,\n\nCould the library display the proposal for comment? Displaying it would not commit the library to hosting the exhibition. Let us know by Thursday whether that approach is acceptable.\n\nBest regards,\nImani",
+    "split": "locked_confirmation"
+  },
+  {
+    "id": "V06",
+    "direction": "ko-en",
+    "original": "제목: 공용 계정 정리\n\n안녕하세요.\n\n공용 계정 두 개 중 하나는 보관 중입니다. 어느 계정을 보관할지는 이미 정해졌으니 담당자가 확인하기 전에는 두 계정 모두 그대로 두어 주세요.\n\n감사합니다.\n운영지원팀",
+    "split": "locked_confirmation"
+  }
+]

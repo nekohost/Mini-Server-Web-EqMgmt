@@ -481,3 +481,4 @@ Linux 회귀99건, 추가 격리 HTTP19건, 실제 템플릿 브라우저26건 �
 - 메일 한 편의 원문과 번역 방향을 보내면 대화 안에서 번역문을 확인한다. 같은 대화에서도 번역 요청마다 해당 메일만 모델에 전달한다.
 - 260Strata의 Qwen은 영→한에 `xhigh`, 한→영에 `low`를 사용한다. [사용 방법](docs/ai-assistant.md#mail-translation) · [운영 검증 및 품질 결과](Reports/2026/11/10/001_AI_Mail_Translation_Release_Report.md)
 - 승인·접수 0건과 일부·미확인을 구분하고, 한→영 업무메일은 식별 가능한 말미의 발신자 서명을 원문 표기대로 보존한다. [실제 번역과 화면](Reports/2026/11/10/002_AI_Mail_Fidelity_Report.md)
+- 자연스러운 번역 지시와 제목 없는 짧은 업무 문안도 지원한다. 원문이 인사말로 시작하면 번역기가 덧붙인 제목을 식별해 본문을 표시하고, 원시 응답은 감사 기록에 보존한다. [방향별 실측과 운영 검증](Reports/2026/11/10/003_Business_Translation_Report.md)

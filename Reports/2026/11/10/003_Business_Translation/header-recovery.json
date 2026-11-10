@@ -1,0 +1,11 @@
+{
+  "case": "U05",
+  "mode": "same previously failed live output replayed without inference",
+  "first_state": "failed",
+  "first_error": "원문에 없는 다른 메일의 인사말이 들어 있습니다.",
+  "raw": "제목: 16:10 픽업 가능 여부 확인 요청\n\n본문:\nTaylor님,\n\n택배는 집하장에서 스캔되었으나 운송사가 아직 수거하지 않았습니다. 16:10 픽업에 여전히 반영할 수 있는지 확인해 주시겠어요? 대체 주문은 보류 상태로 유지해 주세요.\n\n감사합니다.\nLee",
+  "source": "Hello Taylor,\n\nThe parcel was scanned at the depot, but the carrier has not collected it. Could you check whether it can still make the 16:10 pickup? Please leave the replacement order on hold.\n\nRegards,\nLee",
+  "final_state": "done",
+  "final_error": null,
+  "stored": "Taylor님,\n\n택배는 집하장에서 스캔되었으나 운송사가 아직 수거하지 않았습니다. 16:10 픽업에 여전히 반영할 수 있는지 확인해 주시겠어요? 대체 주문은 보류 상태로 유지해 주세요.\n\n감사합니다.\nLee"
+}

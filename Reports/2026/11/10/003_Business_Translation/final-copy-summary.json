@@ -1,0 +1,44 @@
+{
+  "status": "pass",
+  "business_tables_preserved": 18,
+  "ai_tables_preserved": 17,
+  "old_ai_rows": {
+    "ai_execution_guards": 85,
+    "ai_lifecycle_operations": 38,
+    "ai_lifecycle_tombstones": 14,
+    "ai_provider_models": 1,
+    "ai_provider_revisions": 6,
+    "ai_provider_settings": 1,
+    "ai_providers": 1,
+    "ai_resource_groups": 1,
+    "ai_selection_events": 32,
+    "ai_task_drafts": 0,
+    "conversations": 23,
+    "jobs": 40,
+    "message_steps": 85,
+    "messages": 80,
+    "proposals": 0,
+    "revocations": 17,
+    "storage_accounts": 5
+  },
+  "ai_version": 4,
+  "menu_parent": "admin_center",
+  "anonymous_statuses": {
+    "/login": 200,
+    "/assistant": 302,
+    "/admin/ai/providers": 302,
+    "/api/ai/capabilities": 401,
+    "/internal/ai/claim": 403
+  },
+  "audit_rows_preserved": true,
+  "old_lifecycle_rows": 9,
+  "lifecycle_rows_preserved": true,
+  "real_model_called": false,
+  "production_databases_modified": false,
+  "validated_sha256": {
+    "utils/ai_assistant/translation.py": "6ed1239eca20e1eee7eb17b3b323e9925199384d77b5244d2c1cfc729176ea89",
+    "tests/test_mail_translation.py": "92137076efb82cab0e0f864690f9828b4832153607a0a715a8bc1360554ff9df",
+    "utils/ai_assistant/store.py": "79199f370f7b74be8ee19287fd68f221c261ebef710fffd3e449a0dfbb87fc74"
+  },
+  "checked_utc": "2026-11-10T01:59:03.022504+00:00"
+}

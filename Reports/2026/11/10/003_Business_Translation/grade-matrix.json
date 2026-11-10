@@ -1,0 +1,500 @@
+{
+  "gemini-4-argon-high": {
+    "U04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E05": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E04": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-K02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K01": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U10": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-K03": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "E1": {
+      "candidate": "B",
+      "baseline": "A"
+    },
+    "V03": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "E4": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V06": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "E2": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "H-E01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "K3": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "K1": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-E02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E01": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V05": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "B-K06": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U07": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U08": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E03": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K05": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U05": {
+      "baseline": "C",
+      "candidate": "A"
+    },
+    "U09": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-E06": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U06": {
+      "baseline": "A",
+      "candidate": "A"
+    }
+  },
+  "gemini-3.8-flash-high": {
+    "U04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E05": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E04": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-K02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K01": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U10": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-K03": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "E1": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V03": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "E4": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V06": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "E2": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "H-E01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "K3": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "K1": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-E02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E01": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V05": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-K06": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U07": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U08": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E03": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K05": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U05": {
+      "baseline": "C",
+      "candidate": "A"
+    },
+    "U09": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-E06": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U06": {
+      "baseline": "A",
+      "candidate": "A"
+    }
+  },
+  "claude-opus-5-5-high": {
+    "U04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E05": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E04": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-K02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V01": {
+      "baseline": "A",
+      "candidate": "B"
+    },
+    "B-K01": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U10": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-K03": {
+      "candidate": "A",
+      "baseline": "C"
+    },
+    "E1": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V03": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "E4": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K02": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "V06": {
+      "candidate": "A",
+      "baseline": "B"
+    },
+    "E2": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-K04": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "K3": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "K1": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "H-E02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "H-E03": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E01": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V05": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-K06": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U07": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "V02": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U08": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "B-E03": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-K05": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "U05": {
+      "baseline": "C",
+      "candidate": "A"
+    },
+    "U09": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U01": {
+      "baseline": "A",
+      "candidate": "A"
+    },
+    "B-E06": {
+      "candidate": "A",
+      "baseline": "A"
+    },
+    "U02": {
+      "baseline": "B",
+      "candidate": "B"
+    },
+    "U06": {
+      "baseline": "A",
+      "candidate": "A"
+    }
+  }
+}

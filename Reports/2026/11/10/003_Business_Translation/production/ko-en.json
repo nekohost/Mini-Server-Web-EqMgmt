@@ -1,0 +1,20 @@
+{
+  "direction": "ko-en",
+  "instruction": "아래 메일을 자연스러운 업무용 영어로 옮겨 주세요.",
+  "source": "제목: 납품 명세서 확인\n\n안녕하세요.\n\n새 명세서는 받았지만 수량은 아직 대조하지 않았습니다. 차이가 있으면 알려 드리겠습니다. 지금은 재발행하지 마세요.\n\n감사합니다.\n정하린 드림",
+  "model": "qwen3.8-flash-next-iq3_xxs",
+  "provider": "260Strata",
+  "reasoning_effort": "low",
+  "writing_revision": "business-writing-20261110-v2",
+  "fidelity_revision": "source-sender-20261110-v1",
+  "state": "done",
+  "error": null,
+  "seconds": 17.67,
+  "model_steps": 1,
+  "proposals": 0,
+  "raw": "Subject: Confirming the Delivery Specification\n\nHello,\n\nI have received the new specification, but I have not yet reconciled the quantities. I will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+  "stored": "Subject: Confirming the Delivery Specification\n\nHello,\n\nI have received the new specification, but I have not yet reconciled the quantities. I will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+  "scope_only_current_mail": true,
+  "display": "Subject: Confirming the Delivery Specification\n\nHello,\n\nI have received the new specification, but I have not yet reconciled the quantities. I will let you know if there are any discrepancies. Please do not reissue it for now.\n\nThank you.\n정하린",
+  "restored_same": true
+}

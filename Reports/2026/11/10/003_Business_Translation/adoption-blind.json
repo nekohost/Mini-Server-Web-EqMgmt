@@ -1,0 +1,79 @@
+[
+  {
+    "id": "D02",
+    "source": "Subject: Samples for the branch\n\nDear Noor,\n\nWe can lend two display samples for the open day. Their labels stay with the samples. Please ask the branch whether it has space before you book a courier.\n\nRegards,\nParker",
+    "target": "한국어",
+    "L": "제목: 지점용 샘플\n\nNoor 님,\n\n오픈데이를 위해 디스플레이 샘플 2개를 대여할 수 있습니다. 샘플에는 라벨이 함께 부착되어 있습니다. 택배를 예약하기 전에 지점의 공간 확보 여부를 확인해 주세요.\n\n감사합니다,  \nParker",
+    "R": "제목: 지점용 전시 샘플\n\nNoor 님,\n\n오픈 데이를 위해 전시용 샘플 2개를 대여할 수 있습니다. 라벨은 샘플과 함께 보관됩니다. 택배를 예약하기 전에 지점에 공간이 있는지 확인해 주십시오.\n\n감사합니다.\nParker 드림"
+  },
+  {
+    "id": "U09",
+    "source": "Subject: Draft minutes\n\nHello all,\n\nPlease add the renewal to the agenda. The committee noted the proposal; it did not vote on it. A note in the minutes is enough for now.\n\nThanks,\nJo",
+    "target": "한국어",
+    "L": "제목: 회의록 초안\n\n안녕하세요, 여러분,\n\n갱신 안건을 의사일정에 추가해 주세요. 위원회는 해당 제안을 확인만 하였고 표결하지 않았습니다. 현재로서는 회의록에 메모를 남기는 것으로 충분합니다.\n\n감사합니다,\n조",
+    "R": "제목: 회의록 초안\n\n안녕하세요, 여러분,\n\n갱신 안건을 의사일정에 추가해 주세요. 위원회는 해당 제안을 확인만 하였고 표결하지 않았습니다. 현재로서는 회의록에 메모를 남기는 것으로 충분합니다.\n\n감사합니다,\n조"
+  },
+  {
+    "id": "D05",
+    "source": "제목: 현장 지원서 접수\n\n안녕하세요.\n\n지원자는 내일 정오까지 안내 창구에 지원서를 직접 접수할 수 있습니다. 담당자는 서류를 받으면 접수증만 발급해 주세요. 현장 승인은 요청하지 않았습니다.\n\n감사합니다.\n운영팀",
+    "target": "영어",
+    "L": "**Subject:** On-site Application Submission\n\nHello.\n\nApplicants can submit their applications directly at the information counter by noon tomorrow. When the person in charge receives the documents, please issue only an application receipt. On-site approval has not been requested.\n\nThank you.\n운영팀",
+    "R": "Subject: On-site Application Submission\n\nHello,\n\nThe applicant may submit the application directly at the information counter by noon tomorrow. Upon receiving the documents, the person in charge should issue only a receipt of acceptance. On-site approval has not been requested.\n\nThank you.\n운영팀"
+  },
+  {
+    "id": "U02",
+    "source": "안녕하세요.\n\n서버를 교체하면 점검 시간을 줄일 수 있는지 의견을 부탁드립니다. 예산은 아직 배정되지 않았으니 견적을 발주서로 접수하지 말아 주세요.\n\n감사합니다.",
+    "target": "영어",
+    "L": "Hello,\n\nWe would appreciate your opinion on whether replacing the server could reduce the maintenance window. Please note that the budget has not yet been allocated, so please do not submit the estimate as a purchase order.\n\nThank you.",
+    "R": "Hello,\n\nPlease share your opinion on whether replacing the server would reduce maintenance time. Since the budget has not yet been allocated, please do not register the quotation as a purchase order.\n\nThank you."
+  },
+  {
+    "id": "E2",
+    "source": "Subject: Two requests for a test bench\n\nHello Nina,\n\nNeither of the two exception requests has been approved. The lab has reviewed the first request and has not opened the second. Keep the bench reserved until Friday.\n\nRegards,\nDara",
+    "target": "한국어",
+    "L": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였고, 두 번째 요청은 오픈하지 않았습니다. 벤치를 금요일까지 예약 상태로 유지하세요.\n\n감사합니다,\nDara",
+    "R": "Subject: 테스트 벤치에 대한 두 건의 요청\n\n안녕하세요, Nina,\n\n두 건의 예외 요청 중 어느 한 건도 승인되지 않았습니다. 실험실은 첫 번째 요청을 검토하였고, 두 번째 요청은 오픈하지 않았습니다. 벤치를 금요일까지 예약 상태로 유지하세요.\n\n감사합니다,\nDara"
+  },
+  {
+    "id": "D04",
+    "source": "제목: 강의실 냉방 문의\n\n안녕하세요.\n\n목요일 오전에 강의실을 쓸 예정입니다. 냉방을 미리 켤 수 있는지 시설팀에 문의만 부탁드립니다. 답변이 오기 전에는 장소를 바꾸지 말아 주세요.\n\n감사합니다.\n교육팀",
+    "target": "영어",
+    "L": "Subject: Inquiry Regarding Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue before a response is received.\n\nThank you.\n교육팀",
+    "R": "Subject: Inquiry About Classroom Air Conditioning\n\nHello,\n\nWe plan to use the classroom on Thursday morning. Please inquire with the facilities team about whether the air conditioning can be turned on in advance. Please do not change the venue until a response is received.\n\nThank you.\n교육팀"
+  },
+  {
+    "id": "H-K03",
+    "source": "제목: 임시 대여 노트북 발송 전 확인 요청\n\nKai님, 안녕하세요.\n\n지원팀에서 확보한 임시 대여용 노트북은 LT-04 한 대뿐입니다. 사용자가 동의하면 내일 오전에 보내 주시되, 기존 장비의 수리가 끝난 것으로 안내하지는 말아 주세요. 사용자가 동의하지 않으면 새 제품을 주문하지 말고 저에게 먼저 알려 주세요. 신규 구매 승인은 제가 부서장에게 따로 요청할 예정이며, 아직 승인받지 못했습니다. 발송 후 배송 조회 번호를 이 메일에 회신해 주세요.\n\n감사합니다.\nOwen 드림",
+    "target": "영어",
+    "L": "Subject: Request for Confirmation Before Sending the Temporary Loan Laptop\n\nHi Kai,\n\nThe only temporary loan laptop secured by the support team is one unit, LT-04. If the user agrees, please send it out tomorrow morning; however, please do not inform them that the repair of the existing equipment has been completed. If the user does not agree, please let me know first before ordering a new unit. I will separately request approval for a new purchase from the department head, and I have not yet received approval. After shipping, please reply to this email with the tracking number.\n\nThank you,\nOwen",
+    "R": "Subject: Request for Confirmation Before Sending Temporary Loan Laptop\n\nHi Kai,\n\nThe only temporary loan laptop secured by the support team is one unit of LT-04. If the user agrees, please send it out tomorrow morning; however, please do not inform them that the repair of the existing equipment has been completed. If the user does not agree, please do not order a new product—let me know first. I plan to request approval for a new purchase separately from the department head, and I have not yet received approval. After sending, please reply to this email with the tracking number.\n\nThank you,\nOwen"
+  },
+  {
+    "id": "U05",
+    "source": "Hello Taylor,\n\nThe parcel was scanned at the depot, but the carrier has not collected it. Could you check whether it can still make the 16:10 pickup? Please leave the replacement order on hold.\n\nRegards,\nLee",
+    "target": "한국어",
+    "L": "[저장된 번역문 없음]",
+    "R": "Taylor님,\n\n택배는 집하장에서 스캔되었으나 운송사가 아직 수거하지 않았습니다. 16:10 픽업에 여전히 반영할 수 있는지 확인해 주시겠어요? 대체 주문은 보류 상태로 유지해 주세요.\n\n감사합니다.\nLee"
+  },
+  {
+    "id": "V05",
+    "source": "Hello Dana,\n\nCould the library display the proposal for comment? Displaying it would not commit the library to hosting the exhibition. Let us know by Thursday whether that approach is acceptable.\n\nBest regards,\nImani",
+    "target": "한국어",
+    "L": "안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani",
+    "R": "제목: 제안서 게시 및 의견 요청\n\n안녕하세요, Dana 님,\n\n의견 수렴을 위해 제안서를 도서관에 게시할 수 있을까요? 제안서를 게시하더라도 도서관이 전시를 개최하는 것을 확정하는 것은 아닙니다. 해당 방식이 가능한지 목요일까지 알려주시기 바랍니다.\n\n감사합니다.\nImani"
+  },
+  {
+    "id": "D01",
+    "source": "Hi Robin,\n\nThe safety team has read the draft checklist. The crew has not tried the procedure. Please put the trial on next week's agenda and record only today's discussion in the minutes.\n\nKind regards,\nAvery",
+    "target": "한국어",
+    "L": "Robin 님,\n\n안전 팀은 초안 점검표를 검토했습니다. 현장 인력은 아직 해당 절차를 시도하지 않았습니다. 다음 주 안건에 시범 적용을 포함해 주시고, 회의록에는 오늘 논의된 내용만 기록해 주세요.\n\n감사합니다,\nAvery",
+    "R": "제목: 안전 체크리스트 초안 및 다음 주 시범 절차 안건\n\n로빈 님,\n\n안전 팀은 체크리스트 초안을 검토했습니다. 현장 팀은 아직 절차를 시도하지 않았습니다. 다음 주 회의 안건에 시범 절차를 포함해 주시고, 회의록에는 오늘 논의 내용만 기록해 주십시오.\n\n감사합니다,\n에이브리"
+  },
+  {
+    "id": "D03",
+    "source": "안녕하세요.\n\n제안서를 받았지만 계약서로 접수하지는 않았습니다. 담당자가 돌아오기 전에는 어느 쪽에서도 서명 일정을 잡지 말아 주세요. 샘플 검토 일정만 알려 주세요.\n\n감사합니다.\n최다원 드림",
+    "target": "영어",
+    "L": "Hello.\n\nI received the proposal, but I did not register it as a contract. Please do not schedule signing on either side until the person in charge returns. Please provide only the sample review schedule.\n\nThank you.\n최다원",
+    "R": "Hello,\n\nI received the proposal but have not registered it as a contract. Please do not schedule signatures on either side before the responsible contact returns. Please only let me know the sample review schedule.\n\nThank you.\n최다원"
+  }
+]
