@@ -1368,6 +1368,8 @@ def after_request_func(response):
         response.headers['Referrer-Policy'] = 'no-referrer'
     if request.path in ('/login', '/register', '/reset_password') or ('user' in session and not request.path.startswith('/static/')):
         response.headers.setdefault('Cache-Control', 'private, no-store')
+    if request.path == '/login' and request.method in ('GET', 'HEAD'):
+        response.vary.add('Accept')  # HTML과 로그인 폼의 JSON 응답을 캐시에서도 구별합니다.
     # Passive cookie refresh is decided after the response hooks by the session interface.
     if request.path == '/api/check_session':
         return response
@@ -2780,7 +2782,7 @@ def login_page():
     [의존성 관계]: users 테이블
     [변경 시 영향도]: 로그인 인증 메커니즘 전반에 영향을 줍니다.
     """
-    if request.method == 'GET':
+    if request.method in ('GET', 'HEAD'):
         user = session.get('user')
         maintenance_state = get_maintenance_state()
         if user and 'UserId' in user:
@@ -2794,6 +2796,13 @@ def login_page():
             else:
                 return redirect(url_for('portal_page'))
         session.pop('user', None)
+        # [MINI-COMMENT: AUTH.LOGIN.FORM_TOKEN]
+        # [EN rev.1]
+        # [Role] Prepare the anonymous login form on demand without rendering a new page.
+        # [Dependencies] The template's existing token issuer, session cookie and login GET redirects.
+        # [Impact] An expired cookie gets a fresh token; active sessions keep their usual destination.
+        if request.accept_mimetypes['application/json'] > request.accept_mimetypes['text/html']:
+            return jsonify(inject_csrf_token())
         return render_template('login.html', maintenance={
             'active': maintenance_state['state'] != 'NORMAL',
             'state': maintenance_state['state'],

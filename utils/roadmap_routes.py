@@ -123,6 +123,8 @@ def install_roadmap(app, services):
             if endpoint == 'login_page' and not request.is_json:
                 csrf = request.form.get('csrf_token')
             if not csrf or csrf != session.get('csrf_token'):
+                if endpoint == 'login_page':
+                    raise InputError('로그인 화면을 새로고침한 뒤 다시 시도해 주세요. 문제가 계속되면 이 사이트의 쿠키가 허용되어 있는지 확인해 주세요.', 403)
                 raise InputError('CSRF 토큰 검증에 실패했습니다.', 403)
             if endpoint in ('login_page', 'register_page'):
                 account = str(data['LoginId'])

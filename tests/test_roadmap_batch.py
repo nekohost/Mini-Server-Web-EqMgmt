@@ -101,6 +101,57 @@ class RoadmapBatchTests(unittest.TestCase):
         self.assertEqual(self.client.post('/api/equipment', json=[], headers=self.headers).status_code, 400)
         self.assertEqual(self.client.post('/api/equipment', json={'Name': 23}, headers=self.headers).status_code, 400)
 
+    def test_login_form_recovers_an_expired_anonymous_session(self):
+        """An idle login page can submit once with a fresh token and the normal cookie."""
+        from itsdangerous.timed import TimestampSigner
+        import re
+        import time
+
+        client = self.module.app.test_client()
+        origin = 'https://localhost'
+        as_json = {'Accept': 'application/json'}
+        credentials = {'LoginId': 'fixture-20002', 'Password': 'GoodPass1!'}
+        with patch.object(TimestampSigner, 'get_timestamp', return_value=int(time.time()) - 8546):
+            old_page = client.get('/login', base_url=origin)
+        match = re.search(r'<meta name="csrf-token" content="([^"]+)">', old_page.get_data(as_text=True))
+        self.assertIsNotNone(match)
+        previous = match[1]
+        stale = client.post('/login', base_url=origin, json=credentials, headers={'X-CSRFToken': previous})
+        self.assertEqual(stale.status_code, 403)
+
+        form = client.get('/login', base_url=origin, headers=as_json)
+        self.assertEqual(form.status_code, 200)
+        self.assertEqual(set(form.json), {'csrf_token'})
+        self.assertTrue(form.cache_control.no_store and 'Accept' in form.vary)
+        self.assertTrue(form.json['csrf_token'] and form.json['csrf_token'] != previous)
+        self.assertTrue(client.get('/login', base_url=origin, headers=as_json).json == form.json)
+        login = client.post('/login', base_url=origin, json=credentials,
+                            headers={'X-CSRFToken': form.json['csrf_token']})
+        self.assertTrue(login.status_code == 200 and login.json['success'])
+        self.assertEqual(client.get('/login', base_url=origin, headers=as_json).location, '/portal')
+
+    def test_login_form_keeps_cookie_maintenance_and_html_contracts(self):
+        """Preparing a form cannot replace the cookie, a maintenance check, or HTML navigation."""
+        as_json = {'Accept': 'application/json'}
+        origin = 'https://localhost'
+        credentials = {'LoginId': 'fixture-20002', 'Password': 'GoodPass1!'}
+        cookieless = self.module.app.test_client(use_cookies=False)
+        token = cookieless.get('/login', base_url=origin, headers=as_json).json['csrf_token']
+        blocked = cookieless.post('/login', base_url=origin, json=credentials, headers={'X-CSRFToken': token})
+        self.assertEqual(blocked.status_code, 403)
+        self.assertIn('쿠키', blocked.json['message'])
+
+        client = self.module.app.test_client()
+        html = client.get('/login', base_url=origin, headers={'Accept': '*/*'})
+        self.assertEqual(html.mimetype, 'text/html')
+        self.assertIn('id="loginForm"', html.get_data(as_text=True))
+        self.assertIn('Accept', html.vary)
+        self.assertEqual(client.head('/login', base_url=origin).status_code, 200)
+        self.module.set_maintenance_state('DRAINING', 'fixture', '', 'fixture-20001')
+        token = client.get('/login', base_url=origin, headers=as_json).json['csrf_token']
+        blocked = client.post('/login', base_url=origin, json=credentials, headers={'X-CSRFToken': token})
+        self.assertEqual((blocked.status_code, blocked.json['reason']), (503, 'maintenance'))
+
     def test_auth_limit_has_retry_header_and_expiry(self):
         for attempt in range(10):
             self.assertEqual(self.client.post('/login', headers=self.headers, json={'LoginId': 'fixture-20002', 'Password': 'wrong'}).status_code, 400)

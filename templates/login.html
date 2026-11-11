@@ -40,10 +40,10 @@
                 {% endif %}
             </div>
 
-            <div id="errorMessage" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center"></div>
+            <div id="errorMessage" role="alert" class="hidden p-3 bg-red-50 text-red-600 text-sm rounded-lg border border-red-200 text-center"></div>
 
-            <button type="submit" 
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold py-3 rounded-lg shadow-md transition duration-200">
                 로그인
             </button>
         </form>
@@ -81,36 +81,62 @@
 
 {% block extra_scripts_base %}
 <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const loginForm = document.getElementById('loginForm');
+    const loginButton = loginForm.querySelector('button[type="submit"]');
+    const loginUrl = {{ url_for('login_page')|tojson }};
+    const portalUrl = {{ url_for('portal_page')|tojson }};
+    const deactivatedUrl = {{ url_for('deactivated_notice_page')|tojson }};
+
+    // The back/forward cache can restore a form with its submit button still disabled.
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) loginButton.disabled = false;
+    });
+
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (loginButton.disabled) return;
+        loginButton.disabled = true;
+
         const LoginId = document.getElementById('LoginId').value;
         const Password = document.getElementById('Password').value;
         const errorDiv = document.getElementById('errorMessage');
-
         errorDiv.classList.add('hidden');
+        let fallbackMessage = '로그인 보안 정보를 불러오지 못했습니다. 다시 시도해 주세요.';
 
         try {
-            const res = await fetch('/login', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': window.getCSRFToken()
-                },
-                body: JSON.stringify({ LoginId, Password })
+            // Prepare the current cookie before sending either credential. Follow only same-origin redirects.
+            const form = await fetch(loginUrl, {
+                headers: {Accept: 'application/json'},
+                credentials: 'same-origin', mode: 'same-origin', cache: 'no-store'
             });
-
-            const data = await res.json();
-
-            if (res.ok && data.success) {
-                location.href = '/portal';
-            } else {
-                errorDiv.innerText = data.message || '로그인에 실패했습니다.';
-                errorDiv.classList.remove('hidden');
+            const path = new URL(form.url).pathname;
+            if (form.ok && form.redirected && (path === portalUrl || path === deactivatedUrl)) {
+                location.replace(path);
+                return;
             }
-        } catch (err) {
-            errorDiv.innerText = '서버 통신 오류가 발생했습니다.';
-            errorDiv.classList.remove('hidden');
+            if (!form.ok || path !== loginUrl) throw new Error();
+            const {csrf_token: token} = await form.json();
+            if (typeof token !== 'string' || !token) throw new Error();
+            document.querySelector('meta[name="csrf-token"]').content = token;
+
+            fallbackMessage = '로그인 응답을 확인하지 못했습니다. 다시 시도해 주세요.';
+            const res = await fetch(loginUrl, {
+                method: 'POST', credentials: 'same-origin', mode: 'same-origin', redirect: 'error',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': token},
+                body: JSON.stringify({LoginId, Password})
+            });
+            if (res.status === 503) fallbackMessage = '서버 점검 중입니다. 잠시 후 다시 로그인해 주세요.';
+            const data = await res.json();
+            if (res.ok && data.success) {
+                location.assign(data.is_deactivated ? deactivatedUrl : portalUrl);
+                return;
+            }
+            errorDiv.textContent = data.message || '로그인에 실패했습니다.';
+        } catch {
+            errorDiv.textContent = fallbackMessage;
         }
+        errorDiv.classList.remove('hidden');
+        loginButton.disabled = false;
     });
 
     document.addEventListener('DOMContentLoaded', () => {
