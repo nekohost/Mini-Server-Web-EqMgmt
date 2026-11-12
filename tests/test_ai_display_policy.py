@@ -229,6 +229,6 @@ class DisplayPolicyTests(unittest.TestCase):
             content = db.execute("SELECT content FROM messages WHERE job=? AND role='assistant'", (jid,)).fetchone()[0]
         self.assertEqual(content, answer)
         audit = canonical(self.audit_logs)
-        self.assertIn('000123-02', audit)
-        self.assertIn('EquipmentId=2', audit)
+        self.assertNotIn('000123-02', audit)
+        self.assertNotIn('EquipmentId=2', audit)
         self.assertIn(DISPLAY_INSTRUCTIONS, SYSTEM)

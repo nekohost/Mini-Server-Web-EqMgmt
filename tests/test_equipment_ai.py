@@ -535,26 +535,114 @@ class AssistantTests(unittest.TestCase):
         with closing(self.connect()) as db, db:db.execute("UPDATE users SET LoginId='renamed' WHERE UserId=2")
         self.assertEqual(self.client.get('/api/ai/conversations/'+cid+'/messages').status_code,200)
 
-    def test_global_audit_preserves_ai_content_and_protects_lease(self):
-        """[Role] Tests the actual global hook, not a separate logging mock. [Dependencies] AST-extracted hook and synthetic private lease. [Impact] Business content remains auditable without reusable worker grants."""
-        jid=self.submit(content='감사할 비공개 업무 내용');job=self.claim()
-        self.finish(job,content='보관할 업무 답변',reasoning='보관할 추론 내용')
-        payloads=canonical(self.audit_logs)
-        for value in ('감사할 비공개 업무 내용','보관할 업무 답변','보관할 추론 내용'):
-            self.assertIn(value,payloads)
-        self.assertNotIn(job['lease'],payloads)
-        self.assertNotIn(self.app.config['USER_AI_WORKER_TOKEN'],payloads)
-        self.assertIn('보호된 인증값:',payloads)
-        claim=next(log for log in self.audit_logs if log['RequestPath']=='/internal/ai/claim')
-        finish=next(log for log in self.audit_logs if log['RequestPath'].endswith('/finish'))
-        self.assertEqual(json.loads(claim['ResponsePayload'])['job']['lease'],json.loads(finish['RequestPayload'])['lease'])
-        self.assertEqual(self.client.get('/api/ai/jobs/'+jid).get_json()['state'],'done')
+    def test_ai_history_survives_while_routine_worker_traffic_has_zero_web_rows(self):
+        cid = self.conversation()
+        question, answer, reasoning = '감사할 비공개 업무 내용', '보관할 업무 답변', '보관할 추론 내용'
+        jid = self.submit(cid, content=question)
+        previous = len(self.audit_logs)
+        job = self.claim()
+        heartbeat = self.client.post('/internal/ai/jobs/' + jid + '/event',
+                                     json={'lease': job['lease']}, headers=self.worker_headers)
+        self.assertTrue(heartbeat.get_json()['accepted'])
+        for offset, fragment in ((0,answer[:3]), (3,answer[3:])):
+            chunk = self.client.post('/internal/ai/jobs/' + jid + '/event',
+                                     json={'lease':job['lease'],'content':fragment,'content_offset':offset},
+                                     headers=self.worker_headers)
+            self.assertTrue(chunk.get_json()['accepted'])
+        self.assertEqual(self.finish(job, content=answer, reasoning=reasoning)['state'], 'done')
+        self.assertIsNone(self.claim())
+        self.assertEqual(len(self.audit_logs), previous)
+        history = self.client.get('/api/ai/conversations/' + cid + '/messages').get_json()['messages']
+        self.assertIn(question, [row['content'] for row in history])
+        self.assertTrue(any(row['content'] == answer and row['reasoning'] == reasoning for row in history))
+        self.assertEqual(self.client.get('/api/ai/jobs/' + jid).get_json()['state'], 'done')
+        for value in (question, answer, reasoning, job['lease'], self.app.config['USER_AI_WORKER_TOKEN']):
+            self.assertNotIn(value, canonical(self.audit_logs))
+        self.assertTrue(self.audit_logs)
+        self.assertTrue(all(row['RequestPayload'] is None and row['ResponsePayload'] is None for row in self.audit_logs))
+
+    def test_claim_predispatch_failure_and_denials_keep_diagnostic_metadata(self):
+        jid = self.submit()
+        size = len(self.audit_logs)
+        with patch.object(self.domain, 'actor', side_effect=RuntimeError('synthetic pre-dispatch failure')):
+            self.assertIsNone(self.claim())
+        with self.store.db() as db:
+            state = db.execute('SELECT state,error_code FROM jobs WHERE id=?', (jid,)).fetchone()
+        self.assertEqual(tuple(state), ('failed', 'PROCESSING_FAILED'))
+        self.assertEqual(len(self.audit_logs), size + 1)
+        self.assertEqual(self.audit_logs[-1]['StatusCode'], 200)
+        denied = self.client.post('/internal/ai/claim', json={'worker':'fixture'}, headers={})
+        self.assertEqual(denied.status_code, 403)
+        self.assertEqual(self.audit_logs[-1]['StatusCode'], 403)
+        for path in ('/api/ai', '/internal/ai/missing', '/api/admin/ai/missing', '/admin/ai/missing', '/assistant/missing'):
+            self.assertEqual(self.client.post(path, json={'content':'private-unknown-route'}).status_code, 404)
+            self.assertEqual(self.audit_logs[-1]['RequestPath'], path)
+            self.assertEqual((self.audit_logs[-1]['RequestPayload'], self.audit_logs[-1]['ResponsePayload']), (None, None))
+        self.assertNotIn('private-unknown-route', canonical(self.audit_logs))
+
+    def test_translation_claim_marks_only_successfully_built_packets(self):
+        source = '다음 이메일을 한국어로 번역해 주세요.\n\nSubject: Inspection\n\nHello,\nPlease inspect LT-31.'
+        first = self.submit(content=source)
+        previous = len(self.audit_logs)
+        packet = self.claim()
+        self.assertEqual((packet['id'], packet['route']['mail_translation']), (first, 'en-ko'))
+        self.assertEqual(len(self.audit_logs), previous)
+        self.finish(packet, content='', outcome='failed')
+        second = self.submit(content=source)
+        previous = len(self.audit_logs)
+        with patch('utils.ai_assistant.translation_packet', side_effect=ValueError('fixture packet refused')):
+            self.assertIsNone(self.claim())
+        self.assertEqual(len(self.audit_logs), previous + 1)
+        self.assertEqual(self.audit_logs[-1]['StatusCode'], 200)
+        with self.store.db() as db:
+            self.assertEqual(tuple(db.execute('SELECT state,error_code FROM jobs WHERE id=?', (second,)).fetchone()),
+                             ('failed', 'PROCESSING_FAILED'))
+
+    def test_authenticated_disabled_and_maintenance_claims_are_quiet(self):
+        queued = self.submit()
+        previous = len(self.audit_logs)
+        body = {'worker':'fixture', 'protocol':PROTOCOL}
+        client = self.app.test_client()
+        self.app.config['USER_AI_ENABLED'] = False
+        for _ in range(3):
+            self.assertIsNone(self.claim())
+        self.app.config['USER_AI_ENABLED'] = True
+        for state in ('DRAINING','MAINTENANCE','RESTORING','RECOVERY'):
+            self.maintenance = {'state':state}
+            for _ in range(2):
+                response = client.post('/internal/ai/claim', json=body, headers=self.worker_headers)
+                self.assertEqual(response.status_code, 503)
+        self.assertEqual(len(self.audit_logs), previous)
+        self.assertEqual(client.post('/internal/ai/claim', json=body).status_code, 503)
+        self.assertEqual(len(self.audit_logs), previous + 1)
+        self.maintenance = {'state':'NORMAL'}
+        self.assertEqual(self.claim()['id'], queued)
+
+    def test_ai_changes_and_csv_evidence_survive_failed_http_logging(self):
+        hook = self.app.after_request_funcs[None][-1]
+        def unavailable(row):
+            raise OSError('fixture sink unavailable')
+        with patch.dict(hook.__globals__, push_access_log=unavailable):
+            with self.assertLogs(self.app.logger, level='CRITICAL'):
+                proposal = self.prepare()
+                for attempt in range(2):
+                    reply = self.client.post('/api/ai/proposals/' + proposal['id'] + '/confirm', json={}, headers=self.headers)
+                    self.assertEqual(reply.status_code, 200)
+                exported = self.client.get('/api/ai/csv/export?scope=my')
+        self.assertEqual(self.count('equipments'), 5)
+        with closing(self.connect()) as db:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM audit_logs WHERE Action='AI_EXECUTE'").fetchone()[0], 1)
+        self.assertEqual(exported.status_code, 200)
+        with self.store.db() as db:
+            receipt = db.execute('SELECT sha256,bytes FROM ai_audit_artifacts').fetchone()
+        import hashlib
+        self.assertEqual(tuple(receipt), (hashlib.sha256(exported.data).hexdigest(), len(exported.data)))
 
     def test_audit_csv_token_and_html_csrf_fingerprint_keep_content(self):
         """[Role] Checks browser tokens and malformed JSON fallback. [Dependencies] Global hook and pure formatter with a stable synthetic key. [Impact] Token protection does not suppress audit events or ordinary token discussion."""
         with self.client.session_transaction() as current:current['csrf_token']='synthetic-csrf-secret-0123456789'
         response=self.client.get('/assistant');self.assertEqual(response.status_code,200)
-        self.assertNotIn('synthetic-csrf-secret-0123456789',self.audit_logs[-1]['ResponsePayload'])
+        self.assertIsNone(self.audit_logs[-1]['ResponsePayload'])
         key=self.app.secret_key
         body=audit_body(canonical({'token':'csv-once-only-12345','content':'장비 토큰에 관해 설명해 줘'}),key)
         self.assertIn('장비 토큰에 관해 설명해 줘',body);self.assertNotIn('csv-once-only-12345',body)

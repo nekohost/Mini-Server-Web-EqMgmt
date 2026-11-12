@@ -36,16 +36,19 @@
             <button type="button" onclick="toggleCleanupMenu()" class="app-toolbar-control bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-medium text-xs px-3 py-2 rounded-lg shadow-sm transition-colors flex items-center gap-1.5">
                 <i class="fa-solid fa-broom text-amber-500"></i> 로그 정리 <i class="fa-solid fa-chevron-down text-[10px]"></i>
             </button>
-            <div id="cleanupDropdown" class="hidden absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 py-1.5 z-20">
+            <div id="cleanupDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 py-1.5 z-20">
                 <button type="button" onclick="openCleanupModal('older_30d')" class="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-calendar-minus text-slate-400"></i> 30일 이전 로그 정리
+                    <i class="fa-solid fa-calendar-minus text-slate-400"></i> 30일 이전 로그 정리 (AI 제외)
                 </button>
                 <button type="button" onclick="openCleanupModal('static_only')" class="w-full text-left px-4 py-2 text-xs text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2">
-                    <i class="fa-solid fa-file-code text-blue-400"></i> 정적 리소스 로그만 비우기
+                    <i class="fa-solid fa-file-code text-blue-400"></i> 정적 리소스 로그만 비우기 (AI 제외)
                 </button>
                 <div class="border-t border-slate-100 dark:border-slate-700 my-1"></div>
-                <button type="button" onclick="openCleanupModal('all')" class="w-full text-left px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2 font-medium">
-                    <i class="fa-solid fa-trash-can"></i> 전체 로그 초기화
+                <button type="button" onclick="openCleanupModal('all')" class="w-full text-left px-4 py-2 text-xs text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex items-center gap-2 font-medium">
+                    <i class="fa-solid fa-trash-can"></i> 일반 웹 접근 로그 삭제 (AI 경로 제외)
+                </button>
+                <button type="button" onclick="openCleanupModal('all_including_ai')" class="w-full text-left px-4 py-2 text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 flex items-center gap-2 font-medium">
+                    <i class="fa-solid fa-triangle-exclamation"></i> 웹 접근 로그 전체 삭제 (AI 경로 포함)
                 </button>
             </div>
         </div>
@@ -248,8 +251,9 @@
 
 <!-- 🗑️ 수동 로그 정리 확인 모달 -->
 <div id="cleanupModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200">
-        <div class="flex items-center gap-3 text-amber-500 mb-3">
+    <div class="bg-white dark:bg-slate-800 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 animate-in fade-in zoom-in-95 duration-200 flex flex-col overflow-hidden"
+         style="max-height: calc(100vh - 2rem); max-height: calc(100dvh - 2rem);">
+        <div class="flex shrink-0 items-center gap-3 text-amber-500 mb-3">
             <div class="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-lg shrink-0">
                 <i class="fa-solid fa-triangle-exclamation"></i>
             </div>
@@ -259,11 +263,11 @@
             </div>
         </div>
 
-        <p class="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed" id="cleanupModalDesc">
+        <p class="text-sm text-slate-600 dark:text-slate-300 mb-6 leading-relaxed whitespace-pre-line min-h-0 overflow-y-auto overscroll-contain" id="cleanupModalDesc" tabindex="0">
             선택한 조건에 해당하는 접근 로그를 데이터베이스에서 영구적으로 삭제하시겠습니까?
         </p>
 
-        <div class="flex justify-end gap-2.5">
+        <div class="flex shrink-0 justify-end gap-2.5">
             <button type="button" onclick="closeCleanupModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 transition-colors">
                 취소
             </button>
@@ -711,27 +715,40 @@ function toggleCleanupMenu() {
  * [역할]: 선택한 클렌징 액션 유형에 따라 확인 모달 다이얼로그의 제목 및 안내 문구를 구성하고 표출합니다.
  * [의존성 관계]: activeCleanupAction, DOM 요소(#cleanupModal, #cleanupModalTitle, #cleanupModalDesc)
  * [변경 시 영향도]: 로그 정리 작업 전 사용자 확인 다이얼로그 렌더링에 영향을 줍니다.
- * @param {string} action - 'older_30d', 'static_only', 'all' 중 하나의 클렌징 액션
+ * @param {string} action - 'older_30d', 'static_only', 'all', 'all_including_ai' 중 하나의 클렌징 액션
  */
 function openCleanupModal(action) {
     activeCleanupAction = action;
-    document.getElementById('cleanupDropdown').classList.add('hidden');
+    const dropdown = document.getElementById('cleanupDropdown');
+    if (dropdown) dropdown.classList.add('hidden');
 
     const titleEl = document.getElementById('cleanupModalTitle');
     const descEl = document.getElementById('cleanupModalDesc');
 
+    let actionTitle = '';
+    let actionDesc = '';
+
     if (action === 'older_30d') {
-        titleEl.innerText = '30일 이전 로그 정리';
-        descEl.innerText = '30일이 경과한 오래된 HTTP 접근 로그를 안전하게 일괄 삭제합니다. 최신 로그는 유지됩니다. 계속하시겠습니까?';
+        actionTitle = '30일 이전 로그 정리 (AI 제외)';
+        actionDesc = '30일이 경과한 오래된 웹 접근 로그를 정리합니다. (AI 경로 제외)';
     } else if (action === 'static_only') {
-        titleEl.innerText = '정적 리소스 로그 비우기';
-        descEl.innerText = '이미지, CSS, JS 등 정적 리소스(/static/*)에 대한 접근 로그만 전량 삭제합니다. API/웹 요청 로그는 안전하게 보존됩니다.';
+        actionTitle = '정적 리소스 로그 비우기 (AI 제외)';
+        actionDesc = '이미지, CSS, JS 등 정적 리소스(/static/*) 웹 접근 로그만 비웁니다. (AI 경로 제외)';
     } else if (action === 'all') {
-        titleEl.innerText = '전체 로그 완전 초기화';
-        descEl.innerText = '데이터베이스에 적재된 모든 웹 접근 로그를 영구 삭제합니다. 이 작업은 되돌릴 수 없습니다. 정말 진행하시겠습니까?';
+        actionTitle = '일반 웹 접근 로그 삭제 (AI 경로 제외)';
+        actionDesc = 'AI 경로를 제외한 모든 일반 웹 접근 로그를 삭제합니다. 과거 AI HTTP 기록은 보존됩니다.';
+    } else if (action === 'all_including_ai') {
+        actionTitle = '웹 접근 로그 전체 삭제 (AI 경로 포함)';
+        actionDesc = '과거 AI 경로의 HTTP 기록을 포함한 모든 웹 접근 로그를 데이터베이스에서 영구 삭제합니다.';
     }
 
-    document.getElementById('cleanupModal').classList.remove('hidden');
+    if (titleEl) titleEl.innerText = actionTitle;
+    if (descEl) {
+        descEl.innerText = `${actionDesc}\n\n정리 시작 시점까지 접수한 웹 접근 기록이 대상입니다. 이후 접수된 기록은 목록에 남습니다. AI 대화·작업, 장비 변경 및 CSV 반출 영수증은 각각의 저장소에 보관됩니다. 구버전의 미전송 기록은 별도 보관본이며, 이 화면에서 삭제하거나 웹 로그로 재전송하지 않습니다.`;
+    }
+
+    const modal = document.getElementById('cleanupModal');
+    if (modal) modal.classList.remove('hidden');
 }
 
 /**
@@ -740,103 +757,158 @@ function openCleanupModal(action) {
  * [변경 시 영향도]: 모달 취소 및 닫기 동작에 영향을 줍니다.
  */
 function closeCleanupModal() {
-    document.getElementById('cleanupModal').classList.add('hidden');
+    const modal = document.getElementById('cleanupModal');
+    if (modal) modal.classList.add('hidden');
     activeCleanupAction = null;
 }
 
 /**
- * [역할]: 수동 로그 정리(30일 이전 삭제, 정적 로그 삭제, 전체 초기화) API를 호출하고 결과를 화면에 반영합니다.
- * [의존성 관계]: 백엔드 POST /api/access_logs/cleanup, window.getCSRFToken(), window.showGlobalLoading(), window.hideGlobalLoading()
- * [변경 시 영향도]: 로그 영구 삭제 동작 및 삭제 중 UI 인터랙션 차단(전역 로딩 오버레이)에 영향을 줍니다.
+ * [역할]: 수동 로그 정리(30일 이전, 정적 로그, 일반 전체, AI포함 전체) API를 단계별로 호출하고 결과를 화면에 반영합니다.
+ * [의존성 관계]: 백엔드 POST /api/access_logs/cleanup, window.getCSRFToken(), window.showGlobalLoading(), window.hideGlobalLoading(), fetchStats(), fetchLogs()
+ * [변경 시 영향도]: 로그 영구 삭제 동작 및 모달/목록/통계 상태 갱신에 영향을 줍니다.
  */
-async function executeCleanup() {
-    if (!activeCleanupAction) return;
+async function executeCleanup(targetAction) {
+    const action = targetAction || activeCleanupAction;
+    if (!action) return;
 
     const btn = document.getElementById('confirmCleanupBtn');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 준비 중...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 삭제 준비 중...';
+    }
 
     if (typeof window.showGlobalLoading === 'function') {
         window.showGlobalLoading('삭제 대상 로그를 계산 중입니다...');
     }
 
     try {
+        let csrf = '';
+        if (typeof window.getCSRFToken === 'function') {
+            try {
+                csrf = window.getCSRFToken() || '';
+            } catch (_) {}
+        }
+
         const headers = {
             'Content-Type': 'application/json',
-            'X-CSRFToken': typeof window.getCSRFToken === 'function' ? window.getCSRFToken() : ''
+            'X-CSRFToken': csrf
         };
 
-        // 1. 전체 삭제 대상 건수 파악 (count)
-        let res = await fetch('/api/access_logs/cleanup', {
+        // 1. 전체 삭제 대상 건수 파악 및 시작 경계 확정 (count)
+        const countRes = await fetch('/api/access_logs/cleanup', {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ action: activeCleanupAction, step: 'count' })
+            body: JSON.stringify({ action: action, step: 'count' })
         });
-
-        let data = await res.json();
-        if (!res.ok || data.status !== 'success') {
-            throw new Error(data.message || '삭제 대상 건수 조회에 실패했습니다.');
+        if (!countRes.ok) {
+            throw new Error(`대상 건수 조회 실패 (HTTP ${countRes.status})`);
+        }
+        let countData;
+        try {
+            countData = await countRes.json();
+        } catch (_) {
+            throw new Error('대상 건수 조회 응답이 올바른 JSON 형식이 아닙니다.');
+        }
+        if (!countData || countData.status !== 'success') {
+            throw new Error((countData && countData.message) || '대상 건수 조회에 실패했습니다.');
+        }
+        if (typeof countData.operation_id !== 'string' || countData.operation_id.trim() === '') {
+            throw new Error('유효하지 않은 operation_id 응답입니다.');
+        }
+        if (typeof countData.total_count !== 'number' || !Number.isInteger(countData.total_count) || countData.total_count < 0) {
+            throw new Error('유효하지 않은 total_count 응답입니다.');
         }
 
-        const total = data.total_count || 0;
-        if (total === 0) {
-            alert('정리할 대상 로그가 없습니다.');
-            closeCleanupModal();
-            return;
-        }
+        const operationId = countData.operation_id;
+        const total = countData.total_count;
 
-        // 2. 250건 단위 반복 분할 삭제 (while loop)
+        // 2. 분할 삭제 (delete_chunk) - total이 0인 경우 루프를 건너뛰고 finish 호출
         let deleted = 0;
         while (deleted < total) {
-            const percent = Math.min(100, Math.floor((deleted / total) * 100));
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중... (${percent}%)`;
+            const percent = total > 0 ? Math.min(100, Math.floor((deleted / total) * 100)) : 100;
+            if (btn) btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> 삭제 중... (${percent}%)`;
             if (typeof window.showGlobalLoading === 'function') {
                 window.showGlobalLoading(`로그 데이터를 안전하게 삭제 중입니다... (${percent}%) [${deleted}/${total}]`);
             }
 
-            res = await fetch('/api/access_logs/cleanup', {
+            const chunkRes = await fetch('/api/access_logs/cleanup', {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify({ action: activeCleanupAction, step: 'delete_chunk' })
+                body: JSON.stringify({ action: action, step: 'delete_chunk', operation_id: operationId })
             });
-
-            data = await res.json();
-            if (!res.ok || data.status !== 'success') {
-                throw new Error(data.message || '분할 삭제 중 오류가 발생했습니다.');
+            if (!chunkRes.ok) {
+                throw new Error(`분할 삭제 실패 (HTTP ${chunkRes.status})`);
+            }
+            let chunkData;
+            try {
+                chunkData = await chunkRes.json();
+            } catch (_) {
+                throw new Error('분할 삭제 응답이 올바른 JSON 형식이 아닙니다.');
+            }
+            if (!chunkData || chunkData.status !== 'success') {
+                throw new Error((chunkData && chunkData.message) || '분할 삭제 중 오류가 발생했습니다.');
+            }
+            if (typeof chunkData.deleted_count !== 'number' || !Number.isInteger(chunkData.deleted_count) || chunkData.deleted_count < 0) {
+                throw new Error('유효하지 않은 deleted_count 응답입니다.');
             }
 
-            const chunkCount = data.deleted_count || 0;
+            const chunkCount = chunkData.deleted_count;
             if (chunkCount === 0) {
                 break; // 더 이상 삭제할 레코드가 없음
             }
             deleted += chunkCount;
         }
 
-        // 3. 완료 감사로그 기록 (finish)
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 마무리 중... (100%)';
+        // 3. 완료 처리 및 감사 검증 (finish) - count=0이어도 반드시 호출
+        if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 마무리 중... (100%)';
         if (typeof window.showGlobalLoading === 'function') {
             window.showGlobalLoading('로그 정리 완료 처리 중입니다...');
         }
 
-        await fetch('/api/access_logs/cleanup', {
+        const finishRes = await fetch('/api/access_logs/cleanup', {
             method: 'POST',
             headers: headers,
-                body: JSON.stringify({ action: activeCleanupAction, step: 'finish' })
+            body: JSON.stringify({ action: action, step: 'finish', operation_id: operationId })
         });
+        if (!finishRes.ok) {
+            throw new Error(`완료 처리 실패 (HTTP ${finishRes.status})`);
+        }
+        let finishData;
+        try {
+            finishData = await finishRes.json();
+        } catch (_) {
+            throw new Error('완료 처리 응답이 올바른 JSON 형식이 아닙니다.');
+        }
+        if (!finishData || finishData.status !== 'success') {
+            throw new Error((finishData && finishData.message) || '완료 처리에 실패했습니다.');
+        }
+        if (typeof finishData.deleted_count !== 'number' || !Number.isInteger(finishData.deleted_count) || finishData.deleted_count < 0) {
+            throw new Error('유효하지 않은 완료 deleted_count 응답입니다.');
+        }
+        if (typeof finishData.remaining_count !== 'number' || !Number.isInteger(finishData.remaining_count) || finishData.remaining_count !== 0) {
+            if (typeof finishData.remaining_count === 'number' && finishData.remaining_count > 0) {
+                throw new Error(`정리되지 않은 잔여 로그가 있습니다 (${finishData.remaining_count}건).`);
+            }
+            throw new Error('유효하지 않은 remaining_count 응답입니다.');
+        }
 
-        alert(`✅ 성공적으로 정리되었습니다. (삭제된 로그: ${deleted}건)`);
+        const authoritativeDeleted = finishData.deleted_count;
+        alert(`웹 접근 로그 ${authoritativeDeleted}건을 삭제했습니다. 기준 시점까지 남은 대상은 0건입니다.`);
         closeCleanupModal();
+        currentPage = 1;
         fetchStats();
         fetchLogs();
     } catch (err) {
         console.error('로그 정리 에러:', err);
-        alert(`❌ 실패: ${err.message || '서버 통신 오류로 로그 정리에 실패했습니다.'}`);
+        alert(`❌ 정리 실패: ${err.message || '서버 통신 오류로 로그 정리에 실패했습니다.'}`);
     } finally {
         if (typeof window.hideGlobalLoading === 'function') {
             window.hideGlobalLoading();
         }
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> 삭제 실행';
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-trash-can"></i> 삭제 실행';
+        }
     }
 }
 

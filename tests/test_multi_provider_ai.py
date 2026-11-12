@@ -284,8 +284,9 @@ class ProviderTests(unittest.TestCase):
         response=self.client.post('/api/admin/ai/providers',json={'name':'Audited office AI','base_url':peer.base_url,'adapter':'openai','enabled':True,'manual':False,'revision':0,'resource_group':LEGACY_GROUP,'api_key':key,'trust_mode':'private','ca_pem':peer.ca_pem},headers=self.headers)
         self.assertEqual(response.status_code,201,response.get_json())
         record=self.audit_logs[-1]
-        self.assertIn('Audited office AI',record['RequestPayload'])
-        self.assertNotIn(key,record['RequestPayload'])
+        self.assertEqual((record['StatusCode'], record['RequestPayload'], record['ResponsePayload']), (201, None, None))
+        self.assertNotIn(key, canonical(record))
+        self.assertIn('Audited office AI', canonical(self.registry.admin_list()))
 
     def test_endpoint_allowlist_url_paths_dns_rebinding_and_ports(self):
         """[Role] Verifies endpoint allowlist url paths dns rebinding and ports on synthetic fixtures.
@@ -672,12 +673,12 @@ class ProviderTests(unittest.TestCase):
         response=self.client.post('/api/ai/equipment/3/files',data={'file':(io.BytesIO(b'\x00\xffbinary'),'bad.pdf')},headers=self.headers)
         self.assertEqual(response.status_code,404)
         record=self.audit_logs[-1]
-        self.assertIsNotNone(record['RequestPayload'])
-        self.assertIn('wire_body_not_reparsed',record['RequestPayload'])
+        self.assertEqual(record['StatusCode'], 404)
+        self.assertEqual((record['RequestPayload'],record['ResponsePayload']), (None, None))
         response=self.client.get('/api/ai/csv/export?scope=my')
         self.assertEqual(response.status_code,200)
-        self.assertIn('protected_export',self.audit_logs[-1]['ResponsePayload'])
-        self.assertNotIn('SERIAL-2',self.audit_logs[-1]['ResponsePayload'])
+        self.assertIsNone(self.audit_logs[-1]['ResponsePayload'])
+        self.assertNotIn('SERIAL-2',canonical(self.audit_logs))
         self.assertEqual(len(list((self.root/'audit').glob('*.csv'))),1)
         self.app.config['USER_AI_AUDIT_MAX_BYTES']=1048576
         response=self.client.get('/api/ai/csv/export?scope=my')
@@ -762,16 +763,13 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(response.status_code,409)
         self.assertEqual(self.claim()['route']['profile_revision'],route['profile_revision'])
 
-    def test_audit_body_failure_does_not_drop_access_metadata(self):
-        """[Role] Verifies audit body failure does not drop access metadata on synthetic fixtures.
-        [Dependencies] Isolated Linux fixtures and temporary synthetic data; no production application or database.
-        [Impact] Detects regressions without production data changes or real model calls.
-        """
-        with patch('utils.ai_assistant.audit.http_payloads',side_effect=ValueError('synthetic capture failure')):
-            response=self.client.get('/api/ai/capabilities')
-        self.assertEqual(response.status_code,200)
-        self.assertEqual(self.audit_logs[-1]['StatusCode'],200)
-        self.assertIn('audit_body_unavailable',self.audit_logs[-1]['RequestPayload'])
+    def test_ai_metadata_collection_does_not_read_ordinary_payloads(self):
+        hook = self.app.after_request_funcs[None][-1]
+        with patch.dict(hook.__globals__, legacy_audit_payloads=None):
+            response = self.client.get('/api/ai/capabilities')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.audit_logs[-1]['StatusCode'], 200)
+        self.assertEqual((self.audit_logs[-1]['RequestPayload'], self.audit_logs[-1]['ResponsePayload']), (None, None))
 
     def test_worker_stops_chunks_after_rejected_ack_but_delivers_own_finish(self):
         """[Role] Verifies worker stops chunks after rejected ack but delivers own finish on synthetic fixtures.

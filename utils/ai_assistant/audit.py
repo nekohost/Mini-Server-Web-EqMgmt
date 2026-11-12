@@ -1,11 +1,10 @@
 """[MINI-COMMENT: ASSISTANT.AUDIT]
-[EN rev.5]
-[Role] Fingerprints reusable credentials and retains only approved metadata for provider registrations.
-[Dependencies] Python JSON/regex and the server HMAC helper; no database, request or model access.
-[Impact] AI events remain auditable; formatter failure never falls back to a raw credential body.
+[EN rev.6]
+[Role] Redacts credentials in ordinary HTTP JSON and preserves authorized CSV export evidence.
+[Dependencies] HMAC, the private export directory and the assistant artifact ledger.
+[Impact] Web traffic monitoring needs no copy of an assistant request, response, or attachment.
 """
 import json
-from flask import current_app
 import re
 import hashlib
 import os
@@ -13,7 +12,7 @@ from utils.equipment_audit_migration import private_directory
 import time
 import uuid
 
-from .policy import AssistantError, canonical, mac
+from .policy import canonical, mac
 
 SENSITIVE_KEYS = frozenset({
     'authorization', 'cookie', 'set-cookie', 'password', 'session_token', 'csrf_token',
@@ -69,52 +68,6 @@ def audit_body(raw, secret, known_secrets=()):
             return pattern.sub(lambda match: match[1] + json.dumps(protected(match[3]), ensure_ascii=False), result)
         except Exception:
             return canonical({'audit_format_error': True, 'body_fingerprint': mac(secret, 'assistant-audit-body', raw)})
-
-
-def http_payloads(request, response, context):
-    """[Role] Captures AI business JSON or validated binary metadata without rereading rejected wire bodies.
-    [Dependencies] Flask's already cached JSON bytes and route-owned file/export audit references.
-    [Impact] 413/disconnect/parser errors cannot skip metadata logging or duplicate binary/CSV payloads.
-    """
-    raw = getattr(request, '_cached_data', None)
-    metadata = {'content_type':request.mimetype, 'declared_bytes':request.content_length,
-                'outcome':response.status_code, 'validated_file':getattr(context, 'assistant_audit_file', None)}
-    if request.method == 'POST' and re.fullmatch(r'/api/admin/ai/providers(?:/[^/]+)?', request.path):
-        # Even a rejected upload may contain a private key. Project safe fields before global logging.
-        from .provider_trust import origin
-        summary = {**metadata, 'actor':getattr(context, 'provider_actor', None)}
-        data = request.get_json(silent=True) if raw is not None and len(raw) <= 32768 and request.is_json else None
-        if isinstance(data, dict):
-            try:
-                summary['origin'] = origin(data.get('base_url'))
-            except AssistantError:
-                pass
-            if response.status_code < 400 and isinstance(data.get('name'), str):
-                summary['name'] = data['name']
-        request_body = canonical(summary)
-    elif request.method in ('POST','PUT','PATCH','DELETE'):
-        if raw is not None and request.is_json:
-            try:
-                request_body = raw.decode('utf-8')
-                json.loads(request_body)
-            except (UnicodeError, ValueError, RecursionError):
-                request_body = canonical({'malformed_json': True, 'bytes':len(raw),
-                    'body_fingerprint':mac(current_app.secret_key, 'assistant-malformed', raw.hex()), **metadata})
-        else:
-            request_body = canonical({'wire_body_not_reparsed':True, **metadata})
-    else:
-        request_body = None
-    artifact = getattr(context, 'assistant_audit_export', None)
-    if artifact:
-        response_body = canonical({'protected_export':artifact, 'outcome':response.status_code})
-    elif response.is_json or response.mimetype in ('text/html','text/plain'):
-        try:
-            response_body = response.get_data(as_text=True)
-        except Exception as error:
-            response_body = canonical({'body_unavailable':type(error).__name__, **metadata})
-    else:
-        response_body = canonical({'binary_not_text':True, **metadata})
-    return request_body, response_body
 
 
 def preserve_export(store, root, raw, actor, scope, row_count, maximum=2147483648):

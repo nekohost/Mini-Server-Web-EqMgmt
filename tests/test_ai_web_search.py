@@ -175,7 +175,9 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.assertIsNone(self.client.get('/api/ai/jobs/'+jid+'?w=1').get_json()['web_searches'])
         self.assertEqual(self.client.get('/api/ai/jobs/'+jid+'?w=999').status_code,400)
         history=self.client.get('/api/ai/conversations/'+cid+'/messages').get_json();self.assertEqual(history['jobs'][0]['web_search_version'],1)
-        self.assertNotIn('context',history['jobs'][0]);self.assertIn('Flask official documentation',canonical(self.audit_logs))
+        self.assertNotIn('context', history['jobs'][0])
+        self.assertIn('Flask official documentation', canonical(view['web_searches']))
+        self.assertNotIn('Flask official documentation', canonical(self.audit_logs))
 
     def test_auto_exposes_search_without_forcing_an_unnecessary_external_request(self):
         """[Role] Verifies new omitted-control requests can complete an ordinary answer without fabricated evidence.

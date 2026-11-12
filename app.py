@@ -37,10 +37,9 @@ from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
 from utils.roadmap_auth import email_verification_proof, matches_email_verification
 from utils.http_security import client_ip, legacy_audit_payloads, password_reset_origin, referrer_path
-from utils import http_audit_queue
+from utils import access_log_cleanup, http_audit_queue
 from utils.strata_integration import install_strata, visible_portal_menus  # Retired UI tombstones and legacy-menu suppression only.
 from utils.ai_assistant import install_assistant, visible_assistant_menus  # 독립 사용자 AI·내부 큐·서버 권한 경계.
-from utils.ai_assistant.audit import audit_body  # 감사 사건·본문을 보존하고 인증값 원문만 보호합니다.
 
 # [버그 수정] Flask(Werkzeug) 자동 재시작(Reloader) 종료 시 발생하는 multiprocessing 세마포어 누수 경고 무시
 warnings.filterwarnings("ignore", category=UserWarning, module="multiprocessing.resource_tracker")
@@ -335,6 +334,8 @@ STATIC_METADATA_ROUTES_FROZEN = frozenset(STATIC_METADATA_ROUTES)
 access_log_queue = queue.Queue(maxsize=10000)
 access_log_bytes = 0
 access_log_bytes_lock = threading.Lock()
+# This service has one Gunicorn worker. The writer can finish while admission is paused.
+access_log_ingress_lock = threading.Lock()
 ACCESS_LOG_QUEUE_BYTES = 16 * 1024 * 1024
 shutdown_event = threading.Event()
 
@@ -342,21 +343,11 @@ shutdown_event = threading.Event()
 def _access_log_size(entry):
     return sys.getsizeof(entry) + sum(sys.getsizeof(value) for value in entry.values())
 
-AUDIT_SPOOL = Path(app.instance_path) / 'http-audit' / 'pending.sqlite3'
-
-
 def push_access_log(log_data):
     global access_log_bytes
-    if http_audit_queue.protected_path(log_data['RequestPath']) and (not has_request_context() or request.endpoint is not None):
-        if ACCESS_LOG_ACCEPTING.is_set():
-            try:
-                _insert_access_logs([log_data], durable=True)
-                return
-            except (OSError, sqlite3.Error, RuntimeError):
-                app.logger.warning('AI access audit deferred to durable local storage')
-        http_audit_queue.enqueue(AUDIT_SPOOL, log_data)
-        return
-    if ACCESS_LOG_ACCEPTING.is_set():
+    with access_log_ingress_lock:
+        if not ACCESS_LOG_ACCEPTING.is_set():
+            return
         size = _access_log_size(log_data)
         with access_log_bytes_lock:
             if access_log_bytes + size > ACCESS_LOG_QUEUE_BYTES:
@@ -368,11 +359,11 @@ def push_access_log(log_data):
             access_log_bytes += size
 
 
-def _insert_access_logs(logs, *, durable=False):
+def _insert_access_logs(logs):
     conn = open_application_database(timeout=5.0)
     try:
         conn.execute('PRAGMA journal_mode=WAL')
-        conn.execute('PRAGMA synchronous=FULL' if durable else 'PRAGMA synchronous=NORMAL')
+        conn.execute('PRAGMA synchronous=NORMAL')
         conn.executemany("""
             INSERT INTO access_logs (IpAddress, HttpMethod, RequestPath, StatusCode, UserAgent, Referer, DurationMs, IsStatic, RequestPayload, ResponsePayload, CreatedAt)
             VALUES (:IpAddress, :HttpMethod, :RequestPath, :StatusCode, :UserAgent, :Referer, :DurationMs, :IsStatic, :RequestPayload, :ResponsePayload, :CreatedAt)
@@ -395,8 +386,15 @@ def _write_logs_to_db(logs):
             access_log_queue.task_done()
 
 
-def _deliver_durable_events(logs):
-    _insert_access_logs(logs, durable=True)
+def access_log_ceiling(conn):
+    """Flush admitted rows, including a writer-owned batch, before sampling the last ID."""
+    with access_log_ingress_lock:
+        with access_log_queue.all_tasks_done:
+            drained = access_log_queue.all_tasks_done.wait_for(
+                lambda: access_log_queue.unfinished_tasks == 0, timeout=DATABASE_DRAIN_TIMEOUT)
+        if not drained:
+            raise access_log_cleanup.CleanupError('대기 중인 접근 로그 기록을 마친 뒤 다시 시도해 주세요.', 503)
+        return conn.execute('SELECT COALESCE(MAX(LogId), 0) FROM access_logs').fetchone()[0]
 
 def batch_logger_worker():
     """
@@ -420,12 +418,6 @@ def batch_logger_worker():
 
         if logs_to_insert:
             _write_logs_to_db(logs_to_insert)
-        if ACCESS_LOG_ACCEPTING.is_set():
-            try:
-                http_audit_queue.drain(AUDIT_SPOOL, _deliver_durable_events)
-            except (OSError, sqlite3.Error, RuntimeError, ValueError):
-                app.logger.exception('AI access audit retry pending')
-                shutdown_event.wait(1.0)
 
     # [Graceful Shutdown 처리] 종료 신호 수신 시 큐에 남은 잔여 로그 100% 최종 커밋
     remaining_logs = []
@@ -1291,10 +1283,10 @@ def maintenance_block_response(maintenance_state):
         'message': maintenance_state['message'],
         'expected_end_at': maintenance_state['expected_end_at']
     }
-    if request.path.startswith('/api/'):
+    if request.path.startswith(('/api/', '/internal/ai/')):
         response = jsonify({'success': False, 'reason': 'maintenance', 'maintenance': public_state})
     else:
-        response = render_template('maintenance.html', maintenance=public_state)
+        response = app.make_response(render_template('maintenance.html', maintenance=public_state))
     response.status_code = 503
     response.headers['Retry-After'] = '300'
     response.headers['Cache-Control'] = 'no-store'
@@ -1314,11 +1306,15 @@ def maintenance_request_gate():
     if state_name == 'NORMAL':
         return None
     # [MINI-COMMENT: ASSISTANT.MAINTENANCE.CLEANUP]
-    # [EN rev.1]
+    # [EN rev.2]
     # [Role] Allows only authenticated current-lease cleanup against the independent AI DB.
     # [Dependencies] Assistant's fixed-method/path verifier; never browser roles or equipment DB.
     # [Impact] Maintenance blocks new claims/tools while existing own responses can drain and report completion.
-    cleanup = app.extensions.get('equipment_assistant', {}).get('maintenance_cleanup')
+    assistant = app.extensions.get('equipment_assistant', {})
+    wait = assistant.get('planned_worker_wait')
+    if wait and wait():
+        return maintenance_block_response(maintenance_state)
+    cleanup = assistant.get('maintenance_cleanup')
     if cleanup and cleanup():
         return None
     # 정적 자원과 공개 점검 상태는 안내 화면 렌더링에 필요하므로 항상 허용합니다.
@@ -1392,39 +1388,33 @@ def after_request_func(response):
             or request.path.startswith('/api/equipment/csv/')
             or ('/files' in request.path and request.path.startswith('/api/equipment/')))  # 신규 바이너리/확정토큰은 메타데이터만 기록합니다. 기존 일반 로그 정책은 유지합니다.
         # [제안-040, 043] 일반 변경 요청만 Payload를 수집하고 민감 DB 작업은 메타데이터만 기록합니다.
-        is_ai = request.endpoint is not None and http_audit_queue.protected_path(request.path)
+        # [MINI-COMMENT: ASSISTANT.AUDIT.GLOBAL]
+        # [EN rev.4]
+        # The authenticated handler marks only routine worker results. Unmatched AI URLs and
+        # rejected requests keep HTTP metadata and never enter ordinary JSON capture.
+        is_ai = request.blueprint == 'equipment_assistant' or http_audit_queue.protected_path(request.path)
+        if (request.endpoint == 'equipment_assistant.claim' and response.status_code == 503
+                and g.get('planned_worker_wait') is True):
+            return response
+        if (request.endpoint in ('equipment_assistant.claim', 'equipment_assistant.event', 'equipment_assistant.finish')
+                and 200 <= response.status_code < 300 and g.get('routine_ai_worker') is True):
+            return response
         request_payload = response_payload = None
-        protected_values = (app.secret_key, app.config.get('USER_AI_WORKER_TOKEN'),
-            session.get('csrf_token'), session.get('session_token'),
-            request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session')),
-            request.headers.get('Authorization'), request.headers.get('Authorization', '').removeprefix('Bearer '))
         if (not is_ai and not is_static and not is_sensitive_database_operation
                 and not request.path.startswith('/api/access_logs')):
+            protected_values = (app.secret_key, app.config.get('USER_AI_WORKER_TOKEN'),
+                session.get('csrf_token'), session.get('session_token'),
+                request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session')),
+                request.headers.get('Authorization'), request.headers.get('Authorization', '').removeprefix('Bearer '))
             try:
                 request_payload, response_payload = legacy_audit_payloads(request, response, app.secret_key, protected_values)
             except Exception as error:
                 request_payload = json.dumps({'audit_body_unavailable': type(error).__name__})
 
-        # [MINI-COMMENT: ASSISTANT.AUDIT.GLOBAL]
-        # [EN rev.3]
-        # [Role] Retains AI request/response audit content while fingerprinting reusable credentials.
-        # [Dependencies] The pure audit formatter and server-owned current secret values.
-        # [Impact] Required AI events commit to access_logs or a private retry spool, independently of ordinary queue limits.
-        if is_ai:
-            from utils.ai_assistant.audit import http_payloads
-            try:
-                request_payload, response_payload = http_payloads(request, response, g)
-            except Exception as error:
-                # Body capture failure must not suppress the access event itself or reread rejected wire data.
-                request_payload = json.dumps({'audit_body_unavailable': type(error).__name__}, ensure_ascii=False)
-                response_payload = None
-            request_payload = audit_body(request_payload, app.secret_key, protected_values)
-            response_payload = audit_body(response_payload, app.secret_key, protected_values)
-
         # KST 일시 생성
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        # AI 감사 이벤트는 영구 저장하고 일반 접근 기록은 제한된 큐로 보냅니다.
+        # HTTP 수집 장애는 응답 및 AI 업무 기록의 커밋에 영향을 주지 않습니다.
         push_access_log({
             'IpAddress': ip_addr,
             'HttpMethod': request.method,
@@ -5862,7 +5852,12 @@ def api_get_access_logs():
     rows = cursor.fetchall()
     conn.close()
 
-    logs = [{**dict(row), 'Referer': referrer_path(row['Referer'])} for row in rows]
+    logs = []
+    for row in rows:
+        item = {**dict(row), 'Referer': referrer_path(row['Referer'])}
+        if not http_audit_queue.payload_visible(row['RequestPath']):
+            item.update(HasRequestPayload=0, HasResponsePayload=0)
+        logs.append(item)
     return jsonify({
         "status": "success",
         "total": total_count,
@@ -5885,32 +5880,20 @@ def api_get_access_log_payload(log_id):
         return jsonify({"error": "권한이 없습니다."}), 403
 
     conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT LogId, RequestPath, RequestPayload, ResponsePayload
-        FROM access_logs
-        WHERE LogId = ?
-    """, (log_id,))
-
-    row = cursor.fetchone()
-    conn.close()
-
-    if not row:
-        return jsonify({"status": "error", "message": "로그 데이터를 찾을 수 없습니다."}), 404
-
-    # Old rows may contain complete credentials or rendered HTML with a CSRF token.
-    path = row['RequestPath'] or ''
-    is_ai = http_audit_queue.protected_path(path)
-    sensitive = not is_ai and (not path.startswith('/api/') or path.startswith(('/api/auth/', '/api/admin/maintenance/', '/api/maintenance/', '/api/admin/database/'))
-                 or path in ('/api/change_password', '/api/users/update_email', '/api/users/update_profile', '/api/users/withdraw')
-                 or path.endswith('/reset_password'))
-    return jsonify({
-        "status": "success",
-        "log_id": row['LogId'],
-        "request_payload": None if sensitive else row['RequestPayload'],
-        "response_payload": None if sensitive else row['ResponsePayload']
-    })
+    try:
+        # One SQLite snapshot binds classification to the selected LogId. Old AI bodies
+        # do not cross the SQLite boundary even if an administrator knows the ID.
+        conn.execute('BEGIN')
+        row = conn.execute('SELECT RequestPath FROM access_logs WHERE LogId=?', (log_id,)).fetchone()
+        if not row:
+            return jsonify(status='error', message='로그 데이터를 찾을 수 없습니다.'), 404
+        payload = (None, None)
+        if http_audit_queue.payload_visible(row['RequestPath']):
+            payload = conn.execute('SELECT RequestPayload,ResponsePayload FROM access_logs WHERE LogId=?',
+                                   (log_id,)).fetchone()
+        return jsonify(status='success', log_id=log_id, request_payload=payload[0], response_payload=payload[1])
+    finally:
+        conn.close()
 
 
 @app.route('/api/access_logs/stats', methods=['GET'])
@@ -5984,42 +5967,35 @@ def api_cleanup_access_logs():
     [변경 시 영향도]: access_logs 테이블 내 레코드의 영구 파기 및 감사 로그 기록에 영향을 줍니다.
     """
     user = session['user']
-    if user['Role'] != 'admin':
-        return jsonify({"success": False, "message": "관리자만 로그를 정리할 수 있습니다."}), 403
-
-    data = request.json or {}
+    if user['Role'] != 'admin' or not check_menu_permission('access_logs'):
+        return jsonify(status='error', message='관리자 로그 정리 권한이 필요합니다.'), 403
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify(status='error', message='정리 요청 형식을 확인해 주세요.'), 400
     action = data.get('action')
-    step = data.get('step', 'direct') # 'count', 'delete_chunk', 'finish', 'direct'
+    step = data.get('step', 'direct')
+    if action not in ('older_30d', 'static_only', 'all', 'all_including_ai') or step not in ('count', 'delete_chunk', 'finish', 'direct'):
+        return jsonify(status='error', message='지원하지 않는 정리 범위 또는 단계입니다.'), 400
 
-    if not action or action not in ['older_30d', 'static_only', 'all']:
-        return jsonify({"success": False, "message": "올바른 정리 방식을 지정해 주세요."}), 400
-
-    if step == 'finish':
-        # Each successful delete is audited with its actual row count in its own transaction.
-        return jsonify(status='success', message='로그가 정리되었습니다.')
-    if step not in ('count', 'direct', 'delete_chunk'):
-        return jsonify(status='error', message='지원하지 않는 정리 단계입니다.'), 400
-    where, values = http_audit_queue.cleanup_filter()
-    if action == 'older_30d':
-        where += ' AND CreatedAt < ?'
-        values += ((datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),)
-    elif action == 'static_only':
-        where += ' AND IsStatic = 1'
+    def audit(conn, event, operation, details):
+        audit_lineup_change(conn, event, operation, None, details, table='access_logs')
 
     conn = get_db_connection()
     try:
-        if step == 'count':
-            count = conn.execute('SELECT COUNT(*) FROM access_logs WHERE ' + where, values).fetchone()[0]
-            return jsonify(status='success', total_count=count)
-        with conn:
-            selection = 'SELECT LogId FROM access_logs WHERE ' + where
-            if step == 'delete_chunk':
-                selection += ' ORDER BY LogId LIMIT 250'
-            deleted = conn.execute('DELETE FROM access_logs WHERE LogId IN (' + selection + ')', values).rowcount
-            if deleted:
-                audit_lineup_change(conn, 'CLEANUP_ACCESS_LOGS', None, None,
-                                    {'action': action, 'deleted_count': deleted}, table='access_logs')
-        return jsonify(status='success', deleted_count=deleted, message='로그가 정리되었습니다.')
+        actor = user['UserId']
+        operation = data.get('operation_id')
+        if step == 'count' or (step == 'direct' and operation is None):
+            ceiling = access_log_ceiling(conn)
+            start = access_log_cleanup.begin(conn, action, actor, audit, ceiling)
+            if step == 'count':
+                return jsonify(start)
+            operation = start['operation_id']
+        result = access_log_cleanup.advance(conn, action, actor, operation, step, audit)
+        if step == 'direct':
+            result = access_log_cleanup.advance(conn, action, actor, operation, 'finish', audit)
+        return jsonify(result)
+    except access_log_cleanup.CleanupError as error:
+        return jsonify(status='error', message=str(error)), error.status
     finally:
         conn.close()
 

@@ -184,12 +184,12 @@ def install_assistant(app, services):
                 raise AssistantError('요청을 확인할 수 없습니다. 화면을 새로고침해 주세요.',403)
         return actor
 
-    def worker():
+    def worker(*, require_store=True):
         """[Role] Authenticates only local worker requests, independently from browser/account cookies.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
-        if store is None:
+        if require_store and store is None:
             raise AssistantError('AI 도우미가 설정되지 않았습니다.',404)
         expected=app.config.get('USER_AI_WORKER_TOKEN','')
         given=request.headers.get('Authorization','')
@@ -197,6 +197,25 @@ def install_assistant(app, services):
         if (peer not in ('127.0.0.1','::1') or request.remote_addr not in ('127.0.0.1','::1')
                 or request.headers.get('X-Forwarded-For') or not expected or not secrets.compare_digest(given,'Bearer '+expected)):
             raise AssistantError('처리 권한이 없습니다.',403)
+
+    def claim_worker():
+        worker(require_store=False)
+        data = object_only(body(), ('worker', 'protocol'), ('worker', 'protocol'))
+        if data['protocol'] != PROTOCOL:
+            raise AssistantError('AI 서버/worker 프로토콜 버전이 일치하지 않습니다.', 409)
+        return text(data['worker'], 100)
+
+    def planned_worker_wait():
+        if request.endpoint != 'equipment_assistant.claim' or request.method != 'POST':
+            return False
+        try:
+            claim_worker()
+        except AssistantError:
+            return False
+        g.planned_worker_wait = True
+        return True
+
+    app.extensions['equipment_assistant']['planned_worker_wait'] = planned_worker_wait
 
     def worker_lease_boundary(jid,token,outcome=None):
         """[MINI-COMMENT: ASSISTANT.WORKER.LIFECYCLE.BOUNDARY]
@@ -481,7 +500,6 @@ def install_assistant(app, services):
         """
         actor=administrator(request.method=='POST')
         if request.method=='POST':
-            g.provider_actor=actor['UserId']
             return jsonify(success=True,id=registry.save(body(),actor=actor['UserId'])),201
         return jsonify(success=True,**registry.admin_list())
 
@@ -495,7 +513,6 @@ def install_assistant(app, services):
         [Impact] Retiring never deletes records or controls upstream processes.
         """
         actor=administrator(True)
-        g.provider_actor=actor['UserId']
         return jsonify(success=True,id=registry.save(body(),opaque(pid),actor['UserId']))
 
     @bp.post('/api/admin/ai/providers/<pid>/revoke-trust')
@@ -826,14 +843,15 @@ def install_assistant(app, services):
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
         [Impact] Preserves the module's owner/validation/transaction boundary described above.
         """
-        worker()
-        data=object_only(body(),('worker','protocol'),('worker','protocol'))
-        if data['protocol']!=PROTOCOL:
-            raise AssistantError('AI 서버/worker 프로토콜 버전이 일치하지 않습니다.',409)
+        name = claim_worker()
         if not enabled(app.config.get('USER_AI_ENABLED')) or services['get_maintenance_state']()['state']!='NORMAL':
+            g.routine_ai_worker = True
             return jsonify(success=True,job=None)
-        job=store.claim(text(data['worker'],100))
+        if store is None:
+            raise AssistantError('AI 도우미가 설정되지 않았습니다.', 404)
+        job=store.claim(name)
         if job is None:
+            g.routine_ai_worker = True
             return jsonify(success=True,job=None)
         try:
             actor=job_actor(job)
@@ -857,7 +875,10 @@ def install_assistant(app, services):
             route['legacy_worker_key']=credential=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
             if 'mail_translation' in route:
-                return jsonify(success=True, job=translation_packet(job, route, PROTOCOL))
+                packet = translation_packet(job, route, PROTOCOL)
+                response = jsonify(success=True, job=packet)
+                g.routine_ai_worker = True
+                return response
             planning=search_planning(job,route)
             correcting=correction_phase(job)
             search_allowed=search_permitted(job,route)
@@ -930,7 +951,9 @@ def install_assistant(app, services):
                     'required_tool':'plan_web_search' if planning else None,
                     'web_search_required':job['purpose']=='chat' and route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context)}
             canonical(packet)
-            return jsonify(success=True,job=packet)
+            response = jsonify(success=True, job=packet)
+            g.routine_ai_worker = True
+            return response
         except Exception as error:
             reason=str(error) if isinstance(error,AssistantError) else ERROR_REASONS['PROCESSING_FAILED']
             app.logger.warning('assistant pre-dispatch failure job=%s type=%s',job['id'],type(error).__name__)
@@ -947,7 +970,7 @@ def install_assistant(app, services):
     @bp.post('/internal/ai/jobs/<jid>/event')
     def event(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.EVENT]
-        [EN rev.1]
+        [EN rev.2]
         [Role] Stores active deltas or discards a trashed/purged request while its own response drains.
         [Dependencies] Worker authentication, a current job or minimal execution-guard lease and offset checks.
         [Impact] Late chunks cannot recreate deleted dialogue or release an unconfirmed upstream slot.
@@ -982,16 +1005,22 @@ def install_assistant(app, services):
             if guarded is not None:
                 return jsonify(success=True,**guarded)
             raise AssistantError('응답 저장 위치를 확인할 수 없습니다.',409)
+        g.routine_ai_worker = accepted and not cancelled and enabled(app.config.get('USER_AI_ENABLED'))
         return jsonify(success=True,accepted=accepted,reasoning_offset=step['r'],content_offset=step['c'],cancel=cancelled or not enabled(app.config.get('USER_AI_ENABLED')))
 
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.6]
+        [EN rev.7]
         [Role] Enforces search decisions and bounded correction for completed missing output or an explicitly terminated output-token limit.
         [Dependencies] Verified lease, optional typed termination evidence, immutable route and server correction context.
         [Impact] Mail translations have a single tool-free attempt and require DONE, stop and a complete-looking email. Ordinary correction and historical completion contracts are preserved.
         """
+        def finished(state, **details):
+            # Status is the committed job/guard outcome. An HTTP 200 alone cannot classify it.
+            g.routine_ai_worker = state in ('done', 'queued') and not details.get('error_code') and not g.get('ai_tool_error', False)
+            return jsonify(success=True, state=state, **details)
+
         worker()
         data=body(2097152)
         if not isinstance(data,dict) or 'lease' not in data:
@@ -1000,7 +1029,7 @@ def install_assistant(app, services):
         if outcome in ('complete','failed','recovery_required','cancelled'):
             job,guarded=worker_lease_boundary(jid,data['lease'],outcome)
             if guarded is not None:
-                return jsonify(success=True,state=guarded)
+                return finished(guarded)
         else:
             with store.db() as db:
                 job=store.lease(db,jid,data['lease'])
@@ -1030,7 +1059,7 @@ def install_assistant(app, services):
                 stream_text(data['content'],MAX_CONTENT) if 'content' in data else None)
             if services['get_maintenance_state']()['state']!='NORMAL':
                 store.cancel(job['owner'],jid,error='시스템 점검으로 이 작업을 중단했습니다.',error_code='PROCESSING_FAILED')
-                return jsonify(success=True,state=store.finish(jid,data['lease'],'failed' if known else 'recovery_required',error_code='PROCESSING_FAILED'))
+                return finished(store.finish(jid,data['lease'],'failed' if known else 'recovery_required',error_code='PROCESSING_FAILED'))
             if not enabled(app.config.get('USER_AI_ENABLED')) and outcome!='recovery_required':
                 outcome='cancelled'
             # A DONE+length report is a known-ended model response, unlike character overflow,
@@ -1041,30 +1070,30 @@ def install_assistant(app, services):
                     try:
                         job_actor(job)
                     except AssistantError as error:
-                        return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
+                        return finished(store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
                     phase='search_plan' if search_planning(job,route) else 'answer'
                     corrected=correction_context(job,phase)
                     if corrected is not None and len(canonical(corrected))<=120000:
                         state=store.finish(jid,data['lease'],'queued',context=corrected)
                         if state=='queued':
                             app.logger.warning('assistant correction job=%s phase=%s trigger=token_limit step=%s',jid,phase,job['steps'])
-                        return jsonify(success=True,state=state,response_correction=phase if state=='queued' else None)
+                        return finished(state,response_correction=phase if state=='queued' else None)
             if outcome in ('failed','recovery_required','cancelled'):
                 final_code=supplied or ('STREAM_INCOMPLETE' if outcome=='recovery_required' else 'USER_CANCELLED' if outcome=='cancelled' else 'PROCESSING_FAILED')
-                return jsonify(success=True,state=store.finish(jid,data['lease'],outcome,
+                return finished(store.finish(jid,data['lease'],outcome,
                     ERROR_REASONS[final_code],error_code=final_code))
             try:
                 actor=job_actor(job)
             except AssistantError as error:
-                return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
+                return finished(store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
             with store.db() as db:
                 current=store.lease(db,jid,data['lease'])
             if current['cancel']:
-                return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled'))
+                return finished(store.finish(jid,data['lease'],'cancelled'))
             if 'mail_translation' in route:
                 state, error_code, reason = translation_completion(job, route['mail_translation'], data)
                 state = store.finish(jid, data['lease'], state, reason, error_code=error_code)
-                return jsonify(success=True, state=state)
+                return finished(state)
             if job['purpose']=='probe':
                 stage=json.loads(job['probe_plan'])[job['steps']]
                 calls=data.get('calls',[])
@@ -1098,14 +1127,14 @@ def install_assistant(app, services):
                             access.close()
                         if 'candidate_generation' in route:
                             provider_candidates.record_proof(db,route,profile,actor['UserId'])
-                            return jsonify(success=True,state=store.finish(jid,data['lease'],'done',transaction=db))
+                            return finished(store.finish(jid,data['lease'],'done',transaction=db))
                         version=db.execute('''SELECT p.revision,m.profile_revision FROM ai_providers p JOIN ai_provider_models m ON m.provider=p.id
                             JOIN ai_provider_trust t ON t.provider=p.id AND t.revision=p.revision
                             WHERE m.id=? AND p.retired=0 AND p.enabled=1 AND t.revoked IS NULL''',(job['selection_id'],)).fetchone()
                         if not version or tuple(version)!=(route['revision'],route['profile_revision']):
                             raise AssistantError('시험 중 연결 설정이 변경되었습니다. 현재 설정에서 다시 시험해 주세요.',409)
                         db.execute('UPDATE ai_provider_models SET profile=?,verified_revision=?,profile_revision=profile_revision+1,checked=? WHERE id=?',(canonical(profile),route['revision'],time.time(),job['selection_id']))
-                return jsonify(success=True,state=store.finish(jid,data['lease'],'done' if last else 'queued'))
+                return finished(store.finish(jid,data['lease'],'done' if last else 'queued'))
             code='INVALID_TOOL_CALL'
             calls=data.get('calls',[])
             if not isinstance(calls,list) or len(calls)>4:
@@ -1122,7 +1151,7 @@ def install_assistant(app, services):
                 state=store.finish(jid,data['lease'],'queued',context=corrected)
                 if state=='queued':
                     app.logger.warning('assistant correction job=%s phase=search_plan step=%s',jid,job['steps'])
-                return jsonify(success=True,state=state,response_correction='search_plan' if state=='queued' else None)
+                return finished(state,response_correction='search_plan' if state=='queued' else None)
             if planning and len(calls)!=1:
                 raise WebSearchError('WEB_SEARCH_PLAN_REQUIRED')
             if correcting=='answer' and calls:
@@ -1182,7 +1211,7 @@ def install_assistant(app, services):
                 state=store.finish(jid,data['lease'],'queued',context=corrected)
                 if state=='queued':
                     app.logger.warning('assistant correction job=%s phase=answer step=%s',jid,job['steps'])
-                return jsonify(success=True,state=state,response_correction='answer' if state=='queued' else None)
+                return finished(state,response_correction='answer' if state=='queued' else None)
             if prepared:
                 assistant={'role':'assistant','content':content,'tool_calls':[]}
                 results=[]
@@ -1192,7 +1221,7 @@ def install_assistant(app, services):
                         live=store.lease(db,jid,data['lease'])
                         store.conversation(live['owner'],live['conversation'],db,live['account_key'])
                     if live['cancel']:
-                        return jsonify(success=True,state=store.finish(jid,data['lease'],'cancelled'))
+                        return finished(store.finish(jid,data['lease'],'cancelled'))
                     job=live
                     try:
                         if name.startswith('prepare_') and not enabled(app.config['USER_AI_WRITE_TOOLS']):
@@ -1219,6 +1248,7 @@ def install_assistant(app, services):
                         else:
                             result=domain.read_or_prepare(name,args,job,store)
                     except (AssistantError,InputError,LineupNodeError) as error:
+                        g.ai_tool_error = True
                         # A legitimate business validation (for example an unknown equipment ID) is data for the answer.
                         result={'error':str(error)}
                     assistant['tool_calls'].append({'id':cid,'type':'function','function':{'name':name,'arguments':arguments}})
@@ -1237,13 +1267,13 @@ def install_assistant(app, services):
                 context.append({'role':'assistant','content':content})
             if len(canonical(context))>120000:
                 raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.')
-            return jsonify(success=True,state=store.finish(jid,data['lease'],'queued' if prepared else 'done',context=context))
+            return finished(store.finish(jid,data['lease'],'queued' if prepared else 'done',context=context))
         except Exception as error:
             # A trusted worker already reported completion: rejecting its syntax must still release its lease.
             if outcome in ('complete','failed','recovery_required','cancelled'):
                 guarded=store.guard_finish(jid,data['lease'],outcome)
                 if guarded is not None:
-                    return jsonify(success=True,state=guarded)
+                    return finished(guarded)
             reason=ERROR_REASONS[code]
             if isinstance(error,WebSearchError):
                 code=error.code
@@ -1252,7 +1282,7 @@ def install_assistant(app, services):
                 reason+=' '+str(error)
             app.logger.warning('assistant stopped job=%s code=%s type=%s',jid,code,type(error).__name__)
             state=store.finish(jid,data['lease'],'failed' if known else 'recovery_required',reason,error_code=code)
-            return jsonify(success=True,state=state,error_code=code,message=reason)
+            return finished(state,error_code=code,message=reason)
 
     @bp.post('/internal/ai/jobs/<jid>/acknowledge-finished')
     def acknowledge(jid):
@@ -1291,9 +1321,6 @@ def install_assistant(app, services):
             if len(request.files)!=1 or 'file' not in request.files:
                 raise AssistantError('파일 하나를 선택해 주세요.')
             stored=files.add_attachment(db,storage,eid,actor['UserId'],request.files['file'])
-            path=files.stored_path(storage,stored['storage_key'])
-            import hashlib
-            g.assistant_audit_file={'id':stored['id'],'name':stored['name'],'equipment_id':eid,'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
             db.commit()
             committed=True
             return jsonify(success=True,id=stored['id'],name=stored['name'])
@@ -1320,8 +1347,6 @@ def install_assistant(app, services):
                 raise AssistantError('첨부를 찾을 수 없습니다.',404)
             path=files.stored_path(services['ROADMAP_ATTACHMENT_ROOT'],row['storage_key'])
             response=send_file(path,as_attachment=True,download_name=row['original_name'],mimetype=row['mime_type'],conditional=False)
-            import hashlib
-            g.assistant_audit_file={'id':fid,'equipment_id':eid,'name':row['original_name'],'bytes':path.stat().st_size,'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
             response.headers['Content-Security-Policy']="sandbox; default-src 'none'"
             return response
         finally:
@@ -1350,8 +1375,6 @@ def install_assistant(app, services):
             domain.require_menu(actor,'my_equipment')
             raw=upload.stream.read(equipment.CSV_LIMIT+1)
             result=equipment.preview_import(db,raw,actor)
-            import hashlib
-            g.assistant_audit_file={'name':upload.filename[:200],'bytes':len(raw),'sha256':hashlib.sha256(raw).hexdigest(),'kind':'csv-preview','validated_rows':result.get('count')}
             db.commit()
             return jsonify(success=True,**result)
         except Exception:
@@ -1376,7 +1399,7 @@ def install_assistant(app, services):
         try:
             rows=equipment.list_equipment(db,{'type':scope},actor,paginated=False,export=True)
             raw=equipment.export_csv(rows)
-            g.assistant_audit_export=preserve_export(store,app.config['USER_AI_AUDIT_ROOT'],raw,actor,scope,len(rows),int(app.config['USER_AI_AUDIT_MAX_BYTES']))
+            preserve_export(store,app.config['USER_AI_AUDIT_ROOT'],raw,actor,scope,len(rows),int(app.config['USER_AI_AUDIT_MAX_BYTES']))
             response=Response(raw,content_type='text/csv; charset=utf-8')
             response.headers['Content-Disposition']='attachment; filename="equipment.csv"'
             return response
