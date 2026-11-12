@@ -72,6 +72,16 @@ def login_id(value):
     return value  # 기존 case-sensitive 로그인/UNIQUE 계약을 유지합니다.
 
 
+def registration_fields(data):
+    """Identity and password fields shared by public signup and administrator-created accounts."""
+    return {
+        'LoginId': login_id(data.get('LoginId')),
+        'Name': text_value(data.get('Name'), '이름', 100),
+        'NickName': text_value(data.get('NickName'), '닉네임', 100, True),
+        'Password': password(data.get('Password'), new=True),
+    }
+
+
 def email_address(value):
     """[역할] 이메일 타입/구문/길이. [의존성 관계] 기존 인증. [변경 시 영향도] 원래 대소문자 보존."""
     value = text_value(value, '이메일', 254, True)

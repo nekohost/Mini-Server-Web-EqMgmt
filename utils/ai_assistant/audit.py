@@ -12,7 +12,7 @@ from utils.equipment_audit_migration import private_directory
 import time
 import uuid
 
-from .policy import canonical, mac
+from .policy import canonical, digest, mac, opaque
 
 SENSITIVE_KEYS = frozenset({
     'authorization', 'cookie', 'set-cookie', 'password', 'session_token', 'csrf_token',
@@ -21,6 +21,12 @@ SENSITIVE_KEYS = frozenset({
 })
 
 NORMALIZED_CREDENTIALS = frozenset(key.replace('-', '').replace('_', '') for key in SENSITIVE_KEYS)
+
+
+def execution_reference(proposal):
+    """The business target is a prefix. The full ID and digest identify the immutable proposal."""
+    pid = opaque(proposal['id'])
+    return int(pid[:15], 16), digest([pid, proposal['operation'], proposal['payload'], proposal['before_json']])
 
 
 def audit_body(raw, secret, known_secrets=()):

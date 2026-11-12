@@ -171,7 +171,11 @@ class OptionalRealNameTests(unittest.TestCase):
     def test_name_match_with_different_email_does_not_recover(self):
         self.deleted_fixture(name='동일 이름')
         self.verify()
-        self.assertEqual(self.register(LoginId='existing', Name='동일 이름').status_code, 400)
+        response = self.register(LoginId='existing', Name='동일 이름')
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(response.get_json()['is_recovery_target'])
+        self.assertIn('기존 계정에 등록된 이메일 인증', response.get_json()['message'])
+        self.assertNotIn('실명', response.get_json()['message'])
         with closing(self.connection()) as connection:
             self.assertEqual(connection.execute('SELECT IsDeleted FROM users WHERE UserId=90001').fetchone()[0], 'Y')
 
@@ -222,7 +226,9 @@ class OptionalRealNameTests(unittest.TestCase):
 
     def test_templates_render_optional_fields_and_safe_empty_profile(self):
         signup = self.client.get('/register').get_data(as_text=True)
-        self.assertIn('실명 (이름, 선택)', signup)
+        self.assertRegex(signup, r'<label\b[^>]*for="Name"[^>]*>이름 \(선택\)</label>')
+        self.assertNotIn('실명', signup)
+        self.assertIn('aria-describedby="nameHelp"', signup)
         self.assertNotRegex(signup, r'<input[^>]*id="Name"[^>]*\brequired\b')
         self.login_fixture()
         with self.client.session_transaction() as session:

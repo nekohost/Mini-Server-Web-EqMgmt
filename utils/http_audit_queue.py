@@ -19,5 +19,6 @@ def payload_visible(path):
     """The detail route and list flags use the same historical privacy policy."""
     return (not protected_path(path) and path.startswith('/api/')
             and not path.startswith(('/api/auth/', '/api/admin/maintenance/', '/api/maintenance/', '/api/admin/database/'))
-            and path not in ('/api/change_password', '/api/users/update_email', '/api/users/update_profile', '/api/users/withdraw')
+            and path not in ('/api/change_password', '/api/users/update_email', '/api/users/update_profile', '/api/users/withdraw',
+                             '/api/users/create')
             and not path.endswith('/reset_password'))

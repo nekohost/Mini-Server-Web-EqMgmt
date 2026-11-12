@@ -336,8 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('filterIp').value = targetIp;
     }
 
-    fetchStats();
-    fetchLogs();
+    pollAccessLogs();
     startAutoRefresh(5);
 
     // 외부 클릭 시 드롭다운 닫기
@@ -389,9 +388,9 @@ function setStatsPeriod(period) {
  * [의존성 관계]: 백엔드 GET /api/access_logs/stats?period=..., DOM 요소(#statTotalRequests, #statApiRequests, #statStaticRequests, #statErrorRate)
  * [변경 시 영향도]: 통계 응답 필드 규격 변경 시 상단 요약 카드 수치 렌더링에 영향을 줍니다.
  */
-async function fetchStats() {
+async function fetchStats(options) {
     try {
-        const res = await fetch(`/api/access_logs/stats?period=${encodeURIComponent(currentStatsPeriod)}`);
+        const res = await fetch(`/api/access_logs/stats?period=${encodeURIComponent(currentStatsPeriod)}`, options);
         if (res.ok) {
             const data = await res.json();
             document.getElementById('statTotalRequests').innerText = Number(data.total || 0).toLocaleString() + ' 건';
@@ -413,7 +412,7 @@ async function fetchStats() {
  * [변경 시 영향도]: 쿼리 파라미터 구조 변경 시 목록 표출 및 실시간 자동 새로고침 동작 전체에 영향을 줍니다.
  * @param {boolean} silent - 백그라운드 자동 갱신 시 스피너 표출 여부 제어
  */
-async function fetchLogs(silent = false) {
+async function fetchLogs(silent = false, options) {
     const tableBody = document.getElementById('logsTableBody');
     if (!silent) {
         tableBody.innerHTML = `
@@ -437,7 +436,7 @@ async function fetchLogs(silent = false) {
     });
 
     try {
-        const res = await fetch(`/api/access_logs?${params.toString()}`);
+        const res = await fetch(`/api/access_logs?${params.toString()}`, options);
         if (!res.ok) throw new Error('데이터 수신 실패');
         const data = await res.json();
 
@@ -656,6 +655,12 @@ function resetFilters() {
 // ==========================================
 // 🔄 자동 새로고침 타이머 관리
 // ==========================================
+function pollAccessLogs() {
+    const options = {headers: {'X-Access-Log-Poll': '1'}};
+    fetchLogs(true, options);
+    fetchStats(options);
+}
+
 /**
  * [역할]: 자동 새로고침 주기 선택 변경 시 타이머를 재설정합니다.
  * [의존성 관계]: DOM 요소(#autoRefreshSelect), startAutoRefresh()
@@ -668,7 +673,7 @@ function handleAutoRefreshChange() {
 
 /**
  * [역할]: 지정된 초 단위 주기로 카운트다운을 표시하고 주기 만료 시 조용히 통계 및 로그 데이터를 갱신합니다.
- * [의존성 관계]: autoRefreshTimer, countdownTimer, DOM 요소(#countdownBadge), fetchLogs(true), fetchStats()
+ * [의존성 관계]: autoRefreshTimer, countdownTimer, DOM 요소(#countdownBadge), pollAccessLogs()
  * [변경 시 영향도]: 실시간 접근 로그 자동 수집 모니터링 주기에 영향을 줍니다.
  * @param {number} sec - 자동 새로고침 간격(초, 0일 경우 OFF)
  */
@@ -691,8 +696,7 @@ function startAutoRefresh(sec) {
         currentCountdown--;
         if (currentCountdown <= 0) {
             currentCountdown = sec;
-            fetchLogs(true); // 조용한 새로고침
-            fetchStats();
+            pollAccessLogs();
         }
         badge.innerText = `${currentCountdown}s`;
     }, 1000);

@@ -9,7 +9,7 @@ import sqlite3
 import uuid
 from flask import Blueprint, current_app, g, jsonify, request, session, send_file, Response
 from utils import roadmap_equipment as equipment, roadmap_files as files, roadmap_auth as auth
-from utils.roadmap_validation import InputError, json_object, text_value, integer, password, login_id, email_address, equipment_fields, specs, flag, day
+from utils.roadmap_validation import InputError, json_object, text_value, integer, password, login_id, registration_fields, email_address, equipment_fields, specs, flag, day
 
 
 def deadline_values(data, old=None):
@@ -32,10 +32,7 @@ def validate_payload(endpoint, value):
         data['LoginId'] = text_value(data.get('LoginId'), '아이디', 256, True, trim=False)
         data['Password'] = password(data.get('Password'))
     if endpoint == 'register_page':
-        data['LoginId'] = login_id(data.get('LoginId'))
-        data['Name'] = text_value(data.get('Name'), '이름', 100)
-        data['NickName'] = text_value(data.get('NickName'), '닉네임', 100, True)
-        data['Password'] = password(data.get('Password'), new=True)
+        data.update(registration_fields(data))
         data['Email'] = email_address(data.get('Email'))
     for key in ('current_password', 'password', 'CurrentPassword'):
         if key in data:

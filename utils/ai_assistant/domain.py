@@ -12,6 +12,7 @@ from utils import roadmap_equipment as equipment
 from utils.roadmap_validation import equipment_fields, InputError
 from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
+from .audit import execution_reference
 from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
 from .web_search import current_search_terms, WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted, validate_query
 
@@ -308,8 +309,7 @@ class Domain:
             if actor['account_key']!=job['account_key']:
                 raise AssistantError('계정 식별정보가 변경되었습니다.',401)
             pid=proposal['id']
-            target=int(pid[:15],16)
-            fingerprint=digest([pid,proposal['operation'],proposal['payload'],proposal['before_json']])
+            target,fingerprint=execution_reference(proposal)
             old=db.execute("SELECT NewValue FROM audit_logs WHERE ActorId=? AND Action='AI_EXECUTE' AND TargetTable='ai_operations' AND TargetId=? ORDER BY AuditId DESC LIMIT 1",(actor['UserId'],target)).fetchone()
             if old:
                 receipt=json.loads(old[0])

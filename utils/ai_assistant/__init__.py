@@ -4,6 +4,7 @@
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
 [Impact] Explicit single-mail translations use an isolated, tool-free step and a checked terminal report. Ordinary chat corrections, immutable consent and execution guards are preserved.
 """
+from contextlib import closing
 from datetime import datetime
 import json
 import os
@@ -15,7 +16,7 @@ import time
 from urllib.parse import urlsplit
 from zoneinfo import ZoneInfo
 
-from flask import Blueprint, Response, abort, g, jsonify, render_template, request, send_file, session
+from flask import Blueprint, Response, abort, g, jsonify, render_template, request, send_file, session, url_for
 from flask.sessions import SecureCookieSessionInterface
 
 from utils.roadmap_validation import InputError
@@ -27,7 +28,7 @@ from .policy import (AssistantError, DEFAULT_LEVEL, ERROR_REASONS, LEGACY_LEVELS
                      opaque, stream_text, text, validate_schema, normalized_tool_arguments)
 from .store import Store
 from .providers import Registry, PROTOCOL, public_source
-from . import provider_candidates
+from . import admin_logs, provider_candidates
 from .provider_trust import BeforeSendError, RevisionPolicy
 from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
@@ -54,22 +55,24 @@ def visible_assistant_menus(rows, role, config):
     [Impact] An erroneous user grant cannot expose AI connection administration.
     """
     active=enabled(config.get('USER_AI_ENABLED',False))
-    return [dict(r) for r in rows if (r['MenuCode'] not in ('equipment_ai','equipment_ai_settings') or
+    return [dict(r) for r in rows if (r['MenuCode'] not in ('equipment_ai','equipment_ai_settings',admin_logs.MENU) or
             active and (r['MenuCode']=='equipment_ai' or role=='admin'))]
 
 
 class PassiveSessionInterface(SecureCookieSessionInterface):
-    """[Role] Prevents assistant polling from silently extending permanent login cookies."""
+    """[Role] Prevents background reads from extending permanent login cookies."""
     def should_set_cookie(self, app, current):
-        """[Role] Preserves explicit cookie mutation/deletion and all other screens' refresh behavior.
-        [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
-        [Impact] Preserves the module's owner/validation/transaction boundary described above.
+        """[Role] Suppresses the sliding expiry on idle reads.
+        [Dependencies] Session checks, assistant GETs and marked access-log list/statistics GETs.
+        [Impact] Manual reads and session mutations retain Flask's normal cookie behavior.
         """
-        passive=request.method=='GET' and (request.path.startswith('/api/ai/') or
-            request.path=='/api/check_session')
-        if passive and not current.modified:
-            return False
-        return super().should_set_cookie(app,current)
+        if request.method == 'GET' and not current.modified:
+            if request.path == '/api/check_session' or request.path.startswith('/api/ai/'):
+                return False
+            if (request.path in ('/api/access_logs', '/api/access_logs/stats')
+                    and request.headers.get('X-Access-Log-Poll') == '1'):
+                return False
+        return super().should_set_cookie(app, current)
 
 
 def install_assistant(app, services):
@@ -125,12 +128,10 @@ def install_assistant(app, services):
             db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai','AI 도우미','/assistant','내 장비 조회·등록·수정과 신청',NULL,51,?,?)",(now,now))
             for role in ('admin','user'):
                 db.execute("INSERT OR IGNORE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES(?,'equipment_ai',1,?)",(role,now))
-            settings=db.execute("SELECT Url,ParentMenuCode FROM menus WHERE MenuCode='equipment_ai_settings'").fetchone()
-            if settings and (settings['Url']!='/admin/ai/providers' or settings['ParentMenuCode'] not in (None,'admin_center')):
-                raise ValueError('assistant settings menu collision')
-            db.execute("INSERT OR IGNORE INTO menus(MenuCode,MenuName,Url,Description,ParentMenuCode,SortOrder,CreatedAt,UpdatedAt) VALUES('equipment_ai_settings','AI 연결 관리','/admin/ai/providers','장비관리 AI 연결·공개 모델 관리','admin_center',52,?,?)",(now,now))
-            db.execute("UPDATE menus SET ParentMenuCode='admin_center',UpdatedAt=? WHERE MenuCode='equipment_ai_settings' AND Url='/admin/ai/providers' AND ParentMenuCode IS NULL",(now,))
-            db.execute("INSERT OR IGNORE INTO role_menu_permissions(Role,MenuCode,IsAllowed,UpdatedAt) VALUES('admin','equipment_ai_settings',1,?)",(now,))
+            admin_logs.register_admin_menu(db, 'equipment_ai_settings', 'AI 연결 관리', '/admin/ai/providers',
+                                           '장비관리 AI 연결·공개 모델 관리', 52, now)
+            admin_logs.register_admin_menu(db, admin_logs.MENU, 'AI 도우미 기록', admin_logs.PAGE_URL,
+                                           '사용자 질문과 최종 답변, 작업 결과와 CSV 영수증 조회', 53, now)
             db.commit()
         except Exception:
             db.rollback()
@@ -403,6 +404,49 @@ def install_assistant(app, services):
         if binding and response.status_code in (302, 303) and not session.get('user'):
             store.revoke(binding)
         return response
+
+    def load_admin_logs():
+        active()
+        uid = identity(session['user']['UserId'])
+        token = session.get('session_token')
+        if not isinstance(token, str) or not token:
+            raise AssistantError('다시 로그인해 주세요.', 401)
+        maintenance = services['get_maintenance_state']()
+        if maintenance['state'] != 'NORMAL':
+            raise AssistantError('점검 중입니다. 잠시 후 다시 이용해 주세요.', 503)
+        protected = (app.secret_key, app.config.get('USER_AI_WORKER_TOKEN'), app.config.get('USER_AI_STRATA_KEY'),
+                     app.config.get('USER_AI_PROVIDER_ENCRYPTION_KEY'), token, session.get('csrf_token'),
+                     request.cookies.get(app.config.get('SESSION_COOKIE_NAME', 'session')))
+        try:
+            with closing(connect()) as db:
+                return admin_logs.read_records(store.path, db, uid, token, domain.binding(uid, token, maintenance),
+                    request.args, tuple(s for s in protected if isinstance(s, str) and s))
+        except sqlite3.Error as error:
+            app.logger.error('assistant record read failed type=%s', type(error).__name__)
+            raise AssistantError('기록 저장소를 조회하지 못했습니다. 잠시 후 다시 시도해 주세요.', 503) from None
+
+    @bp.get(admin_logs.PAGE_URL)
+    @login
+    def admin_logs_page():
+        try:
+            data = load_admin_logs()
+        except AssistantError as error:
+            return render_template('equipment_ai_logs.html', user=session['user'], error=str(error)), error.status
+
+        def page_url(**changes):
+            params = {**request.args.to_dict(), **changes}
+            if data['view'] == 'questions' and ('before' in changes or 'after' in changes):
+                params.pop('question_page', None)
+            return url_for('.admin_logs_page', **{k: v for k, v in params.items() if v is not None})
+
+        return render_template('equipment_ai_logs.html', user=session['user'], data=data, page_url=page_url,
+            job_states=admin_logs.JOB_STATES, proposal_states=admin_logs.PROPOSAL_STATES,
+            operations=admin_logs.OPERATIONS, log_time=admin_logs.log_time)
+
+    @bp.get('/api' + admin_logs.PAGE_URL)
+    @login
+    def admin_logs_api():
+        return jsonify(success=True, **load_admin_logs())
 
     @bp.get('/assistant')
     @login

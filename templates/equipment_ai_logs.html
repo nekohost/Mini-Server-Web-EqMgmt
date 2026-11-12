@@ -1,0 +1,142 @@
+{% extends 'miniserver_frame.html' %}
+{% block title %}AI 도우미 기록 - EqMgmt{% endblock %}
+{% block page_title %}AI 도우미 기록{% endblock %}
+{% block parent_menu_url %}/admin_center{% endblock %}
+{% block parent_menu_name %}관리자 센터{% endblock %}
+
+{% macro job_status(job) -%}
+<span class="app-badge" data-tone="{{ 'public' if job.state == 'done' else 'draft' if job.state in ('failed','recovery_required') else 'private' }}">{{ job_states.get(job.state, '상태 미상') }}</span>
+{%- endmacro %}
+
+{% macro message(label, field, part) %}
+<section id="{{ field }}" class="roadmap-box min-w-0">
+    <h2 class="font-semibold">{{ label }}</h2>
+    {% if part.text %}
+    <p class="mt-2 whitespace-pre-wrap [overflow-wrap:anywhere]">{{ part.text }}</p>
+    {% else %}
+    <p class="mt-2 text-sm">저장된 {{ label }}이 없습니다.</p>
+    {% endif %}
+    {% if part.pages > 1 %}
+    <nav class="roadmap-actions" aria-label="{{ label }} 페이지">
+        {% if part.page > 1 %}<a class="app-button" href="{{ page_url(**{field ~ '_page':part.page-1}) }}#{{ field }}">이전</a>{% endif %}
+        <span>{{ part.page }} / {{ part.pages }}쪽</span>
+        {% if part.page < part.pages %}<a class="app-button" href="{{ page_url(**{field ~ '_page':part.page+1}) }}#{{ field }}">다음</a>{% endif %}
+    </nav>
+    {% endif %}
+</section>
+{% endmacro %}
+
+{% block content %}
+{% if error %}
+<section class="roadmap-box" role="alert">
+    <p>{{ error }}</p>
+    <a class="app-button mt-3" href="{{ url_for('.admin_logs_page') }}">기록 목록으로</a>
+    <a class="app-button mt-3" href="/admin_center">관리자 센터로</a>
+</section>
+{% else %}
+{% set section = 'jobs' if data.view in ('job','questions') else data.view %}
+<nav class="roadmap-actions" aria-label="AI 기록 종류">
+    {% for value, label in [('conversations','대화'), ('jobs','작업'), ('receipts','CSV 영수증')] %}
+    <a class="app-button{% if section == value %} app-button-primary{% endif %}" {% if section == value %}aria-current="page"{% endif %}
+       href="{{ url_for('.admin_logs_page', view=value) }}">{{ label }}</a>
+    {% endfor %}
+</nav>
+
+{% if data.view == 'job' %}
+{% set job = data.job %}
+<section class="roadmap-box">
+    <div class="roadmap-actions">
+        {{ job_status(job) }}
+        <h2 class="text-lg font-semibold">{{ '모델 기능 시험' if job.purpose == 'probe' else '작업 상세' }}</h2>
+    </div>
+    <p class="[overflow-wrap:anywhere]"><a class="font-semibold underline" href="{{ url_for('.admin_logs_page', view='jobs', conversation=job.conversation) }}">{{ job.title or '제목 없는 대화' }}</a></p>
+    <p class="mt-1 text-sm">사용자 #{{ job.owner }} · 접수 {{ log_time(job.created) }} · 갱신 {{ log_time(job.updated) }}</p>
+    <p class="text-sm break-all">작업 ID {{ job.id }}</p>
+    {% if job.reason or job.state in ('failed','cancelled','recovery_required') %}
+    <p class="mt-2 [overflow-wrap:anywhere]"><strong>처리 사유</strong> {{ job.reason or '저장된 사유가 없습니다.' }} {% if job.error_code %}({{ job.error_code }}){% endif %}</p>
+    {% endif %}
+</section>
+{% if job.purpose == 'chat' %}
+{{ message('사용자 질문', 'question', data.question) }}
+{{ message('최종 답변', 'answer', data.answer) }}
+{% endif %}
+{% elif data.conversation %}
+<h2 class="mb-3 text-lg font-semibold [overflow-wrap:anywhere]">{{ data.conversation.title or '제목 없는 대화' }}</h2>
+{% if data.has_unlinked_questions %}
+<a class="app-button mb-3" href="{{ url_for('.admin_logs_page', view='questions', conversation=data.conversation.id) }}">작업 연결이 없는 사용자 질문</a>
+{% elif data.view == 'questions' %}
+<a class="app-button mb-3" href="{{ url_for('.admin_logs_page', view='jobs', conversation=data.conversation.id) }}">이 대화의 작업</a>
+{% endif %}
+{% endif %}
+
+{% if data.view in ('conversations','jobs','receipts') %}
+<form method="get" action="{{ url_for('.admin_logs_page') }}" class="roadmap-box app-toolbar" aria-label="기록 필터">
+    <input type="hidden" name="view" value="{{ data.view }}">
+    {% if data.conversation %}<input type="hidden" name="conversation" value="{{ data.conversation.id }}">{% endif %}
+    <label class="app-toolbar-field">사용자 번호
+        <input class="app-toolbar-control" name="owner" inputmode="numeric" pattern="[1-9][0-9]*" placeholder="전체 사용자" value="{{ request.args.get('owner','') }}">
+    </label>
+    {% if data.view == 'jobs' %}
+    <label class="app-toolbar-field">작업 상태
+        <select class="app-toolbar-control" name="state">
+            <option value="">전체 상태</option>
+            {% for key, label in job_states.items() %}
+            <option value="{{ key }}"{% if request.args.get('state') == key %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </label>
+    {% endif %}
+    <button type="submit" class="app-button">조회</button>
+</form>
+{% endif %}
+
+{% set headings = {'conversations':'대화 목록','jobs':'작업 목록','job':'제안 처리 기록','receipts':'CSV 내보내기 영수증','questions':'작업 연결이 없는 질문'} %}
+<section class="roadmap-box min-w-0" id="records" aria-labelledby="record-heading">
+    <h2 id="record-heading" class="font-semibold">{{ headings[data.view] }}</h2>
+    {% if data['items'] %}
+    <ul class="divide-y divide-slate-200 dark:divide-slate-700">
+        {% for row in data['items'] %}
+        <li class="py-3 min-w-0 [overflow-wrap:anywhere]">
+            {% if data.view == 'conversations' %}
+            <a class="font-semibold underline" href="{{ url_for('.admin_logs_page', view='jobs', conversation=row.id) }}">{{ row.title or '제목 없는 대화' }}</a>
+            {% if row.is_deleted %}<span class="app-badge" data-tone="draft">휴지통</span>{% endif %}
+            <p class="mt-1 text-sm">사용자 #{{ row.owner }} · 시작 {{ log_time(row.created) }} · 갱신 {{ log_time(row.updated) }}</p>
+            {% elif data.view == 'jobs' %}
+            {{ job_status(row) }}
+            <a class="font-semibold underline" href="{{ url_for('.admin_logs_page', view='job', id=row.id) }}">{{ row.title or '제목 없는 대화' }} · 작업 {{ row.id[:8] }}</a>
+            <p class="mt-1 text-sm">사용자 #{{ row.owner }} · {{ '모델 기능 시험' if row.purpose == 'probe' else '접수' }} {{ log_time(row.created) }}</p>
+            {% if row.reason %}<p class="mt-1 text-sm">{{ row.reason }}</p>{% endif %}
+            {% elif data.view == 'job' %}
+            <strong>{{ operations.get(row.operation, '기타 제안') }}</strong>
+            <span class="app-badge">{{ proposal_states.get(row.state, '상태 미상') }}{% if row.past_due %} · 기한 경과{% endif %}</span>
+            <p class="mt-1 text-sm">제안 {{ log_time(row.created) }} · 확인 기한 {{ log_time(row.expires) }}</p>
+            <p class="text-sm">제안 ID {{ row.id }}</p>
+            <p class="mt-1 text-sm">{% if row.audit %}업무 감사 {{ row.audit.action }} #{{ row.audit.id }} · {{ log_time(row.audit.created) }}{% else %}연결이 확인된 업무 감사가 없습니다.{% endif %}</p>
+            {% elif data.view == 'questions' %}
+            <p class="mb-2 text-sm">사용자 #{{ data.conversation.owner }} · {{ log_time(row.created) }}</p>
+            {{ message('사용자 질문', 'question', row.question) }}
+            {% else %}
+            <strong>{{ {'my':'내 장비','public':'공개 장비'}.get(row.scope,'범위 미상') }}</strong>
+            <span class="ml-2">{{ row.row_count }}행 · {{ row.bytes }}바이트</span>
+            <p class="mt-1 text-sm">사용자 #{{ row.owner }} · 내보낸 시각 {{ log_time(row.created) }}</p>
+            <p class="text-sm">영수증 ID {{ row.id }}</p>
+            <p class="text-sm break-all">SHA-256 {{ row.sha256 or '확인할 수 없음' }}</p>
+            {% endif %}
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="py-4">{{ {'conversations':'조회된 대화가 없습니다.','jobs':'조회된 작업이 없습니다.','job':'저장된 제안이 없습니다.','receipts':'조회된 CSV 영수증이 없습니다.','questions':'작업 연결이 없는 질문이 없습니다.'}[data.view] }}</p>
+    {% endif %}
+    {% if data.paging.newer or data.paging.older or request.args.get('before') or request.args.get('after') %}
+    <nav class="app-toolbar app-toolbar-pages" aria-label="{{ headings[data.view] }} 페이지">
+        <a class="app-button" href="{{ page_url(before=none, after=none) }}#records">처음</a>
+        {% if data.paging.newer %}<a class="app-button" href="{{ page_url(after=data.paging.newer, before=none) }}#records">이전</a>{% endif %}
+        {% if data.paging.older %}<a class="app-button" href="{{ page_url(before=data.paging.older, after=none) }}#records">다음</a>{% endif %}
+    </nav>
+    {% endif %}
+</section>
+{% endif %}
+{% endblock %}
+
+{% block workspace_help %}시각은 한국 표준시(KST)입니다. CSV 영수증은 내보내기 당시의 사용자 번호와 범위로 조회합니다.{% endblock %}

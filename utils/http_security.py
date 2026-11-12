@@ -13,7 +13,7 @@ CREDENTIAL_ENDPOINTS = frozenset({
     'login_page', 'logout', 'register_page', 'reset_password_page',
     'api_send_pin_logic', 'api_verify_pin_logic', 'api_request_password_reset_logic',
     'api_reset_password_logic', 'api_change_my_password', 'api_reset_user_password',
-    'api_update_profile', 'api_user_withdraw', 'api_update_email',
+    'api_update_profile', 'api_user_withdraw', 'api_update_email', 'api_create_user',
     'api_enable_maintenance', 'api_disable_maintenance',
 })
 AUDIT_JSON_BYTES = 65536

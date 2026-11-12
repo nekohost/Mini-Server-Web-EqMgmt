@@ -15,6 +15,7 @@ import hashlib
 import shutil
 from pathlib import Path
 from datetime import datetime, timedelta
+from contextlib import closing
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.middleware.proxy_fix import ProxyFix
@@ -36,6 +37,7 @@ from utils.roadmap_files import assert_files as assert_attachment_files  # DB-on
 from utils.roadmap_job_lock import notification_lock  # 외부 예약 작업과 복원을 동시에 실행하지 않습니다.
 from utils.roadmap_schema import TABLES as ROADMAP_TABLES  # 백업 비교 행 수에도 확장 테이블을 포함합니다.
 from utils.roadmap_auth import email_verification_proof, matches_email_verification
+from utils.admin_accounts import account_creator, create_account
 from utils.http_security import client_ip, legacy_audit_payloads, password_reset_origin, referrer_path
 from utils import access_log_cleanup, http_audit_queue
 from utils.strata_integration import install_strata, visible_portal_menus  # Retired UI tombstones and legacy-menu suppression only.
@@ -457,13 +459,13 @@ def get_db_connection():
     return open_application_database(timeout=5.0)
 
 
-def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, old_value=None, new_value=None):
+def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, old_value=None, new_value=None, *, connection=None):
     """
     [역할]: 사용자의 주요 행동(로그인, 변경, 삭제 등)을 보안 감사 로그로 기록합니다.
     [의존성 관계]: audit_logs 테이블
     [변경 시 영향도]: 전역 감사 로그 기록 기능에 영향을 줍니다.
     """
-    try:
+    def insert(conn):
         ip_address = client_ip(request)
         user_agent = request.headers.get('User-Agent', '')
 
@@ -471,14 +473,19 @@ def log_audit(actor_id, actor_login_id, action, target_table, target_id=None, ol
         new_json = json.dumps(new_value, ensure_ascii=False) if new_value is not None else None
         created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
+        written = conn.execute('''
             INSERT INTO audit_logs (ActorId, ActorLoginId, IpAddress, UserAgent, TargetTable, TargetId, Action, OldValue, NewValue, CreatedAt)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ''', (actor_id, actor_login_id, ip_address, user_agent, target_table, target_id, action, old_json, new_json, created_at))
-        conn.commit()
-        conn.close()
+        if written.rowcount != 1:
+            raise sqlite3.IntegrityError('Audit event was not inserted')
+
+    if connection is not None:
+        insert(connection)  # Propagate errors to the caller's write transaction.
+        return
+    try:
+        with closing(get_db_connection()) as conn, conn:
+            insert(conn)
     except Exception as e:
         print(f"[Audit Log Error] {e}")
 
@@ -2977,7 +2984,7 @@ def register_page():
                 return jsonify({
                     "success": False,
                     "is_recovery_target": True,
-                    "message": "탈퇴 계정 복구에는 기존 계정에 등록된 이메일 인증이 필요합니다. 해당 이메일을 사용할 수 없다면 관리자에게 문의해 주세요. 실명은 복구 인증에 사용하지 않습니다."
+                    "message": "탈퇴 계정 복구에는 기존 계정에 등록된 이메일 인증이 필요합니다. 해당 이메일을 사용할 수 없다면 관리자에게 문의해 주세요. 이름은 복구 인증에 사용하지 않습니다."
                 }), 400
         elif status == 'DEACTIVATED':
             conn.close()
@@ -3237,7 +3244,10 @@ def users_management_page():
     """
     if not check_menu_permission('users_management'):
         return "<script>alert('접근 권한이 없습니다.'); location.href='/portal';</script>"
-    return render_template('users_management.html', user=session['user'])
+    user = session['user']
+    with closing(get_db_connection()) as conn:
+        can_create_user = account_creator(conn, user['UserId'], session['session_token']) is not None
+    return render_template('users_management.html', user=user, can_create_user=can_create_user)
 
 @app.route('/dashboard')
 @login_required
@@ -3651,10 +3661,18 @@ def api_user_settings():
 # ------------------------------------------
 # 감사 로그 비동기 조회 및 조건 검색 API
 # ------------------------------------------
+# [Role] Match audit display and ActorName searches while preserving named users and historical login IDs.
+# [Dependencies] audit_logs a LEFT JOIN users u. [Impact] Audit list, detail and name filter only.
+AUDIT_ACTOR_NAME_SQL = (
+    "CASE WHEN NULLIF(TRIM(u.Name), '') IS NOT NULL THEN u.Name "
+    "WHEN NULLIF(TRIM(a.ActorLoginId), '') IS NOT NULL THEN a.ActorLoginId "
+    "ELSE 'System' END"
+)
+
 ALLOWED_AUDIT_SEARCH_FIELDS = {
     'all': None,
     'ActorLoginId': 'a.ActorLoginId',
-    'ActorName': 'u.Name',
+    'ActorName': AUDIT_ACTOR_NAME_SQL,
     'IpAddress': 'a.IpAddress',
     'Action': 'a.Action',
     'TargetId': 'a.TargetId',
@@ -3774,7 +3792,7 @@ def api_audit_logs():
         data_query = f"""
             SELECT
                 a.AuditId, a.ActorId, a.ActorLoginId,
-                COALESCE(u.Name, a.ActorLoginId, 'System') AS ActorName,
+                {AUDIT_ACTOR_NAME_SQL} AS ActorName,
                 a.Action, a.TargetTable, a.TargetId, a.IpAddress,
                 a.OldValue, a.NewValue, a.UserAgent, a.CreatedAt
             FROM audit_logs a
@@ -4210,6 +4228,23 @@ def api_update_profile():
 # ------------------------------------------
 # 관리자용 사용자 관리 API
 # ------------------------------------------
+@app.post('/api/users/create')
+@login_required
+@admin_required
+@csrf_required
+def api_create_user():
+    """Create an email-less account using the current administrator's user-management grant."""
+    request.max_content_length = 65536
+    try:
+        with closing(get_db_connection()) as conn:
+            user_id = create_account(conn, session['user']['UserId'], session['session_token'],
+                                     request.get_json(silent=True), log_audit)
+    except sqlite3.Error:
+        app.logger.error('관리자 계정 생성 트랜잭션을 완료하지 못했습니다.')
+        return jsonify(success=False, message='계정을 생성하지 못했습니다. 다시 시도해 주세요.'), 500
+    return jsonify(success=True, UserId=user_id, message='계정을 생성했습니다.'), 201
+
+
 @app.route('/api/users', methods=['GET'])
 @login_required
 def api_get_users():
@@ -4571,7 +4606,10 @@ def get_children_menus(parent_code):
     cursor = conn.cursor()
 
     if role == 'admin':
-        cursor.execute("SELECT * FROM menus WHERE ParentMenuCode = ? ORDER BY SortOrder ASC", (parent_code,))
+        cursor.execute('''SELECT m.* FROM menus m WHERE m.ParentMenuCode=?
+            AND (m.MenuCode<>'equipment_ai_logs' OR EXISTS (
+                SELECT 1 FROM role_menu_permissions p WHERE p.Role='admin' AND p.MenuCode=m.MenuCode AND p.IsAllowed=1))
+            ORDER BY m.SortOrder ASC''', (parent_code,))
     else:
         cursor.execute('''
             SELECT m.* FROM menus m
