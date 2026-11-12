@@ -1,0 +1,87 @@
+{
+  "work_id": "20261112-007-admin-staging-release",
+  "baseline_commit": "920edeffbb9642eb3cc77f244f325af6d4a2336f",
+  "feature_commit": "b8192a1a8579eb0f2f408dc4ed223863dabe3df5",
+  "git": {
+    "pushed_to": "origin/main",
+    "scoped_source_files": 26,
+    "unexpected_staged_files": 0,
+    "preexisting_unrelated_worktree_preserved": true
+  },
+  "staging": {
+    "prior_staging_manifest_matches_other_than_changed_app": 23,
+    "prior_staging_manifest_content_mismatches": 0,
+    "optional_name_patch_reverse_check": true,
+    "admin_log_patch_reverse_check": true,
+    "account_patch_reverse_check": true,
+    "staging_sql_tests_passed": 5,
+    "staging_extracted_actual_endpoint_tests_passed": 6,
+    "linux_python_full_tests": 323,
+    "linux_python_errors": 0,
+    "linux_python_failures": 0,
+    "linux_python_skips": 0,
+    "linux_node_tests": 34,
+    "linux_node_errors": 0,
+    "linux_node_failures": 0,
+    "linux_node_skips": 0,
+    "full_admin_browser_fixture": "inconclusive: isolated Jinja fixture missing logout endpoint; not a production failure",
+    "node_browser_account_creation_widths": [
+      320,
+      1280
+    ]
+  },
+  "deployment": {
+    "status": "active",
+    "linux_web_old_pid": 1823510,
+    "linux_web_new_pid": 1847149,
+    "linux_worker_pid_preserved": 1653197,
+    "active_ai_jobs_at_release": 0,
+    "active_execution_guards_at_release": 0,
+    "web_switch_readiness_seconds": 1.629,
+    "db_backup_folder": "instance/releases/admin-007-3261f405e468",
+    "database_backup": {
+      "bytes": 413237248,
+      "sha256": "e0164691e8da447808447755b6a161d6379c3c5db8fad185e76f4d331c0d45dc",
+      "integrity": "ok",
+      "foreign_key_violations": 0
+    },
+    "ai_database_backup": {
+      "bytes": 1232896,
+      "sha256": "42ec831f5d30f160d97634be65a43b32263941736d5500d9935f0993f7c44152",
+      "integrity": "ok",
+      "foreign_key_violations": 0
+    },
+    "user_rows_preserved": 8,
+    "session_tokens_preserved": 8,
+    "ai_job_rows_preserved": 54
+  },
+  "production_verification": {
+    "https_anonymous_tests": 10,
+    "https_passed": 10,
+    "https_failed": 0,
+    "public_login_status": 200,
+    "public_registration_status": 200,
+    "registration_name_optional_label": true,
+    "admin_unauthenticated_routes_denied": true,
+    "account_creation_unauthenticated_denied": true,
+    "ai_admin_menu_records": 1,
+    "ai_admin_menu_role_permission": [
+      [
+        "admin",
+        1
+      ]
+    ],
+    "ai_conversations": 28,
+    "ai_messages": 108,
+    "ai_jobs": 54,
+    "db_integrity": "ok",
+    "ai_db_integrity": "ok",
+    "worker_active": true,
+    "authenticated_admin_live_ui": "not tested: existing browser login context unavailable"
+  },
+  "usage": {
+    "codex_cli_new_workers": 0,
+    "codex_weekly_remaining_at_earlier_quota_monitor_observation": "0%",
+    "quotamonitor_project_modified": false
+  }
+}
