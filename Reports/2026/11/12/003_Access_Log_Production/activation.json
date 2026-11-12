@@ -1,0 +1,23 @@
+{
+  "status": "active",
+  "commit": "8f4df67521d31edd9b9f33b4b75d1b2f2b75af8d",
+  "baseline": "75829b30d3584aed02d9f6571f322a09cfa2dbab",
+  "utc": "2026-11-12T05:33:08.120502+00:00",
+  "web_old_pid": 1711149,
+  "web_new_pid": 1823510,
+  "worker_pid": 1653197,
+  "worker_restart": false,
+  "ports_without_overlap": true,
+  "switch_to_readiness_seconds": 4.637,
+  "normal_queue_marker_persisted": true,
+  "old_atexit_error_signatures": 0,
+  "unchanged_session_tokens": 8,
+  "initial_bound": 761952,
+  "previous_web_last_bound": 763005,
+  "old_log_tail": {
+    "rows": 1053,
+    "sha256": "724ed5da24bfe9c0f78f4d4a5554582c43985d213a932011b8b267014816a834"
+  },
+  "legacy_spool_at_switch": "absent",
+  "active_jobs_at_switch": 0
+}

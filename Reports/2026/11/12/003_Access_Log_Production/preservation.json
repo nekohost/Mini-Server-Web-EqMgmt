@@ -1,0 +1,68 @@
+{
+  "status": "pass",
+  "commit": "8f4df67521d31edd9b9f33b4b75d1b2f2b75af8d",
+  "verified_utc": "2026-11-12T05:41:02.570170+00:00",
+  "real_ai_test_at_comparison": "pass",
+  "equipment": {
+    "access_logs": {
+      "original": 686612,
+      "missing": 0,
+      "changed": 0,
+      "current": 687861
+    },
+    "audit_logs": {
+      "original": 604,
+      "missing": 0,
+      "changed": 0,
+      "current": 608
+    },
+    "equipments": {
+      "original": 2,
+      "missing": 0,
+      "changed": 0,
+      "current": 2
+    }
+  },
+  "backup_file_hashes_match": true,
+  "old_process_postbackup_rows": 1053,
+  "old_process_postbackup_digest_matches": true,
+  "all_rows_through_cutover": 687665,
+  "new_web_rows": 196,
+  "live_cleanup_receipts": 0,
+  "assistant": {
+    "conversations": {
+      "original": 27,
+      "missing": 0,
+      "changed": 0,
+      "current": 28
+    },
+    "messages": {
+      "original": 106,
+      "missing": 0,
+      "changed": 0,
+      "current": 108
+    },
+    "jobs": {
+      "original": 53,
+      "missing": 0,
+      "changed": 0,
+      "current": 54
+    },
+    "proposals": {
+      "original": 0,
+      "missing": 0,
+      "changed": 0,
+      "current": 0
+    },
+    "message_steps": {
+      "original": 105,
+      "missing": 0,
+      "changed": 0,
+      "current": 107
+    },
+    "ai_audit_artifacts": {
+      "original_table_present": false
+    }
+  },
+  "web_and_original_worker_healthy": true
+}

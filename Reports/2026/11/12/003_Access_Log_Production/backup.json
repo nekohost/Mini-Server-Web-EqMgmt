@@ -1,0 +1,36 @@
+{
+  "path": "/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/access-separation-20261112T051408Z-eodlvv4r",
+  "baseline": "75829b30d3584aed02d9f6571f322a09cfa2dbab",
+  "backup": {
+    "equipment": {
+      "bytes": 413237248,
+      "integrity": "ok",
+      "fk_violations": 0,
+      "sha256": "97d9d3d6135376abecb7a745af85a709e29db8aa10a739fe84c725b99cfd2fe5",
+      "counts": {
+        "access_logs": 686612,
+        "audit_logs": 604,
+        "equipments": 2,
+        "users": 8
+      },
+      "log_upper": 761952,
+      "csv_receipt_table_present": null
+    },
+    "assistant": {
+      "bytes": 1232896,
+      "integrity": "ok",
+      "fk_violations": 0,
+      "sha256": "4839a7aa2672ee5ca1fb82309754fe8b7ddfa56b8a6a32e201d1a46bd2861e26",
+      "counts": {
+        "jobs": 53,
+        "messages": 106,
+        "conversations": 27,
+        "proposals": 0,
+        "message_steps": 105
+      },
+      "log_upper": null,
+      "csv_receipt_table_present": false
+    }
+  },
+  "verified_utc": "2026-11-12T05:15:58.207596+00:00"
+}

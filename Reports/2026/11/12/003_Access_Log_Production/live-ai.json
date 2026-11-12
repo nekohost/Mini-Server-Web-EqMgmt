@@ -1,0 +1,23 @@
+{
+  "status": "pass",
+  "production_commit": "8f4df67521d31edd9b9f33b4b75d1b2f2b75af8d",
+  "https_origin": "https://nekohost.org",
+  "account": "test04",
+  "browser": "Chrome/152.0.7977.82",
+  "arithmetic": "33 + 9 = 42",
+  "real_job": "done",
+  "user_messages_for_turn": 1,
+  "assistant_messages_for_turn": 1,
+  "onscreen": true,
+  "onscreen_after_reopen": true,
+  "user_http_metadata_rows": 52,
+  "first_turn_status": 202,
+  "poll_and_reopen_status": 200,
+  "ai_body_copies": 0,
+  "normal_worker_rows": 0,
+  "provider_model": "qwen3.8-flash-next-iq3_xxs",
+  "send_to_terminal_seconds": 14.68,
+  "existing_test_turn_reused": false,
+  "test_session_logged_out": true,
+  "total_seconds": 19.16
+}

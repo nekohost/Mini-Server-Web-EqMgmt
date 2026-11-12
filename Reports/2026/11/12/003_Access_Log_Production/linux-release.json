@@ -1,0 +1,187 @@
+{
+  "platform": "Linux",
+  "python": "3.12.3",
+  "node": "v26.8.1",
+  "mode": "full",
+  "manifest_sha256": "7f855844cf0a9895687ea6949c4518fa816fe80f4e366a168a38345dfbb1c942",
+  "baseline_commit": "8f4df67521d31edd9b9f33b4b75d1b2f2b75af8d",
+  "variant": "production-release",
+  "completed_kst": "2026-11-12T14:23:42+09:00",
+  "elapsed_seconds": 122.17,
+  "suites": [
+    [
+      "test_access_log_cleanup_sql",
+      17
+    ],
+    [
+      "test_access_log_separation",
+      5
+    ],
+    [
+      "test_admin_release",
+      8
+    ],
+    [
+      "test_ai_conversation_entry",
+      6
+    ],
+    [
+      "test_ai_conversation_lifecycle",
+      31
+    ],
+    [
+      "test_ai_display_policy",
+      7
+    ],
+    [
+      "test_ai_input_preferences",
+      10
+    ],
+    [
+      "test_ai_input_reliability",
+      8
+    ],
+    [
+      "test_ai_polish_lifecycle",
+      7
+    ],
+    [
+      "test_ai_polish_status",
+      9
+    ],
+    [
+      "test_ai_release_guard",
+      10
+    ],
+    [
+      "test_ai_search_providers",
+      6
+    ],
+    [
+      "test_ai_ux_integration",
+      14
+    ],
+    [
+      "test_ai_web_search",
+      62
+    ],
+    [
+      "test_catalog_requests",
+      5
+    ],
+    [
+      "test_database_contract",
+      16
+    ],
+    [
+      "test_equipment_ai",
+      72
+    ],
+    [
+      "test_mail_translation",
+      31
+    ],
+    [
+      "test_menu_workflows",
+      9
+    ],
+    [
+      "test_multi_provider_ai",
+      44
+    ],
+    [
+      "test_official_model_migration",
+      7
+    ],
+    [
+      "test_official_model_names",
+      5
+    ],
+    [
+      "test_optional_real_name",
+      13
+    ],
+    [
+      "test_proposal013_backup_restore",
+      8
+    ],
+    [
+      "test_proposal047_nodes",
+      13
+    ],
+    [
+      "test_provider_ca",
+      20
+    ],
+    [
+      "test_release_api",
+      8
+    ],
+    [
+      "test_release_services",
+      12
+    ],
+    [
+      "test_roadmap_batch",
+      19
+    ],
+    [
+      "test_security_static_review",
+      14
+    ],
+    [
+      "test_strata_integration",
+      13
+    ]
+  ],
+  "tests": 509,
+  "errors": [],
+  "failures": [],
+  "skips": [],
+  "node_tests": [
+    {
+      "file": "tests/test_menu_workflows_static.mjs",
+      "code": 0,
+      "tap_summary": [
+        "ℹ tests 3",
+        "ℹ pass 3",
+        "ℹ fail 0",
+        "ℹ skipped 0"
+      ]
+    },
+    {
+      "file": "tests/test_mail_translation_ui.js",
+      "code": 0,
+      "tap_summary": [
+        "ℹ tests 6",
+        "ℹ pass 6",
+        "ℹ fail 0",
+        "ℹ skipped 0"
+      ]
+    },
+    {
+      "file": "tests/test_provider_ca_ui.js",
+      "code": 0,
+      "tap_summary": [
+        "ℹ tests 1",
+        "ℹ pass 1",
+        "ℹ fail 0",
+        "ℹ skipped 0"
+      ]
+    },
+    {
+      "file": "tests/test_access_log_cleanup_ui.mjs",
+      "code": 0,
+      "tap_summary": [
+        "ℹ tests 14",
+        "ℹ pass 14",
+        "ℹ fail 0",
+        "ℹ skipped 0"
+      ]
+    }
+  ],
+  "success": true,
+  "zip_sha256": "747c25c92a8da3043c30d94ea18d9658c07e7edd8dc337f343c7b6f970f7aee3",
+  "remote_exit": 0,
+  "host": "eqmgmt-backup"
+}

@@ -1,0 +1,45 @@
+{
+  "ok": true,
+  "snapshot": {
+    "access_rows": 686612,
+    "historical_ai": 686345,
+    "original_audits": 604,
+    "ai_execute_audits": 0,
+    "business_tables": 19,
+    "business_rows": 106
+  },
+  "all": {
+    "expected_targets": 267,
+    "begin_targets": 267,
+    "deleted": 267,
+    "finish_remaining": 0,
+    "markers_preserved": 2,
+    "marker_contents_match": true,
+    "new_receipts": {
+      "start": 1,
+      "delete": 2,
+      "deleted_rows": 267
+    },
+    "historical_ai_remaining": 686345,
+    "historical_ai_contents_match": true,
+    "remaining_targets": 0,
+    "original_audits_match": true,
+    "business_contents_match": true
+  },
+  "all_including_ai": {
+    "expected_targets": 686347,
+    "begin_targets": 686347,
+    "deleted": 686347,
+    "finish_remaining": 0,
+    "markers_preserved": 2,
+    "marker_contents_match": true,
+    "new_receipts": {
+      "start": 1,
+      "delete": 2746,
+      "deleted_rows": 686347
+    },
+    "remaining_targets": 0,
+    "original_audits_match": true,
+    "business_contents_match": true
+  }
+}

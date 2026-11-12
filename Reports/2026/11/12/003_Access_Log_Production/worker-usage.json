@@ -1,0 +1,53 @@
+{
+  "codex_cli": "0.167.0",
+  "model": "gpt-6-astra",
+  "reasoning_effort": "max",
+  "fast_requested_as": "priority",
+  "response_service_tier": null,
+  "requested_context": 1000000,
+  "effective_context_from_runtime": 828400,
+  "requested_compaction_threshold": 850000,
+  "usage_unit": "tokens, including cached input and reasoning output in their respective totals",
+  "workers": [
+    {
+      "assignment": "릴리스 검토",
+      "thread_id": "01a1ce2b-5285-7b70-9d6a-5b732be5e069",
+      "response_count": 7,
+      "input_tokens": 272041,
+      "cached_input_tokens": 210688,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 11342,
+      "reasoning_output_tokens": 6105
+    },
+    {
+      "assignment": "삭제·보존 검증",
+      "thread_id": "01a1ce2b-5285-7201-8da2-3e760adefb2e",
+      "response_count": 22,
+      "input_tokens": 1511210,
+      "cached_input_tokens": 1403264,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 45000,
+      "reasoning_output_tokens": 30045
+    }
+  ],
+  "quota": {
+    "source": "running QuotaMonitor",
+    "before": {
+      "observed_utc": "2026-11-12T05:08:10.049Z",
+      "provider_updated_utc": "2026-11-12T05:08:09.981Z",
+      "weekly_remaining_percent": 76,
+      "window_resets_utc": "2026-11-17T13:11:37.000Z",
+      "status": "ok",
+      "stale": false
+    },
+    "after": {
+      "observed_utc": "2026-11-12T05:34:30.475Z",
+      "provider_updated_utc": "2026-11-12T05:34:30.444Z",
+      "weekly_remaining_percent": 70,
+      "window_resets_utc": "2026-11-17T13:11:37.000Z",
+      "status": "ok",
+      "stale": false
+    },
+    "shared_account": true
+  }
+}
