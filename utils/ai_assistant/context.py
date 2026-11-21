@@ -67,10 +67,10 @@ def normalized_draft(args):
 
 def build_context(db, job, byte_budget):
     """[MINI-COMMENT: ASSISTANT.CONTEXT.BUILD_CONTEXT]
-    [EN rev.4]
-    [Role] Fits source-linked task state plus recent final dialogue within a conservative UTF-8 budget.
+    [EN rev.5]
+    [Role] Fits source-linked task state plus recent final dialogue and prior failed chat questions within a conservative UTF-8 budget.
     [Dependencies] Active owner/account conversation, chat-purpose history and serialized tools/system overhead deducted by caller.
-    [Impact] Probe nonces never enter normal dialogue; original history and working IDs stay intact, omissions stay explicit, and handoff references are not presented as user equipment numbers.
+    [Impact] Probe nonces never enter normal dialogue; the question of a failed chat turn stays available to the next turn, while failed output and mail-translation sources are not reused, omissions stay explicit, and handoff references are not presented as user equipment numbers.
     """
     conversation = db.execute('SELECT is_deleted FROM conversations WHERE id=? AND owner=? AND account_key=?',
                               (job['conversation'], job['owner'], job['account_key'])).fetchone()
@@ -114,8 +114,14 @@ def build_context(db, job, byte_budget):
         else:
             break
     history = []
-    rows = db.execute("""SELECT m.id,m.role,m.content FROM messages m WHERE m.conversation=? AND m.id<? AND m.content<>'' AND m.job IS NOT NULL
-        AND m.job IN (SELECT id FROM jobs WHERE state IN ('done','waiting_confirmation') AND purpose='chat') ORDER BY m.id DESC LIMIT 40""", (job['conversation'], current['id'])).fetchall()
+    rows = db.execute("""SELECT m.id,m.role,m.content FROM messages m JOIN jobs j ON j.id=m.job
+        WHERE m.conversation=? AND m.id<? AND m.content<>'' AND j.conversation=m.conversation AND j.purpose='chat'
+        AND (j.state IN ('done','waiting_confirmation')
+             OR (j.state='failed' AND m.role='user'
+                 AND json_valid(COALESCE(NULLIF(j.route_snapshot,''),'{}'))
+                 AND json_type(COALESCE(NULLIF(j.route_snapshot,''),'{}'))='object'
+                 AND json_type(COALESCE(NULLIF(j.route_snapshot,''),'{}'),'$.mail_translation') IS NULL))
+        ORDER BY m.id DESC LIMIT 40""", (job['conversation'], current['id'])).fetchall()
     for row in rows:
         item = {'role':row['role'],'content':row['content']}
         candidate = canonical(state).encode() + canonical([item,*history]).encode()

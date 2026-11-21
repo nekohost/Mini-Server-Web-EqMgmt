@@ -216,7 +216,8 @@ class StaticSecurity(unittest.TestCase):
         self.assertIn("request.headers.get('X-Forwarded-For')", worker)
         boundary = function('read_or_prepare', source('utils/ai_assistant/domain.py'))
         self.assertIn("WHERE job=? AND role='user' AND conversation=?", boundary)
-        self.assertLess(boundary.index('current_search_terms('), boundary.index('self.search_service.search('))
+        self.assertLess(boundary.index("WHERE job=? AND role='user' AND conversation=?"), boundary.index('self.search_service.search('))
+        self.assertLess(boundary.index('validate_query('), boundary.index('self.search_service.search('))
         self.assertIn("unicodedata.normalize('NFKC'", source('utils/ai_assistant/web_search.py'))
 
     def test_export_account_budget_and_legacy_state(self):

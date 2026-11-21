@@ -311,14 +311,49 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.assertIsNone(self.claim())
         with self.store.db() as db:self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'recovery_required')
 
-    def test_prior_only_query_never_reaches_external_search(self):
+    # Updated from blocking to allowing because the current-turn word whitelist was removed while private-value and taint checks remain.
+    def test_prior_only_query_reaches_external_search(self):
+        """[Role] Verifies a prior-turn topic query without private values reaches external search."""
         cid = self.conversation()
         self.turn(cid, False, question='Previously discussed telescope warranty.')
         self.assertEqual(self.finish(self.claim(), content='Stored.')['state'], 'done')
         self.turn(cid, True, question='Find Flask documentation.')
         result = self.search_step(self.claim(), query='telescope warranty')
-        self.assertEqual(result['state'], 'failed')
-        self.assertEqual(self.search.calls, [])
+        self.assertEqual(result['state'], 'queued')
+        self.assertIsNone(result.get('error_code'))
+        self.assertEqual(self.finish(self.claim(), content='Checked. [1]')['state'], 'done')
+        self.assertEqual(self.search.calls, ['telescope warranty'])
+
+    def test_translated_and_split_model_query_reaches_search_service(self):
+        """[Role] Verifies translated and split public model keywords pass privacy filtering and reach search."""
+        cid = self.conversation()
+        jid = self.turn(cid, allow=None, question='intel xeon e5 2699v4 를 2개 장착 가능한 워크스테이션을 찾아줘')['job_id']
+        query = 'Intel Xeon E5-2699 v4 dual socket workstation models'
+        result = self.plan_step(self.claim(), True, query=query)
+        self.assertEqual(result['state'], 'queued')
+        self.assertIsNone(result.get('error_code'))
+        self.assertEqual(self.finish(self.claim(), content='확인된 워크스테이션 모델입니다. [1]')['state'], 'done')
+        self.assertEqual(self.search.calls, [query])
+        view = self.client.get('/api/ai/jobs/' + jid).get_json()
+        self.assertIsNone(view['error_code'])
+        self.assertEqual(view['web_searches'][0]['query'], query)
+
+    def test_followup_without_product_words_uses_prior_turn_query(self):
+        """[Role] Verifies a follow-up turn without product words can search using earlier-turn context."""
+        cid = self.conversation()
+        self.turn(cid, allow=None, question='intel xeon e5 2699v4 를 2개 장착 가능한 워크스테이션을 찾아줘')
+        self.assertEqual(self.plan_step(self.claim(), False)['state'], 'queued')
+        self.assertEqual(self.finish(self.claim(), content='내부 장비 목록을 먼저 확인했습니다.')['state'], 'done')
+        jid = self.turn(cid, allow=None, question='장비관리시스템 내부가 아니고 웹검색을 통해서 알아봐줘')['job_id']
+        query = 'Intel Xeon E5-2699 v4 dual socket workstation models'
+        result = self.plan_step(self.claim(), True, query=query)
+        self.assertEqual(result['state'], 'queued')
+        self.assertIsNone(result.get('error_code'))
+        self.assertEqual(self.finish(self.claim(), content='웹 검색 결과입니다. [1]')['state'], 'done')
+        self.assertEqual(self.search.calls, [query])
+        view = self.client.get('/api/ai/jobs/' + jid).get_json()
+        self.assertIsNone(view['error_code'])
+        self.assertEqual(view['web_searches'][0]['query'], query)
 
     def test_missing_decision_is_corrected_once_and_real_search_still_runs(self):
         """[Role] Replays the observed741-character reasoning-only completion through the durable correction and real search boundary."""

@@ -14,7 +14,7 @@ from utils.catalog_request_service import submit_catalog_request
 from utils.lineup_node_service import save_option, LineupNodeError
 from .audit import execution_reference
 from .policy import AssistantError, TOOL_MAP, canonical, digest, identity, mac, text, validate_schema, normalized_tool_arguments, display_policy_for
-from .web_search import current_search_terms, WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted, validate_query
+from .web_search import WebSearchError, MAX_SEARCHES, public_searches, search_planning, search_permitted, validate_query
 
 WRITE_MENUS = ('my_equipment',)
 READ_MENUS = ('my_equipment','public_equipment')
@@ -108,10 +108,10 @@ class Domain:
 
     def read_or_prepare(self, name, args, job, store, search_control=None):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
-        [EN rev.7]
+        [EN rev.8]
         [Role] Routes a canonically validated tool call to a fixed user operation.
         [Dependencies] Shared normalized_tool_arguments; current actor, account and tool permissions.
-        [Impact] Existing read/write boundaries are preserved; bounded search-only batch feedback passes the same actor/consent/taint/privacy checks and never becomes executed evidence.
+        [Impact] Existing read/write boundaries are preserved; search queries are bounded by private-value, credential/contact and taint checks rather than a current-turn word whitelist, and bounded search-only batch feedback passes the same actor/consent/taint/privacy checks without becoming executed evidence.
         """
         if name not in TOOL_MAP:
             raise AssistantError('허용되지 않은 작업입니다.',403)
@@ -150,13 +150,12 @@ class Domain:
                 if len(private)>1000:
                     raise WebSearchError('WEB_SEARCH_BLOCKED')
                 sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
-                query = validate_query(args.get('query'), sensitive)
+                validate_query(args.get('query'), sensitive)
                 with store.db() as history:
                     current = history.execute("SELECT content FROM messages WHERE job=? AND role='user' AND conversation=?",
                                               (job['id'], job['conversation'])).fetchone()
                 if current is None:
                     raise WebSearchError('WEB_SEARCH_BLOCKED')
-                current_search_terms(query, current['content'])
                 if search_control is not None:
                     if name!='web_search' or planning or type(search_control) is not int or not 0<=search_control<MAX_SEARCHES:
                         raise AssistantError('검색 제어 상태를 확인해 주세요.')
