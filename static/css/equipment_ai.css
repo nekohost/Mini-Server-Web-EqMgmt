@@ -122,11 +122,23 @@
 #equipment-ai .ai-web-sources p{margin:4px 0;white-space:pre-wrap}
 #equipment-ai .ai-web-sources .ai-web-source-note{font-size:11px;color:var(--ai-muted)}
 #equipment-ai .ai-web-sources .ai-web-query{font-weight:600;margin-top:10px}
+/* [Role] 메시지 단위 작업 중단·실패·취소 사유와 오류 코드를 읽기 전용 기록 및 후속 턴 뒤에도 시인성 있게 표시한다. */
+#equipment-ai .ai-job-error{--ai-job-tone:var(--ai-semantic-danger,#b22f35);box-sizing:border-box;margin:10px 0 0;padding:10px 12px;border:1px solid color-mix(in srgb,var(--ai-job-tone) 45%,var(--ai-line));border-left:3px solid var(--ai-job-tone);border-radius:10px;background:color-mix(in srgb,var(--ai-job-tone) 8%,var(--ai-bg));color:var(--ai-text);font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+#equipment-ai .ai-job-error[data-state=cancelled]{--ai-job-tone:var(--ai-semantic-unknown,#64748b);background:var(--ai-panel);border-color:var(--ai-line);border-left-color:var(--ai-job-tone)}
+#equipment-ai .ai-job-error[data-state=draining]{--ai-job-tone:var(--ai-semantic-waiting,#9b7300)}
+#equipment-ai .ai-job-error-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;color:var(--ai-job-tone)}
+#equipment-ai .ai-job-error[data-state=cancelled] .ai-job-error-head{color:var(--ai-text)}
+#equipment-ai .ai-job-error-head strong{font-weight:650}
+#equipment-ai .ai-job-error-code{font:600 11px/1.4 ui-monospace,SFMono-Regular,Consolas,monospace;padding:1px 6px;border-radius:5px;border:1px solid color-mix(in srgb,var(--ai-job-tone) 35%,var(--ai-line));background:var(--ai-bg);color:var(--ai-job-tone);max-width:100%;overflow-wrap:anywhere}
+#equipment-ai .ai-job-error-reason{margin:4px 0 0;color:var(--ai-text);white-space:pre-line;overflow-wrap:anywhere}
 #equipment-ai .ai-footnote{text-align:center;color:var(--ai-muted);font-size:12px;line-height:1.6;margin:10px 0;overflow-wrap:anywhere}
 #equipment-ai .ai-notice{font-size:12px;color:var(--ai-text);border-bottom:1px solid var(--ai-line);padding:10px 30px;background:var(--ai-soft)}
 #equipment-ai .ai-more-history{display:block;margin:10px auto;flex-shrink:0;font-size:11px}
 #equipment-ai .ai-more-history[hidden]{display:none}
 #equipment-ai .ai-progress{max-width:850px;margin:0 auto 11px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;font-size:11px;color:var(--ai-muted)}
+/* [Role] 진행 상태 영역의 실패·종료확인·드레이닝 상태를 좁은 화면 높이를 해치지 않는 선에서 강조한다. */
+#equipment-ai .ai-progress[data-state=failed],#equipment-ai .ai-progress[data-state=recovery_required],#equipment-ai .ai-progress[data-state=draining]{--ai-progress-tone:var(--ai-semantic-danger,#b22f35);box-sizing:border-box;padding:7px 10px;border:1px solid color-mix(in srgb,var(--ai-progress-tone) 45%,var(--ai-line));border-left:3px solid var(--ai-progress-tone);border-radius:9px;background:color-mix(in srgb,var(--ai-progress-tone) 7%,var(--ai-bg));color:var(--ai-text)}
+#equipment-ai .ai-progress[data-state=draining]{--ai-progress-tone:var(--ai-semantic-waiting,#9b7300)}
 #equipment-ai #ai-progress-text{flex:1 1 240px;min-width:0;line-height:1.6;overflow-wrap:anywhere}
 #equipment-ai .ai-progress .ai-button{flex:0 0 auto;margin-left:auto;min-height:36px;white-space:nowrap}
 #equipment-ai #ai-cancel{margin-left:auto;background:none;border:1px solid var(--ai-line);border-radius:6px;padding:3px 8px;font-size:10px}

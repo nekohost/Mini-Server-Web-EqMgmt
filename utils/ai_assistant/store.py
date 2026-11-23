@@ -600,6 +600,10 @@ class Store(LifecycleStore):
             if row['state'] in TERMINAL:
                 return row['state']
             state = 'draining' if row['state'] in ('running','draining') else row['state'] if row['state'] == 'recovery_required' else 'cancelled'
+            # 대기 중 작업처럼 즉시 cancelled가 되는 경우에는 finish()를 거치지 않으므로 기본 취소 사유와 코드를 함께 채운다.
+            if state == 'cancelled':
+                error_code = error_code or 'USER_CANCELLED'
+                error = error or ERROR_REASONS.get(error_code)
             db.execute('UPDATE jobs SET state=?,cancel=1,error=COALESCE(error,?),error_code=COALESCE(error_code,?),updated=? WHERE id=?',
                        (state, error, error_code, time.time(), jid))
             db.execute("UPDATE proposals SET state='cancelled' WHERE job=? AND state='pending'", (jid,))

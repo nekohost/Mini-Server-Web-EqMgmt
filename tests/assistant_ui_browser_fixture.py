@@ -93,6 +93,11 @@ def run_ui_browser(project, assets, script, sizes=(320, 360, 384, 390, 412, 430,
         theme = parse_qs(urlsplit(request.referrer or "").query).get("theme", ["light"])[0]
         return jsonify(success=True, settings={"theme": "dark" if theme == "dark" else "light"})
 
+    @app.post("/logout")
+    def logout():
+        """[Role] Supplies the frame logout endpoint required by miniserver_frame.html without session side effects."""
+        return Response("", status=204)
+
     server = make_server("127.0.0.1", 0, app, threaded=True)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()

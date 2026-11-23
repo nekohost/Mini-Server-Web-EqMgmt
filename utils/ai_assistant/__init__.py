@@ -31,7 +31,8 @@ from .providers import Registry, PROTOCOL, public_source
 from . import admin_logs, provider_candidates
 from .provider_trust import BeforeSendError, RevisionPolicy
 from .reasoning import VERSION as REASONING_VERSION, normalize_profile
-from .context import DRAFT_TOOL, TASK_DRAFT_TOOL, build_context
+from .context import (DRAFT_TOOL, MAX_PERSISTED_CONTEXT, TASK_DRAFT_TOOL, build_context,
+                      compact_persisted_context, compact_step_context)
 from .audit import preserve_export
 from .status import read_status
 from .web_search import SearchService, WebSearchError, MAX_SEARCHES, public_searches, search_mode, search_planning, search_permitted
@@ -897,11 +898,13 @@ def install_assistant(app, services):
         if job is None:
             g.routine_ai_worker = True
             return jsonify(success=True,job=None)
+        diag = {'purpose': job.get('purpose'), 'context_tokens': None, 'output_tokens': None, 'payload_bytes': None}
         try:
             actor=job_actor(job)
             route=json.loads(job['route_snapshot'])
             if not route or not job['selection_id']:
                 raise AssistantError('이전 요청의 연결 식별을 확인하지 못했습니다. 관리자 확인이 필요합니다.',409)
+            diag['context_tokens'] = route.get('context_tokens')
             with store.db() as db:
                 if 'candidate_generation' in route:
                     if job['purpose']!='probe':
@@ -927,38 +930,77 @@ def install_assistant(app, services):
             correcting=correction_phase(job)
             search_allowed=search_permitted(job,route)
             searches_remaining=max(0,MAX_SEARCHES-len(public_searches(job['context'])))
-            tools=domain.tools(actor,search_allowed and searches_remaining>0,planning) if route['profile'].get('tools') and correcting!='answer' else []
-            # Copy only the advertised function, never mutate shared TOOL_MAP descriptions.
-            tools=[{**t,'function':{**t['function'],'description':t['function']['description']+f' 현재 요청의 남은 검색은{searches_remaining}회입니다. 한 단계에 검색 하나만 요청하세요.'}}
-                   if t['function']['name'] in ('web_search','plan_web_search') else t for t in tools]
-            if tools and not planning:
-                tools=[*tools,DRAFT_TOOL,TASK_DRAFT_TOOL]
-            if not enabled(app.config['USER_AI_WRITE_TOOLS']):
-                tools=[t for t in tools if not t['function']['name'].startswith('prepare_')]
-            system=SYSTEM+'\n서울 기준 오늘 날짜: '+datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
-            if search_allowed and searches_remaining==0:
-                system+='\n현재 요청의 남은 웹 검색 횟수:0/2. 이미 수행한 검색 출처로 답하고 확인 한계를 알리세요. 추가 검색 도구는 제공하지 않습니다.'
-            elif route.get('web_search_allowed') is True and not search_allowed and search_mode(route)=='auto':
-                system+='\n현재 요청은 AI가 외부 검색 없이 처리하기로 결정했습니다. 검색을 했다고 주장하지 말고 기존 대화/장비 업무 도구로 처리하세요.'
-            elif search_allowed and domain.search_service.available:
-                system+='\n현재 요청 웹 검색: '+('허용됨. '+('반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요.' if searches_remaining==MAX_SEARCHES else '이미 받은 실제 출처를 우선 사용하고 필요한 경우에만 추가 검색하세요.')+' 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route)=='required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
-                system+=f'\n현재 요청의 남은 웹 검색 횟수:{searches_remaining}/2. 한 단계에 검색 하나만 요청하세요. 미실행 제어 결과는 검색 근거가 아닙니다.'
-                providers=getattr(domain.search_service,'providers',[])
-                if providers:
-                    system+='\n검색 제공자 상태: '+canonical(providers)+'. 사용 가능한 제공자만 선택하고 사용하지 않은 검색 엔진으로 검색했다고 주장하지 마세요.'
-            else:
-                system+='\n현재 요청 웹 검색: 사용 불가. 외부 검색을 수행하거나 검색했다고 주장하지 말고 현재 접수/모델/서버에서 검색이 제공되지 않음을 알리세요. 검색 버튼을 켜라고 안내하지 마세요.'
-            if not route['profile'].get('tools'):
-                system+='\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
+            today = datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
+
+            def build_tools_for(planning_flag, rem_searches, phase):
+                if not route['profile'].get('tools') or phase == 'answer':
+                    return []
+                selected_tools = domain.tools(actor, search_allowed and rem_searches > 0, planning_flag)
+                # Copy only the advertised function, never mutate shared TOOL_MAP descriptions.
+                selected_tools = [
+                    {**t, 'function': {**t['function'], 'description': t['function']['description'] + f' 현재 요청의 남은 검색은{rem_searches}회입니다. 한 단계에 검색 하나만 요청하세요.'}}
+                    if t['function']['name'] in ('web_search', 'plan_web_search') else t
+                    for t in selected_tools
+                ]
+                if selected_tools and not planning_flag:
+                    selected_tools = [*selected_tools, DRAFT_TOOL, TASK_DRAFT_TOOL]
+                if not enabled(app.config['USER_AI_WRITE_TOOLS']):
+                    selected_tools = [t for t in selected_tools if not t['function']['name'].startswith('prepare_')]
+                return selected_tools
+
+            def build_system_for(search_active, rem_searches, phase):
+                text_out = SYSTEM + '\n서울 기준 오늘 날짜: ' + today
+                if search_active and rem_searches == 0:
+                    text_out += '\n현재 요청의 남은 웹 검색 횟수:0/2. 이미 수행한 검색 출처로 답하고 확인 한계를 알리세요. 추가 검색 도구는 제공하지 않습니다.'
+                elif route.get('web_search_allowed') is True and not search_active and search_mode(route) == 'auto':
+                    text_out += '\n현재 요청은 AI가 외부 검색 없이 처리하기로 결정했습니다. 검색을 했다고 주장하지 말고 기존 대화/장비 업무 도구로 처리하세요.'
+                elif search_active and domain.search_service.available:
+                    text_out += '\n현재 요청 웹 검색: ' + ('허용됨. ' + ('반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요.' if rem_searches == MAX_SEARCHES else '이미 받은 실제 출처를 우선 사용하고 필요한 경우에만 추가 검색하세요.') + ' 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route) == 'required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
+                    text_out += f'\n현재 요청의 남은 웹 검색 횟수:{rem_searches}/2. 한 단계에 검색 하나만 요청하세요. 미실행 제어 결과는 검색 근거가 아닙니다.'
+                    providers = getattr(domain.search_service, 'providers', [])
+                    if providers:
+                        text_out += '\n검색 제공자 상태: ' + canonical(providers) + '. 사용 가능한 제공자만 선택하고 사용하지 않은 검색 엔진으로 검색했다고 주장하지 마세요.'
+                else:
+                    text_out += '\n현재 요청 웹 검색: 사용 불가. 외부 검색을 수행하거나 검색했다고 주장하지 말고 현재 접수/모델/서버에서 검색이 제공되지 않음을 알리세요. 검색 버튼을 켜라고 안내하지 마세요.'
+                if not route['profile'].get('tools'):
+                    text_out += '\n이 모델은 대화 전용입니다. 장비 작업 제안 도구를 호출하지 말고 업무 가능 모델 선택/수동 화면을 안내하세요.'
+                if phase is not None:
+                    text_out += '\n' + CORRECTIONS[phase]
+                return text_out
+
+            tools = build_tools_for(planning, searches_remaining, correcting)
+            system = build_system_for(search_allowed, searches_remaining, correcting)
             output_tokens=min(8192,max(512,route['context_tokens']//4))
-            overhead=len(canonical([{'role':'system','content':system},tools]).encode())+1024
+            diag['output_tokens'] = output_tokens
+            # Step 0이 후속 단계(14개 도구 또는 보정 프롬프트)에서 자가 413 실패를 일으키지 않도록 최악 overhead를 계산한다.
+            candidates = [len(canonical([{'role': 'system', 'content': system}, tools]).encode())]
+            if job['purpose'] == 'chat' or 'candidate_generation' in route:
+                if route['profile'].get('tools'):
+                    post_rem = max(0, searches_remaining - 1) if search_allowed else searches_remaining
+                    candidates.append(len(canonical([
+                        {'role': 'system', 'content': build_system_for(search_allowed, post_rem, None)},
+                        build_tools_for(False, post_rem, None),
+                    ]).encode()))
+                    if planning:
+                        candidates.append(len(canonical([
+                            {'role': 'system', 'content': build_system_for(search_allowed, searches_remaining, 'search_plan')},
+                            build_tools_for(True, searches_remaining, 'search_plan'),
+                        ]).encode()))
+                else:
+                    candidates.append(len(canonical([
+                        {'role': 'system', 'content': build_system_for(search_allowed, searches_remaining, 'answer')},
+                        [],
+                    ]).encode()))
+            worst_overhead = max(candidates) + 1024
+            dropped_history = 0
+            compacted_handoff = False
             if job['purpose']=='probe':
                 if 'candidate_generation' in route and not job['steps']:
                     # The nonce alone can fit even when a minimal equipment chat cannot. Check the
                     # normal local admission budget without sending equipment context to a candidate.
                     with store.db() as db:
                         try:
-                            build_context(db,job,route['context_tokens']-output_tokens-overhead)
+                            build_context(db,job,route['context_tokens']-output_tokens-worst_overhead)
                         except AssistantError as error:
                             if error.status!=413:
                                 raise
@@ -978,32 +1020,65 @@ def install_assistant(app, services):
                 route['reasoning_effort']=effort_map.get(stage)
                 system='You are running an inert model capability test. No real equipment operations exist in this test.'
                 output_tokens=512 if stage in ('chat','tools') else min(4096,max(512,route['context_tokens']//4))
+                projected_context = context
+                persisted_context = context
             elif not job['steps']:
+                history_headroom = (12288 if search_allowed else 8192) if route['profile'].get('tools') else 0
                 with store.db(True) as db:
-                    context=build_context(db,job,route['context_tokens']-output_tokens-overhead)
+                    context=build_context(db,job,route['context_tokens']-output_tokens-worst_overhead,history_headroom=history_headroom)
                     store.charge_handoff(db,job,context)
                     db.execute('UPDATE jobs SET context=? WHERE id=?',(canonical(context),job['id']))
+                projected_context = context
+                persisted_context = context
             else:
                 context=json.loads(job['context'])
-            if correcting is not None:
-                system+='\n'+CORRECTIONS[correcting]
-            messages=[{'role':'system','content':system},*model_context(context)]
-            if len(canonical([messages,tools]).encode())+output_tokens+512>route['context_tokens'] or len(canonical(context))>120000:
-                raise AssistantError('선택한 모델의 문맥 한도로 작업을 중단했습니다. 기록을 확인하고 질문을 줄이거나 더 큰 모델을 선택해 주세요.',413)
+                system_msg = {'role': 'system', 'content': system}
+                projected_context = context
+                persisted_context = context
+                if (len(canonical([[system_msg, *model_context(projected_context)], tools]).encode()) + output_tokens + 512 > route['context_tokens']
+                        or len(canonical(persisted_context)) > MAX_PERSISTED_CONTEXT):
+                    with store.db() as db:
+                        row = db.execute("SELECT content FROM messages WHERE job=? AND role='user'", (job['id'],)).fetchone()
+                    current_content = row['content'] if row else None
+                    projected_context, persisted_context, dropped_history, compacted_handoff = compact_step_context(
+                        context, route['context_tokens'], system_msg, tools, output_tokens, current_content=current_content
+                    )
+                    # 저장용 context가 120,000자를 넘었던 경우에만 오래된 이력이 제거된 persisted_context를 반영한다(handoff_chars·evidence_chars 불변).
+                    if len(canonical(context)) > MAX_PERSISTED_CONTEXT and len(canonical(persisted_context)) <= MAX_PERSISTED_CONTEXT:
+                        with store.db(True) as db:
+                            db.execute('UPDATE jobs SET context=? WHERE id=?', (canonical(persisted_context), job['id']))
+            messages=[{'role':'system','content':system},*model_context(projected_context)]
+            payload_bytes = len(canonical([messages, tools]).encode())
+            diag['payload_bytes'] = payload_bytes
+            diag['context_tokens'] = route['context_tokens']
+            diag['output_tokens'] = output_tokens
+            if dropped_history or compacted_handoff:
+                app.logger.info(
+                    'assistant context compacted job=%s step=%s dropped_history=%s compacted_handoff=%s payload_bytes=%s limit=%s',
+                    job['id'], job['steps'], dropped_history, compacted_handoff, payload_bytes, route['context_tokens'],
+                )
+            if payload_bytes+output_tokens+512>route['context_tokens'] or len(canonical(persisted_context))>MAX_PERSISTED_CONTEXT:
+                raise AssistantError(ERROR_REASONS['CONTEXT_LIMIT'],413)
             packet={'id':job['id'],'lease':job['lease'],'steps':job['steps'],'messages':messages,'tools':tools,
                     'reasoning_effort':route.get('reasoning_effort'),'route':route,'max_tokens':output_tokens,'protocol':PROTOCOL,
                     'required_tool':'plan_web_search' if planning else None,
-                    'web_search_required':job['purpose']=='chat' and route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context)}
+                    'web_search_required':job['purpose']=='chat' and route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(persisted_context)}
             canonical(packet)
             response = jsonify(success=True, job=packet)
             g.routine_ai_worker = True
             return response
         except Exception as error:
             reason=str(error) if isinstance(error,AssistantError) else ERROR_REASONS['PROCESSING_FAILED']
-            app.logger.warning('assistant pre-dispatch failure job=%s type=%s',job['id'],type(error).__name__)
             auth_failure=isinstance(error,AssistantError) and error.status in (401,403)
+            context_failure=isinstance(error,AssistantError) and error.status==413
             try:
-                code=error.code if isinstance(error,BeforeSendError) else 'AUTH_EXPIRED' if auth_failure else 'PROCESSING_FAILED'
+                code=error.code if isinstance(error,BeforeSendError) else 'AUTH_EXPIRED' if auth_failure else 'CONTEXT_LIMIT' if context_failure else 'PROCESSING_FAILED'
+                status = getattr(error, 'status', getattr(error, 'status_code', None))
+                app.logger.warning(
+                    'assistant pre-dispatch failure job=%s step=%s purpose=%s code=%s status=%s type=%s context_tokens=%s payload_bytes=%s',
+                    job['id'], job['steps'], job.get('purpose'), code, status, type(error).__name__,
+                    diag.get('context_tokens'), diag.get('payload_bytes'),
+                )
                 store.finish(job['id'],job['lease'],'cancelled' if auth_failure else 'failed',reason,error_code=code)
             except AssistantError as lifecycle_error:
                 # No model was dispatched. A concurrent purge may have removed its job but must not strand its guard.
@@ -1065,6 +1140,16 @@ def install_assistant(app, services):
             g.routine_ai_worker = state in ('done', 'queued') and not details.get('error_code') and not g.get('ai_tool_error', False)
             return jsonify(success=True, state=state, **details)
 
+        def fitted_persisted(target_context, max_chars=MAX_PERSISTED_CONTEXT):
+            if len(canonical(target_context)) <= max_chars:
+                return target_context
+            # 저장 한도(120,000자)를 초과하면 현재 질문·인계 데이터·현재 턴 도구/보정 마커를 유지한 채 오래된 과거 대화만 제거한다.
+            with store.db() as db:
+                row = db.execute("SELECT content FROM messages WHERE job=? AND role='user'", (jid,)).fetchone()
+            current_content = row['content'] if row else None
+            compacted, _ = compact_persisted_context(target_context, current_content=current_content, max_chars=max_chars)
+            return compacted
+
         worker()
         data=body(2097152)
         if not isinstance(data,dict) or 'lease' not in data:
@@ -1117,7 +1202,9 @@ def install_assistant(app, services):
                         return finished(store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
                     phase='search_plan' if search_planning(job,route) else 'answer'
                     corrected=correction_context(job,phase)
-                    if corrected is not None and len(canonical(corrected))<=120000:
+                    if corrected is not None:
+                        corrected=fitted_persisted(corrected)
+                    if corrected is not None and len(canonical(corrected))<=MAX_PERSISTED_CONTEXT:
                         state=store.finish(jid,data['lease'],'queued',context=corrected)
                         if state=='queued':
                             app.logger.warning('assistant correction job=%s phase=%s trigger=token_limit step=%s',jid,phase,job['steps'])
@@ -1189,9 +1276,10 @@ def install_assistant(app, services):
                 corrected=correction_context(job,'search_plan')
                 if corrected is None:
                     raise WebSearchError('WEB_SEARCH_PLAN_RECOVERY_FAILED')
-                if len(canonical(corrected))>120000:
-                    code='LENGTH_LIMIT'
-                    raise ValueError('correction context limit')
+                corrected=fitted_persisted(corrected)
+                if len(canonical(corrected))>MAX_PERSISTED_CONTEXT:
+                    code='CONTEXT_LIMIT'
+                    raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.',413)
                 state=store.finish(jid,data['lease'],'queued',context=corrected)
                 if state=='queued':
                     app.logger.warning('assistant correction job=%s phase=search_plan step=%s',jid,job['steps'])
@@ -1249,9 +1337,10 @@ def install_assistant(app, services):
                 if corrected is None:
                     code='EMPTY_RESPONSE'
                     raise ValueError('empty completed answer after correction')
-                if len(canonical(corrected))>120000:
-                    code='LENGTH_LIMIT'
-                    raise ValueError('correction context limit')
+                corrected=fitted_persisted(corrected)
+                if len(canonical(corrected))>MAX_PERSISTED_CONTEXT:
+                    code='CONTEXT_LIMIT'
+                    raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.',413)
                 state=store.finish(jid,data['lease'],'queued',context=corrected)
                 if state=='queued':
                     app.logger.warning('assistant correction job=%s phase=answer step=%s',jid,job['steps'])
@@ -1307,10 +1396,16 @@ def install_assistant(app, services):
                         result_text=canonical({'error':'조회 결과가 많습니다. 검색 조건을 좁혀 주세요.'})
                     results.append({'role':'tool','tool_call_id':cid,'content':result_text})
                 context.extend([assistant,*results])
+                context = fitted_persisted(context)
             else:
-                context.append({'role':'assistant','content':content})
-            if len(canonical(context))>120000:
-                raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.')
+                final_assistant = {'role': 'assistant', 'content': content}
+                if len(canonical([*context, final_assistant])) > MAX_PERSISTED_CONTEXT:
+                    # 일반 assistant 최종 응답을 덧붙이기 전에 과거 이력을 먼저 축약해 _split_turn_context 구조 분리를 유지한다.
+                    context = fitted_persisted(context, MAX_PERSISTED_CONTEXT - len(canonical(final_assistant)) - 1)
+                context.append(final_assistant)
+            if len(canonical(context))>MAX_PERSISTED_CONTEXT:
+                code='CONTEXT_LIMIT'
+                raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.',413)
             return finished(store.finish(jid,data['lease'],'queued' if prepared else 'done',context=context))
         except Exception as error:
             # A trusted worker already reported completion: rejecting its syntax must still release its lease.

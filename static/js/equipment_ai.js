@@ -413,7 +413,36 @@
         return ' · 번역 미완료' + (job.error ? ' · ' + job.error : '');
     }
 
-    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts, renderAnswer, mailStatus };
+    /** [Role] Formats failed, cancelled, draining, and recovery-required job metadata for message-level and progress-bar notices.
+     * [Dependencies] Server job projection fields (state, error, error_code) and bounded uppercase error-code token allowlist.
+     * [Impact] Keeps failure reasons and sanitized error codes readable across turns and read-only views without altering mailStatus.
+     */
+    function formatJobFailure(job) {
+        if (!job || !['failed', 'cancelled', 'draining', 'recovery_required'].includes(job.state)) return null;
+        // 허용된 대문자·숫자·밑줄 오류 코드만 통과시켜 비정상 문자열이나 제어문자가 배지에 노출되지 않도록 제한한다.
+        const code = typeof job.error_code === 'string' && /^[A-Z0-9_]{2,64}$/.test(job.error_code) ? job.error_code : '';
+        const confirmedIncomplete = job.state === 'failed' && ['STREAM_INCOMPLETE', 'CONNECTION_TIMEOUT', 'CONNECTION_FAILED'].includes(code);
+        const rawError = typeof job.error === 'string' ? job.error.trim() : '';
+        // 이미 종료 확인이 완료된 failed 상태에서는 구 안내 문구만 화면에서 걷어내고 새 요청 가능 안내를 덧붙인다.
+        const cause = confirmedIncomplete ? rawError.replace(/ 이전 요청의 종료 확인이 필요합니다\.$/u, '').trim() : rawError;
+        const recoveredText = confirmedIncomplete ? '이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다.' : '';
+        const heading = {
+            failed: '작업 중단됨',
+            cancelled: '작업 취소됨',
+            recovery_required: '작업 중단됨 · 종료 확인 필요',
+            draining: '작업 중단됨 · 응답 종료 확인 중',
+        }[job.state];
+        const defaultReason = {
+            failed: '응답을 완료하지 못했습니다.',
+            cancelled: '사용자의 요청으로 작업을 중단했습니다. 이미 적용된 결과는 유지됩니다.',
+            recovery_required: '이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요.',
+            draining: '이 요청의 응답 종료를 확인하고 있습니다.',
+        }[job.state];
+        const detail = cause || defaultReason;
+        return { state: job.state, heading, detail, recoveredText, code, confirmedIncomplete };
+    }
+
+    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts, renderAnswer, mailStatus, formatJobFailure };
     if (typeof document === 'undefined') return;
 
     /** [Role] Initializes this standalone screen, preserving drafts/details/scroll across incremental polling. */
@@ -833,6 +862,53 @@
             label.textContent = `${source.provider_name} / ${source.model_label} · ${source.reasoning_effort === 'none' ? 'off' : source.reasoning_effort || '모델 기본값'}` + mailStatus(job);
         }
 
+        /** [Role] Renders or clears a durable per-message failure/interruption notice inside an assistant article.
+         * [Dependencies] Existing message node map and formatJobFailure().
+         * [Impact] Preserves failure causes and sanitized error codes between .ai-answer and .ai-web-sources/.ai-source across follow-up turns, pagination, and read-only views using textContent only.
+         */
+        function jobErrorNotice(messageId, job) {
+            const node = nodes.get(messageId);
+            if (!node || node.article.dataset.role !== 'assistant') return;
+            const info = formatJobFailure(job);
+            if (!info) {
+                node.errorBox?.remove();
+                node.errorBox = null;
+                node.errorSignature = '';
+                return;
+            }
+            // 동일한 오류 스냅샷이 반복 폴링될 때 DOM을 다시 쓰지 않아 스크롤·보조기술 안정성을 유지한다.
+            const signature = JSON.stringify(info);
+            if (node.errorBox?.isConnected && node.errorSignature === signature) return;
+            let box = node.errorBox;
+            if (!box) {
+                box = document.createElement('div');
+                box.className = 'ai-job-error';
+                box.setAttribute('role', 'status');
+                node.answer.insertAdjacentElement('afterend', box);
+                node.errorBox = box;
+            } else if (box.previousElementSibling !== node.answer) {
+                // 후속 폴링이나 하이드레이션에서도 항상 본문(.ai-answer) 바로 아래, 출처(.ai-web-sources/.ai-source) 앞에 위치시킨다.
+                node.answer.insertAdjacentElement('afterend', box);
+            }
+            box.dataset.state = info.state;
+            const head = document.createElement('div');
+            head.className = 'ai-job-error-head';
+            const title = document.createElement('strong');
+            title.textContent = info.heading;
+            head.append(title);
+            if (info.code) {
+                const code = document.createElement('span');
+                code.className = 'ai-job-error-code';
+                code.textContent = `오류 코드: ${info.code}`;
+                head.append(code);
+            }
+            const reason = document.createElement('p');
+            reason.className = 'ai-job-error-reason';
+            reason.textContent = info.detail + (info.recoveredText ? ' ' + info.recoveredText : '');
+            box.replaceChildren(head, reason);
+            node.errorSignature = signature;
+        }
+
         /** [Role] Explains the baseline and extra storage separately from errors.
          * [Dependencies] Authenticated server-side message accounting, including reserved future output.
          * [Impact] Existing results remain readable when new requests are blocked for space.
@@ -971,7 +1047,7 @@
             const answer = document.createElement('div'); answer.className = 'ai-answer';
             article.append(speaker); if (message.role !== 'user') article.append(details); article.append(answer);
             $('ai-messages').append(article);
-            const node = { article, details, summary, thought, answer, content: null };
+            const node = { article, details, summary, thought, answer, content: null, errorBox: null, errorSignature: '' };
             nodes.set(message.id, node);
             return node;
         }
@@ -994,6 +1070,7 @@
                 if (message.job) streams.set(message.job, { messageId: message.id, reasoning: message.reasoning, content: message.content,
                     r: Array.from(message.reasoning).length, c: Array.from(message.content).length, generation: null,
                     answerStarted: Boolean(message.content) });
+                jobErrorNotice(message.id, job);
             }
         }
 
@@ -1086,24 +1163,48 @@
             cards.set(proposal.id, { element: card, version });
         }
 
-        /** [Role] Retains original failure causes and distinguishes unknown execution from confirmed terminal state. */
+        /** [Role] Retains original failure causes and error codes, and distinguishes unknown execution from confirmed terminal state.
+         * [Dependencies] formatJobFailure(), publishStatusContext(), and progress/composer DOM controls.
+         * [Impact] Shows safe progress-bar guidance and error code tokens while preserving existing recovery/cancellation assertions.
+         */
         function progress(job) {
             publishStatusContext();
-            const states = { queued: `장비관리 요청 대기 · 내부 순서 ${job.position || '확인 중'}`, running: '응답을 기다리거나 생성하고 있습니다.',
-                draining: '작업 중단됨 · 이 요청의 응답 종료를 확인하고 있습니다.', recovery_required: '작업 중단됨 · 이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요.',
-                waiting_confirmation: '변경할 내용을 확인해 주세요.', failed: '작업 중단됨 · 응답을 완료하지 못했습니다.', cancelled: '작업을 중단했습니다. 이미 적용된 결과는 유지됩니다.', done: '' };
-            const confirmedIncomplete = job.state === 'failed' && job.error_code === 'STREAM_INCOMPLETE';
-            // Only the obsolete instruction is superseded in the UI; stored failure/audit text is untouched.
-            const cause = confirmedIncomplete ? job.error?.replace(/ 이전 요청의 종료 확인이 필요합니다\.$/u, '') : job.error;
-            const explanation = ['failed','cancelled','draining','recovery_required'].includes(job.state) && cause ? ' ' + cause : '';
-            const recovered = confirmedIncomplete ? ' 이전 요청의 종료가 확인되었습니다. 이 대화에서 새 요청을 보낼 수 있습니다.' : '';
-            $('ai-progress').hidden = !states[job.state]; $('ai-progress-text').textContent = (job.worker_stale && job.state === 'running' ? '처리 작업자의 연결 상태를 확인하고 있습니다.' : states[job.state] || '') + explanation + recovered;
+            const states = {
+                queued: `장비관리 요청 대기 · 내부 순서 ${job.position || '확인 중'}`,
+                running: '응답을 기다리거나 생성하고 있습니다.',
+                waiting_confirmation: '변경할 내용을 확인해 주세요.',
+                done: '',
+            };
+            const info = formatJobFailure(job);
+            let text = '';
+            if (info) {
+                if (info.state === 'failed') {
+                    const reasonPart = info.detail !== '응답을 완료하지 못했습니다.' ? ' ' + info.detail : '';
+                    const recoveredPart = info.recoveredText ? ' ' + info.recoveredText : '';
+                    text = '작업 중단됨 · 응답을 완료하지 못했습니다.' + reasonPart + recoveredPart;
+                } else if (info.state === 'recovery_required') {
+                    const raw = typeof job.error === 'string' ? job.error.trim() : '';
+                    text = '작업 중단됨 · 이 요청의 종료 확인이 필요합니다. 관리자에게 문의해 주세요.' + (raw ? ' ' + raw : '');
+                } else if (info.state === 'draining') {
+                    const raw = typeof job.error === 'string' ? job.error.trim() : '';
+                    text = '작업 중단됨 · 이 요청의 응답 종료를 확인하고 있습니다.' + (raw ? ' ' + raw : '');
+                } else {
+                    text = '작업 취소됨 · ' + info.detail;
+                }
+                if (info.code) text += ` (오류 코드: ${info.code})`;
+            } else {
+                text = (job.worker_stale && job.state === 'running' ? '처리 작업자의 연결 상태를 확인하고 있습니다.' : states[job.state] || '');
+            }
+            const progressEl = $('ai-progress');
+            progressEl.dataset.state = job.state || '';
+            progressEl.hidden = !info && !states[job.state];
+            $('ai-progress-text').textContent = text;
             const busy = !terminal.has(job.state);
             $('ai-cancel').hidden = !['queued','running'].includes(job.state);
             $('ai-refresh-state').hidden = !['draining','recovery_required','failed'].includes(job.state);
             $('ai-send').disabled = submitting || !hasDestination() || busy || modelUnavailable || changingModel || openingConversation || readOnly() || lifecycleBusy;
             $('ai-input').disabled = readOnly() || lifecycleBusy;
-            $('ai-progress').querySelector('.ai-pulse').hidden = !['queued','running'].includes(job.state);
+            progressEl.querySelector('.ai-pulse').hidden = !['queued','running'].includes(job.state);
         }
 
         /** [Role] Renders separate owner list views and names every lifecycle action for keyboard/screen-reader use. */
@@ -1229,7 +1330,7 @@
             openingConversation = false; modelId = defaultModel; modelRevision = 0; unattributedSelection = false;
             $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle('새로운 대화');
             showEntry('draft');
-            $('ai-welcome').hidden = false; $('ai-progress').hidden = true; $('ai-more-messages').hidden = true;
+            $('ai-welcome').hidden = false; $('ai-progress').hidden = true; $('ai-progress').dataset.state = ''; $('ai-more-messages').hidden = true;
             modelControls(initialLevel(modelChoices.find(item => item.id === modelId)));
         }
 
@@ -1638,7 +1739,7 @@
             modelControls(result.conversation.next_level || 'medium');
             nextBefore = result.next_before; $('ai-more-messages').hidden = !nextBefore; storageNotice(result.storage);
             $('ai-messages').replaceChildren(); $('ai-proposals').replaceChildren(); setConversationTitle(result.conversation.title);
-            $('ai-welcome').hidden = Boolean(result.messages.length) || readOnly(); $('ai-progress').hidden = true;
+            $('ai-welcome').hidden = Boolean(result.messages.length) || readOnly(); $('ai-progress').hidden = true; $('ai-progress').dataset.state = '';
             const jobs = new Map(result.jobs.map(job => [job.id, job]));
             for (const message of result.messages) hydrate(message, jobs.get(message.job));
             for (const item of result.proposals) proposalCard(item);
@@ -1649,6 +1750,7 @@
                 if (stream) stream.answerStarted ||= Boolean(item.answer_started);
                 if (stream && nodes.has(stream.messageId)) nodes.get(stream.messageId).displayAnswerStarted ||= stream.answerStarted;
                 if (stream) sourceLabel(stream.messageId, item.source, item);
+                if (stream) jobErrorNotice(stream.messageId, item);
                 if (stream && stream.reasoning && !stream.answerStarted && ['running','draining'].includes(item.state)) nodes.get(stream.messageId).details.open = true;
             }
             searchEvidence(result.jobs);
@@ -1701,6 +1803,7 @@
                     sourceLabel(result.message_id, result.source, result);
                     window.EquipmentAiWebSearch?.render(nodes.get(result.message_id)?.article,result.web_searches);
                     for (const item of result.proposals) proposalCard(item);
+                    jobErrorNotice(result.message_id, result);
                 });
                 progress(result); retryDelay = 1500;
                 if (terminal.has(result.state) && next.r >= result.reasoning_length && next.c >= result.content_length) { activeJob = null; modelControls(); }
