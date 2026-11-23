@@ -10,4 +10,4 @@ work_id: FIX-20261123-AI-CONTEXT-ERROR-VISIBILITY
 - [x] 병렬 하위 작업자 B: 프론트엔드 말풍선 오류/코드 표출(`formatJobFailure`, `jobErrorNotice`, `progress`, CSS) Staging 구현 및 Node/Chromium 테스트 작성
 - [x] 운영 루트 무변경 확인 및 Linux(`eqmgmt-backup`) 격리 백엔드·정적보안·Node·실제 Chromium UI 검증 실행
 - [x] Validation 1~8 순차 검증 및 Report 001 작성 (운영 루트 병합·배포는 사용자 승인 후 진행)
-- [ ] 사용자 승인 후 운영 루트 병합, 정적·격리 재검증, Git commit/push 및 백업 서버 적용
+- [x] 사용자 승인 후 운영 루트 병합, 정적·격리 재검증, Git commit/push 및 백업 서버 적용

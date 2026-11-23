@@ -2,8 +2,8 @@
 artifact_id: REPORT-20261123-001
 work_id: FIX-20261123-AI-CONTEXT-ERROR-VISIBILITY
 owner: Gemini
-status: merged-and-reverified-deploying-to-backup
-approval: user-approved-root-merge-and-backup-deploy
+status: deployed-to-backup-verified
+approval: user-approved-merged-and-deployed-to-backup
 ---
 
 # AI 도우미 문맥 한도·다단계 재압축 및 중단 사유 화면 표출 검증 보고서
@@ -18,7 +18,7 @@ approval: user-approved-root-merge-and-backup-deploy
     - **백엔드:** `ERROR_REASONS['CONTEXT_LIMIT']` 신설, `claim()`/`finish()` 413·120,000자 오류 분류(`BeforeSendError` `PROVIDER_CONTEXT` 우선순위 유지), 원문·비밀 없는 수치 메타 로그 기록, `store.cancel()`에서 `queued` 즉시 취소 시 `USER_CANCELLED` 및 사유 기본 채움 보완.
     - **프론트엔드:** `mailStatus()`를 그대로 유지한 채 순수 함수 `formatJobFailure(job)`와 `jobErrorNotice(messageId, job)`를 추가해 일반 채팅 어시스턴트 말풍선(`.ai-message`) 내부에 비민감 중단 사유와 정제된 `오류 코드: ...`를 `textContent`로 렌더링(후속 턴 전송, 새로고침, 과거 메시지 불러오기, 휴지통 읽기 전용 화면에서도 보존). `#ai-progress`에서도 오류 코드 표시 및 `CONNECTION_TIMEOUT`/`CONNECTION_FAILED` 복구 안내 처리를 보완하고 `equipment_ai.css`에 라이트/다크·모바일 스타일을 추가했습니다.
   - **항목 4 (구현 제외 — 계획만 작성):** [Plan 002 (항목 4 보류 계획)](../../../Plans/2026/11/23/002_AI_Context_Token_Calibration_Plan.md)에 선행 실측·토크나이저 벤치마크·롤백 조건을 별도 문서화했고 코드에는 반영하지 않았습니다.
-- **미수행 범위 (진행 중):** Git commit/push 후 백업 서버(`nkhst-pentium`, `192.168.0.24`) `deploy_ai_ux_release.py` 반영·라이브 검증은 다음 단계로 실행합니다. (기존 미커밋 작업본·다른 `Staging/*` 폴더·미커밋 문서는 건드리지 않으며, 항목 4는 계획만 유지)
+- **배포 및 보류 범위:** 운영 루트 병합·재검증, Staging 정리, Git commit/push(`20802ffddd7ba58f0a97e0ecbe0d9f94ded621a1`), 백업 서버(`nkhst-pentium`, `192.168.0.24`) `deploy_ai_ux_release.py` 배포 및 라이브 검증까지 완료했습니다. 기존 미커밋 작업본·다른 `Staging/*` 폴더는 건드리지 않았으며, 항목 4([Plan 002](../../../Plans/2026/11/23/002_AI_Context_Token_Calibration_Plan.md))는 계획만 유지하고 구현하지 않았습니다.
 
 ## 2. 병렬 작업 분배 및 협업 기록
 
@@ -104,3 +104,19 @@ approval: user-approved-root-merge-and-backup-deploy
   - `tests/run_assistant_fixture.py --host eqmgmt-backup --browser-only --browser-target ui --browser-width 320 --browser-width 390 --browser-width 1440 --summary-only`: `6 / 6` 뷰(`980` 체크) 통과.
 - **Staging 정리:** `Plans/2026/11/23/{001,002}_*.md` 보존 확인 후 본 작업 폴더 `Staging/20261123-ai-context-error/`만 삭제했습니다(기존 다른 `Staging/*` 폴더 및 선행 미커밋 작업본 무변경).
 - **문서 후속 안내:** 기존 작업본에 이미 수정되어 있던 `docs/ai-assistant.md` 및 `FEATURES.md`는 이번 범위에서 건드리지 않았습니다.
+
+## 7. Git 반영·백업 서버 배포 및 라이브 검증 결과
+
+- **Git 반영 (코드 릴리스):** `fix(ai): 문맥 예산 선반영·다단계 재압축 및 오류 사유 화면 표출 반영` (`20802ffddd7ba58f0a97e0ecbe0d9f94ded621a1`, 정확히 15개 파일) 커밋 및 `origin/main` push 완료.
+- **백업 서버(`nkhst-pentium`, `192.168.0.24`) 단계별 배포 (`tools/deploy_ai_ux_release.py`):**
+  - 릴리스 디렉터리: `/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-context-error-20261123T0759Z` (권한 `0700`)
+  - **`pause`:** 사전 `HEAD=9331707d7bdfedfaf4182837baef79fb85035476`, `active_jobs={}` 확인 후 기존 웹(`PID 2787990`)과 워커(`PID 1653197`) 정지 및 일치 스냅샷(`equipment-quiesced.sqlite3`, `assistant-quiesced.sqlite3`) 확보 (`{"status": "quiesced", "old_pid": 2787990, "active_jobs": 0}`).
+  - **Fast-forward pull 및 해시 일치 확인:** `git pull --ff-only origin main` 후 서버 `HEAD == 20802ffddd7ba58f0a97e0ecbe0d9f94ded621a1` 확인, 반영된 런타임 6개 파일(`policy.py`, `context.py`, `__init__.py`, `store.py`, `equipment_ai.js`, `equipment_ai.css`)의 Linux `sha256sum`이 위 Staging 검증 해시와 6/6 바이트 단위 일치함을 확인.
+  - **`check-copy`:** 실 DB 사본(`copy-c24e7bf4233e`) 기동 시험 통과(`"status": "pass"`, 업무 테이블 18개·AI 테이블 21개·수명주기 행 11개·감사 행 보존, `ai_version=4`, `/login=200`, `/assistant=302`, `/api/ai/capabilities=401`, `/internal/ai/claim=403`, `real_model_called=false`, `production_databases_modified=false`).
+  - **`activate`:** `{"status": "active", "app_pid": 2970581, "worker": "active", "ai_version": 4, "old_business_rows_preserved": true, "old_ai_rows_preserved": true, "secrets_preserved": true, "retention_timer_enabled": true}` (`2026-11-23T08:00:05.387911+00:00`).
+- **백업 서버 라이브 비파괴 검증 (`2026-11-23 17:00 KST`):**
+  - 유지보수 상태: `NORMAL` (`revision: 64`).
+  - 프로세스/유닛: 웹 `app.py` (`PID 2970581`), `equipment-ai-worker.service` `active` (`MainPID 2970591`, 워커 `/internal/ai/claim` HTTP 200 정상 폴링), `equipment-ai-retention.timer` `active`. 워커 journal 및 `app-start.log`에 예외·Traceback 0건.
+  - 로컬 HTTP 엔드포인트 및 정적 자산 해시(`http://127.0.0.1:5000`): `/login -> 200`, `/assistant -> 302`, `/api/ai/capabilities -> 401`, `/static/js/equipment_ai.js -> 200` (`0f2678414bff5e027d88637520b846a6ede66ca87020ad3805c995961bae206d`), `/static/css/equipment_ai.css -> 200` (`f58ac43bab06f5ab2fb89a41340c36b85ea40cab1e642da9a9b49b3db1c383fe`).
+  - 읽기 전용 모듈·DB 검증(`?mode=ro`): `ERROR_REASONS['CONTEXT_LIMIT']` 및 `compact_step_context` 로드 정상, `equipment.db`·`assistant.sqlite3` 모두 `PRAGMA integrity_check == ok`, `conversations=30`, `messages=150`, `jobs=75`, 대상 대화 `d969a5caabe1710dea611a5cd5d4c470` 및 기존 실패 작업(`f737b3a9...`, `ad40fb98...`) 무손상 보존 확인.
+- **Validation 1~8 최종 사후 확인:** 거버넌스(`validate` `errors: 0`), 의도 달성(항목 1~3 반영·항목 4 보류), 논리 정합성, 백업 서버 무중단·무비밀 이식 및 DB 무결성, 롤백 가능성, UX 가독성, 실측 기반 보고 기준 모두 충족.
