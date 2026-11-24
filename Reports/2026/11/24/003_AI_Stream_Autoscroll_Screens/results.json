@@ -1,0 +1,1139 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "69d2c49e50760fef30f95901f1eaef655d025fa5e3a619f1c05e857875c6788c",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "stream-follow-reasoning-follow",
+      "stage": "reasoning-follow",
+      "width": 390,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning"
+      ],
+      "metrics": {
+        "gestures": [],
+        "final_geometry": {
+          "pane": {
+            "top": 4299,
+            "gap": 0
+          },
+          "thought": {
+            "top": 233,
+            "gap": 0
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchTouchEvent drag (touch emulation)",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-reasoning-follow",
+      "stage": "reasoning-follow",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning"
+      ],
+      "metrics": {
+        "gestures": [],
+        "final_geometry": {
+          "pane": {
+            "top": 2406,
+            "gap": 0
+          },
+          "thought": {
+            "top": 233,
+            "gap": 0
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchMouseEvent mouseWheel",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-reasoning-detached",
+      "stage": "reasoning-detached",
+      "width": 390,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "touch-drag",
+            "top": 87,
+            "gap": 207
+          }
+        ],
+        "last_hold": {
+          "name": "reasoning-box-holds-reader-position-while-reasoning-continues",
+          "top": 87,
+          "gap": 308,
+          "samples": [
+            87
+          ]
+        },
+        "reasoning_hold": {
+          "top": 87,
+          "samples": 32,
+          "gap": 308
+        },
+        "final_geometry": {
+          "pane": {
+            "top": 4299,
+            "gap": 0
+          },
+          "thought": {
+            "top": 87,
+            "gap": 329
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchTouchEvent drag (touch emulation)",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-reasoning-detached",
+      "stage": "reasoning-detached",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "mouse-wheel",
+            "top": 93,
+            "gap": 221
+          }
+        ],
+        "last_hold": {
+          "name": "reasoning-box-holds-reader-position-while-reasoning-continues",
+          "top": 93,
+          "gap": 302,
+          "samples": [
+            93
+          ]
+        },
+        "reasoning_hold": {
+          "top": 93,
+          "samples": 34,
+          "gap": 302
+        },
+        "final_geometry": {
+          "pane": {
+            "top": 2406,
+            "gap": 0
+          },
+          "thought": {
+            "top": 93,
+            "gap": 343
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchMouseEvent mouseWheel",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-003.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-answer-detached",
+      "stage": "answer-detached",
+      "width": 390,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "touch-drag",
+            "top": 108,
+            "gap": 226
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 325,
+            "gap": 131
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 456,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "touch-drag",
+            "top": 4385,
+            "gap": 856
+          }
+        ],
+        "last_hold": {
+          "name": "answer-holds-reader-position-while-output-continues",
+          "top": 4385,
+          "gap": 1149,
+          "samples": [
+            4385
+          ]
+        },
+        "reasoning_hold": {
+          "top": 108,
+          "samples": 26,
+          "gap": 308
+        },
+        "answer_hold": {
+          "top": 4385,
+          "samples": 34,
+          "gap": 1149
+        },
+        "final_geometry": {
+          "pane": {
+            "top": 4385,
+            "gap": 1267
+          },
+          "thought": {
+            "top": 538,
+            "gap": 0
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchTouchEvent drag (touch emulation)",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-004.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-answer-detached",
+      "stage": "answer-detached",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "mouse-wheel",
+            "top": 93,
+            "gap": 282
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -604,
+            "source": "mouse-wheel",
+            "top": 517,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "mouse-wheel",
+            "top": 2530,
+            "gap": 627
+          }
+        ],
+        "last_hold": {
+          "name": "answer-holds-reader-position-while-output-continues",
+          "top": 2530,
+          "gap": 794,
+          "samples": [
+            2530
+          ]
+        },
+        "reasoning_hold": {
+          "top": 93,
+          "samples": 43,
+          "gap": 363
+        },
+        "answer_hold": {
+          "top": 2530,
+          "samples": 28,
+          "gap": 794
+        },
+        "final_geometry": {
+          "pane": {
+            "top": 2530,
+            "gap": 860
+          },
+          "thought": {
+            "top": 619,
+            "gap": 0
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchMouseEvent mouseWheel",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-005.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-answer-reattached",
+      "stage": "answer-reattached",
+      "width": 390,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues",
+        "reader-reaches-latest-output-ai-scroll",
+        "returning-to-latest-answer-resumes-following",
+        "small-upward-gesture-below-previous-100px-threshold-holds",
+        "reader-reaches-latest-output-ai-scroll",
+        "second-return-to-latest-answer-resumes-following"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "touch-drag",
+            "top": 108,
+            "gap": 226
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 324,
+            "gap": 132
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 456,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "touch-drag",
+            "top": 4357,
+            "gap": 942
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 4671,
+            "gap": 981
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 4986,
+            "gap": 666
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5301,
+            "gap": 351
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5616,
+            "gap": 36
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -156,
+            "source": "touch-drag",
+            "top": 5651,
+            "gap": 1
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 60,
+            "source": "touch-drag",
+            "top": 5733,
+            "gap": 388
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 6048,
+            "gap": 484
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 6364,
+            "gap": 168
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -288,
+            "source": "touch-drag",
+            "top": 6531,
+            "gap": 1
+          }
+        ],
+        "last_hold": {
+          "name": "small-upward-gesture-below-previous-100px-threshold-holds",
+          "top": 5733,
+          "gap": 715,
+          "samples": [
+            5733
+          ]
+        },
+        "reasoning_hold": {
+          "top": 108,
+          "samples": 32,
+          "gap": 308
+        },
+        "answer_hold": {
+          "top": 4357,
+          "samples": 40,
+          "gap": 1236
+        },
+        "small_hold": {
+          "top": 5733,
+          "samples": 34,
+          "gap": 715
+        },
+        "final_geometry": {
+          "pane": {
+            "top": 6825,
+            "gap": 0
+          },
+          "thought": {
+            "top": 558,
+            "gap": 0
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchTouchEvent drag (touch emulation)",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-006.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-answer-reattached",
+      "stage": "answer-reattached",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues",
+        "reader-reaches-latest-output-ai-scroll",
+        "returning-to-latest-answer-resumes-following",
+        "small-upward-gesture-below-previous-100px-threshold-holds",
+        "reader-reaches-latest-output-ai-scroll",
+        "second-return-to-latest-answer-resumes-following"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "mouse-wheel",
+            "top": 93,
+            "gap": 221
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -543,
+            "source": "mouse-wheel",
+            "top": 436,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "mouse-wheel",
+            "top": 2563,
+            "gap": 594
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -1027,
+            "source": "mouse-wheel",
+            "top": 3390,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 60,
+            "source": "mouse-wheel",
+            "top": 3430,
+            "gap": 127
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -560,
+            "source": "mouse-wheel",
+            "top": 3790,
+            "gap": 0
+          }
+        ],
+        "last_hold": {
+          "name": "small-upward-gesture-below-previous-100px-threshold-holds",
+          "top": 3430,
+          "gap": 294,
+          "samples": [
+            3430
+          ]
+        },
+        "reasoning_hold": {
+          "top": 93,
+          "samples": 33,
+          "gap": 302
+        },
+        "answer_hold": {
+          "top": 2563,
+          "samples": 32,
+          "gap": 761
+        },
+        "small_hold": {
+          "top": 3430,
+          "samples": 27,
+          "gap": 294
+        },
+        "final_geometry": {
+          "pane": {
+            "top": 3957,
+            "gap": 0
+          },
+          "thought": {
+            "top": 538,
+            "gap": 0
+          }
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchMouseEvent mouseWheel",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-007.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-complete",
+      "stage": "complete",
+      "width": 390,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues",
+        "reader-reaches-latest-output-ai-scroll",
+        "returning-to-latest-answer-resumes-following",
+        "small-upward-gesture-below-previous-100px-threshold-holds",
+        "reader-reaches-latest-output-ai-scroll",
+        "second-return-to-latest-answer-resumes-following",
+        "completed-answer-ends-at-latest-output-while-following",
+        "reasoning-text-is-exact-after-follow-changes",
+        "no-document-horizontal-overflow"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "touch-drag",
+            "top": 108,
+            "gap": 226
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 327,
+            "gap": 129
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 456,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "touch-drag",
+            "top": 4358,
+            "gap": 941
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 4671,
+            "gap": 1098
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 4988,
+            "gap": 781
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5295,
+            "gap": 474
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5607,
+            "gap": 162
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -282,
+            "source": "touch-drag",
+            "top": 5768,
+            "gap": 1
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 60,
+            "source": "touch-drag",
+            "top": 5878,
+            "gap": 243
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 6191,
+            "gap": 341
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 6503,
+            "gap": 29
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -149,
+            "source": "touch-drag",
+            "top": 6531,
+            "gap": 1
+          }
+        ],
+        "last_hold": {
+          "name": "small-upward-gesture-below-previous-100px-threshold-holds",
+          "top": 5878,
+          "gap": 511,
+          "samples": [
+            5878
+          ]
+        },
+        "reasoning_hold": {
+          "top": 108,
+          "samples": 32,
+          "gap": 308
+        },
+        "answer_hold": {
+          "top": 4358,
+          "samples": 50,
+          "gap": 1210
+        },
+        "small_hold": {
+          "top": 5878,
+          "samples": 26,
+          "gap": 511
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchTouchEvent drag (touch emulation)",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 390,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-008.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-complete",
+      "stage": "complete",
+      "width": 390,
+      "theme": "dark",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues",
+        "reader-reaches-latest-output-ai-scroll",
+        "returning-to-latest-answer-resumes-following",
+        "small-upward-gesture-below-previous-100px-threshold-holds",
+        "reader-reaches-latest-output-ai-scroll",
+        "second-return-to-latest-answer-resumes-following",
+        "completed-answer-ends-at-latest-output-while-following",
+        "reasoning-text-is-exact-after-follow-changes",
+        "no-document-horizontal-overflow"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "touch-drag",
+            "top": 82,
+            "gap": 273
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 301,
+            "gap": 196
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -210,
+            "source": "touch-drag",
+            "top": 497,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "touch-drag",
+            "top": 4416,
+            "gap": 858
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 4730,
+            "gap": 922
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5045,
+            "gap": 607
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5332,
+            "gap": 320
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 5646,
+            "gap": 6
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 60,
+            "source": "touch-drag",
+            "top": 5757,
+            "gap": 221
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 6071,
+            "gap": 402
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -302,
+            "source": "touch-drag",
+            "top": 6384,
+            "gap": 89
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -209,
+            "source": "touch-drag",
+            "top": 6473,
+            "gap": 0
+          }
+        ],
+        "last_hold": {
+          "name": "small-upward-gesture-below-previous-100px-threshold-holds",
+          "top": 5757,
+          "gap": 540,
+          "samples": [
+            5757
+          ]
+        },
+        "reasoning_hold": {
+          "top": 82,
+          "samples": 42,
+          "gap": 354
+        },
+        "answer_hold": {
+          "top": 4416,
+          "samples": 46,
+          "gap": 1177
+        },
+        "small_hold": {
+          "top": 5757,
+          "samples": 43,
+          "gap": 540
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchTouchEvent drag (touch emulation)",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 390,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-009.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-complete",
+      "stage": "complete",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues",
+        "reader-reaches-latest-output-ai-scroll",
+        "returning-to-latest-answer-resumes-following",
+        "small-upward-gesture-below-previous-100px-threshold-holds",
+        "reader-reaches-latest-output-ai-scroll",
+        "second-return-to-latest-answer-resumes-following",
+        "completed-answer-ends-at-latest-output-while-following",
+        "reasoning-text-is-exact-after-follow-changes",
+        "no-document-horizontal-overflow"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "mouse-wheel",
+            "top": 93,
+            "gap": 221
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -543,
+            "source": "mouse-wheel",
+            "top": 436,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "mouse-wheel",
+            "top": 2563,
+            "gap": 561
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -961,
+            "source": "mouse-wheel",
+            "top": 3323,
+            "gap": 1
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 60,
+            "source": "mouse-wheel",
+            "top": 3397,
+            "gap": 127
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -593,
+            "source": "mouse-wheel",
+            "top": 3790,
+            "gap": 0
+          }
+        ],
+        "last_hold": {
+          "name": "small-upward-gesture-below-previous-100px-threshold-holds",
+          "top": 3397,
+          "gap": 293,
+          "samples": [
+            3397
+          ]
+        },
+        "reasoning_hold": {
+          "top": 93,
+          "samples": 25,
+          "gap": 302
+        },
+        "answer_hold": {
+          "top": 2563,
+          "samples": 25,
+          "gap": 727
+        },
+        "small_hold": {
+          "top": 3397,
+          "samples": 35,
+          "gap": 293
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchMouseEvent mouseWheel",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 1440,
+      "requested_theme": "light",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-010.png"
+    },
+    {
+      "status": "pass",
+      "view": "stream-follow-complete",
+      "stage": "complete",
+      "width": 1440,
+      "theme": "dark",
+      "checks": [
+        "sent-turn-opens-at-latest-output",
+        "reasoning-box-follows-latest-reasoning",
+        "conversation-follows-live-reasoning",
+        "upward-gesture-moves-reasoning-reader",
+        "reasoning-box-holds-reader-position-while-reasoning-continues",
+        "inner-reasoning-gesture-does-not-detach-conversation",
+        "reader-reaches-latest-output-reasoning",
+        "returning-to-reasoning-end-resumes-following",
+        "conversation-follows-live-answer",
+        "upward-gesture-moves-conversation-reader",
+        "answer-holds-reader-position-while-output-continues",
+        "reader-reaches-latest-output-ai-scroll",
+        "returning-to-latest-answer-resumes-following",
+        "small-upward-gesture-below-previous-100px-threshold-holds",
+        "reader-reaches-latest-output-ai-scroll",
+        "second-return-to-latest-answer-resumes-following",
+        "completed-answer-ends-at-latest-output-while-following",
+        "reasoning-text-is-exact-after-follow-changes",
+        "no-document-horizontal-overflow"
+      ],
+      "metrics": {
+        "gestures": [
+          {
+            "target": "ai-thought-text",
+            "distance": 140,
+            "source": "mouse-wheel",
+            "top": 93,
+            "gap": 221
+          },
+          {
+            "target": "ai-thought-text",
+            "distance": -543,
+            "source": "mouse-wheel",
+            "top": 436,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 260,
+            "source": "mouse-wheel",
+            "top": 2563,
+            "gap": 661
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -1127,
+            "source": "mouse-wheel",
+            "top": 3490,
+            "gap": 0
+          },
+          {
+            "target": "ai-scroll",
+            "distance": 60,
+            "source": "mouse-wheel",
+            "top": 3530,
+            "gap": 127
+          },
+          {
+            "target": "ai-scroll",
+            "distance": -594,
+            "source": "mouse-wheel",
+            "top": 3923,
+            "gap": 1
+          }
+        ],
+        "last_hold": {
+          "name": "small-upward-gesture-below-previous-100px-threshold-holds",
+          "top": 3530,
+          "gap": 294,
+          "samples": [
+            3530
+          ]
+        },
+        "reasoning_hold": {
+          "top": 93,
+          "samples": 30,
+          "gap": 302
+        },
+        "answer_hold": {
+          "top": 2563,
+          "samples": 34,
+          "gap": 827
+        },
+        "small_hold": {
+          "top": 3530,
+          "samples": 36,
+          "gap": 294
+        }
+      },
+      "production_data_used": false,
+      "interaction": "Chromium CDP Input.dispatchMouseEvent mouseWheel",
+      "model": "virtual answer model over synthetic transport",
+      "requested_width": 1440,
+      "requested_theme": "dark",
+      "exit_code": 0,
+      "screenshot_path": "Reports/2026/11/24/003_AI_Stream_Autoscroll_Screens/screen-011.png"
+    }
+  ],
+  "fixture_digest": "69d2c49e50760fef30f95901f1eaef655d025fa5e3a619f1c05e857875c6788c"
+}

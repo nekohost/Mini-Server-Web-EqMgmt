@@ -298,6 +298,83 @@
         if (input.value) input.style.height = Math.min(input.scrollHeight, 160) + 'px';
     }
 
+    /** [MINI-COMMENT: ASSISTANT.CLIENT.SCROLL.FOLLOW] [EN rev.1]
+     * [Role] Keeps one scroll container on its newest output until the reader scrolls away, and resumes once the reader returns to the end.
+     * [Dependencies] Native wheel/touch/key/pointer/scroll events on that container only, nested scroll ownership, and callers that apply output through keep().
+     * [Impact] Streaming never pulls a reader back after an upward gesture; inner reasoning/table/code scrollers keep their own gestures; clamps caused by shorter content are not mistaken for reading, and the only timer is one bounded catch-up after a gesture.
+     */
+    function scrollFollower(element, { edge = 24, quiet = 450 } = {}) {
+        // pinned: follow new output. top: last observed position, used to tell upward reading from downward/clamped movement.
+        const state = { pinned: true, top: element.scrollTop, intent: -Infinity, timer: null, touchY: null };
+        const now = () => performance.now();
+        const remaining = () => element.scrollHeight - element.scrollTop - element.clientHeight;
+        const holding = () => now() - state.intent < quiet;
+        // A nested scroller that can still move in the gesture direction owns that gesture; at its boundary the browser chains to this container.
+        const nested = (target, delta) => {
+            for (let node = target instanceof Element ? target : target?.parentElement; node && node !== element; node = node.parentElement) {
+                if (node.scrollHeight <= node.clientHeight + 1 || !/(auto|scroll)/.test(getComputedStyle(node).overflowY)) continue;
+                if (delta < 0 ? node.scrollTop > 0 : node.scrollTop + node.clientHeight < node.scrollHeight - 1) return true;
+            }
+            return false;
+        };
+        const leave = () => { state.pinned = false; clearTimeout(state.timer); state.timer = null; };
+        const toEnd = () => { element.scrollTop = element.scrollHeight; state.top = element.scrollTop; };
+        // While a gesture is in progress the pinned view waits, then catches up once; the timer stops when detached or removed.
+        const catchUp = () => {
+            if (state.timer !== null) return;
+            state.timer = setTimeout(() => {
+                state.timer = null;
+                if (!element.isConnected || !state.pinned) return;
+                if (holding()) catchUp(); else toEnd();
+            }, quiet);
+        };
+        // Upward movement detaches only when this container can actually move up; a short, unscrollable view stays pinned.
+        const upward = target => {
+            if (nested(target, -1)) return;
+            state.intent = now();
+            if (element.scrollTop > 0) leave();
+        };
+        element.addEventListener('wheel', event => { if (event.deltaY < 0) upward(event.target); }, { passive: true });
+        element.addEventListener('touchstart', event => { state.touchY = event.touches[0]?.clientY ?? null; state.intent = now(); }, { passive: true });
+        element.addEventListener('touchmove', event => {
+            const y = event.touches[0]?.clientY;
+            if (y === undefined) return;
+            // A finger moving down scrolls the content up.
+            const delta = state.touchY === null ? 0 : state.touchY - y;
+            state.touchY = y; state.intent = now();
+            if (delta < 0) upward(event.target);
+        }, { passive: true });
+        const release = () => { state.touchY = null; state.intent = now(); };
+        element.addEventListener('touchend', release, { passive: true });
+        element.addEventListener('touchcancel', release, { passive: true });
+        // A press on the container itself is a scrollbar drag; presses on content remain ordinary reading or selection.
+        element.addEventListener('pointerdown', event => { if (event.target === element) state.intent = now(); });
+        element.addEventListener('keydown', event => {
+            const target = event.target instanceof Element ? event.target : null;
+            if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || target?.closest('input,textarea,select,[contenteditable]')) return;
+            if (event.key === ' ' && target?.closest('button,a,summary')) return;
+            if (['ArrowUp', 'PageUp', 'Home'].includes(event.key) || event.key === ' ' && event.shiftKey) upward(target);
+        });
+        element.addEventListener('scroll', () => {
+            const top = element.scrollTop, movedUp = top < state.top - 1;
+            if (remaining() <= edge && !(movedUp && holding())) state.pinned = true;
+            else if (movedUp) leave();
+            state.top = top;
+        }, { passive: true });
+        return {
+            get pinned() { return state.pinned; },
+            /** [Role] Applies one output change, then follows the end or restores the reader's exact position. */
+            keep(action) {
+                const position = element.scrollTop, result = action();
+                if (state.pinned && !holding()) toEnd();
+                else { element.scrollTop = position; state.top = element.scrollTop; if (state.pinned) catchUp(); }
+                return result;
+            },
+            /** [Role] Sets the follow state after a caller positions the container itself (open, restore, review). */
+            stick(pinned) { if (pinned) state.pinned = true; else leave(); state.top = element.scrollTop; },
+        };
+    }
+
     /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SHORTCUTS] [EN rev.3]
      * [Role] Resolves physical Enter and explicit mobile line-break intents through the same guarded form while retaining native newlines/IME confirmation.
      * [Dependencies] Account action, composition/focus/keyboard/editing events, exact pre-edit snapshots and the existing submit latch.
@@ -452,7 +529,7 @@
         return { state: job.state, heading, detail, recoveredText, code, confirmedIncomplete };
     }
 
-    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts, renderAnswer, mailStatus, formatJobFailure };
+    if (typeof module !== 'undefined' && module.exports) module.exports = { mergeStream, markdown, fileWorkspaceTarget, conversationTitleInput, bindInputShortcuts, renderAnswer, mailStatus, formatJobFailure, scrollFollower };
     if (typeof document === 'undefined') return;
 
     /** [Role] Initializes this standalone screen, preserving drafts/details/scroll across incremental polling. */
@@ -471,6 +548,8 @@
         }
         const csrf = root.dataset.csrf;
         const disposeViewport = fitViewport(root);
+        // One reader-owned follow state for the conversation pane; each assistant reasoning box owns its own (messageNode).
+        const paneFollow = scrollFollower($('ai-scroll'));
         const nodes = new Map(), streams = new Map(), cards = new Map(), presenters = new Map();
         const history = { active: { items: new Map(), cursor: null, depth: 1, request: 0, pending: null }, trash: { items: new Map(), cursor: null, depth: 1, request: 0, pending: null } };
         const uncertainLifecycle = new Map();
@@ -956,14 +1035,12 @@
             return result;
         }
 
-        /** [Role] Follows new output only when the reader is already near the bottom. */
+        /** [Role] Applies conversation output and follows it only while the reader has not scrolled away.
+         * [Dependencies] paneFollow (ASSISTANT.CLIENT.SCROLL.FOLLOW), set by open() and by the reader's own gestures.
+         * [Impact] A reader who scrolls up keeps the exact position until returning to the newest output.
+         */
         function follow(action) {
-            const pane = $('ai-scroll');
-            const near = pane.scrollHeight - pane.scrollTop - pane.clientHeight < 100;
-            const position = pane.scrollTop;
-            action();
-            if (near) pane.scrollTop = pane.scrollHeight;
-            else pane.scrollTop = position;
+            paneFollow.keep(action);
         }
 
         /** [Role] Publishes only opaque local selection/job identifiers for passive status display.
@@ -984,10 +1061,10 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.PRESENT]
-         * [EN rev.3]
+         * [EN rev.4]
          * [Role] Renders paced prefixes and displays a translated mail literally, including commands and hyperlinks.
-         * [Dependencies] One disposable presenter per request and the existing safe Markdown/reader guard.
-         * [Impact] First visible answer closes thoughts once; terminal/error text flushes synchronously and no stale frame enters a different conversation.
+         * [Dependencies] One disposable presenter per request, the existing safe Markdown/reader guard, and pane/reasoning scroll followers.
+         * [Impact] First visible answer closes thoughts once; live reasoning follows inside its own box under the same reader rule as the pane; terminal/error text flushes synchronously and no stale frame enters a different conversation.
          */
         function presentStream(jid, previous, next, result) {
             const selected = selection;
@@ -998,7 +1075,7 @@
                 if (disposed || selected !== selection || nodes.get(result.message_id) !== node) return;
                 follow(() => {
                     const firstThought = !node.thought.textContent && Boolean(frame.reasoning);
-                    if (node.thought.textContent !== frame.reasoning) node.thought.textContent = frame.reasoning;
+                    if (node.thought.textContent !== frame.reasoning) node.thoughtFollow.keep(() => { node.thought.textContent = frame.reasoning; });
                     node.details.hidden = !frame.reasoning;
                     if (firstThought && !node.displayAnswerStarted && !frame.content) node.details.open = true;
                     if (frame.content && !node.displayAnswerStarted) { node.details.open = false; node.displayAnswerStarted = true; }
@@ -1058,6 +1135,11 @@
             article.append(speaker); if (message.role !== 'user') article.append(details); article.append(answer);
             $('ai-messages').append(article);
             const node = { article, details, summary, thought, answer, content: null, errorBox: null, errorSignature: '' };
+            if (message.role !== 'user') {
+                node.thoughtFollow = scrollFollower(thought);
+                // Reopening a collapsed reasoning after the answer began is a review: it is not pulled to the end.
+                details.addEventListener('toggle', () => { if (details.open && node.displayAnswerStarted) node.thoughtFollow.stick(false); });
+            }
             nodes.set(message.id, node);
             return node;
         }
@@ -1721,10 +1803,10 @@
         }
 
         /** [MINI-COMMENT: ASSISTANT.CLIENT.OPEN]
-         * [EN rev.4]
+         * [EN rev.5]
          * [Role] Hydrates a selected conversation before enabling its composer; the sidebar refresh runs independently.
-         * [Dependencies] Owner snapshot, selection generation, disposable presentation queues and serialized history reads.
-         * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs and message nodes, while the compact heading exposes the complete selected title.
+         * [Dependencies] Owner snapshot, selection generation, disposable presentation queues, serialized history reads and pane/reasoning scroll followers.
+         * [Impact] A delayed/background list read cannot swallow a ready user's submit; unchanged lifecycle checks preserve drafts, streams, active jobs, message nodes and each reader's follow/detached state, a fresh open starts following at the end, while the compact heading exposes the complete selected title.
          */
         async function open(cid, view = historyView, { preserveReader = false, result: loaded = null, refreshList = true, automatic = false } = {}) {
             if (!automatic) ++entryGeneration;
@@ -1732,7 +1814,7 @@
                 showEntry('loading', '대화를 불러오는 중입니다.');
             if (conversation !== cid || conversationView !== view) resetFileWorkspace();
             const pane = $('ai-scroll');
-            const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
+            const reader = preserveReader && conversation === cid ? { top: pane.scrollTop, pinned: paneFollow.pinned, thoughts: new Map([...nodes].map(([id,node]) => [id, { open: node.details.open, top: node.thought.scrollTop, pinned: node.thoughtFollow?.pinned ?? true }])), tables: [...pane.querySelectorAll('.ai-table-scroll')].map(node => node.scrollLeft) } : null;
             disposePresenters();
             const selected = ++selection; clearTimeout(timer); activeJob = null; nextBefore = null;
             openingConversation = true; root.setAttribute('aria-busy', 'true'); modelControls();
@@ -1768,10 +1850,10 @@
             else if (!readOnly() && result.jobs[0]) progress(result.jobs[0]);
             modelControls(result.conversation.next_level || 'medium');
             if (reader) {
-                for (const [id, state] of reader.thoughts) if (nodes.has(id)) { nodes.get(id).details.open = state.open; nodes.get(id).thought.scrollTop = state.top; }
+                for (const [id, state] of reader.thoughts) if (nodes.has(id)) { nodes.get(id).details.open = state.open; nodes.get(id).thought.scrollTop = state.top; nodes.get(id).thoughtFollow?.stick(state.pinned); }
                 pane.querySelectorAll('.ai-table-scroll').forEach((node,index) => { node.scrollLeft = reader.tables[index] || 0; });
-                pane.scrollTop = reader.top;
-            } else pane.scrollTop = pane.scrollHeight;
+                pane.scrollTop = reader.top; paneFollow.stick(reader.pinned);
+            } else { pane.scrollTop = pane.scrollHeight; paneFollow.stick(true); }
             $('ai-sidebar').classList.remove('is-open'); $('ai-menu-toggle').setAttribute('aria-expanded', 'false');
             if (automatic || refreshList) renderConversations();
             if (refreshList) {
