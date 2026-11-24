@@ -2,7 +2,7 @@
 artifact_id: REPORT-20261124-003
 work_id: FIX-20261124-AI-STREAM-AUTOSCROLL
 owner: Claude
-status: merged
+status: deployed-and-verified
 approval: user-explicit-merge-and-deployment-2026-11-24
 ---
 
@@ -110,4 +110,28 @@ approval: user-explicit-merge-and-deployment-2026-11-24
 - **미검증 입력:** 마우스로 스크롤바를 끄는 동작과 키보드(PageUp 등)는 자동 검증에 포함하지 않았다. 둘 다 스크롤 위치가 위로 이동하면 이탈하는 공통 판정이 적용된다.
 - **실제 기기 미검증:** 실제 휴대폰·폴더블 기기의 관성 스크롤(플링)은 확인하지 않았다. Chromium 터치 에뮬레이션의 끌기로만 확인했다.
 - **기존 문제:** `polish-stream` 묶음의 오래된 가상 전송은 이번 범위 밖이라 그대로 두었다.
-- **운영 반영:** 사용자 승인에 따라 병합·commit·`eqmgmt-backup` 배포를 진행한다(7절).
+- **운영 반영:** 사용자 승인에 따라 병합·commit·`eqmgmt-backup` 배포를 완료했다(7절).
+- **라이브 화면 미조작:** 실제 계정으로 로그인해 운영 화면을 조작하지는 않았다. 동작은 같은 해시의 JS로 격리 Chromium에서 검증했다. 배포 전에 열어 둔 AI 도우미 탭은 새로고침해야 새 JS가 적용된다.
+
+## 7. 배포 결과
+
+- **코드 릴리스:** `6e3ea605c0e867fa6b69df93323385169e6b6c37` (`origin/main` push 완료, 본 작업 20개 파일로 한정: 소스 1, 테스트 3, Plan·Task·Report, 스크린샷 12, `results.json`)
+- **반영 서버:** `eqmgmt-backup`. 미니서버는 사용자 지시에 따라 반영 대상이 아니다.
+- **배포 절차:** `tools/deploy_ai_ux_release.py`로 `pause → git pull --ff-only → JS 해시 대조 → check-copy → activate`를 수행했다. 사전 활성 작업은 0건이었다.
+  - 첫 시도는 릴리스 디렉터리 이름이 도구의 고정 규칙(`20261105-ai-ux-*`)에 맞지 않아 `pause` 전 인자 검증 단계에서 중단되었다. 서버 상태는 바뀌지 않았고(`NORMAL`, 기존 PID 유지), 새로 만든 빈 디렉터리만 삭제한 뒤 규칙에 맞는 이름으로 다시 실행했다.
+- **사본 기동 시험:** 통과. 업무 테이블 18개와 AI 테이블 21개의 기존 행과 감사 행을 보존했고, 실제 모델 호출과 운영 DB 변경은 없었다.
+- **활성화:** `2026-11-24 14:29:36 KST`, 웹 `PID 3112970`, 워커 `active`.
+
+라이브 비파괴 검증(`2026-11-24 14:30 KST`):
+
+| 항목 | 결과 |
+| --- | --- |
+| 서버 `HEAD`와 추적 파일 | `6e3ea60`, 변경 없음 |
+| 유지보수 상태 | `NORMAL` |
+| 워커·보존 타이머 | 모두 `active` |
+| 시작 로그 Traceback | 0건 |
+| HTTP | `/login` 200, `/assistant` 302, `/api/ai/capabilities` 401 |
+| 제공 중인 `equipment_ai.js` | 5절 SHA-256과 일치(`scrollFollower` 포함), `Cache-Control: no-cache` |
+| SQLite `integrity_check` | `equipment.db`, `assistant.sqlite3` 모두 `ok` |
+
+**롤백:** `git revert 6e3ea60` 후 같은 배포 절차를 수행한다. 데이터·설정 변경이 없어 별도 복구 작업은 필요 없다. `pause` 단계에서 두 DB의 일관 스냅샷을 릴리스 디렉터리에 보존했다.

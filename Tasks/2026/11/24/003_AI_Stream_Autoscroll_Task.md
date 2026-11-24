@@ -13,5 +13,5 @@ work_id: FIX-20261124-AI-STREAM-AUTOSCROLL
 - [x] 기존 회귀·정적 보안 검사와 수정 전 코드 대비 회귀 검출 확인
 - [x] Report·Task 최종 기록 (운영 병합·배포는 범위 밖)
 - [x] 사용자 승인 후 운영 병합, 해시 대조, 본 작업 Staging 정리
-- [ ] 본 작업 파일 scoped commit·push
-- [ ] `eqmgmt-backup` 배포와 라이브 검증
+- [x] 본 작업 파일 scoped commit·push (`6e3ea60`)
+- [x] `eqmgmt-backup` 배포와 라이브 검증
