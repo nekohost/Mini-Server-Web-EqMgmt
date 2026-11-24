@@ -2,7 +2,7 @@
 artifact_id: REPORT-20261124-002
 work_id: FIX-20261124-AI-COMPOSER-EMPTY-HEIGHT
 owner: Claude
-status: merged-pending-deployment
+status: deployed-and-verified
 approval: user-explicit-approval-through-production-deployment
 ---
 
@@ -54,4 +54,22 @@ Staging 후보와 운영 소스는 LF 정규화 기준으로 일치한다. 본 �
 
 ## 5. 배포 결과
 
-배포 후 갱신한다.
+- **코드 릴리스:** `8491b796afd93410765203f45666256fbe596a2c` (`origin/main` push 완료, 본 작업 5개 파일 한정).
+- **반영 서버:** `eqmgmt-backup`. 작업 시점에 미니서버(`192.168.0.166:5000`)는 접속되지 않았고 SSH 설정도 없어 반영하지 않았다.
+- **배포 절차:** `tools/deploy_ai_ux_release.py`의 `pause → git pull --ff-only → check-copy → activate`를 수행했다. 사전 활성 작업은 0건이었다.
+- **사본 기동 시험:** 통과. 업무 테이블 18개와 AI 테이블 21개의 기존 행과 감사 행을 보존했고, 실제 모델 호출과 운영 DB 변경은 없었다.
+- **활성화:** `2026-11-24 11:24:51 KST`, 웹 `PID 3067221`, 워커 `active`.
+
+라이브 비파괴 검증(`2026-11-24 11:25 KST`):
+
+| 항목 | 결과 |
+| --- | --- |
+| 서버 `HEAD`와 추적 파일 | `8491b79`, 변경 없음 |
+| 유지보수 상태 | `NORMAL` |
+| 워커·보존 타이머 | 모두 `active` |
+| 시작 로그 Traceback | 0건 |
+| HTTP | `/login` 200, `/assistant` 302, `/api/ai/capabilities` 401 |
+| 제공 중인 `equipment_ai.js` | 4절 SHA-256과 일치, `Cache-Control: no-cache` |
+| SQLite `integrity_check` | `equipment.db`, `assistant.sqlite3` 모두 `ok` |
+
+**확인 한계:** 실제 계정으로 로그인해 라이브 화면을 조작하지는 않았다. 동작은 동일 해시의 JS를 격리 Chromium에서 검증했다. 배포 전에 열어 둔 탭은 새로고침해야 새 JS가 적용된다.

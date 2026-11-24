@@ -11,6 +11,6 @@ work_id: FIX-20261124-AI-COMPOSER-EMPTY-HEIGHT
 - [x] `Staging/20261124-ai-composer-height/` 패치 작성 및 깨끗한 `HEAD` 사본 적용
 - [x] 정적 보안 검사와 Linux Chromium 브라우저 검증
 - [x] 운영 소스 병합, 해시 대조, 본 작업 Staging 정리
-- [ ] 본 작업 파일 scoped commit·push
-- [ ] `eqmgmt-backup` 배포와 라이브 검증
-- [ ] Report·Task 최종 기록
+- [x] 본 작업 파일 scoped commit·push (`8491b79`)
+- [x] `eqmgmt-backup` 배포와 라이브 검증
+- [x] Report·Task 최종 기록
