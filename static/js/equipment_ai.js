@@ -288,6 +288,16 @@
         };
     }
 
+    /** [MINI-COMMENT: ASSISTANT.CLIENT.COMPOSER.HEIGHT] [EN rev.1]
+     * [Role] Sizes the composer to its current draft and returns an empty composer to the default CSS height.
+     * [Dependencies] Textarea rows/min-height/max-height CSS and the existing 160px draft growth limit.
+     * [Impact] Programmatic clears no longer retain a previous long-draft height; draft text, selection, focus and network state are unchanged, and viewport fitting reacts through its existing ResizeObserver.
+     */
+    function fitInputHeight(input) {
+        input.style.height = '';
+        if (input.value) input.style.height = Math.min(input.scrollHeight, 160) + 'px';
+    }
+
     /** [MINI-COMMENT: ASSISTANT.CLIENT.INPUT.SHORTCUTS] [EN rev.3]
      * [Role] Resolves physical Enter and explicit mobile line-break intents through the same guarded form while retaining native newlines/IME confirmation.
      * [Dependencies] Account action, composition/focus/keyboard/editing events, exact pre-edit snapshots and the existing submit latch.
@@ -344,7 +354,7 @@
             const pending = pendingEdit; pendingEdit = null; clearIntent();
             if (!pending || event.isComposing || composing || compositionEnded || event.inputType !== pending.type || mode() !== pending.mode ||
                 input.value !== pending.expected || input.selectionStart !== pending.cursor || input.selectionEnd !== pending.cursor) return;
-            input.value = pending.value; input.setSelectionRange(pending.start, pending.end, pending.direction);
+            input.value = pending.value; fitInputHeight(input); input.setSelectionRange(pending.start, pending.end, pending.direction);
             if (pending.submit) send();
         };
         input.addEventListener('compositionstart', start); input.addEventListener('compositionend', end);
@@ -1880,14 +1890,14 @@
         });
         $('ai-more-messages').addEventListener('click', () => olderMessages().catch(error => notice(error.message)));
         $('ai-menu-toggle').addEventListener('click', () => { const show = $('ai-sidebar').classList.toggle('is-open'); $('ai-menu-toggle').setAttribute('aria-expanded', String(show)); });
-        $('ai-input').addEventListener('input', () => { requestKey = null; $('ai-input').style.height = 'auto'; $('ai-input').style.height = Math.min($('ai-input').scrollHeight, 160) + 'px'; });
+        $('ai-input').addEventListener('input', () => { requestKey = null; fitInputHeight($('ai-input')); });
         $('ai-level').addEventListener('change', () => { if (readOnly() || lifecycleBusy || openingConversation || changingModel) return; requestKey = null; $('ai-level-help').textContent = reasoningHelp[$('ai-level').value] || ''; saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model').addEventListener('change', () => { if (openingConversation || changingModel || readOnly() || lifecycleBusy) return; modelId = $('ai-model').value; const model = modelChoices.find(item => item.id === modelId); modelControls(initialLevel(model)); saveSelection().catch(error => { modelUnavailable = true; $('ai-send').disabled = true; notice(error.message, 'selection'); }); });
         $('ai-model-refresh').addEventListener('click', () => loadModels().catch(error => notice(error.message, 'inventory')));
-        /** [MINI-COMMENT: ASSISTANT.CLIENT.COMPOSER] [EN rev.4]
+        /** [MINI-COMMENT: ASSISTANT.CLIENT.COMPOSER] [EN rev.5]
          * [Role] Shares keyboard/button submission guards and keeps any draft entered after the accepted snapshot.
          * [Dependencies] Current owner/model/lifecycle state, a synchronous submission latch and the idempotent turns endpoint.
-         * [Impact] A control refresh, history switch, lifecycle action or repeated shortcut cannot redirect or duplicate a pending request; accepted snapshots reload their immutable conversation, rejected requests keep their draft and accepted requests clear only the submitted text.
+         * [Impact] A control refresh, history switch, lifecycle action or repeated shortcut cannot redirect or duplicate a pending request; accepted snapshots reload their immutable conversation, rejected requests keep their draft and accepted requests clear only the submitted text, returning that emptied composer to its default height.
          */
         const disposeInputShortcuts = bindInputShortcuts($('ai-input'), $('ai-form'), () => enterAction,
             () => !disposed && !submitting && !activeJob && !changingModel && !$('ai-send').disabled && !readOnly() && !lifecycleBusy && !lifecycleIntent && !openingConversation);
@@ -1928,7 +1938,7 @@
                     await api('/api/ai/conversations/' + cid + '/turns', { method: 'POST', data: payload });
                 }
                 if (disposed) return;
-                if ($('ai-input').value === raw) $('ai-input').value = '';
+                if ($('ai-input').value === raw) { $('ai-input').value = ''; fitInputHeight($('ai-input')); }
                 requestKey = null; await open(cid, 'active');
             } catch (error) {
                 if (disposed) return;

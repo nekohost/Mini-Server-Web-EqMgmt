@@ -1,7 +1,7 @@
-/* [MINI-COMMENT: USER.PREFERENCES.KEYBOARD.BROWSER] [EN rev.4]
+/* [MINI-COMMENT: USER.PREFERENCES.KEYBOARD.BROWSER] [EN rev.5]
  * [Role] Drives both Enter modes in actual candidate DOM with native Chromium key input and synthetic IME edge orders.
  * [Dependencies] The reviewed in-memory chat transport, candidate settings/client assets and the private keyboard CDP capture.
- * [Impact] Verifies single acceptance, pending navigation/lifecycle guards, disabled/active-job guards and later-draft preservation without real accounts, model calls or production writes.
+ * [Impact] Verifies single acceptance, pending navigation/lifecycle guards, disabled/active-job guards, later-draft preservation and empty-composer height restoration without real accounts, model calls or production writes.
  */
 async function auditAiComposerKeyboard(bind, sleep) {
     /* [MINI-COMMENT: USER.PREFERENCES.KEYBOARD.EVENT.AUDIT] [EN rev.1]
@@ -69,6 +69,10 @@ async function auditAiComposerKeyboard(bind, sleep) {
     await test('uncancelable-mismatched-edit-is-preserved', ({ input, before, submitted, assert }) => {
         before({ cancelable: false }); input.value = 'a different draft\n'; input.dispatchEvent(new InputEvent('input', { inputType: 'insertLineBreak', bubbles: true }));
         assert(submitted.length === 0 && input.value === 'a different draft\n', 'an unrecognized edit cannot be rewritten or sent');
+    });
+    await test('uncancelable-empty-edit-restores-default-height', ({ input, edit, submitted, assert }) => {
+        input.value = ''; input.setSelectionRange(0, 0); input.style.height = '96px'; edit({ cancelable: false });
+        assert(input.value === '' && input.style.height === '' && submitted.length === 0, 'an exact empty-composer newline restoration must clear the previous draft height');
     });
     await test('paste-with-newlines-never-sends', ({ input, before, submitted, assert }) => {
         before({ inputType: 'insertFromPaste', data: 'one\ntwo' }); input.value = 'one\ntwo'; input.dispatchEvent(new InputEvent('input', { inputType: 'insertFromPaste', bubbles: true, data: 'one\ntwo' }));
@@ -204,9 +208,15 @@ function runAiInputPreferenceFixture(server, cid, modelId, sleep, theme) {
             server.rejectNextTurn = true; draft('거부 후 보존할 초안'); await nativeEnter(false);
             await wait(() => attemptedTurns === 2 && !$('ai-send').disabled && $('ai-notice').textContent.includes('초안은 유지'), 'rejected request recovered');
             assert($('ai-input').value === '거부 후 보존할 초안', 'rejection-preserves-draft-and-unlocks-send');
-            holdCompletion(); draft('Enter 보내기 확인'); await nativeEnter(false);
+            const tallDraft = Array.from({ length: 8 }, (_, index) => '입력창 높이 복원 확인 ' + (index + 1)).join('\n');
+            draft(tallDraft);
+            assert($('ai-input').getBoundingClientRect().height > inputRect.height + 20, 'long-draft-grows-composer');
+            draft('');
+            assert($('ai-input').style.height === '' && Math.abs($('ai-input').getBoundingClientRect().height - inputRect.height) <= 1, 'deleted-draft-restores-default-composer-height');
+            holdCompletion(); draft(tallDraft); await nativeEnter(false);
             await wait(() => attemptedTurns === 3 && server.sent === 2 && server.polls >= 2, 'send-mode acceptance');
             assert($('ai-input').value === '', 'send-mode-native-enter-submits-once-and-clears-submitted-draft');
+            assert($('ai-input').style.height === '' && Math.abs($('ai-input').getBoundingClientRect().height - inputRect.height) <= 1, 'sent-long-draft-restores-default-composer-height');
             await finish();
             const pendingNewDraft = '새 대화에서 이어 쓸 초안'; draft(pendingNewDraft);
             const rowsBeforeNew = server.conversations.size;
