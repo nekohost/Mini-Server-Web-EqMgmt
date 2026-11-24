@@ -2,8 +2,8 @@
 artifact_id: REPORT-20261124-001
 work_id: FIX-20261124-AI-FOLLOWUP-WEB-SEARCH
 owner: Gemini
-status: root-merged-and-verified
-approval: user-approved-max-searches-5-merge-and-backup-deploy
+status: deployed-and-verified
+approval: user-approved-merged-and-deployed
 ---
 
 # AI 도우미 다단계 웹 검색 도구 호출 호환·보정·검색 한도 확장 검증 보고서
@@ -60,6 +60,18 @@ approval: user-approved-max-searches-5-merge-and-backup-deploy
 | `tests/test_ai_followup_web_search.py` | 45,405 | `f88875f53bf5f3e39fe7e48353c2a10078e7bf0850183b1f69bee9cfb54f1b9d` |
 | `tests/run_assistant_fixture.py` | 20,660 | `bc64ecc242fa25f1b1e951e8de8dada5a31481d511c54e3dae3cd9af5420529a` |
 
-## 5. Git 반영 및 백업 서버 배포 예정
+## 5. Git 반영 · 백업 서버 배포 및 라이브 비파괴 검증 결과
 
-- 본 작업 대상 13개 파일(위 10개 + `Plan`/`Task`/`Report` 3개)만 scoped commit/push 후 백업 서버(`eqmgmt-backup`, `nkhst-pentium`)에 `tools/deploy_ai_ux_release.py`로 무중단 반영 및 라이브 검증을 진행합니다.
+- **Git 코드 릴리스 커밋:** `c832049c43c73b304babda251ad089ab6ac83b7e` (`fix(ai): support follow-up web search compatibility and expand search limit to 5`, 부모 `4210e4945df4cfb73614de12e14bbd1939746bfb`, 본 작업 13개 파일 한정) → `origin/main` push 완료.
+- **백업 서버(`eqmgmt-backup`, `nkhst-pentium`) 단계별 배포 (`tools/deploy_ai_ux_release.py`):**
+  - 릴리스 디렉터리: `/home/nekohost/services/Mini-Server-Web-EqMgmt/instance/releases/20261105-ai-ux-search-followup-20261124` (권한 `0700`)
+  - **`pause`:** 사전 `HEAD=4210e4945df4cfb73614de12e14bbd1939746bfb`, `active_jobs=0` 확인 후 웹(`PID 2970581`)·워커 정지 및 일관 스냅샷 확보 (`{"status": "quiesced", "old_pid": 2970581, "active_jobs": 0, "shared_model_controlled": false}`).
+  - **`git pull --ff-only origin main` 및 해시 일치:** 원격 `HEAD == c832049c43c73b304babda251ad089ab6ac83b7e` 확인, 런타임 7개 파일(`utils/ai_assistant/{web_search,policy,recovery,domain,context,store,__init__}.py`)의 Linux `sha256sum`이 위 4절 LF SHA-256과 7/7 일치함.
+  - **`check-copy`:** 실 DB 사본(`copy-7c635e03ff6c`) 기동 시험 통과 (`status: "pass"`, 업무 테이블 18개·AI 테이블 21개·수명주기 행 11개·감사 행 보존, `ai_version=4`, `/login=200`, `/assistant=302`, `/admin/ai/providers=302`, `/api/ai/capabilities=401`, `/internal/ai/claim=403`, `real_model_called=false`, `production_databases_modified=false`).
+  - **`activate`:** `{"status": "active", "app_pid": 3051909, "worker": "active", "ai_version": 4, "old_business_rows_preserved": true, "old_ai_rows_preserved": true, "secrets_preserved": true, "retention_timer_enabled": true, "activated_at_utc": "2026-11-24T01:52:20.384765+00:00"}`.
+- **라이브 비파괴 검증 결과 (`2026-11-24 10:53 KST`):**
+  - 유지보수 상태: `instance/maintenance-state.json` `state == "NORMAL"` (`revision: 66`).
+  - 프로세스 및 유닛: 웹 `app.py` (`PID 3051909`, 생존), `equipment-ai-worker.service` `active` (`MainPID 3051919`), `equipment-ai-retention.timer` `active`, `app-start.log` Traceback `0`건.
+  - 로컬 HTTP 스모크 (`http://127.0.0.1:5000`): `/login -> 200`, `/assistant -> 302`, `/api/ai/capabilities -> 401`.
+  - 읽기 전용 SQLite 무결성 (`?mode=ro`): `equipment.db` `PRAGMA integrity_check == ok`, `instance/ai/assistant.sqlite3` `PRAGMA integrity_check == ok` (`conversations=30`, `messages=152`, `jobs=76`, 장애 작업 `f24fee369adc41b2b992fee39164acfd` 보존).
+  - 런타임 모듈 심볼 검증(`-B`): `MAX_SEARCHES == 5`, `SEARCH_RESERVATION == 160000`, `PLANNING_INSTRUCTIONS` 존재 및 `SYSTEM`과 분리(`plan_web_search` 미포함), `'search_decided' in CORRECTIONS == True`, `hasattr(Domain, 'check_public_query') == True`, `callable(project_search_messages) == True`.
