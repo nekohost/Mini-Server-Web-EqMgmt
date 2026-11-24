@@ -1,4 +1,4 @@
-"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.8]
+"""[MINI-COMMENT: ASSISTANT.WEB.TESTS] [EN rev.9]
 [Role] Tests real opt-in/worker/store/privacy/citation boundaries with isolated Linux data and inert search transport.
 [Dependencies] Existing synthetic fixtures and stdlib subprocess mocks; no production app import, data or network.
 [Impact] Verifies denial before I/O, terminal failures, immutable consent, existing business boundaries and durable safe sources.
@@ -18,7 +18,7 @@ from assistant_provider_fixture_tests import ProviderTests
 from utils.ai_assistant.policy import canonical, normalized_tool_arguments, AssistantError
 from utils.ai_assistant.recovery import CORRECTIONS
 from utils.ai_assistant.web_search import (SearchService, WebSearchError, validate_query, safe_url,
-    project_results, public_searches, evidence_chars, SEARCH_RESERVATION, RUNTIME_NAME, SEARCH_DEADLINE)
+    project_results, public_searches, evidence_chars, MAX_SEARCHES, SEARCH_RESERVATION, RUNTIME_NAME, SEARCH_DEADLINE)
 
 
 def evidence(query='Flask documentation'):
@@ -123,14 +123,14 @@ class SearchSafetyTests(unittest.TestCase):
         self.assertEqual(public_searches('malformed'),[])
 
     def test_maximum_escaped_result_json_fits_reserved_search_budget(self):
-        """[Dependencies] Actual SearchService projection/canonical JSON and bounded two-search contract. [Impact] Valid hostile text cannot exceed the admitted source budget through JSON escaping."""
+        """[Dependencies] Actual SearchService projection/canonical JSON and bounded multi-search contract. [Impact] Valid hostile text cannot exceed the admitted source budget through JSON escaping."""
         service=SearchService(Path('/synthetic'))
         raw=[{'title':'"\\'*90,'url':'https://example.org/'+str(i)+'"'*1470,'snippet':'"\\'*350} for i in range(5)]
         output=json.dumps({'results':raw}).encode()
         with patch.object(SearchService,'available',new_callable=PropertyMock,return_value=True),patch('utils.ai_assistant.web_search.subprocess.run',return_value=SimpleNamespace(returncode=0,stdout=output)):
-            first=service.search('Q'*300);second=service.search('R'*300)
-        self.assertEqual(len(first['results']),5);self.assertEqual(len(first['results'][0]['snippet']),700)
-        retained=len(canonical(first))+len(canonical(second))
+            searches=[service.search(chr(ord('Q')+idx)*300) for idx in range(MAX_SEARCHES)]
+        self.assertEqual(len(searches[0]['results']),5);self.assertEqual(len(searches[0]['results'][0]['snippet']),700)
+        retained=sum(len(canonical(item)) for item in searches)
         self.assertGreater(retained,32000);self.assertLessEqual(retained,SEARCH_RESERVATION)
 
 
@@ -462,9 +462,9 @@ class WebSearchIntegrationTests(unittest.TestCase):
         self.assert_correction_released(jid)
 
     def test_correction_does_not_expand_the_total_step_budget(self):
-        """[Role] Leaves the Store's existing six-step cap authoritative even for an otherwise valid correction."""
+        """[Role] Leaves the Store's existing step cap authoritative even for an otherwise valid correction."""
         jid=self.turn(allow=False)['job_id']
-        with self.store.db(True) as db:db.execute('UPDATE jobs SET steps=5 WHERE id=?',(jid,))
+        with self.store.db(True) as db:db.execute('UPDATE jobs SET steps=? WHERE id=?',(MAX_SEARCHES+3,jid))
         self.assertEqual(self.finish(self.claim(),content='')['state'],'failed')
         with self.store.db() as db:self.assertEqual(self.store.job(jid,db)['error_code'],'STEP_LIMIT')
         self.assert_correction_released(jid)
@@ -613,31 +613,36 @@ class WebSearchIntegrationTests(unittest.TestCase):
             self.assertEqual(db.execute('SELECT state FROM ai_execution_guards WHERE job=?',(jid,)).fetchone()[0],'released')
 
     def test_two_search_limit_removes_the_tool_and_still_rejects_forged_io(self):
-        """[Dependencies] Stored evidence, advertised tools and dispatch. [Impact] Exhaustion cannot add a third search or silently reset the quota."""
-        self.turn(allow=True);self.search_step(self.claim());self.search_step(self.claim());job=self.claim()
+        """[Dependencies] Stored evidence, advertised tools and dispatch. [Impact] Exhaustion cannot add another search or silently reset the quota."""
+        self.turn(allow=True)
+        for _ in range(MAX_SEARCHES):
+            self.search_step(self.claim())
+        job=self.claim()
         self.assertNotIn('web_search',[t['function']['name'] for t in job['tools']])
-        self.assertIn('현재 요청의 남은 웹 검색 횟수:0/2',job['messages'][0]['content'])
+        self.assertIn(f'현재 요청의 남은 웹 검색 횟수:0/{MAX_SEARCHES}',job['messages'][0]['content'])
         result=self.search_step(job)
-        self.assertEqual(result['error_code'],'WEB_SEARCH_LIMIT');self.assertEqual(len(self.search.calls),2)
+        self.assertEqual(result['error_code'],'WEB_SEARCH_LIMIT');self.assertEqual(len(self.search.calls),MAX_SEARCHES)
 
     def test_search_only_batch_executes_one_child_and_correlates_unexecuted_feedback(self):
-        """[Role] Replays the observed one-used plus two-requested batch without increasing quota or HTTP work.
+        """[Role] Replays the bounded-quota multi-search batch without increasing quota or HTTP work.
         [Dependencies] Genuine finish/domain/store/source projection. [Impact] Exactly one additional child runs; control data is never evidence or an extra source charge.
         """
-        jid=self.turn(allow=None,question='Find Flask first, second and third.')['job_id'];self.plan_step(self.claim(),True,query='Flask first')
-        job=self.claim();self.assertIn('현재 요청의 남은 웹 검색 횟수:1/2',job['messages'][0]['content'])
+        jid=self.turn(allow=None,question='Find Flask series and final batch.')['job_id'];self.plan_step(self.claim(),True,query='Flask first')
+        for idx in range(1,MAX_SEARCHES-1):
+            self.search_step(self.claim(),query=f'Flask step {idx}')
+        job=self.claim();self.assertIn(f'현재 요청의 남은 웹 검색 횟수:1/{MAX_SEARCHES}',job['messages'][0]['content'])
         calls=[{'id':str(x),'name':'web_search','arguments':canonical({'query':query})} for x,query in enumerate(('Flask second','Flask third'))]
-        result=self.finish(job,calls);self.assertEqual(result['state'],'queued');self.assertEqual(self.search.calls,['Flask first','Flask second'])
+        result=self.finish(job,calls);self.assertEqual(result['state'],'queued');self.assertEqual(len(self.search.calls),MAX_SEARCHES)
         with self.store.db() as db:context=json.loads(self.store.job(jid,db)['context'])
         controls=[json.loads(m['content']) for m in context if m.get('role')=='tool' and json.loads(m['content']).get('kind')=='web_search_control']
         self.assertEqual(len(controls),1);self.assertIs(controls[0]['executed'],False);self.assertEqual(controls[0]['remaining'],0)
         self.assertEqual(controls[0]['reason'],'budget_exhausted');self.assertNotIn('results',controls[0]);self.assertNotIn('engine',controls[0])
-        self.assertEqual(len(public_searches(context)),2)
+        self.assertEqual(len(public_searches(context)),MAX_SEARCHES)
         self.assertEqual(evidence_chars(context),sum(len(m['content']) for m in context if m.get('role')=='tool' and json.loads(m['content']).get('kind')=='web_search'))
         saved=[c for m in context if m.get('role')=='assistant' for c in m.get('tool_calls',[]) if c['id'] in ('0','1')]
         self.assertEqual([c['function']['arguments'] for c in saved],[c['arguments'] for c in calls])
         next_job=self.claim();self.assertNotIn('web_search',[t['function']['name'] for t in next_job['tools']])
-        self.assertEqual(self.finish(next_job,content='확인한 두 검색 출처로 답합니다. 추가 검색은 실행하지 않았습니다.')['state'],'done')
+        self.assertEqual(self.finish(next_job,content='확인한 검색 출처로 답합니다. 추가 검색은 실행하지 않았습니다.')['state'],'done')
         with self.store.db() as db:
             self.assertEqual(self.store.job(jid,db)['reserved_chars'],0);self.assertEqual(db.execute('SELECT COUNT(*) FROM proposals WHERE job=?',(jid,)).fetchone()[0],0)
 

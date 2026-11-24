@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.CONTEXT]
-[EN rev.4]
+[EN rev.5]
 [Role] Reconstructs model-independent context from owner-local source messages, drafts, cards and receipts.
 [Dependencies] AI SQLite rows, bounded canonical JSON and each verified model context budget.
 [Impact] Hidden reasoning, credentials and unmatched tool IDs never cross to another model; preserved workflow references are explicitly excluded from ordinary answer presentation.
@@ -8,7 +8,7 @@ import json
 
 from .policy import AssistantError, DISPLAY_POLICY_VERSION, EQUIPMENT_FIELDS, TOOL_MAP, canonical, text, tool, validate_schema
 from .recovery import _message_phase, model_context
-from .web_search import public_searches
+from .web_search import MAX_SEARCHES, public_searches
 from utils.roadmap_validation import equipment_fields
 
 MAX_DRAFT = 16384
@@ -104,7 +104,7 @@ def build_context(db, job, byte_budget, history_headroom=0):
     state['public_web_sources']=[]
     for row in db.execute("SELECT context FROM jobs WHERE conversation=? AND id<>? AND purpose='chat' AND state IN ('done','waiting_confirmation') ORDER BY created DESC LIMIT 2",(job['conversation'],job['id'])):
         for search in public_searches(row['context']):
-            if len(state['public_web_sources'])>=2:
+            if len(state['public_web_sources'])>=MAX_SEARCHES:
                 break
             state['public_web_sources'].append({'kind':'UNTRUSTED_PUBLIC_SEARCH_EVIDENCE','query':search['query'],'searched_at':search['searched_at'],
                 'sources':[{'number':item['number'],'title':item['title'],'url':item['url']} for item in search['results']]})

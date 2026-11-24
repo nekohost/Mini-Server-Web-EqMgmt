@@ -1,6 +1,6 @@
 """[MINI-COMMENT: ASSISTANT.RESPONSE.CORRECTION]
-[EN rev.3]
-[Role] Defines bounded correction steps for completed responses missing a decision or an answer.
+[EN rev.4]
+[Role] Defines bounded correction steps for completed responses missing a decision, answer, or misusing decided search tools.
 [Dependencies] Server-owned per-job context and fixed system messages; no database, transport or model output parsing.
 [Impact] Each phase is offered once across known message versions; only its pending instruction reaches the model, while durable controls and ordinary dialogue remain separate.
 """
@@ -14,6 +14,13 @@ CORRECTIONS = {
         '필요하지 않거나 사용자가 검색을 금지했다면 needed=false를 사용하세요. '
         '추론이나 일반 답변만 보내고 끝내지 마세요. 앞선 단계에서는 검색이나 장비 작업이 실행되지 않았습니다. '
         '기존 질문과 지침, 비공개 정보 보호를 그대로 따르세요.'
+    ),
+    # 이미 검색 판단이나 횟수·가용성이 확정된 단계에서 재검색·재판단 도구를 부른 경우 일반/장비 도구를 유지한 채 1회만 바로잡는다.
+    'search_decided': (
+        '장비관리 서버의 단계 보정 안내입니다. 초기 검색 필요 여부 판단이나 허용된 웹 검색 횟수가 이미 확정되었습니다. '
+        '제공되지 않은 도구나 허용 한도를 넘긴 검색을 다시 요청하지 마세요. '
+        '현재 도구 목록에 허용된 작업 도구가 있고 꼭 필요한 경우에만 그 도구를 사용하고, '
+        '그렇지 않으면 이미 확보한 대화·검색 출처와 확인 한계를 바탕으로 사용자에게 바로 최종 답변을 작성하세요.'
     ),
     'answer': (
         '장비관리 서버의 답변 보정 단계입니다. 앞선 응답이 종료됐지만 내용 누락 또는 출력 길이 제한으로 답변을 완결하지 못했습니다. '

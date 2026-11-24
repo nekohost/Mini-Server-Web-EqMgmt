@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.DOMAIN]
-[EN rev.9]
+[EN rev.10]
 [Role] Adapts only ordinary-user equipment services to reads and confirmed mutations.
 [Dependencies] Existing roadmap validation/status, catalog/option services and tracked DB connections.
-[Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist. Reviewed equipment values and stored values share one normalization contract.
+[Impact] Actors are owner-scoped users; read results retain exact working references and business values while adding one bounded display allowlist, and search-quota recovery enforces the same actor/taint/privacy guards. Reviewed equipment values and stored values share one normalization contract.
 """
 import json
 import secrets
@@ -106,6 +106,45 @@ class Domain:
             names.add('web_search')
         return [dict(type='function',function=TOOL_MAP[n]) for n in sorted(names)]
 
+    def check_public_query(self, job, store, query, provider='auto', scope=None):
+        """[Role] Enforces actor validity, private-equipment taint, provider/scope bounds and public-keyword guards before quota/outage recovery or duplicate checks."""
+        db=self.connect()
+        try:
+            actor=self.actor(db,job['owner'],job['binding'])
+            if actor['account_key']!=job['account_key']:
+                raise AssistantError('계정 식별정보가 변경되었습니다.',401)
+            if time.time()>job['expires'] or job['cancel']:
+                raise AssistantError('로그인 작업 권한이 만료되었거나 취소되었습니다.',401)
+            context=json.loads(job.get('context') or '[]')
+            for entry in context:
+                if entry.get('role')=='tool':
+                    value=json.loads(entry['content'])
+                    equipment_value=value.get('equipment') if isinstance(value,dict) else None
+                    if isinstance(equipment_value,dict) and ('serial_number' in equipment_value or 'memo' in equipment_value):
+                        raise WebSearchError('WEB_SEARCH_BLOCKED')
+            private=list(db.execute('SELECT serial_number,memo FROM equipments WHERE user_id=? LIMIT 1001',(actor['UserId'],)))
+            if len(private)>1000:
+                raise WebSearchError('WEB_SEARCH_BLOCKED')
+            sensitive=[actor['LoginId'],*[v for row in private for v in row if v]]
+            validated=validate_query(query,sensitive)
+            if provider not in ('auto','yahoo','google','github'):
+                raise WebSearchError('WEB_SEARCH_BLOCKED')
+            google_fn=getattr(self.search_service,'google_settings',None)
+            settings=google_fn() if callable(google_fn) and provider in ('auto','google') else None
+            resolved_provider=('google' if settings else 'yahoo') if provider=='auto' else provider
+            resolved_scope=scope or ('repositories' if resolved_provider=='github' else 'web')
+            if resolved_scope not in (('repositories','issues') if resolved_provider=='github' else ('web',)) or (resolved_provider=='github' and len(validated)>256):
+                raise WebSearchError('WEB_SEARCH_BLOCKED')
+            with store.db() as history:
+                current=history.execute("SELECT content FROM messages WHERE job=? AND role='user' AND conversation=?",
+                                        (job['id'],job['conversation'])).fetchone()
+            if current is None:
+                raise WebSearchError('WEB_SEARCH_BLOCKED')
+            resolved_engine={'yahoo':'Yahoo','google':'Google','github':'GitHub'}[resolved_provider]
+            return validated,resolved_engine,resolved_scope
+        finally:
+            db.close()
+
     def read_or_prepare(self, name, args, job, store, search_control=None):
         """[MINI-COMMENT: ASSISTANT.DOMAIN.DISPATCH]
         [EN rev.8]
@@ -162,7 +201,7 @@ class Domain:
                     return {'kind':'web_search_control','executed':False,
                         'reason':'budget_exhausted' if search_control==0 else 'one_search_per_step',
                         'remaining':search_control,
-                        'notice':'이 호출은 실행하지 않았습니다. '+('이번 요청의 검색2회가 끝났습니다. 추가 검색 없이 이미 받은 출처로 답하고 확인 한계를 알리세요.' if search_control==0 else '한 단계에서는 검색1회만 실행합니다. 이미 받은 결과를 먼저 사용하고 꼭 필요하면 다음 단계에 검색 하나만 요청하세요.')}
+                        'notice':'이 호출은 실행하지 않았습니다. '+(f'이번 요청의 검색{MAX_SEARCHES}회가 끝났습니다. 추가 검색 없이 이미 받은 출처로 답하고 확인 한계를 알리세요.' if search_control==0 else '한 단계에서는 검색1회만 실행합니다. 이미 받은 결과를 먼저 사용하고 꼭 필요하면 다음 단계에 검색 하나만 요청하세요.')}
                 db.close();db=None
                 result=self.search_service.search(args.get('query'),args.get('max_results',5),sensitive,provider=args.get('provider','auto'),scope=args.get('scope'))
                 # Search I/O holds no business DB connection/transaction; revalidate the actor afterwards.

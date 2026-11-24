@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.STORE]
-[EN rev.13]
+[EN rev.14]
 [Role] Persists owner-bound chats, step snapshots and reserved completion storage in the app-only queue.
 [Dependencies] Private SQLite v4 additive lifecycle migration and content-free epoch-bound execution guards; equipment transactions stay in Domain.
 [Impact] Keeps existing data and execution guards. Versioned mail display preserves raw model steps and stores only the verified source envelope.
@@ -19,7 +19,7 @@ import uuid
 
 from .policy import (AssistantError, ERROR_REASONS, MAX_CONTENT, MAX_PROPOSALS, MAX_REASONING,
                      MAX_RECEIPT, OUTPUT_RESERVATION, TERMINAL, canonical, digest, mac, opaque)
-from .web_search import public_searches, evidence_chars, SEARCH_RESERVATION, search_mode
+from .web_search import MAX_SEARCHES, public_searches, evidence_chars, SEARCH_RESERVATION, search_mode
 from .translation import (BUSINESS_WRITING, NEGATION_SCOPE, SOURCE_SENDER, final_mail_text,
                           revised_korean_display, translation_route, translation_source)
 
@@ -638,7 +638,7 @@ class Store(LifecycleStore):
 
     def finish(self, jid, token, state, error=None, context=None, error_code=None, transaction=None):
         """[MINI-COMMENT: ASSISTANT.QUEUE.FINISH]
-        [EN rev.4]
+        [EN rev.5]
         [Role] Persists verified mail output and releases execution guards in the transaction that finalizes a job or promotes a provider.
         [Dependencies] Current lease, authoritative response outcome and pending confirmations.
         [Impact] Failures stop pending work; cancelled/deleted jobs accept no late context and new search evidence consumes its reserved storage exactly once.
@@ -653,7 +653,7 @@ class Store(LifecycleStore):
                 error_code = row['error_code'] or error_code or 'USER_CANCELLED'
                 error = row['error'] or error
                 state = 'cancelled' if error_code in ('USER_CANCELLED','AUTH_EXPIRED') else 'failed'
-            last_step = min(8, max(1, len(json.loads(row['probe_plan'])))) - 1 if row['purpose'] == 'probe' else 5
+            last_step = min(8, max(1, len(json.loads(row['probe_plan'])))) - 1 if row['purpose'] == 'probe' else MAX_SEARCHES + 3
             if state == 'queued' and row['steps'] >= last_step:
                 state, error_code = 'failed', 'STEP_LIMIT'
             if state in ('failed','cancelled','recovery_required'):

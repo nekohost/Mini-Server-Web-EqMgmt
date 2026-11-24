@@ -1,8 +1,8 @@
 """[MINI-COMMENT: ASSISTANT.HTTP]
-[EN rev.16]
+[EN rev.17]
 [Role] Installs private chat and mail translation, administrator provider verification and revision-bound worker handoff.
 [Dependencies] Existing login/DB/maintenance services; private assistant Store and Domain.
-[Impact] Explicit single-mail translations use an isolated, tool-free step and a checked terminal report. Ordinary chat corrections, immutable consent and execution guards are preserved.
+[Impact] Explicit single-mail translations use an isolated, tool-free step and a checked terminal report. Ordinary chat corrections, follow-up search projection/normalization, immutable consent and execution guards are preserved.
 """
 from contextlib import closing
 from datetime import datetime
@@ -24,7 +24,7 @@ from utils.lineup_node_service import LineupNodeError
 from utils import roadmap_equipment as equipment, roadmap_files as files
 from .domain import Domain
 from .policy import (AssistantError, DEFAULT_LEVEL, ERROR_REASONS, LEGACY_LEVELS, LEVELS, LEVEL_LABELS, MAX_CONTENT, MAX_REASONING,
-                     SYSTEM, TERMINAL, TOOL_MAP, canonical, digest, identity, mac, object_only,
+                     PLANNING_INSTRUCTIONS, SYSTEM, TERMINAL, TOOL_MAP, canonical, digest, identity, mac, object_only,
                      opaque, stream_text, text, validate_schema, normalized_tool_arguments)
 from .store import Store
 from .providers import Registry, PROTOCOL, public_source
@@ -46,6 +46,75 @@ def enabled(value):
     [Impact] Preserves the module's owner/validation/transaction boundary described above.
     """
     return value is True or isinstance(value,str) and value.lower() in ('1','true','yes','on')
+
+
+def _is_executed_web_search_result(message):
+    """[Role] Recognizes only actual executed web_search results, never control notices or plan rejections."""
+    if not isinstance(message, dict) or message.get('role') != 'tool':
+        return False
+    raw = message.get('content')
+    if not isinstance(raw, str):
+        return False
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        return False
+    return isinstance(parsed, dict) and parsed.get('kind') == 'web_search'
+
+
+def project_search_messages(items, active=True):
+    """[MINI-COMMENT: ASSISTANT.SEARCH.PROJECTION]
+    [EN rev.1]
+    [Role] Immutably projects executed Step 0 plan_web_search history as web_search for Step 1+ model prompts.
+    [Dependencies] Adjacent tool result slices per assistant message, json and canonical serializer; never mutates input dicts.
+    [Impact] Prevents follow-up imitation of plan_web_search in Step 1+ even when tool_call_id values repeat across steps, while keeping stored audit context intact.
+    """
+    if not isinstance(items, list):
+        raise ValueError('invalid message list')
+    if not active:
+        return list(items)
+    projected = []
+    index = 0
+    total = len(items)
+    while index < total:
+        item = items[index]
+        if isinstance(item, dict) and item.get('role') == 'assistant' and isinstance(item.get('tool_calls'), list) and item['tool_calls']:
+            tail = index + 1
+            while tail < total and isinstance(items[tail], dict) and items[tail].get('role') == 'tool':
+                tail += 1
+            executed_ids = {
+                tool_msg.get('tool_call_id')
+                for tool_msg in items[index + 1:tail]
+                if tool_msg.get('tool_call_id') is not None and _is_executed_web_search_result(tool_msg)
+            }
+            if executed_ids:
+                changed = False
+                new_calls = []
+                for call in item['tool_calls']:
+                    fn = call.get('function') if isinstance(call, dict) else None
+                    if (
+                        isinstance(call, dict)
+                        and isinstance(fn, dict)
+                        and fn.get('name') == 'plan_web_search'
+                        and call.get('id') in executed_ids
+                    ):
+                        try:
+                            args = json.loads(fn.get('arguments') or '{}')
+                        except ValueError:
+                            args = None
+                        if isinstance(args, dict):
+                            cleaned = {k: v for k, v in args.items() if k != 'needed'}
+                            new_calls.append({**call, 'function': {**fn, 'name': 'web_search', 'arguments': canonical(cleaned)}})
+                            changed = True
+                            continue
+                    new_calls.append(call)
+                if changed:
+                    projected.append({**item, 'tool_calls': new_calls})
+                    index += 1
+                    continue
+        projected.append(item)
+        index += 1
+    return projected
 
 
 def visible_assistant_menus(rows, role, config):
@@ -802,7 +871,7 @@ def install_assistant(app, services):
         try:
             ro,co=int(request.args.get('r','0')),int(request.args.get('c','0'))
             search_version=int(request.args.get('w','-1'))
-            if not 0<=ro<=100000 or not 0<=co<=64000 or not -1<=search_version<=2:
+            if not 0<=ro<=100000 or not 0<=co<=64000 or not -1<=search_version<=MAX_SEARCHES:
                 raise ValueError()
         except ValueError:
             raise AssistantError('응답 위치가 올바르지 않습니다.') from None
@@ -930,6 +999,7 @@ def install_assistant(app, services):
             correcting=correction_phase(job)
             search_allowed=search_permitted(job,route)
             searches_remaining=max(0,MAX_SEARCHES-len(public_searches(job['context'])))
+            has_sources=bool(public_searches(job['context']))
             today = datetime.now(ZoneInfo('Asia/Seoul')).date().isoformat()
 
             def build_tools_for(planning_flag, rem_searches, phase):
@@ -948,18 +1018,25 @@ def install_assistant(app, services):
                     selected_tools = [t for t in selected_tools if not t['function']['name'].startswith('prepare_')]
                 return selected_tools
 
-            def build_system_for(search_active, rem_searches, phase):
-                text_out = SYSTEM + '\n서울 기준 오늘 날짜: ' + today
-                if search_active and rem_searches == 0:
-                    text_out += '\n현재 요청의 남은 웹 검색 횟수:0/2. 이미 수행한 검색 출처로 답하고 확인 한계를 알리세요. 추가 검색 도구는 제공하지 않습니다.'
+            def build_system_for(planning_flag, search_active, rem_searches, phase, sources_present=False):
+                text_out = SYSTEM
+                if planning_flag and phase != 'answer' and route['profile'].get('tools'):
+                    text_out += '\n' + PLANNING_INSTRUCTIONS
+                text_out += '\n서울 기준 오늘 날짜: ' + today
+                if phase == 'answer':
+                    pass
+                elif search_active and rem_searches == 0:
+                    text_out += f'\n현재 요청의 남은 웹 검색 횟수:0/{MAX_SEARCHES}. 이미 수행한 검색 출처로 답하고 확인 한계를 알리세요. 추가 검색 도구는 제공하지 않습니다.'
                 elif route.get('web_search_allowed') is True and not search_active and search_mode(route) == 'auto':
                     text_out += '\n현재 요청은 AI가 외부 검색 없이 처리하기로 결정했습니다. 검색을 했다고 주장하지 말고 기존 대화/장비 업무 도구로 처리하세요.'
                 elif search_active and domain.search_service.available:
                     text_out += '\n현재 요청 웹 검색: ' + ('허용됨. ' + ('반드시 web_search로 공개 키워드를 실제 검색한 뒤 답변하세요.' if rem_searches == MAX_SEARCHES else '이미 받은 실제 출처를 우선 사용하고 필요한 경우에만 추가 검색하세요.') + ' 비공개 정보가 필요하면 검색하지 말고 중단 사유를 알리세요.' if search_mode(route) == 'required' else '자동. 질문 맥락상 최신 사실·외부 근거·공개 저장소/이슈 확인이 필요할 때 web_search를 사용하세요. 인사·일반 설명·내 장비 업무에 검색을 강제하지 마세요.')
-                    text_out += f'\n현재 요청의 남은 웹 검색 횟수:{rem_searches}/2. 한 단계에 검색 하나만 요청하세요. 미실행 제어 결과는 검색 근거가 아닙니다.'
+                    text_out += f'\n현재 요청의 남은 웹 검색 횟수:{rem_searches}/{MAX_SEARCHES}. 한 단계에 검색 하나만 요청하세요. 미실행 제어 결과는 검색 근거가 아닙니다.'
                     providers = getattr(domain.search_service, 'providers', [])
                     if providers:
                         text_out += '\n검색 제공자 상태: ' + canonical(providers) + '. 사용 가능한 제공자만 선택하고 사용하지 않은 검색 엔진으로 검색했다고 주장하지 마세요.'
+                elif sources_present:
+                    text_out += '\n현재 웹 검색 서비스를 추가로 사용할 수 없습니다. 추가 검색을 요청하지 말고 이미 수행한 검색 출처로 답하고 확인 한계를 알리세요.'
                 else:
                     text_out += '\n현재 요청 웹 검색: 사용 불가. 외부 검색을 수행하거나 검색했다고 주장하지 말고 현재 접수/모델/서버에서 검색이 제공되지 않음을 알리세요. 검색 버튼을 켜라고 안내하지 마세요.'
                 if not route['profile'].get('tools'):
@@ -969,7 +1046,7 @@ def install_assistant(app, services):
                 return text_out
 
             tools = build_tools_for(planning, searches_remaining, correcting)
-            system = build_system_for(search_allowed, searches_remaining, correcting)
+            system = build_system_for(planning, search_allowed, searches_remaining, correcting, has_sources)
             output_tokens=min(8192,max(512,route['context_tokens']//4))
             diag['output_tokens'] = output_tokens
             # Step 0이 후속 단계(14개 도구 또는 보정 프롬프트)에서 자가 413 실패를 일으키지 않도록 최악 overhead를 계산한다.
@@ -978,17 +1055,22 @@ def install_assistant(app, services):
                 if route['profile'].get('tools'):
                     post_rem = max(0, searches_remaining - 1) if search_allowed else searches_remaining
                     candidates.append(len(canonical([
-                        {'role': 'system', 'content': build_system_for(search_allowed, post_rem, None)},
+                        {'role': 'system', 'content': build_system_for(False, search_allowed, post_rem, None, has_sources or bool(search_allowed))},
                         build_tools_for(False, post_rem, None),
                     ]).encode()))
+                    if route.get('web_search_allowed') is True and search_mode(route) == 'auto':
+                        candidates.append(len(canonical([
+                            {'role': 'system', 'content': build_system_for(False, search_allowed, post_rem, 'search_decided', has_sources or bool(search_allowed))},
+                            build_tools_for(False, post_rem, 'search_decided'),
+                        ]).encode()))
                     if planning:
                         candidates.append(len(canonical([
-                            {'role': 'system', 'content': build_system_for(search_allowed, searches_remaining, 'search_plan')},
+                            {'role': 'system', 'content': build_system_for(True, search_allowed, searches_remaining, 'search_plan', has_sources)},
                             build_tools_for(True, searches_remaining, 'search_plan'),
                         ]).encode()))
                 else:
                     candidates.append(len(canonical([
-                        {'role': 'system', 'content': build_system_for(search_allowed, searches_remaining, 'answer')},
+                        {'role': 'system', 'content': build_system_for(False, search_allowed, searches_remaining, 'answer', has_sources)},
                         [],
                     ]).encode()))
             worst_overhead = max(candidates) + 1024
@@ -1047,7 +1129,7 @@ def install_assistant(app, services):
                     if len(canonical(context)) > MAX_PERSISTED_CONTEXT and len(canonical(persisted_context)) <= MAX_PERSISTED_CONTEXT:
                         with store.db(True) as db:
                             db.execute('UPDATE jobs SET context=? WHERE id=?', (canonical(persisted_context), job['id']))
-            messages=[{'role':'system','content':system},*model_context(projected_context)]
+            messages=[{'role':'system','content':system},*project_search_messages(model_context(projected_context), active=not planning)]
             payload_bytes = len(canonical([messages, tools]).encode())
             diag['payload_bytes'] = payload_bytes
             diag['context_tokens'] = route['context_tokens']
@@ -1130,10 +1212,10 @@ def install_assistant(app, services):
     @bp.post('/internal/ai/jobs/<jid>/finish')
     def finish(jid):
         """[MINI-COMMENT: ASSISTANT.WORKER.FINALIZE]
-        [EN rev.7]
-        [Role] Enforces search decisions and bounded correction for completed missing output or an explicitly terminated output-token limit.
-        [Dependencies] Verified lease, optional typed termination evidence, immutable route and server correction context.
-        [Impact] Mail translations have a single tool-free attempt and require DONE, stop and a complete-looking email. Ordinary correction and historical completion contracts are preserved.
+        [EN rev.8]
+        [Role] Enforces search decisions, follow-up compatibility normalization, and bounded correction for search misuse or missing output.
+        [Dependencies] Verified lease, optional typed termination evidence, immutable route, public-query validator and server correction context.
+        [Impact] Safe follow-up plan_web_search calls normalize cleanly without leaking Step 0 semantics; search limit/outage/duplicate/decision misuse recovers once cleanly in auto mode while privacy, batch and required-mode contracts hold.
         """
         def finished(state, **details):
             # Status is the committed job/guard outcome. An HTTP 200 alone cannot classify it.
@@ -1164,6 +1246,23 @@ def install_assistant(app, services):
                 job=store.lease(db,jid,data['lease'])
         known=outcome in ('complete','failed','cancelled')
         code='INVALID_RESPONSE'
+
+        def queue_correction(phase, trigger, raise_on_context_limit=True):
+            nonlocal code
+            corrected = correction_context(job, phase)
+            if corrected is None:
+                return None
+            corrected = fitted_persisted(corrected)
+            if len(canonical(corrected)) > MAX_PERSISTED_CONTEXT:
+                if not raise_on_context_limit:
+                    return None
+                code = 'CONTEXT_LIMIT'
+                raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.', 413)
+            state = store.finish(jid, data['lease'], 'queued', context=corrected)
+            if state == 'queued':
+                app.logger.warning('assistant correction job=%s phase=%s trigger=%s step=%s', jid, phase, trigger, job['steps'])
+            return finished(state, response_correction=phase if state == 'queued' else None)
+
         try:
             route=json.loads(job['route_snapshot'])
             termination=data.get('termination')
@@ -1201,14 +1300,9 @@ def install_assistant(app, services):
                     except AssistantError as error:
                         return finished(store.finish(jid,data['lease'],'cancelled',str(error),error_code='AUTH_EXPIRED'))
                     phase='search_plan' if search_planning(job,route) else 'answer'
-                    corrected=correction_context(job,phase)
-                    if corrected is not None:
-                        corrected=fitted_persisted(corrected)
-                    if corrected is not None and len(canonical(corrected))<=MAX_PERSISTED_CONTEXT:
-                        state=store.finish(jid,data['lease'],'queued',context=corrected)
-                        if state=='queued':
-                            app.logger.warning('assistant correction job=%s phase=%s trigger=token_limit step=%s',jid,phase,job['steps'])
-                        return finished(state,response_correction=phase if state=='queued' else None)
+                    res = queue_correction(phase, 'token_limit', raise_on_context_limit=False)
+                    if res is not None:
+                        return res
             if outcome in ('failed','recovery_required','cancelled'):
                 final_code=supplied or ('STREAM_INCOMPLETE' if outcome=='recovery_required' else 'USER_CANCELLED' if outcome=='cancelled' else 'PROCESSING_FAILED')
                 return finished(store.finish(jid,data['lease'],outcome,
@@ -1273,24 +1367,18 @@ def install_assistant(app, services):
             planning=search_planning(job,route)
             correcting=correction_phase(job)
             if planning and not calls:
-                corrected=correction_context(job,'search_plan')
-                if corrected is None:
+                res = queue_correction('search_plan', 'empty_plan')
+                if res is None:
                     raise WebSearchError('WEB_SEARCH_PLAN_RECOVERY_FAILED')
-                corrected=fitted_persisted(corrected)
-                if len(canonical(corrected))>MAX_PERSISTED_CONTEXT:
-                    code='CONTEXT_LIMIT'
-                    raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.',413)
-                state=store.finish(jid,data['lease'],'queued',context=corrected)
-                if state=='queued':
-                    app.logger.warning('assistant correction job=%s phase=search_plan step=%s',jid,job['steps'])
-                return finished(state,response_correction='search_plan' if state=='queued' else None)
+                return res
             if planning and len(calls)!=1:
                 raise WebSearchError('WEB_SEARCH_PLAN_REQUIRED')
             if correcting=='answer' and calls:
                 raise AssistantError('답변 보정 단계에서는 새로운 작업 도구를 실행할 수 없습니다.')
             prepared=[]
             ids=set()
-            # Validate the entire response before allowing even its first tool to prepare a card.
+            allowed={**TOOL_MAP,'save_equipment_draft':DRAFT_TOOL['function'],'save_task_draft':TASK_DRAFT_TOOL['function']}
+            # Validate every call shape and normalized schema first so string booleans like "False" cannot mislead follow-up handling.
             for call in calls:
                 object_only(call,('id','name','arguments'),('id','name','arguments'))
                 cid=text(call['id'],100)
@@ -1300,9 +1388,6 @@ def install_assistant(app, services):
                 name=text(call['name'],100)
                 if planning and name!='plan_web_search':
                     raise WebSearchError('WEB_SEARCH_PLAN_REQUIRED')
-                if not planning and name=='plan_web_search':
-                    raise AssistantError('이 단계에서는 검색 계획 도구를 사용할 수 없습니다.')
-                allowed={**TOOL_MAP,'save_equipment_draft':DRAFT_TOOL['function'],'save_task_draft':TASK_DRAFT_TOOL['function']}
                 if not route['profile'].get('tools') or name not in allowed:
                     raise AssistantError('제공되지 않은 작업 도구가 요청되었습니다.')
                 arguments=text(call['arguments'],16384)
@@ -1312,17 +1397,64 @@ def install_assistant(app, services):
                 else:
                     validate_schema(args,allowed[name]['parameters'])
                 prepared.append((cid,name,arguments,args))
+            context=json.loads(job['context'])
+            mode=search_mode(route)
+            permitted=search_permitted(job,route)
+            used_searches=public_searches(context)
+            searches_used=len(used_searches)
+            if not planning and any(name=='plan_web_search' for _,name,_,_ in prepared):
+                if any(name=='plan_web_search' and args['needed'] is False for _,name,_,args in prepared):
+                    if mode=='auto' and route.get('web_search_allowed') is True and len(prepared)==1:
+                        res = queue_correction('search_decided', 'plan_false')
+                        if res is not None:
+                            return res
+                    raise AssistantError('이 단계에서는 검색 계획 도구를 사용할 수 없습니다.')
+                if not (mode=='auto' and permitted and searches_used>=1 and all(name in ('web_search','plan_web_search') for _,name,_,_ in prepared)):
+                    raise AssistantError('이 단계에서는 검색 계획 도구를 사용할 수 없습니다.')
+                normalized_batch=[]
+                for cid,name,arguments,args in prepared:
+                    if name=='plan_web_search':
+                        search_args=normalized_tool_arguments('web_search',{k:v for k,v in args.items() if k!='needed'})
+                        normalized_batch.append((cid,'web_search',canonical(search_args),search_args))
+                        app.logger.info('assistant tool normalized job=%s step=%s from=plan_web_search to=web_search',jid,job['steps'])
+                    else:
+                        normalized_batch.append((cid,name,arguments,args))
+                prepared=normalized_batch
             search_count=sum(name in ('web_search','plan_web_search') for _,name,_,_ in prepared)
             search_only=bool(prepared) and all(name=='web_search' for _,name,_,_ in prepared)
             if search_count>1 and not search_only:
                 raise AssistantError('웹 검색은 한 단계에 한 번씩 요청해 주세요.')
             # Search failure must occur before even preparing an unrelated business confirmation card.
             prepared.sort(key=lambda item: item[1] not in ('web_search','plan_web_search'))
-            context=json.loads(job['context'])
-            searches_used=len(public_searches(context))
             searches_this_step=0
-            if search_only and searches_used>=MAX_SEARCHES:
-                raise WebSearchError('WEB_SEARCH_LIMIT')
+            if search_only and not permitted:
+                raise WebSearchError('WEB_SEARCH_DISABLED')
+            at_limit=searches_used>=MAX_SEARCHES
+            outage_followup=not planning and mode=='auto' and permitted and searches_used>=1 and not domain.search_service.available
+            if search_only and (at_limit or outage_followup):
+                for _,_,_,args in prepared:
+                    domain.check_public_query(job,store,args.get('query'),args.get('provider','auto'),args.get('scope'))
+                if not planning and mode=='auto' and permitted:
+                    res = queue_correction('search_decided', 'limit' if at_limit else 'unavailable')
+                    if res is not None:
+                        return res
+                if at_limit:
+                    raise WebSearchError('WEB_SEARCH_LIMIT')
+                if outage_followup:
+                    raise WebSearchError('WEB_SEARCH_UNAVAILABLE')
+            elif search_only and not planning and mode=='auto' and permitted and searches_used>=1:
+                checks=[
+                    domain.check_public_query(job,store,args.get('query'),args.get('provider','auto'),args.get('scope'))
+                    for _,_,_,args in prepared
+                ]
+                prior_keys={
+                    (' '.join(str(s.get('query') or '').split()).casefold(),str(s.get('engine') or '').casefold(),str(s.get('scope') or '').casefold())
+                    for s in used_searches
+                }
+                if all((' '.join(vq.split()).casefold(),eng.casefold(),sc.casefold()) in prior_keys for vq,eng,sc in checks):
+                    res = queue_correction('search_decided', 'duplicate')
+                    if res is not None:
+                        return res
             if search_only and search_count>1:
                 # Validate every public query/actor boundary without I/O before the
                 # first child can run; a later private query must not discard an earlier search.
@@ -1330,21 +1462,14 @@ def install_assistant(app, services):
                     domain.read_or_prepare(name,args,job,store,search_control=max(0,MAX_SEARCHES-searches_used-1))
             content=stream_text(data.get('content',''),MAX_CONTENT)
             code='PROCESSING_FAILED'
-            if route.get('web_search_allowed') is True and search_mode(route)=='required' and not public_searches(context) and not any(name=='web_search' for _,name,_,_ in prepared):
+            if route.get('web_search_allowed') is True and mode=='required' and not used_searches and not any(name=='web_search' for _,name,_,_ in prepared):
                 raise WebSearchError('WEB_SEARCH_REQUIRED')
             if not prepared and not content.strip():
-                corrected=correction_context(job,'answer')
-                if corrected is None:
+                res = queue_correction('answer', 'empty_answer')
+                if res is None:
                     code='EMPTY_RESPONSE'
                     raise ValueError('empty completed answer after correction')
-                corrected=fitted_persisted(corrected)
-                if len(canonical(corrected))>MAX_PERSISTED_CONTEXT:
-                    code='CONTEXT_LIMIT'
-                    raise AssistantError('대화 자료가 길어 작업을 중단했습니다. 저장된 내용을 확인하고 새 대화로 이어 주세요.',413)
-                state=store.finish(jid,data['lease'],'queued',context=corrected)
-                if state=='queued':
-                    app.logger.warning('assistant correction job=%s phase=answer step=%s',jid,job['steps'])
-                return finished(state,response_correction='answer' if state=='queued' else None)
+                return res
             if prepared:
                 assistant={'role':'assistant','content':content,'tool_calls':[]}
                 results=[]
