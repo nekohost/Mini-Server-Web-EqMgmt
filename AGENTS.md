@@ -1,48 +1,62 @@
-# Codex Bootstrap
+# Mini-Server-Web-EqMgmt 작업 지침
 
-이 파일은 프로젝트 운영 루트에 적용되는 Codex 진입점이다.
+이 문서는 `Mini-Server-Web-EqMgmt` 저장소의 **단일 활성 작업 규약**이다. 모든 AI 에이전트(Codex, Gemini/Antigravity, Claude, ChatGPT/Remote MCP)는 이 문서를 기준으로 작업한다.
 
-`Rule.md`는 사용자가 전체 정책을 읽는 통합 핸드북이다. 일반 작업에서는 자동으로 읽지 않으며, Rule 자체의 검토·개정·동기화 요청에서만 `Rule.md`와 `traceability/human-rule-map.yaml`을 함께 읽는다.
+> 구 `.agent-governance/` 트리·라우터·`Rule.md`·`VALIDATION_METHODOLOGY.md`·고정 `Staging/` 복제·이중언어 주석 동기화·자동 대화 기록기 preflight는 2026-11-24부로 폐기되었다. 원문은 Git 이력과 `Backups/2026-11-24_legacy_governance_archive.zip`에 보존된다.
 
-대화 자동 기록 preflight `[ENTRY-CODEX.RECORDER]`: 다른 검사보다 먼저 프로젝트 루트에서 `node .agent-governance/tooling/conversation-recorder.mjs ensure --platform all --workspace . --json`을 실행한다. 재조정이 실패하면 원래 요청의 일반 작업을 시작하지 않고 `status --json`의 마지막 성공 상태와 오류를 보고한다. 다만 실패 원인이 recorder/Chat 저장·잠금·원자적 교체 또는 관련 Rule·노드 자체에 있고 사용자가 복구를 명시 승인했거나 현재 capability에 검증된 recovery 경로가 있으면 진단·증거 보존·백업·복구·관련 Rule/노드 검토와 그 기록에 필요한 최소 작업만 허용하며, `ensure`와 `governance-tool validate`가 다시 성공하기 전에는 원래 일반 작업으로 복귀하지 않는다.
+---
 
-## 실행 경로 선택 [ENTRY-CODEX.PROFILE]
+## 1. 프로젝트 개요 및 운영 토폴로지
 
-기록기 preflight 다음, legacy manifest/context 전수 로딩 전에 매 턴 프로젝트 루트에서 다음 명령을 실행한다.
+- **성격:** 개인 보유 장비·자산을 등록·관리하고 내장 AI 도우미를 제공하는 Python Flask + SQLite 웹 애플리케이션(`app.py`, `utils/`, `templates/`, `static/`, `tests/`).
+- **Windows 개발 PC (`C:\project\Mini-Server-Web-EqMgmt`):** 소스 편집, 정적 분석, Linux 격리 테스트 호출, Git Commit/Push 용도.
+- **Linux 서버:**
+  - **백업/검증 서버 (`eqmgmt-backup` / `nkhst-pentium`, `192.168.0.24`, 포트 `5000`):** SSH 격리 테스트 및 현재 주요 배포 대상(`/home/nekohost/services/Mini-Server-Web-EqMgmt`).
+  - **미니서버 (`192.168.0.166`, 포트 `5000`):** 사용자가 명시적으로 지시한 경우에만 반영한다.
+- 내부 서버 주소와 운영 환경 정보는 외부 공개 문서나 로그에 불필요하게 노출하지 않는다.
 
-```text
-node .agent-governance/tooling/governance-tool.mjs profile
-```
+---
 
-- `kind: dedicated`: 반환된 `profile.absolutePath`의 독립 노드와 `capability`를 읽고 그 경로만 적용한다. 아래 Legacy bootstrap과 Context 진단 계약은 실행하지 않는다. 독립 노드는 legacy kernel·always_load·Task·Staging·Validation을 상속하지 않는다.
-- `kind: legacy`: 아래 기존 절차를 그대로 수행한다. 현재 모델을 확인하지 못하거나 미등록·비활성인 경우도 이에 해당하며 `reason`을 숨기지 않는다.
-- 명령 실패·손상·중복·불완전 패키지는 일반 작업을 중지하고 원인을 보고한다. 임의로 독립 또는 legacy를 선택해 실패를 숨기지 않는다. 승인된 정책 복구 진단은 가능하다.
+## 2. 절대 안전 불변식 (Hard Guardrails)
 
-모델명 CLI 인수·자가 선언·설정 기본값은 근거가 아니다. 매 턴과 모델/작업/정책 변경 후 재선택하며, 이전에 읽은 규칙은 현재 선택 범위 밖이면 적용하지 않는다. 하위 작업자도 자신의 런타임을 확인한다. 기술 자료 참조만으로 다른 경로를 다시 활성화하지 않는다. 앱의 지침 캐시를 강제 제거하는 기능은 아니므로 자동 재로딩을 가정하지 않는다.
+1. **모드 구분과 승인 범위:** 질문·조사·검토·계획 요청을 승인 없는 구현이나 배포로 확대하지 않는다. 질문에는 답변부터 하고, 객관적 근거를 제시하며 승인을 재촉하지 않는다. 파괴적 조치(파일·DB 삭제, 덮어쓰기, 백업 복원, 프로세스 강제 종료, 서버 배포)는 대상과 복구 절차를 확인한 뒤 명시적 승인을 받아 실행한다.
+2. **기존 자산·미커밋 작업본 보존:** 기존 DB 데이터, `.env`·비밀 파일, 다른 에이전트 세션이 작업 중인 미커밋·미추적 파일(`Staging/*` 등)을 임의로 삭제하거나 덮어쓰지 않는다. **`git add .` / `git add -A`를 금지**하며, 커밋 전 `git diff --cached --name-only`로 이번 작업 대상 파일만 포함되었는지 확인하는 Scoped Commit을 지킨다.
+3. **실행·수정 환경 분리:**
+   - **Windows에서 Flask 앱을 직접 구동하거나 로컬 동작 테스트를 수행하지 않는다.** (정적 구문·AST 검사 및 `eqmgmt-backup` SSH 격리 러너 호출은 허용)
+   - **Linux 서버에서 운영 소스를 즉석 수정하지 않는다.** 모든 코드 반영은 `Windows 수정 → 격리 검증 → Scoped Commit/Push → Linux git pull --ff-only → 배포` 순서를 따른다.
+4. **DB 무결성 및 스키마 진화:** 스키마 변경을 이유로 기존 테이블을 `DROP`하거나 초기화하지 않는다. `sqlite3.Row` 호환과 `ALTER TABLE` 전진 마이그레이션을 우선하며, 컬럼·데이터 계약 변경 시 `app.py`·`db_migration.py`·`utils/`·`templates/`·`static/js/` 연관 체인을 한 단위로 점검하고 백업·복구 경로를 확인한다.
+5. **보안 및 프론트엔드 기본선:** 인터넷 공개를 전제로 한다. 비밀번호·`SECRET_KEY`·API 토큰·인증서 개인키를 소스·Git·문서·로그에 평문 기록하지 않는다. `debug=True` 하드코딩 금지, 서버 세션 기준 권한 검증, CSRF·XSS·SQLi·내부 오류 원문 비노출 원칙을 지킨다. 프론트엔드는 Vanilla JS + 경량 Tailwind CSS(반응형 `grid-cols-1` / `sm:grid-cols-2` / `lg:grid-cols-3 xl:grid-cols-4`)를 우선한다.
 
-## Legacy bootstrap — 위 결과가 legacy일 때만
+---
 
-Scope ownership `[ENTRY-CODEX.SCOPE]`: VS Code workspace에서 시작된 Codex 작업은 Mini-Server를 기본 owner로 본다. 프로젝트 목적의 외부 reference나 비독립 PC/IDE/Git execution은 owner를 바꾸지 않는다. foreign governed workspace write는 nested handoff하며, 사용자가 새 독립 작업 또는 owner 전환을 명시한 경우에만 full scope switch한다.
+## 3. 표준 검증 및 배포 도구 (코드 기반 강제)
 
-1. 작업 디렉터리는 프로젝트 루트로 고정한다. 각 작업 시작 시 `.agent-governance/manifest.yaml`을 확인하고 `node .agent-governance/tooling/governance-tool.mjs validate`가 통과하는지 확인한다.
-2. 자연어 요청을 하나로 축약하지 않고 관련 intent와 대상 path를 모두 식별한다. 분류할 수 없는 intent·path는 추측하지 않는다.
-3. `node .agent-governance/tooling/governance-tool.mjs context`에 모든 `--intent`와 `--path`를 전달하고 출력된 pack의 노드를 순서대로 읽는다. Rule 개정은 변경된 모든 `--section`도 전달한다.
-4. 질문에는 답변부터 한다. 제안·계획·검토를 승인 없는 구현으로 확대하지 않는다.
-5. 실제 작업은 Task를 만들고 순차적으로 수행한다.
-6. 계획 또는 검토에서는 Validation 커널·오케스트레이션·1~8단계를 순서대로 모두 적용한다.
-7. 일반 파일 쓰기는 Diff와 Undo가 가능한 구조화된 편집 수단을 사용한다. 그 수단으로 조치할 수 없고 capability에서 터미널 변경의 Diff와 Undo 또는 동등한 복구가 검증된 경우에만 방법·영향·복구 절차를 제안하고 사용자 명시 승인 후 조건부로 사용한다.
-8. 필요한 노드가 없거나 규칙이 충돌하면 실행을 중지하고 규칙 ID와 영향을 보고한다.
-9. 객관적으로 보고하고 승인을 재촉하지 않는다.
-10. 통합 Rule·노드·추적성 원장이 불일치하면 활성화를 중지하고 사용자에게 보고한다.
-11. context 도구가 실패하면 일반 구현을 fail-closed로 중단하고 아래 Context 진단 계약을 따른다. 수동으로 규칙 노드를 줄여 진행하지 않는다.
-12. Rule 변경에서는 먼저 `sync-status`의 전체 변경 섹션과 `currentRuleHash`를 확인하고, 그 hash를 `sync-plan`·`validate`의 `--expected-rule-sha`로 사용한다. 대상 노드 digest·섹션 기준선·map·manifest를 함께 갱신하기 전에는 병합하지 않는다.
-13. `[MINI-COMMENT: ...]` 추적 코드의 계약 또는 `[EN rev.N]` 기준 주석을 변경하면 EN revision을 증가시키고 KO 본문·KO revision은 대신 동기화하지 않는다. 상세 계약은 `docs/COMMENT_BILINGUAL_GOVERNANCE.md`와 `engineering.code-comments`를 따른다.
-14. 일반 Git commit을 작성할 때는 Conventional Commit type을 유지하고 제목·본문 설명은 한국어를 기본으로 하며, commit 전에 `node .agent-governance/tooling/commit-message-check.mjs "<commit subject>"`를 통과시킨다.
+반복 안전 검증은 프롬프트 체크리스트 대신 프로젝트의 실제 스크립트로 수행한다.
 
-플랫폼 도구 대응은 `.agent-governance/capabilities/codex.yaml`을 따른다.
+- **Windows 정적 보안·구문 검사 (앱·DB 미접근):**
+  ```powershell
+  .venv\Scripts\python.exe -B -m unittest tests.test_security_static_review
+  ```
+- **AI 도우미 Linux 격리 테스트 (`eqmgmt-backup` `tmpfs` / Chromium, 운영 DB·실모델 미접근):**
+  ```powershell
+  .venv\Scripts\python.exe -B tests\run_assistant_fixture.py --host eqmgmt-backup --tmpfs-fixtures --summary-only
+  .venv\Scripts\python.exe -B tests\run_assistant_fixture.py --host eqmgmt-backup --browser-only --browser-target <target> --summary-only
+  ```
+- **백업 서버 무중단 배포 (`eqmgmt-backup`):**
+  - `tools/deploy_ai_ux_release.py`로 `pause` → `git pull --ff-only origin main` → `check-copy` → `activate` 순서대로 반영한다.
+  - 활성화 후 비파괴 라이브 검증(`instance/maintenance-state.json` `NORMAL`, 웹 PID·`equipment-ai-worker.service`·`equipment-ai-retention.timer` `active`, 로컬 HTTP 스모크, `?mode=ro` SQLite `PRAGMA integrity_check == ok`)을 확인한다.
+- **읽기 전용 Git 조회 (index 잠금 충돌 방지):**
+  ```powershell
+  node tools/git-readonly.mjs -- status -sb
+  ```
+- **미종결 보안 지적 추적:** `CORRECTIVE_ACTIONS.md`와 `docs/corrective-actions/` 대상 영역을 수정·검증할 때는 `node tools/validate-corrective-actions.mjs`로 정합성을 확인한다.
 
+---
 
+## 4. 작업 방식과 경량 기록 원칙
 
-## Context 진단 계약 (Rule 9-1·9-3)
-
-먼저 `governance-tool.mjs catalog`로 작업 종류·경로를 확인한다. 실제 대상은 `--path`, 읽기 전용 참고·영향 대상은 `--reference-path`로 구분한다. Staging 후보만으로 DB/UI intent의 필수 규칙을 선택할 수 있으며 참고 경로는 수정 승인이 아니다. 실패 시 일반 구현은 중단하되 승인 범위 안의 읽기 전용 진단·근거 있는 입력 정정은 가능하다. validate와 새 context 성공 및 전체 pack 읽기 후에만 재개한다. 규칙 축소·무관한 경로 추가·정책/권한 충돌의 자동 해소는 금지한다. 구조화 diagnostics의 원인과 정정 근거를 기록한다.
+- **작업 규모에 맞는 격리:** 고정 `Staging/` 전체 복제·병합 절차는 의무가 아니다. 소규모·명확한 수정은 운영 루트에서 Diff/복구가 가능한 구조화 편집 후 격리 테스트로 검증하고, 대규모·고위험 변경은 Git 브랜치·worktree 또는 필요 시 임시 격리를 선택한다.
+- **선별적 문서화:** 모든 작업마다 `Plans/`·`Tasks/`·`Reports/` 3종 문서를 의무 생성하지 않는다. **운영 배포, 장애 원인 분석·복구, 멀티 세션·대형 구조 변경**에만 `Reports/YYYY/MM/DD/`에 변경 범위·검증 근거·롤백 방법을 담은 단일 보고서 1건을 남긴다. 기존 `Plans/`, `Tasks/`, `Reports/`, `Chat/`은 과거 이력으로 보존한다.
+- **주석과 커밋:** 한국어 유지보수자가 의도와 의존성을 빠르게 파악할 수 있도록 비자명한 함수·계약에 간결한 설명을 남긴다(매 행 설명이나 `[EN/KO rev.N]` 이중언어 동기화는 요구하지 않는다). 커밋은 Conventional Commit 형식(`feat:`, `fix:`, `docs:`, `refactor:`, `chore:`)으로 작성한다.
+- **사실 기반 보고:** 실제 수행해 통과한 검증과 미확인 제한사항·실패 원인을 명확히 구분해 보고한다. 변경이나 우려가 없는데 통과한 검사를 불필요하게 반복하지 않는다.
+- **타 워크스페이스 경계:** 이 프로젝트의 외부 참고나 부수 명령으로 작업 대상을 임의 변경하지 않으며, 다른 프로젝트 디렉터리의 수정은 해당 프로젝트 지침과 사용자 지시를 따른다.

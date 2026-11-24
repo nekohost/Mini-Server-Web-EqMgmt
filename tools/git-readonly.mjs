@@ -2,6 +2,7 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+// 에이전트가 저장소 상태를 조회할 때 사용할 수 있는 읽기 전용 Git subcommand만 허용한다.
 export const READ_ONLY_SUBCOMMANDS = new Set([
   'cat-file',
   'check-attr',
@@ -20,6 +21,7 @@ export const READ_ONLY_SUBCOMMANDS = new Set([
   'status'
 ]);
 
+// 조회 명령이라도 파일 출력이나 외부 프로그램 실행으로 범위가 넓어지는 옵션은 차단한다.
 const FORBIDDEN_ARGUMENTS = [
   /^--exec(?:=|$)/,
   /^--ext-diff$/,
@@ -27,10 +29,12 @@ const FORBIDDEN_ARGUMENTS = [
   /^--textconv$/
 ];
 
+// 기존 환경은 보존하되 optional index refresh와 optional lock은 항상 비활성화한다.
 export function createReadOnlyGitEnvironment(baseEnvironment = process.env) {
   return { ...baseEnvironment, GIT_OPTIONAL_LOCKS: '0' };
 }
 
+// `--` 구분자를 제거하고 허용된 조회 명령과 인자만 반환한다.
 export function validateReadOnlyArguments(inputArguments) {
   const args = [...inputArguments];
   if (args[0] === '--') args.shift();
@@ -43,6 +47,7 @@ export function validateReadOnlyArguments(inputArguments) {
   return args;
 }
 
+// 검증된 인자를 실제 Git에 전달하고 호출별로 optional lock 억제를 강제한다.
 export function runReadOnlyGit(inputArguments, options = {}) {
   const args = validateReadOnlyArguments(inputArguments);
   const result = spawnSync(options.gitExecutable ?? 'git', args, {
@@ -56,6 +61,7 @@ export function runReadOnlyGit(inputArguments, options = {}) {
   return result;
 }
 
+// CLI에서는 자식 Git의 종료 코드를 그대로 전달하고 wrapper 입력 오류는 2로 구분한다.
 export function main(argv = process.argv.slice(2)) {
   try {
     const result = runReadOnlyGit(argv);
