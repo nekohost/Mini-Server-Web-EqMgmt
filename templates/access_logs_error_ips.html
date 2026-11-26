@@ -16,7 +16,53 @@
     <a href="/access_logs" class="app-toolbar-control bg-brand-500 hover:bg-brand-600 text-white font-medium text-xs px-3.5 py-2.5 rounded-lg shadow-sm transition-colors flex items-center gap-2">
         <i class="fa-solid fa-list-ul"></i> 전체 접근 로그 보기
     </a>
+    {% if user.Role == 'admin' and config.USER_AI_ENABLED %}
+    <button type="button" id="open-access-ip-review" aria-haspopup="dialog" class="app-toolbar-control bg-brand-500 hover:bg-brand-600 text-white font-medium text-xs px-3.5 py-2.5 rounded-lg">AI 분석·TXT 추출</button>
+    <button type="button" id="open-access-ip-history" aria-haspopup="dialog" class="app-toolbar-control border border-slate-300 dark:border-slate-600 font-medium text-xs px-3.5 py-2.5 rounded-lg">TXT 추출 이력</button>
+    {% endif %}
 </div>
+
+{% if user.Role == 'admin' and config.USER_AI_ENABLED %}
+<dialog id="access-ip-review" class="m-auto w-11/12 max-w-xl max-h-[90dvh] overflow-y-auto rounded-xl bg-white text-slate-900 p-5 shadow-xl backdrop:bg-black/60 dark:bg-slate-800 dark:text-white" aria-labelledby="access-ip-review-heading">
+    <div class="flex justify-between items-center mb-4 gap-3">
+        <h2 id="access-ip-review-heading" class="font-semibold">AI 분석·TXT 추출</h2>
+        <form method="dialog"><button class="text-xs rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2">닫기</button></form>
+    </div>
+    <form data-analysis-form class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label class="text-xs sm:col-span-2">AI 모델
+            <select name="model" required class="block w-full mt-1 border border-slate-300 dark:border-slate-600 dark:bg-slate-900 rounded-lg p-2"></select>
+        </label>
+        <label class="text-xs">추론 수준
+            <select name="level" required class="block w-full mt-1 border border-slate-300 dark:border-slate-600 dark:bg-slate-900 rounded-lg p-2"></select>
+        </label>
+        <label class="text-xs">분석 기간
+            <select name="hours" class="block w-full mt-1 border border-slate-300 dark:border-slate-600 dark:bg-slate-900 rounded-lg p-2">
+                <option value="24">최근 24시간</option>
+                <option value="72">최근 3일</option>
+                <option value="168" selected>최근 7일</option>
+                <option value="336">최근 14일</option>
+            </select>
+        </label>
+        <button type="submit" disabled class="justify-self-start bg-brand-500 text-white rounded-lg px-3.5 py-2 text-xs disabled:opacity-50">판단 시작</button>
+    </form>
+    <p data-status role="status" class="text-xs mt-4"></p>
+    <a data-download hidden class="text-brand-600 dark:text-brand-400 font-semibold text-xs underline">차단 후보 TXT 다운로드</a>
+    <details data-results hidden class="text-xs mt-3">
+        <summary class="cursor-pointer font-semibold">주소별 판정 근거</summary>
+        <ul class="mt-2 max-h-52 overflow-auto space-y-1"></ul>
+    </details>
+</dialog>
+<dialog id="access-ip-history" class="m-auto w-11/12 max-w-xl max-h-[90dvh] overflow-y-auto rounded-xl bg-white text-slate-900 p-5 shadow-xl backdrop:bg-black/60 dark:bg-slate-800 dark:text-white" aria-labelledby="access-ip-history-heading">
+    <div class="flex justify-between items-center mb-4 gap-3">
+        <h2 id="access-ip-history-heading" class="font-semibold">TXT 추출 이력</h2>
+        <form method="dialog"><button class="text-xs rounded-lg border border-slate-300 dark:border-slate-600 px-3 py-2">닫기</button></form>
+    </div>
+    <p data-status role="status" class="text-xs"></p>
+    <ul data-history class="max-h-80 overflow-auto divide-y divide-slate-200 dark:divide-slate-700"></ul>
+    <button type="button" data-more hidden class="text-xs underline mt-3">이전 이력 더 보기</button>
+</dialog>
+<script defer src="{{ url_for('static', filename='js/access_ip_review.js') }}"></script>
+{% endif %}
 
 <!-- 📊 상단 요약 위젯 & TOP 5 에러 IP 차트 -->
 <div class="edge-overview-region grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">

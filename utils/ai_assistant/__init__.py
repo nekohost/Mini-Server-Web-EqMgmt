@@ -28,7 +28,7 @@ from .policy import (AssistantError, DEFAULT_LEVEL, ERROR_REASONS, LEGACY_LEVELS
                      opaque, stream_text, text, validate_schema, normalized_tool_arguments)
 from .store import Store
 from .providers import Registry, PROTOCOL, public_source
-from . import admin_logs, provider_candidates
+from . import access_ip_review, admin_logs, provider_candidates
 from .provider_trust import BeforeSendError, RevisionPolicy
 from .reasoning import VERSION as REASONING_VERSION, normalize_profile
 from .context import (DRAFT_TOOL, MAX_PERSISTED_CONTEXT, TASK_DRAFT_TOOL, build_context,
@@ -323,6 +323,12 @@ def install_assistant(app, services):
         if not role or role['Role']!='admin' or not grant or not grant[0]:
             raise AssistantError('관리자 AI 연결 관리 권한이 필요합니다.',403)
 
+    def require_access_log_admin(db, actor):
+        role = db.execute('SELECT Role FROM users WHERE UserId=?', (actor['UserId'],)).fetchone()
+        allowed = db.execute("SELECT IsAllowed FROM role_menu_permissions WHERE Role='admin' AND MenuCode='access_logs'").fetchone()
+        if not role or role['Role'] != 'admin' or not allowed or not allowed[0]:
+            raise AssistantError('관리자 웹 접근 로그 권한이 필요합니다.', 403)
+
     def job_actor(job):
         """[Role] Checks job expiry/revocation and current rights before each step/tool response.
         [Dependencies] This module's fixed helpers and explicitly injected resources; no caller-selected service.
@@ -339,6 +345,8 @@ def install_assistant(app, services):
                 raise AssistantError('계정 식별정보가 변경되었습니다.',401)
             if job['purpose']=='probe':
                 require_administrator_grant(db,actor)
+            elif job['purpose'] == access_ip_review.PURPOSE:
+                require_access_log_admin(db, actor)
             return actor
         finally:
             db.close()
@@ -860,6 +868,110 @@ def install_assistant(app, services):
             mid = registry.choices()['default_model']
         return jsonify(success=True, **read_status(store, actor, mid, jid))
 
+    @bp.route('/api/admin/ai/access-ip-reviews', methods=['GET', 'POST'])
+    @login
+    def access_ip_reviews():
+        actor = browser(request.method == 'POST')
+        owner, account = actor['UserId'], actor['account_key']
+        with closing(connect()) as db:
+            require_access_log_admin(db, actor)
+        if request.method == 'GET':
+            options = registry.choices()
+            eligible = {model['id'] for model in options['models'] if model['available']}
+            preferred = ('qwen3.8-flash-next-iq3_s', 'qwen3.8-flash-next-iq3_xxs')
+            with store.db() as db:
+                upstream = {row['id']: row['upstream'] for row in db.execute('SELECT id,upstream FROM ai_provider_models')
+                            if row['id'] in eligible}
+                last = db.execute("""SELECT j.id FROM jobs j JOIN conversations c ON c.id=j.conversation
+                    WHERE j.owner=? AND c.account_key=? AND c.is_deleted=0 AND j.purpose=?
+                    ORDER BY j.created DESC LIMIT 1""", (owner, account, access_ip_review.PURPOSE)).fetchone()
+            default = next((model['id'] for name in preferred for model in options['models']
+                            if upstream.get(model['id']) == name), options['default_model'])
+            return jsonify(success=True, models=[model for model in options['models'] if model['available']],
+                           default_model=default, job_id=last['id'] if last else None)
+        fields = ('client_key', 'hours', 'selection_id', 'level')
+        data = object_only(body(1024), fields, fields)
+        if type(data['hours']) is not int or data['hours'] not in access_ip_review.WINDOWS:
+            raise AssistantError('분석 기간을 다시 선택해 주세요.')
+        if type(data['level']) is not str or data['level'] not in (*LEVELS, DEFAULT_LEVEL):
+            raise AssistantError('추론 수준을 확인해 주세요.')
+        key, mid = opaque(data['client_key']), opaque(data['selection_id'])
+        fingerprint = digest([access_ip_review.PURPOSE, data['hours'], mid, data['level']])
+        with store.db() as db:
+            receipt = store.first_turn_receipt(db, owner, account, key, fingerprint, access_ip_review.PURPOSE)
+        if receipt:
+            return jsonify(success=True, job_id=receipt[1]), 202
+        route, level, _ = selected(actor, explicit=mid, level=data['level'])
+        directory = Path(app.config.get('ACCESS_IP_NGINX_LOG_DIR', '/var/log/nginx'))
+        with closing(connect()) as db:
+            require_access_log_admin(db, actor)
+            evidence = access_ip_review.collect(db, directory, data['hours'])
+        if not evidence['candidates']:
+            return jsonify(success=True, state='empty', evidence=evidence)
+        route.update({access_ip_review.PURPOSE: evidence, 'web_search_allowed': False, 'web_search_mode': 'off'})
+        access_ip_review.packet({'id': '', 'lease': ''}, route, PROTOCOL)
+        _, jid = store.enqueue_first(owner, account, '웹 접근 로그 공격성 검토', level, key, actor['binding'],
+                                     time.time() + 1800, route, fingerprint, purpose=access_ip_review.PURPOSE)
+        return jsonify(success=True, job_id=jid), 202
+
+    @bp.get('/api/admin/ai/access-ip-reviews/history')
+    @login
+    def access_ip_review_history():
+        actor = browser()
+        with closing(connect()) as db:
+            require_access_log_admin(db, actor)
+        prefix = """FROM jobs j JOIN conversations c ON c.id=j.conversation
+            WHERE j.owner=? AND c.account_key=? AND c.is_deleted=0 AND j.purpose=? AND j.state='done'"""
+        args = (actor['UserId'], actor['account_key'], access_ip_review.PURPOSE)
+        before = request.args.get('before')
+        with store.db() as db:
+            if before is not None:
+                cursor = db.execute('SELECT j.id,j.created ' + prefix + ' AND j.id=?',
+                                    (*args, opaque(before))).fetchone()
+                if not cursor:
+                    raise AssistantError('이력 조회 위치를 확인할 수 없습니다.', 404)
+                prefix += ' AND (j.created,j.id)<(?,?)'
+                args = (*args, cursor['created'], cursor['id'])
+            rows = db.execute("""SELECT j.id,j.level,j.route_snapshot,
+                (SELECT content FROM messages WHERE job=j.id AND role='assistant') AS answer """
+                + prefix + ' ORDER BY j.created DESC,j.id DESC LIMIT 26', args).fetchall()
+        items = []
+        for row in rows[:25]:
+            route = json.loads(row['route_snapshot'])
+            evidence = route[access_ip_review.PURPOSE]
+            verified = access_ip_review.selected_rows(evidence, row['answer'])
+            items.append({'job_id': row['id'], 'model': route['model_label'], 'level': row['level'],
+                          'start': evidence['start'], 'end': evidence['end'], 'count': len(verified)})
+        return jsonify(success=True, items=items, next_before=items[-1]['job_id'] if len(rows) > 25 else None)
+
+    @bp.get('/api/admin/ai/access-ip-reviews/<jid>')
+    @bp.get('/api/admin/ai/access-ip-reviews/<jid>/blocklist.txt', defaults={'download': True})
+    @login
+    def access_ip_review_result(jid, download=False):
+        actor = browser()
+        with closing(connect()) as db:
+            require_access_log_admin(db, actor)
+        with store.db() as db:
+            job = store.job(jid, db, actor['UserId'], actor['account_key'])
+            if job['purpose'] != access_ip_review.PURPOSE:
+                raise AssistantError('분석 작업을 찾을 수 없습니다.', 404)
+            route = json.loads(job['route_snapshot'])
+            evidence = route[access_ip_review.PURPOSE]
+            verified = []
+            if job['state'] == 'done':
+                message = db.execute("SELECT content FROM messages WHERE job=? AND role='assistant'", (jid,)).fetchone()
+                verified = access_ip_review.selected_rows(evidence, message['content'])
+            if download:
+                if job['state'] != 'done' or not verified:
+                    raise AssistantError('내보낼 IP가 없습니다.', 409)
+                content = ''.join(row['ip'] + '\n' for row in verified)
+                response = Response(content, content_type='text/plain; charset=utf-8')
+                response.headers['Content-Disposition'] = 'attachment; filename="malicious-source-ips-' + evidence['end'][:10] + '.txt"'
+                return response
+        return jsonify(success=True, state=job['state'], error=job['error'], model=route['model_label'], level=job['level'],
+                       evidence={key: value for key, value in evidence.items() if key != 'candidates'},
+                       candidate_count=len(evidence['candidates']), verified=verified)
+
     @bp.get('/api/ai/jobs/<jid>')
     @login
     def job_view(jid):
@@ -877,6 +989,8 @@ def install_assistant(app, services):
             raise AssistantError('응답 위치가 올바르지 않습니다.') from None
         with store.db() as db:
             job=store.job(jid,db,actor['UserId'],actor['account_key'])
+            if job['purpose'] == access_ip_review.PURPOSE:
+                raise AssistantError('이 분석은 웹 접근 로그에서 확인해 주세요.', 404)
             if job['purpose']=='probe':
                 access=connect()
                 try:
@@ -990,6 +1104,10 @@ def install_assistant(app, services):
             route['api_key']=registry.secret(credential)
             route['legacy_worker_key']=credential=='env:USER_AI_STRATA_KEY' and not route['api_key']
             route.pop('credential',None)
+            if job['purpose'] == access_ip_review.PURPOSE:
+                response = jsonify(success=True, job=access_ip_review.packet(job, route, PROTOCOL))
+                g.routine_ai_worker = True
+                return response
             if 'mail_translation' in route:
                 packet = translation_packet(job, route, PROTOCOL)
                 response = jsonify(success=True, job=packet)
@@ -1266,7 +1384,7 @@ def install_assistant(app, services):
         try:
             route=json.loads(job['route_snapshot'])
             termination=data.get('termination')
-            if ('mail_translation' in route and outcome == 'complete'
+            if (('mail_translation' in route or job['purpose'] == access_ip_review.PURPOSE) and outcome == 'complete'
                     and (not isinstance(termination, dict) or termination.get('done') is not True)):
                 outcome, known, code = 'recovery_required', False, 'STREAM_INCOMPLETE'
             object_only(data,('lease','calls','content','reasoning','outcome','error_code','termination'),('lease','outcome'))
@@ -1315,6 +1433,11 @@ def install_assistant(app, services):
                 current=store.lease(db,jid,data['lease'])
             if current['cancel']:
                 return finished(store.finish(jid,data['lease'],'cancelled'))
+            if job['purpose'] == access_ip_review.PURPOSE:
+                if data.get('calls', []) != [] or termination.get('finish_reason') != 'stop':
+                    raise AssistantError('AI 판정이 정상 종료되지 않았습니다.', 409)
+                access_ip_review.selected_rows(route[access_ip_review.PURPOSE], data.get('content'))
+                return finished(store.finish(jid, data['lease'], 'done'))
             if 'mail_translation' in route:
                 state, error_code, reason = translation_completion(job, route['mail_translation'], data)
                 state = store.finish(jid, data['lease'], state, reason, error_code=error_code)

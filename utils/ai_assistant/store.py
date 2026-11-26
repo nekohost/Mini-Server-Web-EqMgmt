@@ -285,34 +285,34 @@ class Store(LifecycleStore):
         self._charge(db, job, len(record))
         db.execute("INSERT INTO messages(conversation,role,content,created) VALUES(?,'assistant',?,?)", (job['conversation'], record, time.time()))
 
-    def first_turn_receipt(self, db, owner, account_key, key, fingerprint):
+    def first_turn_receipt(self, db, owner, account_key, key, fingerprint, purpose='chat'):
         """Returns a matching active first-turn receipt before evaluating current model or quotas."""
         prior = db.execute("""SELECT j.conversation,j.id,j.input_hash,j.purpose,c.account_key,c.is_deleted
             FROM jobs j JOIN conversations c ON c.id=j.conversation WHERE j.owner=? AND j.client_key=?""",
             (owner, key)).fetchone()
         if prior is None:
             return None
-        if prior['account_key'] != account_key or prior['purpose'] != 'chat' or prior['input_hash'] != fingerprint:
+        if prior['account_key'] != account_key or prior['purpose'] != purpose or prior['input_hash'] != fingerprint:
             raise AssistantError('같은 접수 키에 다른 요청이 전달되었습니다.', 409)
         if prior['is_deleted']:
             raise AssistantError('이미 접수된 대화가 휴지통에 있습니다.', 409)
         return prior['conversation'], prior['id']
 
-    def enqueue_first(self, owner, account_key, content, level, key, binding, expires, route, fingerprint, mail=None):
+    def enqueue_first(self, owner, account_key, content, level, key, binding, expires, route, fingerprint, mail=None, *, purpose='chat'):
         """[MINI-COMMENT: ASSISTANT.QUEUE.FIRST] [EN rev.2]
         [Role] Commits the first question, selected model, new chat and queue job together.
         [Dependencies] Serialized private DB admission and the owner's existing job-key uniqueness.
         [Impact] Rejections roll back the empty chat; retries after a lost response cannot resurrect purged chats.
         """
         with self.db(True) as db:
-            prior = self.first_turn_receipt(db, owner, account_key, key, fingerprint)
+            prior = self.first_turn_receipt(db, owner, account_key, key, fingerprint, purpose)
             if prior:
                 return prior
             cid = digest(['first-conversation-v1', owner, account_key, key])[:32]
             if db.execute('SELECT 1 FROM ai_lifecycle_tombstones WHERE conversation=?', (cid,)).fetchone():
                 raise AssistantError('이미 접수 후 삭제한 대화입니다.', 410)
             self._insert_conversation(db, owner, account_key, cid)
-            jid = self._enqueue(db, owner, cid, content, level, key, binding, expires, account_key, route, 'chat', None, fingerprint, mail)
+            jid = self._enqueue(db, owner, cid, content, level, key, binding, expires, account_key, route, purpose, None, fingerprint, mail)
             return cid, jid
 
     def enqueue(self, owner, cid, content, level, client_key, binding, expires, account_key, route=None, purpose='chat', probe_plan=None, mail=None):
@@ -349,7 +349,7 @@ class Store(LifecycleStore):
             provider_candidates.check_probe(db, route)
         elif route:
             model=db.execute('SELECT p.revision,p.enabled,p.retired,m.profile_revision,m.verified_revision,m.present,m.published FROM ai_provider_models m JOIN ai_providers p ON p.id=m.provider WHERE m.id=?',(route['selection_id'],)).fetchone()
-            if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose=='chat' and (not model['published'] or model['verified_revision']!=model['revision'])):
+            if not model or model['revision']!=route['revision'] or model['profile_revision']!=route.get('profile_revision') or not model['enabled'] or model['retired'] or not model['present'] or (purpose!='probe' and (not model['published'] or model['verified_revision']!=model['revision'])):
                 raise AssistantError('접수 중 모델 설정이 변경되었습니다. 모델을 다시 확인해 주세요.',409)
         job_level = level
         if mail:
