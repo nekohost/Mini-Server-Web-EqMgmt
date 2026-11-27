@@ -57,14 +57,13 @@
         <div class="ai-composer-actions">
           <div class="ai-level-control"><label for="ai-level">추론</label><select id="ai-level" aria-label="추론 수준" aria-describedby="ai-level-help ai-reasoning-support" disabled><option value="off" disabled>off</option><option value="low" disabled>low</option><option value="medium" selected disabled>medium</option><option value="high" disabled>high</option><option value="xhigh" disabled>xhigh</option><option value="max" disabled>max</option></select><span id="ai-level-help" class="ai-sr-only">모델별 지원과 관리자 허용 단계를 확인합니다.</span></div>
           <div class="ai-inline-disclosures">
-            <details id="ai-model-settings" class="ai-control-support ai-model-settings"><summary title="AI 모델 선택"><span>AI 모델 선택</span></summary><div id="ai-model-panel" class="ai-control-panel"><div class="ai-model-control"><div class="ai-model-field"><label for="ai-model">AI 모델</label><select id="ai-model" aria-describedby="ai-model-status ai-unavailable-models"></select></div><button id="ai-model-refresh" class="ai-button" type="button">목록 새로고침</button></div></div></details>
+            <details id="ai-model-settings" class="ai-control-support ai-model-settings"><summary title="AI 모델 선택"><span>AI 모델 선택</span></summary><div id="ai-model-panel" class="ai-control-panel"><div class="ai-model-control"><div class="ai-model-field"><label for="ai-model">AI 모델</label><select id="ai-model" aria-describedby="ai-model-status ai-unavailable-models"></select></div><button id="ai-model-refresh" class="ai-button" type="button">목록 새로고침</button></div><div id="ai-unavailable-models" class="ai-unavailable-models" hidden><p class="ai-unavailable-title">사용할 수 없는 모델</p><ul id="ai-unavailable-model-reasons"></ul></div></div></details>
             <details id="ai-reasoning-support" class="ai-control-support" hidden><summary title="추론 단계 지원 안내"><span>추론 단계 지원 안내</span></summary><div id="ai-reasoning-panel" class="ai-control-panel"><ul id="ai-reasoning-reasons"></ul></div></details>
           </div>
           <div class="ai-send-actions"><button id="ai-send" type="submit" disabled class="ai-send" aria-label="메시지 보내기"><span aria-hidden="true">↑</span></button></div>
         </div>
         <div class="ai-disclosure-spacer" aria-hidden="true"></div>
         <p id="ai-model-status" class="ai-control-status" role="status" hidden></p>
-        <details id="ai-unavailable-models" class="ai-control-support" hidden><summary>사용할 수 없는 모델 안내</summary><ul id="ai-unavailable-model-reasons"></ul></details>
       </form>
     </div>
     </div>

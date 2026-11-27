@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.LINUX.FIXTURE.RUNNER]
-[EN rev.21]
+[EN rev.22]
 [Role] Transfers audited candidate source in memory to the authorized Linux fixture host over SSH.
 [Dependencies] Root source plus staged overlays, subprocess SSH and Python stdlib; never imports the app on Windows.
 [Impact] Sparse overlays retain unchanged baseline tests/assets; full generated browser evidence is saved beside screenshots with compact stdout, and no remote source/config or production DB is modified.
@@ -27,16 +27,16 @@ def main():
     parser.add_argument('--tmpfs-fixtures',action='store_true',help='Use private Linux tmpfs for disposable functional fixtures; never changes SQLite durability settings.')
     parser.add_argument('--browser-width',type=int,action='append',default=[],choices=[320,360,384,390,412,430,760,761,820,1425,1440])
     parser.add_argument('--browser-theme',action='append',default=[],choices=['light','dark'])
-    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner','web-search','recovery','input-preferences','hitbox','fold7','stream-follow'],default='all')
+    parser.add_argument('--browser-target',choices=['all','legacy','admin','chat','ui','portal','popup-short','viewport','disclosure','polish','polish-layout','polish-lifecycle','polish-stream','status-banner','web-search','recovery','input-preferences','hitbox','fold7','stream-follow','connection-redesign'],default='all')
     args=parser.parse_args()
     overlay=Path(__file__).resolve().parents[1]
     project=next((parent for parent in (overlay,*overlay.parents) if (parent/'AGENTS.md').is_file()), None)
     if project is None:
         raise ValueError('fixture project root was not found')
     fixture_roots=(overlay/'tests',) if overlay==project else (project/'tests',overlay.parent/'tests',overlay/'tests')
-    extra_test_names={'test_admin_release.py','test_ai_admin_logs.py','test_audit_actor_endpoint.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py','test_ai_search_providers.py','test_ai_input_preferences.py','test_ai_input_reliability.py','test_ai_failed_turn_history.py','test_ai_context_budget_and_compaction.py','test_ai_followup_web_search.py'}
+    extra_test_names={'test_admin_release.py','test_ai_admin_logs.py','test_audit_actor_endpoint.py','test_ai_conversation_lifecycle.py','test_ai_ux_integration.py','test_strata_integration.py','test_ai_polish_lifecycle.py','test_ai_polish_status.py','test_ai_display_policy.py','test_ai_release_guard.py','test_ai_web_search.py','test_ai_search_providers.py','test_ai_input_preferences.py','test_ai_input_reliability.py','test_ai_failed_turn_history.py','test_ai_context_budget_and_compaction.py','test_ai_followup_web_search.py','test_ai_connection_redesign.py'}
     extra_test_names.add('test_access_ip_review.py')
-    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py','web_search_browser_fixture.py','recovery_browser_fixture.py','ai_input_preferences_browser_fixture.py','send_hitbox_browser_fixture.py','fold7_cover_browser_fixture.py','stream_follow_browser_fixture.py'}
+    browser_fixture_names={'admin_providers_browser_fixture.py','assistant_ui_browser_fixture.py','compact_measure_browser_fixture.py','csv_popup_browser_fixture.py','viewport_scrollbar_browser_fixture.py','model_disclosure_browser_fixture.py','lifecycle_polish_browser_fixture.py','polish_browser_fixture.py','stream_polish_browser_fixture.py','portal_polish_browser_fixture.py','status_banner_browser_fixture.py','web_search_browser_fixture.py','recovery_browser_fixture.py','ai_input_preferences_browser_fixture.py','send_hitbox_browser_fixture.py','fold7_cover_browser_fixture.py','stream_follow_browser_fixture.py','ai_connection_redesign_browser_fixture.py'}
     def candidate_file(relative):
         """[Role] Selects a changed overlay source or the unchanged reviewed project baseline. [Impact] No production app import occurs on Windows."""
         staged=overlay/relative
@@ -47,7 +47,7 @@ def main():
             relative=file.relative_to(source_root).with_suffix('')
             parts=relative.parts[:-1] if file.stem=='__init__' else relative.parts
             sources['.'.join(parts)]={'source':file.read_text(encoding='utf-8-sig'),'package':file.stem=='__init__'}
-    candidate_paths=('templates/equipment_ai.html','templates/equipment_ai_providers.html','templates/equipment_ai_logs.html','templates/mypage.html',
+    candidate_paths=('templates/equipment_ai.html','templates/equipment_ai_providers.html','templates/equipment_ai_model_archive.html','templates/equipment_ai_logs.html','templates/mypage.html',
         'static/css/equipment_ai.css','static/css/equipment_ai_providers.css',
         'static/js/equipment_ai.js','static/js/equipment_ai_providers.js','static/js/session_timer.js')
     assets={relative:((overlay/relative) if (overlay/relative).is_file() else project/relative).read_text(encoding='utf-8-sig') for relative in candidate_paths}
@@ -216,6 +216,10 @@ if payload['browser'] and result.wasSuccessful():
             continue
         if payload['browser_target']=='stream-follow':
             if name=='stream_follow_browser_fixture.py':
+                results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
+            continue
+        if payload['browser_target']=='connection-redesign':
+            if name=='ai_connection_redesign_browser_fixture.py':
                 results.extend(sys.modules[name.removesuffix('.py')].run_browser(os.getcwd(),payload['assets']))
             continue
         if payload['browser_target']=='viewport':

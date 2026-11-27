@@ -1,5 +1,5 @@
 """[MINI-COMMENT: ASSISTANT.PROVIDERS.BROWSER.FIXTURE]
-[EN rev.6]
+[EN rev.7]
 [Role] Exercises the real admin dialog/loading code with deterministic transport faults and queue states.
 [Dependencies] Isolated Linux Chromium, bundled Tailwind, actual Jinja/CSS/JS and synthetic API/preferences responses.
 [Impact] No production database/provider/service is touched; failures include bounded secret-free initialization evidence.
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   const close=async(accept=true)=>{$(accept?'provider-dialog-accept':'provider-dialog-cancel').click();await wait(()=>!$('provider-dialog').open);await Promise.resolve();};
   const writeCount=()=>adminRequests.filter(item=>item.write).length;
   const modelForm=()=>document.querySelector('.provider-model-card');
-  const setName=text=>{const input=$('provider-form').elements.name;input.value=text;input.dispatchEvent(new Event('input',{bubbles:true}));};
+  const setName=text=>{const input=$('provider-display-form').elements.name;input.value=text;input.dispatchEvent(new Event('input',{bubbles:true}));};
   const requestedDark=new URL(location.href).searchParams.get('dark')==='1';
   const settledBodyTransitions=[];
   // Fixture-only virtual transition settling: finish the body's finite color
@@ -137,14 +137,15 @@ document.addEventListener('DOMContentLoaded',async()=>{
     assert(Boolean(window.tailwind)&&measuredTheme.applied_dark===requestedDark,'bundled-frame-theme-applied');
     assert(contrast(document.body)>=4.5,'frame-text-contrast-at-least-4.5');
     document.querySelector('#provider-list button').click();
-    const form=$('provider-form');
+    $('provider-tab-settings').click();
+    const form=$('provider-form'),dform=$('provider-display-form');
     assert(document.querySelectorAll('.provider-reasoning-options input').length===6,'six-reasoning-controls');
     assert(document.querySelector('[data-reasoning-level=high]').disabled&&document.querySelector('[data-reasoning-level=max]').disabled,'known-unsupported-values-stay-disabled');
     assert(!document.querySelector('#provider-list img')&&form.elements.api_key.value==='','safe-text-and-write-only-key');
-    form.elements.manual.checked=true;form.elements.api_key.value='synthetic-secret-ui-value';mode='hold';
+    dform.elements.manual.checked=true;form.elements.api_key.value='synthetic-secret-ui-value';mode='hold';
     $('provider-save').focus();form.requestSubmit();await wait(()=>releasePost);
     const heldCount=writeCount();form.requestSubmit();$('provider-new').click();
-    assert(writeCount()===heldCount&&form.elements.name.disabled&&$('provider-controls').inert&&$('ai-providers-admin').getAttribute('aria-busy')==='true','duplicate-and-selection-locked');
+    assert(writeCount()===heldCount&&dform.elements.name.disabled&&$('provider-controls').inert&&$('ai-providers-admin').getAttribute('aria-busy')==='true','duplicate-and-selection-locked');
     assert(!$('global-loading-overlay').classList.contains('hidden'),'existing-global-loading-reused');
     scrollTo(0,document.body.scrollHeight);releasePost();await shown('연결 저장 완료');
     const box=$('provider-dialog').getBoundingClientRect();
@@ -155,7 +156,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
     await close();assert(document.activeElement.id==='provider-save','focus-restored-after-render');
     assert(!document.querySelector('[data-reasoning-level=high]').checked&&document.querySelector('[data-reasoning-level=high]').disabled,'unsupported-values-preserved-after-lock');
     modelForm().querySelector('input[type=text]').value='Renamed model';modelForm().requestSubmit();await shown('모델 설정 저장 완료');await close();
-    assert(modelForm().querySelector('h3').textContent==='Renamed model','model-save-through-common-result');
+    assert(modelForm().closest('details').querySelector('summary strong').textContent==='Renamed model','model-save-through-common-result');
     const policy=adminRequests.find(item=>item.path.endsWith('/models')&&item.data.id);
     assert(policy.data.reasoning_levels.join(',')==='off,low,medium,xhigh'&&policy.data.profile_revision===1,'saved-reasoning-contract-and-revision');
     const manual=$('provider-manual');manual.elements.upstream.value='manual-fixture-model';manual.elements.label.value='Manual fixture';manual.requestSubmit();await shown('수동 모델 등록 완료');await close();
@@ -163,22 +164,22 @@ document.addEventListener('DOMContentLoaded',async()=>{
     $('provider-discover').click();await shown('모델 목록 조회 완료');await close();
     mode='readFail';const listBefore=$('provider-list').textContent;$('provider-reload').click();await shown('목록 조회 실패');
     assert($('provider-list').textContent===listBefore,'read-failure-preserves-existing-list');await close();
-    setName('Conflict preserved');mode='conflict';form.requestSubmit();await shown('충돌');assert(form.elements.name.value==='Conflict preserved','409-preserves-user-input');await close();
+    setName('Conflict preserved');mode='conflict';form.requestSubmit();await shown('충돌');assert(dform.elements.name.value==='Conflict preserved','409-preserves-user-input');await close();
     $('provider-reload').click();await shown('현재 설정 새로고침');
     $('provider-dialog').dispatchEvent(new Event('close'));await Promise.resolve();
-    assert($('provider-dialog').open&&form.elements.name.value==='Conflict preserved','stale-close-event-keeps-current-confirmation-open');
+    assert($('provider-dialog').open&&dform.elements.name.value==='Conflict preserved','stale-close-event-keeps-current-confirmation-open');
     await close();await shown('목록 조회 완료');await close();
     setName('ACK saved');mode='ackRefreshFail';const beforeAck=writeCount();form.requestSubmit();await shown('목록 갱신 실패');
     assert(writeCount()===beforeAck+1&&$('provider-save').disabled,'ack-refresh-failure-not-retried');await close();
     $('provider-reconcile').click();await shown('완료 결과 확인');await close();
-    assert(form.elements.name.value==='ACK saved'&&!$('provider-save').disabled,'ack-result-read-only-recovery');
+    assert(dform.elements.name.value==='ACK saved'&&!$('provider-save').disabled,'ack-result-read-only-recovery');
     setName('Lost response preserved');form.elements.api_key.value='synthetic-unknown-key';mode='lostAck';const beforeLost=writeCount();form.requestSubmit();await shown('결과 확인 필요');
-    assert(writeCount()===beforeLost+1&&form.elements.name.value==='Lost response preserved'&&form.elements.api_key.value==='synthetic-unknown-key','lost-response-preserves-input-without-repost');await close();
+    assert(writeCount()===beforeLost+1&&dform.elements.name.value==='Lost response preserved'&&form.elements.api_key.value==='synthetic-unknown-key','lost-response-preserves-input-without-repost');await close();
     $('provider-reconcile').click();await shown('현재 설정 확인');await close();
     assert(writeCount()===beforeLost+1&&form.elements.api_key.value==='','unknown-result-get-only-adoption');
     probePhase='queued';mode='lostAck';modelForm().querySelector('[data-probe]').click();await shown('기능 시험 접수 확인');await close();
     await wait(()=>$('provider-probe-status').textContent.includes('큐 대기'));
-    assert($('global-loading-overlay').classList.contains('hidden')&&!form.elements.name.disabled&&modelForm().querySelector('[data-probe]').disabled,'probe-ack-ends-overlay-while-queue-stays-visible');
+    assert($('global-loading-overlay').classList.contains('hidden')&&!dform.elements.name.disabled&&modelForm().querySelector('[data-probe]').disabled,'probe-ack-ends-overlay-while-queue-stays-visible');
     probePhase='running';await wait(()=>$('provider-probe-status').textContent.includes('진행 중'));
     assert(!$('provider-dialog').open,'running-is-not-final-success');
     probePhase='network';await shown('시험 상태 조회 실패');await close();

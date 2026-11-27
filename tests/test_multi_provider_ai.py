@@ -430,7 +430,9 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(peer.calls[-1]['authorization'],'Bearer '+new_key)
         job=self.claim()
         self.assertEqual((job['id'],job['route']['revision'],job['route']['api_key']),(jid,1,old_key))
-        self.assertNotEqual(job['route']['provider_name'],'Renamed provider')
+        # The display name is applied immediately on save (it is not part of the route change), so a turn accepted
+        # after the save shows it; the accepted route revision, key and frozen snapshot still stay on revision 1.
+        self.assertEqual(job['route']['provider_name'],'Renamed provider')
         self.run_one(job)
         self.assertEqual(peer.calls[-1]['authorization'],'Bearer '+old_key)
         with self.store.db() as db:

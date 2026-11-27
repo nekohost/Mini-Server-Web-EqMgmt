@@ -622,20 +622,76 @@ def install_assistant(app, services):
         """
         actor=administrator(request.method=='POST')
         if request.method=='POST':
-            return jsonify(success=True,id=registry.save(body(),actor=actor['UserId'])),201
+            pid,applied=registry.save_with_status(body(),actor=actor['UserId'])
+            return jsonify(success=True,id=pid,applied=applied),201
         return jsonify(success=True,**registry.admin_list())
 
     @bp.post('/api/admin/ai/providers/<pid>')
     @login
     def admin_provider_save(pid):
         """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_PROVIDER_SAVE]
-        [EN rev.1]
+        [EN rev.2]
         [Role] Adds a revision or soft-retires a provider, preserving accepted job routes/history.
         [Dependencies] Current administrator and optimistic revision.
-        [Impact] Retiring never deletes records or controls upstream processes.
+        [Impact] Retiring never deletes records or controls upstream processes. 'applied' tells the editor whether the
+        save took effect now (display-only/pause/retire) or waits as a pending route change.
         """
         actor=administrator(True)
-        return jsonify(success=True,id=registry.save(body(),opaque(pid),actor['UserId']))
+        pid,applied=registry.save_with_status(body(),opaque(pid),actor['UserId'])
+        return jsonify(success=True,id=pid,applied=applied)
+
+    @bp.post('/api/admin/ai/providers/<pid>/display')
+    @login
+    def admin_provider_display(pid):
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_PROVIDER_DISPLAY]
+        [EN rev.1]
+        [Role] Saves display-only connection fields immediately, independent of any pending route change.
+        [Dependencies] Live administrator, CSRF/Origin and the optimistic active revision.
+        [Impact] No new revision, probe or route change; user choice cards show the new name on their next read.
+        """
+        actor=administrator(True)
+        return jsonify(success=True,id=registry.display(opaque(pid),body(),actor['UserId']),applied='immediate')
+
+    @bp.post('/api/admin/ai/providers/<pid>/pending/cancel')
+    @login
+    def admin_provider_cancel_pending(pid):
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_PROVIDER_CANCEL_PENDING]
+        [EN rev.1]
+        [Role] Discards one unapplied route change after explicit administrator confirmation.
+        [Dependencies] Live administrator, CSRF/Origin and the pending revision token.
+        [Impact] The active connection keeps serving; records, conversations and history are untouched.
+        """
+        actor=administrator(True)
+        data=object_only(body(),('revision',),('revision',))
+        registry.cancel_pending(opaque(pid),data['revision'],actor['UserId'])
+        return jsonify(success=True)
+
+    @bp.get('/admin/ai/models/archive')
+    @login
+    def admin_archive_page():
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_ARCHIVE_PAGE]
+        [EN rev.1]
+        [Role] Serves the stored-model-record sub-screen of AI connection management to administrators only.
+        [Dependencies] Existing frame, live admin/menu check and per-session CSRF.
+        [Impact] Stored records are shown apart from served models so they are not mistaken for available ones.
+        """
+        administrator()
+        if not session.get('csrf_token'):
+            session['csrf_token']=secrets.token_hex(32)
+        return render_template('equipment_ai_model_archive.html',user=session['user'],assistant_csrf=session['csrf_token'])
+
+    @bp.get('/api/admin/ai/models/archive')
+    @login
+    def admin_archive():
+        """[MINI-COMMENT: ASSISTANT.HTTP.ADMIN_ARCHIVE]
+        [EN rev.1]
+        [Role] Returns stored model records absent from the latest inventory, optionally for one connection.
+        [Dependencies] Live administrator; read-only registry projection.
+        [Impact] No address, credential or route data is returned.
+        """
+        administrator()
+        provider=request.args.get('provider')
+        return jsonify(success=True,**registry.archive(opaque(provider) if provider else None))
 
     @bp.post('/api/admin/ai/providers/<pid>/revoke-trust')
     @login

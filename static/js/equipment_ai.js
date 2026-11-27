@@ -845,10 +845,10 @@
             }
             const model = modelChoices.find(item => item.id === modelId);
             if (modelId && !model) {
-                const missing = document.createElement('option'); missing.value = modelId; missing.textContent = '이 대화의 이전 모델'; missing.disabled = true; fragment.append(missing);
+                const missing = document.createElement('option'); missing.value = modelId; missing.textContent = '이 대화의 이전 모델 · 현재 제공되지 않음'; missing.disabled = true; fragment.append(missing);
             }
             $('ai-model').replaceChildren(fragment); $('ai-model').value = modelId || '';
-            $('ai-model').title = model ? `${model.provider} / ${model.label}` : modelId ? '이 대화의 이전 모델' : '사용 가능한 모델 없음';
+            $('ai-model').title = model ? `${model.provider} / ${model.label}` : modelId ? '이 대화의 이전 모델 · 현재 제공되지 않음' : '사용 가능한 모델 없음';
             const levels = model && model.available ? model.levels || [] : [];
             const options = document.createDocumentFragment();
             const unsupported = document.createDocumentFragment();

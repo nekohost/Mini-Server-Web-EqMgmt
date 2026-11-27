@@ -1,6 +1,7 @@
 /* [MINI-COMMENT: ASSISTANT.PROVIDERS.CLIENT]
- * [EN rev.5]
- * [Role] Registers and tests candidate origins and CA files through the authenticated provider editor.
+ * [EN rev.6]
+ * [Role] Edits connections through Overview / Connection settings / Served models tabs: display fields save
+ * immediately, route changes become a pending change with steps and cancel, and served models are compact rows.
  * [Dependencies] Same-origin CSRF/revision APIs, existing global loading, owner-bound probe reads and safe DOM.
  * [Impact] Separates ACK/refresh/unknown outcomes, never resends a POST, and never cancels shared generation.
  */
@@ -8,7 +9,9 @@
     'use strict';
     const root = document.getElementById('ai-providers-admin');
     if (!root) return;
-    const $ = id => document.getElementById(id), form = $('provider-form');
+    const $ = id => document.getElementById(id), form = $('provider-form'), displayForm = $('provider-display-form');
+    const changeLabels = { new: '새 연결', base_url: 'API 기본 주소', adapter: '연결 종류', resource_group: '물리 자원 그룹', api_key: 'API 키', trust: '서버 인증서 검증', enabled: '신규 요청 허용' };
+    let activeTab = 'overview';
     const reasoningLevels = ['off', 'low', 'medium', 'high', 'xhigh', 'max'];
     const controls = $('provider-controls'), dialog = $('provider-dialog');
     const disabledBefore = new Map();
@@ -145,12 +148,38 @@
         state = fresh; render(); return fresh;
     }
 
+    /** [Role] Builds one small status chip from fixed text (never server-provided HTML). */
+    function badge(text, tone = 'muted') {
+        const chip = document.createElement('span'); chip.className = 'provider-badge provider-badge-' + tone; chip.textContent = text; return chip;
+    }
+
+    /** [Role] Derives the counts shown in the list, overview and tab labels from the safe admin projection. */
+    function summary(provider) {
+        const models = provider.models || [];
+        const verified = model => model.verified_revision === provider.revision;
+        return {
+            serving: models.filter(model => model.published && verified(model)).length,
+            needsTest: models.filter(model => model.published && !verified(model)).length,
+            hidden: models.filter(model => !model.published).length,
+            archived: provider.archived_count || 0,
+            state: provider.retired ? '폐기' : !provider.revision ? '새 연결 · 적용 전' : provider.enabled ? (provider.last_error ? '목록 확인 실패' : '서비스 중') : '중지',
+        };
+    }
+
     /** [Role] Displays safe registry metadata and preserves the selected opaque provider ID. */
     function render() {
         $('provider-encryption').textContent = state.encryption_configured ? '독립 암호화 키 설정됨' : 'API 키 저장 전 서버의 독립 암호화 키 설정 필요';
         $('provider-list').replaceChildren();
         for (const provider of state.providers) {
-            const button = document.createElement('button'); button.type = 'button'; button.textContent = provider.name + (provider.retired ? ' · 폐기' : provider.candidate ? ' · 후보 시험' : provider.enabled ? '' : ' · 중지');
+            const info = summary(provider);
+            const button = document.createElement('button'); button.type = 'button'; button.className = 'provider-list-item';
+            const name = document.createElement('strong'); name.textContent = provider.name; button.append(name);
+            const chips = document.createElement('span'); chips.className = 'provider-chips';
+            chips.append(badge(info.state, provider.retired || provider.last_error ? 'bad' : provider.enabled && provider.revision ? 'ok' : 'muted'));
+            if (!provider.retired && provider.revision) chips.append(badge('서빙 ' + info.serving, 'ok'));
+            if (!provider.retired && info.needsTest) chips.append(badge('시험 필요 ' + info.needsTest, 'warn'));
+            if (provider.candidate) chips.append(badge('변경 적용 대기', 'warn'));
+            button.append(chips);
             button.dataset.providerId = provider.id; button.dataset.focusKey = 'connection:' + provider.id;
             button.setAttribute('aria-current', String(provider.id === selectedId));
             button.addEventListener('click', () => switchEditor(provider)); $('provider-list').append(button);
@@ -159,39 +188,95 @@
         if (busy) setBusy(true, $('provider-busy-status').textContent); else applyRestrictions();
     }
 
+    /** [Role] Shows one tab panel; a new connection has only the settings tab. */
+    function setTab(name) {
+        activeTab = name;
+        for (const tab of $('provider-tabs').querySelectorAll('[role=tab]')) {
+            const selected = tab.dataset.tab === name;
+            tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1;
+            $(tab.getAttribute('aria-controls')).hidden = !selected;
+        }
+    }
+    $('provider-tabs').addEventListener('click', event => { const tab = event.target.closest('[role=tab]'); if (tab && !tab.disabled) setTab(tab.dataset.tab); });
+    $('provider-tabs').addEventListener('keydown', event => {
+        if (!['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+        const tabs = [...$('provider-tabs').querySelectorAll('[role=tab]:not(:disabled)')], index = tabs.findIndex(tab => tab.dataset.tab === activeTab);
+        const next = tabs[(index + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length]; setTab(next.dataset.tab); next.focus();
+    });
+
     /** [Role] Confirms before discarding unsaved settings; a modal or active request blocks selection races. */
     async function switchEditor(provider) {
         if (busy || pending || dialog.open) return;
         if (dirty && !await resultDialog('입력 변경 폐기', '저장하지 않은 입력을 폐기하고 다른 연결을 열까요?', { confirm: true, danger: true, accept: '입력 폐기' })) return;
+        if (!provider) activeTab = 'settings'; else if (!current) activeTab = 'overview';
         edit(provider); applyRestrictions();
     }
 
-    /** [Role] Opens one revision without reading credentials; switching explicitly clears a previous key input. */
+    /** [Role] Opens one connection without reading credentials. Display fields come from the active row; route fields
+     * show the pending change when one exists, because that is what a further route save would replace. */
     function edit(provider) {
-        current = provider || null; selectedId = current && current.id; form.reset(); dirty = false;
+        current = provider || null; selectedId = current && current.id; form.reset(); displayForm.reset(); dirty = false;
         $('provider-list').querySelectorAll('button').forEach(button => button.setAttribute('aria-current', String(button.dataset.providerId === selectedId)));
         const draft = current && (current.candidate || current);
-        $('provider-heading').textContent = current ? draft.name + (current.candidate ? ' · 후보 ' : ' · 활성 ') + draft.revision : '연결 추가';
+        $('provider-heading').textContent = current ? current.name + (current.retired ? ' · 폐기' : current.candidate ? ' · 변경 적용 대기' : '') : '연결 추가';
         const groups = document.createDocumentFragment();
         for (const group of state.groups) { const option = document.createElement('option'); option.value = group.id; option.textContent = group.name; groups.append(option); }
         $('provider-group').replaceChildren(groups);
-        for (const name of ['name','base_url','adapter','resource_group','sort_order','enabled','manual']) if (draft) {
+        if (current) for (const name of ['name', 'sort_order', 'manual']) {
+            const input = displayForm.elements.namedItem(name); if (input.type === 'checkbox') input.checked = Boolean(current[name]); else input.value = current[name] ?? '';
+        }
+        if (draft) for (const name of ['base_url', 'adapter', 'resource_group', 'enabled']) {
             const input = form.elements.namedItem(name); if (input.type === 'checkbox') input.checked = Boolean(draft[name]); else input.value = draft[name] ?? '';
         }
         form.elements.api_key.placeholder = draft && draft.has_key ? '같은 출처의 키 저장됨' : '인증이 필요하면 API 키 입력';
         form.elements.trust_mode.value = draft && draft.fingerprint ? 'private' : 'system';
         showUpload();
+        $('provider-display-save').hidden = !current;
+        $('provider-save').textContent = current ? '연결 경로 저장' : '연결 추가';
+        $('provider-route-badge').textContent = current ? '변경 시 기능 시험 후 적용' : '추가 후 모델 목록 확인·기능 시험 필요';
+        // A connection that was never applied has no served models yet; its overview shows the pending steps.
+        $('provider-tab-overview').disabled = !current;
+        $('provider-tab-models').disabled = !current || !current.revision;
+        $('provider-tab-models').textContent = current && current.revision ? '서빙 모델 ' + summary(current).serving : '서빙 모델';
+        setTab(!current ? 'settings' : activeTab === 'models' && !current.revision ? 'overview' : activeTab);
+        renderOverview(current);
         renderTrust(current);
+        renderPending(current);
         $('provider-retire').hidden = !current || Boolean(current.retired);
         mutationControl($('provider-save'), Boolean(current && current.retired));
+        mutationControl($('provider-display-save'), Boolean(current && current.retired));
         mutationControl($('provider-retire'), !current || Boolean(current.retired));
         mutationControl($('provider-discover'), !current || Boolean(current.retired));
         $('provider-models-panel').hidden = !current || !current.revision;
         $('provider-manual').hidden = !current || !current.manual || Boolean(current.retired);
         $('provider-models').replaceChildren(); $('provider-status').textContent = '';
+        $('provider-archive-note').hidden = true;
         if (!current) return;
         $('provider-status').textContent = current.last_error || '마지막 목록 확인: ' + (current.last_checked ? new Date(current.last_checked * 1000).toLocaleString() : '아직 없음') + ' · 목록은 60초 캐시';
+        if (!current.models.length) { const empty = document.createElement('p'); empty.textContent = '현재 목록에서 제공되는 모델이 없습니다.'; $('provider-models').append(empty); }
         for (const model of current.models) renderModel(model, current);
+        if (current.archived_count) {
+            const link = document.createElement('a'); link.href = '/admin/ai/models/archive?provider=' + encodeURIComponent(current.id);
+            link.textContent = '현재 목록에 없는 저장된 모델 기록 ' + current.archived_count + '건 보기';
+            $('provider-archive-note').replaceChildren(link); $('provider-archive-note').hidden = false;
+        }
+    }
+
+    /** [Role] Summarizes the connection state so the admin sees what users get before opening any form. */
+    function renderOverview(provider) {
+        const box = $('provider-overview'); box.replaceChildren();
+        if (!provider) return;
+        const info = summary(provider);
+        const items = [['상태', info.state], ['사용자에게 제공 중', info.serving + '개 모델'], ['기능 시험 필요', info.needsTest + '개'],
+            ['비공개 모델', info.hidden + '개'], ['저장된 기록(현재 목록에 없음)', info.archived + '건'],
+            ['적용 중인 연결', provider.revision ? '버전 ' + provider.revision + ' · ' + provider.base_url : '아직 없음'],
+            ['마지막 목록 확인', provider.last_checked ? new Date(provider.last_checked * 1000).toLocaleString() : '아직 없음']];
+        for (const [label, value] of items) {
+            const cell = document.createElement('div'); cell.className = 'provider-summary-item';
+            const term = document.createElement('span'); term.textContent = label;
+            const data = document.createElement('strong'); data.textContent = value; cell.append(term, data); box.append(cell);
+        }
+        if (provider.last_error) { const error = document.createElement('p'); error.className = 'provider-error'; error.textContent = provider.last_error; box.append(error); }
     }
 
     function showUpload() {
@@ -211,29 +296,67 @@
         return (rev.origin || rev.base_url || '').startsWith('http:') ? '내부망 HTTP' : '시스템 신뢰 저장소';
     }
 
+    /** [Role] Lists per-version trust only inside the collapsed advanced section. */
     function renderTrust(provider) {
-        const draft = provider && provider.candidate;
-        $('provider-candidate').hidden = !draft;
-        $('provider-trust').hidden = !provider;
-        $('provider-candidate-models').replaceChildren();
+        $('provider-trust').hidden = !provider; $('provider-advanced').hidden = !provider;
         $('provider-trust-version').replaceChildren();
         if (!provider) return;
         const history = provider.trust_history || [];
-        $('provider-active-trust').textContent = provider.revision ? (provider.revoked ? '신뢰 철회됨 · 버전 ' : '활성 ') + provider.revision + ' · ' + provider.base_url + ' · ' + trustLabel(provider) : '활성 버전 없음';
+        $('provider-active-trust').textContent = provider.revision ? (provider.revoked ? '신뢰 철회됨 · 버전 ' : '적용 중 ') + provider.revision + ' · ' + provider.base_url + ' · ' + trustLabel(provider) : '적용 중인 버전 없음';
         for (const rev of history) {
             const option = document.createElement('option'); option.value = rev.revision; option.disabled = Boolean(rev.revoked);
             option.textContent = rev.revision + ' · ' + rev.origin + ' · ' + trustLabel(rev) + (rev.revoked ? ' · 철회됨' : '');
             $('provider-trust-version').append(option);
         }
         mutationControl($('provider-revoke'), !history.some(rev => !rev.revoked));
+    }
+
+    /** [Role] Explains a pending route change: what differs, which step it is on, which models still need a probe. */
+    function renderPending(provider) {
+        const draft = provider && provider.candidate;
+        $('provider-candidate').hidden = !draft;
+        $('provider-candidate-models').replaceChildren(); $('provider-steps').replaceChildren();
+        $('provider-changes').tBodies[0].replaceChildren();
         if (!draft) return;
-        $('provider-candidate-status').textContent = '후보 ' + draft.revision + ' · ' + draft.result;
-        $('provider-candidate-trust').textContent = draft.base_url + ' · 승인 IP ' + draft.addresses.join(', ') + ' · ' + trustLabel(draft);
-        mutationControl($('provider-candidate-discover'));
+        const required = draft.required || [], passed = required.filter(model => model.passed).length;
+        const steps = [['새 설정 저장', true, '버전 ' + draft.revision],
+            ['새 설정의 모델 목록 확인', Boolean(draft.discovered), draft.discovered ? '완료' : '아래 버튼으로 확인하세요'],
+            ['공개 모델 기능 시험', draft.discovered && passed === required.length, required.length ? passed + ' / ' + required.length + ' 통과' : '시험할 공개 모델 없음'],
+            ['자동 적용', false, '모든 시험 통과 시 기존 설정을 대체']];
+        steps.forEach(([title, done, detail], index) => {
+            const item = document.createElement('li'); item.className = done ? 'is-done' : index === steps.findIndex(step => !step[1]) ? 'is-current' : '';
+            const head = document.createElement('strong'); head.textContent = title; const note = document.createElement('span'); note.textContent = detail;
+            item.append(head, note); $('provider-steps').append(item);
+        });
+        const values = { base_url: [provider.base_url, draft.base_url], adapter: [provider.adapter, draft.adapter],
+            resource_group: [groupName(provider.resource_group), groupName(draft.resource_group)], api_key: ['기존 키', '새 키(값은 표시하지 않음)'],
+            trust: [trustLabel(provider), trustLabel(draft)], enabled: [provider.enabled ? '허용' : '중지', draft.enabled ? '허용' : '중지'], new: ['없음', draft.base_url] };
+        for (const key of draft.changes || []) {
+            const row = document.createElement('tr');
+            for (const text of [changeLabels[key] || key, ...(values[key] || ['', ''])]) { const cell = document.createElement(row.children.length ? 'td' : 'th'); if (!row.children.length) cell.scope = 'row'; cell.textContent = text || '—'; row.append(cell); }
+            $('provider-changes').tBodies[0].append(row);
+        }
+        $('provider-changes').hidden = !(draft.changes || []).length;
+        if (!(draft.changes || []).length) {
+            // Saved by the previous editor, where even a rename created a pending revision. Display fields are now
+            // saved immediately, so nothing here needs a probe and the wait can simply be cancelled.
+            const note = document.createElement('p'); note.className = 'provider-legacy-note';
+            note.textContent = '현재 적용 중인 설정과 다른 연결 경로·키·인증서가 없습니다. 이전 화면에서 이름만 바꿨거나 원래 설정으로 되돌려 저장한 경우입니다. 표시 정보는 "연결 설정 > 표시 정보"에서 즉시 저장되므로, 이 대기는 취소해도 됩니다.';
+            $('provider-candidate-models').append(note);
+        }
+        $('provider-candidate-status').textContent = '진행 상황: ' + draft.result;
+        $('provider-candidate-trust').textContent = '새 설정의 승인 IP ' + draft.addresses.join(', ') + ' · ' + trustLabel(draft);
+        mutationControl($('provider-candidate-discover')); mutationControl($('provider-pending-cancel'));
+        if (required.length) {
+            const list = document.createElement('ul'); list.className = 'provider-required';
+            for (const model of required) { const item = document.createElement('li'); item.append(badge(model.passed ? '통과' : '시험 필요', model.passed ? 'ok' : 'warn'), document.createTextNode(' ' + model.label)); list.append(item); }
+            const title = document.createElement('h4'); title.textContent = '자동 적용 전에 시험을 통과해야 하는 공개 모델';
+            $('provider-candidate-models').append(title, list);
+        }
         if (!draft.discovered) return;
         for (const model of draft.models) {
-            const row = document.createElement('div'); row.className = 'provider-model-card';
-            const heading = document.createElement('h3'); heading.textContent = model.label + (model.passed ? ' · 시험 통과' : ''); row.append(heading);
+            const row = document.createElement('div'); row.className = 'provider-card provider-candidate-card';
+            const heading = document.createElement('h4'); heading.textContent = model.label; heading.append(' ', badge(model.passed ? '새 설정 시험 통과' : '새 설정 시험 전', model.passed ? 'ok' : 'muted')); row.append(heading);
             const context = field(row, '확인한 모델 컨텍스트 한도 (토큰)', 'number', model.context_tokens ?? '');
             context.min = 2048; context.max = 1048576; context.required = true; context.readOnly = model.context_tokens != null;
             const tools = field(row, '장비 도구 시험', 'checkbox', Boolean(model.profile.tools));
@@ -242,7 +365,7 @@
             const reasoning = field(row, '허용한 추론 수준 시험', 'checkbox', model.profile.enabled_levels.length > 0);
             reasoning.disabled = !model.profile.enabled_levels.length;
             const probe = mutationControl(document.createElement('button')); probe.type = 'button'; probe.dataset.probe = 'true';
-            probe.textContent = '후보 워커 기능 시험';
+            probe.textContent = '새 설정으로 기능 시험';
             probe.addEventListener('click', () => {
                 if (context.reportValidity()) startProbe(model, tools.checked, reasoning.checked, draft.revision, Number(context.value));
             });
@@ -250,6 +373,7 @@
         }
     }
 
+    function groupName(id) { const group = state.groups.find(item => item.id === id); return group ? group.name : id; }
     /** [MINI-COMMENT: ASSISTANT.PROVIDERS.CLIENT.OPERATION]
      * [EN rev.1]
      * [Role] Separates committed writes, failed refreshes and unknown POST outcomes without automatic replay.
@@ -267,7 +391,7 @@
             const value = await options.send();
             if (options.ack) options.ack(value);
             try {
-                await load(); title = options.title; message = options.success;
+                await load(); title = options.title; message = typeof options.success === 'function' ? options.success(value) : options.success;
             } catch (_) {
                 pending = { acknowledged: true, verify: options.verify, title: options.title };
                 title = options.title + ' · 목록 갱신 실패';
@@ -299,7 +423,7 @@
             });
             const row = rows.length === 1 ? rows[0] : null;
             return { fresh, selected: row && row.id,
-                message: row ? '현재 목록에서 연결 “' + row.name + '”의 활성 버전 ' + row.revision + (row.candidate ? ' · 후보 ' + row.candidate.revision : '') + (row.retired ? ' · 폐기 상태' : '') + '를 확인했습니다. 비밀 키의 내용이나 이 요청의 처리 여부는 목록 정보만으로 확정할 수 없습니다. 확인한 설정을 불러와 검토해 주세요.' :
+                message: row ? '현재 목록에서 연결 “' + row.name + '”의 활성 버전 ' + row.revision + (row.candidate ? ' · 적용 대기 ' + row.candidate.revision : '') + (row.retired ? ' · 폐기 상태' : '') + '를 확인했습니다. 비밀 키의 내용이나 이 요청의 처리 여부는 목록 정보만으로 확정할 수 없습니다. 확인한 설정을 불러와 검토해 주세요.' :
                     '현재 목록에서 요청 대상을 확정하지 못했습니다. 아직 처리 중일 수 있습니다. 잠시 후 다시 확인해 주세요.' };
         };
     }
@@ -384,12 +508,23 @@
     }
 
 
-    /** [Role] Offers saved model settings and one tracked inert probe with stable keyboard-focus targets. */
+    /** [Role] Shows one served model as a compact summary row; its saved settings and tracked inert probe open on demand,
+     * keeping stable keyboard-focus targets. Records absent from the inventory are not rendered here (archive screen). */
     function renderModel(model, provider) {
-        const card = document.createElement('form'); card.className = 'provider-model-card'; card.dataset.modelId = model.id;
-        const heading = document.createElement('h3'); heading.textContent = model.label; card.append(heading);
-        const status = document.createElement('p'); const profile = JSON.parse(model.profile);
-        status.textContent = !model.present ? '현재 목록에서 사라짐' : model.verified_revision === provider.revision ? '시험 통과 · ' + (profile.tools ? '장비 업무 가능' : '대화 전용') : '현재 연결 설정에서 기능 시험 필요'; card.append(status);
+        const row = document.createElement('details'); row.className = 'provider-model-row'; row.dataset.modelId = model.id;
+        const profile = JSON.parse(model.profile), verified = model.verified_revision === provider.revision;
+        const head = document.createElement('summary'); const title = document.createElement('strong'); title.textContent = model.label;
+        const chips = document.createElement('span'); chips.className = 'provider-chips';
+        chips.append(badge(model.published ? '사용자에게 공개' : '비공개', model.published ? 'ok' : 'muted'),
+            badge(verified ? '시험 통과' : '기능 시험 필요', verified ? 'ok' : 'warn'));
+        if (verified) chips.append(badge(profile.tools ? '장비 업무 가능' : '대화 전용', 'muted'));
+        if ((profile.enabled_levels || []).length) chips.append(badge('추론 ' + profile.enabled_levels.join('·'), 'muted'));
+        if (state.default_model === model.id) chips.append(badge('새 대화 기본', 'info'));
+        const meta = document.createElement('span'); meta.className = 'provider-model-meta'; meta.textContent = model.upstream + ' · 컨텍스트 ' + Number(model.context_tokens).toLocaleString();
+        head.append(title, chips, meta); row.append(head);
+        const card = document.createElement('form'); card.className = 'provider-model-card'; row.append(card);
+        const status = document.createElement('p');
+        status.textContent = verified ? '현재 연결 설정에서 시험 통과 · ' + (profile.tools ? '장비 업무 가능' : '대화 전용') : '현재 연결 설정에서 기능 시험이 필요합니다. 통과 전에는 사용자가 호출할 수 없습니다.'; card.append(status);
         const fields = document.createElement('div'); fields.className = 'provider-fields'; card.append(fields);
         const label = field(fields, '표시 이름', 'text', model.label); label.required = true; label.maxLength = 80;
         const published = field(fields, '사용자에게 공개', 'checkbox', model.published);
@@ -401,7 +536,7 @@
         const effort = reasoningFields(card, model, profile);
         const actions = document.createElement('div'); actions.className = 'provider-actions'; card.append(actions);
         const save = mutationControl(document.createElement('button'), Boolean(provider.retired)); save.type = 'submit'; save.textContent = '모델 설정 저장'; actions.append(save);
-        const probe = mutationControl(document.createElement('button'), !provider.enabled || Boolean(provider.retired) || !model.present); probe.type = 'button'; probe.dataset.probe = 'true'; probe.textContent = '저장된 설정으로 기능 시험'; actions.append(probe);
+        const probe = mutationControl(document.createElement('button'), !provider.enabled || Boolean(provider.retired)); probe.type = 'button'; probe.dataset.probe = 'true'; probe.textContent = '저장된 설정으로 기능 시험'; actions.append(probe);
         card.querySelectorAll('input,select,button').forEach((element, index) => { element.dataset.focusKey = 'model:' + model.id + ':' + index; });
         card.addEventListener('input', () => { dirty = true; });
         card.addEventListener('submit', event => {
@@ -412,7 +547,7 @@
                 send: () => api('/api/admin/ai/providers/' + provider.id + '/models', payload), verify: modelVerification(provider.id, model.id) });
         });
         probe.addEventListener('click', () => startProbe(model, tools.checked, reasoning.checked));
-        $('provider-models').append(card);
+        $('provider-models').append(row);
     }
 
     /** [Role] Saves only opaque probe identifiers for same-session status recovery; no prompt/key is stored. */
@@ -437,7 +572,7 @@
     async function startProbe(model, tools, reasoning, candidateRevision, contextTokens) {
         if (busy || pending || probeJob || probeClientKey || dialog.open) return;
         const focus = focusTarget();
-        const confirmText = candidateRevision ? '저장한 후보 주소와 화면에서 선택한 컨텍스트 한도·기능으로 시험할까요?' : '저장하지 않은 입력은 이번 기능 시험에 반영되지 않습니다. 현재 서버에 저장된 설정으로 시험할까요?';
+        const confirmText = candidateRevision ? '적용 대기 중인 새 설정과 화면에서 선택한 컨텍스트 한도·기능으로 시험할까요?' : '저장하지 않은 입력은 이번 기능 시험에 반영되지 않습니다. 현재 서버에 저장된 설정으로 시험할까요?';
         if (dirty && !await resultDialog('저장된 설정으로 시험', confirmText, { confirm: true, accept: '저장된 설정 시험', focus })) return;
         probeClientKey = crypto.randomUUID().replaceAll('-', ''); saveProbe(); setBusy(true, '기능 시험 접수 중입니다...');
         let title, message;
@@ -493,24 +628,45 @@
         }
     }
 
-    /** [Role] Validates and saves connection input through the single request flow. */
+    /** [Role] Saves display-only fields immediately; no revision, probe or pending change is created. */
+    displayForm.addEventListener('submit', event => {
+        event.preventDefault(); const provider = current;
+        if (busy || pending || dialog.open || !state || !provider || !displayForm.reportValidity()) return;
+        const payload = { name: displayForm.elements.name.value.trim(), sort_order: Number(displayForm.elements.sort_order.value), manual: displayForm.elements.manual.checked, revision: provider.revision };
+        mutate({ loading: '표시 정보 저장 중입니다...', title: '표시 정보 저장 완료', success: '연결 이름 “' + payload.name + '”과 표시 정보를 바로 적용했습니다. 사용자 모델 선택 목록은 다음 조회부터 새 이름을 표시합니다.',
+            send: () => api('/api/admin/ai/providers/' + provider.id + '/display', payload),
+            verify: providerVerification(provider.id, [], { name: payload.name, base_url: provider.base_url }) });
+    });
+
+    /** [Role] Validates and saves connection input through the single request flow; route changes become pending. */
     form.addEventListener('submit', event => {
-        event.preventDefault(); if (busy || pending || dialog.open || !state || !form.reportValidity()) return;
+        event.preventDefault(); if (busy || pending || dialog.open || !state || !form.reportValidity() || !displayForm.reportValidity()) return;
         const data = Object.fromEntries(new FormData(form)), original = current;
-        const payload = { name: data.name.trim(), base_url: data.base_url.trim(), adapter: data.adapter, resource_group: data.resource_group,
-            new_group: data.new_group.trim(), enabled: form.elements.enabled.checked, manual: form.elements.manual.checked, sort_order: Number(data.sort_order), revision: original ? original.revision : 0 };
+        const payload = { name: displayForm.elements.name.value.trim(), base_url: data.base_url.trim(), adapter: data.adapter, resource_group: data.resource_group,
+            new_group: data.new_group.trim(), enabled: form.elements.enabled.checked, manual: displayForm.elements.manual.checked, sort_order: Number(displayForm.elements.sort_order.value), revision: original ? original.revision : 0 };
         if (original && original.candidate) payload.candidate_revision = original.candidate.revision;
         payload.trust_mode = data.trust_mode;
         const file = form.elements.ca_file.files[0];
         if (file && file.size > 16384) { resultDialog('인증서 크기 초과', '16 KiB 이하의 공개 CA 인증서 한 장을 선택해 주세요.'); return; }
         if (data.api_key || form.elements.clear_key.checked) payload.api_key = form.elements.clear_key.checked ? '' : data.api_key;
         const verify = providerVerification(original && original.id, state.providers.map(provider => provider.id), { name: payload.name, base_url: payload.base_url });
-        mutate({ loading: '연결 저장 중입니다...', title: '연결 저장 완료', success: '연결 “' + payload.name + '”을 저장했습니다. 모델 목록을 확인하고 현재 설정으로 기능 시험을 진행해 주세요.',
+        mutate({ loading: '연결 저장 중입니다...', title: '연결 저장 완료',
+            success: value => value.applied === 'immediate' ? '연결 “' + payload.name + '”의 변경을 바로 적용했습니다. 연결 경로는 바뀌지 않았습니다.'
+                : '연결 “' + payload.name + '”의 새 설정을 저장했습니다. 기존 설정으로 계속 서비스하며, 개요 탭의 "변경 적용 대기" 단계(모델 목록 확인 → 공개 모델 기능 시험)를 마치면 자동 적용됩니다.',
             send: async () => {
                 if (file && payload.trust_mode === 'private') payload.ca_pem = await file.text();
                 return api('/api/admin/ai/providers' + (original ? '/' + original.id : ''), payload);
             },
-            ack: value => { form.elements.api_key.value = ''; form.elements.clear_key.checked = false; selectedId = value.id; }, verify });
+            ack: value => { form.elements.api_key.value = ''; form.elements.clear_key.checked = false; selectedId = value.id; if (!original) activeTab = 'overview'; }, verify });
+    });
+
+    /** [Role] Discards the pending route change after a named confirmation; the active connection keeps serving. */
+    $('provider-pending-cancel').addEventListener('click', () => {
+        const provider = current; if (!provider || !provider.candidate) return;
+        mutate({ loading: '변경 취소 중입니다...', title: '변경 취소 완료', success: '“' + provider.name + '”의 적용 대기 변경을 취소했습니다. 기존 연결 설정은 그대로 서비스합니다.',
+            confirm: { title: '변경 적용 취소', message: '“' + provider.name + '”의 적용 대기 중인 새 설정(버전 ' + provider.candidate.revision + ')과 그 시험 결과를 버릴까요? 현재 적용 중인 연결과 대화 기록은 바뀌지 않습니다.' + (provider.revision ? '' : ' 아직 적용된 적 없는 새 연결이므로 연결 자체가 폐기됩니다.'), accept: '변경 취소' },
+            send: () => api('/api/admin/ai/providers/' + provider.id + '/pending/cancel', { revision: provider.candidate.revision }),
+            verify: providerVerification(provider.id, [], { name: provider.name, base_url: provider.base_url }) });
     });
 
     /** [Role] Requires named retirement confirmation while preserving all historic and shared model state. */
@@ -532,7 +688,7 @@
 
     $('provider-candidate-discover').addEventListener('click', () => {
         const provider = current;
-        mutate({ loading: '후보 모델 조회 중', title: '후보 모델 조회 완료', success: '후보에 표시된 모델로 워커 기능 시험을 진행하세요.',
+        mutate({ loading: '새 설정의 모델 목록 확인 중', title: '새 설정의 모델 목록 확인 완료', success: '표시된 공개 모델을 새 설정으로 기능 시험하세요. 모두 통과하면 자동 적용됩니다.',
             send: () => api('/api/admin/ai/providers/' + provider.id + '/discover', { candidate_revision: provider.candidate.revision }),
             verify: modelVerification(provider.id) });
     });

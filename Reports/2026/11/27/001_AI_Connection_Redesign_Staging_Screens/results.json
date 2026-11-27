@@ -1,0 +1,256 @@
+{
+  "backend": {
+    "platform": "linux",
+    "python": "3.12.3",
+    "tests": 0,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 0.0,
+    "production_app_imported": false,
+    "production_database_opened": false,
+    "fixture_digest": "5e08fe2ab70dc8578bfe57c532065ed888972654ec070fe1529ddee40846fae1",
+    "fixture_storage": "linux-tmpfs-functional-only"
+  },
+  "browser": [
+    {
+      "status": "pass",
+      "view": "connection-overview-pending",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "four-steps",
+        "probe-progress-1-of-2",
+        "address-change-row",
+        "cancel-button-visible"
+      ],
+      "production_data_used": false,
+      "caption": "개요 · 주소 변경 적용 대기와 진행 단계",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-000.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-overview-legacy",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "legacy-name-only-note"
+      ],
+      "production_data_used": false,
+      "caption": "개요 · 이전 방식(이름만 변경)으로 생긴 대기",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-001.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-settings",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "display-name-from-active-row",
+        "route-form-shows-pending-address"
+      ],
+      "production_data_used": false,
+      "caption": "연결 설정 · 표시 정보(즉시)와 연결 경로·보안(시험 후 적용)",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-002.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-models",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "four-served-rows-archived-excluded",
+        "absent-record-not-in-served-list",
+        "archive-link-count"
+      ],
+      "production_data_used": false,
+      "caption": "서빙 모델 · 요약 행과 펼친 설정",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-003.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-new-connection",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "new-connection-settings-only"
+      ],
+      "production_data_used": false,
+      "caption": "연결 추가 · 새 연결 입력",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-004.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-archive",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "four-archived-records",
+        "republish-state-shown"
+      ],
+      "production_data_used": false,
+      "caption": "저장된 모델 기록 · 전체 연결",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-005.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-user-models",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "absent-records-not-offered",
+        "unavailable-notice-hidden-while-model-panel-closed",
+        "unavailable-notice-shown-in-open-model-panel"
+      ],
+      "options": [
+        "연구실 GPU A / Qwen3.8 Flash Next",
+        "연구실 GPU A / Gemma 4 26B QAT",
+        "연구실 GPU A / Qwen3.6 35B",
+        "사무실 PC B / Llama 3.3 70B",
+        "예비 노트북 C / Phi-4 mini"
+      ],
+      "production_data_used": false,
+      "caption": "사용자 AI 도우미 · 모델 선택 목록",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-006.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-display-saved",
+      "width": 1440,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "list-renamed-immediately",
+        "heading-renamed-immediately"
+      ],
+      "production_data_used": false,
+      "caption": "표시 정보 저장 · 이름이 즉시 반영된 결과",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-007.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-overview-pending",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "four-steps",
+        "probe-progress-1-of-2",
+        "address-change-row",
+        "cancel-button-visible"
+      ],
+      "production_data_used": false,
+      "caption": "개요 · 주소 변경 적용 대기와 진행 단계",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-008.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-overview-legacy",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "legacy-name-only-note"
+      ],
+      "production_data_used": false,
+      "caption": "개요 · 이전 방식(이름만 변경)으로 생긴 대기",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-009.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-settings",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "display-name-from-active-row",
+        "route-form-shows-pending-address"
+      ],
+      "production_data_used": false,
+      "caption": "연결 설정 · 표시 정보(즉시)와 연결 경로·보안(시험 후 적용)",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-010.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-models",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "four-served-rows-archived-excluded",
+        "absent-record-not-in-served-list",
+        "archive-link-count"
+      ],
+      "production_data_used": false,
+      "caption": "서빙 모델 · 요약 행과 펼친 설정",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-011.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-new-connection",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "new-connection-settings-only"
+      ],
+      "production_data_used": false,
+      "caption": "연결 추가 · 새 연결 입력",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-012.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-archive",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "four-archived-records",
+        "republish-state-shown"
+      ],
+      "production_data_used": false,
+      "caption": "저장된 모델 기록 · 전체 연결",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-013.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-user-models",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "absent-records-not-offered",
+        "unavailable-notice-hidden-while-model-panel-closed",
+        "unavailable-notice-shown-in-open-model-panel"
+      ],
+      "options": [
+        "연구실 GPU A / Qwen3.8 Flash Next",
+        "연구실 GPU A / Gemma 4 26B QAT",
+        "연구실 GPU A / Qwen3.6 35B",
+        "사무실 PC B / Llama 3.3 70B",
+        "예비 노트북 C / Phi-4 mini"
+      ],
+      "production_data_used": false,
+      "caption": "사용자 AI 도우미 · 모델 선택 목록",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-014.png"
+    },
+    {
+      "status": "pass",
+      "view": "connection-display-saved",
+      "width": 384,
+      "theme": "light",
+      "checks": [
+        "list-shows-pending-badge",
+        "list-renamed-immediately",
+        "heading-renamed-immediately"
+      ],
+      "production_data_used": false,
+      "caption": "표시 정보 저장 · 이름이 즉시 반영된 결과",
+      "screenshot_path": "Reports/2026/11/27/001_AI_Connection_Redesign_Staging_Screens/screen-015.png"
+    }
+  ],
+  "fixture_digest": "5e08fe2ab70dc8578bfe57c532065ed888972654ec070fe1529ddee40846fae1"
+}

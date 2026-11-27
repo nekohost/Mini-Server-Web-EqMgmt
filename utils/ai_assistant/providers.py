@@ -210,16 +210,17 @@ class Registry:
 
     def choices(self):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.CHOICES]
-        [EN rev.2]
+        [EN rev.3]
         [Role] Publishes only safe labels/capabilities/status, never upstream IDs, addresses or keys.
-        [Dependencies] Administrator publication order and last verified revision.
-        [Impact] Identical upstream names on two providers remain distinct opaque choices.
+        [Dependencies] Administrator publication order, last verified revision and the latest inventory presence.
+        [Impact] Identical upstream names on two providers remain distinct opaque choices; a stored record that the
+        connection no longer serves is not offered (it stays in the admin archive and returns automatically when served).
         """
         with self.store.db() as db:
             models = []
             for row in db.execute('''SELECT m.*,p.name,p.revision,p.enabled,p.retired,p.last_checked,p.last_error,r.adapter FROM ai_provider_models m
                     JOIN ai_providers p ON p.id=m.provider JOIN ai_provider_revisions r ON r.provider=p.id AND r.revision=p.revision
-                    WHERE m.published=1 ORDER BY p.sort_order,p.name,m.sort_order,m.label,m.id'''):
+                    WHERE m.published=1 AND m.present=1 ORDER BY p.sort_order,p.name,m.sort_order,m.label,m.id'''):
                 profile = normalize_profile(row['upstream'], row['adapter'], json.loads(row['profile']))
                 ready = bool(row['enabled'] and not row['retired'] and row['present'] and row['verified_revision'] == row['revision'] and profile.get('chat') and (not profile['enabled_levels'] or profile['levels']) and (not row['last_error'] or row['manual']))
                 models.append({'id': row['id'], 'provider': row['name'], 'label': row['label'], 'available': ready,
@@ -232,10 +233,12 @@ class Registry:
 
     def admin_list(self):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.ADMIN_LIST]
-        [EN rev.3]
-        [Role] Shows active and candidate settings, approved IPs, CA metadata and probe progress to the admin.
+        [EN rev.4]
+        [Role] Shows active and pending-change settings, approved IPs, CA metadata and probe progress to the admin.
         [Dependencies] Fixed column projection and protected HTTP route.
-        [Impact] Encryption tokens and original secrets are never returned, even to administrators.
+        [Impact] Encryption tokens and original secrets are never returned, even to administrators. Only models in the
+        latest inventory (or manual) are listed as serving; absent records are counted and shown by archive().
+        A pending change reports which route fields differ and which published models still need a passing probe.
         """
         with self.store.db() as db:
             providers = [dict(r) for r in db.execute('''SELECT p.*,r.base_url,r.adapter,r.resource_group,
@@ -256,9 +259,11 @@ class Registry:
                         LEFT JOIN ai_provider_models m ON m.id=c.id WHERE c.provider=? ORDER BY c.label''', (p['id'],))]
                     for m in p['candidate']['models']:
                         m['profile'] = candidates.candidate_profile(m['upstream'], row['adapter'], m['profile'])
+                    p['candidate'].update(candidates.pending_summary(db, p['id'], row['revision']))
                 p['trust_history'] = [dict(r) for r in db.execute('''SELECT revision,origin,fingerprint,expires,revoked
                     FROM ai_provider_trust WHERE provider=? ORDER BY revision DESC''', (p['id'],))]
-                p['models'] = [dict(r) for r in db.execute('SELECT id,upstream,label,published,present,manual,sort_order,context_tokens,profile,verified_revision,profile_revision FROM ai_provider_models WHERE provider=? ORDER BY sort_order,label', (p['id'],))]
+                p['models'] = [dict(r) for r in db.execute('SELECT id,upstream,label,published,present,manual,sort_order,context_tokens,profile,verified_revision,profile_revision,checked FROM ai_provider_models WHERE provider=? AND present=1 ORDER BY sort_order,label', (p['id'],))]
+                p['archived_count'] = db.execute('SELECT COUNT(*) FROM ai_provider_models WHERE provider=? AND present=0', (p['id'],)).fetchone()[0]
                 for model in p['models']:
                     profile = normalize_profile(model['upstream'], p['adapter'], json.loads(model['profile']))
                     model['profile'] = canonical(profile)
@@ -308,12 +313,83 @@ class Registry:
             WHERE provider=? AND revision=?''', (pid, revision)).fetchone()
         return old, previous
 
-    def save(self, data, pid=None, actor=0):
+    def save_with_status(self, data, pid=None, actor=0):
+        """[Role] Returns (provider ID, 'immediate' | 'pending_change') for the editor; see save()."""
+        return self.save(data, pid, actor, with_status=True)
+
+    def display(self, pid, data, actor=0):
+        """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.DISPLAY]
+        [EN rev.1]
+        [Role] Applies display-only connection fields (name, order, manual-registration opt-in) immediately.
+        [Dependencies] Optimistic active revision; the route, credential, trust and any pending change stay untouched.
+        [Impact] Renames reach user choice cards on the next model-list read without a capability probe. Accepted job
+        route snapshots keep the name they were accepted with.
+        """
+        object_only(data, ('name','sort_order','manual','revision'), ('name','sort_order','manual','revision'))
+        name, order = text(data['name'], 80), data['sort_order']
+        if (type(data['manual']) is not bool or type(order) is not int or not 0 <= order <= 10000
+                or type(data['revision']) is not int):
+            raise AssistantError('연결 이름·공개 순서·수동 등록 허용 값을 확인해 주세요.')
+        with self.store.db(True) as db:
+            old = db.execute('SELECT * FROM ai_providers WHERE id=?', (pid,)).fetchone()
+            if not old:
+                raise AssistantError('연결을 찾을 수 없습니다.', 404)
+            if old['retired'] or old['revision'] != data['revision']:
+                raise AssistantError('다른 관리자가 연결을 변경했습니다. 새로고침해 주세요.', 409)
+            db.execute('UPDATE ai_providers SET name=?,sort_order=?,manual=? WHERE id=?', (name, order, data['manual'], pid))
+            candidates.audit(db, pid, old['revision'], actor, 'display_updated')
+        return pid
+
+    def cancel_pending(self, pid, revision, actor=0):
+        """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.CANCEL_PENDING]
+        [EN rev.1]
+        [Role] Discards one unapplied connection change (candidate revision) and its inventory/probe evidence.
+        [Dependencies] Candidate revision token; refuses while a probe for that revision is still queued or running.
+        [Impact] The active revision, its trust, published models, conversations and history are unchanged. A connection
+        that was never activated has nothing to fall back to and is retired instead of left without a route.
+        """
+        if type(revision) is not int or revision < 1:
+            raise AssistantError('취소할 변경 버전을 확인해 주세요.')
+        with self.store.db(True) as db:
+            row = db.execute('''SELECT c.revision,p.revision AS active FROM ai_provider_candidates c
+                JOIN ai_providers p ON p.id=c.provider WHERE c.provider=?''', (pid,)).fetchone()
+            if not row or row['revision'] != revision:
+                raise AssistantError('취소할 변경이 없거나 이미 바뀌었습니다. 새로고침해 주세요.', 409)
+            if db.execute("""SELECT 1 FROM jobs WHERE json_extract(route_snapshot,'$.provider_id')=?
+                    AND json_extract(route_snapshot,'$.revision')=? AND state IN ('queued','running','draining','recovery_required') LIMIT 1""",
+                          (pid, revision)).fetchone():
+                raise AssistantError('진행 중인 기능 시험이 끝난 뒤 변경을 취소해 주세요.', 409)
+            db.execute('DELETE FROM ai_candidate_models WHERE provider=?', (pid,))
+            db.execute('DELETE FROM ai_provider_candidates WHERE provider=?', (pid,))
+            if not row['active']:
+                db.execute('UPDATE ai_providers SET enabled=0,retired=1 WHERE id=?', (pid,))
+            candidates.audit(db, pid, revision, actor, 'candidate_cancelled')
+        return pid
+
+    def archive(self, pid=None):
+        """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.ARCHIVE]
+        [EN rev.1]
+        [Role] Lists stored model records that the latest inventory no longer contains (read-only projection).
+        [Dependencies] Inventory presence flag maintained by discovery/cutover; protected admin route.
+        [Impact] Separates "stored" from "served"; no address, credential or route data is returned.
+        """
+        query = '''SELECT m.id,m.provider,p.name AS provider_name,p.revision AS provider_revision,p.retired AS provider_retired,
+            m.upstream,m.label,m.published,m.manual,m.sort_order,m.context_tokens,m.checked,m.verified_revision,m.profile_revision
+            FROM ai_provider_models m JOIN ai_providers p ON p.id=m.provider WHERE m.present=0'''
+        with self.store.db() as db:
+            models = [dict(r) for r in db.execute(query + (' AND m.provider=?' if pid else '') + ' ORDER BY p.sort_order,p.name,m.label', (pid,) if pid else ())]
+            providers = [dict(r) for r in db.execute('''SELECT p.id,p.name,COUNT(m.id) AS archived FROM ai_providers p
+                LEFT JOIN ai_provider_models m ON m.provider=p.id AND m.present=0 GROUP BY p.id ORDER BY p.sort_order,p.name''')]
+        return {'models': models, 'providers': providers}
+
+    def save(self, data, pid=None, actor=0, with_status=False):
         """[MINI-COMMENT: ASSISTANT.PROVIDERS.REGISTRY.SAVE]
-        [EN rev.4]
+        [EN rev.5]
         [Role] Saves an immutable revision and checks both active and candidate editor versions.
         [Dependencies] Server-approved LAN pins, origin-bound credentials and per-revision CA.
-        [Impact] Only dedicated candidate probes can use an unpromoted address.
+        [Impact] Only dedicated candidate probes can use an unpromoted address. A save whose route, credential, trust and
+        enabled state equal the active revision applies its display fields immediately ('immediate'); otherwise display
+        fields still apply immediately to the active row and the route change waits for probes ('pending_change').
         """
         object_only(data, ('name','base_url','adapter','resource_group','new_group','enabled','retired','manual',
                            'sort_order','revision','api_key','candidate_revision','trust_mode','ca_pem'),
@@ -356,7 +432,19 @@ class Registry:
                     rev = previous['revision']
                     db.execute('UPDATE ai_providers SET enabled=0,retired=1 WHERE id=?',(pid,))
                 candidates.audit(db,pid,rev,actor,'retired' if retired else 'paused')
-            return pid
+            return (pid, 'immediate') if with_status else pid
+
+        # Display-only edit: every route/credential/trust/enabled value equals the active revision and nothing is pending.
+        trust_same = data.get('trust_mode', 'private' if previous and previous['fingerprint'] else 'system') == ('private' if previous and previous['fingerprint'] else 'system')
+        if (old and old['revision'] and not data.get('candidate_revision') and same and previous['revoked'] is None
+                and previous['adapter'] == data['adapter'] and previous['resource_group'] == data.get('resource_group')
+                and not data.get('new_group') and 'api_key' not in data and 'ca_pem' not in data and trust_same
+                and bool(data['enabled']) == bool(old['enabled'])):
+            with self.store.db(True) as db:
+                self._editor(db, pid, data)
+                db.execute('UPDATE ai_providers SET name=?,manual=?,sort_order=? WHERE id=?', (name, data['manual'], order, pid))
+                candidates.audit(db, pid, old['revision'], actor, 'display_updated')
+            return (pid, 'immediate') if with_status else pid
 
         _, addresses, _ = resolve_addresses(base, pid)
         if base == STRATA_HTTP and data['adapter'] != 'strata':
@@ -397,7 +485,8 @@ class Registry:
             if creating:
                 if db.execute('SELECT COUNT(*) FROM ai_providers').fetchone()[0] >= 100:
                     raise AssistantError('연결 등록 한도(100개)에 도달했습니다.',429)
-                db.execute('INSERT INTO ai_providers(id,name,revision,enabled) VALUES(?,?,0,0)',(pid,name))
+                # Display fields are owned by the provider row from the start; cutover no longer copies them.
+                db.execute('INSERT INTO ai_providers(id,name,revision,enabled,manual,sort_order) VALUES(?,?,0,0,?,?)',(pid,name,data['manual'],order))
             rev = db.execute('SELECT COALESCE(MAX(revision),0)+1 FROM ai_provider_revisions WHERE provider=?',(pid,)).fetchone()[0]
             db.execute('INSERT INTO ai_provider_revisions VALUES(?,?,?,?,?,?,?)',(pid,rev,base,data['adapter'],group,credential,time.time()))
             db.execute('''INSERT INTO ai_provider_trust(provider,revision,origin,addresses,ca_pem,fingerprint,expires)
@@ -407,8 +496,11 @@ class Registry:
             db.execute('DELETE FROM ai_provider_candidates WHERE provider=?',(pid,))
             db.execute('''INSERT INTO ai_provider_candidates(provider,revision,parent,name,enabled,manual,sort_order,result)
                 VALUES(?,?,?,?,?,?,?,?)''',(pid,rev,data['revision'],name,data['enabled'],data['manual'],order,'주소 승인 · 모델 목록 조회 대기'))
+            if not creating:
+                # Display fields live on the provider row only; they never wait for the route change's probes.
+                db.execute('UPDATE ai_providers SET name=?,manual=?,sort_order=? WHERE id=?', (name, data['manual'], order, pid))
             candidates.audit(db,pid,rev,actor,'candidate_saved')
-        return pid
+        return (pid, 'pending_change') if with_status else pid
 
     def _inventory(self, pid, revision):
         trust, credential = self.connection(pid, revision)
@@ -527,7 +619,8 @@ class Registry:
                 if not m:
                     raise AssistantError('모델을 찾을 수 없습니다.', 404)
                 mid = m['id']
-                if configuring and (type(data.get('profile_revision')) is not int or data['profile_revision'] != m['profile_revision']):
+                # Any caller that read a profile revision (model editor, archive unpublish) must still be current.
+                if (configuring or 'profile_revision' in data) and (type(data.get('profile_revision')) is not int or data['profile_revision'] != m['profile_revision']):
                     raise AssistantError('다른 관리자가 모델 설정을 수정했습니다. 새로고침해 주세요.', 409)
                 adapter = db.execute('SELECT adapter FROM ai_provider_revisions WHERE provider=? AND revision=?', (pid, p['revision'])).fetchone()[0]
                 profile = normalize_profile(m['upstream'], adapter, json.loads(m['profile']))

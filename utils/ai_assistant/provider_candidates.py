@@ -83,6 +83,45 @@ def record_inventory(db, candidate, items):
     db.execute("UPDATE ai_provider_candidates SET discovered=1,result='모델 목록 조회 성공' WHERE provider=?", (pid,))
 
 
+def pending_summary(db, pid, revision):
+    """Explain a pending connection change: which route fields differ from the active revision and which
+    published, served models still need a passing probe before the automatic cutover (see record_proof)."""
+    rows = db.execute('''SELECT p.revision AS active,c.enabled AS next_enabled,p.enabled,
+            ra.base_url AS old_url,rc.base_url AS new_url,ra.adapter AS old_adapter,rc.adapter AS new_adapter,
+            ra.resource_group AS old_group,rc.resource_group AS new_group,(ra.credential=rc.credential) AS same_key,
+            ta.fingerprint AS old_fp,tc.fingerprint AS new_fp,ta.revoked AS old_revoked,tc.revoked AS new_revoked
+        FROM ai_provider_candidates c JOIN ai_providers p ON p.id=c.provider
+        JOIN ai_provider_revisions rc ON rc.provider=c.provider AND rc.revision=c.revision
+        JOIN ai_provider_trust tc ON tc.provider=c.provider AND tc.revision=c.revision
+        LEFT JOIN ai_provider_revisions ra ON ra.provider=p.id AND ra.revision=p.revision
+        LEFT JOIN ai_provider_trust ta ON ta.provider=p.id AND ta.revision=p.revision
+        WHERE c.provider=? AND c.revision=?''', (pid, revision)).fetchone()
+    if rows is None:
+        return {'changes': [], 'required': []}
+    if not rows['active']:
+        changes = ['new']
+    else:
+        changes = [name for name, differs in (
+            ('base_url', rows['old_url'] != rows['new_url']), ('adapter', rows['old_adapter'] != rows['new_adapter']),
+            ('resource_group', rows['old_group'] != rows['new_group']), ('api_key', not rows['same_key']),
+            ('trust', rows['old_fp'] != rows['new_fp'] or (rows['old_revoked'] is None) != (rows['new_revoked'] is None)),
+            ('enabled', bool(rows['enabled']) != bool(rows['next_enabled'])))
+            if differs]
+    required = []
+    if rows['active']:
+        for r in db.execute('''SELECT m.id,m.label,m.profile,m.profile_revision,c.proof,c.tested_profile
+                FROM ai_provider_models m LEFT JOIN ai_candidate_models c ON c.provider=m.provider AND c.id=m.id
+                WHERE m.provider=? AND m.published=1 AND m.present=1 AND m.verified_revision=?
+                ORDER BY m.sort_order,m.label''', (pid, rows['active'])):
+            # Same rule as record_proof's cutover gate, so the progress display can never claim a pass it would refuse.
+            old, proof = json.loads(r['profile']), json.loads(r['proof'] or '{}')
+            passed = bool(r['proof'] and r['tested_profile'] == r['profile_revision'] and proof.get('chat')
+                          and not (old.get('tools') and not proof.get('tools'))
+                          and set(old.get('levels', [])) <= set(proof.get('verified_levels', [])))
+            required.append({'id': r['id'], 'label': r['label'], 'passed': passed})
+    return {'changes': changes, 'required': required}
+
+
 def candidate_profile(upstream, adapter, stored):
     """Project the saved policy onto the candidate adapter's supported levels for its own trial."""
     profile = json.loads(stored or '{}')
@@ -164,7 +203,9 @@ def record_proof(db, route, profile, actor):
             if proposed != json.loads(model['profile']):
                 db.execute('UPDATE ai_provider_models SET profile=?,profile_revision=profile_revision+1 WHERE id=?',
                            (canonical(proposed),model['id']))
-    db.execute('''UPDATE ai_providers SET revision=?,name=?,enabled=?,manual=?,sort_order=?,last_checked=?,last_error=NULL
-        WHERE id=?''', (revision,cand['name'],cand['enabled'],cand['manual'],cand['sort_order'],now,pid))
+    # Display fields (name/manual/order) are owned by the provider row and were applied when saved; cutover
+    # changes only the route revision and enabled state, so a rename made while waiting is never reverted.
+    db.execute('''UPDATE ai_providers SET revision=?,enabled=?,last_checked=?,last_error=NULL
+        WHERE id=?''', (revision,cand['enabled'],now,pid))
     db.execute('DELETE FROM ai_provider_candidates WHERE provider=?', (pid,))
     audit(db, pid, revision, actor, 'activated')
